@@ -9,6 +9,7 @@ import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../widgets/bible/verse_actions_toolbar.dart';
+import '../../widgets/bible/version_selector_sheet.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE READER SCREEN - Edición premium editorial
@@ -244,7 +245,16 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             ),
           ),
           GestureDetector(
-            onTap: () => _showVersionPicker(t),
+            onTap: () => showVersionSelectorSheet(
+              context,
+              onChanged: () {
+                setState(() {
+                  _currentVersion =
+                      BibleUserDataService.I.preferredVersionNotifier.value;
+                });
+                _loadChapter();
+              },
+            ),
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
               child: Text(
@@ -827,85 +837,4 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════
-  // VERSION PICKER
-  // ═══════════════════════════════════════════════════════════════════════
-
-  void _showVersionPicker(BibleReaderThemeData t) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: t.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius:
-            BorderRadius.vertical(top: Radius.circular(12)),
-      ),
-      builder: (context) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                  width: 36,
-                  height: 2,
-                  decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(1),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                ...BibleVersion.values.map((v) {
-                  final isCurrent = v == _currentVersion;
-                  return GestureDetector(
-                    onTap: () {
-                      Navigator.pop(context);
-                      setState(() => _currentVersion = v);
-                      _loadChapter();
-                    },
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 24, vertical: 12),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              v.displayName,
-                              style: GoogleFonts.manrope(
-                                color: isCurrent
-                                    ? t.accent
-                                    : t.textPrimary,
-                                fontSize: 15,
-                                fontWeight: isCurrent
-                                    ? FontWeight.w600
-                                    : FontWeight.w400,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            v.shortName,
-                            style: GoogleFonts.manrope(
-                              color:
-                                  t.textSecondary.withOpacity(0.6),
-                              fontSize: 12,
-                            ),
-                          ),
-                          if (isCurrent) ...[
-                            const SizedBox(width: 8),
-                            Icon(Icons.check,
-                                color: t.accent, size: 16),
-                          ],
-                        ],
-                      ),
-                    ),
-                  );
-                }),
-                const SizedBox(height: 8),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
 }
