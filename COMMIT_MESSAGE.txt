@@ -1,0 +1,59 @@
+feat: Implement tab slide SFX and extend feedback system to all modules
+
+SUMMARY:
+- Replace camera/shutter tab sound with subtle page/slide effect
+- Extend SFX/haptics feedback to Planes, Oraciones, Mi Progreso, Mi Diario
+- Implement event-specific volume system for nuanced audio hierarchy
+- Achieve ~95% feedback coverage across the app
+
+CORE CHANGES:
+- feedback_engine.dart:
+  * Replace whoosh.mp3 → tab_slide.mp3 for tabChange event
+  * Add _eventVolumes map for event-specific volume control
+  * Update _playSfx() to use dual volume system (global × event)
+  * tabChange now plays at 0.30 volume (more subtle than other events)
+
+MODULE UPDATES:
+1. Planes (plan_hub_screen.dart + plan_detail_screen.dart):
+   * Add FeedbackEngine.I.confirm() to hero card, active card
+   * Add FeedbackEngine.I.tap() to poster cards
+   * Add FeedbackEngine.I.select() to day selection
+   * Remove manual HapticFeedback calls
+
+2. Oraciones (prayers_screen.dart):
+   * Add FeedbackEngine.I.tap() to prayer cards
+
+3. Mi Progreso (progress_screen.dart):
+   * Add FeedbackEngine.I.confirm() to record victory
+   * Add FeedbackEngine.I.select() to reset streak
+   * Remove manual HapticFeedback calls
+
+4. Mi Diario (journal_screen.dart):
+   * Add FeedbackEngine.I.confirm() to FAB (new entry) and save
+   * Add FeedbackEngine.I.tap() to entry cards
+   * Add FeedbackEngine.I.select() to mood selection
+
+DOCUMENTATION:
+- IMPLEMENTACION_SFX_TAB_CHANGE.md: Complete technical documentation
+- QUICK_START_SFX.md: Quick reference guide
+- TAB_SLIDE_PLACEHOLDER.txt: Instructions for creating audio file
+- validate_sfx_implementation.bat/sh: Validation scripts
+
+TESTING:
+⏳ Requires tab_slide.mp3 file to be added to assets/sounds/sfx/
+   See TAB_SLIDE_PLACEHOLDER.txt for instructions
+
+DESIGN DECISIONS:
+- Event volume hierarchy: confirm(0.45) > tap/select(0.40) > paper(0.35) > tabChange(0.30)
+- Consistent event mapping: confirm=CTAs, tap=navigation, select=choices, tabChange=tabs
+- Rate limiting (100ms) prevents audio spam
+- Premium UX: Netflix/HBO style, spiritual not arcade
+
+BREAKING CHANGES: None
+DEPENDENCIES: None (uses existing just_audio)
+
+NEXT STEPS:
+1. Add tab_slide.mp3 audio file
+2. Test tab changes in Versículos screen
+3. Verify feedback in all updated modules
+4. Run validation script

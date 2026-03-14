@@ -1,0 +1,16 @@
+<resources>
+    <string name="app_name">Victoria de Fe</string>
+    <string name="welcome_message">Bienvenido a la aplicación Victoria de Fe</string>
+    <string name="overcoming_lust">Superando la Lujuria</string>
+    <string name="daily_devotional">Devocional Diario</string>
+    <string name="progress_tracker">Rastreador de Progreso</string>
+    <string name="emergency_help">Ayuda de Emergencia</string>
+    <string name="prayer_request">Solicitud de Oración</string>
+    <string name="settings">Configuraciones</string>
+    <string name="verse_of_the_day">Verso del Día</string>
+    <string name="submit">Enviar</string>
+    <string name="cancel">Cancelar</string>
+    <string name="confirm">Confirmar</string>
+    <string name="error_message">Ocurrió un error, por favor intenta de nuevo.</string>
+    <string name="success_message">Operación exitosa.</string>
+</resources>

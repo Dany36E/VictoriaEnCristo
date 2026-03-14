@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="900" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="600" height="900" fill="#E74C3C"/>
+    
+    <!-- Pattern -->
+    
+            <rect x="0" y="0" width="200" height="300" fill="#F39C12" opacity="0.03"/>
+            <rect x="200" y="300" width="200" height="300" fill="#F39C12" opacity="0.05"/>
+            <rect x="400" y="0" width="200" height="300" fill="#F39C12" opacity="0.04"/>
+        
+    
+    <!-- Gradient overlay -->
+    <defs>
+        <linearGradient id="grad_plan-prevencion-recaidas" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#E74C3C;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#E74C3C;stop-opacity:0.95" />
+        </linearGradient>
+    </defs>
+    <rect width="600" height="900" fill="url(#grad_plan-prevencion-recaidas)"/>
+    
+    <!-- Icon -->
+    <g transform="translate(300, 350)">
+        <rect x="-40" y="-30" width="80" height="60" stroke="#E74C3C" stroke-width="2" fill="none" opacity="0.6"/><path d="M-30,0 L-10,-20 L10,0 L30,-20" stroke="#27AE60" stroke-width="3" fill="none"/><circle cx="-30" cy="0" r="4" fill="#F39C12"/><circle cx="30" cy="-20" r="4" fill="#F39C12"/>
+    </g>
+    
+    <!-- Title -->
+    <text x="300" y="650" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
+          fill="#27AE60" text-anchor="middle" opacity="0.9">
+        Plan de Prevención d
+    </text>
+    <text x="300" y="690" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#27AE60" text-anchor="middle" opacity="0.9">e Recaídas</text>
+</svg>

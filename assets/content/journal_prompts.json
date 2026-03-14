@@ -1,0 +1,182 @@
+[
+  {
+    "id": "jp001",
+    "prompt": "¿Qué gatillo apareció hoy que te puso en riesgo? ¿Cómo respondiste?",
+    "followUp": "Si no respondiste bien, ¿qué harás diferente la próxima vez?",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "habit",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "triggerAwareness"],
+      "triggers": [],
+      "outcomes": ["selfAwareness"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp002",
+    "prompt": "¿Qué pensamiento automático dominó tu mente hoy? ¿Qué verdad bíblica lo contrarresta?",
+    "followUp": "Escribe el versículo que usarás la próxima vez que aparezca ese pensamiento.",
+    "metadata": {
+      "giants": ["mental"],
+      "stage": "habit",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "cbtReframe", "scriptureMeditation"],
+      "triggers": ["anxiety", "stress"],
+      "outcomes": ["selfAwareness", "calm"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp003",
+    "prompt": "¿Hubo algún momento hoy donde sentiste la presencia de Dios? Descríbelo.",
+    "followUp": "¿Cómo puedes crear más espacios para esos momentos?",
+    "metadata": {
+      "giants": ["mental", "emotions"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling"],
+      "triggers": [],
+      "outcomes": ["connectionWithGod", "gratitude"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp004",
+    "prompt": "Si caíste hoy, ¿qué estaba pasando 30 minutos antes? ¿Qué señales ignoraste?",
+    "followUp": "No te condenes. Aprende. ¿Qué harás diferente mañana?",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "restoration",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "triggerAwareness"],
+      "triggers": [],
+      "outcomes": ["selfAwareness", "relapseRecovery"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp005",
+    "prompt": "¿Qué emoción difícil sentiste hoy que normalmente te lleva a buscar escape?",
+    "followUp": "¿Cómo manejaste esa emoción? ¿Hay una forma más saludable?",
+    "metadata": {
+      "giants": ["emotions", "sexual", "substances"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["journaling", "triggerAwareness"],
+      "triggers": ["stress", "loneliness", "rejection"],
+      "outcomes": ["selfAwareness"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp006",
+    "prompt": "Nombra 3 victorias de hoy, por pequeñas que sean.",
+    "followUp": "¿Cómo puedes celebrar estas victorias sin caer en orgullo?",
+    "metadata": {
+      "giants": ["mental", "emotions"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling"],
+      "triggers": [],
+      "outcomes": ["gratitude", "resilience"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp007",
+    "prompt": "¿Qué te dijo la 'voz del tentador' hoy? Escríbelo. Ahora escribe qué dice Dios sobre eso.",
+    "followUp": "Guarda esta respuesta para usarla la próxima vez que escuches esa voz.",
+    "metadata": {
+      "giants": ["sexual", "mental"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "cbtReframe", "scriptureMeditation"],
+      "triggers": ["night", "loneliness"],
+      "outcomes": ["selfAwareness", "purityGuard"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp008",
+    "prompt": "¿Cuánto tiempo pasaste hoy en pantallas? ¿Cómo te sentiste después?",
+    "followUp": "¿Qué actividad offline podrías hacer mañana en lugar de ese tiempo?",
+    "metadata": {
+      "giants": ["digital"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["journaling", "triggerAwareness", "replacementHabit"],
+      "triggers": ["boredom", "socialMedia"],
+      "outcomes": ["selfAwareness", "focus"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp009",
+    "prompt": "¿Hay alguien contra quien guardas resentimiento? ¿Qué te costaría perdonar?",
+    "followUp": "No tienes que perdonar hoy. Pero, ¿puedes orar para querer perdonar?",
+    "metadata": {
+      "giants": ["emotions"],
+      "stage": "habit",
+      "intensityFit": "strong",
+      "techniques": ["journaling"],
+      "triggers": ["conflict"],
+      "outcomes": ["angerRelease", "selfAwareness"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp010",
+    "prompt": "¿Qué versículo o verdad de Dios necesitas recordar más esta semana?",
+    "followUp": "Escríbelo en una nota y ponlo donde lo veas cada día.",
+    "metadata": {
+      "giants": ["mental", "sexual", "substances"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["journaling", "scriptureMeditation"],
+      "triggers": [],
+      "outcomes": ["focus", "resilience"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp011",
+    "prompt": "¿Cómo trataste tu cuerpo hoy? ¿Lo honraste como templo o lo descuidaste?",
+    "followUp": "¿Qué pequeño cambio puedes hacer mañana?",
+    "metadata": {
+      "giants": ["health"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["journaling", "microCommitment"],
+      "triggers": [],
+      "outcomes": ["selfAwareness"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp012",
+    "prompt": "¿A quién podrías contarle sobre tu lucha? ¿Qué te detiene?",
+    "followUp": "La rendición de cuentas multiplica la victoria. ¿Darás un paso esta semana?",
+    "metadata": {
+      "giants": ["sexual", "substances"],
+      "stage": "habit",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "accountability"],
+      "triggers": [],
+      "outcomes": ["selfAwareness", "resilience"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  }
+]

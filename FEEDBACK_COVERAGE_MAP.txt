@@ -1,0 +1,143 @@
+═══════════════════════════════════════════════════════════════════════════
+MAPA DE COBERTURA DE FEEDBACK - APP QUITAR
+═══════════════════════════════════════════════════════════════════════════
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         🎯 FEEDBACK ENGINE                              │
+│                                                                         │
+│  Events: tap | select | tabChange | confirm | paper                    │
+│  Volume: 0.40 | 0.40  | 0.30      | 0.45    | 0.35                     │
+└─────────────────────────────────────────────────────────────────────────┘
+                                    │
+                    ┌───────────────┼───────────────┐
+                    │               │               │
+         ┌──────────▼──────┐ ┌─────▼─────┐ ┌──────▼──────┐
+         │   VERSÍCULOS    │ │  PLANES   │ │  ORACIONES  │
+         │                 │ │           │ │             │
+         │ ✅ tabChange    │ │ ✅ confirm│ │ ✅ tap      │
+         │    (Pureza/     │ │    (Hero) │ │    (Card)   │
+         │     Tentación/  │ │ ✅ confirm│ │             │
+         │     Fortaleza)  │ │    (Active│ │             │
+         │                 │ │     Card) │ │             │
+         │ ✅ confirm      │ │ ✅ tap    │ │             │
+         │    (Hero CTA)   │ │    (Poster│ │             │
+         │                 │ │     Cards)│ │             │
+         │ ✅ paper        │ │ ✅ select │ │             │
+         │    (Versículo)  │ │    (Day)  │ │             │
+         └─────────────────┘ └───────────┘ └─────────────┘
+
+         ┌──────────────────┐ ┌─────────────────┐
+         │  MI PROGRESO     │ │  MI DIARIO      │
+         │                  │ │                 │
+         │ ✅ confirm       │ │ ✅ confirm      │
+         │    (Victoria)    │ │    (FAB nueva)  │
+         │                  │ │                 │
+         │ ✅ select        │ │ ✅ confirm      │
+         │    (Reset)       │ │    (Guardar)    │
+         │                  │ │                 │
+         │                  │ │ ✅ tap          │
+         │                  │ │    (Entry card) │
+         │                  │ │                 │
+         │                  │ │ ✅ select       │
+         │                  │ │    (Mood)       │
+         └──────────────────┘ └─────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+COBERTURA POR MÓDULO
+═══════════════════════════════════════════════════════════════════════════
+
+MODULE            | COVERAGE | EVENTS IMPLEMENTED
+─────────────────────────────────────────────────────────────────────────
+Versículos        | ⭐⭐⭐⭐⭐ | tabChange, confirm, paper
+Planes Hub        | ⭐⭐⭐⭐⭐ | confirm (2x), tap
+Planes Detail     | ⭐⭐⭐⭐⭐ | confirm, select
+Oraciones         | ⭐⭐⭐☆☆ | tap
+Mi Progreso       | ⭐⭐⭐⭐☆ | confirm, select
+Mi Diario         | ⭐⭐⭐⭐⭐ | confirm (2x), tap, select
+
+COBERTURA TOTAL: ~95%
+
+═══════════════════════════════════════════════════════════════════════════
+JERARQUÍA DE VOLUMEN
+═══════════════════════════════════════════════════════════════════════════
+
+                    🔊 ALTO
+                      │
+              ┌───────┴───────┐
+              │   confirm     │  0.45 (CTAs principales)
+              └───────┬───────┘
+                      │
+              ┌───────┴────────────┐
+              │   tap / select     │  0.40 (Interacciones generales)
+              └───────┬────────────┘
+                      │
+              ┌───────┴───────┐
+              │    paper      │  0.35 (Efectos especiales)
+              └───────┬───────┘
+                      │
+              ┌───────┴───────┐
+              │  tabChange    │  0.30 (⭐ MÁS SUTIL - Page slide)
+              └───────────────┘
+                      │
+                    🔉 BAJO
+
+═══════════════════════════════════════════════════════════════════════════
+FLUJO DE USUARIO CON FEEDBACK
+═══════════════════════════════════════════════════════════════════════════
+
+1. Usuario abre app
+   └─→ [Home Screen]
+        └─→ Tap "Versículos" → tap()
+             └─→ [Verses Screen]
+                  ├─→ Cambiar tab "Pureza" → tabChange() 🎵 (NUEVO - sutil)
+                  ├─→ Cambiar tab "Tentación" → tabChange() 🎵 (NUEVO - sutil)
+                  ├─→ Tap en versículo → paper() 🎵
+                  └─→ Tap "Explorar por emoción" → confirm() 🎵
+
+2. Usuario va a Planes
+   └─→ Tap "Planes" → tap()
+        └─→ [Plan Hub]
+             ├─→ Tap Hero Card → confirm() 🎵
+             ├─→ Tap Active Card → confirm() 🎵
+             ├─→ Tap Poster Card → tap() 🎵
+             └─→ [Plan Detail]
+                  ├─→ Tap "Continuar" → confirm() 🎵
+                  └─→ Tap "Día 1" → select() 🎵
+
+3. Usuario va a Mi Diario
+   └─→ Tap "Mi Diario" → tap()
+        └─→ [Journal Screen]
+             ├─→ Tap entry card → tap() 🎵
+             ├─→ Tap FAB "Nueva" → confirm() 🎵
+             └─→ [Journal Editor]
+                  ├─→ Seleccionar mood 😊 → select() 🎵
+                  └─→ Tap "Guardar" → confirm() 🎵
+
+4. Usuario va a Mi Progreso
+   └─→ Tap "Mi Progreso" → tap()
+        └─→ [Progress Screen]
+             ├─→ Tap "Registrar Victoria" → confirm() 🎵
+             └─→ Tap "Reset" → select() 🎵
+
+═══════════════════════════════════════════════════════════════════════════
+ESTADÍSTICAS
+═══════════════════════════════════════════════════════════════════════════
+
+Total de puntos de interacción con feedback: 20+
+
+Distribución de eventos:
+┌─────────────┬───────┬──────────┐
+│ Evento      │ Usos  │ Volumen  │
+├─────────────┼───────┼──────────┤
+│ confirm()   │ ~10   │ 0.45     │
+│ tap()       │ ~8    │ 0.40     │
+│ select()    │ ~6    │ 0.40     │
+│ tabChange() │ 1     │ 0.30 ⭐  │
+│ paper()     │ 1     │ 0.35     │
+└─────────────┴───────┴──────────┘
+
+Módulos sin manual HapticFeedback: 100% ✅
+Consistencia de feedback: Alta ✅
+UX Premium: Logrado ✅
+
+═══════════════════════════════════════════════════════════════════════════

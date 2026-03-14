@@ -1,0 +1,148 @@
+================================================================================
+     INSTRUCCIONES PASO A PASO - PC PERSONAL
+     Victoria en Cristo
+================================================================================
+
+YA TIENES:
+✓ VS Code
+✓ Cuenta de GitHub
+
+================================================================================
+PASO 1: Instalar Flutter (incluye Dart)
+================================================================================
+
+1. Abre tu navegador y ve a:
+   https://docs.flutter.dev/get-started/install/windows/mobile
+
+2. Clic en el botón azul "Download Flutter SDK"
+
+3. Mientras descarga, crea esta carpeta:
+   C:\flutter
+
+4. Cuando termine la descarga, extrae el ZIP en C:\flutter
+   (Quedará algo como C:\flutter\bin, C:\flutter\packages, etc.)
+
+================================================================================
+PASO 2: Agregar Flutter al PATH
+================================================================================
+
+1. Presiona Windows + R
+2. Escribe: sysdm.cpl y Enter
+3. Ve a la pestaña "Opciones avanzadas"
+4. Clic en "Variables de entorno..."
+5. En "Variables del sistema", busca "Path" y haz doble clic
+6. Clic en "Nuevo"
+7. Escribe: C:\flutter\bin
+8. Clic en Aceptar en todas las ventanas
+9. CIERRA Y ABRE cualquier terminal que tengas abierta
+
+================================================================================
+PASO 3: Verificar instalación
+================================================================================
+
+1. Abre PowerShell (busca en menú inicio)
+2. Escribe:
+   flutter --version
+
+3. Debe mostrar algo como "Flutter 3.x.x"
+
+================================================================================
+PASO 4: Instalar Android Studio
+================================================================================
+
+1. Ve a: https://developer.android.com/studio
+2. Descarga e instala Android Studio
+3. Ábrelo y sigue el wizard (selecciona "Standard")
+4. Espera a que descargue todo (toma ~10-15 min)
+
+================================================================================
+PASO 5: Configurar Android Studio
+================================================================================
+
+1. En Android Studio ve a: File → Settings
+2. Busca: Appearance & Behavior → System Settings → Android SDK
+3. Pestaña "SDK Tools"
+4. Marca [x] "Android SDK Command-line Tools"
+5. Clic en Apply y OK
+
+================================================================================
+PASO 6: Aceptar licencias
+================================================================================
+
+1. Abre PowerShell
+2. Escribe:
+   flutter doctor --android-licenses
+
+3. Escribe "y" y Enter a todo lo que pregunte
+
+================================================================================
+PASO 7: Habilitar Modo Desarrollador
+================================================================================
+
+1. Presiona Windows + I (Configuración)
+2. Busca "Modo de desarrollador"
+3. ACTÍVALO
+
+================================================================================
+PASO 8: Instalar extensiones en VS Code
+================================================================================
+
+1. Abre VS Code
+2. Presiona Ctrl + Shift + X
+3. Busca e instala:
+   - Flutter (de Dart Code)
+   - Dart (de Dart Code)
+
+================================================================================
+PASO 9: Verificar que todo funcione
+================================================================================
+
+1. Abre PowerShell
+2. Escribe:
+   flutter doctor
+
+3. Debes ver checkmarks verdes en:
+   - Flutter
+   - Android toolchain
+   - Android Studio
+
+================================================================================
+PASO 10: Copiar el proyecto
+================================================================================
+
+1. Extrae este ZIP en:
+   C:\Proyectos\app_quitar
+
+================================================================================
+PASO 11: Abrir y ejecutar
+================================================================================
+
+1. Abre VS Code
+2. File → Open Folder → Selecciona C:\Proyectos\app_quitar
+3. Abre terminal en VS Code (Ctrl + ñ  o  Ctrl + `)
+4. Escribe:
+   flutter pub get
+
+5. Espera a que termine
+6. Para probar en Chrome:
+   flutter run -d chrome
+
+================================================================================
+¡LISTO! La app debería abrirse en Chrome.
+================================================================================
+
+TIEMPO TOTAL: Aproximadamente 30-45 minutos la primera vez.
+
+DUDAS: Abre GitHub Copilot en VS Code y pregunta :)
+
+================================================================================
+COMANDOS ÚTILES
+================================================================================
+
+flutter pub get              # Instalar dependencias
+flutter run -d chrome        # Ejecutar en Chrome
+flutter run                  # Ejecutar en emulador Android
+flutter build apk --release  # Crear APK para Play Store
+flutter doctor               # Diagnosticar problemas
+
+================================================================================

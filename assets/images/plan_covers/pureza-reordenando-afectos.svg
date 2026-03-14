@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="900" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="600" height="900" fill="#E74C3C"/>
+    
+    <!-- Pattern -->
+    
+            <line x1="300" y1="0" x2="300" y2="900" stroke="#F39C12" stroke-width="80" opacity="0.05"/>
+            <line x1="150" y1="0" x2="150" y2="900" stroke="#F39C12" stroke-width="40" opacity="0.08"/>
+            <line x1="450" y1="0" x2="450" y2="900" stroke="#F39C12" stroke-width="40" opacity="0.08"/>
+        
+    
+    <!-- Gradient overlay -->
+    <defs>
+        <linearGradient id="grad_pureza-reordenando-afectos" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#E74C3C;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#E74C3C;stop-opacity:0.95" />
+        </linearGradient>
+    </defs>
+    <rect width="600" height="900" fill="url(#grad_pureza-reordenando-afectos)"/>
+    
+    <!-- Icon -->
+    <g transform="translate(300, 350)">
+        <path d="M0,-30 Q-25,-30 -25,0 Q-25,25 0,45 Q25,25 25,0 Q25,-30 0,-30 Z" fill="#E74C3C" opacity="0.8"/><path d="M0,10 L0,-50" stroke="#F39C12" stroke-width="3"/><path d="M-5,-45 L0,-50 L5,-45" stroke="#F39C12" stroke-width="2" fill="none"/>
+    </g>
+    
+    <!-- Title -->
+    <text x="300" y="650" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
+          fill="#3498DB" text-anchor="middle" opacity="0.9">
+        Pureza: Reordenando 
+    </text>
+    <text x="300" y="690" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#3498DB" text-anchor="middle" opacity="0.9">Afectos</text>
+</svg>

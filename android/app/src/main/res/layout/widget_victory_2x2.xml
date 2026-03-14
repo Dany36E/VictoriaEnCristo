@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Widget compacto 2x2 para Victoria en Cristo -->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp">
+
+    <LinearLayout
+        android:id="@+id/widget_inner"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="12dp"
+        android:background="@drawable/widget_background"
+        android:gravity="center">
+
+        <!-- Ícono -->
+        <ImageView
+            android:id="@+id/widget_icon"
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:src="@drawable/ic_widget_discreet"
+            android:contentDescription="@string/widget_icon_desc" />
+
+        <!-- Título -->
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="@string/widget_default_title"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#212121"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center" />
+
+        <!-- Línea secundaria -->
+        <TextView
+            android:id="@+id/widget_line1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:text="@string/widget_default_line1"
+            android:textSize="11sp"
+            android:textColor="#757575"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:gravity="center" />
+
+    </LinearLayout>
+
+</FrameLayout>

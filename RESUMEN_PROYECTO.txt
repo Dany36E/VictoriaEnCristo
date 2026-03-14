@@ -1,0 +1,529 @@
+================================================================================
+     VICTORIA EN CRISTO - DOCUMENTACIÓN TÉCNICA COMPLETA
+     Para continuidad del desarrollo en otra máquina
+================================================================================
+
+FECHA ORIGINAL: 3 de Diciembre, 2025
+ÚLTIMA ACTUALIZACIÓN: 4 de Diciembre, 2025
+DESARROLLADOR: Daniel González
+
+================================================================================
+                              PARTE 1: VISIÓN GENERAL
+================================================================================
+
+¿QUÉ ES ESTA APP?
+-----------------
+Una aplicación cristiana premium diseñada para ayudar a personas a superar
+la lujuria, tentación y vicios, basándose en la Biblia y principios 
+espirituales. El objetivo es publicarla en Google Play Store.
+
+🏆 META: Calidad de app premiada (Award-Winning Design)
+✝️ NOMBRE: Victoria en Cristo
+🎯 AUDIENCIA: Cristianos que luchan con tentaciones
+
+================================================================================
+                         PARTE 2: STACK TECNOLÓGICO
+================================================================================
+
+FRAMEWORK PRINCIPAL:
+--------------------
+- Flutter SDK ^3.10.1
+- Dart (última versión estable)
+- Soporta: Web, Android, iOS, Windows, macOS, Linux
+
+FIREBASE (Backend):
+-------------------
+- firebase_core - Inicialización
+- firebase_auth - Autenticación (Email + Google)
+- cloud_firestore - Base de datos NoSQL
+- google_sign_in - Login con Google
+
+DEPENDENCIAS UI:
+----------------
+- flutter_animate ^4.5.0
+  → Animaciones declarativas (.animate())
+  → Fade, slide, scale, stagger effects
+  → Curvas personalizadas
+  
+- google_fonts ^6.2.1
+  → Cinzel: Títulos sagrados/elegantes
+  → Manrope: UI moderna, labels, botones
+  → Crimson Pro: Versículos (serif, italic)
+
+- animations ^2.0.11
+  → OpenContainer transitions
+  → Transiciones de página premium
+
+- confetti ^0.8.0
+  → Efectos de celebración
+  → Partículas elegantes
+
+DEPENDENCIAS FUNCIONALES:
+-------------------------
+- shared_preferences ^2.2.2
+  → Almacenamiento local persistente
+  → Usado para: favoritos, tema, configuración
+
+- screenshot ^3.0.0
+  → Captura widgets como imagen
+  → Usado en: share_verse_modal
+
+- share_plus ^10.1.4
+  → Compartir nativo en móvil
+  → (Pendiente de implementar para móvil)
+
+- path_provider ^2.1.5
+  → Acceso a sistema de archivos
+  → Usado para guardar imágenes temporales
+
+================================================================================
+                      PARTE 3: SISTEMA DE DISEÑO PREMIUM
+================================================================================
+
+FILOSOFÍA: "Sacred Elegance meets Modern Clarity"
+
+PALETA DE COLORES "Midnight Sanctuary":
+---------------------------------------
+Constante              | Hex       | Uso
+-----------------------|-----------|----------------------------------
+_darkBg                | #0A0E14   | Fondo principal oscuro
+_midnightBlue          | #0D1B2A   | Fondos secundarios, cards
+_goldAccent            | #D4A853   | Acentos, CTAs, elementos activos
+_goldSubtle            | #15D4A853 | Backgrounds de pills/tags (15% opacity)
+_creamBg               | #FAF8F5   | Fondo modo claro
+_textDark              | #1A1A1A   | Texto principal modo claro
+_textMedium            | #5A5A5A   | Texto secundario
+Victory Green          | #4CAF50   | Éxito, logros
+Struggle Red           | #E57373   | Alerta, emergencia
+
+TIPOGRAFÍA:
+-----------
+Fuente      | Uso                                    | Peso
+------------|----------------------------------------|------------------
+Cinzel      | Títulos principales, headers           | Light (300), Bold
+Manrope     | UI, botones, labels, body              | 400, 500, 600, 700
+Crimson Pro | Versículos bíblicos, citas             | Italic, 400, 500
+
+CARACTERÍSTICAS VISUALES:
+-------------------------
+1. Glassmorphism:
+   - BackdropFilter con blur (10-20)
+   - Fondo con 5-15% opacidad
+   - Bordes sutiles 1px con 10-20% opacidad
+
+2. Soft Shadows:
+   - Nunca negro puro (#000000)
+   - Usar color del tema con 4-8% opacidad
+   - Blur: 16-32px, Offset: (0, 6-12)
+   - Múltiples capas para profundidad
+
+3. Border Radius:
+   - Cards: 16-24px
+   - Buttons: 12-16px (o 30px para pills)
+   - Modals: 28px en top corners
+
+4. Gradientes:
+   - Gold shimmer: #D4A853 → #E8C97A
+   - Midnight: #0D1B2A → #1A2D42 → #0A0E14
+
+ANIMACIONES (flutter_animate):
+------------------------------
+- Entradas: .fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0)
+- Stagger: delay: Duration(milliseconds: 50 * index)
+- Botones: Transform.scale(scale: 0.96) on press
+- Scroll: BouncingScrollPhysics() siempre
+- Curvas: Curves.easeOutCubic, Curves.easeOutBack, Curves.elasticOut
+
+HAPTICS:
+--------
+- HapticFeedback.lightImpact() → Toques normales
+- HapticFeedback.mediumImpact() → Acciones (guardar, compartir)
+- HapticFeedback.heavyImpact() → Victoria, emergencia
+
+================================================================================
+                    PARTE 4: ARQUITECTURA DE ARCHIVOS
+================================================================================
+
+lib/
+├── main.dart
+│   └── Punto de entrada
+│   └── Inicializa: Firebase, ThemeService, FavoritesService
+│   └── Configura MaterialApp con temas claro/oscuro
+│   └── StreamBuilder para auth state
+│
+├── firebase_options.dart
+│   └── Configuración automática de Firebase
+│   └── Generado con FlutterFire CLI
+│
+├── data/
+│   ├── bible_verses.dart
+│   │   └── Clase BibleVerse { verse, reference, category }
+│   │   └── Métodos: fromJson(), toJson() (para persistencia)
+│   │   └── 50+ versículos organizados por emoción/categoría
+│   │   └── Listas: happyVerses, anxiousVerses, gratefulVerses, etc.
+│   │   └── Método: getRandomVerse(), getVersesByCategory()
+│   │
+│   ├── devotionals.dart
+│   │   └── 30 devocionales diarios completos
+│   │   └── Estructura: día, título, versículo, reflexión, oración
+│   │
+│   └── prayers.dart
+│       └── Oraciones guiadas (emergencia, mañana, noche)
+│       └── Estructura por pasos
+│
+├── screens/
+│   ├── home_screen.dart (1100+ líneas)
+│   │   └── Fondo: Imagen Unsplash de montañas + overlay gradient
+│   │   └── Header: Avatar, nombre, botón favoritos, settings
+│   │   └── ScriptureCard: Versículo del día con refresh
+│   │   └── Botón SOS: Animación "breathing" con glow
+│   │   └── Grid de herramientas: 6 botones con iconos animados
+│   │   └── Iconos premium con shimmer, heartbeat, rotate effects
+│   │
+│   ├── login_screen.dart
+│   │   └── Diseño premium con fondo degradado
+│   │   └── Logo/branding animado
+│   │   └── Formularios con validación
+│   │   └── Login: Email, Google, Invitado
+│   │   └── Registro y recuperar contraseña
+│   │
+│   ├── emergency_screen.dart
+│   │   └── Pantalla SOS de ayuda inmediata
+│   │   └── Fondo con gradiente animado (struggle → calm)
+│   │   └── Instrucciones paso a paso
+│   │   └── Versículos de fortaleza
+│   │   └── Ejercicio de respiración visual
+│   │   └── Botón "Salí Victorioso" con confetti
+│   │
+│   ├── verses_screen.dart (720+ líneas)
+│   │   └── Fondo cream (#FAF8F5) elegante
+│   │   └── AppBar con blur (SliverAppBar)
+│   │   └── TabBar por categorías (Todos, Tentación, Pureza, etc.)
+│   │   └── Hero Banner → Acceso al Cofre Emocional
+│   │   └── Lista de versículos con tarjetas premium
+│   │   └── Cada tarjeta: categoría pill, versículo, referencia
+│   │   └── Iconos de acción: Copiar, Compartir, Guardar (favorito)
+│   │   └── Widget _FavoriteIcon con estado reactivo
+│   │
+│   ├── emotional_verse_jar_screen.dart (960+ líneas)
+│   │   └── Experiencia inmersiva pantalla completa
+│   │   └── Fondo: Starfield animado (CustomPainter)
+│   │   └── Grid 3x2 de emociones con colores únicos:
+│   │       - Paz (dorado), Tristeza (azul), Ansiedad (coral)
+│   │       - Gratitud (verde), Miedo (púrpura), Esperanza (turquesa)
+│   │   └── Animación de selección: scale + glow
+│   │   └── Animación de revelación: papel desdoblándose (3D transform)
+│   │   └── Tarjeta de versículo con glassmorphism
+│   │   └── Botones: Copiar, Compartir, Guardar
+│   │   └── Botón "Sacar otro papelito" para reiniciar
+│   │
+│   ├── favorites_screen.dart (400+ líneas)
+│   │   └── AppBar expandible con header premium
+│   │   └── Contador de favoritos
+│   │   └── Lista con tarjetas (Dismissible para eliminar)
+│   │   └── Empty state elegante cuando no hay favoritos
+│   │   └── Cada tarjeta: Copiar, Compartir, Eliminar
+│   │   └── Swipe left to delete
+│   │
+│   ├── prayers_screen.dart
+│   │   └── Lista de oraciones guiadas
+│   │   └── Categorías: Emergencia, Mañana, Noche
+│   │   └── Pasos numerados con diseño elegante
+│   │
+│   ├── devotional_screen.dart
+│   │   └── Navegación por días (1-30)
+│   │   └── Diseño tipo libro/lectura
+│   │   └── Título, versículo, reflexión, oración del día
+│   │
+│   ├── progress_screen.dart
+│   │   └── Contador de días de victoria
+│   │   └── Fecha de inicio
+│   │   └── Estadísticas de racha
+│   │   └── Botón para registrar victoria/caída
+│   │
+│   ├── journal_screen.dart
+│   │   └── Diario personal de reflexiones
+│   │   └── Selector de estado de ánimo
+│   │   └── Historial de entradas
+│   │   └── Persistencia local
+│   │
+│   ├── profile_screen.dart
+│   │   └── Información del usuario
+│   │   └── Avatar y nombre
+│   │   └── Opción de cerrar sesión
+│   │
+│   └── settings_screen.dart
+│       └── Toggle modo oscuro
+│       └── Configuración de notificaciones
+│       └── Acerca de la app
+│
+├── services/
+│   ├── auth_service.dart
+│   │   └── Singleton para autenticación
+│   │   └── Métodos: signIn, signUp, signOut, resetPassword
+│   │   └── Google Sign-In integration
+│   │
+│   ├── theme_service.dart
+│   │   └── ChangeNotifier para tema
+│   │   └── Persistencia con SharedPreferences
+│   │   └── Toggle dark/light mode
+│   │
+│   ├── favorites_service.dart ⭐ NUEVO
+│   │   └── Singleton con patrón factory
+│   │   └── Lista de BibleVerse favoritos
+│   │   └── Métodos: addFavorite, removeFavorite, toggleFavorite
+│   │   └── isFavorite(verse) para verificar
+│   │   └── Persistencia JSON en SharedPreferences
+│   │   └── ChangeNotifier para UI reactiva
+│   │
+│   ├── image_share_service.dart
+│   │   └── (Archivo existe pero no está en uso activo)
+│   │   └── Diseñado para compartir cross-platform
+│   │
+│   ├── notification_service.dart
+│   │   └── Configuración de notificaciones locales
+│   │   └── (Pendiente: Firebase Cloud Messaging)
+│   │
+│   ├── journal_service.dart
+│   │   └── CRUD para entradas del diario
+│   │   └── Persistencia local
+│   │
+│   └── audio_service.dart
+│       └── (Preparado para audio futuro)
+│
+├── theme/
+│   └── app_theme.dart
+│       └── AppTheme class con lightTheme y darkTheme
+│       └── AppDesignSystem class con constantes
+│       └── Colores, tipografía, espaciados definidos
+│       └── ThemeData completo para Material 3
+│
+└── widgets/
+    ├── verse_card.dart
+    │   └── Widget para mostrar versículo individual
+    │
+    ├── menu_button.dart
+    │   └── Botón de menú reutilizable
+    │
+    ├── premium_components.dart
+    │   └── PremiumCard, PremiumButton, GlassContainer
+    │   └── ScriptureCard, SectionHeader, GoldenDivider
+    │   └── VictoryProgressRing, ShimmerLoading
+    │   └── MoodChip, StreakBadge, EmptyState
+    │
+    └── share_verse_modal.dart ⭐ NUEVO
+        └── Modal de compartir como imagen
+        └── RepaintBoundary para captura de widget
+        └── _QuoteCard: diseño de imagen para redes
+        └── Selector de formato (1:1, 4:5)
+        └── Starfield background (CustomPainter)
+        └── Descarga PNG con dart:html (Web only)
+        └── Botón "Copiar solo texto"
+
+================================================================================
+                     PARTE 5: FLUJOS DE NAVEGACIÓN
+================================================================================
+
+FLUJO DE AUTENTICACIÓN:
+-----------------------
+main.dart
+  └── StreamBuilder(FirebaseAuth.authStateChanges)
+        ├── No autenticado → LoginScreen
+        │     ├── Email login → HomeScreen
+        │     ├── Google login → HomeScreen
+        │     └── Continuar como invitado → HomeScreen
+        │
+        └── Autenticado → HomeScreen
+
+NAVEGACIÓN DESDE HOME:
+----------------------
+HomeScreen
+  ├── Avatar/Perfil → ProfileScreen
+  ├── Icono Favoritos → FavoritesScreen
+  ├── Icono Settings → SettingsScreen
+  ├── Botón SOS → EmergencyScreen
+  ├── Versículos → VersesScreen
+  │     └── Banner Cofre → EmotionalVerseJarScreen
+  ├── Oraciones → PrayersScreen
+  ├── Devocional → DevotionalScreen
+  ├── Progreso → ProgressScreen
+  └── Diario → JournalScreen
+
+FLUJO DE COMPARTIR:
+-------------------
+VersesScreen / EmotionalVerseJarScreen
+  └── Tap icono compartir
+        └── ShareVerseModal.show()
+              ├── Preview de Quote Card
+              ├── Selector de formato
+              ├── "Descargar Imagen" → PNG descargado
+              └── "Copiar solo texto" → Clipboard
+
+FLUJO DE FAVORITOS:
+-------------------
+VersesScreen → Tap icono bookmark
+  └── FavoritesService.toggleFavorite()
+        ├── Si no era favorito → Agregar + SnackBar "Guardado"
+        └── Si era favorito → Quitar + SnackBar "Eliminado"
+
+EmotionalVerseJarScreen → Tap botón "Guardar"
+  └── (Mismo flujo)
+
+FavoritesScreen
+  └── Ver lista completa
+        ├── Tap copiar → Clipboard
+        ├── Tap compartir → ShareVerseModal
+        ├── Tap eliminar → Quitar de favoritos
+        └── Swipe left → Quitar de favoritos
+
+================================================================================
+                    PARTE 6: CONFIGURACIÓN FIREBASE
+================================================================================
+
+PROYECTO:
+---------
+- Nombre: victoria-en-cristo
+- Console: https://console.firebase.google.com/project/victoria-en-cristo
+
+SERVICIOS ACTIVOS:
+------------------
+✅ Authentication
+   - Email/Password: Habilitado
+   - Google Sign-In: Habilitado
+
+✅ Cloud Firestore
+   - Modo: Pruebas (test rules)
+   - Estructura pendiente de definir para producción
+
+ARCHIVOS DE CONFIGURACIÓN:
+--------------------------
+- android/app/google-services.json (Android)
+- lib/firebase_options.dart (Generado por FlutterFire)
+
+⚠️ NOTA IMPORTANTE - SHA-1:
+Si cambias de computadora, necesitas registrar el nuevo SHA-1:
+1. cd android
+2. ./gradlew signingReport
+3. Copiar SHA-1 del debug key
+4. Firebase Console → Project Settings → Add fingerprint
+
+================================================================================
+                    PARTE 7: DETALLES TÉCNICOS ESPECÍFICOS
+================================================================================
+
+COFRE EMOCIONAL - EMOCIONES Y COLORES:
+--------------------------------------
+ID          | Nombre     | Color Principal | Color Oscuro
+------------|------------|-----------------|-------------
+peace       | Paz        | #FFD700 (Gold)  | #B8860B
+sadness     | Tristeza   | #6495ED (Blue)  | #4169E1
+anxiety     | Ansiedad   | #FF7F50 (Coral) | #E64A19
+gratitude   | Gratitud   | #90EE90 (Green) | #228B22
+fear        | Miedo      | #DDA0DD (Purple)| #8B008B
+hope        | Esperanza  | #40E0D0 (Teal)  | #008B8B
+
+SHARE AS IMAGE - DETALLES:
+--------------------------
+- Captura con RepaintBoundary + toImage(pixelRatio: 3.0)
+- Formato PNG alta resolución
+- Web: dart:html (Blob, AnchorElement, Url.createObjectUrlFromBlob)
+- Móvil: Pendiente implementar con share_plus + path_provider
+- Nombre archivo: VictoriaEnCristo_[timestamp].png
+
+FAVORITOS - PERSISTENCIA:
+-------------------------
+- Key en SharedPreferences: 'favorite_verses'
+- Formato: JSON array de objetos BibleVerse
+- Estructura: [{verse, reference, category}, ...]
+- Límite: No hay límite definido
+
+================================================================================
+                      PARTE 8: PROBLEMAS CONOCIDOS
+================================================================================
+
+1. SHARE AS IMAGE EN MÓVIL:
+   - Actualmente solo funciona en Web
+   - Para móvil necesita: guardar imagen con path_provider,
+     luego compartir con share_plus
+
+2. GOOGLE SIGN-IN EN WEB:
+   - Requiere configurar OAuth client ID en Firebase
+   - Añadir dominio autorizado
+
+3. IMÁGENES DE FONDO:
+   - Dependen de internet (Unsplash)
+   - Existe fallback a gradiente
+
+4. NOTIFICACIONES:
+   - Solo configuración local
+   - FCM no implementado aún
+
+================================================================================
+                      PARTE 9: PRÓXIMOS PASOS
+================================================================================
+
+PRIORIDAD ALTA:
+---------------
+□ Adaptar share_verse_modal para móvil (share_plus)
+□ Agregar más versículos (100+)
+□ Implementar notificaciones con FCM
+
+PRIORIDAD MEDIA:
+----------------
+□ Sincronizar favoritos en Firestore
+□ Sincronizar progreso en la nube
+□ Agregar música de fondo opcional
+□ Meditaciones guiadas con audio
+
+PARA PLAY STORE:
+----------------
+□ Cambiar applicationId (com.example.app_quitar → com.tudominio.victoriaencristo)
+□ Crear icono de app 1024x1024
+□ Preparar screenshots de todas las pantallas
+□ Escribir descripción optimizada (ASO)
+□ Configurar política de privacidad
+□ Generar signing key de producción
+
+================================================================================
+                       PARTE 10: COMANDOS ÚTILES
+================================================================================
+
+# Instalar dependencias
+flutter pub get
+
+# Ejecutar en Chrome
+flutter run -d chrome
+
+# Ejecutar en Android
+flutter run -d android
+
+# Ver dispositivos disponibles
+flutter devices
+
+# Hot reload (mientras corre)
+r
+
+# Hot restart (mientras corre)
+R
+
+# Limpiar build (si hay errores)
+flutter clean && flutter pub get
+
+# Crear APK debug
+flutter build apk --debug
+
+# Crear APK release
+flutter build apk --release
+
+# Crear App Bundle para Play Store
+flutter build appbundle --release
+
+# Ver errores de análisis
+flutter analyze
+
+# Actualizar Flutter
+flutter upgrade
+
+================================================================================
+     FIN DE LA DOCUMENTACIÓN - ¡ÉXITO CON EL PROYECTO! 🙏 ✝️ 🏆
+================================================================================

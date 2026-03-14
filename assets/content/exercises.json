@@ -1,0 +1,258 @@
+[
+  {
+    "id": "e001",
+    "title": "Respiración 4-7-8",
+    "subtitle": "Calma la ansiedad en 60 segundos",
+    "durationMinutes": 2,
+    "steps": [
+      "Siéntate cómodo con la espalda recta.",
+      "Exhala completamente por la boca.",
+      "Inhala por la nariz contando hasta 4.",
+      "Mantén la respiración contando hasta 7.",
+      "Exhala lentamente por la boca contando hasta 8.",
+      "Repite 4 ciclos completos.",
+      "Nota cómo tu cuerpo se relaja con cada exhalación."
+    ],
+    "metadata": {
+      "giants": ["mental", "sexual", "emotions"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["breathingExercise"],
+      "triggers": ["anxiety", "stress", "night"],
+      "outcomes": ["calm"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e002",
+    "title": "Anclaje 5-4-3-2-1",
+    "subtitle": "Técnica de grounding para momentos de pánico",
+    "durationMinutes": 3,
+    "steps": [
+      "Detente y respira profundo.",
+      "Nombra 5 cosas que puedes VER a tu alrededor.",
+      "Nombra 4 cosas que puedes TOCAR ahora mismo.",
+      "Nombra 3 cosas que puedes ESCUCHAR.",
+      "Nombra 2 cosas que puedes OLER.",
+      "Nombra 1 cosa que puedes SABOREAR.",
+      "Respira profundo. Estás aquí. Estás presente. Estás bien."
+    ],
+    "metadata": {
+      "giants": ["mental", "emotions"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["grounding"],
+      "triggers": ["anxiety", "stress"],
+      "outcomes": ["calm", "focus"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e003",
+    "title": "Surfear el Antojo",
+    "subtitle": "Observa el impulso sin actuar",
+    "durationMinutes": 5,
+    "steps": [
+      "Reconoce: 'Estoy sintiendo un antojo/impulso ahora.'",
+      "No luches. Solo observa. El impulso es como una ola.",
+      "Nota dónde lo sientes en tu cuerpo. ¿Pecho? ¿Estómago?",
+      "Respira hacia esa zona. No lo empujes, solo obsérvalo.",
+      "Recuerda: las olas SIEMPRE bajan. Ningún antojo dura para siempre.",
+      "Pon un timer de 10 minutos. Solo espera.",
+      "Después de 10 minutos, nota cómo el impulso ha cambiado.",
+      "Celebra: sobreviviste la ola. Eres más fuerte de lo que crees."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "health"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["cravingSurfing", "urgeDelay"],
+      "triggers": ["night", "boredom", "loneliness"],
+      "outcomes": ["calm", "purityGuard", "resilience"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e004",
+    "title": "Retraso de 10 Minutos",
+    "subtitle": "El poder del 'todavía no'",
+    "durationMinutes": 10,
+    "steps": [
+      "Cuando el impulso llegue, di: 'Puedo hacer esto, pero NO AHORA.'",
+      "Pon un timer de 10 minutos.",
+      "Durante esos 10 minutos, haz algo físico: camina, haz flexiones, sal al aire.",
+      "O haz algo mental: lee un versículo, escucha música de adoración.",
+      "Cuando suene el timer, pregunta: '¿Realmente quiero esto?'",
+      "Si aún quieres, espera 10 minutos más.",
+      "La mayoría de impulsos pierden fuerza después de 10-20 minutos."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "health"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["urgeDelay", "replacementHabit"],
+      "triggers": ["boredom", "night", "stress"],
+      "outcomes": ["purityGuard", "resilience"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e005",
+    "title": "Reencuadre Cognitivo",
+    "subtitle": "Cambia el pensamiento, cambia la emoción",
+    "durationMinutes": 5,
+    "steps": [
+      "Identifica el pensamiento automático: '¿Qué estoy pensando ahora mismo?'",
+      "Escríbelo exactamente como suena en tu cabeza.",
+      "Pregunta: '¿Es esto 100% verdad? ¿Hay evidencia en contra?'",
+      "Pregunta: '¿Qué le diría a un amigo que pensara esto?'",
+      "Escribe un pensamiento alternativo más equilibrado.",
+      "Lee el pensamiento nuevo en voz alta.",
+      "Nota cómo cambia tu emoción con el nuevo pensamiento."
+    ],
+    "metadata": {
+      "giants": ["mental", "emotions"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["cbtReframe", "journaling"],
+      "triggers": ["anxiety", "stress", "rejection"],
+      "outcomes": ["calm", "selfAwareness"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e006",
+    "title": "Declaración de Identidad",
+    "subtitle": "Recuerda quién eres en Cristo",
+    "durationMinutes": 3,
+    "steps": [
+      "Ponte de pie. La postura importa.",
+      "Respira profundo y di en voz alta:",
+      "'Soy hijo/a de Dios. (Juan 1:12)'",
+      "'Soy más que vencedor. (Romanos 8:37)'",
+      "'Soy templo del Espíritu Santo. (1 Corintios 6:19)'",
+      "'Soy libre en Cristo. (Gálatas 5:1)'",
+      "'Puedo todas las cosas en Cristo. (Filipenses 4:13)'",
+      "Repite las declaraciones que más necesitas hoy."
+    ],
+    "metadata": {
+      "giants": ["sexual", "mental", "emotions"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "scriptureMeditation"],
+      "triggers": ["loneliness", "rejection"],
+      "outcomes": ["resilience", "connectionWithGod", "hopeRestoration"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e007",
+    "title": "Inventario de Gatillos",
+    "subtitle": "Conoce tus vulnerabilidades",
+    "durationMinutes": 10,
+    "steps": [
+      "Toma papel y lápiz (mejor que digital para esto).",
+      "Piensa en las últimas 3 veces que caíste o casi caíste.",
+      "Para cada una, responde: ¿Qué hora era? ¿Dónde estabas?",
+      "¿Qué emoción sentías? ¿Qué había pasado antes?",
+      "¿Estabas solo? ¿Cansado? ¿Aburrido? ¿Estresado?",
+      "Busca patrones. ¿Hay un gatillo común?",
+      "Escribe UNA acción preventiva para ese gatillo.",
+      "Ejemplo: 'Si estoy solo de noche, llamaré a mi compañero de rendición de cuentas.'"
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["triggerAwareness", "journaling", "environmentDesign"],
+      "triggers": [],
+      "outcomes": ["selfAwareness"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e008",
+    "title": "Micro-Compromiso",
+    "subtitle": "Solo por hoy",
+    "durationMinutes": 2,
+    "steps": [
+      "No prometas 'nunca más'. Eso es demasiado.",
+      "Solo compromete ESTE día. Las próximas 24 horas.",
+      "Di en voz alta: 'Solo por hoy, elijo pureza.'",
+      "'Solo por hoy, elijo sobriedad.'",
+      "'Solo por hoy, elijo paz.'",
+      "Mañana, haz el mismo compromiso.",
+      "Los días se convierten en semanas. Las semanas en meses.",
+      "Victoria diaria, vida transformada."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "health", "digital"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["microCommitment"],
+      "triggers": [],
+      "outcomes": ["resilience", "focus"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e009",
+    "title": "Diseño del Entorno",
+    "subtitle": "Facilita lo bueno, dificulta lo malo",
+    "durationMinutes": 15,
+    "steps": [
+      "La fuerza de voluntad tiene límites. El entorno, no.",
+      "Identifica UNA cosa que facilita tu caída (app, objeto, lugar).",
+      "Ahora hazla más difícil de acceder:",
+      "- ¿Una app? Bórrala o pon control parental.",
+      "- ¿Un lugar? Evítalo o ve acompañado.",
+      "- ¿Un horario? Llena ese tiempo con otra actividad.",
+      "Identifica UNA cosa que te ayuda (Biblia, música, ejercicio).",
+      "Hazla más fácil de acceder: ponla a la vista, en tu bolsillo.",
+      "Pequeños cambios de entorno = grandes cambios de comportamiento."
+    ],
+    "metadata": {
+      "giants": ["sexual", "digital", "substances"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["environmentDesign"],
+      "triggers": ["boredom", "night"],
+      "outcomes": ["purityGuard", "resilience"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e010",
+    "title": "Llamada de Rendición de Cuentas",
+    "subtitle": "Rompe el aislamiento",
+    "durationMinutes": 5,
+    "steps": [
+      "La vergüenza crece en secreto. La luz la desactiva.",
+      "Identifica UNA persona de confianza (amigo, mentor, pastor).",
+      "Envíale un mensaje ahora: 'Necesito hablar sobre algo personal.'",
+      "Si no tienes a nadie, busca un grupo de apoyo en tu iglesia.",
+      "En la conversación, sé honesto. No minimices.",
+      "Pide que te pregunte regularmente cómo vas.",
+      "La vulnerabilidad da miedo, pero la libertad vale más."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances"],
+      "stage": "habit",
+      "intensityFit": "strong",
+      "techniques": ["accountability"],
+      "triggers": ["loneliness"],
+      "outcomes": ["resilience", "connectionWithGod"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  }
+]

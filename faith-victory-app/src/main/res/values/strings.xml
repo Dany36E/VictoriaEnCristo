@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Faith Victory</string>
+    <string name="welcome_message">Bienvenido a Faith Victory, tu compañero en la lucha contra la lujuria y las tentaciones.</string>
+    <string name="daily_verse">Verso diario</string>
+    <string name="devotional_title">Devocional del día</string>
+    <string name="progress_tracker">Seguimiento de progreso</string>
+    <string name="emergency_help">Ayuda de emergencia</string>
+    <string name="settings">Configuraciones</string>
+    <string name="prayer_button">Iniciar oración</string>
+    <string name="verse_card_title">Título del verso</string>
+    <string name="verse_card_content">Contenido del verso</string>
+    <string name="progress_completed">Progreso completado: %1$d%%</string>
+    <string name="error_message">Ocurrió un error. Por favor, inténtalo de nuevo.</string>
+    <string name="success_message">Operación exitosa.</string>
+</resources>

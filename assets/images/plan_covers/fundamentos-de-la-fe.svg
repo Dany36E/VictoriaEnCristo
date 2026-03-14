@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="900" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="600" height="900" fill="#34495E"/>
+    
+    <!-- Pattern -->
+    
+            <circle cx="50" cy="50" r="100" fill="#F39C12" opacity="0.1"/>
+            <circle cx="350" cy="200" r="120" fill="#F39C12" opacity="0.08"/>
+            <circle cx="150" cy="400" r="80" fill="#F39C12" opacity="0.12"/>
+        
+    
+    <!-- Gradient overlay -->
+    <defs>
+        <linearGradient id="grad_fundamentos-de-la-fe" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#34495E;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#34495E;stop-opacity:0.95" />
+        </linearGradient>
+    </defs>
+    <rect width="600" height="900" fill="url(#grad_fundamentos-de-la-fe)"/>
+    
+    <!-- Icon -->
+    <g transform="translate(300, 350)">
+        <rect x="-40" y="0" width="80" height="40" fill="#34495E" opacity="0.6"/><path d="M-30,-35 L0,-5 L30,-35 Z" fill="#F39C12" opacity="0.7"/><rect x="-25" y="-30" width="50" height="30" fill="#3498DB" opacity="0.4"/>
+    </g>
+    
+    <!-- Title -->
+    <text x="300" y="650" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
+          fill="#3498DB" text-anchor="middle" opacity="0.9">
+        Fundamentos de la Fe
+    </text>
+    
+</svg>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="900" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="600" height="900" fill="#F39C12"/>
+    
+    <!-- Pattern -->
+    
+            <line x1="300" y1="0" x2="300" y2="900" stroke="#3498DB" stroke-width="80" opacity="0.05"/>
+            <line x1="150" y1="0" x2="150" y2="900" stroke="#3498DB" stroke-width="40" opacity="0.08"/>
+            <line x1="450" y1="0" x2="450" y2="900" stroke="#3498DB" stroke-width="40" opacity="0.08"/>
+        
+    
+    <!-- Gradient overlay -->
+    <defs>
+        <linearGradient id="grad_identidad-antes-de-impulso" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#F39C12;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#F39C12;stop-opacity:0.95" />
+        </linearGradient>
+    </defs>
+    <rect width="600" height="900" fill="url(#grad_identidad-antes-de-impulso)"/>
+    
+    <!-- Icon -->
+    <g transform="translate(300, 350)">
+        <rect x="-30" y="-45" width="60" height="90" rx="5" fill="#3498DB" opacity="0.3"/><path d="M-15,-20 Q0,-35 15,-20 L15,20 L0,30 L-15,20 Z" fill="#F39C12" opacity="0.8"/><circle cx="0" cy="-10" r="8" fill="#ECF0F1"/>
+    </g>
+    
+    <!-- Title -->
+    <text x="300" y="650" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
+          fill="#ECF0F1" text-anchor="middle" opacity="0.9">
+        Identidad Antes de I
+    </text>
+    <text x="300" y="690" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#ECF0F1" text-anchor="middle" opacity="0.9">mpulso</text>
+</svg>

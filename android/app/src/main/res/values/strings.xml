@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Widget Strings -->
+    <string name="widget_name">Recordatorio</string>
+    <string name="widget_description">Widget discreto para tu rutina diaria</string>
+    <string name="widget_icon_desc">Ícono del widget</string>
+    <string name="widget_default_title">Rutina diaria</string>
+    <string name="widget_default_line1">Respira. Sigue hoy.</string>
+    <string name="widget_default_line2">Abre la app cuando puedas.</string>
+    <string name="widget_cta_text">Abrir</string>
+</resources>

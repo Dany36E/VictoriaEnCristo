@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="600" height="900" viewBox="0 0 600 900" xmlns="http://www.w3.org/2000/svg">
+    <!-- Background -->
+    <rect width="600" height="900" fill="#3498DB"/>
+    
+    <!-- Pattern -->
+    
+            <path d="M0,200 Q150,150 300,200 T600,200" stroke="#27AE60" stroke-width="2" fill="none" opacity="0.2"/>
+            <path d="M0,250 Q150,200 300,250 T600,250" stroke="#27AE60" stroke-width="2" fill="none" opacity="0.15"/>
+            <path d="M0,300 Q150,250 300,300 T600,300" stroke="#27AE60" stroke-width="2" fill="none" opacity="0.1"/>
+        
+    
+    <!-- Gradient overlay -->
+    <defs>
+        <linearGradient id="grad_mundo-digital-regla-de-vida" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style="stop-color:#3498DB;stop-opacity:0.3" />
+            <stop offset="100%" style="stop-color:#3498DB;stop-opacity:0.95" />
+        </linearGradient>
+    </defs>
+    <rect width="600" height="900" fill="url(#grad_mundo-digital-regla-de-vida)"/>
+    
+    <!-- Icon -->
+    <g transform="translate(300, 350)">
+        <rect x="-35" y="-40" width="70" height="80" rx="8" fill="#3498DB" opacity="0.4"/><path d="M-20,10 Q-10,0 0,10 T20,10" stroke="#27AE60" stroke-width="3" fill="none"/><circle cx="0" cy="-15" r="5" fill="#F39C12"/>
+    </g>
+    
+    <!-- Title -->
+    <text x="300" y="650" font-family="Arial, sans-serif" font-size="32" font-weight="bold" 
+          fill="#F39C12" text-anchor="middle" opacity="0.9">
+        Mundo Digital: Regla
+    </text>
+    <text x="300" y="690" font-family="Arial, sans-serif" font-size="32" font-weight="bold" fill="#F39C12" text-anchor="middle" opacity="0.9"> de Vida</text>
+</svg>

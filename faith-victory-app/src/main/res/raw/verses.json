@@ -1,0 +1,54 @@
+{
+  "verses": [
+    {
+      "id": 1,
+      "text": "No te dejes vencer por el mal; al contrario, vence el mal con el bien.",
+      "reference": "Romanos 12:21"
+    },
+    {
+      "id": 2,
+      "text": "Todo lo puedo en Cristo que me fortalece.",
+      "reference": "Filipenses 4:13"
+    },
+    {
+      "id": 3,
+      "text": "Y conoceréis la verdad, y la verdad os hará libres.",
+      "reference": "Juan 8:32"
+    },
+    {
+      "id": 4,
+      "text": "Huid también de las pasiones juveniles; y seguí la justicia, la fe, el amor, la paz, con los que de corazón limpio invocan al Señor.",
+      "reference": "2 Timoteo 2:22"
+    },
+    {
+      "id": 5,
+      "text": "El que está en vosotros es mayor que el que está en el mundo.",
+      "reference": "1 Juan 4:4"
+    },
+    {
+      "id": 6,
+      "text": "Por tanto, someteos a Dios; resistid al diablo, y huirá de vosotros.",
+      "reference": "Santiago 4:7"
+    },
+    {
+      "id": 7,
+      "text": "Bendito el hombre que confía en Jehová, y pone en él su confianza.",
+      "reference": "Jeremías 17:7"
+    },
+    {
+      "id": 8,
+      "text": "El temor de Jehová es el principio de la sabiduría.",
+      "reference": "Proverbios 9:10"
+    },
+    {
+      "id": 9,
+      "text": "Y no nos dejes caer en la tentación, mas líbranos de mal.",
+      "reference": "Mateo 6:13"
+    },
+    {
+      "id": 10,
+      "text": "La palabra de Cristo more en abundancia en vosotros.",
+      "reference": "Colosenses 3:16"
+    }
+  ]
+}

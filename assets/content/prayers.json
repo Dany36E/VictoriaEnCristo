@@ -1,0 +1,206 @@
+[
+  {
+    "id": "p001",
+    "title": "Oración de Auxilio Inmediato",
+    "content": "Señor Jesús, en este momento de debilidad vengo a Ti.\n\nReconozco que sin Ti nada puedo hacer. La tentación está frente a mí, pero Tú eres más grande que cualquier tentación.\n\nDame la fuerza para resistir. Llena mi mente con Tu paz y mi corazón con Tu amor.\n\nRecuérdame que mi cuerpo es templo del Espíritu Santo. Ayúdame a honrarte con mis pensamientos y acciones.\n\nEn el nombre de Jesús, reprendo todo pensamiento impuro y declaro que soy más que vencedor por medio de Cristo.\n\nAmén.",
+    "category": "emergencia",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "scriptureMeditation"],
+      "triggers": ["night", "loneliness", "boredom"],
+      "outcomes": ["calm", "purityGuard"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p002",
+    "title": "Oración de Liberación",
+    "content": "Padre Celestial, me presento ante Ti con un corazón humillado.\n\nConfieso que he luchado con pensamientos y deseos que no Te glorifican. Perdóname, Señor.\n\nHoy declaro que rompo con todo lazo de esclavitud. No seré dominado por mis deseos carnales, porque Cristo me ha hecho libre.\n\nEspíritu Santo, toma control de mi mente. Renueva mis pensamientos. Transforma mis deseos.\n\nDeclaro victoria sobre la lujuria, sobre todo vicio, sobre toda adicción. La sangre de Cristo me limpia y me libera.\n\nGracias Señor porque Tu gracia es suficiente para mí.\n\nEn el poderoso nombre de Jesús. Amén.",
+    "category": "liberación",
+    "durationMinutes": 3,
+    "metadata": {
+      "giants": ["sexual", "substances"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer"],
+      "triggers": ["night", "stress"],
+      "outcomes": ["calm", "purityGuard", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p003",
+    "title": "Consagración Matutina",
+    "content": "Buenos días, Señor.\n\nAntes de comenzar este día, quiero entregarte mis pensamientos, mis ojos, mis manos y todo mi ser.\n\nGuárdame de toda tentación. Que mis ojos solo vean lo que Te agrada. Que mis pensamientos sean puros y santos.\n\nRevísteme con la armadura de Dios para poder resistir los dardos del enemigo.\n\nQue este día sea para Tu gloria. Ayúdame a caminar en integridad y pureza.\n\nEn el nombre de Jesús. Amén.",
+    "category": "mañana",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "digital", "mental"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "microCommitment"],
+      "triggers": [],
+      "outcomes": ["purityGuard", "focus", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p004",
+    "title": "Reflexión Nocturna",
+    "content": "Señor, al terminar este día vengo a Ti.\n\nGracias por Tu fidelidad. Gracias por ayudarme a resistir las tentaciones de hoy.\n\nSi en algo fallé, Te pido perdón. Límpiame con Tu sangre preciosa.\n\nMientras duermo, guarda mi mente. Que mis sueños sean puros y que despierte renovado para servirte.\n\nGracias por otro día de victoria. Confío en que mañana también estarás conmigo.\n\nBuenas noches, Señor. Amén.",
+    "category": "noche",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "digital", "mental"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling", "declarativeprayer"],
+      "triggers": ["night"],
+      "outcomes": ["calm", "connectionWithGod", "gratitude"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p005",
+    "title": "Oración por Fortaleza",
+    "content": "Padre, vengo a Ti porque me siento débil.\n\nTu Palabra dice que cuando soy débil, entonces soy fuerte en Ti. Necesito Tu fuerza ahora.\n\nNo quiero seguir cayendo en los mismos errores. Quiero ser libre de verdad.\n\nFortalece mi voluntad. Dame dominio propio. Ayúdame a huir de la tentación.\n\nSé que puedo todas las cosas en Cristo que me fortalece. Hoy reclamo esa promesa para mi vida.\n\nGracias porque Tu poder se perfecciona en mi debilidad.\n\nEn el nombre de Jesús. Amén.",
+    "category": "fortaleza",
+    "durationMinutes": 3,
+    "metadata": {
+      "giants": ["sexual", "substances", "mental"],
+      "stage": "habit",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "scriptureMeditation"],
+      "triggers": ["fatigue", "stress"],
+      "outcomes": ["resilience", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p006",
+    "title": "Oración de Restauración",
+    "content": "Padre, he caído otra vez.\n\nNo vengo a justificarme. Vengo a confesarte mi pecado y a pedirte perdón.\n\nSé que Tu gracia es más grande que mi falla. Sé que Tu amor no depende de mi perfección.\n\nNo me dejes en la vergüenza. Levántame con Tu mano de misericordia.\n\nRenueva mi mente. Restaura mi gozo. Dame fuerzas para comenzar de nuevo.\n\nGracias porque Tus misericordias son nuevas cada mañana. Hoy es un nuevo día.\n\nEn el nombre de Jesús. Amén.",
+    "category": "restauración",
+    "durationMinutes": 3,
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "restoration",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "accountability"],
+      "triggers": [],
+      "outcomes": ["relapseRecovery", "hopeRestoration", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p007",
+    "title": "Oración Contra la Ansiedad",
+    "content": "Señor, mi mente está agitada. Los pensamientos ansiosos no me dejan en paz.\n\nPero Tú dijiste que me guardarás en completa paz si mi pensamiento persevera en Ti.\n\nAhora mismo decido enfocar mi mente en Tu bondad, en Tu fidelidad, en Tu amor.\n\nEcho toda mi ansiedad sobre Ti, porque Tú tienes cuidado de mí.\n\nCalma la tormenta en mi mente. Trae paz a mi corazón.\n\nRespiro profundo y declaro: Tú eres mi paz.\n\nGracias Señor. Amén.",
+    "category": "ansiedad",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["mental"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["breathingExercise", "declarativeprayer", "scriptureMeditation"],
+      "triggers": ["anxiety", "stress"],
+      "outcomes": ["calm", "connectionWithGod"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p008",
+    "title": "Oración para Soltar la Ira",
+    "content": "Padre, reconozco que hay ira en mi corazón.\n\nAlguien me hirió y quiero justicia. Pero Tú dices que la venganza es Tuya.\n\nHoy elijo soltar esta ira. No porque la persona lo merezca, sino porque Tú me liberaste a mí primero.\n\nTe entrego el dolor. Te entrego el deseo de venganza. Te entrego el resentimiento.\n\nAyúdame a perdonar como Tú me perdonaste. No por mi fuerza, sino por Tu gracia.\n\nLibera mi corazón. Sáname.\n\nEn el nombre de Jesús. Amén.",
+    "category": "emociones",
+    "durationMinutes": 3,
+    "metadata": {
+      "giants": ["emotions"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "journaling"],
+      "triggers": ["conflict"],
+      "outcomes": ["angerRelease", "calm"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p009",
+    "title": "Oración de Gratitud",
+    "content": "Señor, hoy quiero simplemente darte gracias.\n\nGracias por Tu amor que no falla.\nGracias por Tu paciencia conmigo.\nGracias por cada día de victoria.\nGracias incluso por las luchas, porque me acercan a Ti.\n\nNo merezco Tu gracia, pero la recibo con un corazón agradecido.\n\nQue mi vida sea un sacrificio de alabanza a Ti.\n\nTe amo, Señor. Amén.",
+    "category": "gratitud",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["mental", "emotions"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["declarativeprayer"],
+      "triggers": [],
+      "outcomes": ["gratitude", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p010",
+    "title": "Oración por Dominio Propio",
+    "content": "Espíritu Santo, necesito Tu fruto de dominio propio.\n\nMi carne es débil. Mis deseos me arrastran. Pero Tú eres más fuerte.\n\nEnséñame a decir 'no' cuando debo decir 'no'.\nEnséñame a huir cuando debo huir.\nEnséñame a resistir cuando debo resistir.\n\nQue Tu control gobierne mis impulsos. Que Tu paz gobierne mis emociones.\n\nNo quiero ser esclavo de mis apetitos. Quiero ser libre en Ti.\n\nGracias por Tu poder obrando en mí.\n\nAmén.",
+    "category": "fortaleza",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "health", "substances", "digital"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "urgeDelay"],
+      "triggers": ["boredom", "stress"],
+      "outcomes": ["purityGuard", "resilience"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p011",
+    "title": "Oración para Desintoxicación Digital",
+    "content": "Señor, reconozco que las pantallas han tomado demasiado de mi tiempo y atención.\n\nHe buscado en el scroll lo que solo Tú puedes dar: paz, propósito, conexión.\n\nAyúdame a poner límites saludables.\nDame fuerza para desconectarme cuando debo.\nLlena el vacío que busco llenar con contenido vacío.\n\nQuiero que mi mente esté saturada de Tu Palabra, no de notificaciones.\n\nRenueva mi enfoque. Restaura mi atención.\n\nEn el nombre de Jesús. Amén.",
+    "category": "digital",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["digital"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "environmentDesign"],
+      "triggers": ["boredom", "socialMedia"],
+      "outcomes": ["focus", "connectionWithGod"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p012",
+    "title": "Oración por Sanidad del Cuerpo",
+    "content": "Padre, Tú formaste mi cuerpo y lo llamaste bueno.\n\nConfieso que no siempre lo he tratado como templo Tuyo.\n\nAyúdame a comer con sabiduría, no con compulsión.\nAyúdame a mover mi cuerpo para honrarte.\nAyúdame a descansar cuando lo necesito.\n\nLibérame de la esclavitud a la comida, a la pereza, a los excesos.\n\nQuiero cuidar este cuerpo porque es Tu habitación.\n\nGracias por Tu gracia que transforma hasta mis hábitos.\n\nAmén.",
+    "category": "salud",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["health"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "microCommitment"],
+      "triggers": ["stress", "boredom"],
+      "outcomes": ["selfAwareness", "resilience"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  }
+]

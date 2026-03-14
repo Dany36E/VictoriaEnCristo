@@ -1,0 +1,2875 @@
+{
+  "plans": [
+    {
+      "id": "calma-en-la-tormenta",
+      "title": "Calma en la Tormenta",
+      "subtitle": "Respira en medio de la ansiedad",
+      "description": "Crisis de ansiedad: respiración, grounding y promesas bíblicas.",
+      "durationDays": 3,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/calma-en-la-tormenta.png",
+      "metadata": {
+        "giants": [
+          "mental",
+          "emotions"
+        ],
+        "stage": "crisis",
+        "planType": "emotional_regulation",
+        "difficulty": "easy",
+        "tags": [
+          "ansiedad",
+          "panico"
+        ],
+        "techniques": [
+          "breathingExercise",
+          "grounding",
+          "cbtReframe"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": true
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Respira y ora",
+          "scripture": {
+            "ref": "Filipenses 4:6-7",
+            "text": "No se inquieten por nada..."
+          },
+          "reflection": "Respira profundo y entrega la carga.",
+          "prayer": "Dame tu paz ahora.",
+          "actionSteps": [
+            "Respiración 4-7-8 (3 veces)",
+            "Nombra 3 cosas que ves"
+          ],
+          "checkInQuestions": [
+            "¿Qué bajó en tu cuerpo?"
+          ],
+          "anchorVerse": "Fil 4:7"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Grounding",
+          "scripture": {
+            "ref": "Salmo 46:1",
+            "text": "Dios es nuestro amparo"
+          },
+          "reflection": "Vuelve al presente con tus sentidos.",
+          "prayer": "Se mi refugio hoy.",
+          "actionSteps": [
+            "Técnica 5-4-3-2-1",
+            "Agua fría en manos"
+          ],
+          "checkInQuestions": [
+            "¿Qué gatillo reconoces?"
+          ],
+          "anchorVerse": "Sal 46:1"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Reencuadre",
+          "scripture": {
+            "ref": "Isaías 26:3",
+            "text": "Tú guardarás en completa paz"
+          },
+          "reflection": "Enfoca tu mente en Dios.",
+          "prayer": "Guarda mi mente en ti.",
+          "actionSteps": [
+            "Escribe 2 pensamientos y 2 verdades",
+            "Oración de gratitud 1 min"
+          ],
+          "checkInQuestions": [
+            "¿Qué verdad repetirás?"
+          ],
+          "anchorVerse": "Isa 26:3"
+        }
+      ]
+    },
+    {
+      "id": "cortar-el-impulso",
+      "title": "Cortar el Impulso",
+      "subtitle": "Detén la espiral sexual",
+      "description": "Plan de crisis para pornografía/impulso: retraso + salida práctica.",
+      "durationDays": 3,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/cortar-el-impulso.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "digital"
+        ],
+        "stage": "crisis",
+        "planType": "giant_focused",
+        "difficulty": "medium",
+        "tags": [
+          "pornografia",
+          "impulso"
+        ],
+        "techniques": [
+          "urgeDelay",
+          "cravingSurfing",
+          "environmentDesign"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": true
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Retraso 10m",
+          "scripture": {
+            "ref": "1 Corintios 10:13",
+            "text": "Dios provee la salida"
+          },
+          "reflection": "Retrasar abre espacio a elegir.",
+          "prayer": "Muéstrame la salida hoy.",
+          "actionSteps": [
+            "Pon temporizador 10m",
+            "Cambia de habitación"
+          ],
+          "checkInQuestions": [
+            "¿Qué sentiste al esperar?"
+          ],
+          "crisisTool": {
+            "name": "Cuenta 5-4-3-2-1",
+            "steps": [
+              "5 veo",
+              "4 toco",
+              "3 oigo",
+              "2 huelo",
+              "1 saboreo"
+            ]
+          },
+          "anchorVerse": "1 Co 10:13"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Quita acceso",
+          "scripture": {
+            "ref": "Mateo 5:29",
+            "text": "Si tu ojo te hace caer, quítalo"
+          },
+          "reflection": "Decisiones drásticas protegen.",
+          "prayer": "Dame firmeza.",
+          "actionSteps": [
+            "Bloquea app/sitio",
+            "Escribe a tu aliado"
+          ],
+          "checkInQuestions": [
+            "¿Qué acceso quitaste?"
+          ],
+          "anchorVerse": "Mt 5:29"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Surfea la ola",
+          "scripture": {
+            "ref": "Santiago 4:7",
+            "text": "Resistan..."
+          },
+          "reflection": "El deseo sube y baja.",
+          "prayer": "Hazme firme al resistir.",
+          "actionSteps": [
+            "Evalúa intensidad 1-10",
+            "Respira 4-7-8"
+          ],
+          "checkInQuestions": [
+            "¿Cómo bajó la ola?"
+          ],
+          "anchorVerse": "Stg 4:7"
+        }
+      ]
+    },
+    {
+      "id": "noche-segura",
+      "title": "Noche Segura",
+      "subtitle": "Desactiva gatillos nocturnos",
+      "description": "Ritual de cierre, luz baja y límites digitales.",
+      "durationDays": 3,
+      "minutesPerDay": 7,
+      "coverImage": "assets/images/plan_covers/noche-segura.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "digital",
+          "mental"
+        ],
+        "stage": "crisis",
+        "planType": "giant_focused",
+        "difficulty": "easy",
+        "tags": [
+          "noche",
+          "gatillos"
+        ],
+        "techniques": [
+          "environmentDesign",
+          "breathingExercise",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": true
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Cierre digital",
+          "scripture": {
+            "ref": "Salmo 4:8",
+            "text": "En paz me acostaré"
+          },
+          "reflection": "Apagar pantallas abre espacio a la paz.",
+          "prayer": "Cuida mi noche.",
+          "actionSteps": [
+            "Apaga pantallas 60m antes",
+            "Deja el móvil fuera"
+          ],
+          "checkInQuestions": [
+            "¿Cómo se siente tu cuerpo?"
+          ],
+          "anchorVerse": "Sal 4:8"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Luz cálida",
+          "scripture": {
+            "ref": "Mateo 11:28",
+            "text": "Vengan a mí..."
+          },
+          "reflection": "Reducir estímulo prepara el descanso.",
+          "prayer": "Dame tu descanso.",
+          "actionSteps": [
+            "Usa luz cálida",
+            "Lee 1 versículo en papel"
+          ],
+          "checkInQuestions": [
+            "¿Bajó tu ansiedad?"
+          ],
+          "anchorVerse": "Mt 11:28"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Modo 2 min",
+          "scripture": {
+            "ref": "Salmo 23:1",
+            "text": "Jehová es mi pastor"
+          },
+          "reflection": "Si fallaste, vuelve hoy.",
+          "prayer": "Restáurame sin culpa.",
+          "actionSteps": [
+            "Oración 2 min",
+            "Agua + estiramiento"
+          ],
+          "checkInQuestions": [
+            "¿Qué siguiente paso harás?"
+          ],
+          "anchorVerse": "Sal 23:1"
+        }
+      ]
+    },
+    {
+      "id": "restauracion-sin-culpa",
+      "title": "Restauración Sin Culpa",
+      "subtitle": "Vuelve después de la caída",
+      "description": "Gracia práctica post-recaída con pasos claros.",
+      "durationDays": 3,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/restauracion-sin-culpa.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "substances",
+          "mental"
+        ],
+        "stage": "restoration",
+        "planType": "relapse_recovery",
+        "difficulty": "easy",
+        "tags": [
+          "recaida",
+          "gracia"
+        ],
+        "techniques": [
+          "journaling",
+          "accountability",
+          "scriptureMeditation"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Sin condena",
+          "scripture": {
+            "ref": "Romanos 8:1",
+            "text": "Ninguna condenación"
+          },
+          "reflection": "Gracia levanta, culpa hunde.",
+          "prayer": "Gracias por tu gracia.",
+          "actionSteps": [
+            "Confiesa a Dios",
+            "Mensaje a aliado"
+          ],
+          "checkInQuestions": [
+            "¿Qué sientes al recordar la gracia?"
+          ],
+          "anchorVerse": "Ro 8:1"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Cierra la puerta",
+          "scripture": {
+            "ref": "Efesios 4:27",
+            "text": "No den lugar"
+          },
+          "reflection": "Identifica y cierra accesos.",
+          "prayer": "Dame sabiduría.",
+          "actionSteps": [
+            "Quita gatillo principal",
+            "Plan de reemplazo"
+          ],
+          "checkInQuestions": [
+            "¿Qué puerta cerraste?"
+          ],
+          "anchorVerse": "Ef 4:27"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Retomar hoy",
+          "scripture": {
+            "ref": "Lamentaciones 3:22-23",
+            "text": "Nuevas misericordias"
+          },
+          "reflection": "Hoy es nuevo.",
+          "prayer": "Camino contigo hoy.",
+          "actionSteps": [
+            "Modo 2 min",
+            "Escribe 1 verdad"
+          ],
+          "checkInQuestions": [
+            "¿Qué verdad te levanta?"
+          ],
+          "anchorVerse": "Lm 3:23"
+        }
+      ]
+    },
+    {
+      "id": "mente-en-tierra-firme",
+      "title": "Mente en Tierra Firme",
+      "subtitle": "Detén rumiación/pánico",
+      "description": "Grounding, respiración y reencuadre para pánico.",
+      "durationDays": 3,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/mente-en-tierra-firme.png",
+      "metadata": {
+        "giants": [
+          "mental",
+          "emotions"
+        ],
+        "stage": "crisis",
+        "planType": "emotional_regulation",
+        "difficulty": "medium",
+        "tags": [
+          "panico",
+          "rumiacion"
+        ],
+        "techniques": [
+          "grounding",
+          "breathingExercise",
+          "cbtReframe"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": true
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Grounding 5 pasos",
+          "scripture": {
+            "ref": "Salmo 94:19",
+            "text": "Tus consolaciones"
+          },
+          "reflection": "El cuerpo ancla el alma.",
+          "prayer": "Consola mi mente.",
+          "actionSteps": [
+            "Grounding 5-4-3-2-1",
+            "Respira 4-7-8"
+          ],
+          "checkInQuestions": [
+            "¿Qué cambió?"
+          ],
+          "anchorVerse": "Sal 94:19"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Nombrar y soltar",
+          "scripture": {
+            "ref": "1 Pedro 5:7",
+            "text": "Echen su ansiedad"
+          },
+          "reflection": "Nombrar debilita la ansiedad.",
+          "prayer": "Recibo tu cuidado.",
+          "actionSteps": [
+            "Escribe 3 pensamientos",
+            "Reemplaza con 3 verdades"
+          ],
+          "checkInQuestions": [
+            "¿Qué verdad te ayudó?"
+          ],
+          "anchorVerse": "1 P 5:7"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Respira con oración",
+          "scripture": {
+            "ref": "Salmo 23:4",
+            "text": "No temeré"
+          },
+          "reflection": "No estás solo en el valle.",
+          "prayer": "Acompáñame hoy.",
+          "actionSteps": [
+            "Respiración orante 5 veces",
+            "Camina 5 minutos"
+          ],
+          "checkInQuestions": [
+            "¿Qué frase sostienes?"
+          ],
+          "anchorVerse": "Sal 23:4"
+        }
+      ]
+    },
+    {
+      "id": "rescate-digital",
+      "title": "Rescate Digital",
+      "subtitle": "Detén el doomscrolling",
+      "description": "Corta el ciclo, rediseña entorno y define micro misiones.",
+      "durationDays": 3,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/rescate-digital.png",
+      "metadata": {
+        "giants": [
+          "digital",
+          "mental"
+        ],
+        "stage": "crisis",
+        "planType": "giant_focused",
+        "difficulty": "easy",
+        "tags": [
+          "doomscrolling",
+          "pantallas"
+        ],
+        "techniques": [
+          "environmentDesign",
+          "microCommitment",
+          "triggerAwareness"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": true
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Corte físico",
+          "scripture": {
+            "ref": "Salmo 101:3",
+            "text": "No pondré cosa indigna"
+          },
+          "reflection": "Tu atención es tesoro.",
+          "prayer": "Guarda mi vista.",
+          "actionSteps": [
+            "Temporizador 15m",
+            "Saca apps de portada"
+          ],
+          "checkInQuestions": [
+            "¿Qué gatillo te llevó?"
+          ],
+          "anchorVerse": "Sal 101:3"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Rediseña entorno",
+          "scripture": {
+            "ref": "1 Corintios 6:12",
+            "text": "No seré dominado"
+          },
+          "reflection": "Diseño > fuerza de voluntad.",
+          "prayer": "Dame sabiduría para ordenar.",
+          "actionSteps": [
+            "Desinstala 1 app gatillo",
+            "Instala bloqueador"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te sientes tras quitarla?"
+          ],
+          "anchorVerse": "1 Co 6:12"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Micro misión",
+          "scripture": {
+            "ref": "Filipenses 3:14",
+            "text": "Prosigo a la meta"
+          },
+          "reflection": "Reemplaza scroll con propósito.",
+          "prayer": "Dame enfoque.",
+          "actionSteps": [
+            "Define tarea 10m",
+            "Cuenta a alguien tu meta"
+          ],
+          "checkInQuestions": [
+            "¿Cumpliste la micro misión?"
+          ],
+          "anchorVerse": "Fil 3:14"
+        }
+      ]
+    },
+    {
+      "id": "mente-blindada",
+      "title": "Mente Blindada",
+      "subtitle": "Refuerza tu mente en 7 días",
+      "description": "Protege pensamientos con verdad bíblica y hábitos de entrada.",
+      "durationDays": 7,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/mente-blindada.png",
+      "metadata": {
+        "giants": [
+          "mental",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "emotional_regulation",
+        "difficulty": "medium",
+        "tags": [
+          "ansiedad",
+          "rumiacion"
+        ],
+        "techniques": [
+          "cbtReframe",
+          "scriptureMeditation",
+          "journaling"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Renueva tu mente",
+          "scripture": {
+            "ref": "Romanos 12:2",
+            "text": "Transformaos"
+          },
+          "reflection": "La mente se forma por repetición.",
+          "prayer": "Renueva mi mente.",
+          "actionSteps": [
+            "Lee en voz alta",
+            "Escribe 1 mentira/verdad"
+          ],
+          "checkInQuestions": [
+            "¿Qué mentira detectaste?"
+          ],
+          "anchorVerse": "Ro 12:2"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Filtra entrada",
+          "scripture": {
+            "ref": "Proverbios 4:23",
+            "text": "Guarda tu corazón"
+          },
+          "reflection": "Lo que entra te forma.",
+          "prayer": "Guarda mis ojos.",
+          "actionSteps": [
+            "Reduce 1 fuente de ruido",
+            "Reemplaza con Escritura"
+          ],
+          "checkInQuestions": [
+            "¿Qué filtraste?"
+          ],
+          "anchorVerse": "Pr 4:23"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Anota y suelta",
+          "scripture": {
+            "ref": "1 Pedro 5:7",
+            "text": "Echen su ansiedad"
+          },
+          "reflection": "Escribir descarga.",
+          "prayer": "Recibo tu cuidado.",
+          "actionSteps": [
+            "Journal 5m",
+            "Oración de entrega"
+          ],
+          "checkInQuestions": [
+            "¿Qué entregaste?"
+          ],
+          "anchorVerse": "1 P 5:7"
+        }
+      ]
+    },
+    {
+      "id": "pureza-con-proposito",
+      "title": "Pureza con Propósito",
+      "subtitle": "7 días para alinear afectos",
+      "description": "Construye convicciones y hábitos diarios de pureza.",
+      "durationDays": 7,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/pureza-con-proposito.png",
+      "metadata": {
+        "giants": [
+          "sexual"
+        ],
+        "stage": "habit",
+        "planType": "giant_focused",
+        "difficulty": "medium",
+        "tags": [
+          "pureza",
+          "habito"
+        ],
+        "techniques": [
+          "accountability",
+          "urgeDelay",
+          "scriptureMeditation"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Identidad antes de impulso",
+          "scripture": {
+            "ref": "1 Juan 3:1",
+            "text": "Somos hijos"
+          },
+          "reflection": "Eres hijo antes que luchador.",
+          "prayer": "Recuérdame quién soy.",
+          "actionSteps": [
+            "Declara 3 veces tu identidad",
+            "Escribe 1 mentira vs verdad"
+          ],
+          "checkInQuestions": [
+            "¿Qué cambia al recordar tu identidad?"
+          ],
+          "anchorVerse": "1 Jn 3:1"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Convicción y límites",
+          "scripture": {
+            "ref": "Job 31:1",
+            "text": "Hice pacto con mis ojos"
+          },
+          "reflection": "Límites claros protegen.",
+          "prayer": "Fortalece mis límites.",
+          "actionSteps": [
+            "Define 2 límites",
+            "Configura filtro"
+          ],
+          "checkInQuestions": [
+            "¿Qué límite fue clave?"
+          ],
+          "anchorVerse": "Job 31:1"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Rendición diaria",
+          "scripture": {
+            "ref": "Gálatas 5:16",
+            "text": "Anden en el Espíritu"
+          },
+          "reflection": "Rendir hoy, no mañana.",
+          "prayer": "Guía mis pasos hoy.",
+          "actionSteps": [
+            "Oración 3 min",
+            "Envía check-in a aliado"
+          ],
+          "checkInQuestions": [
+            "¿Rindes antes o después del impulso?"
+          ],
+          "anchorVerse": "Gal 5:16"
+        }
+      ]
+    },
+    {
+      "id": "ansiedad-bajo-gobierno",
+      "title": "Ansiedad Bajo Gobierno",
+      "subtitle": "Domina ansiedad con hábitos bíblicos",
+      "description": "7 días para regular ansiedad con práctica diaria.",
+      "durationDays": 7,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/ansiedad-bajo-gobierno.png",
+      "metadata": {
+        "giants": [
+          "mental",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "emotional_regulation",
+        "difficulty": "medium",
+        "tags": [
+          "ansiedad",
+          "habito"
+        ],
+        "techniques": [
+          "breathingExercise",
+          "grounding",
+          "cbtReframe"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Respira y entrega",
+          "scripture": {
+            "ref": "Salmo 55:22",
+            "text": "Echa sobre Jehová"
+          },
+          "reflection": "Entrega con respiración.",
+          "prayer": "Cargo mis ansiedades en Ti.",
+          "actionSteps": [
+            "Respira 4-7-8",
+            "Escribe 1 ansiedad"
+          ],
+          "checkInQuestions": [
+            "¿Qué liberaste hoy?"
+          ],
+          "anchorVerse": "Sal 55:22"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Etiqueta el miedo",
+          "scripture": {
+            "ref": "2 Timoteo 1:7",
+            "text": "Espíritu de poder"
+          },
+          "reflection": "Nombrar reduce poder.",
+          "prayer": "Dame poder y amor.",
+          "actionSteps": [
+            "Nombra tu miedo",
+            "Reemplaza con verdad"
+          ],
+          "checkInQuestions": [
+            "¿Qué miedo nombraste?"
+          ],
+          "anchorVerse": "2 Ti 1:7"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Rutina de calma",
+          "scripture": {
+            "ref": "Salmo 131:2",
+            "text": "Como niño destetado"
+          },
+          "reflection": "Calma aprendida.",
+          "prayer": "Silencia mi alma.",
+          "actionSteps": [
+            "Rutina nocturna 10m",
+            "Luz cálida"
+          ],
+          "checkInQuestions": [
+            "¿Qué parte de la rutina ayudó más?"
+          ],
+          "anchorVerse": "Sal 131:2"
+        }
+      ]
+    },
+    {
+      "id": "dominio-propio-primeros-7",
+      "title": "Dominio Propio: Primeros 7",
+      "subtitle": "Semana 1 de recuperación",
+      "description": "Pequeños compromisos diarios para arrancar.",
+      "durationDays": 7,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/dominio-propio-primeros-7.png",
+      "metadata": {
+        "giants": [
+          "substances",
+          "sexual",
+          "digital"
+        ],
+        "stage": "habit",
+        "planType": "relapse_recovery",
+        "difficulty": "easy",
+        "tags": [
+          "inicio",
+          "dominio"
+        ],
+        "techniques": [
+          "microCommitment",
+          "replacementHabit",
+          "accountability"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Solo por hoy",
+          "scripture": {
+            "ref": "Mateo 6:34",
+            "text": "Basta a cada día"
+          },
+          "reflection": "Enfócate en 24h.",
+          "prayer": "Dame gracia para hoy.",
+          "actionSteps": [
+            "Compromiso de 24h",
+            "Notifica a aliado"
+          ],
+          "checkInQuestions": [
+            "¿Qué tentación anticipas hoy?"
+          ],
+          "anchorVerse": "Mt 6:34"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Sustituye",
+          "scripture": {
+            "ref": "Romanos 12:21",
+            "text": "Vence con el bien"
+          },
+          "reflection": "Reemplaza el hábito.",
+          "prayer": "Muéstrame un reemplazo.",
+          "actionSteps": [
+            "Elige 1 hábito alterno",
+            "Agenda 10m"
+          ],
+          "checkInQuestions": [
+            "¿Qué reemplazo usarás?"
+          ],
+          "anchorVerse": "Ro 12:21"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Apoyo real",
+          "scripture": {
+            "ref": "Eclesiastés 4:9-10",
+            "text": "Mejor dos que uno"
+          },
+          "reflection": "No lo hagas solo.",
+          "prayer": "Dame humildad para pedir ayuda.",
+          "actionSteps": [
+            "Envía check-in diario",
+            "Pide oración"
+          ],
+          "checkInQuestions": [
+            "¿A quién escribiste hoy?"
+          ],
+          "anchorVerse": "Ec 4:9"
+        }
+      ]
+    },
+    {
+      "id": "silencio-interior",
+      "title": "Silencio Interior",
+      "subtitle": "Reduce ruido mental",
+      "description": "Prácticas breves de quietud y atención plena bíblica.",
+      "durationDays": 7,
+      "minutesPerDay": 7,
+      "coverImage": "assets/images/plan_covers/silencio-interior.png",
+      "metadata": {
+        "giants": [
+          "mental",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "emotional_regulation",
+        "difficulty": "easy",
+        "tags": [
+          "ruido",
+          "quietud"
+        ],
+        "techniques": [
+          "breathingExercise",
+          "grounding",
+          "scriptureMeditation"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Quietud breve",
+          "scripture": {
+            "ref": "Salmo 46:10",
+            "text": "Estad quietos"
+          },
+          "reflection": "La quietud es práctica.",
+          "prayer": "Silencia mi alma.",
+          "actionSteps": [
+            "2 min silencio",
+            "Respira lento"
+          ],
+          "checkInQuestions": [
+            "¿Qué ruido notaste?"
+          ],
+          "anchorVerse": "Sal 46:10"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Atención a Dios",
+          "scripture": {
+            "ref": "1 Reyes 19:12",
+            "text": "Silbo apacible"
+          },
+          "reflection": "Dios habla suave.",
+          "prayer": "Afina mi oído.",
+          "actionSteps": [
+            "Lee versículo 3 veces",
+            "Nota 1 palabra"
+          ],
+          "checkInQuestions": [
+            "¿Qué palabra resaltó?"
+          ],
+          "anchorVerse": "1 R 19:12"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Entrega de pensamientos",
+          "scripture": {
+            "ref": "Filipenses 4:8",
+            "text": "En esto pensad"
+          },
+          "reflection": "Redirige tu mente.",
+          "prayer": "Guía mis pensamientos.",
+          "actionSteps": [
+            "Escribe 3 pensamientos buenos",
+            "Suelta 3 distractores"
+          ],
+          "checkInQuestions": [
+            "¿Cuál mantendrás hoy?"
+          ],
+          "anchorVerse": "Fil 4:8"
+        }
+      ]
+    },
+    {
+      "id": "romper-la-rutina",
+      "title": "Romper la Rutina",
+      "subtitle": "Corta patrones que llevan a caer",
+      "description": "Identifica el loop y cambia la señal.",
+      "durationDays": 7,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/romper-la-rutina.png",
+      "metadata": {
+        "giants": [
+          "digital",
+          "sexual",
+          "substances"
+        ],
+        "stage": "habit",
+        "planType": "discipleship",
+        "difficulty": "medium",
+        "tags": [
+          "habito",
+          "loop"
+        ],
+        "techniques": [
+          "triggerAwareness",
+          "environmentDesign",
+          "replacementHabit"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Detecta señal",
+          "scripture": {
+            "ref": "Proverbios 14:15",
+            "text": "El ingenuo cree todo"
+          },
+          "reflection": "Reconoce el trigger.",
+          "prayer": "Muéstrame mis señales.",
+          "actionSteps": [
+            "Lista 3 señales",
+            "Marca hora y lugar"
+          ],
+          "checkInQuestions": [
+            "¿Cuál se repite más?"
+          ],
+          "anchorVerse": "Pr 14:15"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Cambia la respuesta",
+          "scripture": {
+            "ref": "1 Corintios 10:31",
+            "text": "Todo para la gloria"
+          },
+          "reflection": "Responde distinto.",
+          "prayer": "Guía mi respuesta.",
+          "actionSteps": [
+            "Diseña respuesta alternativa",
+            "Practica 1 vez"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te funcionó?"
+          ],
+          "anchorVerse": "1 Co 10:31"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Recompensa sana",
+          "scripture": {
+            "ref": "Salmo 37:4",
+            "text": "Deléitate en Jehová"
+          },
+          "reflection": "Busca recompensa correcta.",
+          "prayer": "Sacia mi deseo en Ti.",
+          "actionSteps": [
+            "Recompensa sana tras victoria",
+            "Anota sensación"
+          ],
+          "checkInQuestions": [
+            "¿Cómo se sintió la recompensa sana?"
+          ],
+          "anchorVerse": "Sal 37:4"
+        }
+      ]
+    },
+    {
+      "id": "identidad-antes-de-impulso",
+      "title": "Identidad Antes de Impulso",
+      "subtitle": "Recuerda quién eres antes de actuar",
+      "description": "Reancla identidad en Cristo para frenar impulsos.",
+      "durationDays": 7,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/identidad-antes-de-impulso.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "substances",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "scripture_depth",
+        "difficulty": "medium",
+        "tags": [
+          "identidad",
+          "impulso"
+        ],
+        "techniques": [
+          "scriptureMeditation",
+          "declarativeprayer",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Hijo amado",
+          "scripture": {
+            "ref": "Mateo 3:17",
+            "text": "Mi hijo amado"
+          },
+          "reflection": "Eres aceptado antes del desempeño.",
+          "prayer": "Recuérdame tu voz.",
+          "actionSteps": [
+            "Declara 3 veces tu identidad",
+            "Escribe 1 mentira vs verdad"
+          ],
+          "checkInQuestions": [
+            "¿Qué cambia al recordar esto?"
+          ],
+          "anchorVerse": "Mt 3:17"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Herencia",
+          "scripture": {
+            "ref": "Efesios 1:13-14",
+            "text": "Sellados con el Espíritu"
+          },
+          "reflection": "Tienes herencia eterna.",
+          "prayer": "Gracias por tu sello.",
+          "actionSteps": [
+            "Lee lento el pasaje",
+            "Respira con la frase 'sellado'"
+          ],
+          "checkInQuestions": [
+            "¿Cómo afecta tu deseo?"
+          ],
+          "anchorVerse": "Ef 1:13"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Camina digno",
+          "scripture": {
+            "ref": "Efesios 4:1",
+            "text": "Andar como es digno"
+          },
+          "reflection": "Tu andar fluye de identidad.",
+          "prayer": "Hazme andar acorde.",
+          "actionSteps": [
+            "Plan de 1 acción congruente",
+            "Comparte con aliado"
+          ],
+          "checkInQuestions": [
+            "¿Qué acción harás hoy?"
+          ],
+          "anchorVerse": "Ef 4:1"
+        }
+      ]
+    },
+    {
+      "id": "fortaleza-en-la-debilidad",
+      "title": "Fortaleza en la Debilidad",
+      "subtitle": "Encuentra poder en la gracia",
+      "description": "Cuando te sientes débil, gracia práctica.",
+      "durationDays": 7,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/fortaleza-en-la-debilidad.png",
+      "metadata": {
+        "giants": [
+          "emotions",
+          "mental",
+          "substances"
+        ],
+        "stage": "habit",
+        "planType": "discipleship",
+        "difficulty": "easy",
+        "tags": [
+          "debilidad",
+          "gracia"
+        ],
+        "techniques": [
+          "declarativeprayer",
+          "scriptureMeditation",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Mi gracia te basta",
+          "scripture": {
+            "ref": "2 Corintios 12:9",
+            "text": "Mi poder se perfecciona"
+          },
+          "reflection": "Tu debilidad es espacio para su poder.",
+          "prayer": "Que tu poder repose en mí.",
+          "actionSteps": [
+            "Memoriza mitad del versículo",
+            "Ora 2 min"
+          ],
+          "checkInQuestions": [
+            "¿Dónde te sientes débil?"
+          ],
+          "anchorVerse": "2 Co 12:9"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Boast en Cristo",
+          "scripture": {
+            "ref": "2 Corintios 12:10",
+            "text": "Me gozo en debilidades"
+          },
+          "reflection": "Acepta tu límite, abraza su fuerza.",
+          "prayer": "Humíllame para recibir.",
+          "actionSteps": [
+            "Escribe 1 debilidad",
+            "Entrega en oración"
+          ],
+          "checkInQuestions": [
+            "¿Qué cambia al reconocerla?"
+          ],
+          "anchorVerse": "2 Co 12:10"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Poder práctico",
+          "scripture": {
+            "ref": "Filipenses 4:13",
+            "text": "Todo lo puedo"
+          },
+          "reflection": "Poder para lo que Él pide.",
+          "prayer": "Dame fuerza específica.",
+          "actionSteps": [
+            "Define 1 tarea difícil",
+            "Hazla 10m"
+          ],
+          "checkInQuestions": [
+            "¿Cómo experimentaste fuerza?"
+          ],
+          "anchorVerse": "Fil 4:13"
+        }
+      ]
+    },
+    {
+      "id": "dia-a-dia-habitos-pequenos",
+      "title": "Día a Día: Hábitos Pequeños",
+      "subtitle": "Micro victorias diarias",
+      "description": "Pequeños hábitos consistentes que suman.",
+      "durationDays": 7,
+      "minutesPerDay": 7,
+      "coverImage": "assets/images/plan_covers/dia-a-dia-habitos-pequenos.png",
+      "metadata": {
+        "giants": [
+          "health",
+          "digital",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "discipleship",
+        "difficulty": "easy",
+        "tags": [
+          "microhabitos",
+          "consistencia"
+        ],
+        "techniques": [
+          "microCommitment",
+          "replacementHabit",
+          "environmentDesign"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Elige 1 hábito",
+          "scripture": {
+            "ref": "Zacarías 4:10",
+            "text": "No menosprecies los comienzos"
+          },
+          "reflection": "Pequeño pero constante.",
+          "prayer": "Bendice mi pequeño inicio.",
+          "actionSteps": [
+            "Selecciona 1 hábito de 2 min",
+            "Agenda hora"
+          ],
+          "checkInQuestions": [
+            "¿Qué hábito elegiste?"
+          ],
+          "anchorVerse": "Zac 4:10"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Apoyo visual",
+          "scripture": {
+            "ref": "Deuteronomio 6:9",
+            "text": "Escríbelas"
+          },
+          "reflection": "Pon recordatorios visibles.",
+          "prayer": "Hazme recordar.",
+          "actionSteps": [
+            "Pega nota visible",
+            "Configura alarma suave"
+          ],
+          "checkInQuestions": [
+            "¿Dónde lo pusiste?"
+          ],
+          "anchorVerse": "Dt 6:9"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Suma 1%",
+          "scripture": {
+            "ref": "Proverbios 21:5",
+            "text": "Los planes del diligente"
+          },
+          "reflection": "Incrementos pequeños.",
+          "prayer": "Guía mi diligencia.",
+          "actionSteps": [
+            "Aumenta 1 minuto",
+            "Registra en app/diario"
+          ],
+          "checkInQuestions": [
+            "¿Cómo se siente el avance?"
+          ],
+          "anchorVerse": "Pr 21:5"
+        }
+      ]
+    },
+    {
+      "id": "guardianes-del-corazon",
+      "title": "Guardianes del Corazón",
+      "subtitle": "Protege entradas y deseos",
+      "description": "Guarda tu corazón frente a estímulos y mentiras.",
+      "durationDays": 7,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/guardianes-del-corazon.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "digital",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "giant_focused",
+        "difficulty": "medium",
+        "tags": [
+          "limites",
+          "corazon"
+        ],
+        "techniques": [
+          "environmentDesign",
+          "triggerAwareness",
+          "scriptureMeditation"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Puertas de entrada",
+          "scripture": {
+            "ref": "Proverbios 4:23",
+            "text": "Guarda tu corazón"
+          },
+          "reflection": "Protege lo que entra.",
+          "prayer": "Guarda mis ojos y oídos.",
+          "actionSteps": [
+            "Lista 3 entradas",
+            "Cierra 1 hoy"
+          ],
+          "checkInQuestions": [
+            "¿Cuál cerraste?"
+          ],
+          "anchorVerse": "Pr 4:23"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Filtra historias",
+          "scripture": {
+            "ref": "Filipenses 4:8",
+            "text": "En esto pensad"
+          },
+          "reflection": "Elige mejor contenido.",
+          "prayer": "Guía mi mente.",
+          "actionSteps": [
+            "Cambia 1 feed por devocional",
+            "Silencia 1 cuenta"
+          ],
+          "checkInQuestions": [
+            "¿Cómo se siente tu mente?"
+          ],
+          "anchorVerse": "Fil 4:8"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Amistades que guardan",
+          "scripture": {
+            "ref": "Proverbios 27:17",
+            "text": "Hierro con hierro"
+          },
+          "reflection": "Necesitas aliados.",
+          "prayer": "Dame amigos que guarden.",
+          "actionSteps": [
+            "Envía check-in",
+            "Pide revisión semanal"
+          ],
+          "checkInQuestions": [
+            "¿Quién te guarda?"
+          ],
+          "anchorVerse": "Pr 27:17"
+        }
+      ]
+    },
+    {
+      "id": "reprograma-el-deseo",
+      "title": "Reprograma el Deseo",
+      "subtitle": "Forma nuevos apetitos",
+      "description": "21 días para reorientar el deseo hacia Cristo.",
+      "durationDays": 21,
+      "minutesPerDay": 11,
+      "coverImage": "assets/images/plan_covers/reprograma-el-deseo.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "substances"
+        ],
+        "stage": "habit",
+        "planType": "scripture_depth",
+        "difficulty": "medium",
+        "tags": [
+          "deseo",
+          "reemplazo"
+        ],
+        "techniques": [
+          "replacementHabit",
+          "scriptureMeditation",
+          "accountability"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Nuevo apetito",
+          "scripture": {
+            "ref": "Salmo 37:4",
+            "text": "Deléitate"
+          },
+          "reflection": "El deseo se redirige.",
+          "prayer": "Sacia en Ti mis deseos.",
+          "actionSteps": [
+            "Identifica deseo base",
+            "Elige reemplazo sano"
+          ],
+          "checkInQuestions": [
+            "¿Qué deseo subyacente hay?"
+          ],
+          "anchorVerse": "Sal 37:4"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Memoria y deseo",
+          "scripture": {
+            "ref": "Lamentaciones 3:21",
+            "text": "Traer a memoria"
+          },
+          "reflection": "Recuerda para desear bien.",
+          "prayer": "Recuerdo tu fidelidad.",
+          "actionSteps": [
+            "Escribe 3 evidencias de gracia",
+            "Lee en voz alta"
+          ],
+          "checkInQuestions": [
+            "¿Qué evidencia te anima?"
+          ],
+          "anchorVerse": "Lm 3:21"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Sabor nuevo",
+          "scripture": {
+            "ref": "Salmo 34:8",
+            "text": "Gusten y vean"
+          },
+          "reflection": "Probar la bondad cambia apetito.",
+          "prayer": "Hazme gustar tu bondad.",
+          "actionSteps": [
+            "Tiempo de adoración 5m",
+            "Anota sensación"
+          ],
+          "checkInQuestions": [
+            "¿Cómo cambió tu anhelo?"
+          ],
+          "anchorVerse": "Sal 34:8"
+        }
+      ]
+    },
+    {
+      "id": "disciplina-del-ojo",
+      "title": "Disciplina del Ojo",
+      "subtitle": "21 días de pureza visual",
+      "description": "Entrena tus ojos con límites, adoración y verdad.",
+      "durationDays": 21,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/disciplina-del-ojo.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "digital"
+        ],
+        "stage": "habit",
+        "planType": "giant_focused",
+        "difficulty": "hard",
+        "tags": [
+          "ojos",
+          "pureza"
+        ],
+        "techniques": [
+          "environmentDesign",
+          "urgeDelay",
+          "declarativeprayer"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Pacto de ojos",
+          "scripture": {
+            "ref": "Job 31:1",
+            "text": "Pacto con mis ojos"
+          },
+          "reflection": "Decide hoy.",
+          "prayer": "Guarda mis ojos.",
+          "actionSteps": [
+            "Escribe tu pacto",
+            "Comparte con aliado"
+          ],
+          "checkInQuestions": [
+            "¿Qué te cuesta más?"
+          ],
+          "anchorVerse": "Job 31:1"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Rediseño visual",
+          "scripture": {
+            "ref": "Salmo 119:37",
+            "text": "Aparta mis ojos"
+          },
+          "reflection": "Quita lo que distrae.",
+          "prayer": "Apaga lo vano.",
+          "actionSteps": [
+            "Filtra contenido",
+            "Cambia fondos gatillo"
+          ],
+          "checkInQuestions": [
+            "¿Qué quitaste hoy?"
+          ],
+          "anchorVerse": "Sal 119:37"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Contempla lo glorioso",
+          "scripture": {
+            "ref": "2 Corintios 3:18",
+            "text": "Contemplando..."
+          },
+          "reflection": "Lo que contemplas te forma.",
+          "prayer": "Enfoca mis ojos en Ti.",
+          "actionSteps": [
+            "Mira 1 obra de la creación",
+            "Da gracias"
+          ],
+          "checkInQuestions": [
+            "¿Qué te formó hoy?"
+          ],
+          "anchorVerse": "2 Co 3:18"
+        }
+      ]
+    },
+    {
+      "id": "reemplazo-de-habitos",
+      "title": "Reemplazo de Hábitos (Arsenal)",
+      "subtitle": "Sustituye conductas con micro hábitos",
+      "description": "Plan práctico de 21 días de reemplazo conductual.",
+      "durationDays": 21,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/reemplazo-de-habitos.png",
+      "metadata": {
+        "giants": [
+          "digital",
+          "substances",
+          "sexual"
+        ],
+        "stage": "habit",
+        "planType": "relapse_recovery",
+        "difficulty": "medium",
+        "tags": [
+          "reemplazo",
+          "habitos"
+        ],
+        "techniques": [
+          "replacementHabit",
+          "environmentDesign",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Mapa de hábito",
+          "scripture": {
+            "ref": "Proverbios 4:26",
+            "text": "Considera la senda"
+          },
+          "reflection": "Mapa del loop.",
+          "prayer": "Dame claridad.",
+          "actionSteps": [
+            "Dibuja señal-rutina-recompensa",
+            "Elige reemplazo"
+          ],
+          "checkInQuestions": [
+            "¿Qué señal es clave?"
+          ],
+          "anchorVerse": "Pr 4:26"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Ensayo mental",
+          "scripture": {
+            "ref": "Josué 1:8",
+            "text": "Medita de día y noche"
+          },
+          "reflection": "Ensaya la respuesta.",
+          "prayer": "Recuérdame en el momento.",
+          "actionSteps": [
+            "Visualiza respuesta",
+            "Practica 1 vez real"
+          ],
+          "checkInQuestions": [
+            "¿Cómo se sintió el ensayo?"
+          ],
+          "anchorVerse": "Jos 1:8"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Recompensa inmediata",
+          "scripture": {
+            "ref": "Salmo 16:11",
+            "text": "Delicias a tu diestra"
+          },
+          "reflection": "Da recompensa sana tras victoria.",
+          "prayer": "Sacia con tu presencia.",
+          "actionSteps": [
+            "Elige recompensa sana",
+            "Aplícala tras victoria"
+          ],
+          "checkInQuestions": [
+            "¿Qué recompensa funcionó?"
+          ],
+          "anchorVerse": "Sal 16:11"
+        }
+      ]
+    },
+    {
+      "id": "ansiedad-reencuadre-diario",
+      "title": "Ansiedad: Reencuadre Diario",
+      "subtitle": "Verdad diaria para la mente",
+      "description": "21 días de reencuadre cognitivo y bíblico.",
+      "durationDays": 21,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/ansiedad-reencuadre-diario.png",
+      "metadata": {
+        "giants": [
+          "mental",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "emotional_regulation",
+        "difficulty": "medium",
+        "tags": [
+          "ansiedad",
+          "cbt"
+        ],
+        "techniques": [
+          "cbtReframe",
+          "journaling",
+          "breathingExercise"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Detecta pensamiento",
+          "scripture": {
+            "ref": "Salmo 139:23",
+            "text": "Examíname"
+          },
+          "reflection": "Observa el pensamiento.",
+          "prayer": "Muéstrame lo oculto.",
+          "actionSteps": [
+            "Escribe pensamiento automático",
+            "Califícalo 1-10"
+          ],
+          "checkInQuestions": [
+            "¿Qué pensamiento lidera?"
+          ],
+          "anchorVerse": "Sal 139:23"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Prueba la evidencia",
+          "scripture": {
+            "ref": "Filipenses 4:8",
+            "text": "En esto pensad"
+          },
+          "reflection": "Busca evidencia real.",
+          "prayer": "Dame verdad.",
+          "actionSteps": [
+            "3 evidencias a favor/contra",
+            "Respira 2 min"
+          ],
+          "checkInQuestions": [
+            "¿Qué cambió al evaluar?"
+          ],
+          "anchorVerse": "Fil 4:8"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Nueva historia",
+          "scripture": {
+            "ref": "Salmo 103:2",
+            "text": "No olvides sus beneficios"
+          },
+          "reflection": "Cuenta una historia diferente.",
+          "prayer": "Reescribe mi narrativa.",
+          "actionSteps": [
+            "Escribe versión redimida",
+            "Lee en voz alta"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te sientes ahora?"
+          ],
+          "anchorVerse": "Sal 103:2"
+        }
+      ]
+    },
+    {
+      "id": "pureza-reordenando-afectos",
+      "title": "Pureza: Reordenando Afectos",
+      "subtitle": "Ama lo correcto para desear bien",
+      "description": "21 días para reordenar afectos hacia Cristo.",
+      "durationDays": 21,
+      "minutesPerDay": 11,
+      "coverImage": "assets/images/plan_covers/pureza-reordenando-afectos.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "new_in_faith",
+        "difficulty": "hard",
+        "tags": [
+          "afectos",
+          "amor"
+        ],
+        "techniques": [
+          "worship",
+          "scriptureMeditation",
+          "accountability"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Ama al Señor",
+          "scripture": {
+            "ref": "Marcos 12:30",
+            "text": "Amarás con todo"
+          },
+          "reflection": "El corazón sigue su amor.",
+          "prayer": "Enciende mi amor.",
+          "actionSteps": [
+            "Adoración 5m",
+            "Escribe por qué le amas"
+          ],
+          "checkInQuestions": [
+            "¿Cómo se siente tu afecto hoy?"
+          ],
+          "anchorVerse": "Mr 12:30"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Afectos ordenados",
+          "scripture": {
+            "ref": "Colosenses 3:2",
+            "text": "Poned la mira"
+          },
+          "reflection": "Afecto a lo de arriba.",
+          "prayer": "Ajusta mi mira.",
+          "actionSteps": [
+            "Lista deseos desordenados",
+            "Ora por cada uno"
+          ],
+          "checkInQuestions": [
+            "¿Qué deseo reordenas hoy?"
+          ],
+          "anchorVerse": "Col 3:2"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Adoración práctica",
+          "scripture": {
+            "ref": "Romanos 12:1",
+            "text": "Culto racional"
+          },
+          "reflection": "Adora con tu cuerpo.",
+          "prayer": "Hazme sacrificio vivo.",
+          "actionSteps": [
+            "Acto de servicio 10m",
+            "Agradece al final"
+          ],
+          "checkInQuestions": [
+            "¿Qué acto hiciste?"
+          ],
+          "anchorVerse": "Ro 12:1"
+        }
+      ]
+    },
+    {
+      "id": "mundo-digital-regla-de-vida",
+      "title": "Mundo Digital: Regla de Vida",
+      "subtitle": "21 días para gobernar tus pantallas",
+      "description": "Define reglas digitales, hábitos y descansos.",
+      "durationDays": 21,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/mundo-digital-regla-de-vida.png",
+      "metadata": {
+        "giants": [
+          "digital",
+          "mental"
+        ],
+        "stage": "habit",
+        "planType": "new_in_faith",
+        "difficulty": "medium",
+        "tags": [
+          "digital",
+          "regla"
+        ],
+        "techniques": [
+          "environmentDesign",
+          "microCommitment",
+          "triggerAwareness"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Regla clara",
+          "scripture": {
+            "ref": "1 Corintios 6:12",
+            "text": "No seré dominado"
+          },
+          "reflection": "Escribe tu regla.",
+          "prayer": "Gobierna mis pantallas.",
+          "actionSteps": [
+            "Define horario digital",
+            "Comparte con aliado"
+          ],
+          "checkInQuestions": [
+            "¿Cuál es tu regla?"
+          ],
+          "anchorVerse": "1 Co 6:12"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Sabbath digital",
+          "scripture": {
+            "ref": "Éxodo 20:10",
+            "text": "Día de reposo"
+          },
+          "reflection": "Descanso de pantallas.",
+          "prayer": "Dame descanso real.",
+          "actionSteps": [
+            "Planifica 2h sin pantalla",
+            "Elige actividad offline"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te sentiste?"
+          ],
+          "anchorVerse": "Ex 20:10"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Notificaciones bajo control",
+          "scripture": {
+            "ref": "Salmo 119:133",
+            "text": "Ordena mis pasos"
+          },
+          "reflection": "Ordena alertas.",
+          "prayer": "Ordena mis prioridades.",
+          "actionSteps": [
+            "Apaga notificaciones innecesarias",
+            "Revisa 2 veces al día"
+          ],
+          "checkInQuestions": [
+            "¿Qué notificación apagaste?"
+          ],
+          "anchorVerse": "Sal 119:133"
+        }
+      ]
+    },
+    {
+      "id": "soledad-y-comunidad",
+      "title": "Soledad y Comunidad",
+      "subtitle": "Del aislamiento a la conexión",
+      "description": "21 días para formar comunidad práctica.",
+      "durationDays": 21,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/soledad-y-comunidad.png",
+      "metadata": {
+        "giants": [
+          "emotions",
+          "mental"
+        ],
+        "stage": "habit",
+        "planType": "discipleship",
+        "difficulty": "easy",
+        "tags": [
+          "soledad",
+          "comunidad"
+        ],
+        "techniques": [
+          "accountability",
+          "journaling",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "No estás solo",
+          "scripture": {
+            "ref": "Salmo 68:6",
+            "text": "Dios hace habitar en familia"
+          },
+          "reflection": "Dios te coloca en familia.",
+          "prayer": "Conéctame con tu gente.",
+          "actionSteps": [
+            "Envía mensaje a 1 persona",
+            "Ora por ella"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te respondió?"
+          ],
+          "anchorVerse": "Sal 68:6"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Vulnerabilidad segura",
+          "scripture": {
+            "ref": "Santiago 5:16",
+            "text": "Confesaos unos a otros"
+          },
+          "reflection": "Compartir sana.",
+          "prayer": "Dame valentía.",
+          "actionSteps": [
+            "Comparte 1 lucha a aliado",
+            "Pide oración"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te sentiste al compartir?"
+          ],
+          "anchorVerse": "Stg 5:16"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Ritual semanal",
+          "scripture": {
+            "ref": "Hebreos 10:25",
+            "text": "No dejemos de congregarnos"
+          },
+          "reflection": "Crea un ritmo.",
+          "prayer": "Fija mi compromiso.",
+          "actionSteps": [
+            "Agenda encuentro semanal",
+            "Prepara tema breve"
+          ],
+          "checkInQuestions": [
+            "¿Cuándo te reunirás?"
+          ],
+          "anchorVerse": "Heb 10:25"
+        }
+      ]
+    },
+    {
+      "id": "sueno-santo",
+      "title": "Sueño Santo (Rutina nocturna)",
+      "subtitle": "Mejora tu descanso para resistir",
+      "description": "Rutina nocturna que protege corazón y mente.",
+      "durationDays": 21,
+      "minutesPerDay": 8,
+      "coverImage": "assets/images/plan_covers/sueno-santo.png",
+      "metadata": {
+        "giants": [
+          "health",
+          "mental",
+          "sexual"
+        ],
+        "stage": "habit",
+        "planType": "emotional_regulation",
+        "difficulty": "easy",
+        "tags": [
+          "sueño",
+          "rutina"
+        ],
+        "techniques": [
+          "breathingExercise",
+          "environmentDesign",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Cierre temprano",
+          "scripture": {
+            "ref": "Salmo 4:8",
+            "text": "En paz me acostaré"
+          },
+          "reflection": "Dormir es acto de fe.",
+          "prayer": "Guarda mi descanso.",
+          "actionSteps": [
+            "Apaga pantallas 60m antes",
+            "Luz cálida"
+          ],
+          "checkInQuestions": [
+            "¿A qué hora cerrarás?"
+          ],
+          "anchorVerse": "Sal 4:8"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Breve examen",
+          "scripture": {
+            "ref": "Salmo 139:24",
+            "text": "Guíame"
+          },
+          "reflection": "Evalúa el día.",
+          "prayer": "Revisa mi corazón.",
+          "actionSteps": [
+            "Escribe 3 gratitudes",
+            "1 aprendizaje"
+          ],
+          "checkInQuestions": [
+            "¿Qué agradecerás hoy?"
+          ],
+          "anchorVerse": "Sal 139:24"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Respira y suelta",
+          "scripture": {
+            "ref": "Mateo 11:28",
+            "text": "Les daré descanso"
+          },
+          "reflection": "Respirar entrega cargas.",
+          "prayer": "Te entrego mi carga.",
+          "actionSteps": [
+            "Respira 4-7-8",
+            "Oración 2 min"
+          ],
+          "checkInQuestions": [
+            "¿Qué soltaste?"
+          ],
+          "anchorVerse": "Mt 11:28"
+        }
+      ]
+    },
+    {
+      "id": "palabra-en-la-boca",
+      "title": "Palabra en la Boca",
+      "subtitle": "Memorización práctica",
+      "description": "Memoriza y declara Escritura 21 días.",
+      "durationDays": 21,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/palabra-en-la-boca.png",
+      "metadata": {
+        "giants": [
+          "mental",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "scripture_depth",
+        "difficulty": "medium",
+        "tags": [
+          "memorizacion",
+          "declaracion"
+        ],
+        "techniques": [
+          "scriptureMeditation",
+          "declarativeprayer",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Verso del día",
+          "scripture": {
+            "ref": "Salmo 1:2",
+            "text": "En su ley medita"
+          },
+          "reflection": "Meditación diaria.",
+          "prayer": "Haz tu palabra dulce.",
+          "actionSteps": [
+            "Memoriza 1 frase",
+            "Repite 5 veces"
+          ],
+          "checkInQuestions": [
+            "¿Cuál frase memorizas?"
+          ],
+          "anchorVerse": "Sal 1:2"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Declarar en voz alta",
+          "scripture": {
+            "ref": "Romanos 10:17",
+            "text": "La fe por el oír"
+          },
+          "reflection": "Declara para creer.",
+          "prayer": "Aumenta mi fe.",
+          "actionSteps": [
+            "Declara 3 veces",
+            "Grábate y escucha"
+          ],
+          "checkInQuestions": [
+            "¿Cómo se siente declararlo?"
+          ],
+          "anchorVerse": "Ro 10:17"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Aplicar el texto",
+          "scripture": {
+            "ref": "Santiago 1:22",
+            "text": "Sean hacedores"
+          },
+          "reflection": "Memorizar para actuar.",
+          "prayer": "Ayúdame a vivirlo.",
+          "actionSteps": [
+            "Escribe 1 aplicación",
+            "Hazla hoy"
+          ],
+          "checkInQuestions": [
+            "¿Qué aplicación hiciste?"
+          ],
+          "anchorVerse": "Stg 1:22"
+        }
+      ]
+    },
+    {
+      "id": "armadura-de-dios-racha-21",
+      "title": "Armadura de Dios: Racha de 21",
+      "subtitle": "Viste la armadura diario",
+      "description": "Recuérdalo y aplícalo cada día.",
+      "durationDays": 21,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/armadura-de-dios-racha-21.png",
+      "metadata": {
+        "giants": [
+          "spiritual",
+          "emotions"
+        ],
+        "stage": "habit",
+        "planType": "discipleship",
+        "difficulty": "medium",
+        "tags": [
+          "armadura",
+          "guerra"
+        ],
+        "techniques": [
+          "declarativeprayer",
+          "scriptureMeditation",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Cinturón de verdad",
+          "scripture": {
+            "ref": "Efesios 6:14",
+            "text": "Cenidos"
+          },
+          "reflection": "Verdad primero.",
+          "prayer": "Ciñe mi mente.",
+          "actionSteps": [
+            "Declara verdad personal",
+            "Anota mentira a reemplazar"
+          ],
+          "checkInQuestions": [
+            "¿Qué verdad usas hoy?"
+          ],
+          "anchorVerse": "Ef 6:14"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Coraza de justicia",
+          "scripture": {
+            "ref": "Efesios 6:14",
+            "text": "Coraza"
+          },
+          "reflection": "Protege tu corazón.",
+          "prayer": "Vísteme de tu justicia.",
+          "actionSteps": [
+            "Confiesa y recibe perdón",
+            "Agradece"
+          ],
+          "checkInQuestions": [
+            "¿Cómo cambia tu seguridad?"
+          ],
+          "anchorVerse": "Ef 6:14"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Calzado de paz",
+          "scripture": {
+            "ref": "Efesios 6:15",
+            "text": "Calzados"
+          },
+          "reflection": "Camina en paz.",
+          "prayer": "Hazme portador de paz.",
+          "actionSteps": [
+            "Paso de paz hoy",
+            "Envía mensaje de ánimo"
+          ],
+          "checkInQuestions": [
+            "¿A quién diste paz?"
+          ],
+          "anchorVerse": "Ef 6:15"
+        }
+      ]
+    },
+    {
+      "id": "confesion-y-rendicion",
+      "title": "Confesión y Rendición",
+      "subtitle": "21 días de transparencia",
+      "description": "Practica confesión y rendición constante.",
+      "durationDays": 21,
+      "minutesPerDay": 9,
+      "coverImage": "assets/images/plan_covers/confesion-y-rendicion.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "substances",
+          "emotions"
+        ],
+        "stage": "restoration",
+        "planType": "relapse_recovery",
+        "difficulty": "medium",
+        "tags": [
+          "confesion",
+          "rendicion"
+        ],
+        "techniques": [
+          "accountability",
+          "journaling",
+          "declarativeprayer"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Luz ahora",
+          "scripture": {
+            "ref": "1 Juan 1:7",
+            "text": "Andar en luz"
+          },
+          "reflection": "La luz sana.",
+          "prayer": "Llévame a la luz.",
+          "actionSteps": [
+            "Cuenta a tu aliado",
+            "Ora juntos"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te sientes tras confesar?"
+          ],
+          "anchorVerse": "1 Jn 1:7"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Rendir temprano",
+          "scripture": {
+            "ref": "Proverbios 3:6",
+            "text": "Reconócelo"
+          },
+          "reflection": "Rinde antes del impulso.",
+          "prayer": "Te reconozco hoy.",
+          "actionSteps": [
+            "Oración al despertar",
+            "Entrega agenda"
+          ],
+          "checkInQuestions": [
+            "¿Rendiste antes?"
+          ],
+          "anchorVerse": "Pr 3:6"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Gracia diaria",
+          "scripture": {
+            "ref": "Hebreos 4:16",
+            "text": "Trono de gracia"
+          },
+          "reflection": "Acércate con confianza.",
+          "prayer": "Dame gracia oportuna.",
+          "actionSteps": [
+            "Oración de 2 min",
+            "Respira y acércate"
+          ],
+          "checkInQuestions": [
+            "¿Qué gracia recibiste?"
+          ],
+          "anchorVerse": "Heb 4:16"
+        }
+      ]
+    },
+    {
+      "id": "plan-prevencion-recaidas",
+      "title": "Plan de Prevención de Recaídas",
+      "subtitle": "Mapa antes de caer",
+      "description": "Diseña tu plan anti-recaída.",
+      "durationDays": 21,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/plan-prevencion-recaidas.png",
+      "metadata": {
+        "giants": [
+          "sexual",
+          "substances",
+          "digital"
+        ],
+        "stage": "maintenance",
+        "planType": "relapse_recovery",
+        "difficulty": "hard",
+        "tags": [
+          "prevencion",
+          "recaida"
+        ],
+        "techniques": [
+          "triggerAwareness",
+          "environmentDesign",
+          "accountability"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": true,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Mapa de riesgo",
+          "scripture": {
+            "ref": "1 Pedro 5:8",
+            "text": "Sed sobrios"
+          },
+          "reflection": "Conoce tus riesgos.",
+          "prayer": "Hazme sobrio.",
+          "actionSteps": [
+            "Lista riesgos top",
+            "Define alerta"
+          ],
+          "checkInQuestions": [
+            "¿Cuál es mayor riesgo?"
+          ],
+          "anchorVerse": "1 P 5:8"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Plan A/B",
+          "scripture": {
+            "ref": "Proverbios 22:3",
+            "text": "El prudente ve el mal"
+          },
+          "reflection": "Ten rutas alternas.",
+          "prayer": "Dame prudencia.",
+          "actionSteps": [
+            "Plan A si aparece gatillo",
+            "Plan B si falla A"
+          ],
+          "checkInQuestions": [
+            "¿Cuál plan usarás?"
+          ],
+          "anchorVerse": "Pr 22:3"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Red de apoyo",
+          "scripture": {
+            "ref": "Gálatas 6:2",
+            "text": "Sobrellevad las cargas"
+          },
+          "reflection": "Apoyo activo.",
+          "prayer": "Dame quien me sostenga.",
+          "actionSteps": [
+            "Define 2 contactos SOS",
+            "Mensaje de protocolo"
+          ],
+          "checkInQuestions": [
+            "¿Quién es tu contacto 1?"
+          ],
+          "anchorVerse": "Gal 6:2"
+        }
+      ]
+    },
+    {
+      "id": "fundamentos-de-la-fe",
+      "title": "Fundamentos de la Fe",
+      "subtitle": "30 días para nuevos en la fe",
+      "description": "Bases esenciales de fe y práctica.",
+      "durationDays": 30,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/fundamentos-de-la-fe.png",
+      "metadata": {
+        "giants": [
+          "spiritual",
+          "mental"
+        ],
+        "stage": "habit",
+        "planType": "new_in_faith",
+        "difficulty": "easy",
+        "tags": [
+          "fundamentos",
+          "nuevo"
+        ],
+        "techniques": [
+          "scriptureMeditation",
+          "journaling",
+          "microCommitment"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Evangelio claro",
+          "scripture": {
+            "ref": "1 Corintios 15:3-4",
+            "text": "Cristo murió y resucitó"
+          },
+          "reflection": "La base de todo.",
+          "prayer": "Gracias por tu obra.",
+          "actionSteps": [
+            "Lee el pasaje 3 veces",
+            "Anota una razón de gratitud"
+          ],
+          "checkInQuestions": [
+            "¿Qué parte te impacta?"
+          ],
+          "anchorVerse": "1 Co 15:3"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Identidad nueva",
+          "scripture": {
+            "ref": "2 Corintios 5:17",
+            "text": "Nueva criatura"
+          },
+          "reflection": "Eres nuevo en Él.",
+          "prayer": "Afirma mi nueva identidad.",
+          "actionSteps": [
+            "Declara tu identidad",
+            "Comparte con alguien"
+          ],
+          "checkInQuestions": [
+            "¿Cómo cambia tu mirada?"
+          ],
+          "anchorVerse": "2 Co 5:17"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Caminar con Dios",
+          "scripture": {
+            "ref": "Miqueas 6:8",
+            "text": "Haz justicia"
+          },
+          "reflection": "Relación diaria.",
+          "prayer": "Guía mi caminar.",
+          "actionSteps": [
+            "Oración 5m",
+            "Paso práctico de justicia"
+          ],
+          "checkInQuestions": [
+            "¿Qué paso darás hoy?"
+          ],
+          "anchorVerse": "Mi 6:8"
+        }
+      ]
+    },
+    {
+      "id": "evangelio-y-habitos",
+      "title": "Evangelio y Hábitos",
+      "subtitle": "30 días: palabra + práctica",
+      "description": "Integra evangelio y formación de hábitos.",
+      "durationDays": 30,
+      "minutesPerDay": 11,
+      "coverImage": "assets/images/plan_covers/evangelio-y-habitos.png",
+      "metadata": {
+        "giants": [
+          "spiritual",
+          "health",
+          "digital"
+        ],
+        "stage": "habit",
+        "planType": "scripture_depth",
+        "difficulty": "medium",
+        "tags": [
+          "evangelio",
+          "habitos"
+        ],
+        "techniques": [
+          "scriptureMeditation",
+          "microCommitment",
+          "replacementHabit"
+        ],
+        "recommendedFor": {
+          "newBeliever": true,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Gracia que forma",
+          "scripture": {
+            "ref": "Tito 2:11-12",
+            "text": "La gracia nos enseña"
+          },
+          "reflection": "La gracia entrena hábitos.",
+          "prayer": "Enséñame con tu gracia.",
+          "actionSteps": [
+            "Elige 1 hábito de gracia",
+            "Agenda 10m"
+          ],
+          "checkInQuestions": [
+            "¿Qué hábito de gracia?"
+          ],
+          "anchorVerse": "Tit 2:11"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Motivo correcto",
+          "scripture": {
+            "ref": "1 Corintios 10:31",
+            "text": "Para la gloria"
+          },
+          "reflection": "Motivos importan.",
+          "prayer": "Purifica mis motivos.",
+          "actionSteps": [
+            "Escribe por qué haces el hábito",
+            "Ora por sinceridad"
+          ],
+          "checkInQuestions": [
+            "¿Cuál es tu motivo?"
+          ],
+          "anchorVerse": "1 Co 10:31"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Pequeños pasos",
+          "scripture": {
+            "ref": "Proverbios 21:5",
+            "text": "Los planes del diligente"
+          },
+          "reflection": "Constancia sobre intensidad.",
+          "prayer": "Hazme diligente.",
+          "actionSteps": [
+            "Divide el hábito en 2 min",
+            "Marca calendario"
+          ],
+          "checkInQuestions": [
+            "¿Cómo asegurarás constancia?"
+          ],
+          "anchorVerse": "Pr 21:5"
+        }
+      ]
+    },
+    {
+      "id": "sanidad-del-corazon",
+      "title": "Sanidad del Corazón",
+      "subtitle": "30 días de restauración interna",
+      "description": "Procesa heridas con verdad, oración y comunidad.",
+      "durationDays": 30,
+      "minutesPerDay": 12,
+      "coverImage": "assets/images/plan_covers/sanidad-del-corazon.png",
+      "metadata": {
+        "giants": [
+          "emotions",
+          "mental"
+        ],
+        "stage": "restoration",
+        "planType": "emotional_regulation",
+        "difficulty": "medium",
+        "tags": [
+          "sanidad",
+          "heridas"
+        ],
+        "techniques": [
+          "journaling",
+          "declarativeprayer",
+          "accountability"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Trae tu herida",
+          "scripture": {
+            "ref": "Salmo 34:18",
+            "text": "Cercano está"
+          },
+          "reflection": "Dios está cerca del quebrantado.",
+          "prayer": "Acércate a mi herida.",
+          "actionSteps": [
+            "Escribe la herida",
+            "Ora 2 min"
+          ],
+          "checkInQuestions": [
+            "¿Qué sientes al nombrarla?"
+          ],
+          "anchorVerse": "Sal 34:18"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Perdón en proceso",
+          "scripture": {
+            "ref": "Mateo 18:21-22",
+            "text": "Setenta veces siete"
+          },
+          "reflection": "Perdonar es camino.",
+          "prayer": "Dame capacidad de perdón.",
+          "actionSteps": [
+            "Escribe a quién perdonas",
+            "Declara perdón"
+          ],
+          "checkInQuestions": [
+            "¿Qué obstáculo ves?"
+          ],
+          "anchorVerse": "Mt 18:21"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Abrir espacio",
+          "scripture": {
+            "ref": "Isaías 61:1",
+            "text": "Sana a los quebrantados"
+          },
+          "reflection": "Jesús vino a sanar.",
+          "prayer": "Sana mi corazón.",
+          "actionSteps": [
+            "Pide oración a alguien",
+            "Escucha 1 canto de esperanza"
+          ],
+          "checkInQuestions": [
+            "¿Qué esperanza despertó?"
+          ],
+          "anchorVerse": "Isa 61:1"
+        }
+      ]
+    },
+    {
+      "id": "vida-ordenada",
+      "title": "Vida Ordenada",
+      "subtitle": "30 días de regla espiritual",
+      "description": "Estructura tu día con prácticas espirituales sostenibles.",
+      "durationDays": 30,
+      "minutesPerDay": 10,
+      "coverImage": "assets/images/plan_covers/vida-ordenada.png",
+      "metadata": {
+        "giants": [
+          "spiritual",
+          "health",
+          "digital"
+        ],
+        "stage": "maintenance",
+        "planType": "discipleship",
+        "difficulty": "medium",
+        "tags": [
+          "orden",
+          "regla"
+        ],
+        "techniques": [
+          "microCommitment",
+          "scriptureMeditation",
+          "environmentDesign"
+        ],
+        "recommendedFor": {
+          "newBeliever": false,
+          "highFrequencyGiant": false,
+          "crisis": false
+        },
+        "reviewLevel": "approved"
+      },
+      "days": [
+        {
+          "dayIndex": 1,
+          "title": "Primicias",
+          "scripture": {
+            "ref": "Salmo 5:3",
+            "text": "De mañana"
+          },
+          "reflection": "Da a Dios lo primero.",
+          "prayer": "Recibe mi mañana.",
+          "actionSteps": [
+            "5 min devocional",
+            "Anota agenda"
+          ],
+          "checkInQuestions": [
+            "¿Cómo te fue hoy?"
+          ],
+          "anchorVerse": "Sal 5:3"
+        },
+        {
+          "dayIndex": 2,
+          "title": "Bloques de foco",
+          "scripture": {
+            "ref": "Efesios 5:16",
+            "text": "Aprovechando bien el tiempo"
+          },
+          "reflection": "Ordena tu día.",
+          "prayer": "Enséñame a contar mis días.",
+          "actionSteps": [
+            "Bloquea 2x25min de foco",
+            "Sin notificaciones"
+          ],
+          "checkInQuestions": [
+            "¿Qué bloque funcionó?"
+          ],
+          "anchorVerse": "Ef 5:16"
+        },
+        {
+          "dayIndex": 3,
+          "title": "Descanso planificado",
+          "scripture": {
+            "ref": "Marcos 6:31",
+            "text": "Venid aparte y descansad"
+          },
+          "reflection": "Descansa intencionalmente.",
+          "prayer": "Bendice mi descanso.",
+          "actionSteps": [
+            "Plan de descanso semanal",
+            "Actividad restauradora"
+          ],
+          "checkInQuestions": [
+            "¿Qué descanso planificas?"
+          ],
+          "anchorVerse": "Mr 6:31"
+        }
+      ]
+    }
+  ]
+}
