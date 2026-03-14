@@ -266,65 +266,77 @@ class _BibleHomeScreenState extends State<BibleHomeScreen>
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
+      isScrollControlled: true,
       builder: (context) {
         return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const SizedBox(height: 12),
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.white24,
-                  borderRadius: BorderRadius.circular(2),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              maxHeight: MediaQuery.of(context).size.height * 0.6,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.white24,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'VERSIÓN',
-                style: GoogleFonts.cinzel(
-                  color: AppDesignSystem.gold,
-                  fontSize: 16,
-                  letterSpacing: 2.0,
+                const SizedBox(height: 16),
+                Text(
+                  'VERSIÓN',
+                  style: GoogleFonts.cinzel(
+                    color: AppDesignSystem.gold,
+                    fontSize: 16,
+                    letterSpacing: 2.0,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              ...BibleVersion.values.map((v) {
-                    final isDownloaded = BibleDownloadService.I.isDownloaded(v);
-                    return ListTile(
-                    leading: Icon(
-                      v == _version ? Icons.check_circle : Icons.circle_outlined,
-                      color: v == _version ? AppDesignSystem.gold : Colors.white24,
+                const SizedBox(height: 16),
+                Flexible(
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: BibleVersion.values.map((v) {
+                        final isDownloaded = BibleDownloadService.I.isDownloaded(v);
+                        return ListTile(
+                          leading: Icon(
+                            v == _version ? Icons.check_circle : Icons.circle_outlined,
+                            color: v == _version ? AppDesignSystem.gold : Colors.white24,
+                          ),
+                          title: Text(
+                            v.displayName,
+                            style: GoogleFonts.manrope(
+                              color: Colors.white,
+                              fontWeight: v == _version ? FontWeight.w700 : FontWeight.w400,
+                            ),
+                          ),
+                          subtitle: Text(
+                            isDownloaded ? '${v.shortName} · Descargada' : '${v.shortName} · No descargada',
+                            style: GoogleFonts.manrope(color: Colors.white38, fontSize: 12),
+                          ),
+                          trailing: isDownloaded
+                              ? const Icon(Icons.download_done, color: Color(0xFF4CAF50), size: 16)
+                              : const Icon(Icons.cloud_download_outlined, color: Colors.white24, size: 16),
+                          onTap: () async {
+                            if (!isDownloaded) {
+                              await BibleDownloadService.I.downloadVersion(v);
+                            }
+                            BibleUserDataService.I.setPreferredVersion(v);
+                            if (context.mounted) Navigator.pop(context);
+                            setState(() => _loading = true);
+                            _loadBooks();
+                          },
+                        );
+                      }).toList(),
                     ),
-                    title: Text(
-                      v.displayName,
-                      style: GoogleFonts.manrope(
-                        color: Colors.white,
-                        fontWeight: v == _version ? FontWeight.w700 : FontWeight.w400,
-                      ),
-                    ),
-                    subtitle: Text(
-                      isDownloaded ? '${v.shortName} · Descargada' : '${v.shortName} · No descargada',
-                      style: GoogleFonts.manrope(color: Colors.white38, fontSize: 12),
-                    ),
-                    trailing: isDownloaded
-                        ? const Icon(Icons.download_done, color: Color(0xFF4CAF50), size: 16)
-                        : const Icon(Icons.cloud_download_outlined, color: Colors.white24, size: 16),
-                    onTap: () async {
-                      // Si no está descargada, descargarla primero
-                      if (!isDownloaded) {
-                        await BibleDownloadService.I.downloadVersion(v);
-                      }
-                      BibleUserDataService.I.setPreferredVersion(v);
-                      if (context.mounted) Navigator.pop(context);
-                      setState(() => _loading = true);
-                      _loadBooks();
-                    },
-                  );
-                  }),
-              const SizedBox(height: 16),
-            ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
+            ),
           ),
         );
       },

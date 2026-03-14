@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_download_service.dart';
@@ -175,34 +176,79 @@ class BibleSettingsScreen extends StatelessWidget {
           _SettingsSection(title: 'TEMA DEL LECTOR'),
           ValueListenableBuilder<String>(
             valueListenable: BibleUserDataService.I.readerThemeNotifier,
-            builder: (context, theme, _) {
-              return Row(
+            builder: (context, rawTheme, _) {
+              final currentId = BibleReaderThemeData.migrateId(rawTheme);
+              final currentTheme = BibleReaderThemeData.fromId(currentId);
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _ThemeOption(
-                    name: 'Oscuro',
-                    color: AppDesignSystem.midnightDeep,
-                    textColor: Colors.white,
-                    selected: theme == 'dark',
-                    onTap: () =>
-                        BibleUserDataService.I.setReaderTheme('dark'),
+                  // Preview
+                  Container(
+                    padding: const EdgeInsets.all(20),
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: currentTheme.background,
+                      borderRadius:
+                          BorderRadius.circular(AppDesignSystem.radiusM),
+                    ),
+                    child: Text(
+                      'Porque de tal manera amó Dios al mundo...',
+                      style: GoogleFonts.lora(
+                        color: currentTheme.textPrimary,
+                        fontSize: 16,
+                        fontStyle: FontStyle.italic,
+                        height: 1.7,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
                   ),
-                  const SizedBox(width: 12),
-                  _ThemeOption(
-                    name: 'Sepia',
-                    color: const Color(0xFFF5EFE0),
-                    textColor: const Color(0xFF4A3728),
-                    selected: theme == 'sepia',
-                    onTap: () =>
-                        BibleUserDataService.I.setReaderTheme('sepia'),
-                  ),
-                  const SizedBox(width: 12),
-                  _ThemeOption(
-                    name: 'Claro',
-                    color: Colors.white,
-                    textColor: Colors.black87,
-                    selected: theme == 'light',
-                    onTap: () =>
-                        BibleUserDataService.I.setReaderTheme('light'),
+                  // 9 swatches in a Wrap
+                  Wrap(
+                    spacing: 10,
+                    runSpacing: 10,
+                    children: BibleReaderThemeData.all.map((theme) {
+                      final isActive = theme.id == currentId;
+                      return GestureDetector(
+                        onTap: () =>
+                            BibleUserDataService.I.setReaderTheme(theme.id),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Container(
+                              width: 38,
+                              height: 38,
+                              decoration: BoxDecoration(
+                                color: theme.swatchColor,
+                                shape: BoxShape.circle,
+                                border: Border.all(
+                                  color: isActive
+                                      ? AppDesignSystem.gold
+                                      : Colors.white24,
+                                  width: isActive ? 2.5 : 1,
+                                ),
+                              ),
+                              child: isActive
+                                  ? Icon(Icons.check,
+                                      color: theme.isDark
+                                          ? Colors.white70
+                                          : Colors.black54,
+                                      size: 16)
+                                  : null,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              theme.name,
+                              style: GoogleFonts.manrope(
+                                color: isActive
+                                    ? AppDesignSystem.gold
+                                    : Colors.white54,
+                                fontSize: 9,
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
                   ),
                 ],
               );
@@ -466,61 +512,6 @@ class _SettingsSection extends StatelessWidget {
           fontSize: 11,
           fontWeight: FontWeight.w700,
           letterSpacing: 2.0,
-        ),
-      ),
-    );
-  }
-}
-
-class _ThemeOption extends StatelessWidget {
-  final String name;
-  final Color color;
-  final Color textColor;
-  final bool selected;
-  final VoidCallback onTap;
-
-  const _ThemeOption({
-    required this.name,
-    required this.color,
-    required this.textColor,
-    required this.selected,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: GestureDetector(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-            border: selected
-                ? Border.all(color: AppDesignSystem.gold, width: 2)
-                : Border.all(color: Colors.white12),
-          ),
-          child: Column(
-            children: [
-              Text(
-                'Aa',
-                style: GoogleFonts.crimsonPro(
-                  color: textColor,
-                  fontSize: 20,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                name,
-                style: GoogleFonts.manrope(
-                  color: textColor.withOpacity(0.7),
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
         ),
       ),
     );
