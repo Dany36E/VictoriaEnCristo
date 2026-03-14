@@ -1,4 +1,5 @@
 import 'dart:collection';
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,11 @@ import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import 'bible_download_service.dart';
+
+/// Top-level function para parsear XML en un Isolate
+XmlDocument _parseXmlInIsolate(String xmlContent) {
+  return XmlDocument.parse(xmlContent);
+}
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE PARSER SERVICE - Singleton
@@ -138,22 +144,29 @@ class BibleParserService {
     }
   }
 
-  /// Obtener un versículo en múltiples versiones (para comparar)
+  /// Obtener un versículo en múltiples versiones (para comparar).
+  /// Carga TODAS las versiones en paralelo con timeout individual.
   Future<Map<BibleVersion, BibleVerse?>> getVerseInAllVersions({
     required int bookNumber,
     required int chapter,
     required int verse,
   }) async {
-    final results = <BibleVersion, BibleVerse?>{};
-    for (final version in BibleVersion.values) {
-      results[version] = await getVerse(
-        version: version,
-        bookNumber: bookNumber,
-        chapter: chapter,
-        verse: verse,
-      );
-    }
-    return results;
+    final futures = BibleVersion.values.map((version) async {
+      try {
+        final result = await getVerse(
+          version: version,
+          bookNumber: bookNumber,
+          chapter: chapter,
+          verse: verse,
+        ).timeout(const Duration(seconds: 8));
+        return MapEntry(version, result);
+      } catch (e) {
+        debugPrint('📖 [BIBLE] getVerseInAllVersions: ${version.id} failed: $e');
+        return MapEntry(version, null);
+      }
+    });
+    final entries = await Future.wait(futures);
+    return Map.fromEntries(entries);
   }
 
   /// Buscar versículos que contengan texto (búsqueda simple)
@@ -218,23 +231,42 @@ class BibleParserService {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
+  // PUBLIC ACCESSORS (para BibleSearchService)
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /// Asegurar que una versión esté cargada y parseada.
+  Future<void> ensureVersionLoaded(BibleVersion version) =>
+      _ensureVersionLoaded(version);
+
+  /// Obtener documento XML parseado (null si no está cargado).
+  XmlDocument? getParsedDoc(BibleVersion version) => _parsedDocs[version];
+
+  // ══════════════════════════════════════════════════════════════════════════
   // INTERNOS
   // ══════════════════════════════════════════════════════════════════════════
 
   /// Cargar y parsear un XML de versión si no está ya en memoria.
   /// Prioridad: archivo local descargado > asset bundle.
+  /// Parseo en Isolate para no bloquear el UI thread.
   Future<void> _ensureVersionLoaded(BibleVersion version) async {
     if (_parsedDocs.containsKey(version)) return;
 
+    final sw = Stopwatch()..start();
     debugPrint('📖 [BIBLE] Loading ${version.id}...');
 
     String xmlString;
     final localPath = BibleDownloadService.I.getLocalPath(version);
     if (localPath != null) {
-      // Leer desde almacenamiento local (más rápido en lecturas subsecuentes)
       final file = File(localPath);
       if (await file.exists()) {
-        xmlString = await file.readAsString();
+        // Manejar encoding: intentar UTF-8, fallback a Latin-1
+        final bytes = await file.readAsBytes();
+        try {
+          xmlString = utf8.decode(bytes);
+        } catch (_) {
+          xmlString = latin1.decode(bytes);
+          debugPrint('📖 [BIBLE] ${version.id}: fallback to Latin-1 encoding');
+        }
         debugPrint('📖 [BIBLE] ${version.id} loaded from local storage');
       } else {
         xmlString = await rootBundle.loadString('assets/bible/${version.fileName}');
@@ -245,8 +277,11 @@ class BibleParserService {
       debugPrint('📖 [BIBLE] ${version.id} loaded from assets');
     }
 
-    final doc = XmlDocument.parse(xmlString);
+    // Parsear XML en un Isolate para no bloquear UI
+    final doc = await compute(_parseXmlInIsolate, xmlString);
     _parsedDocs[version] = doc;
+    sw.stop();
+    debugPrint('📖 [BIBLE] ${version.id} parsed in ${sw.elapsedMilliseconds}ms');
 
     // Build books index
     _booksIndex[version] = _buildBooksIndex(doc);

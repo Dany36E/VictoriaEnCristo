@@ -7,6 +7,7 @@ import '../../services/bible/bible_share_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../screens/bible/template_picker_screen.dart';
 import '../../screens/bible/verse_compare_screen.dart';
+import 'full_color_picker_sheet.dart';
 import 'note_editor_sheet.dart';
 import 'prayer_sheet.dart';
 
@@ -245,6 +246,46 @@ class _VerseActionsToolbarState extends State<VerseActionsToolbar>
             ),
           );
         }),
+        // Custom color button
+        GestureDetector(
+          onTap: () async {
+            final color = await showModalBottomSheet<Color>(
+              context: context,
+              backgroundColor: Colors.transparent,
+              builder: (_) => FullColorPickerSheet(
+                initialColor: currentHighlight?.color,
+                theme: t,
+              ),
+            );
+            if (color != null) {
+              data.addHighlight(
+                bookNumber: widget.verse.bookNumber,
+                chapter: widget.verse.chapter,
+                verse: widget.verse.verse,
+                colorHex: HighlightColors.toHex(color),
+              );
+              _dismiss();
+            }
+          },
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const SweepGradient(
+                colors: [
+                  Color(0xFFFF0000),
+                  Color(0xFFFFFF00),
+                  Color(0xFF00FF00),
+                  Color(0xFF00FFFF),
+                  Color(0xFF0000FF),
+                  Color(0xFFFF00FF),
+                  Color(0xFFFF0000),
+                ],
+              ),
+            ),
+          ),
+        ),
         // Remove highlight
         if (currentHighlight != null)
           _ToolbarIcon(

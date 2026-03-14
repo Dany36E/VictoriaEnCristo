@@ -1,11 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../theme/app_theme.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_parser_service.dart';
+import '../../services/bible/bible_user_data_service.dart';
+import '../../theme/bible_reader_theme.dart';
 
-/// Pantalla de comparación de un versículo en todas las versiones.
+/// ═══════════════════════════════════════════════════════════════════════════
+/// VERSE COMPARE SCREEN — Edición editorial premium
+///
+/// Carga TODAS las versiones en paralelo. Cada versión tiene su propio
+/// estado de carga (loading / loaded / error). No bloquea si una falla.
+/// ═══════════════════════════════════════════════════════════════════════════
 class VerseCompareScreen extends StatefulWidget {
   final int bookNumber;
   final String bookName;
@@ -25,131 +32,220 @@ class VerseCompareScreen extends StatefulWidget {
 }
 
 class _VerseCompareScreenState extends State<VerseCompareScreen> {
-  Map<BibleVersion, BibleVerse?> _versions = {};
-  bool _loading = true;
+  /// Estado por versión: null = loading, BibleVerse = loaded, 'error' = failed
+  final Map<BibleVersion, BibleVerse?> _loaded = {};
+  final Set<BibleVersion> _failed = {};
+  final Set<BibleVersion> _loading = {};
 
   @override
   void initState() {
     super.initState();
-    _loadVersions();
+    _loadAllVersions();
   }
 
-  Future<void> _loadVersions() async {
-    final results = await BibleParserService.I.getVerseInAllVersions(
-      bookNumber: widget.bookNumber,
-      chapter: widget.chapter,
-      verse: widget.verse,
-    );
-    if (mounted) {
-      setState(() {
-        _versions = results;
-        _loading = false;
-      });
+  Future<void> _loadAllVersions() {
+    final futures = BibleVersion.values.map(_loadVersion);
+    return Future.wait(futures);
+  }
+
+  Future<void> _loadVersion(BibleVersion version) async {
+    setState(() => _loading.add(version));
+    try {
+      final result = await BibleParserService.I
+          .getVerse(
+            version: version,
+            bookNumber: widget.bookNumber,
+            chapter: widget.chapter,
+            verse: widget.verse,
+          )
+          .timeout(const Duration(seconds: 8));
+      if (mounted) {
+        setState(() {
+          _loading.remove(version);
+          if (result != null) {
+            _loaded[version] = result;
+          } else {
+            _failed.add(version);
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _loading.remove(version);
+          _failed.add(version);
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppDesignSystem.midnightDeep,
-      appBar: AppBar(
-        backgroundColor: AppDesignSystem.midnight,
-        elevation: 0,
-        title: Column(
-          children: [
-            Text(
-              'COMPARAR',
-              style: GoogleFonts.cinzel(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 2.0,
-                color: AppDesignSystem.gold,
-              ),
+    return ValueListenableBuilder<String>(
+      valueListenable: BibleUserDataService.I.readerThemeNotifier,
+      builder: (context, themeId, _) {
+        final t = BibleReaderThemeData.fromId(
+          BibleReaderThemeData.migrateId(themeId),
+        );
+        SystemChrome.setSystemUIOverlayStyle(
+          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+        );
+
+        return Scaffold(
+          backgroundColor: t.background,
+          body: SafeArea(
+            child: Column(
+              children: [
+                _buildHeader(t),
+                Expanded(child: _buildBody(t)),
+              ],
             ),
-            Text(
-              '${widget.bookName} ${widget.chapter}:${widget.verse}',
-              style: GoogleFonts.manrope(
-                fontSize: 12,
-                color: Colors.white38,
-              ),
-            ),
-          ],
-        ),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white70, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: _loading
-          ? const Center(
-              child: CircularProgressIndicator(color: AppDesignSystem.gold))
-          : ListView(
-              padding: const EdgeInsets.all(16),
-              children: BibleVersion.values.map((version) {
-                final verse = _versions[version];
-                if (verse == null) return const SizedBox.shrink();
-                return _VersionCard(version: version, verse: verse);
-              }).toList(),
-            ),
+          ),
+        );
+      },
     );
   }
-}
 
-class _VersionCard extends StatelessWidget {
-  final BibleVersion version;
-  final BibleVerse verse;
-  const _VersionCard({required this.version, required this.verse});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
-        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _buildHeader(BibleReaderThemeData t) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(24, 24, 24, 0),
+      child: Row(
         children: [
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-            decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(6),
-            ),
-            child: Text(
-              version.shortName,
-              style: GoogleFonts.manrope(
-                color: AppDesignSystem.gold,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.0,
+          GestureDetector(
+            onTap: () => Navigator.pop(context),
+            child: Icon(Icons.arrow_back_ios,
+                color: t.textSecondary, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Comparar',
+                style: GoogleFonts.cinzel(
+                  color: t.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w600,
+                ),
               ),
-            ),
-          ),
-          const SizedBox(height: 12),
-          Text(
-            verse.text,
-            style: GoogleFonts.crimsonPro(
-              color: Colors.white.withOpacity(0.85),
-              fontSize: 18,
-              fontStyle: FontStyle.italic,
-              height: 1.7,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            version.displayName,
-            style: GoogleFonts.manrope(
-              color: Colors.white24,
-              fontSize: 11,
-            ),
+              const SizedBox(height: 2),
+              Text(
+                '${widget.bookName} ${widget.chapter}:${widget.verse}',
+                style: GoogleFonts.manrope(
+                  color: t.textSecondary.withOpacity(0.6),
+                  fontSize: 13,
+                ),
+              ),
+            ],
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildBody(BibleReaderThemeData t) {
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 24),
+      itemCount: BibleVersion.values.length,
+      itemBuilder: (context, index) {
+        final version = BibleVersion.values[index];
+
+        // Loading
+        if (_loading.contains(version)) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  version.shortName.toUpperCase(),
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.5),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  height: 2,
+                  child: LinearProgressIndicator(
+                    color: t.accent.withOpacity(0.5),
+                    backgroundColor: t.textSecondary.withOpacity(0.1),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Failed
+        if (_failed.contains(version)) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 28),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  version.shortName.toUpperCase(),
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.5),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                GestureDetector(
+                  onTap: () {
+                    _failed.remove(version);
+                    _loadVersion(version);
+                  },
+                  child: Text(
+                    'No disponible. Toca para reintentar.',
+                    style: GoogleFonts.manrope(
+                      color: t.textSecondary.withOpacity(0.4),
+                      fontSize: 13,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
+
+        // Loaded
+        final verse = _loaded[version];
+        if (verse == null) return const SizedBox.shrink();
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 28),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                version.shortName.toUpperCase(),
+                style: GoogleFonts.manrope(
+                  color: t.textSecondary.withOpacity(0.5),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.5,
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                verse.text,
+                style: GoogleFonts.lora(
+                  color: t.textPrimary,
+                  fontSize: 16,
+                  height: 1.7,
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

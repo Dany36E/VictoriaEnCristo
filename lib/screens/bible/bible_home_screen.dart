@@ -9,6 +9,7 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../widgets/bible/version_selector_sheet.dart';
 import 'bible_reader_screen.dart';
+import 'bible_search_screen.dart';
 import 'bible_settings_screen.dart';
 import 'chapter_selector_screen.dart';
 import 'saved_verses_screen.dart';
@@ -189,8 +190,12 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             icon: Icon(Icons.search,
                 color: t.textSecondary.withOpacity(0.6), size: 20),
             onPressed: () {
-              setState(() => _searchMode = true);
-              _searchFocus.requestFocus();
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => const BibleSearchScreen(),
+                ),
+              );
             },
           ),
           // Settings
@@ -595,7 +600,11 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           TextSpan(text: text.substring(0, matchIndex)),
           TextSpan(
             text: text.substring(matchIndex, matchIndex + query.length),
-            style: TextStyle(color: t.accent, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              color: t.background,
+              backgroundColor: const Color(0xFFD4AF37),
+              fontWeight: FontWeight.w600,
+            ),
           ),
           TextSpan(
               text: text.substring(matchIndex + query.length)),

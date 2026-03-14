@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../models/bible/highlight.dart';
 import '../../services/bible/bible_parser_service.dart';
+import '../../services/bible/bible_search_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../widgets/bible/full_color_picker_sheet.dart';
 import '../../widgets/bible/verse_actions_toolbar.dart';
 import '../../widgets/bible/version_selector_sheet.dart';
 
@@ -54,6 +57,18 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   double _lastScrollOffset = 0;
   bool _showTypography = false;
 
+  // Multi-select state
+  bool _isSelectionMode = false;
+  final Set<int> _selectedVerseNumbers = {};
+
+  // In-reader search state
+  bool _showSearch = false;
+  final _searchController = TextEditingController();
+  final _searchFocusNode = FocusNode();
+  String _searchQuery = '';
+  List<int> _searchMatchIndices = []; // verse indices that match
+  int _currentMatchIndex = -1;
+
   // Book list for chapter selector
   List<BibleBook> _allBooks = [];
 
@@ -83,10 +98,21 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     }
   }
 
+  void _exitSelectionMode() {
+    setState(() {
+      _isSelectionMode = false;
+      _selectedVerseNumbers.clear();
+    });
+  }
+
   Future<void> _loadChapter() async {
     setState(() {
       _loading = true;
       _selectedVerseIndex = null;
+      _isSelectionMode = false;
+      _selectedVerseNumbers.clear();
+      _searchMatchIndices = [];
+      _currentMatchIndex = -1;
     });
 
     final books = await BibleParserService.I.getBooks(_currentVersion);
@@ -108,6 +134,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       });
       if (_scrollController.hasClients) {
         _scrollController.jumpTo(0);
+      }
+      // Re-run search if active
+      if (_showSearch && _searchQuery.length >= 2) {
+        _runInReaderSearch(_searchQuery);
       }
     }
   }
@@ -139,7 +169,48 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   void dispose() {
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
+    _searchController.dispose();
+    _searchFocusNode.dispose();
     super.dispose();
+  }
+
+  void _runInReaderSearch(String query) {
+    setState(() {
+      _searchQuery = query;
+      _searchMatchIndices = [];
+      _currentMatchIndex = -1;
+    });
+    if (query.trim().length < 2) return;
+
+    final normalizedQuery = BibleSearchService.normalize(query);
+    final matches = <int>[];
+    for (int i = 0; i < _verses.length; i++) {
+      if (BibleSearchService.normalize(_verses[i].text)
+          .contains(normalizedQuery)) {
+        matches.add(i);
+      }
+    }
+    setState(() {
+      _searchMatchIndices = matches;
+      _currentMatchIndex = matches.isNotEmpty ? 0 : -1;
+    });
+    if (matches.isNotEmpty) _scrollToMatch(0);
+  }
+
+  void _scrollToMatch(int matchIdx) {
+    if (matchIdx < 0 || matchIdx >= _searchMatchIndices.length) return;
+    setState(() => _currentMatchIndex = matchIdx);
+    // Estimate scroll to verse index
+    final verseIdx = _searchMatchIndices[matchIdx];
+    final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
+    final estimatedOffset = 56.0 + 92.0 + (verseIdx * fontSize * 2.2);
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        estimatedOffset.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
   }
 
   @override
@@ -202,7 +273,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
                   if (_showTypography) _buildTypographyPanel(t),
 
-                  if (_selectedVerseIndex != null && !_loading)
+                  if (_showSearch) _buildSearchOverlay(t),
+
+                  if ((_selectedVerseIndex != null || _isSelectionMode) && !_loading)
                     _buildToolbarOverlay(t),
                 ],
               ),
@@ -268,6 +341,18 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
             ),
           ),
           IconButton(
+            icon: Icon(Icons.search,
+                color: t.textSecondary.withOpacity(0.6), size: 18),
+            onPressed: () {
+              setState(() => _showSearch = !_showSearch);
+              if (_showSearch) {
+                WidgetsBinding.instance.addPostFrameCallback((_) {
+                  _searchFocusNode.requestFocus();
+                });
+              }
+            },
+          ),
+          IconButton(
             icon: Icon(Icons.text_fields,
                 color: t.textSecondary.withOpacity(0.6), size: 18),
             onPressed: () =>
@@ -326,6 +411,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                             final hasNote = notes.containsKey(key);
                             final isSelected =
                                 _selectedVerseIndex == index;
+                            final isMultiSelected = _isSelectionMode &&
+                                _selectedVerseNumbers.contains(verse.verse);
 
                             return _buildVerseParagraph(
                               verse: verse,
@@ -333,6 +420,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               highlight: highlight,
                               hasNote: hasNote,
                               isSelected: isSelected,
+                              isMultiSelected: isMultiSelected,
                               fontSize: fontSize,
                               theme: t,
                             );
@@ -360,23 +448,50 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     required Highlight? highlight,
     required bool hasNote,
     required bool isSelected,
+    required bool isMultiSelected,
     required double fontSize,
     required BibleReaderThemeData theme,
   }) {
     final highlightBg =
         highlight != null ? theme.highlightOverlay(highlight.color) : null;
+    final showSelected = isSelected || isMultiSelected;
 
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedVerseIndex =
-              _selectedVerseIndex == index ? null : index;
-        });
+        if (_isSelectionMode) {
+          setState(() {
+            if (_selectedVerseNumbers.contains(verse.verse)) {
+              _selectedVerseNumbers.remove(verse.verse);
+              if (_selectedVerseNumbers.isEmpty) _isSelectionMode = false;
+            } else {
+              _selectedVerseNumbers.add(verse.verse);
+            }
+          });
+        } else {
+          setState(() {
+            _selectedVerseIndex =
+                _selectedVerseIndex == index ? null : index;
+          });
+        }
+      },
+      onLongPress: () {
+        if (!_isSelectionMode) {
+          HapticFeedback.mediumImpact();
+          setState(() {
+            _isSelectionMode = true;
+            _selectedVerseNumbers.add(verse.verse);
+            _selectedVerseIndex = null;
+          });
+        }
       },
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 2),
-        decoration:
-            isSelected ? BoxDecoration(color: theme.selectionBg) : null,
+        decoration: showSelected
+            ? BoxDecoration(
+                color: isMultiSelected
+                    ? theme.accent.withOpacity(0.12)
+                    : theme.selectionBg)
+            : null,
         child: RichText(
           text: TextSpan(
             children: [
@@ -387,7 +502,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   child: Text(
                     '${verse.verse} ',
                     style: GoogleFonts.manrope(
-                      color: isSelected
+                      color: showSelected
                           ? theme.accent
                           : theme.textSecondary.withOpacity(0.5),
                       fontSize: 11,
@@ -396,14 +511,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   ),
                 ),
               ),
-              TextSpan(
-                text: verse.text,
-                style: GoogleFonts.lora(
-                  color: theme.textPrimary,
-                  fontSize: fontSize,
-                  height: 1.8,
-                  backgroundColor: highlightBg,
-                ),
+              ..._buildVerseTextSpans(
+                verse.text,
+                fontSize: fontSize,
+                theme: theme,
+                highlightBg: highlightBg,
+                isSearchMatch: _searchQuery.length >= 2 &&
+                    _searchMatchIndices.contains(
+                        _verses.indexOf(verse)),
               ),
               if (hasNote)
                 WidgetSpan(
@@ -419,6 +534,46 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         ),
       ),
     );
+  }
+
+  List<InlineSpan> _buildVerseTextSpans(
+    String text, {
+    required double fontSize,
+    required BibleReaderThemeData theme,
+    required Color? highlightBg,
+    required bool isSearchMatch,
+  }) {
+    final baseStyle = GoogleFonts.lora(
+      color: theme.textPrimary,
+      fontSize: fontSize,
+      height: 1.8,
+      backgroundColor: highlightBg,
+    );
+
+    if (!isSearchMatch || _searchQuery.length < 2) {
+      return [TextSpan(text: text, style: baseStyle)];
+    }
+
+    final normalizedText = BibleSearchService.normalize(text);
+    final normalizedQuery = BibleSearchService.normalize(_searchQuery);
+    final idx = normalizedText.indexOf(normalizedQuery);
+    if (idx < 0) return [TextSpan(text: text, style: baseStyle)];
+
+    final end = idx + _searchQuery.length;
+    final spans = <InlineSpan>[];
+    if (idx > 0) spans.add(TextSpan(text: text.substring(0, idx), style: baseStyle));
+    spans.add(TextSpan(
+      text: text.substring(idx, end.clamp(0, text.length)),
+      style: baseStyle.copyWith(
+        color: theme.background,
+        backgroundColor: const Color(0xFFD4AF37),
+        fontWeight: FontWeight.w600,
+      ),
+    ));
+    if (end < text.length) {
+      spans.add(TextSpan(text: text.substring(end), style: baseStyle));
+    }
+    return spans;
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -488,7 +643,18 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   // FLOATING TOOLBAR
   // ═══════════════════════════════════════════════════════════════════════
 
+  // Multi-select color picker state
+  bool _multiSelectShowColors = false;
+
   Widget _buildToolbarOverlay(BibleReaderThemeData t) {
+    if (_isSelectionMode) {
+      return Positioned(
+        bottom: 16,
+        left: 0,
+        right: 0,
+        child: _buildMultiSelectToolbar(t),
+      );
+    }
     return Positioned(
       bottom: 16,
       left: 0,
@@ -497,6 +663,331 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         verse: _verses[_selectedVerseIndex!],
         theme: t,
         onDismiss: () => setState(() => _selectedVerseIndex = null),
+      ),
+    );
+  }
+
+  Widget _buildMultiSelectToolbar(BibleReaderThemeData t) {
+    final iconColor = t.isDark ? Colors.white70 : const Color(0xFF1A1A1A);
+    final count = _selectedVerseNumbers.length;
+
+    return Container(
+      height: 44,
+      margin: const EdgeInsets.symmetric(horizontal: 24),
+      decoration: BoxDecoration(
+        color: t.toolbarBg,
+        borderRadius: BorderRadius.circular(10),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(t.isDark ? 0.3 : 0.08),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: _multiSelectShowColors
+          ? _buildMultiSelectColorPicker(t)
+          : Row(
+              children: [
+                // Exit selection mode
+                GestureDetector(
+                  onTap: _exitSelectionMode,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 8),
+                    child: Icon(Icons.close, color: iconColor, size: 20),
+                  ),
+                ),
+                Text(
+                  '$count',
+                  style: GoogleFonts.manrope(
+                    color: t.accent,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const Spacer(),
+                // Highlight all
+                GestureDetector(
+                  onTap: () =>
+                      setState(() => _multiSelectShowColors = true),
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 8),
+                    child: Icon(Icons.format_paint,
+                        color: iconColor, size: 20),
+                  ),
+                ),
+                // Save all
+                GestureDetector(
+                  onTap: _saveAllSelected,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 8),
+                    child: Icon(Icons.bookmark_outline,
+                        color: iconColor, size: 20),
+                  ),
+                ),
+                // Copy all
+                GestureDetector(
+                  onTap: _copyAllSelected,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 8),
+                    child: Icon(Icons.content_copy,
+                        color: iconColor, size: 20),
+                  ),
+                ),
+                // Share all
+                GestureDetector(
+                  onTap: _shareAllSelected,
+                  behavior: HitTestBehavior.opaque,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 8, vertical: 8),
+                    child: Icon(Icons.share,
+                        color: iconColor, size: 20),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+            ),
+    );
+  }
+
+  Widget _buildMultiSelectColorPicker(BibleReaderThemeData t) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      children: [
+        GestureDetector(
+          onTap: () => setState(() => _multiSelectShowColors = false),
+          behavior: HitTestBehavior.opaque,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+            child: Icon(Icons.arrow_back_ios_new,
+                color: t.isDark ? Colors.white54 : Colors.black38, size: 16),
+          ),
+        ),
+        ...HighlightColors.defaults.map((color) {
+          return GestureDetector(
+            onTap: () {
+              _applyColorToSelected(HighlightColors.toHex(color));
+            },
+            child: Container(
+              width: 26,
+              height: 26,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+          );
+        }),
+        // Custom color
+        GestureDetector(
+          onTap: () async {
+            final color = await showModalBottomSheet<Color>(
+              context: context,
+              backgroundColor: Colors.transparent,
+              builder: (_) => FullColorPickerSheet(theme: t),
+            );
+            if (color != null) {
+              _applyColorToSelected(HighlightColors.toHex(color));
+            }
+          },
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: const BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: SweepGradient(
+                colors: [
+                  Color(0xFFFF0000),
+                  Color(0xFFFFFF00),
+                  Color(0xFF00FF00),
+                  Color(0xFF00FFFF),
+                  Color(0xFF0000FF),
+                  Color(0xFFFF00FF),
+                  Color(0xFFFF0000),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _applyColorToSelected(String hex) {
+    final data = BibleUserDataService.I;
+    for (final verseNum in _selectedVerseNumbers) {
+      data.addHighlight(
+        bookNumber: widget.bookNumber,
+        chapter: _currentChapter,
+        verse: verseNum,
+        colorHex: hex,
+      );
+    }
+    _multiSelectShowColors = false;
+    _exitSelectionMode();
+  }
+
+  String _buildSelectedVersesText() {
+    final sorted = _selectedVerseNumbers.toList()..sort();
+    final buf = StringBuffer();
+    for (final num in sorted) {
+      final v = _verses.firstWhere((v) => v.verse == num);
+      buf.write('$num ${v.text} ');
+    }
+    final first = sorted.first;
+    final last = sorted.last;
+    final ref = first == last
+        ? '${widget.bookName} $_currentChapter:$first'
+        : '${widget.bookName} $_currentChapter:$first-$last';
+    buf.write('\n— $ref (${_currentVersion.shortName})');
+    return buf.toString().trim();
+  }
+
+  void _saveAllSelected() {
+    final data = BibleUserDataService.I;
+    for (final verseNum in _selectedVerseNumbers) {
+      final verse = _verses.firstWhere((v) => v.verse == verseNum);
+      if (!data.isVerseSaved(verse.bookNumber, verse.chapter, verse.verse)) {
+        data.toggleSavedVerse(
+          bookNumber: verse.bookNumber,
+          chapter: verse.chapter,
+          verse: verse.verse,
+          bookName: verse.bookName,
+          text: verse.text,
+          version: verse.version,
+        );
+      }
+    }
+    _exitSelectionMode();
+  }
+
+  void _copyAllSelected() {
+    Clipboard.setData(ClipboardData(text: _buildSelectedVersesText()));
+    HapticFeedback.lightImpact();
+    _exitSelectionMode();
+  }
+
+  void _shareAllSelected() {
+    Share.share(_buildSelectedVersesText());
+    _exitSelectionMode();
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // IN-READER SEARCH OVERLAY
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildSearchOverlay(BibleReaderThemeData t) {
+    final hasMatches = _searchMatchIndices.isNotEmpty;
+    final matchText = hasMatches
+        ? '${_currentMatchIndex + 1} de ${_searchMatchIndices.length}'
+        : _searchQuery.length >= 2
+            ? '0 resultados'
+            : '';
+
+    return Positioned(
+      top: 44,
+      left: 0,
+      right: 0,
+      child: Container(
+        height: 44,
+        padding: const EdgeInsets.symmetric(horizontal: 12),
+        color: t.surface.withOpacity(0.98),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _searchController,
+                focusNode: _searchFocusNode,
+                style: GoogleFonts.manrope(
+                    color: t.textPrimary, fontSize: 14),
+                decoration: InputDecoration(
+                  hintText: 'Buscar en capítulo...',
+                  hintStyle: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.4),
+                    fontSize: 14,
+                  ),
+                  border: InputBorder.none,
+                  isDense: true,
+                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                ),
+                textInputAction: TextInputAction.search,
+                onChanged: _runInReaderSearch,
+              ),
+            ),
+            if (matchText.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 4),
+                child: Text(
+                  matchText,
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.5),
+                    fontSize: 11,
+                  ),
+                ),
+              ),
+            if (hasMatches) ...[
+              GestureDetector(
+                onTap: () {
+                  if (_currentMatchIndex > 0) {
+                    _scrollToMatch(_currentMatchIndex - 1);
+                  }
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Icon(Icons.keyboard_arrow_up,
+                      color: _currentMatchIndex > 0
+                          ? t.textSecondary
+                          : t.textSecondary.withOpacity(0.2),
+                      size: 20),
+                ),
+              ),
+              GestureDetector(
+                onTap: () {
+                  if (_currentMatchIndex < _searchMatchIndices.length - 1) {
+                    _scrollToMatch(_currentMatchIndex + 1);
+                  }
+                },
+                behavior: HitTestBehavior.opaque,
+                child: Padding(
+                  padding: const EdgeInsets.all(6),
+                  child: Icon(Icons.keyboard_arrow_down,
+                      color: _currentMatchIndex <
+                              _searchMatchIndices.length - 1
+                          ? t.textSecondary
+                          : t.textSecondary.withOpacity(0.2),
+                      size: 20),
+                ),
+              ),
+            ],
+            GestureDetector(
+              onTap: () {
+                _searchController.clear();
+                setState(() {
+                  _showSearch = false;
+                  _searchQuery = '';
+                  _searchMatchIndices = [];
+                  _currentMatchIndex = -1;
+                });
+              },
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.all(6),
+                child: Icon(Icons.close,
+                    color: t.textSecondary.withOpacity(0.5), size: 18),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

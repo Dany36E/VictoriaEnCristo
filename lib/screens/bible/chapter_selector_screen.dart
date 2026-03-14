@@ -90,31 +90,37 @@ class ChapterSelectorScreen extends StatelessWidget {
                     itemCount: book.totalChapters,
                     itemBuilder: (context, index) {
                       final chapter = index + 1;
-                      return GestureDetector(
-                        onTap: () {
-                          Navigator.pushReplacement(
-                            context,
-                            PageRouteBuilder(
-                              pageBuilder: (c, a1, a2) => BibleReaderScreen(
-                                bookNumber: book.number,
-                                bookName: book.name,
-                                chapter: chapter,
-                                version: version,
+                      return Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(8),
+                          splashColor: t.accent.withOpacity(0.25),
+                          highlightColor: t.accent.withOpacity(0.1),
+                          onTap: () {
+                            HapticFeedback.lightImpact();
+                            Navigator.pushReplacement(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder: (c, a1, a2) => BibleReaderScreen(
+                                  bookNumber: book.number,
+                                  bookName: book.name,
+                                  chapter: chapter,
+                                  version: version,
+                                ),
+                                transitionDuration:
+                                    const Duration(milliseconds: 150),
+                                transitionsBuilder: (ctx, a, sa, child) =>
+                                    FadeTransition(opacity: a, child: child),
                               ),
-                              transitionDuration:
-                                  const Duration(milliseconds: 150),
-                              transitionsBuilder: (ctx, a, sa, child) =>
-                                  FadeTransition(opacity: a, child: child),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          alignment: Alignment.center,
-                          child: Text(
-                            '$chapter',
-                            style: GoogleFonts.manrope(
-                              color: t.textSecondary,
-                              fontSize: 15,
+                            );
+                          },
+                          child: Center(
+                            child: Text(
+                              '$chapter',
+                              style: GoogleFonts.manrope(
+                                color: t.textSecondary,
+                                fontSize: 15,
+                              ),
                             ),
                           ),
                         ),
