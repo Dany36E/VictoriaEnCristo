@@ -62,6 +62,6 @@ class Highlight {
         chapter: map['chapter'] as int,
         verse: map['verse'] as int,
         colorHex: map['colorHex'] as String,
-        createdAt: (map['createdAt'] as Timestamp).toDate(),
+        createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       );
 }

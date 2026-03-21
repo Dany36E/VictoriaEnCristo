@@ -45,8 +45,8 @@ class BibleNote {
         verse: map['verse'] as int,
         bookName: map['bookName'] as String? ?? '',
         text: map['text'] as String,
-        createdAt: (map['createdAt'] as Timestamp).toDate(),
-        updatedAt: (map['updatedAt'] as Timestamp).toDate(),
+        createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       );
 
   BibleNote copyWith({String? text, DateTime? updatedAt}) => BibleNote(

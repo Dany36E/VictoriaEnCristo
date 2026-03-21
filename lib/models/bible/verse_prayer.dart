@@ -42,6 +42,6 @@ class VersePrayer {
         verse: map['verse'] as int,
         bookName: map['bookName'] as String? ?? '',
         prayerText: map['prayerText'] as String,
-        createdAt: (map['createdAt'] as Timestamp).toDate(),
+        createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       );
 }

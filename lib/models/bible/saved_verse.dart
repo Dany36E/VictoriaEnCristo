@@ -46,6 +46,6 @@ class SavedVerse {
         bookName: map['bookName'] as String? ?? '',
         text: map['text'] as String? ?? '',
         version: map['version'] as String? ?? 'RVR1960',
-        savedAt: (map['savedAt'] as Timestamp).toDate(),
+        savedAt: (map['savedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       );
 }
