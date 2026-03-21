@@ -39,7 +39,6 @@ class ShareTemplatePreview extends StatelessWidget {
             child: BibleShareService.buildTemplate(
               template: template,
               verse: verse,
-              fontSize: 16,
             ),
           ),
         ),

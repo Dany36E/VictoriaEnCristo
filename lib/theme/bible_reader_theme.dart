@@ -41,6 +41,10 @@ class BibleReaderThemeData {
   Color get selectionBg =>
       isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04);
 
+  /// Color para palabras de Cristo en rojo.
+  Color get redLetterColor =>
+      isDark ? const Color(0xFFE57373) : const Color(0xFFC62828);
+
   /// Swatch color for theme selector
   Color get swatchColor => background;
 
@@ -190,4 +194,27 @@ class BibleReaderThemeData {
         return oldId;
     }
   }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // DESIGN TOKENS — Espaciado y tamaño consistente
+  // ══════════════════════════════════════════════════════════════════════════
+
+  static const double spacingXS = 4.0;
+  static const double spacingS = 8.0;
+  static const double spacingM = 16.0;
+  static const double spacingL = 24.0;
+  static const double spacingXL = 32.0;
+
+  static const double radiusS = 8.0;
+  static const double radiusM = 12.0;
+  static const double radiusL = 16.0;
+
+  static const double iconSizeS = 16.0;
+  static const double iconSizeM = 20.0;
+  static const double iconSizeL = 24.0;
+
+  static const double toolbarHeight = 44.0;
+  static const double headerHeight = 48.0;
+  static const double chapterRowHeight = 52.0;
+  static const double chipHeight = 28.0;
 }

@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/bible_reader_theme.dart';
+import '../../services/bible/bible_user_data_service.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/highlight.dart';
 
@@ -11,6 +12,7 @@ class BibleVerseTile extends StatelessWidget {
   final bool hasNote;
   final bool isSaved;
   final double fontSize;
+  final BibleReaderThemeData? theme;
   final VoidCallback? onTap;
 
   const BibleVerseTile({
@@ -20,11 +22,16 @@ class BibleVerseTile extends StatelessWidget {
     this.hasNote = false,
     this.isSaved = false,
     this.fontSize = 20.0,
+    this.theme,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
+    final t = theme ?? BibleReaderThemeData.fromId(
+      BibleReaderThemeData.migrateId(
+          BibleUserDataService.I.readerThemeNotifier.value),
+    );
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -44,7 +51,7 @@ class BibleVerseTile extends StatelessWidget {
               child: Text(
                 '${verse.verse}',
                 style: GoogleFonts.manrope(
-                  color: AppDesignSystem.gold.withOpacity(0.6),
+                  color: t.accent.withOpacity(0.6),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -61,17 +68,17 @@ class BibleVerseTile extends StatelessWidget {
                   ),
                   children: [
                     if (hasNote)
-                      const WidgetSpan(
+                      WidgetSpan(
                         child: Padding(
                           padding: EdgeInsets.only(left: 4),
-                          child: Icon(Icons.note, color: AppDesignSystem.gold, size: 14),
+                          child: Icon(Icons.note, color: t.accent, size: 14),
                         ),
                       ),
                     if (isSaved)
-                      const WidgetSpan(
+                      WidgetSpan(
                         child: Padding(
                           padding: EdgeInsets.only(left: 4),
-                          child: Icon(Icons.bookmark, color: AppDesignSystem.gold, size: 14),
+                          child: Icon(Icons.bookmark, color: t.accent, size: 14),
                         ),
                       ),
                   ],

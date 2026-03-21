@@ -1,6 +1,6 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_note.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -54,9 +54,13 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final t = BibleReaderThemeData.fromId(
+      BibleReaderThemeData.migrateId(
+          BibleUserDataService.I.readerThemeNotifier.value),
+    );
     return Container(
-      decoration: const BoxDecoration(
-        color: AppDesignSystem.midnight,
+      decoration: BoxDecoration(
+        color: t.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: EdgeInsets.only(
@@ -79,12 +83,12 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
               // Header
               Row(
                 children: [
-                  const Icon(Icons.note, color: AppDesignSystem.gold, size: 20),
+                  const Icon(Icons.note, color: Color(0xFFD4AF37), size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'Nota — ${widget.verse.reference}',
                     style: GoogleFonts.manrope(
-                      color: AppDesignSystem.gold,
+                      color: t.accent,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                     ),
@@ -100,8 +104,8 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                         );
                         if (mounted) Navigator.pop(context);
                       },
-                      child: const Icon(Icons.delete_outline,
-                          color: AppDesignSystem.struggle, size: 20),
+                      child: Icon(Icons.delete_outline,
+                          color: const Color(0xFFE57373), size: 20),
                     ),
                 ],
               ),
@@ -111,7 +115,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                 constraints: const BoxConstraints(maxHeight: 200),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.06),
-                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
+                  borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: TextField(
                   controller: _controller,
@@ -134,10 +138,10 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                 child: ElevatedButton(
                   onPressed: _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppDesignSystem.gold.withOpacity(0.2),
-                    foregroundColor: AppDesignSystem.gold,
+                    backgroundColor: t.accent.withOpacity(0.2),
+                    foregroundColor: t.accent,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
+                      borderRadius: BorderRadius.circular(10.0),
                     ),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),

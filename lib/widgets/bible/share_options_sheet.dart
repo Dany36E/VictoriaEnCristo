@@ -1,6 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/bible_reader_theme.dart';
+import '../../services/bible/bible_user_data_service.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../services/bible/bible_share_service.dart';
 import '../../screens/bible/template_picker_screen.dart';
@@ -12,9 +13,13 @@ class ShareOptionsSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = BibleReaderThemeData.fromId(
+      BibleReaderThemeData.migrateId(
+          BibleUserDataService.I.readerThemeNotifier.value),
+    );
     return Container(
-      decoration: const BoxDecoration(
-        color: AppDesignSystem.midnight,
+      decoration: BoxDecoration(
+        color: t.surface,
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       child: SafeArea(
@@ -34,7 +39,7 @@ class ShareOptionsSheet extends StatelessWidget {
               Text(
                 'COMPARTIR',
                 style: GoogleFonts.cinzel(
-                  color: AppDesignSystem.gold,
+                  color: t.accent,
                   fontSize: 16,
                   letterSpacing: 2.0,
                 ),
@@ -87,19 +92,22 @@ class _ShareOption extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = BibleReaderThemeData.fromId(
+      BibleReaderThemeData.migrateId(
+          BibleUserDataService.I.readerThemeNotifier.value),
+    );
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 24),
+        padding: const EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.05),
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          border: Border.all(color: Colors.white.withOpacity(0.08)),
+          color: t.accent.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: t.accent.withValues(alpha: 0.15)),
         ),
         child: Column(
-          mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, color: AppDesignSystem.gold, size: 28),
+            Icon(icon, color: t.accent, size: 28),
             const SizedBox(height: 8),
             Text(
               label,
