@@ -14,6 +14,26 @@ XmlDocument _parseXmlInIsolate(String xmlContent) {
   return XmlDocument.parse(xmlContent);
 }
 
+/// Nombres canónicos de los 66 libros de la Biblia, indexados por número (1-based).
+const Map<int, String> _canonicalBookNames = {
+  1: 'Génesis', 2: 'Éxodo', 3: 'Levítico', 4: 'Números', 5: 'Deuteronomio',
+  6: 'Josué', 7: 'Jueces', 8: 'Rut', 9: '1 Samuel', 10: '2 Samuel',
+  11: '1 Reyes', 12: '2 Reyes', 13: '1 Crónicas', 14: '2 Crónicas',
+  15: 'Esdras', 16: 'Nehemías', 17: 'Ester', 18: 'Job', 19: 'Salmos',
+  20: 'Proverbios', 21: 'Eclesiastés', 22: 'Cantares', 23: 'Isaías',
+  24: 'Jeremías', 25: 'Lamentaciones', 26: 'Ezequiel', 27: 'Daniel',
+  28: 'Oseas', 29: 'Joel', 30: 'Amós', 31: 'Abdías', 32: 'Jonás',
+  33: 'Miqueas', 34: 'Nahúm', 35: 'Habacuc', 36: 'Sofonías', 37: 'Hageo',
+  38: 'Zacarías', 39: 'Malaquías',
+  40: 'Mateo', 41: 'Marcos', 42: 'Lucas', 43: 'Juan', 44: 'Hechos',
+  45: 'Romanos', 46: '1 Corintios', 47: '2 Corintios', 48: 'Gálatas',
+  49: 'Efesios', 50: 'Filipenses', 51: 'Colosenses',
+  52: '1 Tesalonicenses', 53: '2 Tesalonicenses',
+  54: '1 Timoteo', 55: '2 Timoteo', 56: 'Tito', 57: 'Filemón',
+  58: 'Hebreos', 59: 'Santiago', 60: '1 Pedro', 61: '2 Pedro',
+  62: '1 Juan', 63: '2 Juan', 64: '3 Juan', 65: 'Judas', 66: 'Apocalipsis',
+};
+
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE PARSER SERVICE - Singleton
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -188,7 +208,9 @@ class BibleParserService {
       final books = testament.findAllElements('book');
       for (final book in books) {
         final bookNum = int.parse(book.getAttribute('number')!);
-        final bookName = book.getAttribute('name')!;
+        final bookName = book.getAttribute('name') ??
+            _canonicalBookNames[bookNum] ??
+            'Libro $bookNum';
         final chapters = book.findAllElements('chapter');
         for (final chapterEl in chapters) {
           final chapNum = int.parse(chapterEl.getAttribute('number')!);
@@ -245,6 +267,22 @@ class BibleParserService {
   // INTERNOS
   // ══════════════════════════════════════════════════════════════════════════
 
+  /// Decodificar bytes de XML con detección de encoding.
+  /// Intenta UTF-8 primero, luego Latin-1, y finalmente UTF-8 tolerante.
+  static String _decodeBytes(List<int> bytes, String label) {
+    try {
+      return utf8.decode(bytes);
+    } catch (_) {
+      try {
+        debugPrint('📖 [BIBLE] $label: fallback to Latin-1 encoding');
+        return latin1.decode(bytes);
+      } catch (e) {
+        debugPrint('📖 [BIBLE] $label: encoding error, using allowMalformed: $e');
+        return utf8.decode(bytes, allowMalformed: true);
+      }
+    }
+  }
+
   /// Cargar y parsear un XML de versión si no está ya en memoria.
   /// Prioridad: archivo local descargado > asset bundle.
   /// Parseo en Isolate para no bloquear el UI thread.
@@ -259,21 +297,17 @@ class BibleParserService {
     if (localPath != null) {
       final file = File(localPath);
       if (await file.exists()) {
-        // Manejar encoding: intentar UTF-8, fallback a Latin-1
         final bytes = await file.readAsBytes();
-        try {
-          xmlString = utf8.decode(bytes);
-        } catch (_) {
-          xmlString = latin1.decode(bytes);
-          debugPrint('📖 [BIBLE] ${version.id}: fallback to Latin-1 encoding');
-        }
+        xmlString = _decodeBytes(bytes, version.id);
         debugPrint('📖 [BIBLE] ${version.id} loaded from local storage');
       } else {
-        xmlString = await rootBundle.loadString('assets/bible/${version.fileName}');
+        final byteData = await rootBundle.load('assets/bible/${version.fileName}');
+        xmlString = _decodeBytes(byteData.buffer.asUint8List(), version.id);
         debugPrint('📖 [BIBLE] ${version.id} loaded from assets (local file missing)');
       }
     } else {
-      xmlString = await rootBundle.loadString('assets/bible/${version.fileName}');
+      final byteData = await rootBundle.load('assets/bible/${version.fileName}');
+      xmlString = _decodeBytes(byteData.buffer.asUint8List(), version.id);
       debugPrint('📖 [BIBLE] ${version.id} loaded from assets');
     }
 
@@ -288,7 +322,8 @@ class BibleParserService {
     debugPrint('📖 [BIBLE] ${version.id} loaded: ${_booksIndex[version]!.length} books');
   }
 
-  /// Construir índice de libros desde el documento XML
+  /// Construir índice de libros desde el documento XML.
+  /// Maneja XMLs con o sin atributo name en <book>.
   List<BibleBook> _buildBooksIndex(XmlDocument doc) {
     final books = <BibleBook>[];
     final testaments = doc.rootElement.findAllElements('testament');
@@ -302,7 +337,10 @@ class BibleParserService {
       final bookElements = testament.findAllElements('book');
       for (final bookEl in bookElements) {
         final bookNum = int.parse(bookEl.getAttribute('number')!);
-        final bookName = bookEl.getAttribute('name')!;
+        // Usar atributo name si existe, sino usar nombre canónico por número
+        final bookName = bookEl.getAttribute('name') ??
+            _canonicalBookNames[bookNum] ??
+            'Libro $bookNum';
         final chapters = bookEl.findAllElements('chapter');
 
         final versesPerChapter = <int, int>{};
@@ -341,19 +379,23 @@ class BibleParserService {
       for (final bookEl in bookElements) {
         if (int.parse(bookEl.getAttribute('number')!) != bookNumber) continue;
 
-        final bookName = bookEl.getAttribute('name')!;
+        final bookName = bookEl.getAttribute('name') ??
+            _canonicalBookNames[bookNumber] ??
+            'Libro $bookNumber';
         final chapters = bookEl.findAllElements('chapter');
         for (final chapterEl in chapters) {
           if (int.parse(chapterEl.getAttribute('number')!) != chapter) continue;
 
           final verseElements = chapterEl.findAllElements('verse');
           for (final verseEl in verseElements) {
+            final text = verseEl.innerText;
+            if (text.trim().isEmpty) continue; // Saltar versículos vacíos
             verses.add(BibleVerse(
               bookName: bookName,
               bookNumber: bookNumber,
               chapter: chapter,
               verse: int.parse(verseEl.getAttribute('number')!),
-              text: verseEl.innerText,
+              text: text,
               version: version.id,
             ));
           }

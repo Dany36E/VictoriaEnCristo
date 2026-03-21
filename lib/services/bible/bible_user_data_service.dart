@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/highlight.dart';
 import '../../models/bible/bible_note.dart';
 import '../../models/bible/saved_verse.dart';
@@ -45,6 +46,7 @@ class BibleUserDataService {
       ValueNotifier(BibleVersion.rvr1960);
   final ValueNotifier<double> fontSizeNotifier = ValueNotifier(20.0);
   final ValueNotifier<String> readerThemeNotifier = ValueNotifier('dark');
+  final ValueNotifier<bool> redLettersEnabledNotifier = ValueNotifier(true);
 
   // ── Subscriptions ──
   final List<StreamSubscription> _subscriptions = [];
@@ -82,6 +84,7 @@ class BibleUserDataService {
     preferredVersionNotifier.value = BibleVersion.rvr1960;
     fontSizeNotifier.value = 20.0;
     readerThemeNotifier.value = 'dark';
+    redLettersEnabledNotifier.value = true;
     _uid = null;
     debugPrint('📖 [BIBLE-DATA] stopped');
   }
@@ -326,6 +329,16 @@ class BibleUserDataService {
               BibleVersion.fromId(data['preferredVersion'] as String? ?? 'RVR1960');
           fontSizeNotifier.value = (data['fontSize'] as num?)?.toDouble() ?? 20.0;
           readerThemeNotifier.value = data['readerTheme'] as String? ?? 'dark';
+          redLettersEnabledNotifier.value = data['redLettersEnabled'] as bool? ?? true;
+
+          // Restore recent colors from Firestore to SharedPreferences
+          final cloudColors = (data['recentColors'] as List<dynamic>?)
+              ?.map((e) => e.toString())
+              .toList();
+          if (cloudColors != null && cloudColors.isNotEmpty) {
+            final prefs = await SharedPreferences.getInstance();
+            await prefs.setStringList('bible_recent_colors', cloudColors);
+          }
         }
       }
     } catch (e) {
@@ -348,12 +361,27 @@ class BibleUserDataService {
     await _savePreferences();
   }
 
+  Future<void> setRedLettersEnabled(bool enabled) async {
+    redLettersEnabledNotifier.value = enabled;
+    await _savePreferences();
+  }
+
   Future<void> _savePreferences() async {
     if (_uid == null) return;
     await _settingsDoc().set({
       'preferredVersion': preferredVersionNotifier.value.id,
       'fontSize': fontSizeNotifier.value,
       'readerTheme': readerThemeNotifier.value,
+      'redLettersEnabled': redLettersEnabledNotifier.value,
+      'updatedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  /// Sync recent highlight colors to Firestore
+  Future<void> updateRecentColors(List<String> colors) async {
+    if (_uid == null) return;
+    await _settingsDoc().set({
+      'recentColors': colors,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }

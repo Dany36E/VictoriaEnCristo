@@ -9,7 +9,7 @@ import '../../theme/app_theme.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE SHARE SERVICE
-/// Compartir versículos como texto o imagen con 5 plantillas.
+/// Compartir versículos como texto o imagen con 7 plantillas premium.
 /// ═══════════════════════════════════════════════════════════════════════════
 class BibleShareService {
   BibleShareService._();
@@ -43,120 +43,263 @@ class BibleShareService {
     }
   }
 
+  /// Calcula el fontSize adaptativo según longitud del texto y tamaño
+  static double adaptiveFontSize(String text, ShareDimension dim) {
+    final len = text.length;
+    final base = dim == ShareDimension.square
+        ? 20.0
+        : dim == ShareDimension.story
+            ? 22.0
+            : 18.0;
+    if (len > 300) return base - 6;
+    if (len > 150) return base - 3;
+    return base;
+  }
+
+  /// Dimensiones de la imagen
+  static Size dimensionSize(ShareDimension dim) {
+    switch (dim) {
+      case ShareDimension.square:
+        return const Size(400, 400);
+      case ShareDimension.story:
+        return const Size(360, 640);
+      case ShareDimension.landscape:
+        return const Size(640, 360);
+    }
+  }
+
   /// Construir widget de plantilla para captura
   static Widget buildTemplate({
     required ShareTemplate template,
     required BibleVerse verse,
-    double fontSize = 20.0,
+    ShareDimension dimension = ShareDimension.square,
+    bool showLogo = true,
+    bool showVersion = true,
+    TextAlign textAlign = TextAlign.center,
   }) {
-    switch (template) {
-      case ShareTemplate.midnight:
-        return _MidnightTemplate(verse: verse, fontSize: fontSize);
-      case ShareTemplate.parchment:
-        return _ParchmentTemplate(verse: verse, fontSize: fontSize);
-      case ShareTemplate.sunrise:
-        return _SunriseTemplate(verse: verse, fontSize: fontSize);
-      case ShareTemplate.royal:
-        return _RoyalTemplate(verse: verse, fontSize: fontSize);
-      case ShareTemplate.minimal:
-        return _MinimalTemplate(verse: verse, fontSize: fontSize);
-    }
-  }
-}
+    final size = dimensionSize(dimension);
+    final fontSize = adaptiveFontSize(verse.text, dimension);
 
-/// 5 plantillas de compartir
-enum ShareTemplate {
-  midnight('Medianoche', Color(0xFF0D1B2A)),
-  parchment('Pergamino', Color(0xFFF5EFE0)),
-  sunrise('Amanecer', Color(0xFF1A237E)),
-  royal('Real', Color(0xFF311B92)),
-  minimal('Minimalista', Color(0xFFFFFFFF));
-
-  final String displayName;
-  final Color previewColor;
-  const ShareTemplate(this.displayName, this.previewColor);
-}
-
-// ══════════════════════════════════════════════════════════════════════════
-// PLANTILLA WIDGETS
-// ══════════════════════════════════════════════════════════════════════════
-
-class _MidnightTemplate extends StatelessWidget {
-  final BibleVerse verse;
-  final double fontSize;
-  const _MidnightTemplate({required this.verse, required this.fontSize});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 400,
-      padding: const EdgeInsets.all(32),
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFF0D1B2A), Color(0xFF1B263B)],
-        ),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.format_quote, color: AppDesignSystem.gold, size: 32),
-          const SizedBox(height: 16),
-          Text(
-            verse.text,
-            style: TextStyle(
-              fontFamily: 'CrimsonPro',
-              fontSize: fontSize,
-              fontStyle: FontStyle.italic,
-              color: Colors.white,
-              height: 1.7,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 20),
-          Container(
-            width: 40,
-            height: 2,
-            color: AppDesignSystem.gold,
-          ),
-          const SizedBox(height: 12),
-          Text(
-            '${verse.reference} (${verse.version})',
-            style: const TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 2.0,
-              color: AppDesignSystem.gold,
-            ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            'VICTORIA EN CRISTO',
-            style: TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 8,
-              letterSpacing: 4.0,
-              color: Colors.white.withOpacity(0.3),
-            ),
-          ),
-        ],
+    return SizedBox(
+      width: size.width,
+      height: size.height,
+      child: _TemplateWidget(
+        template: template,
+        verse: verse,
+        fontSize: fontSize,
+        showLogo: showLogo,
+        showVersion: showVersion,
+        textAlign: textAlign,
       ),
     );
   }
 }
 
-class _ParchmentTemplate extends StatelessWidget {
+/// 7 plantillas de compartir
+enum ShareTemplate {
+  minimalDark('Minimalista Oscuro', Color(0xFF111111)),
+  editorialLight('Editorial Claro', Color(0xFFFAF8F3)),
+  parchment('Pergamino', Color(0xFFF5EFE0)),
+  midnight('Medianoche', Color(0xFF0D1B2A)),
+  sepiaWarm('Sepia Cálido', Color(0xFF3E2B1C)),
+  pastelLavender('Pastel Lavanda', Color(0xFFE8DEF8)),
+  royal('Real', Color(0xFF311B92));
+
+  final String displayName;
+  final Color previewColor;
+  const ShareTemplate(this.displayName, this.previewColor);
+
+  bool get isDark =>
+      this == minimalDark ||
+      this == midnight ||
+      this == sepiaWarm ||
+      this == royal;
+}
+
+/// Dimensiones de imagen
+enum ShareDimension {
+  square('1:1'),
+  story('9:16'),
+  landscape('16:9');
+
+  final String label;
+  const ShareDimension(this.label);
+}
+
+// ══════════════════════════════════════════════════════════════════════════
+// UNIFIED TEMPLATE WIDGET
+// ══════════════════════════════════════════════════════════════════════════
+
+class _TemplateWidget extends StatelessWidget {
+  final ShareTemplate template;
   final BibleVerse verse;
   final double fontSize;
-  const _ParchmentTemplate({required this.verse, required this.fontSize});
+  final bool showLogo;
+  final bool showVersion;
+  final TextAlign textAlign;
+
+  const _TemplateWidget({
+    required this.template,
+    required this.verse,
+    required this.fontSize,
+    required this.showLogo,
+    required this.showVersion,
+    required this.textAlign,
+  });
 
   @override
   Widget build(BuildContext context) {
+    switch (template) {
+      case ShareTemplate.minimalDark:
+        return _buildMinimalDark();
+      case ShareTemplate.editorialLight:
+        return _buildEditorialLight();
+      case ShareTemplate.parchment:
+        return _buildParchment();
+      case ShareTemplate.midnight:
+        return _buildMidnight();
+      case ShareTemplate.sepiaWarm:
+        return _buildSepiaWarm();
+      case ShareTemplate.pastelLavender:
+        return _buildPastelLavender();
+      case ShareTemplate.royal:
+        return _buildRoyal();
+    }
+  }
+
+  Widget _wrapContainer({
+    required BoxDecoration decoration,
+    required List<Widget> children,
+  }) {
     return Container(
-      width: 400,
+      decoration: decoration,
       padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: textAlign == TextAlign.left
+            ? CrossAxisAlignment.start
+            : textAlign == TextAlign.right
+                ? CrossAxisAlignment.end
+                : CrossAxisAlignment.center,
+        children: children,
+      ),
+    );
+  }
+
+  Widget _buildLogoText(Color color) {
+    if (!showLogo) return const SizedBox.shrink();
+    return Padding(
+      padding: const EdgeInsets.only(top: 20),
+      child: Text(
+        'VICTORIA EN CRISTO',
+        style: TextStyle(
+          fontFamily: 'Manrope',
+          fontSize: 8,
+          letterSpacing: 4.0,
+          color: color,
+        ),
+      ),
+    );
+  }
+
+  Widget _buildVersionText(Color color) {
+    if (!showVersion) return const SizedBox.shrink();
+    return Text(
+      verse.version,
+      style: TextStyle(
+        fontFamily: 'Manrope',
+        fontSize: 10,
+        letterSpacing: 2.0,
+        color: color,
+      ),
+    );
+  }
+
+  // ── 1. Minimalista Oscuro ──
+  Widget _buildMinimalDark() {
+    return _wrapContainer(
+      decoration: const BoxDecoration(color: Color(0xFF111111)),
+      children: [
+        Container(
+          width: 24,
+          height: 2,
+          color: Colors.white24,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro',
+            fontSize: fontSize,
+            color: Colors.white,
+            height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          verse.reference,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Colors.white38,
+            letterSpacing: 1.0,
+          ),
+        ),
+        const SizedBox(height: 4),
+        _buildVersionText(Colors.white24),
+        _buildLogoText(Colors.white12),
+      ],
+    );
+  }
+
+  // ── 2. Editorial Claro ──
+  Widget _buildEditorialLight() {
+    const textColor = Color(0xFF1A1A1A);
+    return _wrapContainer(
+      decoration: const BoxDecoration(color: Color(0xFFFAF8F3)),
+      children: [
+        Text(
+          '✦',
+          style: TextStyle(
+            fontSize: 18,
+            color: AppDesignSystem.goldDark,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro',
+            fontSize: fontSize,
+            fontStyle: FontStyle.italic,
+            color: textColor,
+            height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.reference,
+          style: const TextStyle(
+            fontFamily: 'Cinzel',
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.5,
+            color: textColor,
+          ),
+        ),
+        const SizedBox(height: 4),
+        _buildVersionText(textColor.withOpacity(0.4)),
+        _buildLogoText(textColor.withOpacity(0.2)),
+      ],
+    );
+  }
+
+  // ── 3. Pergamino ──
+  Widget _buildParchment() {
+    return _wrapContainer(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topCenter,
@@ -164,112 +307,189 @@ class _ParchmentTemplate extends StatelessWidget {
           colors: [Color(0xFFFFFBF5), Color(0xFFF5EFE0)],
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            '✦',
-            style: TextStyle(fontSize: 24, color: AppDesignSystem.goldDark),
+      children: [
+        Text(
+          '✦',
+          style: TextStyle(fontSize: 24, color: AppDesignSystem.goldDark),
+        ),
+        const SizedBox(height: 16),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro',
+            fontSize: fontSize,
+            fontStyle: FontStyle.italic,
+            color: AppDesignSystem.midnight,
+            height: 1.7,
           ),
-          const SizedBox(height: 16),
-          Text(
-            verse.text,
-            style: TextStyle(
-              fontFamily: 'CrimsonPro',
-              fontSize: fontSize,
-              fontStyle: FontStyle.italic,
-              color: AppDesignSystem.midnight,
-              height: 1.7,
-            ),
-            textAlign: TextAlign.center,
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.reference,
+          style: const TextStyle(
+            fontFamily: 'Cinzel',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppDesignSystem.midnight,
+            letterSpacing: 1.5,
           ),
-          const SizedBox(height: 20),
-          Text(
-            verse.reference,
-            style: const TextStyle(
-              fontFamily: 'Cinzel',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppDesignSystem.midnight,
-              letterSpacing: 1.5,
-            ),
-          ),
-          Text(
-            verse.version,
-            style: TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 10,
-              color: AppDesignSystem.midnight.withOpacity(0.5),
-              letterSpacing: 2.0,
-            ),
-          ),
-        ],
-      ),
+        ),
+        _buildVersionText(AppDesignSystem.midnight.withOpacity(0.5)),
+        _buildLogoText(AppDesignSystem.midnight.withOpacity(0.15)),
+      ],
     );
   }
-}
 
-class _SunriseTemplate extends StatelessWidget {
-  final BibleVerse verse;
-  final double fontSize;
-  const _SunriseTemplate({required this.verse, required this.fontSize});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 400,
-      padding: const EdgeInsets.all(32),
+  // ── 4. Medianoche ──
+  Widget _buildMidnight() {
+    return _wrapContainer(
       decoration: const BoxDecoration(
         gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [Color(0xFF1A237E), Color(0xFF283593), Color(0xFFFF8F00)],
-          stops: [0.0, 0.6, 1.0],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0D1B2A), Color(0xFF1B263B)],
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const Icon(Icons.wb_sunny_outlined, color: Color(0xFFFFD54F), size: 28),
-          const SizedBox(height: 16),
-          Text(
-            verse.text,
-            style: TextStyle(
-              fontFamily: 'CrimsonPro',
-              fontSize: fontSize,
-              fontStyle: FontStyle.italic,
-              color: Colors.white,
-              height: 1.7,
-            ),
-            textAlign: TextAlign.center,
+      children: [
+        const Icon(Icons.format_quote,
+            color: AppDesignSystem.gold, size: 32),
+        const SizedBox(height: 16),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro',
+            fontSize: fontSize,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
+            height: 1.7,
           ),
-          const SizedBox(height: 20),
-          Text(
-            '— ${verse.reference} (${verse.version})',
-            style: const TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 1.5,
-              color: Color(0xFFFFD54F),
-            ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Container(width: 40, height: 2, color: AppDesignSystem.gold),
+        const SizedBox(height: 12),
+        Text(
+          verse.reference,
+          style: const TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 2.0,
+            color: AppDesignSystem.gold,
           ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        _buildVersionText(Colors.white30),
+        _buildLogoText(Colors.white.withOpacity(0.15)),
+      ],
     );
   }
-}
 
-class _RoyalTemplate extends StatelessWidget {
-  final BibleVerse verse;
-  final double fontSize;
-  const _RoyalTemplate({required this.verse, required this.fontSize});
+  // ── 5. Sepia Cálido ──
+  Widget _buildSepiaWarm() {
+    const warm = Color(0xFFF5E6C8);
+    return _wrapContainer(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF3E2B1C), Color(0xFF2A1A0E)],
+        ),
+      ),
+      children: [
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 30, height: 1, color: warm.withOpacity(0.4)),
+            const SizedBox(width: 8),
+            Text('✝', style: TextStyle(color: warm, fontSize: 16)),
+            const SizedBox(width: 8),
+            Container(width: 30, height: 1, color: warm.withOpacity(0.4)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro',
+            fontSize: fontSize,
+            fontStyle: FontStyle.italic,
+            color: warm,
+            height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.reference,
+          style: TextStyle(
+            fontFamily: 'Cinzel',
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 1.5,
+            color: warm.withOpacity(0.8),
+          ),
+        ),
+        const SizedBox(height: 4),
+        _buildVersionText(warm.withOpacity(0.4)),
+        _buildLogoText(warm.withOpacity(0.2)),
+      ],
+    );
+  }
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 400,
-      padding: const EdgeInsets.all(32),
+  // ── 6. Pastel Lavanda ──
+  Widget _buildPastelLavender() {
+    const textColor = Color(0xFF2E1065);
+    return _wrapContainer(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFFF3E8FF), Color(0xFFE8DEF8)],
+        ),
+      ),
+      children: [
+        Container(
+          width: 40,
+          height: 3,
+          decoration: BoxDecoration(
+            color: textColor.withOpacity(0.2),
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro',
+            fontSize: fontSize,
+            color: textColor,
+            height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.reference,
+          style: TextStyle(
+            fontFamily: 'Manrope',
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+            color: textColor.withOpacity(0.7),
+          ),
+        ),
+        const SizedBox(height: 4),
+        _buildVersionText(textColor.withOpacity(0.35)),
+        _buildLogoText(textColor.withOpacity(0.15)),
+      ],
+    );
+  }
+
+  // ── 7. Real ──
+  Widget _buildRoyal() {
+    return _wrapContainer(
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           begin: Alignment.topLeft,
@@ -278,101 +498,46 @@ class _RoyalTemplate extends StatelessWidget {
         ),
         border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(width: 30, height: 1, color: AppDesignSystem.gold),
-              const SizedBox(width: 8),
-              const Icon(Icons.auto_awesome, color: AppDesignSystem.gold, size: 16),
-              const SizedBox(width: 8),
-              Container(width: 30, height: 1, color: AppDesignSystem.gold),
-            ],
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 30, height: 1, color: AppDesignSystem.gold),
+            const SizedBox(width: 8),
+            const Icon(Icons.auto_awesome,
+                color: AppDesignSystem.gold, size: 16),
+            const SizedBox(width: 8),
+            Container(width: 30, height: 1, color: AppDesignSystem.gold),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro',
+            fontSize: fontSize,
+            fontStyle: FontStyle.italic,
+            color: Colors.white,
+            height: 1.7,
           ),
-          const SizedBox(height: 20),
-          Text(
-            verse.text,
-            style: TextStyle(
-              fontFamily: 'CrimsonPro',
-              fontSize: fontSize,
-              fontStyle: FontStyle.italic,
-              color: Colors.white,
-              height: 1.7,
-            ),
-            textAlign: TextAlign.center,
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.reference,
+          style: const TextStyle(
+            fontFamily: 'Cinzel',
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 2.0,
+            color: AppDesignSystem.goldLight,
           ),
-          const SizedBox(height: 20),
-          Text(
-            verse.reference,
-            style: const TextStyle(
-              fontFamily: 'Cinzel',
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              letterSpacing: 2.0,
-              color: AppDesignSystem.goldLight,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            verse.version,
-            style: TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 10,
-              letterSpacing: 3.0,
-              color: Colors.white.withOpacity(0.4),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MinimalTemplate extends StatelessWidget {
-  final BibleVerse verse;
-  final double fontSize;
-  const _MinimalTemplate({required this.verse, required this.fontSize});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      width: 400,
-      padding: const EdgeInsets.all(32),
-      color: Colors.white,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            width: 24,
-            height: 3,
-            color: AppDesignSystem.midnight,
-          ),
-          const SizedBox(height: 20),
-          Text(
-            verse.text,
-            style: TextStyle(
-              fontFamily: 'CrimsonPro',
-              fontSize: fontSize,
-              color: AppDesignSystem.midnight,
-              height: 1.7,
-            ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            '${verse.reference} · ${verse.version}',
-            style: TextStyle(
-              fontFamily: 'Manrope',
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppDesignSystem.midnight.withOpacity(0.5),
-              letterSpacing: 1.0,
-            ),
-          ),
-        ],
-      ),
+        ),
+        const SizedBox(height: 4),
+        _buildVersionText(Colors.white30),
+        _buildLogoText(Colors.white.withOpacity(0.2)),
+      ],
     );
   }
 }
