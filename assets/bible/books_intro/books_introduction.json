@@ -1,0 +1,3111 @@
+{
+  "genesis": {
+    "bookNumber": 1,
+    "name": "Génesis",
+    "author": "Moisés",
+    "authorDetails": "Atribuido a Moisés por la tradición judía y cristiana. Compilado de fuentes antiguas bajo inspiración divina.",
+    "writtenDate": "c. 1446-1406 a.C.",
+    "period": "Creación — muerte de José (c. 1805 a.C.)",
+    "audience": "El pueblo de Israel",
+    "purpose": "Narrar los orígenes del universo, la humanidad, el pecado y el pueblo elegido de Dios.",
+    "keyThemes": [
+      "Creación",
+      "Caída",
+      "Redención",
+      "Pacto",
+      "Elección divina"
+    ],
+    "keyVerses": [
+      "GEN.1.1",
+      "GEN.3.15",
+      "GEN.12.1",
+      "GEN.15.6",
+      "GEN.50.20"
+    ],
+    "historicalContext": "Escrito durante el peregrinaje por el desierto para dar identidad al pueblo hebreo y revelar el plan redentor de Dios desde la creación.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "La Creación"
+      },
+      {
+        "chapters": "3-5",
+        "title": "La Caída y sus consecuencias"
+      },
+      {
+        "chapters": "6-9",
+        "title": "El Diluvio y Noé"
+      },
+      {
+        "chapters": "10-11",
+        "title": "Las naciones y Babel"
+      },
+      {
+        "chapters": "12-25",
+        "title": "Abraham, el padre de la fe"
+      },
+      {
+        "chapters": "26-36",
+        "title": "Isaac y Jacob"
+      },
+      {
+        "chapters": "37-50",
+        "title": "José en Egipto"
+      }
+    ],
+    "chapterIntros": {
+      "1": "El relato de la creación en seis días. Dios habla y el universo existe. La humanidad es creada a imagen de Dios.",
+      "2": "La creación del hombre y la mujer. El huerto del Edén. La institución del matrimonio.",
+      "3": "La caída: la tentación de la serpiente, el pecado y sus consecuencias. La primera promesa de redención.",
+      "6": "La maldad de la humanidad. Dios decide enviar el diluvio. Noé encuentra gracia ante Dios.",
+      "12": "El llamado de Abram. Dios promete hacer de él una gran nación. El inicio del pacto abrahámico.",
+      "15": "El pacto de Dios con Abram. La fe de Abram le es contada por justicia.",
+      "22": "La prueba suprema de Abraham: el sacrificio de Isaac. Dios provee un carnero.",
+      "37": "José, el soñador. Sus hermanos lo venden como esclavo. Comienza la historia de la providencia de Dios.",
+      "50": "La muerte de Jacob. José perdona a sus hermanos. Lo que el hombre pensó para mal, Dios lo encaminó para bien."
+    },
+    "maps": [
+      "ancient_near_east",
+      "canaan_tribes"
+    ]
+  },
+  "exodus": {
+    "bookNumber": 2,
+    "name": "Éxodo",
+    "author": "Moisés",
+    "authorDetails": "Moisés fue testigo y protagonista de los eventos narrados.",
+    "writtenDate": "c. 1446-1406 a.C.",
+    "period": "Esclavitud en Egipto — Monte Sinaí (c. 1446 a.C.)",
+    "audience": "El pueblo de Israel",
+    "purpose": "Relatar la liberación de Israel de la esclavitud en Egipto y el establecimiento del pacto en el Sinaí.",
+    "keyThemes": [
+      "Liberación",
+      "Pacto",
+      "Ley",
+      "Presencia de Dios",
+      "Redención"
+    ],
+    "keyVerses": [
+      "EXO.3.14",
+      "EXO.12.13",
+      "EXO.14.14",
+      "EXO.19.5",
+      "EXO.20.1"
+    ],
+    "historicalContext": "Narra el evento más importante del AT: la salida de Egipto, fundamento de la identidad nacional y religiosa de Israel.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Israel en Egipto y nacimiento de Moisés"
+      },
+      {
+        "chapters": "3-6",
+        "title": "El llamado de Moisés"
+      },
+      {
+        "chapters": "7-12",
+        "title": "Las diez plagas"
+      },
+      {
+        "chapters": "13-15",
+        "title": "El Éxodo y cruce del Mar Rojo"
+      },
+      {
+        "chapters": "16-18",
+        "title": "El camino al Sinaí"
+      },
+      {
+        "chapters": "19-24",
+        "title": "El pacto y la Ley"
+      },
+      {
+        "chapters": "25-31",
+        "title": "Instrucciones del tabernáculo"
+      },
+      {
+        "chapters": "32-34",
+        "title": "El becerro de oro y la renovación del pacto"
+      },
+      {
+        "chapters": "35-40",
+        "title": "Construcción del tabernáculo"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Israel sufre esclavitud en Egipto. Faraón ordena matar a los niños hebreos.",
+      "3": "Moisés y la zarza ardiente. Dios revela su nombre: YO SOY EL QUE SOY.",
+      "12": "La Pascua. El ángel de la muerte pasa de largo por las casas con sangre del cordero.",
+      "14": "El cruce del Mar Rojo. Dios divide las aguas y destruye al ejército egipcio.",
+      "19": "Israel llega al Sinaí. Dios desciende en fuego y truenos sobre el monte.",
+      "20": "Los Diez Mandamientos. La ley moral de Dios dada a Israel.",
+      "32": "El becerro de oro. Mientras Moisés está en el monte, Israel cae en idolatría."
+    },
+    "maps": [
+      "exodus_route",
+      "ancient_near_east"
+    ]
+  },
+  "leviticus": {
+    "bookNumber": 3,
+    "name": "Levítico",
+    "author": "Moisés",
+    "authorDetails": "Registrado por Moisés como las instrucciones de Dios dadas en el Sinaí.",
+    "writtenDate": "c. 1446-1406 a.C.",
+    "period": "En el Monte Sinaí (c. 1446 a.C.)",
+    "audience": "Los sacerdotes levitas y todo Israel",
+    "purpose": "Enseñar la santidad de Dios y cómo un pueblo pecador puede acercarse a Él mediante sacrificios y purificación.",
+    "keyThemes": [
+      "Santidad",
+      "Sacrificio",
+      "Expiación",
+      "Pureza ritual",
+      "Adoración"
+    ],
+    "keyVerses": [
+      "LEV.17.11",
+      "LEV.19.2",
+      "LEV.19.18",
+      "LEV.20.26"
+    ],
+    "historicalContext": "Las leyes fueron dadas durante el año que Israel estuvo acampado al pie del monte Sinaí.",
+    "structure": [
+      {
+        "chapters": "1-7",
+        "title": "Las ofrendas y sacrificios"
+      },
+      {
+        "chapters": "8-10",
+        "title": "El sacerdocio"
+      },
+      {
+        "chapters": "11-15",
+        "title": "Leyes de pureza"
+      },
+      {
+        "chapters": "16",
+        "title": "El Día de la Expiación"
+      },
+      {
+        "chapters": "17-22",
+        "title": "El Código de Santidad"
+      },
+      {
+        "chapters": "23-25",
+        "title": "Fiestas y años sagrados"
+      },
+      {
+        "chapters": "26-27",
+        "title": "Bendiciones, maldiciones y votos"
+      }
+    ],
+    "chapterIntros": {
+      "16": "El Día de la Expiación (Yom Kippur). El sumo sacerdote entra al Lugar Santísimo una vez al año.",
+      "19": "Sed santos porque yo soy santo. Leyes prácticas de amor al prójimo."
+    },
+    "maps": []
+  },
+  "numbers": {
+    "bookNumber": 4,
+    "name": "Números",
+    "author": "Moisés",
+    "authorDetails": "Moisés registró los eventos del peregrinaje por el desierto.",
+    "writtenDate": "c. 1406 a.C.",
+    "period": "El desierto del Sinaí — las llanuras de Moab (c. 1446-1406 a.C.)",
+    "audience": "La segunda generación de Israel, a punto de entrar a Canaán",
+    "purpose": "Narrar los 40 años de peregrinaje por el desierto como consecuencia de la incredulidad de Israel.",
+    "keyThemes": [
+      "Peregrinaje",
+      "Incredulidad",
+      "Disciplina divina",
+      "Fidelidad de Dios",
+      "Murmuración"
+    ],
+    "keyVerses": [
+      "NUM.6.24",
+      "NUM.14.18",
+      "NUM.23.19"
+    ],
+    "historicalContext": "Cubre casi 39 años de historia entre la salida del Sinaí y la llegada a las llanuras de Moab frente a la tierra prometida.",
+    "structure": [
+      {
+        "chapters": "1-10",
+        "title": "Preparación en el Sinaí"
+      },
+      {
+        "chapters": "11-14",
+        "title": "Del Sinaí a Cades (rebelión)"
+      },
+      {
+        "chapters": "15-19",
+        "title": "Los años de peregrinaje"
+      },
+      {
+        "chapters": "20-25",
+        "title": "De Cades a Moab"
+      },
+      {
+        "chapters": "26-36",
+        "title": "Nueva generación, nueva esperanza"
+      }
+    ],
+    "chapterIntros": {
+      "13": "Los doce espías exploran Canaán. Diez traen informe negativo, solo Josué y Caleb confían en Dios.",
+      "14": "Israel se rebela y Dios decreta 40 años en el desierto. La generación incrédula no entrará en la tierra prometida.",
+      "22": "Balaam es contratado para maldecir a Israel, pero Dios convierte sus maldiciones en bendiciones."
+    },
+    "maps": [
+      "exodus_route"
+    ]
+  },
+  "deuteronomy": {
+    "bookNumber": 5,
+    "name": "Deuteronomio",
+    "author": "Moisés",
+    "authorDetails": "Los discursos de Moisés registrados antes de su muerte. El capítulo final pudo ser añadido por Josué.",
+    "writtenDate": "c. 1406 a.C.",
+    "period": "Llanuras de Moab, antes de entrar a Canaán",
+    "audience": "La nueva generación de Israel",
+    "purpose": "Renovar el pacto con la nueva generación y prepararlos para la conquista de la tierra prometida.",
+    "keyThemes": [
+      "Pacto renovado",
+      "Obediencia",
+      "Amor a Dios",
+      "Bendición y maldición",
+      "Herencia"
+    ],
+    "keyVerses": [
+      "DEU.6.4",
+      "DEU.6.5",
+      "DEU.31.6",
+      "DEU.29.29"
+    ],
+    "historicalContext": "Moisés pronuncia tres discursos finales a Israel antes de su muerte, repitiendo y aplicando la Ley.",
+    "structure": [
+      {
+        "chapters": "1-4",
+        "title": "Primer discurso: Recuerdo histórico"
+      },
+      {
+        "chapters": "5-26",
+        "title": "Segundo discurso: Repetición de la Ley"
+      },
+      {
+        "chapters": "27-30",
+        "title": "Tercer discurso: Bendiciones y maldiciones"
+      },
+      {
+        "chapters": "31-34",
+        "title": "Últimas palabras y muerte de Moisés"
+      }
+    ],
+    "chapterIntros": {
+      "6": "El Shemá: Oye Israel, Jehová nuestro Dios, Jehová uno es. Amarás a Jehová tu Dios con todo tu corazón.",
+      "28": "Las bendiciones por obediencia y las maldiciones por desobediencia al pacto.",
+      "34": "La muerte de Moisés. Dios lo entierra en un lugar desconocido. Josué asume el liderazgo."
+    },
+    "maps": [
+      "exodus_route"
+    ]
+  },
+  "joshua": {
+    "bookNumber": 6,
+    "name": "Josué",
+    "author": "Josué (con adiciones posteriores)",
+    "authorDetails": "Josué escribió la mayor parte. Algunos pasajes fueron añadidos después de su muerte.",
+    "writtenDate": "c. 1400-1370 a.C.",
+    "period": "Conquista y distribución de Canaán",
+    "audience": "Israel en la tierra prometida",
+    "purpose": "Registrar la conquista de Canaán y la distribución de la tierra entre las tribus como cumplimiento de la promesa de Dios a Abraham.",
+    "keyThemes": [
+      "Conquista",
+      "Fe",
+      "Fidelidad de Dios",
+      "Herencia",
+      "Obediencia"
+    ],
+    "keyVerses": [
+      "JOS.1.8",
+      "JOS.1.9",
+      "JOS.24.15"
+    ],
+    "historicalContext": "Después de 40 años en el desierto, Israel finalmente entra en la tierra prometida bajo el liderazgo de Josué.",
+    "structure": [
+      {
+        "chapters": "1-5",
+        "title": "Entrada a Canaán"
+      },
+      {
+        "chapters": "6-12",
+        "title": "Conquista de la tierra"
+      },
+      {
+        "chapters": "13-21",
+        "title": "Distribución de la tierra"
+      },
+      {
+        "chapters": "22-24",
+        "title": "Despedida de Josué"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Dios comisiona a Josué: Esfuérzate y sé valiente. Medita en la Ley día y noche.",
+      "6": "La conquista de Jericó. Los muros caen después de siete días de marchar alrededor.",
+      "24": "El discurso final de Josué: Escogeos hoy a quién sirváis, pero yo y mi casa serviremos a Jehová."
+    },
+    "maps": [
+      "conquests_joshua",
+      "canaan_tribes"
+    ]
+  },
+  "judges": {
+    "bookNumber": 7,
+    "name": "Jueces",
+    "author": "Posiblemente Samuel",
+    "authorDetails": "Autor desconocido, tradicionalmente atribuido a Samuel o un profeta contemporáneo.",
+    "writtenDate": "c. 1050-1000 a.C.",
+    "period": "Época de los jueces (c. 1380-1050 a.C.)",
+    "audience": "Israel",
+    "purpose": "Mostrar el ciclo repetitivo de pecado, opresión, clamor a Dios y liberación a través de jueces.",
+    "keyThemes": [
+      "Ciclo de pecado",
+      "Liberación",
+      "Juicio divino",
+      "Misericordia",
+      "Apostasía"
+    ],
+    "keyVerses": [
+      "JDG.2.16",
+      "JDG.21.25"
+    ],
+    "historicalContext": "Período oscuro entre la conquista de Josué y la monarquía, donde cada uno hacía lo recto ante sus propios ojos.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Introducción: conquista incompleta"
+      },
+      {
+        "chapters": "3-16",
+        "title": "Los jueces de Israel"
+      },
+      {
+        "chapters": "17-21",
+        "title": "Apéndice: anarquía moral"
+      }
+    ],
+    "chapterIntros": {
+      "6": "Gedeón es llamado por un ángel. Con solo 300 hombres, Dios derrota a los madianitas.",
+      "13": "El nacimiento de Sansón. Un nazareo dedicado a Dios desde el vientre.",
+      "16": "Sansón y Dalila. La caída del hombre más fuerte de Israel."
+    },
+    "maps": [
+      "canaan_tribes"
+    ]
+  },
+  "ruth": {
+    "bookNumber": 8,
+    "name": "Rut",
+    "author": "Posiblemente Samuel",
+    "authorDetails": "Autor desconocido, la genealogía final sugiere la época de David.",
+    "writtenDate": "c. 1000 a.C.",
+    "period": "Época de los jueces",
+    "audience": "Israel",
+    "purpose": "Mostrar la fidelidad de Dios a través de una moabita que se convierte en ancestro del Mesías.",
+    "keyThemes": [
+      "Fidelidad",
+      "Redención",
+      "Providencia",
+      "Amor hesed",
+      "Inclusión"
+    ],
+    "keyVerses": [
+      "RUT.1.16",
+      "RUT.4.14"
+    ],
+    "historicalContext": "Una historia de amor y redención en medio de la oscuridad moral de la época de los jueces.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Rut elige seguir a Noemí"
+      },
+      {
+        "chapters": "2",
+        "title": "Rut espiga en el campo de Booz"
+      },
+      {
+        "chapters": "3",
+        "title": "Rut en la era"
+      },
+      {
+        "chapters": "4",
+        "title": "Booz redime a Rut"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Noemí pierde a su esposo e hijos en Moab. Rut se rehúsa a abandonarla: Tu pueblo será mi pueblo, tu Dios mi Dios."
+    },
+    "maps": [
+      "canaan_tribes"
+    ]
+  },
+  "1samuel": {
+    "bookNumber": 9,
+    "name": "1 Samuel",
+    "author": "Samuel, Gad, Natán",
+    "authorDetails": "Compilado de los escritos de Samuel, Gad y Natán (1 Cr 29:29).",
+    "writtenDate": "c. 1000-900 a.C.",
+    "period": "Transición de los jueces a la monarquía",
+    "audience": "Israel",
+    "purpose": "Narrar la transición de la teocracia a la monarquía: desde Samuel hasta Saúl y David.",
+    "keyThemes": [
+      "Monarquía",
+      "Obediencia",
+      "Rechazo",
+      "Unción",
+      "Corazón de Dios"
+    ],
+    "keyVerses": [
+      "1SA.2.2",
+      "1SA.15.22",
+      "1SA.16.7"
+    ],
+    "historicalContext": "Israel pide un rey como las demás naciones. Dios les concede a Saúl, quien falla, y unge a David.",
+    "structure": [
+      {
+        "chapters": "1-7",
+        "title": "Samuel: último juez y profeta"
+      },
+      {
+        "chapters": "8-15",
+        "title": "Saúl: primer rey de Israel"
+      },
+      {
+        "chapters": "16-31",
+        "title": "David: el ungido en espera"
+      }
+    ],
+    "chapterIntros": {
+      "3": "El llamado de Samuel. Dios habla al joven Samuel en el templo de noche.",
+      "16": "Samuel unge a David. Jehová mira el corazón, no la apariencia exterior.",
+      "17": "David y Goliat. El joven pastor derrota al gigante filisteo con una honda y la fe en Dios."
+    },
+    "maps": [
+      "canaan_tribes",
+      "david_solomon_kingdom"
+    ]
+  },
+  "2samuel": {
+    "bookNumber": 10,
+    "name": "2 Samuel",
+    "author": "Gad, Natán",
+    "authorDetails": "Compilado de los escritos proféticos de Gad y Natán.",
+    "writtenDate": "c. 1000-900 a.C.",
+    "period": "Reinado de David (c. 1010-970 a.C.)",
+    "audience": "Israel",
+    "purpose": "Narrar el reinado de David: sus triunfos, su gran pecado, y las consecuencias.",
+    "keyThemes": [
+      "Reinado davídico",
+      "Pacto",
+      "Pecado y restauración",
+      "Gracia"
+    ],
+    "keyVerses": [
+      "2SA.7.12",
+      "2SA.7.16",
+      "2SA.12.13",
+      "2SA.22.31"
+    ],
+    "historicalContext": "David unifica Israel, conquista Jerusalén y establece un reino próspero, pero su pecado con Betsabé trae graves consecuencias.",
+    "structure": [
+      {
+        "chapters": "1-10",
+        "title": "Los triunfos de David"
+      },
+      {
+        "chapters": "11-12",
+        "title": "El gran pecado de David"
+      },
+      {
+        "chapters": "13-24",
+        "title": "Las consecuencias del pecado"
+      }
+    ],
+    "chapterIntros": {
+      "7": "El pacto davídico. Dios promete que un descendiente de David reinará para siempre.",
+      "11": "David comete adulterio con Betsabé y ordena la muerte de Urías.",
+      "12": "El profeta Natán confronta a David. Tú eres aquel hombre. David se arrepiente."
+    },
+    "maps": [
+      "david_solomon_kingdom"
+    ]
+  },
+  "1kings": {
+    "bookNumber": 11,
+    "name": "1 Reyes",
+    "author": "Posiblemente Jeremías",
+    "authorDetails": "Compilado por un autor desconocido, posiblemente Jeremías, usando fuentes oficiales de la corte.",
+    "writtenDate": "c. 560-540 a.C.",
+    "period": "División del reino (c. 970-853 a.C.)",
+    "audience": "El pueblo de Judá en el exilio",
+    "purpose": "Mostrar cómo la fidelidad o infidelidad a Dios determina la suerte de los reyes y el pueblo.",
+    "keyThemes": [
+      "Sabiduría",
+      "Idolatría",
+      "División",
+      "Profecía",
+      "Juicio"
+    ],
+    "keyVerses": [
+      "1KI.3.9",
+      "1KI.8.27",
+      "1KI.18.21"
+    ],
+    "historicalContext": "Desde la gloria de Salomón hasta la división del reino y el conflicto entre los reyes del norte y del sur.",
+    "structure": [
+      {
+        "chapters": "1-11",
+        "title": "El reinado de Salomón"
+      },
+      {
+        "chapters": "12-16",
+        "title": "La división del reino"
+      },
+      {
+        "chapters": "17-22",
+        "title": "Elías y los reyes"
+      }
+    ],
+    "chapterIntros": {
+      "3": "Salomón pide sabiduría a Dios. El juicio sabio entre las dos madres.",
+      "8": "Dedicación del templo de Salomón. La gloria de Dios llena el templo.",
+      "18": "Elías contra los profetas de Baal en el monte Carmelo. Jehová es el Dios verdadero."
+    },
+    "maps": [
+      "divided_kingdom",
+      "david_solomon_kingdom"
+    ]
+  },
+  "2kings": {
+    "bookNumber": 12,
+    "name": "2 Reyes",
+    "author": "Posiblemente Jeremías",
+    "authorDetails": "Continuación del compilador de 1 Reyes, usando anales reales.",
+    "writtenDate": "c. 560-540 a.C.",
+    "period": "Desde Elías hasta el exilio babilónico (c. 853-586 a.C.)",
+    "audience": "El pueblo de Judá en el exilio",
+    "purpose": "Completar la historia de los reinos divididos hasta su destrucción, mostrando las consecuencias de la idolatría.",
+    "keyThemes": [
+      "Profecía cumplida",
+      "Exilio",
+      "Juicio",
+      "Arrepentimiento",
+      "Soberanía de Dios"
+    ],
+    "keyVerses": [
+      "2KI.17.23",
+      "2KI.25.21"
+    ],
+    "historicalContext": "Termina con la caída de Samaria (722 a.C.) y Jerusalén (586 a.C.), vindicando las advertencias de los profetas.",
+    "structure": [
+      {
+        "chapters": "1-8",
+        "title": "El ministerio de Eliseo"
+      },
+      {
+        "chapters": "9-17",
+        "title": "Caída del reino del norte"
+      },
+      {
+        "chapters": "18-25",
+        "title": "Los últimos reyes de Judá y el exilio"
+      }
+    ],
+    "chapterIntros": {
+      "2": "Elías es llevado al cielo en un carro de fuego. Eliseo recibe doble porción del espíritu.",
+      "17": "La caída de Samaria. Asiria conquista el reino del norte. Israel es deportado por su idolatría.",
+      "25": "La caída de Jerusalén. Nabucodonosor destruye el templo y deporta a Judá a Babilonia."
+    },
+    "maps": [
+      "divided_kingdom",
+      "babylonian_exile"
+    ]
+  },
+  "1chronicles": {
+    "bookNumber": 13,
+    "name": "1 Crónicas",
+    "author": "Esdras (tradición)",
+    "authorDetails": "Tradicionalmente atribuido a Esdras el escriba, compilado después del exilio.",
+    "writtenDate": "c. 450-400 a.C.",
+    "period": "Desde Adán hasta David",
+    "audience": "Los judíos que regresaron del exilio",
+    "purpose": "Reinterpretar la historia de Israel desde una perspectiva sacerdotal, enfatizando la adoración y el templo.",
+    "keyThemes": [
+      "Genealogía",
+      "Adoración",
+      "Templo",
+      "Pacto davídico"
+    ],
+    "keyVerses": [
+      "1CH.16.34",
+      "1CH.29.11"
+    ],
+    "historicalContext": "Escrito para los judíos post-exílicos que necesitaban reconectar con su historia e identidad como pueblo de Dios.",
+    "structure": [
+      {
+        "chapters": "1-9",
+        "title": "Genealogías de Israel"
+      },
+      {
+        "chapters": "10-29",
+        "title": "El reinado de David"
+      }
+    ],
+    "chapterIntros": {
+      "16": "David trae el arca a Jerusalén. Cántico de alabanza: Dad gracias a Jehová, invocad su nombre.",
+      "29": "David ofrenda para el templo. Tuya es la magnificencia, el poder y la gloria."
+    },
+    "maps": [
+      "david_solomon_kingdom"
+    ]
+  },
+  "2chronicles": {
+    "bookNumber": 14,
+    "name": "2 Crónicas",
+    "author": "Esdras (tradición)",
+    "authorDetails": "Continuación del cronista, compilado después del exilio.",
+    "writtenDate": "c. 450-400 a.C.",
+    "period": "Desde Salomón hasta el exilio y decreto de Ciro",
+    "audience": "Los judíos que regresaron del exilio",
+    "purpose": "Mostrar que la fidelidad al templo y la adoración trae bendición, mientras la apostasía trae juicio.",
+    "keyThemes": [
+      "Templo",
+      "Adoración",
+      "Reforma",
+      "Fidelidad",
+      "Restauración"
+    ],
+    "keyVerses": [
+      "2CH.7.14",
+      "2CH.16.9"
+    ],
+    "historicalContext": "Complementa 1 y 2 Reyes enfocándose en Judá y el templo, omitiendo el reino del norte.",
+    "structure": [
+      {
+        "chapters": "1-9",
+        "title": "El reinado de Salomón y el templo"
+      },
+      {
+        "chapters": "10-36",
+        "title": "Los reyes de Judá hasta el exilio"
+      }
+    ],
+    "chapterIntros": {
+      "7": "Si mi pueblo, que se llama por mi nombre, se humilla, ora y busca mi rostro, yo sanaré su tierra."
+    },
+    "maps": [
+      "david_solomon_kingdom",
+      "divided_kingdom"
+    ]
+  },
+  "ezra": {
+    "bookNumber": 15,
+    "name": "Esdras",
+    "author": "Esdras",
+    "authorDetails": "Esdras, sacerdote y escriba, registró el regreso del exilio.",
+    "writtenDate": "c. 450-420 a.C.",
+    "period": "Regreso del exilio babilónico (c. 538-458 a.C.)",
+    "audience": "La comunidad judía restaurada",
+    "purpose": "Documentar el regreso del exilio, la reconstrucción del templo y la restauración espiritual del pueblo.",
+    "keyThemes": [
+      "Restauración",
+      "Templo",
+      "Pureza",
+      "Fidelidad",
+      "Arrepentimiento"
+    ],
+    "keyVerses": [
+      "EZR.1.3",
+      "EZR.7.10"
+    ],
+    "historicalContext": "El decreto de Ciro permite a los judíos regresar. El templo es reconstruido bajo Zorobabel y la Ley restaurada bajo Esdras.",
+    "structure": [
+      {
+        "chapters": "1-6",
+        "title": "Primer regreso y reconstrucción del templo"
+      },
+      {
+        "chapters": "7-10",
+        "title": "Segundo regreso: reforma de Esdras"
+      }
+    ],
+    "chapterIntros": {
+      "1": "El decreto de Ciro. Dios mueve el corazón del rey persa para enviar a los judíos de regreso a Jerusalén.",
+      "3": "Se reconstruyen los ciclos de adoración y los cimientos del nuevo templo.",
+      "9": "Esdras descubre los matrimonios mixtos y ora con profundo arrepentimiento ante Dios."
+    },
+    "maps": [
+      "return_from_exile",
+      "babylonian_exile"
+    ]
+  },
+  "nehemiah": {
+    "bookNumber": 16,
+    "name": "Nehemías",
+    "author": "Nehemías",
+    "authorDetails": "Escrito en primera persona como las memorias de Nehemías, copero del rey Artajerjes.",
+    "writtenDate": "c. 430-420 a.C.",
+    "period": "Reconstrucción de los muros de Jerusalén (c. 445-430 a.C.)",
+    "audience": "La comunidad judía restaurada",
+    "purpose": "Narrar la reconstrucción de los muros de Jerusalén y la reforma social y espiritual del pueblo.",
+    "keyThemes": [
+      "Liderazgo",
+      "Oración",
+      "Reconstrucción",
+      "Reforma",
+      "Perseverancia"
+    ],
+    "keyVerses": [
+      "NEH.1.4",
+      "NEH.4.14",
+      "NEH.8.10"
+    ],
+    "historicalContext": "Nehemías lidera la reconstrucción de las murallas en 52 días a pesar de oposición constante.",
+    "structure": [
+      {
+        "chapters": "1-7",
+        "title": "Reconstrucción de los muros"
+      },
+      {
+        "chapters": "8-10",
+        "title": "Renovación espiritual"
+      },
+      {
+        "chapters": "11-13",
+        "title": "Reformas sociales"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Nehemías recibe noticias de Jerusalén y ora con lágrimas y ayuno por su pueblo.",
+      "8": "Esdras lee la Ley al pueblo. El gozo de Jehová es vuestra fuerza."
+    },
+    "maps": [
+      "return_from_exile"
+    ]
+  },
+  "esther": {
+    "bookNumber": 17,
+    "name": "Ester",
+    "author": "Desconocido",
+    "authorDetails": "Posiblemente Mardoqueo. El autor conocía bien las costumbres persas.",
+    "writtenDate": "c. 460-350 a.C.",
+    "period": "Reinado de Asuero (Jerjes I) en Persia (c. 486-465 a.C.)",
+    "audience": "Judíos de la diáspora",
+    "purpose": "Mostrar la providencia de Dios protegiendo a su pueblo, aunque su nombre no aparece en el libro.",
+    "keyThemes": [
+      "Providencia",
+      "Valor",
+      "Identidad judía",
+      "Reversión divina"
+    ],
+    "keyVerses": [
+      "EST.4.14"
+    ],
+    "historicalContext": "Los judíos en Persia enfrentan un complot genocida. Ester, la reina judía, intercede ante el rey.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Ester se convierte en reina"
+      },
+      {
+        "chapters": "3-5",
+        "title": "El complot de Amán"
+      },
+      {
+        "chapters": "6-10",
+        "title": "La salvación del pueblo judío"
+      }
+    ],
+    "chapterIntros": {
+      "4": "¿Quién sabe si para esta hora has llegado al reino? Mardoqueo desafía a Ester a actuar."
+    },
+    "maps": []
+  },
+  "job": {
+    "bookNumber": 18,
+    "name": "Job",
+    "author": "Desconocido",
+    "authorDetails": "Autor incierto. Algunos sugieren Moisés, Salomón o el mismo Job.",
+    "writtenDate": "Fecha incierta, posiblemente patriarcal",
+    "period": "Época patriarcal",
+    "audience": "Lectores universales",
+    "purpose": "Explorar el problema del sufrimiento del justo y la soberanía de Dios.",
+    "keyThemes": [
+      "Sufrimiento",
+      "Soberanía de Dios",
+      "Fe",
+      "Sabiduría",
+      "Restauración"
+    ],
+    "keyVerses": [
+      "JOB.1.21",
+      "JOB.19.25",
+      "JOB.42.5"
+    ],
+    "historicalContext": "Uno de los libros más antiguos de la Biblia, aborda preguntas universales sobre el dolor y la justicia divina.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Las pruebas de Job"
+      },
+      {
+        "chapters": "3-31",
+        "title": "Diálogos con los tres amigos"
+      },
+      {
+        "chapters": "32-37",
+        "title": "Discurso de Eliú"
+      },
+      {
+        "chapters": "38-41",
+        "title": "Dios habla desde el torbellino"
+      },
+      {
+        "chapters": "42",
+        "title": "La restauración de Job"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Job pierde todo en un día: hijos, riquezas, salud. Jehová dio, Jehová quitó; sea el nombre de Jehová bendito.",
+      "38": "Dios habla desde el torbellino. ¿Dónde estabas tú cuando yo fundaba la tierra?",
+      "42": "Job se arrepiente en polvo y ceniza. Dios restaura el doble de todo lo que había perdido."
+    },
+    "maps": [
+      "ancient_near_east"
+    ]
+  },
+  "psalms": {
+    "bookNumber": 19,
+    "name": "Salmos",
+    "author": "David y otros",
+    "authorDetails": "David (73 salmos), Asaf (12), los hijos de Coré (11), Salomón (2), Moisés (1), Etán (1), anónimos.",
+    "writtenDate": "c. 1410-430 a.C.",
+    "period": "Mil años de historia de Israel",
+    "audience": "Todo Israel y la iglesia universal",
+    "purpose": "Servir como el himnario y libro de oraciones de Israel, expresando toda la gama de emociones humanas ante Dios.",
+    "keyThemes": [
+      "Alabanza",
+      "Lamento",
+      "Confianza",
+      "Mesías",
+      "Arrepentimiento",
+      "Adoración"
+    ],
+    "keyVerses": [
+      "PSA.23.1",
+      "PSA.51.10",
+      "PSA.119.105",
+      "PSA.139.14"
+    ],
+    "historicalContext": "Compilados a lo largo de mil años, los Salmos reflejan las experiencias del pueblo de Dios desde Moisés hasta el post-exilio.",
+    "structure": [
+      {
+        "chapters": "1-41",
+        "title": "Libro I (principalmente David)"
+      },
+      {
+        "chapters": "42-72",
+        "title": "Libro II (David y Coré)"
+      },
+      {
+        "chapters": "73-89",
+        "title": "Libro III (Asaf y Coré)"
+      },
+      {
+        "chapters": "90-106",
+        "title": "Libro IV (anónimos y Moisés)"
+      },
+      {
+        "chapters": "107-150",
+        "title": "Libro V (David y aleluyas)"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Los dos caminos: el justo es como árbol plantado junto a corrientes de aguas.",
+      "23": "Jehová es mi pastor, nada me faltará. El salmo más amado de la Biblia.",
+      "51": "Crea en mí un corazón limpio, oh Dios. El salmo de arrepentimiento de David.",
+      "91": "El que habita al abrigo del Altísimo morará bajo la sombra del Omnipotente.",
+      "119": "El salmo más largo. Un acróstico que celebra la Palabra de Dios en 176 versículos.",
+      "139": "Señor, tú me has examinado y conocido. Un himno a la omnisciencia y omnipresencia de Dios.",
+      "150": "¡Todo lo que respira alabe a Jehová! El gran final del libro de Salmos."
+    },
+    "maps": [
+      "jerusalem_old_city",
+      "david_solomon_kingdom"
+    ]
+  },
+  "proverbs": {
+    "bookNumber": 20,
+    "name": "Proverbios",
+    "author": "Salomón y otros",
+    "authorDetails": "Principalmente Salomón. También palabras de Agur (cap. 30) y Lemuel (cap. 31).",
+    "writtenDate": "c. 970-700 a.C.",
+    "period": "Época de la monarquía",
+    "audience": "Los jóvenes de Israel",
+    "purpose": "Enseñar sabiduría práctica para la vida diaria: relaciones, trabajo, dinero, palabras y carácter.",
+    "keyThemes": [
+      "Sabiduría",
+      "Necedad",
+      "Temor de Dios",
+      "Disciplina",
+      "Justicia"
+    ],
+    "keyVerses": [
+      "PRO.1.7",
+      "PRO.3.5",
+      "PRO.22.6",
+      "PRO.31.10"
+    ],
+    "historicalContext": "Parte de la tradición sapiencial del antiguo Oriente, pero enraizada en el temor de Jehová como principio de sabiduría.",
+    "structure": [
+      {
+        "chapters": "1-9",
+        "title": "Discursos sobre la sabiduría"
+      },
+      {
+        "chapters": "10-22",
+        "title": "Proverbios de Salomón"
+      },
+      {
+        "chapters": "23-24",
+        "title": "Dichos de los sabios"
+      },
+      {
+        "chapters": "25-29",
+        "title": "Más proverbios de Salomón"
+      },
+      {
+        "chapters": "30",
+        "title": "Palabras de Agur"
+      },
+      {
+        "chapters": "31",
+        "title": "El rey Lemuel y la mujer virtuosa"
+      }
+    ],
+    "chapterIntros": {
+      "1": "El principio de la sabiduría es el temor de Jehová. Introducción y propósito del libro.",
+      "3": "Confía en Jehová con todo tu corazón. No te apoyes en tu propia prudencia.",
+      "31": "La mujer virtuosa. ¿Quién la hallará? Su valor sobrepasa largamente al de las piedras preciosas."
+    },
+    "maps": []
+  },
+  "ecclesiastes": {
+    "bookNumber": 21,
+    "name": "Eclesiastés",
+    "author": "Salomón",
+    "authorDetails": "El Predicador, hijo de David, rey en Jerusalén. Reflexiones de su vejez.",
+    "writtenDate": "c. 940-930 a.C.",
+    "period": "Final del reinado de Salomón",
+    "audience": "Lectores universales",
+    "purpose": "Demostrar que la vida sin Dios es vanidad, y que el verdadero sentido se encuentra en temer a Dios.",
+    "keyThemes": [
+      "Vanidad",
+      "Sentido de la vida",
+      "Temor de Dios",
+      "Muerte",
+      "Sabiduría"
+    ],
+    "keyVerses": [
+      "ECC.1.2",
+      "ECC.3.1",
+      "ECC.12.13"
+    ],
+    "historicalContext": "Salomón, con toda su riqueza y sabiduría, reflexiona sobre el significado último de la existencia.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Todo es vanidad"
+      },
+      {
+        "chapters": "3-5",
+        "title": "El tiempo, la injusticia y Dios"
+      },
+      {
+        "chapters": "6-8",
+        "title": "Sabiduría en un mundo caído"
+      },
+      {
+        "chapters": "9-12",
+        "title": "Vivir sabiamente ante la muerte"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Vanidad de vanidades, todo es vanidad. La búsqueda del sentido bajo el sol.",
+      "3": "Todo tiene su tiempo: tiempo de nacer, tiempo de morir; tiempo de llorar, tiempo de reír.",
+      "12": "Acuérdate de tu Creador en los días de tu juventud. Conclusión: Teme a Dios y guarda sus mandamientos."
+    },
+    "maps": []
+  },
+  "songofsolomon": {
+    "bookNumber": 22,
+    "name": "Cantares",
+    "author": "Salomón",
+    "authorDetails": "El Cantar de los Cantares, de Salomón. El más bello de sus 1,005 cánticos.",
+    "writtenDate": "c. 970-930 a.C.",
+    "period": "Reinado de Salomón",
+    "audience": "Israel",
+    "purpose": "Celebrar el amor romántico como don de Dios, y como imagen del amor entre Dios y su pueblo.",
+    "keyThemes": [
+      "Amor",
+      "Matrimonio",
+      "Belleza",
+      "Fidelidad",
+      "Intimidad"
+    ],
+    "keyVerses": [
+      "SNG.2.16",
+      "SNG.8.6"
+    ],
+    "historicalContext": "Poesía lírica oriental que celebra el amor entre el esposo y la esposa.",
+    "structure": [
+      {
+        "chapters": "1-3",
+        "title": "El cortejo"
+      },
+      {
+        "chapters": "4-5",
+        "title": "La boda"
+      },
+      {
+        "chapters": "6-8",
+        "title": "La madurez del amor"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Cantar de los cantares de Salomón. El diálogo de amor entre la esposa y el esposo.",
+      "8": "Fuerte como la muerte es el amor. Las muchas aguas no pueden apagarlo."
+    },
+    "maps": []
+  },
+  "isaiah": {
+    "bookNumber": 23,
+    "name": "Isaías",
+    "author": "Isaías hijo de Amoz",
+    "authorDetails": "Profeta en Jerusalén durante los reinados de Uzías, Jotam, Acaz y Ezequías.",
+    "writtenDate": "c. 740-680 a.C.",
+    "period": "Crisis asiria y la amenaza a Judá",
+    "audience": "Judá y Jerusalén",
+    "purpose": "Llamar a Judá al arrepentimiento, revelar el juicio venidero y profetizar la salvación mesiánica.",
+    "keyThemes": [
+      "Juicio",
+      "Salvación",
+      "Mesías",
+      "Siervo sufriente",
+      "Santidad de Dios",
+      "Restauración"
+    ],
+    "keyVerses": [
+      "ISA.6.3",
+      "ISA.7.14",
+      "ISA.9.6",
+      "ISA.40.31",
+      "ISA.53.5",
+      "ISA.55.1"
+    ],
+    "historicalContext": "Escrito durante la expansión asiria. Isaías advierte sobre el juicio pero promete un futuro glorioso a través del Mesías.",
+    "structure": [
+      {
+        "chapters": "1-12",
+        "title": "El libro de Emanuel"
+      },
+      {
+        "chapters": "13-23",
+        "title": "Juicios contra las naciones"
+      },
+      {
+        "chapters": "24-27",
+        "title": "El pequeño apocalipsis"
+      },
+      {
+        "chapters": "28-35",
+        "title": "Ayes contra Judá"
+      },
+      {
+        "chapters": "36-39",
+        "title": "Narrativa histórica (Ezequías)"
+      },
+      {
+        "chapters": "40-55",
+        "title": "El libro del consuelo"
+      },
+      {
+        "chapters": "56-66",
+        "title": "La gloria futura"
+      }
+    ],
+    "chapterIntros": {
+      "6": "La visión del trono de Dios. Santo, santo, santo es Jehová de los ejércitos. Isaías es llamado.",
+      "7": "La señal de Emanuel: Una virgen concebirá y dará a luz un hijo.",
+      "9": "Un niño nos es nacido, hijo nos es dado. Padre Eterno, Príncipe de Paz.",
+      "40": "Consolaos, consolaos, pueblo mío. Los que esperan en Jehová tendrán nuevas fuerzas.",
+      "53": "El Siervo sufriente. Herido fue por nuestras rebeliones, molido por nuestros pecados.",
+      "55": "A todos los sedientos: venid a las aguas. Buscad a Jehová mientras puede ser hallado."
+    },
+    "maps": [
+      "divided_kingdom",
+      "ancient_near_east"
+    ]
+  },
+  "jeremiah": {
+    "bookNumber": 24,
+    "name": "Jeremías",
+    "author": "Jeremías",
+    "authorDetails": "El profeta llorón. Hijo de Hilcías, sacerdote de Anatot. Dictó a su escriba Baruc.",
+    "writtenDate": "c. 627-580 a.C.",
+    "period": "Últimos años de Judá, antes y durante el exilio",
+    "audience": "Judá",
+    "purpose": "Advertir sobre la destrucción inminente de Jerusalén y el exilio, pero prometer un nuevo pacto.",
+    "keyThemes": [
+      "Juicio",
+      "Arrepentimiento",
+      "Nuevo pacto",
+      "Idolatría",
+      "Esperanza"
+    ],
+    "keyVerses": [
+      "JER.1.5",
+      "JER.17.9",
+      "JER.29.11",
+      "JER.31.31"
+    ],
+    "historicalContext": "Jeremías profetiza durante 40 años, desde Josías hasta la caída de Jerusalén en 586 a.C.",
+    "structure": [
+      {
+        "chapters": "1-6",
+        "title": "Llamado y primeros oráculos"
+      },
+      {
+        "chapters": "7-20",
+        "title": "Conflictos con el templo y el pueblo"
+      },
+      {
+        "chapters": "21-29",
+        "title": "Juicios y esperanza"
+      },
+      {
+        "chapters": "30-33",
+        "title": "El libro de consolación"
+      },
+      {
+        "chapters": "34-45",
+        "title": "La caída de Jerusalén"
+      },
+      {
+        "chapters": "46-51",
+        "title": "Oráculos contra las naciones"
+      },
+      {
+        "chapters": "52",
+        "title": "Apéndice histórico"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Antes de formarte en el vientre te conocí. Dios llama a Jeremías siendo joven.",
+      "29": "Porque yo sé los pensamientos que tengo acerca de vosotros, pensamientos de paz y no de mal.",
+      "31": "El nuevo pacto: Pondré mi ley en su mente, y la escribiré en su corazón."
+    },
+    "maps": [
+      "divided_kingdom",
+      "babylonian_exile"
+    ]
+  },
+  "lamentations": {
+    "bookNumber": 25,
+    "name": "Lamentaciones",
+    "author": "Jeremías",
+    "authorDetails": "Tradicionalmente atribuido a Jeremías, testigo de la destrucción de Jerusalén.",
+    "writtenDate": "c. 586-585 a.C.",
+    "period": "Inmediatamente después de la caída de Jerusalén",
+    "audience": "Los sobrevivientes del sitio de Jerusalén",
+    "purpose": "Lamentar la destrucción de Jerusalén y el templo, mientras afirma la fidelidad de Dios.",
+    "keyThemes": [
+      "Lamento",
+      "Juicio",
+      "Esperanza",
+      "Fidelidad de Dios"
+    ],
+    "keyVerses": [
+      "LAM.3.22",
+      "LAM.3.23"
+    ],
+    "historicalContext": "Cinco poemas acrósticos que expresan el dolor por la destrucción de Jerusalén en 586 a.C.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Jerusalén desolada"
+      },
+      {
+        "chapters": "2",
+        "title": "La ira de Dios"
+      },
+      {
+        "chapters": "3",
+        "title": "Esperanza en medio del dolor"
+      },
+      {
+        "chapters": "4",
+        "title": "El horror del sitio"
+      },
+      {
+        "chapters": "5",
+        "title": "Oración por restauración"
+      }
+    ],
+    "chapterIntros": {
+      "3": "Por la misericordia de Jehová no hemos sido consumidos. Nuevas son cada mañana; grande es tu fidelidad."
+    },
+    "maps": [
+      "babylonian_exile"
+    ]
+  },
+  "ezekiel": {
+    "bookNumber": 26,
+    "name": "Ezequiel",
+    "author": "Ezequiel",
+    "authorDetails": "Sacerdote y profeta exiliado en Babilonia con la primera deportación de 597 a.C.",
+    "writtenDate": "c. 593-571 a.C.",
+    "period": "El exilio babilónico",
+    "audience": "Los exiliados judíos en Babilonia",
+    "purpose": "Explicar por qué Dios permitió la destrucción de Jerusalén y dar esperanza de restauración futura.",
+    "keyThemes": [
+      "Gloria de Dios",
+      "Juicio",
+      "Restauración",
+      "Responsabilidad individual",
+      "Nuevo templo"
+    ],
+    "keyVerses": [
+      "EZK.36.26",
+      "EZK.37.14"
+    ],
+    "historicalContext": "Ezequiel profetiza desde Babilonia, usando visiones dramáticas y acciones simbólicas.",
+    "structure": [
+      {
+        "chapters": "1-3",
+        "title": "Llamado y visión del trono"
+      },
+      {
+        "chapters": "4-24",
+        "title": "Juicio contra Jerusalén"
+      },
+      {
+        "chapters": "25-32",
+        "title": "Juicio contra las naciones"
+      },
+      {
+        "chapters": "33-39",
+        "title": "Restauración de Israel"
+      },
+      {
+        "chapters": "40-48",
+        "title": "Visión del nuevo templo"
+      }
+    ],
+    "chapterIntros": {
+      "1": "La visión de la gloria de Dios: los cuatro seres vivientes, las ruedas y el trono celestial.",
+      "37": "El valle de los huesos secos. La restauración de Israel por el Espíritu de Dios."
+    },
+    "maps": [
+      "babylonian_exile"
+    ]
+  },
+  "daniel": {
+    "bookNumber": 27,
+    "name": "Daniel",
+    "author": "Daniel",
+    "authorDetails": "Joven judío de familia noble exiliado en Babilonia, sirvió en la corte de reyes.",
+    "writtenDate": "c. 536-530 a.C.",
+    "period": "El exilio babilónico hasta el dominio persa (c. 605-536 a.C.)",
+    "audience": "Los judíos exiliados y las generaciones futuras",
+    "purpose": "Demostrar la soberanía de Dios sobre los imperios mundiales y revelar el plan profético para el futuro.",
+    "keyThemes": [
+      "Soberanía de Dios",
+      "Profecía",
+      "Fidelidad",
+      "Imperios",
+      "Mesías"
+    ],
+    "keyVerses": [
+      "DAN.2.44",
+      "DAN.3.17",
+      "DAN.6.22",
+      "DAN.9.25"
+    ],
+    "historicalContext": "Daniel sirve fielmente a reyes paganos mientras recibe visiones del futuro que abarcan hasta el fin de los tiempos.",
+    "structure": [
+      {
+        "chapters": "1-6",
+        "title": "Historias: fidelidad en tierra extraña"
+      },
+      {
+        "chapters": "7-12",
+        "title": "Visiones proféticas del futuro"
+      }
+    ],
+    "chapterIntros": {
+      "3": "El horno de fuego ardiente. Los tres amigos de Daniel se niegan a adorar la estatua de Nabucodonosor.",
+      "6": "Daniel en el foso de los leones. Su fidelidad a Dios lo protege de la muerte.",
+      "9": "La profecía de las setenta semanas. Un cronograma profético hasta la venida del Mesías."
+    },
+    "maps": [
+      "babylonian_exile",
+      "ancient_near_east"
+    ]
+  },
+  "hosea": {
+    "bookNumber": 28,
+    "name": "Oseas",
+    "author": "Oseas",
+    "authorDetails": "Profeta del reino del norte, contemporáneo de Isaías.",
+    "writtenDate": "c. 755-725 a.C.",
+    "period": "Últimos años del reino del norte",
+    "audience": "Israel (reino del norte)",
+    "purpose": "Usar el matrimonio de Oseas como alegoría del amor fiel de Dios hacia su pueblo infiel.",
+    "keyThemes": [
+      "Amor de Dios",
+      "Infidelidad",
+      "Arrepentimiento",
+      "Restauración"
+    ],
+    "keyVerses": [
+      "HOS.6.6",
+      "HOS.11.1",
+      "HOS.14.4"
+    ],
+    "historicalContext": "Israel está en decadencia moral y espiritual encaminándose hacia la destrucción asiria de 722 a.C.",
+    "structure": [
+      {
+        "chapters": "1-3",
+        "title": "El matrimonio de Oseas"
+      },
+      {
+        "chapters": "4-13",
+        "title": "Juicio contra Israel"
+      },
+      {
+        "chapters": "14",
+        "title": "Llamado al arrepentimiento y restauración"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Dios ordena a Oseas casarse con una mujer infiel como símbolo de la relación de Dios con Israel.",
+      "11": "Cuando Israel era muchacho, yo lo amé. El amor maternal de Dios por su pueblo."
+    },
+    "maps": [
+      "divided_kingdom"
+    ]
+  },
+  "joel": {
+    "bookNumber": 29,
+    "name": "Joel",
+    "author": "Joel hijo de Petuel",
+    "authorDetails": "Poco se sabe del profeta Joel. Su mensaje se centra en Judá y Jerusalén.",
+    "writtenDate": "c. 835-800 a.C. (o 400 a.C.)",
+    "period": "Incierto",
+    "audience": "Judá",
+    "purpose": "Usar una plaga de langostas como imagen del juicio divino, y prometer el derramamiento del Espíritu.",
+    "keyThemes": [
+      "Día de Jehová",
+      "Arrepentimiento",
+      "Espíritu Santo",
+      "Restauración"
+    ],
+    "keyVerses": [
+      "JOL.2.28",
+      "JOL.2.32"
+    ],
+    "historicalContext": "Una devastadora plaga de langostas sirve como advertencia del Día del Señor venidero.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "La plaga de langostas"
+      },
+      {
+        "chapters": "2",
+        "title": "El Día de Jehová y el Espíritu"
+      },
+      {
+        "chapters": "3",
+        "title": "Juicio final de las naciones"
+      }
+    ],
+    "chapterIntros": {
+      "2": "Derramaré mi Espíritu sobre toda carne. Profecía cumplida en Pentecostés."
+    },
+    "maps": []
+  },
+  "amos": {
+    "bookNumber": 30,
+    "name": "Amós",
+    "author": "Amós",
+    "authorDetails": "Pastor y cultivador de higos de Tecoa, en Judá, enviado a profetizar al norte.",
+    "writtenDate": "c. 760-755 a.C.",
+    "period": "Prosperidad aparente del reino del norte",
+    "audience": "Israel (reino del norte)",
+    "purpose": "Denunciar la injusticia social y la religiosidad vacía, anunciando juicio por la opresión de los pobres.",
+    "keyThemes": [
+      "Justicia social",
+      "Juicio",
+      "Religión verdadera",
+      "Compasión"
+    ],
+    "keyVerses": [
+      "AMO.5.24"
+    ],
+    "historicalContext": "Israel disfruta de prosperidad económica bajo Jeroboam II, pero la riqueza esconde injusticia y explotación.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Juicios contra las naciones"
+      },
+      {
+        "chapters": "3-6",
+        "title": "Tres discursos contra Israel"
+      },
+      {
+        "chapters": "7-9",
+        "title": "Cinco visiones de juicio"
+      }
+    ],
+    "chapterIntros": {
+      "5": "Corra el juicio como las aguas, y la justicia como arroyo impetuoso."
+    },
+    "maps": [
+      "divided_kingdom"
+    ]
+  },
+  "obadiah": {
+    "bookNumber": 31,
+    "name": "Abdías",
+    "author": "Abdías",
+    "authorDetails": "El profeta más breve del AT. Solo se sabe su nombre, que significa siervo de Jehová.",
+    "writtenDate": "c. 586-550 a.C.",
+    "period": "Después de la caída de Jerusalén",
+    "audience": "Edom y Judá",
+    "purpose": "Anunciar el juicio de Dios contra Edom por su traición a Judá durante la invasión babilónica.",
+    "keyThemes": [
+      "Juicio sobre Edom",
+      "Orgullo",
+      "Justicia divina"
+    ],
+    "keyVerses": [
+      "OBA.1.15"
+    ],
+    "historicalContext": "Edom (descendientes de Esaú) se alegró y participó en el saqueo cuando Nabucodonosor destruyó Jerusalén.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Juicio contra Edom y restauración de Israel"
+      }
+    ],
+    "chapterIntros": {},
+    "maps": [
+      "babylonian_exile"
+    ]
+  },
+  "jonah": {
+    "bookNumber": 32,
+    "name": "Jonás",
+    "author": "Jonás",
+    "authorDetails": "Jonás hijo de Amitai, profeta de Gat-hefer en el reino del norte.",
+    "writtenDate": "c. 785-750 a.C.",
+    "period": "Reinado de Jeroboam II",
+    "audience": "Israel",
+    "purpose": "Mostrar que la compasión de Dios se extiende más allá de Israel, aun a los enemigos de su pueblo.",
+    "keyThemes": [
+      "Misericordia universal",
+      "Obediencia",
+      "Arrepentimiento",
+      "Soberanía de Dios"
+    ],
+    "keyVerses": [
+      "JON.2.9",
+      "JON.4.11"
+    ],
+    "historicalContext": "Nínive era la capital del Imperio Asirio, el mayor enemigo de Israel. Dios envía a Jonás a predicar allí.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "La huida de Jonás"
+      },
+      {
+        "chapters": "2",
+        "title": "La oración desde el gran pez"
+      },
+      {
+        "chapters": "3",
+        "title": "Nínive se arrepiente"
+      },
+      {
+        "chapters": "4",
+        "title": "El enojo de Jonás y la lección de Dios"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Jonás huye de Dios hacia Tarsis. Es lanzado al mar y tragado por un gran pez.",
+      "3": "Jonás predica en Nínive. Toda la ciudad se arrepiente, desde el rey hasta los animales."
+    },
+    "maps": [
+      "ancient_near_east"
+    ]
+  },
+  "micah": {
+    "bookNumber": 33,
+    "name": "Miqueas",
+    "author": "Miqueas de Moreset",
+    "authorDetails": "Profeta rural contemporáneo de Isaías, del pueblo de Moreset en Judá.",
+    "writtenDate": "c. 735-700 a.C.",
+    "period": "Crisis asiria",
+    "audience": "Judá e Israel",
+    "purpose": "Denunciar la corrupción social y religiosa, y profetizar el nacimiento del Mesías en Belén.",
+    "keyThemes": [
+      "Justicia",
+      "Mesías",
+      "Juicio",
+      "Esperanza",
+      "Humildad"
+    ],
+    "keyVerses": [
+      "MIC.5.2",
+      "MIC.6.8"
+    ],
+    "historicalContext": "Miqueas profetiza mientras Asiria amenaza la región, viendo caer a Samaria en 722 a.C.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Juicio contra Samaria y Judá"
+      },
+      {
+        "chapters": "3-5",
+        "title": "Juicio presente, gloria futura"
+      },
+      {
+        "chapters": "6-7",
+        "title": "El pleito de Dios con su pueblo"
+      }
+    ],
+    "chapterIntros": {
+      "5": "Pero tú, Belén Efrata, de ti me saldrá el que será Señor en Israel. Profecía del nacimiento de Cristo.",
+      "6": "¿Qué pide Jehová de ti? Hacer justicia, amar misericordia, y humillarte ante tu Dios."
+    },
+    "maps": [
+      "divided_kingdom"
+    ]
+  },
+  "nahum": {
+    "bookNumber": 34,
+    "name": "Nahúm",
+    "author": "Nahúm de Elcos",
+    "authorDetails": "Profeta de Elcos, lugar de ubicación incierta.",
+    "writtenDate": "c. 663-612 a.C.",
+    "period": "Antes de la caída de Nínive",
+    "audience": "Judá y Nínive",
+    "purpose": "Anunciar la destrucción de Nínive como acto de justicia divina contra la crueldad asiria.",
+    "keyThemes": [
+      "Juicio",
+      "Justicia divina",
+      "Soberanía",
+      "Consuelo para los oprimidos"
+    ],
+    "keyVerses": [
+      "NAH.1.7"
+    ],
+    "historicalContext": "Un siglo después del arrepentimiento de Nínive (Jonás), la ciudad ha vuelto a la maldad. Su destrucción es inminente.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "La majestad y ira de Dios"
+      },
+      {
+        "chapters": "2",
+        "title": "La caída de Nínive"
+      },
+      {
+        "chapters": "3",
+        "title": "Ay de Nínive"
+      }
+    ],
+    "chapterIntros": {},
+    "maps": [
+      "ancient_near_east"
+    ]
+  },
+  "habakkuk": {
+    "bookNumber": 35,
+    "name": "Habacuc",
+    "author": "Habacuc",
+    "authorDetails": "Posiblemente un levita músico del templo. Único profeta que cuestiona directamente a Dios.",
+    "writtenDate": "c. 610-600 a.C.",
+    "period": "Antes de la invasión babilónica",
+    "audience": "Judá",
+    "purpose": "Resolver el dilema de por qué Dios permite el mal, y la respuesta: el justo por su fe vivirá.",
+    "keyThemes": [
+      "Fe",
+      "Justicia de Dios",
+      "Soberanía",
+      "Confianza"
+    ],
+    "keyVerses": [
+      "HAB.2.4",
+      "HAB.3.17"
+    ],
+    "historicalContext": "Habacuc ve la maldad en Judá y cuestiona a Dios. Dios responde que usará a Babilonia como instrumento de juicio.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "La queja de Habacuc y la respuesta de Dios"
+      },
+      {
+        "chapters": "2",
+        "title": "El justo vivirá por su fe"
+      },
+      {
+        "chapters": "3",
+        "title": "La oración y alabanza de Habacuc"
+      }
+    ],
+    "chapterIntros": {
+      "2": "El justo por su fe vivirá. Versículo clave para la Reforma Protestante.",
+      "3": "Aunque la higuera no florezca, con todo yo me alegraré en Jehová."
+    },
+    "maps": []
+  },
+  "zephaniah": {
+    "bookNumber": 36,
+    "name": "Sofonías",
+    "author": "Sofonías",
+    "authorDetails": "Bisnieto del rey Ezequías. Profetizó durante la reforma de Josías.",
+    "writtenDate": "c. 640-625 a.C.",
+    "period": "Reinado de Josías",
+    "audience": "Judá",
+    "purpose": "Advertir sobre el Día de Jehová venidero y llamar al arrepentimiento antes de que sea tarde.",
+    "keyThemes": [
+      "Día de Jehová",
+      "Juicio",
+      "Arrepentimiento",
+      "Remanente fiel"
+    ],
+    "keyVerses": [
+      "ZEP.3.17"
+    ],
+    "historicalContext": "Judá vive en idolatría después de los reinos malvados de Manasés y Amón, antes de la reforma de Josías.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "El Día de Jehová sobre Judá"
+      },
+      {
+        "chapters": "2",
+        "title": "Juicio sobre las naciones"
+      },
+      {
+        "chapters": "3",
+        "title": "Restauración del remanente"
+      }
+    ],
+    "chapterIntros": {
+      "3": "Jehová tu Dios está en medio de ti, poderoso, él salvará; se gozará sobre ti con alegría."
+    },
+    "maps": []
+  },
+  "haggai": {
+    "bookNumber": 37,
+    "name": "Hageo",
+    "author": "Hageo",
+    "authorDetails": "Profeta post-exílico que motivó la reconstrucción del templo.",
+    "writtenDate": "520 a.C.",
+    "period": "Regreso del exilio babilónico",
+    "audience": "Los judíos que regresaron del exilio",
+    "purpose": "Motivar al pueblo a terminar la reconstrucción del templo que habían abandonado.",
+    "keyThemes": [
+      "Prioridades",
+      "Templo",
+      "Obediencia",
+      "Gloria futura"
+    ],
+    "keyVerses": [
+      "HAG.1.4",
+      "HAG.2.9"
+    ],
+    "historicalContext": "Los judíos han regresado del exilio pero han dejado el templo en ruinas mientras construyen sus propias casas.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Llamado a reconstruir el templo"
+      },
+      {
+        "chapters": "2",
+        "title": "La gloria del nuevo templo"
+      }
+    ],
+    "chapterIntros": {
+      "1": "¿Es tiempo de que vosotros habitéis en casas artesonadas mientras esta casa está desierta?"
+    },
+    "maps": [
+      "return_from_exile"
+    ]
+  },
+  "zechariah": {
+    "bookNumber": 38,
+    "name": "Zacarías",
+    "author": "Zacarías hijo de Berequías",
+    "authorDetails": "Sacerdote y profeta contemporáneo de Hageo, con visiones apocalípticas.",
+    "writtenDate": "c. 520-480 a.C.",
+    "period": "Post-exilio",
+    "audience": "Los judíos que regresaron del exilio",
+    "purpose": "Animar al pueblo con visiones de la restauración futura y profecías mesiánicas detalladas.",
+    "keyThemes": [
+      "Mesías",
+      "Restauración",
+      "Visiones",
+      "Jerusalén",
+      "Reino futuro"
+    ],
+    "keyVerses": [
+      "ZEC.4.6",
+      "ZEC.9.9",
+      "ZEC.12.10",
+      "ZEC.14.9"
+    ],
+    "historicalContext": "Zacarías profetiza durante la reconstrucción del templo, dando esperanza de una gloria futura mayor.",
+    "structure": [
+      {
+        "chapters": "1-6",
+        "title": "Ocho visiones nocturnas"
+      },
+      {
+        "chapters": "7-8",
+        "title": "El ayuno y la justicia"
+      },
+      {
+        "chapters": "9-14",
+        "title": "Profecías mesiánicas"
+      }
+    ],
+    "chapterIntros": {
+      "4": "No con ejército, ni con fuerza, sino con mi Espíritu, dice Jehová de los ejércitos.",
+      "9": "He aquí tu Rey viene a ti, justo y salvador, humilde, cabalgando sobre un asno. Profecía de la entrada triunfal.",
+      "12": "Mirarán a aquel que traspasaron. Profecía del arrepentimiento nacional de Israel."
+    },
+    "maps": [
+      "return_from_exile"
+    ]
+  },
+  "malachi": {
+    "bookNumber": 39,
+    "name": "Malaquías",
+    "author": "Malaquías",
+    "authorDetails": "Último profeta del AT. Su nombre significa mi mensajero.",
+    "writtenDate": "c. 433-400 a.C.",
+    "period": "Post-exilio, después de Nehemías",
+    "audience": "El pueblo de Judá post-exílico",
+    "purpose": "Confrontar la indiferencia espiritual del pueblo y anunciar la venida del mensajero que preparará el camino del Señor.",
+    "keyThemes": [
+      "Fidelidad",
+      "Diezmo",
+      "Honra a Dios",
+      "Precursor del Mesías"
+    ],
+    "keyVerses": [
+      "MAL.3.1",
+      "MAL.3.10",
+      "MAL.4.2"
+    ],
+    "historicalContext": "El último libro del AT, escrito antes de 400 años de silencio profético hasta Juan el Bautista.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "El amor despreciado de Dios"
+      },
+      {
+        "chapters": "2",
+        "title": "Corrupción sacerdotal y matrimonial"
+      },
+      {
+        "chapters": "3",
+        "title": "El mensajero venidero y los diezmos"
+      },
+      {
+        "chapters": "4",
+        "title": "El día de Jehová y Elías"
+      }
+    ],
+    "chapterIntros": {
+      "3": "He aquí yo envío mi mensajero. Profecía de Juan el Bautista. Traed los diezmos al alfolí.",
+      "4": "He aquí yo os envío al profeta Elías antes que venga el día grande y terrible de Jehová."
+    },
+    "maps": [
+      "return_from_exile"
+    ]
+  },
+  "matthew": {
+    "bookNumber": 40,
+    "name": "Mateo",
+    "author": "Mateo (Leví)",
+    "authorDetails": "Apóstol y ex cobrador de impuestos. Escribió para una audiencia judía.",
+    "writtenDate": "c. 55-65 d.C.",
+    "period": "Ministerio de Jesús (c. 4 a.C. — 30 d.C.)",
+    "audience": "Judíos",
+    "purpose": "Presentar a Jesús como el Mesías prometido, el Rey de Israel, cumplidor de las profecías del AT.",
+    "keyThemes": [
+      "Mesías",
+      "Reino de los cielos",
+      "Cumplimiento profético",
+      "Discipulado",
+      "Ley"
+    ],
+    "keyVerses": [
+      "MAT.1.1",
+      "MAT.5.17",
+      "MAT.16.16",
+      "MAT.28.19"
+    ],
+    "historicalContext": "Escrito para demostrar a los judíos que Jesús es el Cristo prometido, con abundantes citas del AT.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Nacimiento e infancia de Jesús"
+      },
+      {
+        "chapters": "3-4",
+        "title": "Preparación para el ministerio"
+      },
+      {
+        "chapters": "5-7",
+        "title": "Sermón del Monte"
+      },
+      {
+        "chapters": "8-10",
+        "title": "Milagros y misión"
+      },
+      {
+        "chapters": "11-13",
+        "title": "Rechazo y parábolas del reino"
+      },
+      {
+        "chapters": "14-18",
+        "title": "Retiro y enseñanza a los discípulos"
+      },
+      {
+        "chapters": "19-25",
+        "title": "Viaje a Jerusalén y controversias"
+      },
+      {
+        "chapters": "26-28",
+        "title": "Pasión, muerte y resurrección"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Genealogía de Jesús desde Abraham. El nacimiento virginal cumple la profecía de Isaías 7:14.",
+      "5": "El Sermón del Monte. Las bienaventuranzas: Bienaventurados los pobres en espíritu.",
+      "13": "Las parábolas del reino de los cielos: el sembrador, el trigo y la cizaña, la perla de gran precio.",
+      "26": "La última cena, Getsemaní, el arresto y juicio de Jesús.",
+      "28": "La resurrección. La Gran Comisión: Id y haced discípulos a todas las naciones."
+    },
+    "maps": [
+      "galilee_ministry",
+      "jerusalem_jesus",
+      "new_testament_world"
+    ]
+  },
+  "mark": {
+    "bookNumber": 41,
+    "name": "Marcos",
+    "author": "Juan Marcos",
+    "authorDetails": "Compañero de Pedro. Escribió basándose en los recuerdos del apóstol Pedro.",
+    "writtenDate": "c. 55-65 d.C.",
+    "period": "Ministerio de Jesús",
+    "audience": "Romanos (gentiles)",
+    "purpose": "Presentar a Jesús como el Siervo activo y poderoso de Dios, enfatizando sus obras más que sus palabras.",
+    "keyThemes": [
+      "Servicio",
+      "Poder",
+      "Acción",
+      "Sufrimiento",
+      "Discipulado"
+    ],
+    "keyVerses": [
+      "MRK.10.45",
+      "MRK.8.34"
+    ],
+    "historicalContext": "El evangelio más breve y dinámico. Usa frecuentemente la palabra inmediatamente para mantener un ritmo rápido.",
+    "structure": [
+      {
+        "chapters": "1-3",
+        "title": "Inicio del ministerio en Galilea"
+      },
+      {
+        "chapters": "4-8",
+        "title": "Milagros y enseñanzas"
+      },
+      {
+        "chapters": "9-10",
+        "title": "Camino a Jerusalén"
+      },
+      {
+        "chapters": "11-13",
+        "title": "Ministerio en Jerusalén"
+      },
+      {
+        "chapters": "14-16",
+        "title": "Pasión y resurrección"
+      }
+    ],
+    "chapterIntros": {
+      "1": "El principio del evangelio de Jesucristo, Hijo de Dios. Bautismo, tentación e inicio del ministerio.",
+      "10": "El Hijo del Hombre no vino para ser servido, sino para servir, y dar su vida en rescate por muchos.",
+      "16": "La resurrección de Jesús. La tumba vacía. Id por todo el mundo y predicad el evangelio."
+    },
+    "maps": [
+      "galilee_ministry",
+      "jerusalem_jesus"
+    ]
+  },
+  "luke": {
+    "bookNumber": 42,
+    "name": "Lucas",
+    "author": "Lucas",
+    "authorDetails": "Médico gentil, compañero de viaje de Pablo. El más detallado de los evangelistas.",
+    "writtenDate": "c. 60-63 d.C.",
+    "period": "Ministerio de Jesús",
+    "audience": "Teófilo (lectores gentiles educados)",
+    "purpose": "Presentar una narrativa ordenada de la vida de Jesús como el Salvador universal de toda la humanidad.",
+    "keyThemes": [
+      "Salvación universal",
+      "Espíritu Santo",
+      "Oración",
+      "Compasión",
+      "Gozo"
+    ],
+    "keyVerses": [
+      "LUK.4.18",
+      "LUK.15.7",
+      "LUK.19.10",
+      "LUK.24.46"
+    ],
+    "historicalContext": "Lucas investiga cuidadosamente y escribe un relato ordenado, incluyendo material exclusivo como las parábolas del hijo pródigo y el buen samaritano.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Natividad y niñez de Jesús"
+      },
+      {
+        "chapters": "3-4",
+        "title": "Preparación para el ministerio"
+      },
+      {
+        "chapters": "5-9",
+        "title": "Ministerio en Galilea"
+      },
+      {
+        "chapters": "10-19",
+        "title": "Viaje a Jerusalén"
+      },
+      {
+        "chapters": "20-24",
+        "title": "Jerusalén: pasión y resurrección"
+      }
+    ],
+    "chapterIntros": {
+      "1": "El nacimiento de Juan el Bautista anunciado. El Magnificat de María. Zacarías profetiza.",
+      "2": "El nacimiento de Jesús en Belén. Los pastores. La presentación en el templo.",
+      "10": "La parábola del buen samaritano. María y Marta: lo mejor es sentarse a los pies de Jesús.",
+      "15": "Las tres parábolas del gozo: la oveja perdida, la moneda perdida, el hijo pródigo.",
+      "24": "La resurrección. Los discípulos de Emaús. La ascensión de Jesús."
+    },
+    "maps": [
+      "galilee_ministry",
+      "jerusalem_jesus",
+      "new_testament_world"
+    ]
+  },
+  "john": {
+    "bookNumber": 43,
+    "name": "Juan",
+    "author": "Juan el apóstol",
+    "authorDetails": "El discípulo amado. Uno de los tres más cercanos a Jesús. Escribió en su vejez.",
+    "writtenDate": "c. 85-95 d.C.",
+    "period": "Ministerio de Jesús",
+    "audience": "Creyentes y buscadores espirituales",
+    "purpose": "Que creáis que Jesús es el Cristo, el Hijo de Dios, y para que creyendo tengáis vida en su nombre.",
+    "keyThemes": [
+      "Deidad de Cristo",
+      "Vida eterna",
+      "Fe",
+      "Luz",
+      "Amor",
+      "Espíritu Santo"
+    ],
+    "keyVerses": [
+      "JHN.1.1",
+      "JHN.3.16",
+      "JHN.11.25",
+      "JHN.14.6",
+      "JHN.20.31"
+    ],
+    "historicalContext": "Juan escribe décadas después de los sinópticos, complementando con material teológico profundo y eventos únicos.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "El Verbo hecho carne"
+      },
+      {
+        "chapters": "2-12",
+        "title": "El libro de las señales"
+      },
+      {
+        "chapters": "13-17",
+        "title": "El aposento alto"
+      },
+      {
+        "chapters": "18-19",
+        "title": "La pasión"
+      },
+      {
+        "chapters": "20-21",
+        "title": "La resurrección y epílogo"
+      }
+    ],
+    "chapterIntros": {
+      "1": "En el principio era el Verbo. El Verbo se hizo carne y habitó entre nosotros.",
+      "3": "El diálogo con Nicodemo. De tal manera amó Dios al mundo que ha dado a su Hijo unigénito.",
+      "11": "La resurrección de Lázaro. Yo soy la resurrección y la vida.",
+      "13": "Jesús lava los pies de los discípulos. Un mandamiento nuevo: que os améis unos a otros.",
+      "14": "Yo soy el camino, la verdad y la vida. La promesa del Espíritu Santo.",
+      "17": "La oración sacerdotal de Jesús. Que todos sean uno.",
+      "20": "La resurrección. Tomás: Señor mío, y Dios mío."
+    },
+    "maps": [
+      "galilee_ministry",
+      "jerusalem_jesus"
+    ]
+  },
+  "acts": {
+    "bookNumber": 44,
+    "name": "Hechos",
+    "author": "Lucas",
+    "authorDetails": "Continuación del Evangelio de Lucas, dirigido a Teófilo.",
+    "writtenDate": "c. 63-65 d.C.",
+    "period": "Desde la ascensión hasta el encarcelamiento de Pablo (c. 30-62 d.C.)",
+    "audience": "Teófilo y la iglesia gentil",
+    "purpose": "Registrar la expansión de la iglesia primitiva desde Jerusalén hasta Roma por el poder del Espíritu Santo.",
+    "keyThemes": [
+      "Espíritu Santo",
+      "Misión",
+      "Iglesia",
+      "Testimonio",
+      "Expansión del evangelio"
+    ],
+    "keyVerses": [
+      "ACT.1.8",
+      "ACT.2.38",
+      "ACT.4.12",
+      "ACT.16.31"
+    ],
+    "historicalContext": "Cubre los primeros 30 años de la iglesia, desde Pentecostés hasta la llegada de Pablo a Roma.",
+    "structure": [
+      {
+        "chapters": "1-7",
+        "title": "La iglesia en Jerusalén"
+      },
+      {
+        "chapters": "8-12",
+        "title": "Expansión a Judea y Samaria"
+      },
+      {
+        "chapters": "13-14",
+        "title": "Primer viaje misionero de Pablo"
+      },
+      {
+        "chapters": "15-18",
+        "title": "Concilio y segundo viaje"
+      },
+      {
+        "chapters": "19-21",
+        "title": "Tercer viaje misionero"
+      },
+      {
+        "chapters": "22-28",
+        "title": "Arresto de Pablo y viaje a Roma"
+      }
+    ],
+    "chapterIntros": {
+      "1": "La ascensión de Jesús. Recibiréis poder cuando haya venido sobre vosotros el Espíritu Santo.",
+      "2": "Pentecostés. El Espíritu Santo desciende. Pedro predica y 3,000 personas se convierten.",
+      "9": "La conversión de Saulo en el camino a Damasco. El perseguidor se convierte en apóstol.",
+      "13": "Pablo y Bernabé son enviados desde Antioquía. Comienza el primer viaje misionero.",
+      "16": "Pablo en Filipos. La conversión de Lidia y el carcelero. Cree en el Señor Jesucristo y serás salvo."
+    },
+    "maps": [
+      "paul_journey_1",
+      "paul_journey_2",
+      "paul_journey_3",
+      "new_testament_world"
+    ]
+  },
+  "romans": {
+    "bookNumber": 45,
+    "name": "Romanos",
+    "author": "Pablo",
+    "authorDetails": "Escrita desde Corinto durante el tercer viaje misionero, dirigida a la iglesia en Roma.",
+    "writtenDate": "c. 57 d.C.",
+    "period": "Tercer viaje misionero de Pablo",
+    "audience": "La iglesia en Roma (judíos y gentiles)",
+    "purpose": "Exponer sistemáticamente el evangelio: la justificación por la fe, la santificación, y la soberanía de Dios.",
+    "keyThemes": [
+      "Justificación por fe",
+      "Gracia",
+      "Justicia de Dios",
+      "Santificación",
+      "Soberanía"
+    ],
+    "keyVerses": [
+      "ROM.1.16",
+      "ROM.3.23",
+      "ROM.5.8",
+      "ROM.6.23",
+      "ROM.8.28",
+      "ROM.8.38",
+      "ROM.12.1"
+    ],
+    "historicalContext": "Pablo escribe su obra teológica más completa antes de visitar Roma, exponiendo el evangelio para una iglesia mixta.",
+    "structure": [
+      {
+        "chapters": "1-3",
+        "title": "El problema: todos pecaron"
+      },
+      {
+        "chapters": "4-5",
+        "title": "La solución: justificación por fe"
+      },
+      {
+        "chapters": "6-8",
+        "title": "Santificación y vida en el Espíritu"
+      },
+      {
+        "chapters": "9-11",
+        "title": "Israel en el plan de Dios"
+      },
+      {
+        "chapters": "12-16",
+        "title": "Vida cristiana práctica"
+      }
+    ],
+    "chapterIntros": {
+      "1": "El evangelio es poder de Dios para salvación. La ira de Dios contra toda impiedad.",
+      "3": "Todos pecaron y están destituidos de la gloria de Dios. Justificados por gracia mediante la fe.",
+      "5": "Siendo justificados por la fe, tenemos paz para con Dios. El amor demostrado en la cruz.",
+      "8": "Ninguna condenación hay para los que están en Cristo Jesús. Nada nos podrá separar del amor de Dios.",
+      "12": "Presentad vuestros cuerpos en sacrificio vivo. No os conforméis a este siglo."
+    },
+    "maps": [
+      "paul_journey_3",
+      "new_testament_world"
+    ]
+  },
+  "1corinthians": {
+    "bookNumber": 46,
+    "name": "1 Corintios",
+    "author": "Pablo",
+    "authorDetails": "Escrita desde Éfeso durante el tercer viaje misionero.",
+    "writtenDate": "c. 55 d.C.",
+    "period": "Tercer viaje misionero",
+    "audience": "La iglesia en Corinto",
+    "purpose": "Corregir problemas de divisiones, inmoralidad, desorden en el culto y falsas doctrinas en la iglesia de Corinto.",
+    "keyThemes": [
+      "Unidad",
+      "Santidad",
+      "Dones espirituales",
+      "Amor",
+      "Resurrección"
+    ],
+    "keyVerses": [
+      "1CO.1.18",
+      "1CO.10.13",
+      "1CO.13.13",
+      "1CO.15.55"
+    ],
+    "historicalContext": "Corinto era una ciudad griega próspera y moralmente corrupta. La iglesia reflejaba los problemas de su cultura.",
+    "structure": [
+      {
+        "chapters": "1-4",
+        "title": "Divisiones en la iglesia"
+      },
+      {
+        "chapters": "5-6",
+        "title": "Problemas morales"
+      },
+      {
+        "chapters": "7-10",
+        "title": "Preguntas sobre matrimonio y libertad"
+      },
+      {
+        "chapters": "11-14",
+        "title": "El culto y los dones espirituales"
+      },
+      {
+        "chapters": "15-16",
+        "title": "La resurrección y asuntos finales"
+      }
+    ],
+    "chapterIntros": {
+      "13": "El himno al amor. El amor es paciente, es bondadoso. El mayor de los tres es el amor.",
+      "15": "La resurrección de Cristo y la nuestra. ¿Dónde está, oh muerte, tu aguijón?"
+    },
+    "maps": [
+      "paul_journey_2",
+      "paul_journey_3"
+    ]
+  },
+  "2corinthians": {
+    "bookNumber": 47,
+    "name": "2 Corintios",
+    "author": "Pablo",
+    "authorDetails": "Escrita desde Macedonia, la carta más personal de Pablo.",
+    "writtenDate": "c. 56 d.C.",
+    "period": "Tercer viaje misionero",
+    "audience": "La iglesia en Corinto",
+    "purpose": "Defender su apostolado, reconciliar relaciones, y enseñar sobre la fortaleza en la debilidad.",
+    "keyThemes": [
+      "Sufrimiento",
+      "Gloria",
+      "Ministerio",
+      "Generosidad",
+      "Debilidad y poder"
+    ],
+    "keyVerses": [
+      "2CO.4.7",
+      "2CO.5.17",
+      "2CO.5.21",
+      "2CO.12.9"
+    ],
+    "historicalContext": "Pablo escribe con profunda emoción después de un doloroso conflicto con la iglesia de Corinto.",
+    "structure": [
+      {
+        "chapters": "1-7",
+        "title": "El ministerio apostólico"
+      },
+      {
+        "chapters": "8-9",
+        "title": "La ofrenda para Jerusalén"
+      },
+      {
+        "chapters": "10-13",
+        "title": "Defensa del apostolado de Pablo"
+      }
+    ],
+    "chapterIntros": {
+      "5": "Si alguno está en Cristo, nueva criatura es. Dios nos reconcilió consigo mismo por medio de Cristo.",
+      "12": "Mi poder se perfecciona en la debilidad. Cuando soy débil, entonces soy fuerte."
+    },
+    "maps": [
+      "paul_journey_3"
+    ]
+  },
+  "galatians": {
+    "bookNumber": 48,
+    "name": "Gálatas",
+    "author": "Pablo",
+    "authorDetails": "Carta apasionada a las iglesias de Galacia contra los judaizantes.",
+    "writtenDate": "c. 49-55 d.C.",
+    "period": "Después del primer o segundo viaje misionero",
+    "audience": "Las iglesias de Galacia",
+    "purpose": "Defender la justificación por la fe sola contra los que exigían la circuncisión y la Ley para la salvación.",
+    "keyThemes": [
+      "Libertad en Cristo",
+      "Justificación por fe",
+      "Gracia vs. Ley",
+      "Espíritu"
+    ],
+    "keyVerses": [
+      "GAL.2.20",
+      "GAL.5.1",
+      "GAL.5.22"
+    ],
+    "historicalContext": "Falsos maestros judíos persuadían a los gentiles convertidos de que debían guardar la Ley de Moisés.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Defensa personal de Pablo"
+      },
+      {
+        "chapters": "3-4",
+        "title": "Defensa doctrinal de la gracia"
+      },
+      {
+        "chapters": "5-6",
+        "title": "Aplicación práctica de la libertad"
+      }
+    ],
+    "chapterIntros": {
+      "2": "Con Cristo estoy juntamente crucificado, y ya no vivo yo, mas vive Cristo en mí.",
+      "5": "Para libertad nos libertó Cristo. El fruto del Espíritu: amor, gozo, paz, paciencia..."
+    },
+    "maps": [
+      "paul_journey_1"
+    ]
+  },
+  "ephesians": {
+    "bookNumber": 49,
+    "name": "Efesios",
+    "author": "Pablo",
+    "authorDetails": "Escrita desde la prisión en Roma. Una de las cartas de la cautividad.",
+    "writtenDate": "c. 60-62 d.C.",
+    "period": "Primer encarcelamiento romano de Pablo",
+    "audience": "La iglesia en Éfeso y las iglesias circundantes",
+    "purpose": "Exponer la riqueza de la gracia de Dios en Cristo y la naturaleza de la Iglesia como cuerpo de Cristo.",
+    "keyThemes": [
+      "Gracia",
+      "Iglesia",
+      "Unidad",
+      "Identidad en Cristo",
+      "Armadura espiritual"
+    ],
+    "keyVerses": [
+      "EPH.2.8",
+      "EPH.3.20",
+      "EPH.4.4",
+      "EPH.6.11"
+    ],
+    "historicalContext": "Pablo escribe desde Roma para elevar la visión de la iglesia sobre su identidad y llamado en Cristo.",
+    "structure": [
+      {
+        "chapters": "1-3",
+        "title": "Doctrina: las bendiciones en Cristo"
+      },
+      {
+        "chapters": "4-6",
+        "title": "Práctica: vivir dignamente"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Bendito sea Dios que nos bendijo con toda bendición espiritual en los lugares celestiales en Cristo.",
+      "2": "Por gracia sois salvos por medio de la fe, y esto no de vosotros, pues es don de Dios.",
+      "6": "Vestíos de toda la armadura de Dios. La lucha espiritual contra las potestades de las tinieblas."
+    },
+    "maps": [
+      "paul_journey_3"
+    ]
+  },
+  "philippians": {
+    "bookNumber": 50,
+    "name": "Filipenses",
+    "author": "Pablo",
+    "authorDetails": "Carta de gozo escrita desde la prisión en Roma.",
+    "writtenDate": "c. 61-62 d.C.",
+    "period": "Primer encarcelamiento romano",
+    "audience": "La iglesia en Filipos",
+    "purpose": "Agradecer a los filipenses su apoyo, exhortar al gozo y a la unidad, y presentar a Cristo como modelo.",
+    "keyThemes": [
+      "Gozo",
+      "Humildad",
+      "Contentamiento",
+      "Cristo como modelo"
+    ],
+    "keyVerses": [
+      "PHP.1.21",
+      "PHP.2.5",
+      "PHP.3.14",
+      "PHP.4.6",
+      "PHP.4.13"
+    ],
+    "historicalContext": "Pablo está preso pero rebosa de gozo. La palabra gozo o gozarse aparece 16 veces en 4 capítulos.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Gozo en las circunstancias"
+      },
+      {
+        "chapters": "2",
+        "title": "Gozo en el servicio"
+      },
+      {
+        "chapters": "3",
+        "title": "Gozo en Cristo"
+      },
+      {
+        "chapters": "4",
+        "title": "Gozo en la provisión de Dios"
+      }
+    ],
+    "chapterIntros": {
+      "2": "Haya, pues, en vosotros este sentir que hubo también en Cristo Jesús. El himno cristológico.",
+      "4": "Regocijaos en el Señor siempre. Todo lo puedo en Cristo que me fortalece."
+    },
+    "maps": [
+      "paul_journey_2"
+    ]
+  },
+  "colossians": {
+    "bookNumber": 51,
+    "name": "Colosenses",
+    "author": "Pablo",
+    "authorDetails": "Carta desde la prisión en Roma, contra falsas enseñanzas.",
+    "writtenDate": "c. 60-62 d.C.",
+    "period": "Primer encarcelamiento romano",
+    "audience": "La iglesia en Colosas",
+    "purpose": "Proclamar la supremacía y suficiencia de Cristo contra filosofías y prácticas religiosas falsas.",
+    "keyThemes": [
+      "Supremacía de Cristo",
+      "Suficiencia",
+      "Falsa enseñanza",
+      "Vida nueva"
+    ],
+    "keyVerses": [
+      "COL.1.15",
+      "COL.1.17",
+      "COL.2.9",
+      "COL.3.1"
+    ],
+    "historicalContext": "La iglesia en Colosas estaba siendo influenciada por una mezcla de filosofía griega, misticismo y legalismo judío.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "La supremacía de Cristo"
+      },
+      {
+        "chapters": "2",
+        "title": "Advertencias contra la falsa enseñanza"
+      },
+      {
+        "chapters": "3-4",
+        "title": "La nueva vida en Cristo"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Cristo es la imagen del Dios invisible. En él fueron creadas todas las cosas. Él es antes de todas las cosas."
+    },
+    "maps": [
+      "paul_journey_3"
+    ]
+  },
+  "1thessalonians": {
+    "bookNumber": 52,
+    "name": "1 Tesalonicenses",
+    "author": "Pablo",
+    "authorDetails": "Posiblemente la primera carta de Pablo. Escrita desde Corinto.",
+    "writtenDate": "c. 51 d.C.",
+    "period": "Segundo viaje misionero",
+    "audience": "La iglesia en Tesalónica",
+    "purpose": "Animar a una iglesia joven perseguida y enseñar sobre la segunda venida de Cristo.",
+    "keyThemes": [
+      "Segunda venida",
+      "Santificación",
+      "Esperanza",
+      "Vida cristiana"
+    ],
+    "keyVerses": [
+      "1TH.4.16",
+      "1TH.5.16"
+    ],
+    "historicalContext": "Pablo fundó la iglesia en Tesalónica pero tuvo que salir rápidamente por persecución (Hechos 17).",
+    "structure": [
+      {
+        "chapters": "1-3",
+        "title": "Agradecimiento y relación personal"
+      },
+      {
+        "chapters": "4-5",
+        "title": "Enseñanza: santidad y segunda venida"
+      }
+    ],
+    "chapterIntros": {
+      "4": "El Señor mismo descenderá del cielo con voz de mando. El arrebatamiento de los creyentes."
+    },
+    "maps": [
+      "paul_journey_2"
+    ]
+  },
+  "2thessalonians": {
+    "bookNumber": 53,
+    "name": "2 Tesalonicenses",
+    "author": "Pablo",
+    "authorDetails": "Segunda carta a Tesalónica, probablemente pocos meses después de la primera.",
+    "writtenDate": "c. 51-52 d.C.",
+    "period": "Segundo viaje misionero",
+    "audience": "La iglesia en Tesalónica",
+    "purpose": "Corregir malentendidos sobre la segunda venida y exhortar a no dejar de trabajar.",
+    "keyThemes": [
+      "Día del Señor",
+      "Anticristo",
+      "Trabajo",
+      "Perseverancia"
+    ],
+    "keyVerses": [
+      "2TH.2.3",
+      "2TH.3.10"
+    ],
+    "historicalContext": "Algunos tesalonicenses dejaron de trabajar creyendo que el día del Señor ya había llegado.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Consuelo en la persecución"
+      },
+      {
+        "chapters": "2",
+        "title": "El hombre de pecado antes del Día del Señor"
+      },
+      {
+        "chapters": "3",
+        "title": "Exhortación a trabajar"
+      }
+    ],
+    "chapterIntros": {},
+    "maps": [
+      "paul_journey_2"
+    ]
+  },
+  "1timothy": {
+    "bookNumber": 54,
+    "name": "1 Timoteo",
+    "author": "Pablo",
+    "authorDetails": "Carta pastoral a su joven discípulo Timoteo, pastor en Éfeso.",
+    "writtenDate": "c. 63-65 d.C.",
+    "period": "Entre el primero y segundo encarcelamiento de Pablo",
+    "audience": "Timoteo y líderes de iglesia",
+    "purpose": "Instruir a Timoteo sobre el orden en la iglesia, la sana doctrina y el liderazgo piadoso.",
+    "keyThemes": [
+      "Liderazgo",
+      "Sana doctrina",
+      "Piedad",
+      "Orden eclesiástico"
+    ],
+    "keyVerses": [
+      "1TI.2.5",
+      "1TI.3.16",
+      "1TI.4.12",
+      "1TI.6.10"
+    ],
+    "historicalContext": "Pablo deja a Timoteo en Éfeso para combatir falsas enseñanzas y organizar la iglesia.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Advertencia contra falsos maestros"
+      },
+      {
+        "chapters": "2-3",
+        "title": "Instrucciones para la iglesia"
+      },
+      {
+        "chapters": "4-6",
+        "title": "Instrucciones personales a Timoteo"
+      }
+    ],
+    "chapterIntros": {
+      "4": "Ninguno tenga en poco tu juventud, sino sé ejemplo de los creyentes."
+    },
+    "maps": [
+      "paul_journey_3"
+    ]
+  },
+  "2timothy": {
+    "bookNumber": 55,
+    "name": "2 Timoteo",
+    "author": "Pablo",
+    "authorDetails": "La última carta de Pablo, escrita desde la prisión romana poco antes de su ejecución.",
+    "writtenDate": "c. 67 d.C.",
+    "period": "Segundo (y último) encarcelamiento romano",
+    "audience": "Timoteo",
+    "purpose": "Testamento espiritual de Pablo: animar a Timoteo a perseverar en la fe y el ministerio.",
+    "keyThemes": [
+      "Perseverancia",
+      "Sufrimiento",
+      "Escrituras",
+      "Fidelidad",
+      "Corona"
+    ],
+    "keyVerses": [
+      "2TI.1.7",
+      "2TI.2.15",
+      "2TI.3.16",
+      "2TI.4.7"
+    ],
+    "historicalContext": "Pablo sabe que su muerte es inminente. Escribe con urgencia y ternura a su hijo espiritual.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Reavivar el don de Dios"
+      },
+      {
+        "chapters": "2",
+        "title": "Un buen soldado de Cristo"
+      },
+      {
+        "chapters": "3",
+        "title": "Los últimos tiempos y las Escrituras"
+      },
+      {
+        "chapters": "4",
+        "title": "Testamento final de Pablo"
+      }
+    ],
+    "chapterIntros": {
+      "3": "Toda la Escritura es inspirada por Dios y útil para enseñar, para redargüir, para corregir.",
+      "4": "He peleado la buena batalla, he acabado la carrera, he guardado la fe. Me está guardada la corona de justicia."
+    },
+    "maps": [
+      "new_testament_world"
+    ]
+  },
+  "titus": {
+    "bookNumber": 56,
+    "name": "Tito",
+    "author": "Pablo",
+    "authorDetails": "Carta pastoral a Tito, encargado de organizar las iglesias de Creta.",
+    "writtenDate": "c. 63-65 d.C.",
+    "period": "Entre encarcelamientos de Pablo",
+    "audience": "Tito y las iglesias de Creta",
+    "purpose": "Instruir a Tito sobre la organización de las iglesias en Creta y promover la sana doctrina que produce buenas obras.",
+    "keyThemes": [
+      "Buenas obras",
+      "Sana doctrina",
+      "Gracia",
+      "Orden"
+    ],
+    "keyVerses": [
+      "TIT.2.11",
+      "TIT.3.5"
+    ],
+    "historicalContext": "Pablo dejó a Tito en Creta para establecer ancianos en cada ciudad y corregir problemas.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Requisitos para ancianos"
+      },
+      {
+        "chapters": "2",
+        "title": "Sana doctrina y vida piadosa"
+      },
+      {
+        "chapters": "3",
+        "title": "Buenas obras y gracia salvadora"
+      }
+    ],
+    "chapterIntros": {
+      "2": "La gracia de Dios se ha manifestado para salvación a todos los hombres.",
+      "3": "Nos salvó no por obras de justicia que nosotros hubiéramos hecho, sino por su misericordia."
+    },
+    "maps": []
+  },
+  "philemon": {
+    "bookNumber": 57,
+    "name": "Filemón",
+    "author": "Pablo",
+    "authorDetails": "Carta personal a Filemón sobre su esclavo fugado Onésimo.",
+    "writtenDate": "c. 60-62 d.C.",
+    "period": "Primer encarcelamiento romano",
+    "audience": "Filemón",
+    "purpose": "Pedir a Filemón que reciba de vuelta a Onésimo, ahora convertido, como hermano en Cristo.",
+    "keyThemes": [
+      "Perdón",
+      "Reconciliación",
+      "Igualdad en Cristo",
+      "Gracia"
+    ],
+    "keyVerses": [
+      "PHM.1.16"
+    ],
+    "historicalContext": "Onésimo, esclavo de Filemón, huyó a Roma donde se convirtió a través del ministerio de Pablo.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Intercesión por Onésimo"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Pablo intercede por Onésimo: recíbelo no ya como esclavo sino como hermano amado."
+    },
+    "maps": []
+  },
+  "hebrews": {
+    "bookNumber": 58,
+    "name": "Hebreos",
+    "author": "Desconocido",
+    "authorDetails": "Autor incierto. Se han sugerido Pablo, Bernabé, Apolos o Priscila.",
+    "writtenDate": "c. 64-68 d.C.",
+    "period": "Antes de la destrucción del templo (70 d.C.)",
+    "audience": "Cristianos judíos tentados a volver al judaísmo",
+    "purpose": "Demostrar la supremacía de Cristo sobre los ángeles, Moisés, el sacerdocio levítico y el antiguo pacto.",
+    "keyThemes": [
+      "Supremacía de Cristo",
+      "Nuevo pacto",
+      "Fe",
+      "Sacerdocio de Cristo",
+      "Perseverancia"
+    ],
+    "keyVerses": [
+      "HEB.4.12",
+      "HEB.4.16",
+      "HEB.11.1",
+      "HEB.12.1",
+      "HEB.13.8"
+    ],
+    "historicalContext": "Cristianos judíos sufren persecución y consideran volver a las prácticas del templo. El autor les muestra que Cristo es superior.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Cristo superior a los ángeles"
+      },
+      {
+        "chapters": "3-4",
+        "title": "Cristo superior a Moisés y Josué"
+      },
+      {
+        "chapters": "5-10",
+        "title": "Cristo, sumo sacerdote supremo"
+      },
+      {
+        "chapters": "11",
+        "title": "Los héroes de la fe"
+      },
+      {
+        "chapters": "12-13",
+        "title": "Exhortaciones prácticas"
+      }
+    ],
+    "chapterIntros": {
+      "4": "La Palabra de Dios es viva y eficaz, más cortante que toda espada de dos filos.",
+      "11": "La fe es la certeza de lo que se espera. El salón de la fama de la fe.",
+      "12": "Despojémonos de todo peso y corramos con paciencia la carrera. Puestos los ojos en Jesús."
+    },
+    "maps": [
+      "jerusalem_jesus"
+    ]
+  },
+  "james": {
+    "bookNumber": 59,
+    "name": "Santiago",
+    "author": "Santiago",
+    "authorDetails": "Hermano del Señor Jesús, líder de la iglesia de Jerusalén.",
+    "writtenDate": "c. 44-49 d.C.",
+    "period": "Iglesia primitiva en Jerusalén",
+    "audience": "Las doce tribus en la dispersión (judíos cristianos)",
+    "purpose": "Enseñar que la fe verdadera se demuestra con obras. La fe sin obras está muerta.",
+    "keyThemes": [
+      "Fe práctica",
+      "Obras",
+      "Prudencia",
+      "Lengua",
+      "Paciencia"
+    ],
+    "keyVerses": [
+      "JAS.1.2",
+      "JAS.1.22",
+      "JAS.2.17",
+      "JAS.5.16"
+    ],
+    "historicalContext": "Posiblemente el escrito más antiguo del NT. Santiago da instrucciones prácticas a creyentes judíos perseguidos.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Pruebas, tentación y la Palabra"
+      },
+      {
+        "chapters": "2",
+        "title": "Fe y obras"
+      },
+      {
+        "chapters": "3",
+        "title": "La lengua y la sabiduría"
+      },
+      {
+        "chapters": "4",
+        "title": "Humildad y sumisión a Dios"
+      },
+      {
+        "chapters": "5",
+        "title": "Paciencia y oración"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Tened por sumo gozo cuando os halléis en diversas pruebas. Sed hacedores de la Palabra, no solo oidores.",
+      "2": "La fe sin obras está muerta. Abraham fue justificado por obras cuando ofreció a Isaac."
+    },
+    "maps": []
+  },
+  "1peter": {
+    "bookNumber": 60,
+    "name": "1 Pedro",
+    "author": "Pedro",
+    "authorDetails": "El apóstol Pedro, desde Babilonia (probablemente Roma), con la ayuda de Silvano.",
+    "writtenDate": "c. 62-64 d.C.",
+    "period": "Persecución neroniana inminente",
+    "audience": "Cristianos dispersos en Asia Menor",
+    "purpose": "Confortar a los creyentes que sufren persecución y enseñar a vivir con esperanza en medio del sufrimiento.",
+    "keyThemes": [
+      "Sufrimiento",
+      "Esperanza",
+      "Santidad",
+      "Gracia",
+      "Identidad del pueblo de Dios"
+    ],
+    "keyVerses": [
+      "1PE.1.3",
+      "1PE.2.9",
+      "1PE.3.15",
+      "1PE.5.7"
+    ],
+    "historicalContext": "Los cristianos en las provincias romanas de Asia Menor enfrentan hostilidad creciente por su fe.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Esperanza viva en medio de la prueba"
+      },
+      {
+        "chapters": "2-3",
+        "title": "Vida santa en una sociedad hostil"
+      },
+      {
+        "chapters": "4-5",
+        "title": "Sufrir por Cristo y servir con gozo"
+      }
+    ],
+    "chapterIntros": {
+      "2": "Vosotros sois linaje escogido, real sacerdocio, nación santa, pueblo adquirido por Dios.",
+      "5": "Echad toda vuestra ansiedad sobre él, porque él tiene cuidado de vosotros."
+    },
+    "maps": [
+      "new_testament_world"
+    ]
+  },
+  "2peter": {
+    "bookNumber": 61,
+    "name": "2 Pedro",
+    "author": "Pedro",
+    "authorDetails": "Última carta de Pedro antes de su martirio, advirtiendo contra falsos maestros.",
+    "writtenDate": "c. 65-68 d.C.",
+    "period": "Poco antes del martirio de Pedro",
+    "audience": "La iglesia en general",
+    "purpose": "Advertir contra los falsos maestros y la apostasía, y exhortar al crecimiento en la gracia.",
+    "keyThemes": [
+      "Falsa enseñanza",
+      "Crecimiento espiritual",
+      "Segunda venida",
+      "Conocimiento"
+    ],
+    "keyVerses": [
+      "2PE.1.20",
+      "2PE.3.9",
+      "2PE.3.18"
+    ],
+    "historicalContext": "Pedro escribe sabiendo que su muerte es cercana (1:14), dejando un legado de verdad contra la herejía.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Crecer en la fe"
+      },
+      {
+        "chapters": "2",
+        "title": "Falsos maestros"
+      },
+      {
+        "chapters": "3",
+        "title": "El Día del Señor vendrá"
+      }
+    ],
+    "chapterIntros": {
+      "3": "El Señor no retarda su promesa: no quiere que ninguno perezca sino que todos procedan al arrepentimiento."
+    },
+    "maps": []
+  },
+  "1john": {
+    "bookNumber": 62,
+    "name": "1 Juan",
+    "author": "Juan el apóstol",
+    "authorDetails": "El discípulo amado, en su vejez, escribiendo desde Éfeso.",
+    "writtenDate": "c. 85-95 d.C.",
+    "period": "Final del siglo I",
+    "audience": "Las iglesias de Asia Menor",
+    "purpose": "Dar seguridad de la salvación a los creyentes y combatir el gnosticismo incipiente.",
+    "keyThemes": [
+      "Amor",
+      "Luz",
+      "Verdad",
+      "Comunión con Dios",
+      "Seguridad de salvación"
+    ],
+    "keyVerses": [
+      "1JN.1.9",
+      "1JN.3.1",
+      "1JN.4.8",
+      "1JN.5.13"
+    ],
+    "historicalContext": "Falsos maestros gnósticos negaban la encarnación de Cristo y afirmaban que el pecado no importaba.",
+    "structure": [
+      {
+        "chapters": "1-2",
+        "title": "Caminar en la luz"
+      },
+      {
+        "chapters": "3-4",
+        "title": "Caminar en el amor"
+      },
+      {
+        "chapters": "5",
+        "title": "Caminar en la fe"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Si confesamos nuestros pecados, él es fiel y justo para perdonar nuestros pecados.",
+      "4": "Dios es amor. En esto se mostró el amor de Dios: envió a su Hijo como propiciación por nuestros pecados."
+    },
+    "maps": []
+  },
+  "2john": {
+    "bookNumber": 63,
+    "name": "2 Juan",
+    "author": "Juan el apóstol",
+    "authorDetails": "El anciano Juan escribe a una señora elegida (una iglesia local).",
+    "writtenDate": "c. 85-95 d.C.",
+    "period": "Final del siglo I",
+    "audience": "Una iglesia local",
+    "purpose": "Advertir contra recibir a falsos maestros que niegan la encarnación de Cristo.",
+    "keyThemes": [
+      "Verdad",
+      "Amor",
+      "Discernimiento",
+      "Obediencia"
+    ],
+    "keyVerses": [
+      "2JN.1.6",
+      "2JN.1.9"
+    ],
+    "historicalContext": "Carta breve que advierte contra la hospitalidad a los que enseñan herejías cristológicas.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Caminar en verdad y amor"
+      }
+    ],
+    "chapterIntros": {},
+    "maps": []
+  },
+  "3john": {
+    "bookNumber": 64,
+    "name": "3 Juan",
+    "author": "Juan el apóstol",
+    "authorDetails": "Carta personal de Juan a Gayo, un líder fiel de la iglesia.",
+    "writtenDate": "c. 85-95 d.C.",
+    "period": "Final del siglo I",
+    "audience": "Gayo",
+    "purpose": "Elogiar la hospitalidad de Gayo, condenar la oposición de Diótrefes y recomendar a Demetrio.",
+    "keyThemes": [
+      "Hospitalidad",
+      "Verdad",
+      "Liderazgo",
+      "Ejemplo"
+    ],
+    "keyVerses": [
+      "3JN.1.4",
+      "3JN.1.11"
+    ],
+    "historicalContext": "La carta más personal de Juan, mostrando la dinámica de liderazgo en la iglesia primitiva.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Tres personajes: Gayo, Diótrefes, Demetrio"
+      }
+    ],
+    "chapterIntros": {},
+    "maps": []
+  },
+  "jude": {
+    "bookNumber": 65,
+    "name": "Judas",
+    "author": "Judas",
+    "authorDetails": "Hermano de Santiago y del Señor Jesús. No es Judas Iscariote.",
+    "writtenDate": "c. 65-80 d.C.",
+    "period": "Iglesia primitiva tardía",
+    "audience": "Creyentes en general",
+    "purpose": "Exhortar a contender ardientemente por la fe contra los falsos maestros que se han infiltrado en la iglesia.",
+    "keyThemes": [
+      "Fe",
+      "Falsa enseñanza",
+      "Juicio",
+      "Perseverancia"
+    ],
+    "keyVerses": [
+      "JUD.1.3",
+      "JUD.1.24"
+    ],
+    "historicalContext": "Similar a 2 Pedro, advierte contra maestros inmorales que abusan de la gracia de Dios.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Contender por la fe"
+      }
+    ],
+    "chapterIntros": {
+      "1": "Contended ardientemente por la fe. A aquel que es poderoso para guardaros sin caída."
+    },
+    "maps": []
+  },
+  "revelation": {
+    "bookNumber": 66,
+    "name": "Apocalipsis",
+    "author": "Juan el apóstol",
+    "authorDetails": "Escrito durante el exilio en la isla de Patmos por orden del emperador Domiciano.",
+    "writtenDate": "c. 95 d.C.",
+    "period": "Persecución bajo Domiciano",
+    "audience": "Las siete iglesias de Asia Menor y toda la iglesia",
+    "purpose": "Revelar la victoria final de Cristo sobre el mal y el establecimiento del nuevo cielo y la nueva tierra.",
+    "keyThemes": [
+      "Victoria de Cristo",
+      "Juicio",
+      "Adoración",
+      "Perseverancia",
+      "Nueva creación"
+    ],
+    "keyVerses": [
+      "REV.1.8",
+      "REV.3.20",
+      "REV.21.4",
+      "REV.22.20"
+    ],
+    "historicalContext": "Escrito durante una época de persecución intensa, usando lenguaje apocalíptico para dar esperanza.",
+    "structure": [
+      {
+        "chapters": "1",
+        "title": "Visión del Cristo glorificado"
+      },
+      {
+        "chapters": "2-3",
+        "title": "Cartas a las siete iglesias"
+      },
+      {
+        "chapters": "4-5",
+        "title": "El trono celestial y el Cordero"
+      },
+      {
+        "chapters": "6-18",
+        "title": "Los juicios: sellos, trompetas, copas"
+      },
+      {
+        "chapters": "19-20",
+        "title": "La segunda venida y el milenio"
+      },
+      {
+        "chapters": "21-22",
+        "title": "Cielo nuevo y tierra nueva"
+      }
+    ],
+    "chapterIntros": {
+      "1": "La revelación de Jesucristo. Yo soy el Alfa y la Omega, el principio y el fin.",
+      "4": "La visión del trono celestial. Los veinticuatro ancianos y los cuatro seres vivientes adoran a Dios.",
+      "21": "Vi un cielo nuevo y una tierra nueva. Enjugará Dios toda lágrima de sus ojos.",
+      "22": "Sí, vengo en breve. Amén; sí, ven, Señor Jesús."
+    },
+    "maps": [
+      "new_testament_world"
+    ]
+  }
+}

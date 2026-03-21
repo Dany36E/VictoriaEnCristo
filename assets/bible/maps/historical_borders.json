@@ -1,0 +1,148 @@
+{
+  "regions": [
+    {
+      "id": "galilee",
+      "nameEs": "GALILEA",
+      "nameEn": "GALILEE",
+      "period": ["jesus","divided_kingdom"],
+      "color": "#90CAF9",
+      "opacity": 0.15,
+      "borderColor": "#64B5F6",
+      "points": [
+        [33.05, 35.08],
+        [33.05, 35.70],
+        [32.70, 35.70],
+        [32.60, 35.50],
+        [32.55, 35.20],
+        [32.60, 35.08]
+      ]
+    },
+    {
+      "id": "samaria",
+      "nameEs": "SAMARIA",
+      "nameEn": "SAMARIA",
+      "period": ["divided_kingdom","jesus"],
+      "color": "#A5D6A7",
+      "opacity": 0.15,
+      "borderColor": "#81C784",
+      "points": [
+        [32.55, 35.00],
+        [32.55, 35.50],
+        [32.10, 35.55],
+        [32.05, 35.30],
+        [32.05, 35.00]
+      ]
+    },
+    {
+      "id": "judea",
+      "nameEs": "JUDEA",
+      "nameEn": "JUDEA",
+      "period": ["united_kingdom","divided_kingdom","jesus"],
+      "color": "#FFCC80",
+      "opacity": 0.12,
+      "borderColor": "#FFB74D",
+      "points": [
+        [32.05, 34.80],
+        [32.05, 35.55],
+        [31.40, 35.55],
+        [31.20, 35.30],
+        [31.20, 34.80]
+      ]
+    },
+    {
+      "id": "decapolis",
+      "nameEs": "DECÁPOLIS",
+      "nameEn": "DECAPOLIS",
+      "period": ["jesus"],
+      "color": "#B0BEC5",
+      "opacity": 0.10,
+      "borderColor": "#90A4AE",
+      "points": [
+        [33.00, 35.70],
+        [33.00, 36.30],
+        [32.20, 36.30],
+        [32.20, 35.70],
+        [32.50, 35.55]
+      ]
+    },
+    {
+      "id": "perea",
+      "nameEs": "PEREA",
+      "nameEn": "PEREA",
+      "period": ["jesus"],
+      "color": "#CE93D8",
+      "opacity": 0.10,
+      "borderColor": "#BA68C8",
+      "points": [
+        [32.20, 35.55],
+        [32.20, 36.00],
+        [31.50, 36.00],
+        [31.50, 35.55],
+        [31.80, 35.50]
+      ]
+    },
+    {
+      "id": "phoenicia",
+      "nameEs": "FENICIA",
+      "nameEn": "PHOENICIA",
+      "period": ["divided_kingdom","jesus"],
+      "color": "#80CBC4",
+      "opacity": 0.12,
+      "borderColor": "#4DB6AC",
+      "points": [
+        [34.00, 35.00],
+        [34.00, 35.70],
+        [33.40, 35.70],
+        [33.05, 35.35],
+        [33.05, 35.00]
+      ]
+    },
+    {
+      "id": "idumea",
+      "nameEs": "IDUMEA",
+      "nameEn": "IDUMEA",
+      "period": ["intertestamental","jesus"],
+      "color": "#BCAAA4",
+      "opacity": 0.10,
+      "borderColor": "#8D6E63",
+      "points": [
+        [31.20, 34.50],
+        [31.20, 35.30],
+        [30.80, 35.30],
+        [30.80, 34.50]
+      ]
+    },
+    {
+      "id": "naphtali",
+      "nameEs": "NEFTALÍ",
+      "nameEn": "NAPHTALI",
+      "period": ["conquest","divided_kingdom"],
+      "color": "#FFE082",
+      "opacity": 0.10,
+      "borderColor": "#FFD54F",
+      "points": [
+        [33.30, 35.35],
+        [33.30, 35.70],
+        [33.05, 35.70],
+        [32.85, 35.50],
+        [33.05, 35.35]
+      ]
+    },
+    {
+      "id": "zebulun",
+      "nameEs": "ZABULÓN",
+      "nameEn": "ZEBULUN",
+      "period": ["conquest","divided_kingdom"],
+      "color": "#C5E1A5",
+      "opacity": 0.10,
+      "borderColor": "#AED581",
+      "points": [
+        [32.85, 35.10],
+        [32.85, 35.45],
+        [32.65, 35.45],
+        [32.60, 35.25],
+        [32.60, 35.10]
+      ]
+    }
+  ]
+}
