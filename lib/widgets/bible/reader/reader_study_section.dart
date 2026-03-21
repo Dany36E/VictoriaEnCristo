@@ -101,7 +101,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                         section.heading,
                         style: GoogleFonts.manrope(
                           color: const Color(0xFFD4AF37),
-                          fontSize: 13,
+                          fontSize: (fontSize - 2).clamp(9.0, 26.0),
                           fontWeight: FontWeight.w600,
                           height: 1.4,
                         ),
@@ -123,7 +123,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                       p,
                       style: GoogleFonts.lora(
                         color: theme.textPrimary.withOpacity(0.88),
-                        fontSize: fontSize - 2,
+                        fontSize: (fontSize - 1).clamp(10.0, 27.0),
                         height: 1.7,
                       ),
                     ),

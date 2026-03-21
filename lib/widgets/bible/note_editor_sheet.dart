@@ -75,7 +75,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color: Colors.white24,
+                  color: t.textSecondary.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -114,7 +114,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
+                  color: t.isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: TextField(
@@ -122,10 +122,10 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                   maxLines: null,
                   minLines: 4,
                   autofocus: true,
-                  style: GoogleFonts.manrope(color: Colors.white, fontSize: 14, height: 1.5),
+                  style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14, height: 1.5),
                   decoration: InputDecoration(
                     hintText: 'Escribe tu reflexión...',
-                    hintStyle: GoogleFonts.manrope(color: Colors.white24, fontSize: 14),
+                    hintStyle: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                   ),
