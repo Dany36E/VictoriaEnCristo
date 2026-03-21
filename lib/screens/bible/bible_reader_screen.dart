@@ -277,7 +277,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         theme: t,
                         bookChapter:
                             '${widget.bookName} ${_ctrl.currentChapter}',
-                        onClose: () => setState(() => _ctrl.ttsActive = false),
+                        isRealAudio: _ctrl.realAudioActive,
+                        onClose: () => setState(() => _ctrl.stopAllAudio()),
                       ),
                     ),
                   if ((_ctrl.selectedVerseIndex != null ||

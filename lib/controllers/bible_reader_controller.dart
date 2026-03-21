@@ -8,8 +8,10 @@ import '../models/bible/bible_version.dart';
 import '../services/bible/bible_parser_service.dart';
 import '../services/bible/bible_reading_stats_service.dart';
 import '../services/bible/bible_search_service.dart';
+import '../services/bible/bible_audio_service.dart';
 import '../services/bible/bible_tts_service.dart';
 import '../services/bible/bible_user_data_service.dart';
+import '../services/audio_engine.dart';
 import '../services/bible/recent_colors_service.dart';
 import '../services/bible/enduring_word_service.dart';
 import '../services/bible/book_intro_service.dart';
@@ -82,8 +84,9 @@ class BibleReaderController extends ChangeNotifier {
   List<int> searchMatchIndices = [];
   int currentMatchIndex = -1;
 
-  // TTS
+  // Audio (real + TTS)
   bool ttsActive = false;
+  bool realAudioActive = false;
 
   // Red letters
   bool _redLettersEnabled = true;
@@ -107,9 +110,13 @@ class BibleReaderController extends ChangeNotifier {
   // LIFECYCLE
   // ═══════════════════════════════════════════════════════════════════════
 
+  /// True si cualquier audio está activo (real o TTS).
+  bool get isAnyAudioActive => ttsActive || realAudioActive;
+
   @override
   void dispose() {
     BibleTtsService.I.stop();
+    BibleAudioService.I.stop();
     BibleUserDataService.I.redLettersEnabledNotifier.removeListener(_onRedLetterChanged);
     super.dispose();
   }
@@ -384,18 +391,75 @@ class BibleReaderController extends ChangeNotifier {
   // TTS
   // ═══════════════════════════════════════════════════════════════════════
 
-  void toggleTts({TtsReadMode? mode}) {
+  /// Toggle audio: detiene si está activo, o inicia (real → TTS fallback).
+  Future<void> toggleTts({TtsReadMode? mode}) async {
+    // Si audio real activo, detener
+    if (realAudioActive) {
+      await BibleAudioService.I.stop();
+      realAudioActive = false;
+      notifyListeners();
+      return;
+    }
+    // Si TTS activo, detener
     if (ttsActive) {
       BibleTtsService.I.stop();
       ttsActive = false;
+      notifyListeners();
+      return;
+    }
+
+    // Si modo estudio con Guzik y se pide modo específico → TTS directo
+    if (mode != null) {
+      _startTtsWithMode(mode);
+      return;
+    }
+
+    // Pausar BGM
+    final engine = AudioEngine.I;
+    if (engine.bgmState.value == BgmPlaybackState.playing) {
+      await engine.pauseBgm();
+    }
+
+    // Intentar audio real primero
+    final success = await BibleAudioService.I.playChapter(
+      bookNumber: bookNumber,
+      chapter: currentChapter,
+    );
+
+    if (success) {
+      realAudioActive = true;
+      ttsActive = true; // Para UI compatibility
+      notifyListeners();
+      // Escuchar cuando termina
+      BibleAudioService.I.state.addListener(_onRealAudioStateChanged);
     } else {
-      if (mode != null) {
-        _startTtsWithMode(mode);
-        return;
-      }
+      // Fallback a TTS
+      debugPrint('[Audio] No real audio available, using TTS fallback');
       BibleTtsService.I.startReading(verses);
       ttsActive = true;
+      notifyListeners();
     }
+  }
+
+  void _onRealAudioStateChanged() {
+    if (BibleAudioService.I.state.value == AudioBibleState.idle &&
+        realAudioActive) {
+      realAudioActive = false;
+      ttsActive = false;
+      BibleAudioService.I.state.removeListener(_onRealAudioStateChanged);
+      notifyListeners();
+    }
+  }
+
+  /// Detiene todo audio (real y TTS).
+  Future<void> stopAllAudio() async {
+    if (realAudioActive) {
+      await BibleAudioService.I.stop();
+      BibleAudioService.I.state.removeListener(_onRealAudioStateChanged);
+      realAudioActive = false;
+    }
+    BibleTtsService.I.stop();
+    ttsActive = false;
     notifyListeners();
   }
 

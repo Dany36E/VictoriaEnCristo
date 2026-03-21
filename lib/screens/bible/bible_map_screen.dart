@@ -7,6 +7,7 @@ import '../../models/bible/bible_map_models.dart';
 import '../../screens/bible/bible_reader_screen.dart';
 import '../../services/bible/bible_maps_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
+import '../../services/bible/map_events_service.dart' as evt;
 import '../../services/feedback_engine.dart';
 import '../../theme/bible_reader_theme.dart';
 
@@ -54,9 +55,11 @@ class _BibleMapScreenState extends State<BibleMapScreen>
   bool _showRoutes = true;
   bool _showRegions = true;
   bool _showLabels = true;
+  bool _showEvents = true;
 
   // ─── Selection ───
   BiblicalPlace? _selectedPlace;
+  evt.MapEvent? _selectedEvent;
 
   // ─── UI state ───
   bool _showLayerPanel = false;
@@ -80,15 +83,18 @@ class _BibleMapScreenState extends State<BibleMapScreen>
 
   Future<void> _loadData() async {
     final svc = BibleMapsService.instance;
-    final places = await svc.getPlaces();
-    final routes = await svc.getRoutes();
-    final regions = await svc.getRegions();
+    final results = await Future.wait([
+      svc.getPlaces(),
+      svc.getRoutes(),
+      svc.getRegions(),
+      evt.MapEventsService.I.preload().then((_) => evt.MapEventsService.I.getAllEvents()),
+    ]);
 
     if (!mounted) return;
     setState(() {
-      _allPlaces = places;
-      _allRoutes = routes;
-      _allRegions = regions;
+      _allPlaces = results[0] as List<BiblicalPlace>;
+      _allRoutes = results[1] as List<HistoricalRoute>;
+      _allRegions = results[2] as List<HistoricalRegion>;
       _loading = false;
       _applyFilters();
     });
@@ -112,18 +118,35 @@ class _BibleMapScreenState extends State<BibleMapScreen>
     setState(() {
       _selectedPeriod = period;
       _selectedPlace = null;
+      _selectedEvent = null;
       _applyFilters();
     });
   }
 
   void _selectPlace(BiblicalPlace place) {
     FeedbackEngine.I.tap();
-    setState(() => _selectedPlace = place);
+    setState(() {
+      _selectedPlace = place;
+      _selectedEvent = null;
+    });
     _animatedMove(place.position, null);
   }
 
+  void _selectEvent(evt.MapEvent event) {
+    FeedbackEngine.I.tap();
+    setState(() {
+      _selectedEvent = event;
+      _selectedPlace = null;
+    });
+    final cam = _mapController.camera;
+    _animatedMove(event.position, cam.zoom < 9 ? 9.0 : null);
+  }
+
   void _deselectPlace() {
-    setState(() => _selectedPlace = null);
+    setState(() {
+      _selectedPlace = null;
+      _selectedEvent = null;
+    });
   }
 
   void _animatedMove(LatLng dest, double? zoom) {
@@ -210,8 +233,10 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                 if (_showLayerPanel) _buildLayerPanel(),
                 // 4. Layer toggle button (right)
                 _buildLayerToggle(),
-                // 5. Bottom info panel
-                if (_selectedPlace != null)
+                // 5. Bottom info panel (place or event)
+                if (_selectedEvent != null)
+                  _buildEventPanel(_selectedEvent!)
+                else if (_selectedPlace != null)
                   _buildBottomPanel(_selectedPlace!),
               ],
             ),
@@ -260,6 +285,9 @@ class _BibleMapScreenState extends State<BibleMapScreen>
           MarkerLayer(
             markers: _buildPlaceMarkers(),
           ),
+
+        // Event pins
+        if (_showEvents) _buildEventsLayer(),
       ],
     );
   }
@@ -493,6 +521,9 @@ class _BibleMapScreenState extends State<BibleMapScreen>
               _layerSwitch(
                   Icons.label_outline, 'Nombres', _showLabels,
                   (v) => setState(() => _showLabels = v)),
+              _layerSwitch(
+                  Icons.auto_awesome, 'Eventos', _showEvents,
+                  (v) => setState(() => _showEvents = v)),
               const Divider(height: 12),
               // Zoom controls
               Row(
@@ -739,6 +770,222 @@ class _BibleMapScreenState extends State<BibleMapScreen>
     );
   }
 
+  // ─── EVENTS LAYER ───
+
+  List<evt.MapEvent> get _filteredEvents {
+    final all = evt.MapEventsService.I.getAllEvents();
+    if (_selectedPeriod == 'all') return all;
+    return all.where((e) => e.period == _selectedPeriod).toList();
+  }
+
+  Widget _buildEventsLayer() {
+    final events = _filteredEvents;
+    if (events.isEmpty) return const SizedBox.shrink();
+    return MarkerLayer(
+      markers: events.map((e) {
+        final selected = _selectedEvent?.id == e.id;
+        final size = selected ? 36.0 : 28.0;
+        return Marker(
+          point: e.position,
+          width: size,
+          height: size,
+          child: GestureDetector(
+            onTap: () => _selectEvent(e),
+            child: _EventPinWidget(
+              event: e,
+              isSelected: selected,
+              size: size,
+            ),
+          ),
+        );
+      }).toList(),
+    );
+  }
+
+  // ─── EVENT PANEL ───
+
+  Widget _buildEventPanel(evt.MapEvent event) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: Container(
+        decoration: BoxDecoration(
+          color: _kPanelBg,
+          borderRadius:
+              const BorderRadius.vertical(top: Radius.circular(20)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.25),
+              blurRadius: 16,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Handle bar
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade300,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Type badge + title + close
+                Row(
+                  children: [
+                    _buildEventTypeBadge(event.type),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            event.title,
+                            style: GoogleFonts.cinzel(
+                              fontSize: 17,
+                              fontWeight: FontWeight.w700,
+                              color: _eventColor(event.type),
+                            ),
+                          ),
+                          Text(
+                            '${_eventTypeLabel(event.type)} · ${_periodLabel(event.period)}',
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              color: Colors.grey.shade600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.close,
+                          color: Colors.grey.shade400),
+                      onPressed: _deselectPlace,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+
+                // Description
+                Text(
+                  event.description,
+                  style: GoogleFonts.manrope(
+                    fontSize: 13,
+                    height: 1.6,
+                    color: _kDarkText.withValues(alpha: 0.8),
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Reference chip
+                Material(
+                  color: _eventColor(event.type).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(8),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(8),
+                    onTap: () => _navigateToVerse(event.reference),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 5),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.menu_book,
+                              size: 14,
+                              color: _eventColor(event.type)),
+                          const SizedBox(width: 6),
+                          Text(
+                            event.reference.replaceAll('.', ' '),
+                            style: GoogleFonts.manrope(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: _eventColor(event.type),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEventTypeBadge(String type) {
+    return Container(
+      width: 32,
+      height: 32,
+      decoration: BoxDecoration(
+        color: _eventColor(type).withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+        border: Border.all(color: _eventColor(type), width: 1.5),
+      ),
+      child: Icon(_eventIcon(type), size: 17, color: _eventColor(type)),
+    );
+  }
+
+  static Color _eventColor(String type) {
+    switch (type) {
+      case 'miracle':
+        return const Color(0xFF7B2FF7);
+      case 'battle':
+        return const Color(0xFFD32F2F);
+      case 'teaching':
+        return const Color(0xFF1976D2);
+      case 'crucifixion':
+        return const Color(0xFF37474F);
+      default: // 'event'
+        return _kDarkGold;
+    }
+  }
+
+  static IconData _eventIcon(String type) {
+    switch (type) {
+      case 'miracle':
+        return Icons.auto_awesome;
+      case 'battle':
+        return Icons.shield;
+      case 'teaching':
+        return Icons.school;
+      case 'crucifixion':
+        return Icons.add;
+      default: // 'event'
+        return Icons.star;
+    }
+  }
+
+  static String _eventTypeLabel(String type) {
+    switch (type) {
+      case 'miracle':
+        return 'Milagro';
+      case 'battle':
+        return 'Batalla';
+      case 'teaching':
+        return 'Enseñanza';
+      case 'crucifixion':
+        return 'Crucifixión';
+      default:
+        return 'Evento';
+    }
+  }
+
   // ─── Helpers ───
 
   Widget _buildPlaceIcon(BiblicalPlaceType type, double size) {
@@ -918,6 +1165,52 @@ class _PlaceLabelWidget extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ─── EVENT PIN WIDGET ────────────────────────────────────────
+
+class _EventPinWidget extends StatelessWidget {
+  final evt.MapEvent event;
+  final bool isSelected;
+  final double size;
+
+  const _EventPinWidget({
+    required this.event,
+    required this.isSelected,
+    required this.size,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final color = _BibleMapScreenState._eventColor(event.type);
+    final icon = _BibleMapScreenState._eventIcon(event.type);
+    return Container(
+      width: size,
+      height: size,
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+        border: Border.all(
+          color: isSelected ? color : color.withValues(alpha: 0.7),
+          width: isSelected ? 2.5 : 1.5,
+        ),
+        boxShadow: [
+          if (isSelected)
+            BoxShadow(
+              color: color.withValues(alpha: 0.5),
+              blurRadius: 10,
+              spreadRadius: 2,
+            ),
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.3),
+            blurRadius: 4,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Icon(icon, size: size * 0.5, color: color),
     );
   }
 }
