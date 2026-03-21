@@ -95,7 +95,7 @@ class BibleShareService {
   }
 }
 
-/// 7 plantillas de compartir
+/// 13 plantillas de compartir
 enum ShareTemplate {
   minimalDark('Minimalista Oscuro', Color(0xFF111111)),
   editorialLight('Editorial Claro', Color(0xFFFAF8F3)),
@@ -103,7 +103,14 @@ enum ShareTemplate {
   midnight('Medianoche', Color(0xFF0D1B2A)),
   sepiaWarm('Sepia Cálido', Color(0xFF3E2B1C)),
   pastelLavender('Pastel Lavanda', Color(0xFFE8DEF8)),
-  royal('Real', Color(0xFF311B92));
+  royal('Real', Color(0xFF311B92)),
+  // 6 nuevas plantillas premium
+  sunrise('Amanecer', Color(0xFFFFF3E0)),
+  nature('Naturaleza', Color(0xFF1B5E20)),
+  sunset('Atardecer', Color(0xFF4A1942)),
+  ocean('Océano', Color(0xFF01579B)),
+  pureLight('Luz Pura', Color(0xFFFFFFFF)),
+  royalPurple('Púrpura Real', Color(0xFF4A148C));
 
   final String displayName;
   final Color previewColor;
@@ -113,7 +120,11 @@ enum ShareTemplate {
       this == minimalDark ||
       this == midnight ||
       this == sepiaWarm ||
-      this == royal;
+      this == royal ||
+      this == nature ||
+      this == sunset ||
+      this == ocean ||
+      this == royalPurple;
 }
 
 /// Dimensiones de imagen
@@ -164,6 +175,18 @@ class _TemplateWidget extends StatelessWidget {
         return _buildPastelLavender();
       case ShareTemplate.royal:
         return _buildRoyal();
+      case ShareTemplate.sunrise:
+        return _buildSunrise();
+      case ShareTemplate.nature:
+        return _buildNature();
+      case ShareTemplate.sunset:
+        return _buildSunset();
+      case ShareTemplate.ocean:
+        return _buildOcean();
+      case ShareTemplate.pureLight:
+        return _buildPureLight();
+      case ShareTemplate.royalPurple:
+        return _buildRoyalPurple();
     }
   }
 
@@ -534,6 +557,220 @@ class _TemplateWidget extends StatelessWidget {
             color: AppDesignSystem.goldLight,
           ),
         ),
+        const SizedBox(height: 4),
+        _buildVersionText(Colors.white30),
+        _buildLogoText(Colors.white.withOpacity(0.2)),
+      ],
+    );
+  }
+
+  // ── 8. Amanecer ──
+  Widget _buildSunrise() {
+    const textColor = Color(0xFF4E342E);
+    return _wrapContainer(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFFFF8E1), Color(0xFFFFE0B2), Color(0xFFFFCC80)],
+        ),
+      ),
+      children: [
+        Text('☀', style: TextStyle(fontSize: 24, color: textColor.withOpacity(0.6))),
+        const SizedBox(height: 16),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro', fontSize: fontSize,
+            color: textColor, height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(verse.reference, style: TextStyle(
+          fontFamily: 'Manrope', fontSize: 12, fontWeight: FontWeight.w700,
+          letterSpacing: 1.5, color: textColor.withOpacity(0.7),
+        )),
+        const SizedBox(height: 4),
+        _buildVersionText(textColor.withOpacity(0.4)),
+        _buildLogoText(textColor.withOpacity(0.15)),
+      ],
+    );
+  }
+
+  // ── 9. Naturaleza ──
+  Widget _buildNature() {
+    const leaf = Color(0xFFA5D6A7);
+    return _wrapContainer(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1B5E20), Color(0xFF2E7D32)],
+        ),
+      ),
+      children: [
+        Text('🌿', style: TextStyle(fontSize: 20)),
+        const SizedBox(height: 16),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro', fontSize: fontSize,
+            fontStyle: FontStyle.italic, color: Colors.white, height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Container(width: 32, height: 2, color: leaf),
+        const SizedBox(height: 10),
+        Text(verse.reference, style: TextStyle(
+          fontFamily: 'Cinzel', fontSize: 13, fontWeight: FontWeight.w600,
+          letterSpacing: 1.5, color: leaf,
+        )),
+        const SizedBox(height: 4),
+        _buildVersionText(Colors.white30),
+        _buildLogoText(Colors.white.withOpacity(0.15)),
+      ],
+    );
+  }
+
+  // ── 10. Atardecer ──
+  Widget _buildSunset() {
+    const warm = Color(0xFFFFAB91);
+    return _wrapContainer(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFF4A1942), Color(0xFFBF360C)],
+        ),
+      ),
+      children: [
+        Container(width: 40, height: 2, color: warm.withOpacity(0.5)),
+        const SizedBox(height: 20),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro', fontSize: fontSize,
+            color: Colors.white, height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(verse.reference, style: TextStyle(
+          fontFamily: 'Manrope', fontSize: 12, fontWeight: FontWeight.w600,
+          letterSpacing: 2.0, color: warm,
+        )),
+        const SizedBox(height: 4),
+        _buildVersionText(Colors.white30),
+        _buildLogoText(Colors.white.withOpacity(0.15)),
+      ],
+    );
+  }
+
+  // ── 11. Océano ──
+  Widget _buildOcean() {
+    const wave = Color(0xFF80DEEA);
+    return _wrapContainer(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF01579B), Color(0xFF0277BD)],
+        ),
+      ),
+      children: [
+        Text('〜', style: TextStyle(fontSize: 20, color: wave)),
+        const SizedBox(height: 16),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro', fontSize: fontSize,
+            fontStyle: FontStyle.italic, color: Colors.white, height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(verse.reference, style: TextStyle(
+          fontFamily: 'Cinzel', fontSize: 13, fontWeight: FontWeight.w600,
+          letterSpacing: 1.5, color: wave,
+        )),
+        const SizedBox(height: 4),
+        _buildVersionText(Colors.white30),
+        _buildLogoText(Colors.white.withOpacity(0.15)),
+      ],
+    );
+  }
+
+  // ── 12. Luz Pura ──
+  Widget _buildPureLight() {
+    const textColor = Color(0xFF263238);
+    return _wrapContainer(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.all(color: const Color(0xFFE0E0E0)),
+      ),
+      children: [
+        Container(width: 24, height: 3, color: textColor.withOpacity(0.15)),
+        const SizedBox(height: 20),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro', fontSize: fontSize,
+            color: textColor, height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(verse.reference, style: TextStyle(
+          fontFamily: 'Manrope', fontSize: 12, fontWeight: FontWeight.w700,
+          letterSpacing: 1.5, color: textColor.withOpacity(0.6),
+        )),
+        const SizedBox(height: 4),
+        _buildVersionText(textColor.withOpacity(0.3)),
+        _buildLogoText(textColor.withOpacity(0.1)),
+      ],
+    );
+  }
+
+  // ── 13. Púrpura Real ──
+  Widget _buildRoyalPurple() {
+    const gold = Color(0xFFFFD54F);
+    return _wrapContainer(
+      decoration: BoxDecoration(
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF4A148C), Color(0xFF6A1B9A)],
+        ),
+        border: Border.all(color: gold.withOpacity(0.3)),
+      ),
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(width: 24, height: 1, color: gold.withOpacity(0.5)),
+            const SizedBox(width: 8),
+            Text('♛', style: TextStyle(color: gold, fontSize: 16)),
+            const SizedBox(width: 8),
+            Container(width: 24, height: 1, color: gold.withOpacity(0.5)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        Text(
+          verse.text,
+          style: TextStyle(
+            fontFamily: 'CrimsonPro', fontSize: fontSize,
+            fontStyle: FontStyle.italic, color: Colors.white, height: 1.7,
+          ),
+          textAlign: textAlign,
+        ),
+        const SizedBox(height: 20),
+        Text(verse.reference, style: TextStyle(
+          fontFamily: 'Cinzel', fontSize: 14, fontWeight: FontWeight.w600,
+          letterSpacing: 2.0, color: gold,
+        )),
         const SizedBox(height: 4),
         _buildVersionText(Colors.white30),
         _buildLogoText(Colors.white.withOpacity(0.2)),
