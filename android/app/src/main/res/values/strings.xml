@@ -8,4 +8,11 @@
     <string name="widget_default_line1">Respira. Sigue hoy.</string>
     <string name="widget_default_line2">Abre la app cuando puedas.</string>
     <string name="widget_cta_text">Abrir</string>
+
+    <!-- Verse of Day Widget -->
+    <string name="verse_widget_name">Versículo del día</string>
+    <string name="verse_widget_description">Versículo diario con referencia bíblica</string>
+    <string name="verse_widget_label">Versículo del día</string>
+    <string name="verse_widget_default_text">Todo lo puedo en Cristo que me fortalece.</string>
+    <string name="verse_widget_default_ref">Filipenses 4:13</string>
 </resources>

@@ -5,6 +5,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import 'package:home_widget/home_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/bible_verses.dart';
 import '../utils/time_utils.dart';
@@ -200,5 +201,20 @@ class DailyVerseService {
     _cachedVerse = null;
     await _prefs?.remove(_keyDailyVerseDate);
     await _prefs?.remove(_keyDailyVerseIndex);
+  }
+
+  /// Sincroniza el versículo del día con el widget de Android
+  Future<void> updateHomeWidget() async {
+    try {
+      final verse = getForTodaySync();
+      await HomeWidget.saveWidgetData('verse_widget_text', verse.verse);
+      await HomeWidget.saveWidgetData('verse_widget_reference', verse.reference);
+      await HomeWidget.updateWidget(
+        androidName: 'VerseOfDayWidgetProvider',
+      );
+      debugPrint('📱 [DAILY_VERSE] Widget actualizado: ${verse.reference}');
+    } catch (e) {
+      debugPrint('📱 [DAILY_VERSE] Error actualizando widget: $e');
+    }
   }
 }
