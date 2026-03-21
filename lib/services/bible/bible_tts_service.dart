@@ -81,7 +81,7 @@ class BibleTtsService {
   Future<void> startReading(List<BibleVerse> verses, {int fromIndex = 0}) async {
     final queue = <TtsQueueItem>[];
     for (int i = fromIndex; i < verses.length; i++) {
-      queue.add(TtsQueueItem('${verses[i].verse}. ${verses[i].text}', i));
+      queue.add(TtsQueueItem(verses[i].text.trim(), i));
     }
     await startReadingQueue(queue, mode: TtsReadMode.verseOnly);
   }
@@ -112,6 +112,12 @@ class BibleTtsService {
     }
     final item = _queue[_queueIndex];
     currentVerseIndex.value = item.verseIndex;
+    assert(() {
+      if (RegExp(r'^\d').hasMatch(item.text.trim())) {
+        debugPrint('[TTS BUG] Texto empieza con número: "${item.text.substring(0, item.text.length.clamp(0, 60))}"');
+      }
+      return true;
+    }());
     _tts?.speak(item.text);
   }
 

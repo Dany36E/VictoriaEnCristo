@@ -138,20 +138,43 @@ class AudioPlayerBar extends StatelessWidget {
 
   Widget _buildAudioTypeBadge(BibleReaderThemeData t) {
     if (isRealAudio) {
-      return Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.headphones, size: 10,
-              color: const Color(0xFFD4AF37).withOpacity(0.7)),
-          const SizedBox(width: 3),
-          Text('Audio real',
-            style: GoogleFonts.manrope(
-              fontSize: 8,
-              color: const Color(0xFFD4AF37).withOpacity(0.7),
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
+      return ValueListenableBuilder<AudioBibleState>(
+        valueListenable: BibleAudioService.I.state,
+        builder: (_, st, __) {
+          final buffering = st == AudioBibleState.buffering;
+          return Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (buffering) ...[
+                SizedBox(
+                  width: 10, height: 10,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 1.5,
+                    color: const Color(0xFFD4AF37).withOpacity(0.7),
+                  ),
+                ),
+                const SizedBox(width: 3),
+                Text('Cargando...',
+                  style: GoogleFonts.manrope(
+                    fontSize: 8,
+                    color: const Color(0xFFD4AF37).withOpacity(0.7),
+                  ),
+                ),
+              ] else ...[
+                Icon(Icons.graphic_eq, size: 10,
+                    color: const Color(0xFFD4AF37).withOpacity(0.7)),
+                const SizedBox(width: 3),
+                Text('Audio bíblico',
+                  style: GoogleFonts.manrope(
+                    fontSize: 8,
+                    color: const Color(0xFFD4AF37).withOpacity(0.7),
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ],
+          );
+        },
       );
     }
 
@@ -161,7 +184,7 @@ class AudioPlayerBar extends StatelessWidget {
         Icon(Icons.record_voice_over_outlined, size: 10,
             color: t.textSecondary.withOpacity(0.5)),
         const SizedBox(width: 3),
-        Text('Voz sintetizada',
+        Text('Lectura sintetizada',
           style: GoogleFonts.manrope(
             fontSize: 8,
             color: t.textSecondary.withOpacity(0.5),

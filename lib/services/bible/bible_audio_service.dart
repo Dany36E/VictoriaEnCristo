@@ -42,9 +42,25 @@ class BibleAudioService {
 
   static const String _baseUrl = 'https://4.dbt.io/api';
 
-  // ─── Filesets RVR1960 español ───
-  static const String _ntFileset = 'SPNRVRN2DA'; // NT dramatizado
-  static const String _otFileset = 'SPNRVRN1DA'; // AT dramatizado
+  // ─── Filesets verificados para español ───
+  // Cada versión tiene un fileset NT y uno AT.
+  // Se prueban en orden de preferencia hasta encontrar uno que funcione.
+  static const _kFilesets = <Map<String, String>>[
+    // RVR1960 dramatizada (Faith Comes By Hearing)
+    {'label': 'RVR1960', 'nt': 'SPNRVRN2DA', 'ot': 'SPNRVRN1DA'},
+    // RVR1960 no dramatizada
+    {'label': 'RVR1960-ND', 'nt': 'SPNRVRN2SA', 'ot': 'SPNRVRN1SA'},
+    // NVI dramatizada
+    {'label': 'NVI', 'nt': 'SPNNVIN2DA', 'ot': 'SPNNVIN1DA'},
+    // TLA dramatizada
+    {'label': 'TLA', 'nt': 'SPNTLAN2DA', 'ot': 'SPNTLAN1DA'},
+  ];
+
+  // Fileset que se confirmó funcional durante esta sesión (cache)
+  String? _workingNtFileset;
+  String? _workingOtFileset;
+  // Set de filesets que fallaron (no reintentar)
+  final Set<String> _failedFilesets = {};
 
   // ─── Cache de URLs en memoria (expiran por sesión) ───
   final Map<String, String> _urlCache = {};
@@ -181,31 +197,41 @@ class BibleAudioService {
   }) async {
     await init();
 
-    if (ApiConfig.bibleBrainKey.isEmpty) return false;
-    if (!ConnectivityService.I.hasInternet) return false;
+    if (ApiConfig.bibleBrainKey.isEmpty) {
+      debugPrint('[BibleAudio] No API key configured');
+      return false;
+    }
+    if (!ConnectivityService.I.hasInternet) {
+      debugPrint('[BibleAudio] No internet');
+      return false;
+    }
 
-    final filesetId = _getFilesetForBook(bookNumber);
     final bookCode = _kBookNumberToCode[bookNumber];
-    if (bookCode == null) return false;
+    if (bookCode == null) {
+      debugPrint('[BibleAudio] Unknown book number: $bookNumber');
+      return false;
+    }
 
-    // Obtener URL y timestamps en paralelo
-    final results = await Future.wait([
-      getChapterAudioUrl(
-        filesetId: filesetId,
-        bookCode: bookCode,
-        chapter: chapter,
-      ),
-      getVerseTimestamps(
-        filesetId: filesetId,
-        bookCode: bookCode,
-        chapter: chapter,
-      ),
-    ]);
+    // Buscar un fileset funcional (prueba múltiples con fallback)
+    final result = await _findWorkingFileset(
+      bookNumber: bookNumber,
+      bookCode: bookCode,
+      chapter: chapter,
+    );
 
-    final url = results[0] as String?;
-    _verseTimestamps = results[1] as List<VerseTimestamp>;
+    if (result == null) {
+      debugPrint('[BibleAudio] No fileset funcional para $bookCode/$chapter');
+      return false;
+    }
 
-    if (url == null) return false;
+    final (filesetId, url) = result;
+
+    // Obtener timestamps (no bloqueante — el audio funciona sin ellos)
+    getVerseTimestamps(
+      filesetId: filesetId,
+      bookCode: bookCode,
+      chapter: chapter,
+    ).then((ts) => _verseTimestamps = ts);
 
     try {
       state.value = AudioBibleState.buffering;
@@ -213,7 +239,7 @@ class BibleAudioService {
       await _player.setSpeed(speed.clamp(0.5, 2.0));
 
       // Si startVerse > 1, saltar al timestamp correspondiente
-      if (startVerse > 1) {
+      if (startVerse > 1 && _verseTimestamps.isNotEmpty) {
         final timestamp =
             _verseTimestamps.where((t) => t.verse == startVerse).firstOrNull;
         if (timestamp != null) {
@@ -294,7 +320,62 @@ class BibleAudioService {
   }
 
   String _getFilesetForBook(int bookNumber) {
-    return bookNumber >= 40 ? _ntFileset : _otFileset;
+    final isNT = bookNumber >= 40;
+    // Si ya tenemos uno funcional, usarlo directamente
+    final cached = isNT ? _workingNtFileset : _workingOtFileset;
+    if (cached != null) return cached;
+    // Default: primer fileset de la lista
+    return isNT ? _kFilesets[0]['nt']! : _kFilesets[0]['ot']!;
+  }
+
+  /// Obtiene un fileset funcional para el libro dado, probando en orden.
+  /// Retorna el fileset ID y la URL del audio, o null si ninguno funciona.
+  Future<(String filesetId, String url)?> _findWorkingFileset({
+    required int bookNumber,
+    required String bookCode,
+    required int chapter,
+  }) async {
+    final isNT = bookNumber >= 40;
+    final key = isNT ? 'nt' : 'ot';
+
+    // Si ya tenemos un fileset funcional, probar ese primero
+    final cached = isNT ? _workingNtFileset : _workingOtFileset;
+    if (cached != null && !_failedFilesets.contains(cached)) {
+      final url = await getChapterAudioUrl(
+        filesetId: cached,
+        bookCode: bookCode,
+        chapter: chapter,
+      );
+      if (url != null) return (cached, url);
+    }
+
+    // Probar todos los filesets en orden
+    for (final fs in _kFilesets) {
+      final filesetId = fs[key]!;
+      if (_failedFilesets.contains(filesetId)) continue;
+      if (filesetId == cached) continue; // ya probado
+
+      debugPrint('[BibleAudio] Probando fileset ${fs['label']} ($filesetId)...');
+      final url = await getChapterAudioUrl(
+        filesetId: filesetId,
+        bookCode: bookCode,
+        chapter: chapter,
+      );
+      if (url != null) {
+        debugPrint('[BibleAudio] ✓ Fileset ${fs['label']} funciona');
+        // Guardar como funcional
+        if (isNT) {
+          _workingNtFileset = filesetId;
+        } else {
+          _workingOtFileset = filesetId;
+        }
+        return (filesetId, url);
+      } else {
+        debugPrint('[BibleAudio] ✗ Fileset ${fs['label']} sin audio');
+        _failedFilesets.add(filesetId);
+      }
+    }
+    return null;
   }
 
   void dispose() {

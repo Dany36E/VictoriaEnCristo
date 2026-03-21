@@ -475,7 +475,7 @@ class BibleReaderController extends ChangeNotifier {
 
     if (mode == TtsReadMode.verseOnly || guzikChapter == null) {
       for (int i = 0; i < verses.length; i++) {
-        queue.add(TtsQueueItem('${verses[i].verse}. ${verses[i].text}', i));
+        queue.add(TtsQueueItem(verses[i].text.trim(), i));
       }
     } else if (mode == TtsReadMode.annotationOnly) {
       for (final section in guzikChapter!.sections) {
@@ -488,7 +488,7 @@ class BibleReaderController extends ChangeNotifier {
         switch (item.type) {
           case StudyItemType.verse:
             final v = verses[item.index];
-            queue.add(TtsQueueItem('${v.verse}. ${v.text}', item.index));
+            queue.add(TtsQueueItem(v.text.trim(), item.index));
           case StudyItemType.annotation:
             final section = guzikChapter!.sections[item.index];
             final text = [section.heading, ...section.paragraphs].join('. ');
