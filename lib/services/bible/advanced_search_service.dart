@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_version.dart';
 import 'bible_parser_service.dart';
 import 'interlinear_service.dart';
@@ -58,6 +59,36 @@ class AdvancedSearchService {
   factory AdvancedSearchService() => _instance;
   static AdvancedSearchService get I => _instance;
   AdvancedSearchService._internal();
+
+  static const _historyKey = 'advanced_search_history';
+  static const int _maxHistory = 20;
+
+  /// Historial de búsquedas avanzadas
+  Future<List<String>> getSearchHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getStringList(_historyKey) ?? [];
+  }
+
+  Future<void> addToHistory(String query) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_historyKey) ?? [];
+    list.remove(query);
+    list.insert(0, query);
+    if (list.length > _maxHistory) list.removeLast();
+    await prefs.setStringList(_historyKey, list);
+  }
+
+  Future<void> removeFromHistory(String query) async {
+    final prefs = await SharedPreferences.getInstance();
+    final list = prefs.getStringList(_historyKey) ?? [];
+    list.remove(query);
+    await prefs.setStringList(_historyKey, list);
+  }
+
+  Future<void> clearHistory() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove(_historyKey);
+  }
 
   // Temas predefinidos con palabras clave en español
   static const Map<String, List<String>> _themes = {
@@ -189,6 +220,8 @@ class AdvancedSearchService {
     String themeName,
     BibleVersion version, {
     String? testamentFilter,
+    int? startBook,
+    int? endBook,
   }) async {
     final keywords = _themes[themeName];
     if (keywords == null) {
@@ -204,6 +237,8 @@ class AdvancedSearchService {
     final books = await BibleParserService.I.getBooks(version);
 
     final filteredBooks = books.where((b) {
+      if (startBook != null && b.number < startBook) return false;
+      if (endBook != null && b.number > endBook) return false;
       if (testamentFilter == 'AT') return b.number < 40;
       if (testamentFilter == 'NT') return b.number >= 40;
       return true;

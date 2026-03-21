@@ -1,0 +1,79 @@
+{
+  "themes": [
+    {
+      "id": "salvation",
+      "name": "Salvación",
+      "keywords": ["salvo", "salvación", "redención", "redimido", "justificación", "salvador"]
+    },
+    {
+      "id": "grace",
+      "name": "Gracia",
+      "keywords": ["gracia", "misericordia", "favor", "compasión"]
+    },
+    {
+      "id": "faith",
+      "name": "Fe",
+      "keywords": ["fe", "creer", "confianza", "fidelidad", "creyó", "creyeron"]
+    },
+    {
+      "id": "prayer",
+      "name": "Oración",
+      "keywords": ["oración", "orar", "clamar", "interceder", "pedir", "suplicar", "clamó"]
+    },
+    {
+      "id": "love",
+      "name": "Amor",
+      "keywords": ["amor", "amar", "amó", "amará", "amas", "amado", "amados"]
+    },
+    {
+      "id": "holy_spirit",
+      "name": "Espíritu Santo",
+      "keywords": ["Espíritu Santo", "Espíritu de Dios", "consolador", "Paráclito"]
+    },
+    {
+      "id": "sin",
+      "name": "Pecado y arrepentimiento",
+      "keywords": ["pecado", "pecador", "arrepentimiento", "confesar", "transgredir", "iniquidad"]
+    },
+    {
+      "id": "worship",
+      "name": "Adoración y alabanza",
+      "keywords": ["adorar", "alabar", "alabanza", "glorificar", "exaltar"]
+    },
+    {
+      "id": "eternal_life",
+      "name": "Vida eterna",
+      "keywords": ["vida eterna", "vida perdurable", "resurrección", "inmortal"]
+    },
+    {
+      "id": "wisdom",
+      "name": "Sabiduría",
+      "keywords": ["sabiduría", "sabio", "entendimiento", "prudencia", "discernimiento"]
+    },
+    {
+      "id": "covenant",
+      "name": "Pacto",
+      "keywords": ["pacto", "alianza", "promesa", "testamento"]
+    },
+    {
+      "id": "kingdom",
+      "name": "Reino de Dios",
+      "keywords": ["reino de Dios", "reino de los cielos", "reino de Cristo"]
+    },
+    {
+      "id": "prophecy",
+      "name": "Profecía y cumplimiento",
+      "keywords": ["profecía", "profeta", "cumplimiento", "se cumplió", "fue dicho"]
+    },
+    {
+      "id": "creation",
+      "name": "Creación",
+      "keywords": ["creó", "creación", "principio", "hizo el cielo", "hizo la tierra"]
+    },
+    {
+      "id": "second_coming",
+      "name": "Segunda venida",
+      "keywords": ["segunda venida", "vendrá", "día del Señor", "parusía", "arrebatamiento"]
+    }
+  ]
+}
