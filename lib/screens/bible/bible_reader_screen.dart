@@ -43,6 +43,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   final _scrollController = ScrollController();
   final _searchController = TextEditingController();
   final _searchFocusNode = FocusNode();
+  late PageController _pageController;
+  bool _pageAnimating = false;
 
   @override
   void initState() {
@@ -56,6 +58,10 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
     _ctrl.addListener(_onControllerChanged);
     _scrollController.addListener(_onScroll);
+    _pageController = PageController(
+      initialPage: 1, // center page = current chapter
+      viewportFraction: 0.92,
+    );
     BibleTtsService.I.currentVerseIndex.addListener(_onTtsVerseChanged);
   }
 
@@ -88,6 +94,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     _scrollController.dispose();
     _searchController.dispose();
     _searchFocusNode.dispose();
+    _pageController.dispose();
     super.dispose();
   }
 
@@ -162,18 +169,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 _ctrl.toggleHeaderOpacity();
               }
             },
-            onHorizontalDragEnd: (details) {
-              if (details.primaryVelocity == null) return;
-              if (details.primaryVelocity! < -200) {
-                if (_ctrl.currentChapter < _ctrl.totalChapters) {
-                  _ctrl.goToChapter(_ctrl.currentChapter + 1);
-                } else {
-                  _goToNextBook();
-                }
-              } else if (details.primaryVelocity! > 200) {
-                _ctrl.goToChapter(_ctrl.currentChapter - 1);
-              }
-            },
             child: SafeArea(
               child: Stack(
                 children: [
@@ -181,13 +176,70 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                       ? Center(
                           child: CircularProgressIndicator(
                               color: t.accent, strokeWidth: 1.5))
-                      : ReaderContentView(
-                          theme: t,
-                          controller: _ctrl,
-                          scrollController: _scrollController,
-                          onGoToNextBook: _goToNextBook,
-                          onGoToBook: _goToBook,
-                          onBottomNavBookTap: (_, _, _) => _openChapterSelector(),
+                      : PageView.builder(
+                          controller: _pageController,
+                          itemCount: 3, // prev | current | next
+                          onPageChanged: (page) {
+                            if (_pageAnimating) return;
+                            _pageAnimating = true;
+                            if (page == 0) {
+                              // Swiped to previous chapter
+                              _ctrl.goToChapter(
+                                  _ctrl.currentChapter - 1);
+                            } else if (page == 2) {
+                              // Swiped to next chapter
+                              if (_ctrl.currentChapter <
+                                  _ctrl.totalChapters) {
+                                _ctrl.goToChapter(
+                                    _ctrl.currentChapter + 1);
+                              } else {
+                                _goToNextBook();
+                              }
+                            }
+                            // Reset to center page after navigation
+                            WidgetsBinding.instance
+                                .addPostFrameCallback((_) {
+                              if (_pageController.hasClients) {
+                                _pageController.jumpToPage(1);
+                              }
+                              _pageAnimating = false;
+                            });
+                          },
+                          itemBuilder: (context, pageIndex) {
+                            if (pageIndex != 1) {
+                              // Peek page - show faded label
+                              final isPrev = pageIndex == 0;
+                              final label = isPrev
+                                  ? (_ctrl.currentChapter > 1
+                                      ? 'Cap. ${_ctrl.currentChapter - 1}'
+                                      : '')
+                                  : (_ctrl.currentChapter <
+                                          _ctrl.totalChapters
+                                      ? 'Cap. ${_ctrl.currentChapter + 1}'
+                                      : 'Siguiente libro');
+                              return Center(
+                                child: Text(
+                                  label,
+                                  style: GoogleFonts.manrope(
+                                    color: t.textSecondary
+                                        .withOpacity(0.3),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              );
+                            }
+                            // Current chapter page
+                            return ReaderContentView(
+                              theme: t,
+                              controller: _ctrl,
+                              scrollController: _scrollController,
+                              onGoToNextBook: _goToNextBook,
+                              onGoToBook: _goToBook,
+                              onBottomNavBookTap: (_, _, _) =>
+                                  _openChapterSelector(),
+                            );
+                          },
                         ),
                   if (!_ctrl.loading)
                     Positioned(
@@ -239,12 +291,49 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         _ctrl.exitSelectionMode();
                       },
                     ),
+                  // Peek indicators
+                  if (!_ctrl.loading)
+                    Positioned(
+                      bottom: 8,
+                      left: 0,
+                      right: 0,
+                      child: _buildPeekIndicators(t),
+                    ),
                 ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildPeekIndicators(BibleReaderThemeData t) {
+    final hasPrev = _ctrl.currentChapter > 1;
+    final hasNext = _ctrl.currentChapter < _ctrl.totalChapters ||
+        _ctrl.allBooks.indexWhere((b) => b.number == widget.bookNumber) <
+            _ctrl.allBooks.length - 1;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        if (hasPrev)
+          Icon(Icons.chevron_left,
+              color: t.textSecondary.withOpacity(0.2), size: 18),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 6),
+          child: Text(
+            '${_ctrl.currentChapter} / ${_ctrl.totalChapters}',
+            style: GoogleFonts.manrope(
+              color: t.textSecondary.withOpacity(0.3),
+              fontSize: 11,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+        if (hasNext)
+          Icon(Icons.chevron_right,
+              color: t.textSecondary.withOpacity(0.2), size: 18),
+      ],
     );
   }
 

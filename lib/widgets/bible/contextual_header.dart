@@ -122,14 +122,18 @@ class _ContextualHeaderState extends State<ContextualHeader>
                   hint: 'Toca para cambiar libro o capítulo',
                   child: GestureDetector(
                     onTap: widget.onTitleTap,
-                    child: Text(
-                      widget.title,
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                        letterSpacing: 0.3,
+                    child: AnimatedSwitcher(
+                      duration: const Duration(milliseconds: 250),
+                      child: Text(
+                        widget.title,
+                        key: ValueKey(widget.title),
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.manrope(
+                          color: t.textSecondary,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                          letterSpacing: 0.3,
+                        ),
                       ),
                     ),
                   ),
