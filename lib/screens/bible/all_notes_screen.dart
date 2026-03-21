@@ -122,6 +122,8 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                 color: t.textSecondary, size: 18),
           ),
           const SizedBox(width: 12),
+          Icon(Icons.sticky_note_2_outlined, color: t.accent, size: 22),
+          const SizedBox(width: 8),
           Expanded(
             child: Text(
               'Notas',
@@ -239,6 +241,15 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
             children: [
               Row(
                 children: [
+                  Container(
+                    width: 6,
+                    height: 6,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: t.accent,
+                      shape: BoxShape.circle,
+                    ),
+                  ),
                   Expanded(
                     child: Text(
                       note.reference.toUpperCase(),

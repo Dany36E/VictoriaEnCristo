@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
+import '../../services/bible/bible_reading_stats_service.dart';
 import '../../theme/bible_reader_theme.dart';
-import '../../widgets/bible/version_selector_sheet.dart';
+import '../../widgets/bible/collapsible_section.dart';
+import '../../widgets/bible/concordance_sheet.dart';
 import 'bible_reader_screen.dart';
 import 'bible_search_screen.dart';
 import 'bible_settings_screen.dart';
+import 'bible_stats_screen.dart';
 import 'chapter_selector_screen.dart';
+import 'collections_screen.dart';
 import 'saved_verses_screen.dart';
+import 'all_chapter_notes_screen.dart';
 import 'all_notes_screen.dart';
+import 'bible_parallel_screen.dart';
+import 'bible_timeline_screen.dart';
+import 'bible_map_screen.dart';
+import 'gospel_harmony_screen.dart';
+import 'typology_screen.dart';
+import 'ot_quotes_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE HOME SCREEN — Edición editorial premium
@@ -41,6 +53,11 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   List<BibleVerse> _searchResults = [];
   bool _searching = false;
 
+  // Continue-reading state
+  int? _lastBookNumber;
+  String? _lastBookName;
+  int? _lastChapter;
+
   BibleVersion get _version =>
       BibleUserDataService.I.preferredVersionNotifier.value;
 
@@ -48,15 +65,37 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   void initState() {
     super.initState();
     _loadBooks();
+    _loadLastRead();
+  }
+
+  Future<void> _loadLastRead() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final bn = prefs.getInt('lastReadBookNumber');
+      final name = prefs.getString('lastReadBookName');
+      final ch = prefs.getInt('lastReadChapter');
+      if (bn != null && name != null && ch != null && mounted) {
+        setState(() {
+          _lastBookNumber = bn;
+          _lastBookName = name;
+          _lastChapter = ch;
+        });
+      }
+    } catch (_) {}
   }
 
   Future<void> _loadBooks() async {
-    final books = await BibleParserService.I.getBooks(_version);
-    if (mounted) {
-      setState(() {
-        _allBooks = books;
-        _loading = false;
-      });
+    try {
+      final books = await BibleParserService.I.getBooks(_version);
+      if (mounted) {
+        setState(() {
+          _allBooks = books;
+          _loading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('[BIBLE_HOME] Error loading books: $e');
+      if (mounted) setState(() => _loading = false);
     }
   }
 
@@ -126,79 +165,45 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // HEADER
+  // HEADER — Minimalista: ← título  🔍 ⚙️
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildHeader(BibleReaderThemeData t) {
     if (_searchMode) return _buildSearchHeader(t);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 24, 16, 0),
+      padding: const EdgeInsets.fromLTRB(16, 16, 8, 0),
       child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Back
-          Padding(
-            padding: const EdgeInsets.only(right: 8, top: 2),
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
+          GestureDetector(
+            onTap: () => Navigator.maybePop(context),
+            behavior: HitTestBehavior.opaque,
+            child: Padding(
+              padding: const EdgeInsets.all(8),
               child: Icon(Icons.arrow_back_ios,
                   color: t.textSecondary, size: 18),
             ),
           ),
-          // Title
           Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'La Biblia',
-                  style: GoogleFonts.cinzel(
-                    color: t.textPrimary,
-                    fontSize: 22,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-                const SizedBox(height: 2),
-                ValueListenableBuilder<BibleVersion>(
-                  valueListenable:
-                      BibleUserDataService.I.preferredVersionNotifier,
-                  builder: (context, version, _) {
-                    return GestureDetector(
-                      onTap: () => showVersionSelectorSheet(
-                        context,
-                        onChanged: () {
-                          setState(() => _loading = true);
-                          _loadBooks();
-                        },
-                      ),
-                      child: Text(
-                        version.displayName,
-                        style: GoogleFonts.manrope(
-                          color: t.textSecondary.withOpacity(0.6),
-                          fontSize: 13,
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ],
+            child: Text(
+              'La Biblia',
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ),
-          // Search
           IconButton(
             icon: Icon(Icons.search,
                 color: t.textSecondary.withOpacity(0.6), size: 20),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const BibleSearchScreen(),
-                ),
-              );
-            },
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const BibleSearchScreen(),
+              ),
+            ),
           ),
-          // Settings
           IconButton(
             icon: Icon(Icons.tune,
                 color: t.textSecondary.withOpacity(0.6), size: 20),
@@ -272,181 +277,364 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // MAIN CONTENT (book list)
+  // MAIN CONTENT — Continue reading + Book list + Tools (collapsed)
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildMainContent(BibleReaderThemeData t) {
     return CustomScrollView(
       slivers: [
-        // Secondary links + spacing
-        SliverToBoxAdapter(
-          child: _buildSecondaryLinks(t),
-        ),
+        // Continue reading card
+        if (_lastBookNumber != null)
+          SliverToBoxAdapter(child: _buildContinueReading(t)),
 
-        // Unified book list
+        // Reading stats row (subtle)
+        SliverToBoxAdapter(child: _buildStatsRow(t)),
+
+        // Book list — protagonist
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
-              // Calculate including section headers
-              final items = _buildBookListItems();
-              if (index >= items.length) return null;
-              return items[index];
+              if (index == 0) return const SizedBox(height: 8);
+              final bookIndex = index - 1;
+              if (bookIndex >= _allBooks.length) return null;
+              final book = _allBooks[bookIndex];
+              // Subtle separator between AT and NT (book 39→40)
+              if (book.number == 40) {
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 12),
+                      child: Divider(
+                        color: t.textSecondary.withOpacity(0.1),
+                        height: 1,
+                      ),
+                    ),
+                    _buildBookItem(book, t),
+                  ],
+                );
+              }
+              return _buildBookItem(book, t);
             },
-            childCount: _buildBookListItems().length,
+            childCount: _allBooks.length + 1,
           ),
         ),
+
+        // Study tools (collapsed by default)
+        SliverToBoxAdapter(child: _buildToolsSection(t)),
 
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],
     );
   }
 
-  Widget _buildSecondaryLinks(BibleReaderThemeData t) {
+  // ─── Continue Reading Card ──────────────────────────────────────────
+
+  Widget _buildContinueReading(BibleReaderThemeData t) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 24, 32, 20),
-      child: Row(
-        children: [
-          ValueListenableBuilder(
-            valueListenable: BibleUserDataService.I.savedVersesNotifier,
-            builder: (context, saved, _) {
-              return GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (c, a1, a2) =>
-                        const SavedVersesScreen(),
-                    transitionDuration:
-                        const Duration(milliseconds: 150),
-                    transitionsBuilder: (ctx, a, sa, child) =>
-                        FadeTransition(opacity: a, child: child),
-                  ),
-                ),
-                child: Text.rich(
-                  TextSpan(
-                    text: 'Versículos guardados',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.6),
-                      fontSize: 13,
-                    ),
-                    children: [
-                      if (saved.isNotEmpty)
-                        TextSpan(
-                          text: '  (${saved.length})',
-                          style: TextStyle(color: t.accent),
-                        ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 10),
-            child: Text(
-              '·',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.3),
-                fontSize: 13,
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+      child: GestureDetector(
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BibleReaderScreen(
+                bookNumber: _lastBookNumber!,
+                bookName: _lastBookName!,
+                chapter: _lastChapter!,
+                version: _version,
               ),
             ),
+          ).then((_) => _loadLastRead());
+        },
+        child: Container(
+          height: 72,
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          decoration: BoxDecoration(
+            color: t.isDark
+                ? Colors.white.withOpacity(0.04)
+                : Colors.black.withOpacity(0.03),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: t.accent.withOpacity(0.15)),
           ),
-          ValueListenableBuilder(
-            valueListenable: BibleUserDataService.I.notesNotifier,
-            builder: (context, notes, _) {
-              return GestureDetector(
-                onTap: () => Navigator.push(
-                  context,
-                  PageRouteBuilder(
-                    pageBuilder: (c, a1, a2) =>
-                        const AllNotesScreen(),
-                    transitionDuration:
-                        const Duration(milliseconds: 150),
-                    transitionsBuilder: (ctx, a, sa, child) =>
-                        FadeTransition(opacity: a, child: child),
-                  ),
-                ),
-                child: Text.rich(
-                  TextSpan(
-                    text: 'Notas',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.6),
-                      fontSize: 13,
+          child: Row(
+            children: [
+              Icon(Icons.menu_book_rounded,
+                  color: t.accent.withOpacity(0.8), size: 28),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      'Continuar leyendo',
+                      style: GoogleFonts.manrope(
+                        color: t.textSecondary.withOpacity(0.5),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                      ),
                     ),
-                    children: [
-                      if (notes.isNotEmpty)
-                        TextSpan(
-                          text: '  (${notes.length})',
-                          style: TextStyle(color: t.accent),
-                        ),
-                    ],
-                  ),
+                    const SizedBox(height: 2),
+                    Text(
+                      '$_lastBookName $_lastChapter',
+                      style: GoogleFonts.lora(
+                        color: t.textPrimary,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
                 ),
-              );
-            },
+              ),
+              Icon(Icons.arrow_forward_ios,
+                  color: t.textSecondary.withOpacity(0.3), size: 14),
+            ],
           ),
-        ],
-      ),
-    );
-  }
-
-  List<Widget> _buildBookListItems() {
-    final items = <Widget>[];
-    final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value),
-    );
-
-    for (int i = 0; i < _allBooks.length; i++) {
-      final book = _allBooks[i];
-
-      // Section header: AT before book 1, NT before book 40
-      if (book.number == 1) {
-        items.add(_buildSectionLabel('ANTIGUO TESTAMENTO', t));
-      } else if (book.number == 40) {
-        items.add(const SizedBox(height: 16));
-        items.add(_buildSectionLabel('NUEVO TESTAMENTO', t));
-      }
-
-      items.add(_buildBookItem(book, t));
-    }
-
-    return items;
-  }
-
-  Widget _buildSectionLabel(String label, BibleReaderThemeData t) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(32, 16, 32, 12),
-      child: Text(
-        label,
-        style: GoogleFonts.manrope(
-          color: t.textSecondary.withOpacity(0.4),
-          fontSize: 10,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 2.0,
         ),
       ),
+    );
+  }
+
+  // ─── Stats Row (subtle) ─────────────────────────────────────────────
+
+  Widget _buildStatsRow(BibleReaderThemeData t) {
+    return ValueListenableBuilder<Map<String, dynamic>>(
+      valueListenable: BibleReadingStatsService.I.statsNotifier,
+      builder: (context, stats, _) {
+        final streak = stats['streak'] as int? ?? 0;
+        final pct = stats['percentRead'] as double? ?? 0.0;
+        if (streak == 0 && pct == 0.0) return const SizedBox(height: 12);
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(32, 12, 32, 4),
+          child: GestureDetector(
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const BibleStatsScreen(),
+              ),
+            ),
+            child: Row(
+              children: [
+                if (streak > 0) ...[
+                  Icon(Icons.local_fire_department,
+                      color: const Color(0xFFFF6B35), size: 14),
+                  const SizedBox(width: 3),
+                  Text(
+                    '$streak días',
+                    style: GoogleFonts.manrope(
+                      color: const Color(0xFFFF6B35),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                ],
+                if (pct > 0) ...[
+                  SizedBox(
+                    width: 50,
+                    height: 3,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(2),
+                      child: LinearProgressIndicator(
+                        value: pct / 100,
+                        backgroundColor: t.textSecondary.withOpacity(0.08),
+                        color: t.accent,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    '${pct.toStringAsFixed(1)}%',
+                    style: GoogleFonts.manrope(
+                      color: t.textSecondary.withOpacity(0.4),
+                      fontSize: 10,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  // ─── Tools Section (collapsed) ──────────────────────────────────────
+
+  Widget _buildToolsSection(BibleReaderThemeData t) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+      child: CollapsibleSection(
+        title: 'Herramientas de estudio',
+        initiallyExpanded: false,
+        persistKey: 'bibleHomeToolsExpanded',
+        theme: t,
+        child: _buildToolsGrid(t),
+      ),
+    );
+  }
+
+  Widget _buildToolsGrid(BibleReaderThemeData t) {
+    final tools = [
+      _ToolItem(Icons.manage_search, 'Búsqueda', () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BibleSearchScreen(
+            version: _version,
+            initialAdvanced: true,
+          ),
+        ),
+      )),
+      _ToolItem(Icons.bookmark_outline, 'Guardados', () => Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (ctx, a, sa, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      )),
+      _ToolItem(Icons.sticky_note_2_outlined, 'Notas', () => Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => const AllNotesScreen(),
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (ctx, a, sa, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      )),
+      _ToolItem(Icons.collections_bookmark_outlined, 'Colecciones', () =>
+          Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => const CollectionsScreen(),
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (ctx, a, sa, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      )),
+      _ToolItem(Icons.timeline, 'Línea de Tiempo', () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
+      )),
+      _ToolItem(Icons.map_outlined, 'Mapas Bíblicos', () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BibleMapScreen()),
+      )),
+      _ToolItem(Icons.account_tree_outlined, 'Concordancia', () {
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => ConcordanceSheet(version: _version, theme: t),
+        );
+      }),
+      _ToolItem(Icons.description_outlined, 'Estudio capítulos', () =>
+          Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => const AllChapterNotesScreen(),
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (ctx, a, sa, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      )),
+      _ToolItem(Icons.view_column_outlined, 'Vista Paralela', () =>
+          Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BibleParallelScreen(
+            bookNumber: 1,
+            bookName: 'Génesis',
+            chapter: 1,
+            primaryVersion: _version,
+          ),
+        ),
+      )),
+      _ToolItem(Icons.grid_view_rounded, 'Armonía', () =>
+          Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GospelHarmonyScreen()),
+      )),
+      _ToolItem(Icons.compare_arrows, 'Tipologías', () =>
+          Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const TypologyScreen()),
+      )),
+      _ToolItem(Icons.format_quote, 'Citas AT→NT', () =>
+          Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const OTQuotesScreen()),
+      )),
+    ];
+
+    return GridView.count(
+      crossAxisCount: 3,
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      childAspectRatio: 1.3,
+      mainAxisSpacing: 8,
+      crossAxisSpacing: 8,
+      padding: const EdgeInsets.only(top: 12),
+      children: tools.map((tool) {
+        return GestureDetector(
+          onTap: tool.onTap,
+          child: Container(
+            decoration: BoxDecoration(
+              color: t.isDark
+                  ? Colors.white.withOpacity(0.04)
+                  : Colors.black.withOpacity(0.03),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(tool.icon, color: t.accent, size: 20),
+                const SizedBox(height: 6),
+                Text(
+                  tool.label,
+                  textAlign: TextAlign.center,
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                    height: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      }).toList(),
     );
   }
 
   Widget _buildBookItem(BibleBook book, BibleReaderThemeData t) {
-    return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => ChapterSelectorScreen(
-            book: book,
-            version: _version,
+    return Semantics(
+      label: '${book.name}, ${book.totalChapters} capítulos',
+      button: true,
+      child: GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => ChapterSelectorScreen(
+              book: book,
+              version: _version,
+            ),
+            transitionDuration: const Duration(milliseconds: 200),
+            transitionsBuilder: (ctx, a, sa, child) {
+              final slide = Tween(
+                begin: const Offset(1.0, 0.0),
+                end: Offset.zero,
+              ).animate(CurvedAnimation(parent: a, curve: Curves.easeOut));
+              return SlideTransition(position: slide, child: child);
+            },
           ),
-          transitionDuration: const Duration(milliseconds: 200),
-          transitionsBuilder: (ctx, a, sa, child) {
-            final slide = Tween(
-              begin: const Offset(1.0, 0.0),
-              end: Offset.zero,
-            ).animate(CurvedAnimation(parent: a, curve: Curves.easeOut));
-            return SlideTransition(position: slide, child: child);
-          },
-        ),
-      ),
+        );
+      },
       behavior: HitTestBehavior.opaque,
       child: SizedBox(
         height: 52,
@@ -473,8 +661,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             ],
           ),
         ),
-      ),
-    );
+      ),    ),    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -616,4 +803,11 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       overflow: TextOverflow.ellipsis,
     );
   }
+}
+
+class _ToolItem {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  const _ToolItem(this.icon, this.label, this.onTap);
 }

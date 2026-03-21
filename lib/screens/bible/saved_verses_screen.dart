@@ -54,6 +54,8 @@ class SavedVersesScreen extends StatelessWidget {
                 color: t.textSecondary, size: 18),
           ),
           const SizedBox(width: 12),
+          Icon(Icons.bookmark, color: t.accent, size: 22),
+          const SizedBox(width: 8),
           Text(
             'Versículos guardados',
             style: GoogleFonts.cinzel(
@@ -145,7 +147,22 @@ class SavedVersesScreen extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         child: Padding(
           padding: const EdgeInsets.only(bottom: 24),
-          child: Column(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 4, right: 10),
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  decoration: BoxDecoration(
+                    color: t.accent,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+              ),
+              Expanded(
+                child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -167,6 +184,9 @@ class SavedVersesScreen extends StatelessWidget {
                 ),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
               ),
             ],
           ),
