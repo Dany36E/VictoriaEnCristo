@@ -9,13 +9,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
 import '../../models/content_enums.dart';
+import '../../models/bible/bible_verse.dart';
 import '../../services/wall_service.dart';
 import '../../services/feedback_engine.dart';
 
 const int _kMaxPostLength = 500;
 
 class WallComposerScreen extends StatefulWidget {
-  const WallComposerScreen({super.key});
+  final BibleVerse? preloadedVerse;
+  const WallComposerScreen({super.key, this.preloadedVerse});
 
   @override
   State<WallComposerScreen> createState() => _WallComposerScreenState();
@@ -30,6 +32,14 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.preloadedVerse != null) {
+      final v = widget.preloadedVerse!;
+      _textController.text =
+          '📖 ${v.reference} (${v.version})\n«${v.text}»\n\n';
+      _textController.selection = TextSelection.fromPosition(
+        TextPosition(offset: _textController.text.length),
+      );
+    }
     _textController.addListener(() {
       setState(() => _charCount = _textController.text.trim().length);
     });

@@ -35,7 +35,9 @@ import 'admin/admin_wall_screen.dart';
 import 'bible/bible_home_screen.dart';
 import '../services/favorites_service.dart';
 import '../services/battle_partner_service.dart';
+import '../services/audio_engine.dart';
 import '../repositories/profile_repository.dart';
+import '../main.dart' show routeObserver;
 
 // Enum para tipos de animación de iconos
 enum IconAnimationType {
@@ -55,7 +57,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
+class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, RouteAware {
   late BibleVerse dailyVerse;
   late AnimationController _breatheController;
   late AnimationController _glowController;
@@ -104,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
     VictoryScoringService.I.currentStreakNotifier.addListener(_onScoringChanged);
     VictoryScoringService.I.loggedTodayNotifier.addListener(_onScoringChanged);
   }
-  
+
   void _onScoringChanged() {
     if (!mounted) return;
     setState(() {
@@ -260,13 +262,30 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    routeObserver.subscribe(this, ModalRoute.of(context)!);
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);
     VictoryScoringService.I.currentStreakNotifier.removeListener(_onScoringChanged);
     VictoryScoringService.I.loggedTodayNotifier.removeListener(_onScoringChanged);
     _breatheController.dispose();
     _glowController.dispose();
     super.dispose();
   }
+
+  // RouteAware: BGM solo suena en HomeScreen
+  @override
+  void didPush() => AudioEngine.I.unmuteForScreen();
+
+  @override
+  void didPopNext() => AudioEngine.I.unmuteForScreen();
+
+  @override
+  void didPushNext() => AudioEngine.I.muteForScreen();
 
   @override
   Widget build(BuildContext context) {

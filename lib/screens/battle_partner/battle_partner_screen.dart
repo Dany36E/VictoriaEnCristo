@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../models/battle_partner_data.dart';
 import '../../services/battle_partner_service.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../theme/app_theme.dart';
 import '../../constants/battle_messages.dart';
@@ -29,6 +30,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.muteForScreen();
     _loadInviteCode();
     // Marcar todos los mensajes como leídos al entrar
     _service.markAllMessagesRead();

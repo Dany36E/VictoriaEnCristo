@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import '../services/audio_engine.dart';
 import '../services/theme_service.dart';
 import '../services/notification_service.dart';
 import '../services/audio_service.dart';
-import '../services/audio_engine.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme.dart';
 
@@ -23,6 +23,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.muteForScreen();
     _loadSettings();
   }
 

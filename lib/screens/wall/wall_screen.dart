@@ -12,6 +12,7 @@ import '../../models/wall_post.dart';
 import '../../models/content_enums.dart';
 import '../../services/wall_service.dart';
 import '../../services/feedback_engine.dart';
+import '../../services/audio_engine.dart';
 import '../../widgets/wall_post_card.dart';
 import 'wall_composer_screen.dart';
 import 'wall_thread_screen.dart';
@@ -33,6 +34,7 @@ class _WallScreenState extends State<WallScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.muteForScreen();
     _subscribeFeed();
   }
 

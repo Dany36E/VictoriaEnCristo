@@ -6,6 +6,7 @@ import '../models/plan_metadata.dart';
 import '../models/content_enums.dart';
 import '../services/plan_repository.dart';
 import '../services/plan_progress_service.dart';
+import '../services/audio_engine.dart';
 import '../widgets/plan_list_tile.dart';
 import '../widgets/plan_filter_sheet.dart';
 import 'plan_detail_screen_v2.dart';
@@ -51,6 +52,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.muteForScreen();
     _tabController = TabController(length: _tabs.length, vsync: this);
     _loadPlans();
   }

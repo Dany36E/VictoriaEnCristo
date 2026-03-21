@@ -5,6 +5,7 @@ import 'package:confetti/confetti.dart';
 import '../theme/app_theme.dart';
 import '../services/feedback_engine.dart';
 import '../services/victory_scoring_service.dart';
+import '../services/audio_engine.dart';
 import '../services/journal_service.dart';
 import '../services/widget_sync_service.dart';
 import '../widgets/monthly_victory_calendar.dart';
@@ -49,6 +50,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.muteForScreen();
     
     // Initialize calendar dates
     final now = DateTime.now();

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../services/journal_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
+import '../services/audio_engine.dart';
 import '../models/content_item.dart';
 import '../theme/app_theme.dart';
 
@@ -20,6 +21,7 @@ class _JournalScreenState extends State<JournalScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.muteForScreen();
     _loadJournal();
     _loadTodayPrompt();
   }

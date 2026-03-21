@@ -19,6 +19,18 @@ import 'victory_scoring_service.dart';
 import 'journal_service.dart';
 import 'battle_partner_service.dart';
 import 'bible/bible_user_data_service.dart';
+import 'bible/bible_reading_stats_service.dart';
+import 'bible/collection_service.dart';
+import 'bible/chapter_note_service.dart';
+import 'bible/blb_api_service.dart';
+import 'bible/red_letter_service.dart';
+import 'bible/bible_dictionary_service.dart';
+import 'bible/bible_timeline_service.dart';
+import 'bible/typology_service.dart';
+import 'bible/ot_quotes_service.dart';
+import 'bible/gospel_harmony_service.dart';
+import 'bible/treasury_service.dart';
+import 'connectivity_service.dart';
 
 /// Clave para guardar el último UID conocido
 const String _keyLastKnownUid = 'account_last_known_uid';
@@ -150,6 +162,9 @@ class AccountSessionManager {
     await _disconnectAllRepositories();
     BattlePartnerService.I.stop();
     BibleUserDataService.I.stop();
+    ChapterNoteService.I.stop();
+    CollectionService.I.stop();
+    BibleReadingStatsService.I.stop();
     
     // 2. Reset estado en memoria
     _resetInMemoryState();
@@ -236,6 +251,9 @@ class AccountSessionManager {
     
     // Reset BibleUserDataService
     BibleUserDataService.I.stop();
+    ChapterNoteService.I.stop();
+    CollectionService.I.stop();
+    BibleReadingStatsService.I.stop();
     
     debugPrint('🔐 [SESSION] In-memory state reset complete');
   }
@@ -346,6 +364,22 @@ class AccountSessionManager {
       
       // 8. Inicializar BibleUserDataService
       await BibleUserDataService.I.init(uid);
+      
+      // 8b. Inicializar ChapterNoteService
+      await ChapterNoteService.I.init(uid);
+      
+      // 9. Inicializar CollectionService y BibleReadingStatsService
+      await CollectionService.I.init(uid);
+      await BibleReadingStatsService.I.init(uid);
+
+      // 10. Inicializar BlbApiService (no depende de uid)
+      await BlbApiService.instance.init();
+
+      // 11. Inicializar conectividad
+      unawaited(ConnectivityService.I.init());
+
+      // 12. Precargar servicios de estudio offline (no bloquean)
+      unawaited(_preloadBibleAssets());
       
       stateNotifier.value = SessionState.ready;
       
@@ -534,6 +568,24 @@ class AccountSessionManager {
     }
   }
   
+  /// Precargar assets bíblicos offline para acceso instantáneo
+  Future<void> _preloadBibleAssets() async {
+    try {
+      await Future.wait([
+        RedLetterService.instance.init(),
+        BibleDictionaryService.instance.init(),
+        BibleTimelineService.I.init(),
+        TypologyService.instance.getAll(),
+        OTQuotesService.instance.getAll(),
+        GospelHarmonyService.instance.getAllSections(),
+        TreasuryService.instance.getCrossReferences(1, 1, 1), // warm cache
+      ]);
+      debugPrint('📖 [BIBLE] All offline assets preloaded');
+    } catch (e) {
+      debugPrint('📖 [BIBLE] Preload error (non-blocking): $e');
+    }
+  }
+
   /// Dispose resources
   void dispose() {
     _authSubscription?.cancel();

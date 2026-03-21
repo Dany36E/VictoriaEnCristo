@@ -28,12 +28,22 @@ import 'utils/time_utils.dart';
 import 'services/bible/bible_parser_service.dart';
 import 'services/bible/bible_download_service.dart';
 
+/// RouteObserver global para detectar navegación (usado por HomeScreen)
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   // Inicializar Firebase con opciones de plataforma
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  // Firestore: garantizar persistencia offline y cache generoso
+  FirebaseFirestore.instance.settings = const Settings(
+    persistenceEnabled: true,
+    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
   
   // Inicializar el servicio de temas
@@ -241,6 +251,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      navigatorObservers: [routeObserver],
       // Ruta inicial
       initialRoute: '/',
       routes: {

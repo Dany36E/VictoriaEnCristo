@@ -501,6 +501,30 @@ class AudioEngine {
     _log('BGM', '🔊 Unmuted (restored: $_volumeBeforeMute)');
   }
   
+  // ═══════════════════════════════════════════════════════════════════════
+  // SCREEN MUTE — silencia BGM cuando el usuario sale de HomeScreen
+  // ═══════════════════════════════════════════════════════════════════════
+  bool _mutedByScreen = false;
+
+  /// Silenciar BGM al navegar fuera de HomeScreen (no pausa, solo vol 0)
+  Future<void> muteForScreen() async {
+    if (_bgmPlayer != null) {
+      await _bgmPlayer!.setVolume(0.0);
+      _mutedByScreen = true;
+      _log('BGM', '🔇 Muted by screen navigation');
+    }
+  }
+
+  /// Restaurar volumen al volver a HomeScreen
+  Future<void> unmuteForScreen() async {
+    if (_mutedByScreen && bgmEnabled.value) {
+      final vol = bgmMuted.value ? 0.0 : bgmVolume.value;
+      await _bgmPlayer?.setVolume(vol);
+      _mutedByScreen = false;
+      _log('BGM', '🔊 Unmuted by screen navigation (vol: $vol)');
+    }
+  }
+
   /// ═══════════════════════════════════════════════════════════════════════
   /// TOGGLE MUTE
   /// ═══════════════════════════════════════════════════════════════════════
