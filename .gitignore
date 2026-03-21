@@ -49,6 +49,9 @@ android/app/google-services.json
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 
+# API keys config
+lib/config/api_config.dart
+
 # Local properties
 android/local.properties
 
@@ -56,6 +59,13 @@ android/local.properties
 .env
 *.keystore
 *.jks
+assets/config.json
 
 # Node modules (Cloud Functions)
 functions/node_modules/
+
+# Temporary data / scraping artifacts
+temp_bible_data/
+temp_data/
+test_screenshots/
+scripts/

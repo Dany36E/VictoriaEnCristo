@@ -37,7 +37,19 @@ dependencies:
   home_widget: ^0.7.0  # Android AppWidget + iOS WidgetKit integration
   # Bible Reader
   xml: ^6.5.0  # XML parsing for Bible files
+  url_launcher: ^6.2.5  # Open external links (Enduring Word attribution)
   flutter_colorpicker: ^1.1.0  # Custom highlight color picker
+  # Blue Letter Bible API integration
+  flutter_secure_storage: ^9.2.4  # Secure API key storage
+  http: ^1.2.2  # HTTP client for BLB API
+  # Bible Maps (interactive ESRI topo tiles)
+  flutter_map: ^7.0.2
+  latlong2: ^0.9.1
+  dio: ^5.7.0             # For cached tile downloads
+  dio_cache_interceptor: ^3.5.0
+  dio_cache_interceptor_file_store: ^1.2.3
+  # Connectivity monitoring
+  connectivity_plus: ^6.1.4
 
 dev_dependencies:
   flutter_test:
@@ -65,6 +77,24 @@ flutter:
     - assets/images/
     - assets/images/plan_covers/
     - assets/bible/
+    - assets/bible/interlinear/greek/
+    - assets/bible/interlinear/hebrew/
+    - assets/bible/red_letter/
+    - assets/bible/dictionary/
+    - assets/bible/commentaries/matthew_henry/
+    - assets/bible/commentaries/jfb/
+    - assets/bible/commentaries/gill/
+    - assets/bible/commentaries/clarke/
+    - assets/bible/commentaries/guzik/
+    - assets/bible/timeline/
+    - assets/bible/cross_refs/
+    - assets/bible/maps/
+    - assets/bible/maps/images/
+    - assets/bible/books_intro/
+    - assets/bible/harmony/
+    - assets/bible/typology/
+    - assets/bible/quotes/
+    - assets/config.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
