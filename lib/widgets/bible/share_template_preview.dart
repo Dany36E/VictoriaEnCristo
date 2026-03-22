@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../models/bible/bible_verse.dart';
-import '../../services/bible/bible_share_service.dart';
+import '../../models/bible/share_template.dart';
+import 'share_card_renderer.dart';
 
 /// Widget de preview de una plantilla de compartir (usado en ShareOptionsSheet).
 class ShareTemplatePreview extends StatelessWidget {
-  final ShareTemplate template;
+  final ShareCardTemplate template;
   final BibleVerse verse;
   final bool selected;
   final VoidCallback? onTap;
@@ -34,12 +35,12 @@ class ShareTemplatePreview extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         child: FittedBox(
           fit: BoxFit.cover,
-          child: SizedBox(
-            width: 400,
-            child: BibleShareService.buildTemplate(
-              template: template,
-              verse: verse,
-            ),
+          child: ShareCardRenderer(
+            template: template,
+            verseText: verse.text,
+            reference: verse.reference,
+            version: verse.version,
+            cardSize: const Size(1080, 1080),
           ),
         ),
       ),
