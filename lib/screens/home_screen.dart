@@ -33,6 +33,7 @@ import 'battle_partner/battle_partner_screen.dart';
 import 'wall/wall_screen.dart';
 import 'admin/admin_wall_screen.dart';
 import 'bible/bible_home_screen.dart';
+import '../utils/bible_navigation_helper.dart';
 import '../services/favorites_service.dart';
 import '../services/battle_partner_service.dart';
 import '../services/audio_engine.dart';
@@ -1018,10 +1019,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   Widget _buildAnchorVerseCard(ScoredItem<VerseItem> scoredVerse) {
     final verse = scoredVerse.item;
     return GestureDetector(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const VersesScreen()),
-      ),
+      onTap: () {
+        HapticFeedback.lightImpact();
+        BibleNavigationHelper.navigateToSpanishRef(
+          context, verse.reference);
+      },
       child: Container(
         padding: const EdgeInsets.all(AppDesignSystem.spacingM),
         decoration: BoxDecoration(
@@ -1473,7 +1475,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   }
 
   Widget _buildScriptureCard() {
-    return ClipRRect(
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.lightImpact();
+        BibleNavigationHelper.navigateToSpanishRef(
+          context, dailyVerse.reference);
+      },
+      child: ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
@@ -1545,6 +1553,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
           ),
         ),
       ),
+    ),
     );
   }
 }
