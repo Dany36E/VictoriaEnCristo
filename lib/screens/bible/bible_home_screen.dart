@@ -288,7 +288,49 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   // MAIN CONTENT — Continue reading + Book list + Tools (collapsed)
   // ═══════════════════════════════════════════════════════════════════════
 
+  /// Construye la lista plana intercalada: [null=header, BibleBook, BibleBook…]
+  /// null representa un BibleCanonSection (usamos el índice para obtenerlo).
+  List<Object?> _buildGroupedItems() {
+    if (_allBooks.isEmpty) return [];
+    final items = <Object?>[];
+    BibleCanonSection? lastSection;
+    for (final book in _allBooks) {
+      final section = book.canonSection;
+      if (lastSection == null || section.name != lastSection.name) {
+        items.add(null); // header marker
+        lastSection = section;
+      }
+      items.add(book);
+    }
+    return items;
+  }
+
   Widget _buildMainContent(BibleReaderThemeData t) {
+    final groupedItems = _buildGroupedItems();
+    // Build section lookup: position of each null → section
+    final Map<int, BibleCanonSection> headerAtIndex = {};
+    {
+      int sectionIdx = 0;
+      for (int i = 0; i < groupedItems.length; i++) {
+        if (groupedItems[i] == null) {
+          if (sectionIdx < bibleCanonSections.length) {
+            // find canonical section for the next book in the list
+            BibleBook? nextBook;
+            for (int j = i + 1; j < groupedItems.length; j++) {
+              if (groupedItems[j] is BibleBook) {
+                nextBook = groupedItems[j] as BibleBook;
+                break;
+              }
+            }
+            if (nextBook != null) {
+              headerAtIndex[i] = nextBook.canonSection;
+            }
+          }
+          sectionIdx++;
+        }
+      }
+    }
+
     return CustomScrollView(
       slivers: [
         // Continue reading card
@@ -298,33 +340,22 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         // Reading stats row (subtle)
         SliverToBoxAdapter(child: _buildStatsRow(t)),
 
-        // Book list — protagonist
+        // Book list with canonical section headers
         SliverList(
           delegate: SliverChildBuilderDelegate(
             (context, index) {
               if (index == 0) return const SizedBox(height: 8);
-              final bookIndex = index - 1;
-              if (bookIndex >= _allBooks.length) return null;
-              final book = _allBooks[bookIndex];
-              // Subtle separator between AT and NT (book 39→40)
-              if (book.number == 40) {
-                return Column(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 12),
-                      child: Divider(
-                        color: t.textSecondary.withOpacity(0.1),
-                        height: 1,
-                      ),
-                    ),
-                    _buildBookItem(book, t),
-                  ],
-                );
+              final itemIndex = index - 1;
+              if (itemIndex >= groupedItems.length) return null;
+              final item = groupedItems[itemIndex];
+              if (item == null) {
+                final section = headerAtIndex[itemIndex];
+                return section != null
+                    ? _buildSectionHeader(section, t) : null;
               }
-              return _buildBookItem(book, t);
+              return _buildBookItem(item as BibleBook, t);
             },
-            childCount: _allBooks.length + 1,
+            childCount: groupedItems.length + 1,
           ),
         ),
 
@@ -333,6 +364,36 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],
+    );
+  }
+
+  // ─── Canonical Section Header ──────────────────────────────────────────
+
+  Widget _buildSectionHeader(BibleCanonSection section, BibleReaderThemeData t) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(32, 20, 32, 4),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            section.name.toUpperCase(),
+            style: GoogleFonts.manrope(
+              color: t.accent.withOpacity(0.7),
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.4,
+            ),
+          ),
+          const SizedBox(height: 2),
+          Text(
+            section.description,
+            style: GoogleFonts.manrope(
+              color: t.textSecondary.withOpacity(0.4),
+              fontSize: 11,
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -659,6 +720,16 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   ),
                 ),
               ),
+              // Genre label
+              Text(
+                book.genre.label,
+                style: GoogleFonts.manrope(
+                  color: t.textSecondary.withOpacity(0.32),
+                  fontSize: 10,
+                  letterSpacing: 0.4,
+                ),
+              ),
+              const SizedBox(width: 10),
               Text(
                 '${book.totalChapters}',
                 style: GoogleFonts.manrope(

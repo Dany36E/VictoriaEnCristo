@@ -426,6 +426,11 @@ class BibleReaderController extends ChangeNotifier {
 
     // Si modo estudio con Guzik y se pide modo específico → TTS directo
     if (mode != null) {
+      // Asegurar que guzikChapter esté cargado si se necesita
+      if (mode != TtsReadMode.verseOnly &&
+          studyModeEnabled && guzikChapter == null) {
+        await _loadGuzikCommentary();
+      }
       _startTtsWithMode(mode);
       return;
     }
@@ -495,8 +500,7 @@ class BibleReaderController extends ChangeNotifier {
       }
     } else if (mode == TtsReadMode.annotationOnly) {
       for (final section in guzikChapter!.sections) {
-        final text = [section.heading, ...section.paragraphs].join('. ');
-        queue.add(TtsQueueItem(text, -1));
+        _addSectionToQueue(queue, section);
       }
     } else {
       // both: interleave using studyItems
@@ -507,8 +511,7 @@ class BibleReaderController extends ChangeNotifier {
             queue.add(TtsQueueItem(v.text.trim(), item.index));
           case StudyItemType.annotation:
             final section = guzikChapter!.sections[item.index];
-            final text = [section.heading, ...section.paragraphs].join('. ');
-            queue.add(TtsQueueItem(text, -1));
+            _addSectionToQueue(queue, section);
           case StudyItemType.banner:
           case StudyItemType.attribution:
             break;
@@ -517,6 +520,42 @@ class BibleReaderController extends ChangeNotifier {
     }
 
     return queue;
+  }
+
+  /// Agrega una sección Guzik a la cola TTS como items individuales
+  /// por párrafo (evita textos > 4000 chars que fallan en Samsung TTS).
+  void _addSectionToQueue(List<TtsQueueItem> queue, EWSection section) {
+    if (section.heading.isNotEmpty) {
+      queue.add(TtsQueueItem(section.heading, -1));
+    }
+    for (final paragraph in section.paragraphs) {
+      final trimmed = paragraph.trim();
+      if (trimmed.isEmpty) continue;
+      // Seguridad extra: partir párrafos muy largos en oraciones
+      if (trimmed.length > 3000) {
+        final chunks = _splitLongText(trimmed, 2500);
+        for (final chunk in chunks) {
+          queue.add(TtsQueueItem(chunk, -1));
+        }
+      } else {
+        queue.add(TtsQueueItem(trimmed, -1));
+      }
+    }
+  }
+
+  /// Parte texto largo en chunks por punto+espacio, respetando maxLen.
+  static List<String> _splitLongText(String text, int maxLen) {
+    final chunks = <String>[];
+    var remaining = text;
+    while (remaining.length > maxLen) {
+      var splitAt = remaining.lastIndexOf('. ', maxLen);
+      if (splitAt <= 0) splitAt = remaining.lastIndexOf(' ', maxLen);
+      if (splitAt <= 0) splitAt = maxLen;
+      chunks.add(remaining.substring(0, splitAt + 1).trim());
+      remaining = remaining.substring(splitAt + 1).trim();
+    }
+    if (remaining.isNotEmpty) chunks.add(remaining);
+    return chunks;
   }
 
   // ═══════════════════════════════════════════════════════════════════════

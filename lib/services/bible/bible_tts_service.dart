@@ -69,9 +69,10 @@ class BibleTtsService {
       currentVerseIndex.value = -1;
     });
     _tts!.setErrorHandler((msg) {
-      debugPrint('📖 [TTS] Error: $msg');
-      _playing = false;
-      isPlaying.value = false;
+      // No detener: saltar al siguiente item
+      if (_playing) {
+        _onItemComplete();
+      }
     });
 
     _initialized = true;
@@ -112,13 +113,18 @@ class BibleTtsService {
     }
     final item = _queue[_queueIndex];
     currentVerseIndex.value = item.verseIndex;
-    assert(() {
-      if (RegExp(r'^\d').hasMatch(item.text.trim())) {
-        debugPrint('[TTS BUG] Texto empieza con número: "${item.text.substring(0, item.text.length.clamp(0, 60))}"');
-      }
-      return true;
-    }());
-    _tts?.speak(item.text);
+
+    // Saltar items con texto vacío
+    if (item.text.trim().isEmpty) {
+      _onItemComplete();
+      return;
+    }
+
+    final result = await _tts?.speak(item.text);
+    if (result != 1) {
+      // speak falló (texto muy largo, error engine, etc.) → avanzar
+      _onItemComplete();
+    }
   }
 
   void _onItemComplete() {

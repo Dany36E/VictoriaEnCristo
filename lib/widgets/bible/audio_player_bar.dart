@@ -84,7 +84,7 @@ class AudioPlayerBar extends StatelessWidget {
     if (isRealAudio) {
       return ValueListenableBuilder<AudioBibleState>(
         valueListenable: BibleAudioService.I.state,
-        builder: (_, st, __) {
+        builder: (_, st, _) {
           final playing = st == AudioBibleState.playing;
           final buffering = st == AudioBibleState.buffering;
           return GestureDetector(
@@ -113,7 +113,7 @@ class AudioPlayerBar extends StatelessWidget {
 
     return ValueListenableBuilder<bool>(
       valueListenable: BibleTtsService.I.isPlaying,
-      builder: (_, playing, __) {
+      builder: (_, playing, _) {
         return GestureDetector(
           onTap: () {
             if (playing) {
@@ -140,7 +140,7 @@ class AudioPlayerBar extends StatelessWidget {
     if (isRealAudio) {
       return ValueListenableBuilder<AudioBibleState>(
         valueListenable: BibleAudioService.I.state,
-        builder: (_, st, __) {
+        builder: (_, st, _) {
           final buffering = st == AudioBibleState.buffering;
           return Row(
             mainAxisSize: MainAxisSize.min,
@@ -198,7 +198,7 @@ class AudioPlayerBar extends StatelessWidget {
     if (isRealAudio) {
       return ValueListenableBuilder<int?>(
         valueListenable: BibleAudioService.I.currentVerse,
-        builder: (_, verse, __) {
+        builder: (_, verse, _) {
           return Text(
             verse != null ? '$bookChapter:$verse' : bookChapter,
             style: GoogleFonts.manrope(
@@ -213,7 +213,7 @@ class AudioPlayerBar extends StatelessWidget {
       children: [
         ValueListenableBuilder<TtsReadMode>(
           valueListenable: BibleTtsService.I.readMode,
-          builder: (_, mode, __) {
+          builder: (_, mode, _) {
             if (mode == TtsReadMode.verseOnly) return const SizedBox.shrink();
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
@@ -233,7 +233,7 @@ class AudioPlayerBar extends StatelessWidget {
         Expanded(
           child: ValueListenableBuilder<int>(
             valueListenable: BibleTtsService.I.currentVerseIndex,
-            builder: (_, idx, __) {
+            builder: (_, idx, _) {
               return Text(
                 idx >= 0 ? '$bookChapter:${idx + 1}' : bookChapter,
                 style: GoogleFonts.manrope(
@@ -249,7 +249,7 @@ class AudioPlayerBar extends StatelessWidget {
   Widget _buildProgressBar(BibleReaderThemeData t) {
     return ValueListenableBuilder<Duration>(
       valueListenable: BibleAudioService.I.position,
-      builder: (_, pos, __) {
+      builder: (_, pos, _) {
         final dur = BibleAudioService.I.duration.value;
         final progress = dur.inMilliseconds > 0
             ? (pos.inMilliseconds / dur.inMilliseconds).clamp(0.0, 1.0)

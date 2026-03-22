@@ -542,7 +542,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           itemBuilder: (ctx, idx) {
             final verse = verses[idx];
             final isSelected = _selectedVerse == verse.verse;
-            final hlKey = '${_bookNumber}:${_currentChapter}:${verse.verse}';
+            final hlKey = '$_bookNumber:$_currentChapter:${verse.verse}';
             final highlight = highlights[hlKey];
             final highlightBg = highlight != null
                 ? t.highlightOverlay(highlight.color)
