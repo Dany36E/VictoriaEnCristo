@@ -87,6 +87,7 @@ class BibleReaderController extends ChangeNotifier {
   // Audio (real + TTS)
   bool ttsActive = false;
   bool realAudioActive = false;
+  bool _audioListenerAttached = false;
 
   // Red letters
   bool _redLettersEnabled = true;
@@ -117,8 +118,21 @@ class BibleReaderController extends ChangeNotifier {
   void dispose() {
     BibleTtsService.I.stop();
     BibleAudioService.I.stop();
+    _detachAudioListener();
     BibleUserDataService.I.redLettersEnabledNotifier.removeListener(_onRedLetterChanged);
     super.dispose();
+  }
+
+  void _attachAudioListener() {
+    if (_audioListenerAttached) return;
+    BibleAudioService.I.state.addListener(_onRealAudioStateChanged);
+    _audioListenerAttached = true;
+  }
+
+  void _detachAudioListener() {
+    if (!_audioListenerAttached) return;
+    BibleAudioService.I.state.removeListener(_onRealAudioStateChanged);
+    _audioListenerAttached = false;
   }
 
   void _onRedLetterChanged() {
@@ -234,7 +248,9 @@ class BibleReaderController extends ChangeNotifier {
       if (_studyModeEnabled) {
         _loadGuzikCommentary();
       }
-    } catch (_) {
+    } catch (e, st) {
+      debugPrint('[BibleReader] Error en loadChapter: $e');
+      debugPrint(st.toString());
       loading = false;
       verses = [];
       notifyListeners();
@@ -431,7 +447,7 @@ class BibleReaderController extends ChangeNotifier {
       ttsActive = true; // Para UI compatibility
       notifyListeners();
       // Escuchar cuando termina
-      BibleAudioService.I.state.addListener(_onRealAudioStateChanged);
+      _attachAudioListener();
     } else {
       // Fallback a TTS
       debugPrint('[Audio] No real audio available, using TTS fallback');
@@ -446,7 +462,7 @@ class BibleReaderController extends ChangeNotifier {
         realAudioActive) {
       realAudioActive = false;
       ttsActive = false;
-      BibleAudioService.I.state.removeListener(_onRealAudioStateChanged);
+      _detachAudioListener();
       notifyListeners();
     }
   }
@@ -455,7 +471,7 @@ class BibleReaderController extends ChangeNotifier {
   Future<void> stopAllAudio() async {
     if (realAudioActive) {
       await BibleAudioService.I.stop();
-      BibleAudioService.I.state.removeListener(_onRealAudioStateChanged);
+      _detachAudioListener();
       realAudioActive = false;
     }
     BibleTtsService.I.stop();
@@ -656,7 +672,9 @@ class BibleReaderController extends ChangeNotifier {
         final v = _parseVerseFromOsis(q.otReference);
         if (v != null) newQuotes.add(v);
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[BibleReader] _loadConnectionIndicators error: $e');
+    }
 
     harmonyVerses = newHarmony;
     quoteVerses = newQuotes;

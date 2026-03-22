@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
@@ -28,6 +29,12 @@ class BibleAudioService {
 
   final AudioPlayer _player = AudioPlayer();
   bool _initialized = false;
+
+  // ─── Stream subscriptions ───
+  StreamSubscription? _positionSub;
+  StreamSubscription? _durationSub;
+  StreamSubscription? _bufferedSub;
+  StreamSubscription? _playerStateSub;
 
   // ─── Estado público (reactivo) ───
   final ValueNotifier<AudioBibleState> state =
@@ -68,23 +75,29 @@ class BibleAudioService {
   Future<void> init() async {
     if (_initialized) return;
 
-    _player.positionStream.listen((pos) {
+    // Cancelar subscripciones anteriores (guard contra doble-init)
+    await _positionSub?.cancel();
+    await _durationSub?.cancel();
+    await _bufferedSub?.cancel();
+    await _playerStateSub?.cancel();
+
+    _positionSub = _player.positionStream.listen((pos) {
       position.value = pos;
       _updateActiveVerse(pos);
     });
 
-    _player.durationStream.listen((dur) {
+    _durationSub = _player.durationStream.listen((dur) {
       if (dur != null) duration.value = dur;
     });
 
-    _player.bufferedPositionStream.listen((buffered) {
+    _bufferedSub = _player.bufferedPositionStream.listen((buffered) {
       if (duration.value.inMilliseconds > 0) {
         bufferedProgress.value =
             buffered.inMilliseconds / duration.value.inMilliseconds;
       }
     });
 
-    _player.playerStateStream.listen((s) {
+    _playerStateSub = _player.playerStateStream.listen((s) {
       switch (s.processingState) {
         case ProcessingState.idle:
         case ProcessingState.completed:
@@ -226,12 +239,12 @@ class BibleAudioService {
 
     final (filesetId, url) = result;
 
-    // Obtener timestamps (no bloqueante — el audio funciona sin ellos)
-    getVerseTimestamps(
+    // Obtener timestamps ANTES de play (evita race condition)
+    _verseTimestamps = await getVerseTimestamps(
       filesetId: filesetId,
       bookCode: bookCode,
       chapter: chapter,
-    ).then((ts) => _verseTimestamps = ts);
+    );
 
     try {
       state.value = AudioBibleState.buffering;
@@ -379,6 +392,10 @@ class BibleAudioService {
   }
 
   void dispose() {
+    _positionSub?.cancel();
+    _durationSub?.cancel();
+    _bufferedSub?.cancel();
+    _playerStateSub?.cancel();
     _player.dispose();
   }
 }

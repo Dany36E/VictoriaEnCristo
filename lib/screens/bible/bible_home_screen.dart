@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -52,6 +53,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   final _searchFocus = FocusNode();
   List<BibleVerse> _searchResults = [];
   bool _searching = false;
+  Timer? _searchDebounce;
 
   // Continue-reading state
   int? _lastBookNumber;
@@ -81,7 +83,9 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           _lastChapter = ch;
         });
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('[BibleHome] Error en SharedPreferences: $e');
+    }
   }
 
   Future<void> _loadBooks() async {
@@ -123,6 +127,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   @override
   void dispose() {
+    _searchDebounce?.cancel();
     _searchController.dispose();
     _searchFocus.dispose();
     super.dispose();
@@ -254,7 +259,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 ),
                 onChanged: (v) {
                   setState(() => _searchQuery = v);
-                  _performSearch(v);
+                  _searchDebounce?.cancel();
+                  _searchDebounce = Timer(const Duration(milliseconds: 350), () {
+                    if (mounted) _performSearch(v);
+                  });
                 },
               ),
             ),

@@ -105,9 +105,9 @@ class BibleTtsService {
     _readCurrent();
   }
 
-  void _readCurrent() {
+  Future<void> _readCurrent() async {
     if (!_playing || _queueIndex >= _queue.length || _queueIndex < 0) {
-      stop();
+      await stop();
       return;
     }
     final item = _queue[_queueIndex];
@@ -128,7 +128,7 @@ class BibleTtsService {
       stop();
       return;
     }
-    _readCurrent();
+    _readCurrent(); // fire-and-forget OK: handler-driven
   }
 
   /// Pausar lectura
@@ -174,8 +174,7 @@ class BibleTtsService {
     }
   }
 
-  void dispose() {
-    stop();
-    _tts?.stop();
+  Future<void> dispose() async {
+    await stop();
   }
 }

@@ -204,6 +204,11 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               }
                               _pageAnimating = false;
                             });
+                            // Safety timeout: nunca bloquear swipe > 2s
+                            Future.delayed(
+                              const Duration(seconds: 2),
+                              () { if (_pageAnimating) _pageAnimating = false; },
+                            );
                           },
                           itemBuilder: (context, pageIndex) {
                             if (pageIndex != 1) {

@@ -107,8 +107,12 @@ class BibleUserDataService {
     final sub = _col('bibleHighlights').snapshots().listen((snap) {
       final map = <String, Highlight>{};
       for (final doc in snap.docs) {
-        final h = Highlight.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-        map[h.verseKey] = h;
+        try {
+          final h = Highlight.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+          map[h.verseKey] = h;
+        } catch (e) {
+          debugPrint('[BIBLE-DATA] Highlight parse error: $e');
+        }
       }
       highlightsNotifier.value = Map.unmodifiable(map);
     });
@@ -157,8 +161,12 @@ class BibleUserDataService {
     final sub = _col('bibleNotes').snapshots().listen((snap) {
       final map = <String, BibleNote>{};
       for (final doc in snap.docs) {
-        final n = BibleNote.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-        map[n.verseKey] = n;
+        try {
+          final n = BibleNote.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+          map[n.verseKey] = n;
+        } catch (e) {
+          debugPrint('[BIBLE-DATA] Note parse error: $e');
+        }
       }
       notesNotifier.value = Map.unmodifiable(map);
     });
@@ -216,9 +224,14 @@ class BibleUserDataService {
         .orderBy('savedAt', descending: true)
         .snapshots()
         .listen((snap) {
-      final list = snap.docs
-          .map((doc) => SavedVerse.fromMap(doc.id, doc.data() as Map<String, dynamic>))
-          .toList();
+      final list = <SavedVerse>[];
+      for (final doc in snap.docs) {
+        try {
+          list.add(SavedVerse.fromMap(doc.id, doc.data() as Map<String, dynamic>));
+        } catch (e) {
+          debugPrint('[BIBLE-DATA] SavedVerse parse error: $e');
+        }
+      }
       savedVersesNotifier.value = List.unmodifiable(list);
     });
     _subscriptions.add(sub);
@@ -269,8 +282,12 @@ class BibleUserDataService {
     final sub = _col('versePrayers').snapshots().listen((snap) {
       final map = <String, VersePrayer>{};
       for (final doc in snap.docs) {
-        final p = VersePrayer.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-        map[p.verseKey] = p;
+        try {
+          final p = VersePrayer.fromMap(doc.id, doc.data() as Map<String, dynamic>);
+          map[p.verseKey] = p;
+        } catch (e) {
+          debugPrint('[BIBLE-DATA] Prayer parse error: $e');
+        }
       }
       prayersNotifier.value = Map.unmodifiable(map);
     });
