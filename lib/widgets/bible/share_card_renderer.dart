@@ -1,5 +1,7 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../models/bible/share_template.dart';
+import '../../utils/verse_keyword_extractor.dart';
 
 /// Renderiza la tarjeta de versículo para captura como imagen.
 /// Flutter dibuja TODO el texto nativo (100% nítido, sin errores).
@@ -39,19 +41,17 @@ class ShareCardRenderer extends StatelessWidget {
               child: Image.asset(
                 template.backgroundAsset!,
                 fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => Container(
-                  color: template.isDark
-                      ? const Color(0xFF0A0A12)
-                      : const Color(0xFFFAF8F3),
+                errorBuilder: (_, _, _) => CustomPaint(
+                  size: cardSize,
+                  painter: _FallbackBackgroundPainter(isDark: template.isDark),
                 ),
               ),
             )
           else
             Positioned.fill(
-              child: Container(
-                color: template.isDark
-                    ? const Color(0xFF0A0A12)
-                    : const Color(0xFFFAF8F3),
+              child: CustomPaint(
+                size: cardSize,
+                painter: _FallbackBackgroundPainter(isDark: template.isDark),
               ),
             ),
 
@@ -107,6 +107,10 @@ class ShareCardRenderer extends StatelessWidget {
         return _buildBottomLayout();
       case ShareLayout.topLeft:
         return _buildTopLeftLayout();
+      case ShareLayout.keyword:
+        return _buildKeywordLayout();
+      case ShareLayout.circular:
+        return _buildCircularLayout();
     }
   }
 
@@ -262,6 +266,124 @@ class ShareCardRenderer extends StatelessWidget {
     );
   }
 
+  Widget _buildKeywordLayout() {
+    final ts = template.textStyle;
+    final keyword = template.keywordOverride ?? extractVerseKeyword(verseText);
+    return Padding(
+      padding: EdgeInsets.symmetric(
+        horizontal: _scale(72),
+        vertical: _scale(80),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Palabra clave gigante
+          Text(
+            keyword.toUpperCase(),
+            style: TextStyle(
+              fontSize: _scale(96 * _scaleForLength(keyword.length * 6)),
+              color: ts.verseColor,
+              fontFamily: 'Cinzel',
+              fontWeight: FontWeight.w900,
+              letterSpacing: _scale(4),
+              height: 1.0,
+              shadows: template.isDark
+                  ? [
+                      Shadow(
+                        color: Colors.black.withOpacity(0.9),
+                        blurRadius: 12,
+                      ),
+                    ]
+                  : [],
+            ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: _scale(28)),
+          // Línea decorativa
+          Container(
+            width: _scale(60),
+            height: _scale(2.5),
+            color: ts.referenceColor.withOpacity(0.6),
+          ),
+          SizedBox(height: _scale(24)),
+          // Versículo pequeño
+          Text(
+            verseText,
+            style: _verseStyle(ts).copyWith(
+              fontStyle: FontStyle.normal,
+              fontSize: _scale(14 * _scaleForLength(verseText.length)),
+              height: 1.6,
+            ),
+            textAlign: TextAlign.left,
+            maxLines: 6,
+            overflow: TextOverflow.ellipsis,
+          ),
+          SizedBox(height: _scale(16)),
+          Text(
+            reference.toUpperCase(),
+            style: _referenceStyle(ts),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCircularLayout() {
+    final ts = template.textStyle;
+    return Padding(
+      padding: EdgeInsets.all(_scale(48)),
+      child: Stack(
+        children: [
+          // Texto orbital
+          Positioned.fill(
+            child: CustomPaint(
+              painter: _CircularTextPainter(
+                text: verseText,
+                color: ts.verseColor.withOpacity(0.7),
+                fontSize: _scale(13),
+                fontFamily: ts.verseFont,
+              ),
+            ),
+          ),
+          // Referencia centrada
+          Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: _scale(40),
+                  height: _scale(1.5),
+                  color: ts.referenceColor.withOpacity(0.5),
+                ),
+                SizedBox(height: _scale(12)),
+                Text(
+                  reference.toUpperCase(),
+                  style: _referenceStyle(ts).copyWith(
+                    fontSize: _scale(16),
+                    letterSpacing: _scale(4),
+                  ),
+                ),
+                SizedBox(height: _scale(8)),
+                if (version.isNotEmpty)
+                  Text(
+                    version,
+                    style: TextStyle(
+                      fontSize: _scale(10),
+                      color: ts.referenceColor.withOpacity(0.5),
+                      fontFamily: 'Manrope',
+                      letterSpacing: _scale(2),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   // ── Helpers ──
 
   TextStyle _verseStyle(ShareTextStyle ts) {
@@ -326,4 +448,113 @@ class ShareCardRenderer extends StatelessWidget {
     if (length < 400) return 0.78;
     return 0.68;
   }
+}
+
+/// CustomPainter que dibuja texto en forma orbital/circular.
+class _CircularTextPainter extends CustomPainter {
+  final String text;
+  final Color color;
+  final double fontSize;
+  final String fontFamily;
+
+  _CircularTextPainter({
+    required this.text,
+    required this.color,
+    required this.fontSize,
+    required this.fontFamily,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final radius = math.min(size.width, size.height) * 0.38;
+    final center = Offset(size.width / 2, size.height / 2);
+
+    // Calcular cuántos caracteres caben en el círculo
+    final charAngle = fontSize * 0.8 / radius; // aproximación
+    final maxChars = (2 * math.pi / charAngle).floor();
+    final displayText = text.length > maxChars
+        ? '${text.substring(0, maxChars - 3)}...'
+        : text;
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+
+    // Rotar para empezar arriba
+    canvas.rotate(-math.pi / 2);
+
+    for (int i = 0; i < displayText.length; i++) {
+      final angle = i * charAngle;
+      canvas.save();
+      canvas.rotate(angle);
+      canvas.translate(0, -radius);
+
+      final textPainter = TextPainter(
+        text: TextSpan(
+          text: displayText[i],
+          style: TextStyle(
+            fontSize: fontSize,
+            color: color,
+            fontFamily: fontFamily,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+        textDirection: TextDirection.ltr,
+      )..layout();
+
+      textPainter.paint(canvas, Offset(-textPainter.width / 2, 0));
+      canvas.restore();
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_CircularTextPainter oldDelegate) =>
+      text != oldDelegate.text ||
+      color != oldDelegate.color ||
+      fontSize != oldDelegate.fontSize;
+}
+
+/// Fondo degradado de respaldo cuando las PNGs aún no existen.
+class _FallbackBackgroundPainter extends CustomPainter {
+  final bool isDark;
+  _FallbackBackgroundPainter({required this.isDark});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final rect = Offset.zero & size;
+    final Paint paint;
+    if (isDark) {
+      paint = Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0A0A1E), Color(0xFF1A1A3E), Color(0xFF0D0D20)],
+        ).createShader(rect);
+    } else {
+      paint = Paint()
+        ..shader = const LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Color(0xFFFFF8E1), Color(0xFFFAF0D7), Color(0xFFF5E6C8)],
+        ).createShader(rect);
+    }
+    canvas.drawRect(rect, paint);
+
+    // Sutil patrón radial
+    final radial = Paint()
+      ..shader = RadialGradient(
+        center: Alignment.center,
+        radius: 0.8,
+        colors: [
+          (isDark ? const Color(0xFF1A1A3E) : const Color(0xFFFFE0B2))
+              .withOpacity(0.3),
+          Colors.transparent,
+        ],
+      ).createShader(rect);
+    canvas.drawRect(rect, radial);
+  }
+
+  @override
+  bool shouldRepaint(_FallbackBackgroundPainter oldDelegate) =>
+      isDark != oldDelegate.isDark;
 }

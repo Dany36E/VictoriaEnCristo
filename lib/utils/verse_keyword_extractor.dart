@@ -12,7 +12,7 @@ String extractVerseKeyword(String verseText) {
 
   final words = verseText.toLowerCase().split(RegExp(r'\s+'));
   for (final word in words) {
-    final clean = word.replaceAll(RegExp(r'[,\.\!\?\;\:\"\'\(\)]'), '');
+    final clean = word.replaceAll(RegExp(r'[,.!?;:()]'), '');
     if (highImpact.contains(clean)) {
       return clean[0].toUpperCase() + clean.substring(1);
     }
@@ -20,7 +20,7 @@ String extractVerseKeyword(String verseText) {
 
   // Fallback: primeras 2 palabras significativas
   final significant = words
-      .map((w) => w.replaceAll(RegExp(r'[,\.\!\?\;\:\"\'\(\)]'), ''))
+      .map((w) => w.replaceAll(RegExp(r'[,.!?;:()]'), ''))
       .where((w) => w.length > 3)
       .take(2)
       .map((w) => w[0].toUpperCase() + w.substring(1))

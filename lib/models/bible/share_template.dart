@@ -24,8 +24,10 @@ class ShareTextStyle {
 /// Layout del texto sobre el fondo.
 enum ShareLayout {
   centered, // texto centrado en el medio
-  bottom, // texto en banda inferior
-  topLeft, // texto alineado arriba-izquierda
+  bottom,   // texto en banda inferior
+  topLeft,  // texto alineado arriba-izquierda
+  keyword,  // palabra clave gigante + texto pequeño
+  circular, // texto orbital con CustomPainter
 }
 
 /// Plantilla de imagen para compartir versículos.
@@ -38,6 +40,7 @@ class ShareCardTemplate {
   final ShareTextStyle textStyle;
   final ShareLayout layout;
   final bool isDark;
+  final String? keywordOverride; // fuerza una palabra clave específica
 
   const ShareCardTemplate({
     required this.id,
@@ -46,15 +49,17 @@ class ShareCardTemplate {
     required this.textStyle,
     this.layout = ShareLayout.centered,
     this.isDark = true,
+    this.keywordOverride,
   });
 }
 
-/// Las 10 plantillas premium con fondos pregenerados.
+/// Las 10 plantillas premium con fondos pregenerados (DALL-E 3).
 const List<ShareCardTemplate> kShareTemplates = [
+  // ── 1. Cosmos ──
   ShareCardTemplate(
-    id: 'dark_cosmos',
+    id: 'cosmos',
     name: 'Cosmos',
-    backgroundAsset: 'assets/bible/share_backgrounds/dark_cosmos.png',
+    backgroundAsset: 'assets/bible/share_backgrounds/cosmos.png',
     isDark: true,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
@@ -67,10 +72,28 @@ const List<ShareCardTemplate> kShareTemplates = [
     ),
     layout: ShareLayout.centered,
   ),
+  // ── 2. Persona B/N ──
   ShareCardTemplate(
-    id: 'sunrise_faith',
+    id: 'person_bw',
+    name: 'Persona',
+    backgroundAsset: 'assets/bible/share_backgrounds/person_bw.png',
+    isDark: true,
+    textStyle: ShareTextStyle(
+      verseFont: 'CrimsonPro',
+      verseFontSize: 18,
+      verseColor: Color(0xFFF5F5F5),
+      referenceFont: 'Cinzel',
+      referenceFontSize: 12,
+      referenceColor: Color(0xFFBDBDBD),
+      appNameColor: Color(0x60BDBDBD),
+    ),
+    layout: ShareLayout.centered,
+  ),
+  // ── 3. Amanecer ──
+  ShareCardTemplate(
+    id: 'sunrise_sky',
     name: 'Amanecer',
-    backgroundAsset: 'assets/bible/share_backgrounds/sunrise_faith.png',
+    backgroundAsset: 'assets/bible/share_backgrounds/sunrise_sky.png',
     isDark: false,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
@@ -83,26 +106,11 @@ const List<ShareCardTemplate> kShareTemplates = [
     ),
     layout: ShareLayout.bottom,
   ),
+  // ── 4. Ola oceánica ──
   ShareCardTemplate(
-    id: 'parchment_ancient',
-    name: 'Pergamino',
-    backgroundAsset: 'assets/bible/share_backgrounds/parchment_ancient.png',
-    isDark: false,
-    textStyle: ShareTextStyle(
-      verseFont: 'CrimsonPro',
-      verseFontSize: 17,
-      verseColor: Color(0xFF3E2723),
-      referenceFont: 'Cinzel',
-      referenceFontSize: 11,
-      referenceColor: Color(0xFF8B4513),
-      appNameColor: Color(0x608B4513),
-    ),
-    layout: ShareLayout.centered,
-  ),
-  ShareCardTemplate(
-    id: 'ocean_deep',
+    id: 'ocean_wave',
     name: 'Océano',
-    backgroundAsset: 'assets/bible/share_backgrounds/ocean_deep.png',
+    backgroundAsset: 'assets/bible/share_backgrounds/ocean_wave.png',
     isDark: true,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
@@ -115,42 +123,62 @@ const List<ShareCardTemplate> kShareTemplates = [
     ),
     layout: ShareLayout.centered,
   ),
+  // ── 5. Globo oscuro (circular) ──
   ShareCardTemplate(
-    id: 'forest_nature',
-    name: 'Naturaleza',
-    backgroundAsset: 'assets/bible/share_backgrounds/forest_nature.png',
+    id: 'globe_dark',
+    name: 'Globo',
+    backgroundAsset: 'assets/bible/share_backgrounds/globe_dark.png',
     isDark: true,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
       verseFontSize: 18,
-      verseColor: Color(0xFFF1F8E9),
+      verseColor: Color(0xFFF0F0F0),
       referenceFont: 'Manrope',
       referenceFontSize: 12,
-      referenceColor: Color(0xFFA5D6A7),
-      appNameColor: Color(0x60A5D6A7),
+      referenceColor: Color(0xFF64FFDA),
+      appNameColor: Color(0x6064FFDA),
     ),
-    layout: ShareLayout.centered,
+    layout: ShareLayout.circular,
   ),
+  // ── 6. Vibrante Rojo (keyword) ──
   ShareCardTemplate(
-    id: 'pure_light',
-    name: 'Luz Pura',
-    backgroundAsset: 'assets/bible/share_backgrounds/pure_light.png',
-    isDark: false,
+    id: 'vibrant_red',
+    name: 'Rojo',
+    backgroundAsset: 'assets/bible/share_backgrounds/vibrant_red.png',
+    isDark: true,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
       verseFontSize: 18,
-      verseColor: Color(0xFF1A1A1A),
-      referenceFont: 'Cinzel',
+      verseColor: Color(0xFFFFF8E1),
+      referenceFont: 'Manrope',
       referenceFontSize: 12,
-      referenceColor: Color(0xFFC19A3E),
-      appNameColor: Color(0x40C19A3E),
+      referenceColor: Color(0xFFFF8A80),
+      appNameColor: Color(0x60FF8A80),
     ),
-    layout: ShareLayout.centered,
+    layout: ShareLayout.keyword,
   ),
+  // ── 7. Vibrante Teal (keyword) ──
   ShareCardTemplate(
-    id: 'royal_purple',
-    name: 'Real',
-    backgroundAsset: 'assets/bible/share_backgrounds/royal_purple.png',
+    id: 'vibrant_teal',
+    name: 'Teal',
+    backgroundAsset: 'assets/bible/share_backgrounds/vibrant_teal.png',
+    isDark: true,
+    textStyle: ShareTextStyle(
+      verseFont: 'CrimsonPro',
+      verseFontSize: 18,
+      verseColor: Color(0xFFE0F2F1),
+      referenceFont: 'Manrope',
+      referenceFontSize: 12,
+      referenceColor: Color(0xFF80CBC4),
+      appNameColor: Color(0x6080CBC4),
+    ),
+    layout: ShareLayout.keyword,
+  ),
+  // ── 8. Vibrante Púrpura (keyword) ──
+  ShareCardTemplate(
+    id: 'vibrant_purple',
+    name: 'Púrpura',
+    backgroundAsset: 'assets/bible/share_backgrounds/vibrant_purple.png',
     isDark: true,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
@@ -158,15 +186,16 @@ const List<ShareCardTemplate> kShareTemplates = [
       verseColor: Color(0xFFF3E5F5),
       referenceFont: 'Cinzel',
       referenceFontSize: 12,
-      referenceColor: Color(0xFFD4AF37),
-      appNameColor: Color(0x80D4AF37),
+      referenceColor: Color(0xFFCE93D8),
+      appNameColor: Color(0x60CE93D8),
     ),
-    layout: ShareLayout.centered,
+    layout: ShareLayout.keyword,
   ),
+  // ── 9. Cruz desierto ──
   ShareCardTemplate(
-    id: 'desert_sinai',
+    id: 'desert_cross',
     name: 'Desierto',
-    backgroundAsset: 'assets/bible/share_backgrounds/desert_sinai.png',
+    backgroundAsset: 'assets/bible/share_backgrounds/desert_cross.png',
     isDark: true,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
@@ -179,35 +208,20 @@ const List<ShareCardTemplate> kShareTemplates = [
     ),
     layout: ShareLayout.bottom,
   ),
+  // ── 10. Bosque luminoso ──
   ShareCardTemplate(
-    id: 'storm_hope',
-    name: 'Tormenta',
-    backgroundAsset: 'assets/bible/share_backgrounds/storm_hope.png',
+    id: 'forest_light',
+    name: 'Bosque',
+    backgroundAsset: 'assets/bible/share_backgrounds/forest_light.png',
     isDark: true,
     textStyle: ShareTextStyle(
       verseFont: 'CrimsonPro',
       verseFontSize: 18,
-      verseColor: Color(0xFFECEFF1),
+      verseColor: Color(0xFFF1F8E9),
       referenceFont: 'Manrope',
       referenceFontSize: 12,
-      referenceColor: Color(0xFFD4AF37),
-      appNameColor: Color(0x80D4AF37),
-    ),
-    layout: ShareLayout.centered,
-  ),
-  ShareCardTemplate(
-    id: 'minimal_dark',
-    name: 'Minimalista',
-    backgroundAsset: 'assets/bible/share_backgrounds/minimal_dark.png',
-    isDark: true,
-    textStyle: ShareTextStyle(
-      verseFont: 'CrimsonPro',
-      verseFontSize: 18,
-      verseColor: Color(0xFFF0F0F0),
-      referenceFont: 'Manrope',
-      referenceFontSize: 12,
-      referenceColor: Color(0xFFD4AF37),
-      appNameColor: Color(0x80D4AF37),
+      referenceColor: Color(0xFFA5D6A7),
+      appNameColor: Color(0x60A5D6A7),
     ),
     layout: ShareLayout.centered,
   ),

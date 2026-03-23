@@ -96,6 +96,7 @@ flutter:
     - assets/bible/quotes/
     - assets/bible/search/
     - assets/bible/share_backgrounds/
+    - assets/bible/share/
     - assets/config.json
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg

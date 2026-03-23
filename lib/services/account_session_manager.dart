@@ -31,6 +31,7 @@ import 'bible/ot_quotes_service.dart';
 import 'bible/gospel_harmony_service.dart';
 import 'bible/treasury_service.dart';
 import 'bible/map_events_service.dart';
+import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 
 /// Clave para guardar el último UID conocido
@@ -583,6 +584,9 @@ class AccountSessionManager {
         MapEventsService.I.preload(),
       ]);
       debugPrint('📖 [BIBLE] All offline assets preloaded');
+
+      // Pre-caché de imágenes compartibles (no bloquea)
+      unawaited(ShareCacheService.I.warmUp());
     } catch (e) {
       debugPrint('📖 [BIBLE] Preload error (non-blocking): $e');
     }

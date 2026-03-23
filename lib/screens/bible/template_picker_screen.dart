@@ -8,6 +8,7 @@ import 'package:share_plus/share_plus.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/share_template.dart';
 import '../../services/bible/bible_user_data_service.dart';
+import '../../services/bible/share_cache_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../widgets/bible/share_card_renderer.dart';
 
@@ -166,7 +167,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                       Image.asset(
                         tmpl.backgroundAsset!,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => Container(
+                        errorBuilder: (_, _, _) => Container(
                           color: tmpl.isDark
                               ? const Color(0xFF1A1A2E)
                               : const Color(0xFFF5F0E8),
@@ -520,7 +521,13 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   Future<void> _shareImage() async {
     setState(() => _sharing = true);
     try {
-      final file = await _captureImage();
+      // Intentar caché primero
+      final cached = await ShareCacheService.I.getCachedCard(
+        verseKey: widget.verse.uniqueKey,
+        templateId: _template.id,
+        cardSize: _cardSize,
+      );
+      final file = cached ?? await _captureImage();
       if (file == null) return;
       await Share.shareXFiles(
         [XFile(file.path)],

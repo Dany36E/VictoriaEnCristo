@@ -1,9 +1,8 @@
-import 'dart:ui';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:app_quitar/services/bible/bible_search_service.dart';
-import 'package:app_quitar/services/bible/bible_share_service.dart';
 import 'package:app_quitar/services/bible/advanced_search_service.dart';
 import 'package:app_quitar/models/bible/bible_version.dart';
+import 'package:app_quitar/models/bible/share_template.dart';
 import 'package:app_quitar/theme/bible_reader_theme.dart';
 import 'package:app_quitar/data/bible_verses.dart' as data;
 
@@ -96,55 +95,28 @@ void main() {
   });
 
   // ─────────────────────────────────────────────────────────────────────────
-  // 4. BibleShareService static helpers
+  // 4. ShareCardTemplate (kShareTemplates)
   // ─────────────────────────────────────────────────────────────────────────
-  group('BibleShareService', () {
-    test('dimensionSize returns correct sizes', () {
-      expect(BibleShareService.dimensionSize(ShareDimension.square),
-          const Size(400, 400));
-      expect(BibleShareService.dimensionSize(ShareDimension.story),
-          const Size(360, 640));
-      expect(BibleShareService.dimensionSize(ShareDimension.landscape),
-          const Size(640, 360));
+  group('ShareCardTemplate', () {
+    test('has 10 templates', () {
+      expect(kShareTemplates.length, 10);
     });
 
-    test('adaptiveFontSize decreases for long text', () {
-      final short = BibleShareService.adaptiveFontSize(
-          'Corto', ShareDimension.square);
-      final long = BibleShareService.adaptiveFontSize(
-          'A' * 301, ShareDimension.square);
-      expect(long < short, true);
+    test('all templates have unique IDs', () {
+      final ids = kShareTemplates.map((t) => t.id).toSet();
+      expect(ids.length, kShareTemplates.length);
     });
 
-    test('adaptiveFontSize uses different base per dimension', () {
-      final sq = BibleShareService.adaptiveFontSize(
-          'X', ShareDimension.square);
-      final st = BibleShareService.adaptiveFontSize(
-          'X', ShareDimension.story);
-      expect(sq, isNot(equals(st)));
-    });
-  });
-
-  // ─────────────────────────────────────────────────────────────────────────
-  // 5. ShareTemplate enum
-  // ─────────────────────────────────────────────────────────────────────────
-  group('ShareTemplate', () {
-    test('has 13 templates', () {
-      expect(ShareTemplate.values.length, 13);
+    test('all templates have background assets', () {
+      for (final t in kShareTemplates) {
+        expect(t.backgroundAsset, isNotNull);
+        expect(t.backgroundAsset!.endsWith('.png'), true);
+      }
     });
 
-    test('isDark identifies dark templates correctly', () {
-      expect(ShareTemplate.minimalDark.isDark, true);
-      expect(ShareTemplate.midnight.isDark, true);
-      expect(ShareTemplate.editorialLight.isDark, false);
-      expect(ShareTemplate.sunrise.isDark, false);
-      expect(ShareTemplate.ocean.isDark, true);
-      expect(ShareTemplate.pureLight.isDark, false);
-    });
-
-    test('displayName is non-empty for all', () {
-      for (final t in ShareTemplate.values) {
-        expect(t.displayName.isNotEmpty, true);
+    test('all templates have non-empty names', () {
+      for (final t in kShareTemplates) {
+        expect(t.name.isNotEmpty, true);
       }
     });
   });
