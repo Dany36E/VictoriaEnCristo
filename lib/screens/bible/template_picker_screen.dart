@@ -16,15 +16,20 @@ import '../../widgets/bible/share_card_renderer.dart';
 /// Preview grande arriba + selector horizontal de plantillas + personalización.
 class TemplatePickerScreen extends StatefulWidget {
   final BibleVerse verse;
-  const TemplatePickerScreen({super.key, required this.verse});
+  final int initialTemplateIndex;
+  const TemplatePickerScreen({
+    super.key,
+    required this.verse,
+    this.initialTemplateIndex = 0,
+  });
 
   @override
   State<TemplatePickerScreen> createState() => _TemplatePickerScreenState();
 }
 
 class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
-  int _selectedIndex = 0;
-  double _fontSize = 18;
+  late int _selectedIndex = widget.initialTemplateIndex;
+  double _fontSize = 34;
   int _aspectIndex = 0; // 0=1:1, 1=9:16, 2=4:5
   bool _showLogo = true;
   TextAlign _textAlign = TextAlign.center;
@@ -291,8 +296,8 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                   ),
                   child: Slider(
                     value: _fontSize,
-                    min: 12,
-                    max: 28,
+                    min: 34,
+                    max: 56,
                     onChanged: (v) => setState(() => _fontSize = v),
                   ),
                 ),

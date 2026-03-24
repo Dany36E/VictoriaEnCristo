@@ -85,7 +85,7 @@ class ShareCardRenderer extends StatelessWidget {
                 child: Text(
                   'VICTORIA EN CRISTO',
                   style: TextStyle(
-                    fontSize: _scale(11),
+                    fontSize: _scale(18),
                     color: template.textStyle.appNameColor,
                     fontFamily: 'Manrope',
                     letterSpacing: _scale(3),
@@ -162,7 +162,7 @@ class ShareCardRenderer extends StatelessWidget {
             Text(
               version,
               style: TextStyle(
-                fontSize: _scale(10),
+                fontSize: _scale(18),
                 color: ts.referenceColor.withOpacity(0.5),
                 fontFamily: 'Manrope',
                 letterSpacing: _scale(2),
@@ -313,7 +313,7 @@ class ShareCardRenderer extends StatelessWidget {
             verseText,
             style: _verseStyle(ts).copyWith(
               fontStyle: FontStyle.normal,
-              fontSize: _scale(14 * _scaleForLength(verseText.length)),
+              fontSize: _scale(26 * _scaleForLength(verseText.length)),
               height: 1.6,
             ),
             textAlign: TextAlign.left,
@@ -341,9 +341,10 @@ class ShareCardRenderer extends StatelessWidget {
             child: CustomPaint(
               painter: _CircularTextPainter(
                 text: verseText,
-                color: ts.verseColor.withOpacity(0.7),
-                fontSize: _scale(13),
+                color: ts.verseColor,
+                fontSize: _scale(28),
                 fontFamily: ts.verseFont,
+                addShadow: template.isDark,
               ),
             ),
           ),
@@ -361,7 +362,7 @@ class ShareCardRenderer extends StatelessWidget {
                 Text(
                   reference.toUpperCase(),
                   style: _referenceStyle(ts).copyWith(
-                    fontSize: _scale(16),
+                    fontSize: _scale(30),
                     letterSpacing: _scale(4),
                   ),
                 ),
@@ -370,7 +371,7 @@ class ShareCardRenderer extends StatelessWidget {
                   Text(
                     version,
                     style: TextStyle(
-                      fontSize: _scale(10),
+                      fontSize: _scale(18),
                       color: ts.referenceColor.withOpacity(0.5),
                       fontFamily: 'Manrope',
                       letterSpacing: _scale(2),
@@ -456,17 +457,19 @@ class _CircularTextPainter extends CustomPainter {
   final Color color;
   final double fontSize;
   final String fontFamily;
+  final bool addShadow;
 
   _CircularTextPainter({
     required this.text,
     required this.color,
     required this.fontSize,
     required this.fontFamily,
+    this.addShadow = false,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final radius = math.min(size.width, size.height) * 0.38;
+    final radius = math.min(size.width, size.height) * 0.42;
     final center = Offset(size.width / 2, size.height / 2);
 
     // Calcular cuántos caracteres caben en el círculo
@@ -496,6 +499,19 @@ class _CircularTextPainter extends CustomPainter {
             color: color,
             fontFamily: fontFamily,
             fontStyle: FontStyle.italic,
+            fontWeight: FontWeight.w600,
+            shadows: addShadow
+                ? [
+                    Shadow(
+                      color: Color(0xCC000000),
+                      blurRadius: 6,
+                    ),
+                    Shadow(
+                      color: Color(0x80000000),
+                      blurRadius: 12,
+                    ),
+                  ]
+                : [],
           ),
         ),
         textDirection: TextDirection.ltr,

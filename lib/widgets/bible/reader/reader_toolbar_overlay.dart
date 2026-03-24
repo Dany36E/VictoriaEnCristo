@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../theme/bible_reader_theme.dart';
-import '../verse_actions_toolbar.dart';
+import '../verse_actions_sheet.dart';
 import 'reader_selection_toolbar.dart';
 
-class ReaderToolbarOverlay extends StatelessWidget {
+class ReaderToolbarOverlay extends StatefulWidget {
   final BibleReaderThemeData theme;
   final BibleReaderController controller;
   final VoidCallback onShare;
@@ -17,28 +17,49 @@ class ReaderToolbarOverlay extends StatelessWidget {
   });
 
   @override
+  State<ReaderToolbarOverlay> createState() => _ReaderToolbarOverlayState();
+}
+
+class _ReaderToolbarOverlayState extends State<ReaderToolbarOverlay> {
+  bool _sheetOpen = false;
+
+  @override
   Widget build(BuildContext context) {
-    if (controller.isSelectionMode) {
+    // Multi-select mode → show selection toolbar in stack
+    if (widget.controller.isSelectionMode) {
+      _sheetOpen = false;
       return Positioned(
         bottom: 16, left: 0, right: 0,
         child: ReaderSelectionToolbar(
-          theme: theme,
-          controller: controller,
-          onShare: onShare,
+          theme: widget.theme,
+          controller: widget.controller,
+          onShare: widget.onShare,
         ),
       );
     }
-    if (controller.selectedVerseIndex == null ||
-        controller.selectedVerseIndex! >= controller.verses.length) {
+
+    final idx = widget.controller.selectedVerseIndex;
+    if (idx == null || idx >= widget.controller.verses.length) {
+      _sheetOpen = false;
       return const SizedBox.shrink();
     }
-    return Positioned(
-      bottom: 16, left: 0, right: 0,
-      child: VerseActionsToolbar(
-        verse: controller.verses[controller.selectedVerseIndex!],
-        theme: theme,
-        onDismiss: controller.clearSelection,
-      ),
-    );
+
+    // Single verse selected → show bottom sheet once
+    if (!_sheetOpen) {
+      _sheetOpen = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        showVerseActionsSheet(
+          context: context,
+          verse: widget.controller.verses[idx],
+          theme: widget.theme,
+          onDismiss: () {
+            _sheetOpen = false;
+            widget.controller.clearSelection();
+          },
+        );
+      });
+    }
+    return const SizedBox.shrink();
   }
 }
