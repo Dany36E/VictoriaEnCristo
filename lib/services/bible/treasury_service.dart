@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -11,6 +12,7 @@ class TreasuryService {
 
   String? _cachedBookCode;
   Map<String, List<String>>? _cachedRefs; // key: "chapter:verse"
+  Completer<void>? _loadCompleter;
 
   static const _bookCodes = <int, String>{
     1: 'GEN', 2: 'EXO', 3: 'LEV', 4: 'NUM', 5: 'DEU',
@@ -120,6 +122,13 @@ class TreasuryService {
   Future<void> _ensureBookLoaded(String code) async {
     if (_cachedBookCode == code) return;
 
+    // Si ya hay una carga en vuelo, esperar
+    if (_loadCompleter != null && !_loadCompleter!.isCompleted) {
+      await _loadCompleter!.future;
+      if (_cachedBookCode == code) return;
+    }
+    _loadCompleter = Completer<void>();
+
     final path = 'assets/bible/cross_refs/tsk_$code.json';
     try {
       final raw = await rootBundle.loadString(path);
@@ -138,5 +147,6 @@ class TreasuryService {
       _cachedBookCode = code;
       _cachedRefs = {};
     }
+    _loadCompleter!.complete();
   }
 }

@@ -30,15 +30,51 @@ class BlbApiService {
   SharedPreferences? _prefs;
   String? _apiKey;
 
+  static const String _apiKeyPrefKey = 'blb_api_key_user';
+
   final ValueNotifier<bool> hasApiKey = ValueNotifier(false);
   final ValueNotifier<int> dailyRequestCount = ValueNotifier(0);
 
   /// Inicializa el servicio cargando la API key y preferencias.
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    _apiKey = ApiConfig.blbKey.isNotEmpty ? ApiConfig.blbKey : null;
+    // Prioridad: key guardada por el usuario > key hardcodeada en ApiConfig
+    final userKey = _prefs?.getString(_apiKeyPrefKey);
+    if (userKey != null && userKey.isNotEmpty) {
+      _apiKey = userKey;
+    } else {
+      _apiKey = ApiConfig.blbKey.isNotEmpty ? ApiConfig.blbKey : null;
+    }
     hasApiKey.value = _apiKey != null;
     _loadDailyCount();
+  }
+
+  /// Guarda una API key proporcionada por el usuario y la activa.
+  Future<void> setApiKey(String key) async {
+    _prefs ??= await SharedPreferences.getInstance();
+    await _prefs!.setString(_apiKeyPrefKey, key);
+    _apiKey = key;
+    hasApiKey.value = true;
+  }
+
+  /// Verifica que la API key actual funcione con una petición de prueba.
+  /// Retorna true si la key es válida.
+  Future<bool> verifyApiKey() async {
+    if (_apiKey == null || _apiKey!.isEmpty) return false;
+    try {
+      // Hacer una búsqueda simple para verificar que la key funciona
+      final uri = Uri.parse(
+        '$_baseUrl/search/search?type=verseSearch'
+        '&verseRange=Jhn.3.16&version=KJV'
+        '&output=json&apiKey=$_apiKey',
+      );
+      final response = await http
+          .get(uri)
+          .timeout(const Duration(seconds: 10));
+      return response.statusCode == 200;
+    } catch (_) {
+      return false;
+    }
   }
 
   // ─── VERSE + STRONG'S ───────────────────────────────────────
@@ -158,6 +194,8 @@ class BlbApiService {
   // ─── CROSS REFERENCES ──────────────────────────────────────
 
   /// BLB REST API v1 no expone un endpoint de referencias cruzadas.
+  /// Las cross-refs se obtienen vía TreasuryService (TSK local, 340k+ refs).
+  /// Este método existe solo por compatibilidad de interfaz.
   Future<BLBResult<List<BLBCrossReference>>> getCrossReferences({
     required int bookNumber,
     required int chapter,
@@ -166,32 +204,25 @@ class BlbApiService {
     return const BLBResult(
       status: BLBResultStatus.noData,
       data: [],
-      message: 'Referencias cruzadas no disponibles en la API de BLB',
+      message: 'Usar TreasuryService.instance.getCrossReferences() para cross-refs (TSK, 340k+ refs)',
     );
   }
 
-  /// Prefetch: carga Strong's y cross-refs en paralelo.
-  Future<({BLBResult<List<BLBWord>> words, BLBResult<List<BLBCrossReference>> crossRefs})>
-      prefetchVerseData({
+  /// Prefetch: carga Strong's para el versículo.
+  /// Cross-refs se obtienen vía TreasuryService, no vía BLB API.
+  Future<BLBResult<List<BLBWord>>> prefetchVerseStrongs({
     required int bookNumber,
     required int chapter,
     required int verse,
   }) async {
-    final results = await Future.wait([
-      getVerseWithStrongs(
-          bookNumber: bookNumber, chapter: chapter, verse: verse),
-      getCrossReferences(
-          bookNumber: bookNumber, chapter: chapter, verse: verse),
-    ]);
-    return (
-      words: results[0] as BLBResult<List<BLBWord>>,
-      crossRefs: results[1] as BLBResult<List<BLBCrossReference>>,
-    );
+    return getVerseWithStrongs(
+        bookNumber: bookNumber, chapter: chapter, verse: verse);
   }
 
   // ─── RATE LIMITING ──────────────────────────────────────────
 
   void _loadDailyCount() {
+    if (_prefs == null) return;
     final today = _todayString();
     final savedDate = _prefs?.getString(_dailyDateKey);
     if (savedDate != today) {

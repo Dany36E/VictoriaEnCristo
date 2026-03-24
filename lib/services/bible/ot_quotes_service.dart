@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -12,7 +13,7 @@ class OTQuotesService {
   static final instance = OTQuotesService._();
 
   List<OTQuote>? _quotes;
-  bool _loaded = false;
+  Completer<void>? _loadCompleter;
 
   // Índices para búsqueda rápida
   Map<String, List<OTQuote>>? _byNTBook; // "MAT" → quotes
@@ -71,8 +72,8 @@ class OTQuotesService {
   }
 
   Future<void> _ensureLoaded() async {
-    if (_loaded) return;
-    _loaded = true;
+    if (_loadCompleter != null) return _loadCompleter!.future;
+    _loadCompleter = Completer<void>();
 
     try {
       final raw = await rootBundle.loadString(
@@ -101,6 +102,7 @@ class OTQuotesService {
       debugPrint('OTQuotesService: error loading: $e');
       _quotes = [];
     }
+    _loadCompleter!.complete();
   }
 
   static String? _bookCode(int num) => const {

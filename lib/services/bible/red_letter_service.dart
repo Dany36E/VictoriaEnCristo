@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -12,8 +13,8 @@ class RedLetterService {
   /// Set de claves "BOOK.CHAPTER.VERSE" que son palabras de Cristo.
   Set<String>? _redLetterKeys;
 
-  bool _initialized = false;
-  bool get isInitialized => _initialized;
+  Completer<void>? _initCompleter;
+  bool get isInitialized => _initCompleter?.isCompleted ?? false;
 
   /// Mapa bookNumber → código usado en el índice red-letter.
   static const _bookNumberToCode = <int, String>{
@@ -22,19 +23,19 @@ class RedLetterService {
 
   /// Inicializa el servicio cargando el índice.
   Future<void> init() async {
-    if (_initialized) return;
+    if (_initCompleter != null) return _initCompleter!.future;
+    _initCompleter = Completer<void>();
     try {
       final raw = await rootBundle.loadString(
         'assets/bible/red_letter/red_letter_index.json',
       );
       final map = jsonDecode(raw) as Map<String, dynamic>;
       _redLetterKeys = map.keys.toSet();
-      _initialized = true;
     } catch (e) {
       debugPrint('RedLetterService: Error cargando índice: $e');
       _redLetterKeys = {};
-      _initialized = true;
     }
+    _initCompleter!.complete();
   }
 
   /// Verifica si un versículo contiene palabras de Cristo.

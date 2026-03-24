@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -12,13 +13,13 @@ class BibleMapsService {
 
   // ─── Legacy data (coordenadas 0-1) ───
   List<BibleMap>? _maps;
-  bool _loaded = false;
+  Completer<void>? _loadCompleter;
 
   // ─── New GPS data ───
   List<BiblicalPlace>? _places;
   List<HistoricalRoute>? _routes;
   List<HistoricalRegion>? _regions;
-  bool _gpsLoaded = false;
+  Completer<void>? _gpsCompleter;
 
   /// Todos los mapas disponibles (legacy).
   Future<List<BibleMap>> getMaps() async {
@@ -104,8 +105,8 @@ class BibleMapsService {
   // ─── Loaders ───
 
   Future<void> _ensureLoaded() async {
-    if (_loaded) return;
-    _loaded = true;
+    if (_loadCompleter != null) return _loadCompleter!.future;
+    _loadCompleter = Completer<void>();
 
     try {
       final raw =
@@ -119,11 +120,12 @@ class BibleMapsService {
       debugPrint('BibleMapsService: Error cargando mapas: $e');
       _maps = [];
     }
+    _loadCompleter!.complete();
   }
 
   Future<void> _ensureGpsLoaded() async {
-    if (_gpsLoaded) return;
-    _gpsLoaded = true;
+    if (_gpsCompleter != null) return _gpsCompleter!.future;
+    _gpsCompleter = Completer<void>();
 
     try {
       // Places
@@ -159,5 +161,6 @@ class BibleMapsService {
       _routes ??= [];
       _regions ??= [];
     }
+    _gpsCompleter!.complete();
   }
 }

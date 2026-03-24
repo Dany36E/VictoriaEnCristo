@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -53,11 +54,11 @@ class MapEventsService {
   MapEventsService._();
 
   List<MapEvent>? _events;
-  bool _loading = false;
+  Completer<void>? _loadCompleter;
 
   Future<void> preload() async {
-    if (_events != null || _loading) return;
-    _loading = true;
+    if (_loadCompleter != null) return _loadCompleter!.future;
+    _loadCompleter = Completer<void>();
     try {
       final bytes =
           await rootBundle.load('assets/bible/maps/map_events.json');
@@ -71,7 +72,7 @@ class MapEventsService {
       debugPrint('[MapEvents] Error loading: $e');
       _events = [];
     }
-    _loading = false;
+    _loadCompleter!.complete();
   }
 
   List<MapEvent> getAllEvents() => _events ?? [];

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -12,7 +13,7 @@ class TypologyService {
   static final instance = TypologyService._();
 
   List<Typology>? _typologies;
-  bool _loaded = false;
+  Completer<void>? _loadCompleter;
 
   /// Todas las tipologías.
   Future<List<Typology>> getAll() async {
@@ -64,8 +65,8 @@ class TypologyService {
   }
 
   Future<void> _ensureLoaded() async {
-    if (_loaded) return;
-    _loaded = true;
+    if (_loadCompleter != null) return _loadCompleter!.future;
+    _loadCompleter = Completer<void>();
 
     try {
       final raw = await rootBundle.loadString(
@@ -80,6 +81,7 @@ class TypologyService {
       debugPrint('TypologyService: error loading: $e');
       _typologies = [];
     }
+    _loadCompleter!.complete();
   }
 
   static String? _bookCode(int num) => const {

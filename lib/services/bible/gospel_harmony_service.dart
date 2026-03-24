@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -12,7 +13,7 @@ class GospelHarmonyService {
   static final instance = GospelHarmonyService._();
 
   List<HarmonySection>? _sections;
-  bool _loaded = false;
+  Completer<void>? _loadCompleter;
 
   /// Todas las secciones.
   Future<List<HarmonySection>> getAllSections() async {
@@ -80,8 +81,8 @@ class GospelHarmonyService {
   }
 
   Future<void> _ensureLoaded() async {
-    if (_loaded) return;
-    _loaded = true;
+    if (_loadCompleter != null) return _loadCompleter!.future;
+    _loadCompleter = Completer<void>();
 
     try {
       final raw = await rootBundle.loadString(
@@ -96,5 +97,6 @@ class GospelHarmonyService {
       debugPrint('GospelHarmonyService: error loading: $e');
       _sections = [];
     }
+    _loadCompleter!.complete();
   }
 }

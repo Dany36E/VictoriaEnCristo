@@ -35,10 +35,20 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
       _verified = null;
     });
 
-    // API keys are now managed via ApiConfig
-    final isValid = _blb.hasApiKey.value;
+    try {
+      // Guardar la key temporalmente para verificar
+      await _blb.setApiKey(key);
 
-    if (mounted) {
+      // Verificar con una petición de prueba real a la API
+      final isValid = await _blb.verifyApiKey();
+
+      if (!mounted) return;
+
+      if (!isValid) {
+        // Revertir la key inválida
+        await _blb.setApiKey('');
+      }
+
       setState(() {
         _verifying = false;
         _verified = isValid;
@@ -52,7 +62,30 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
             backgroundColor: const Color(0xFF4CAF50),
           ),
         );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✗ API key inválida — verifica tu clave',
+                style: GoogleFonts.manrope()),
+            backgroundColor: const Color(0xFFE57373),
+          ),
+        );
       }
+    } catch (e) {
+      // Revertir en caso de error de red
+      await _blb.setApiKey('');
+      if (!mounted) return;
+      setState(() {
+        _verifying = false;
+        _verified = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error verificando key: $e',
+              style: GoogleFonts.manrope()),
+          backgroundColor: const Color(0xFFE57373),
+        ),
+      );
     }
   }
 

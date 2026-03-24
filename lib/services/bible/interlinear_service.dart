@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -14,6 +15,7 @@ class InterlinearService {
 
   String? _cachedBookCode;
   Map<String, InterlinearVerse>? _cachedVerses; // key: "c:v"
+  Completer<void>? _loadCompleter;
 
   /// Mapa bookNumber (1-66) → código de archivo interlineal.
   static const _bookNumberToFileCode = <int, String>{
@@ -75,6 +77,13 @@ class InterlinearService {
   Future<void> _ensureBookLoaded(int bookNumber, String code) async {
     if (_cachedBookCode == code) return;
 
+    // Si ya hay una carga en vuelo para este código, esperar
+    if (_loadCompleter != null && !_loadCompleter!.isCompleted) {
+      await _loadCompleter!.future;
+      if (_cachedBookCode == code) return;
+    }
+    _loadCompleter = Completer<void>();
+
     final ot = isOT(bookNumber);
     final dir = ot ? 'hebrew' : 'greek';
     final path = 'assets/bible/interlinear/$dir/$code.json';
@@ -89,6 +98,7 @@ class InterlinearService {
       _cachedBookCode = code;
       _cachedVerses = {};
     }
+    _loadCompleter!.complete();
   }
 
   /// Limpia la cache (para liberar memoria).

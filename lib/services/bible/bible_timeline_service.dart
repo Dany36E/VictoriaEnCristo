@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -17,15 +18,16 @@ class BibleTimelineService {
   List<TimelinePeriod> _periods = [];
   List<TimelineEvent> _events = [];
   List<TimelineCharacter> _characters = [];
-  bool _loaded = false;
+  Completer<void>? _loadCompleter;
 
   List<TimelinePeriod> get periods => _periods;
   List<TimelineEvent> get events => _events;
   List<TimelineCharacter> get characters => _characters;
-  bool get isLoaded => _loaded;
+  bool get isLoaded => _loadCompleter?.isCompleted ?? false;
 
   Future<void> init() async {
-    if (_loaded) return;
+    if (_loadCompleter != null) return _loadCompleter!.future;
+    _loadCompleter = Completer<void>();
     try {
       final jsonStr = await rootBundle
           .loadString('assets/bible/timeline/bible_timeline.json');
@@ -33,12 +35,12 @@ class BibleTimelineService {
       _periods = data['periods']!.cast<TimelinePeriod>();
       _events = data['events']!.cast<TimelineEvent>();
       _characters = data['characters']!.cast<TimelineCharacter>();
-      _loaded = true;
       debugPrint('🕐 [TIMELINE] Loaded: ${_periods.length} periods, '
           '${_events.length} events, ${_characters.length} characters');
     } catch (e) {
       debugPrint('🕐 [TIMELINE] Error loading: $e');
     }
+    _loadCompleter!.complete();
   }
 
   static Map<String, List<dynamic>> _parseJson(String jsonStr) {

@@ -79,39 +79,41 @@ class BibleReadingStatsService {
     final key = '$bookNumber:$chapter';
     final today = _todayStr();
 
-    // Update daily log
+    // Update daily log (arrayUnion es idempotente, seguro sin transacción)
     await _logCol.doc(today).set({
       'chapters': FieldValue.arrayUnion([key]),
       'date': today,
     }, SetOptions(merge: true));
 
-    // Update aggregate stats
-    final snap = await _statsDoc.get();
-    final data = (snap.data() as Map<String, dynamic>?) ?? {};
-    final readList = List<String>.from(data['chaptersReadList'] as List? ?? []);
-    final lastDate = data['lastDate'] as String? ?? '';
-    var streak = (data['streak'] as num?)?.toInt() ?? 0;
+    // Update aggregate stats con transacción para evitar race condition
+    await _firestore.runTransaction((tx) async {
+      final snap = await tx.get(_statsDoc);
+      final data = (snap.data() as Map<String, dynamic>?) ?? {};
+      final readList = List<String>.from(data['chaptersReadList'] as List? ?? []);
+      final lastDate = data['lastDate'] as String? ?? '';
+      var streak = (data['streak'] as num?)?.toInt() ?? 0;
 
-    if (!readList.contains(key)) {
-      readList.add(key);
-    }
+      if (!readList.contains(key)) {
+        readList.add(key);
+      }
 
-    // Update streak
-    if (lastDate == today) {
-      // Already logged today, streak unchanged
-    } else if (lastDate == _yesterdayStr()) {
-      streak++;
-    } else if (lastDate.isEmpty) {
-      streak = 1;
-    } else {
-      streak = 1; // Reset streak
-    }
+      // Update streak
+      if (lastDate == today) {
+        // Already logged today, streak unchanged
+      } else if (lastDate == _yesterdayStr()) {
+        streak++;
+      } else if (lastDate.isEmpty) {
+        streak = 1;
+      } else {
+        streak = 1; // Reset streak
+      }
 
-    await _statsDoc.set({
-      'chaptersReadList': readList,
-      'lastDate': today,
-      'streak': streak,
-      'totalChapters': readList.length,
+      tx.set(_statsDoc, {
+        'chaptersReadList': readList,
+        'lastDate': today,
+        'streak': streak,
+        'totalChapters': readList.length,
+      });
     });
   }
 

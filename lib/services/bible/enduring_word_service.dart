@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -61,6 +62,7 @@ class EnduringWordService {
 
   /// Cache en memoria: bookNumber → { chapter → commentary }
   final Map<int, Map<String, EWChapterCommentary>> _cache = {};
+  final Map<int, Completer<void>> _loadCompleters = {};
 
   /// Obtiene el comentario para un capítulo (desde assets locales).
   Future<EWChapterCommentary?> getChapterCommentary(
@@ -84,6 +86,10 @@ class EnduringWordService {
   /// Carga el JSON del libro completo en memoria.
   Future<void> _loadBook(int bookNumber) async {
     if (_cache.containsKey(bookNumber)) return;
+    if (_loadCompleters.containsKey(bookNumber)) {
+      return _loadCompleters[bookNumber]!.future;
+    }
+    _loadCompleters[bookNumber] = Completer<void>();
 
     try {
       final jsonStr = await rootBundle.loadString(
@@ -95,6 +101,7 @@ class EnduringWordService {
       debugPrint('EW: No se pudo cargar libro $bookNumber: $e');
       _cache[bookNumber] = {}; // mark as loaded (empty)
     }
+    _loadCompleters[bookNumber]!.complete();
   }
 
   /// Parse JSON en isolate para no bloquear el UI.

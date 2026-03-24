@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -25,6 +26,7 @@ class CommentaryService {
 
   // Cache por fuente: {source: {bookCode, entries}}
   final _cache = <CommentarySource, _BookCache>{};
+  final _loadCompleters = <String, Completer<void>>{};
 
   /// Libros que tienen comentario disponible.
   static const _availableBooks = <int, String>{
@@ -103,6 +105,10 @@ class CommentaryService {
   Future<void> _ensureBookLoaded(String code, CommentarySource source) async {
     if (_cache[source]?.bookCode == code) return;
 
+    final key = '${source.folder}/$code';
+    if (_loadCompleters.containsKey(key)) return _loadCompleters[key]!.future;
+    _loadCompleters[key] = Completer<void>();
+
     final path = 'assets/bible/commentaries/${source.folder}/$code.json';
     try {
       final raw = await rootBundle.loadString(path);
@@ -130,10 +136,12 @@ class CommentaryService {
       debugPrint('CommentaryService: Error cargando $path: $e');
       _cache[source] = _BookCache(code, {});
     }
+    _loadCompleters[key]!.complete();
   }
 
   void clearCache() {
     _cache.clear();
+    _loadCompleters.clear();
   }
 }
 

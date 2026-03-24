@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
@@ -27,6 +28,7 @@ class ShareCacheService {
   bool _running = false;
   int _cached = 0;
   int _total = 0;
+  Completer<void>? _renderLock;
 
   /// Progreso actual (0.0 - 1.0) para UI opcional.
   double get progress => _total > 0 ? _cached / _total : 0.0;
@@ -126,11 +128,17 @@ class ShareCacheService {
   }
 
   /// Renderiza una tarjeta off-screen y retorna los bytes PNG.
+  /// Serializado con mutex para evitar corrupción de RenderView/BuildOwner.
   Future<List<int>?> _renderCard({
     required ShareCardTemplate template,
     required BibleVerse verse,
     required Size cardSize,
   }) async {
+    // Esperar si hay un render en curso
+    while (_renderLock != null) {
+      await _renderLock!.future;
+    }
+    _renderLock = Completer<void>();
     try {
       final widget = ShareCardRenderer(
         template: template,
@@ -178,6 +186,9 @@ class ShareCacheService {
     } catch (e) {
       debugPrint('🖼️ [SHARE-CACHE] Render error: $e');
       return null;
+    } finally {
+      _renderLock!.complete();
+      _renderLock = null;
     }
   }
 
