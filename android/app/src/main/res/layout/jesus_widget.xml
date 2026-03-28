@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/jesus_widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/jesus_widget_background"
+    android:padding="8dp">
+
+    <!-- Imagen de Jesús (se actualiza desde Flutter) -->
+    <ImageView
+        android:id="@+id/widget_jesus_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:scaleType="fitCenter"
+        android:contentDescription="Jesús" />
+
+    <!-- Número de racha -->
+    <TextView
+        android:id="@+id/widget_streak_number"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/widget_jesus_image"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:text="0"
+        android:textColor="#D4AF37"
+        android:textSize="36sp"
+        android:textStyle="bold"
+        android:fontFamily="serif" />
+
+    <!-- Label días -->
+    <TextView
+        android:id="@+id/widget_streak_label"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/widget_jesus_image"
+        android:layout_below="@id/widget_streak_number"
+        android:layout_marginStart="8dp"
+        android:text="días de victoria"
+        android:textColor="#CCFFFFFF"
+        android:textSize="10sp" />
+
+    <!-- Mensaje de aliento -->
+    <TextView
+        android:id="@+id/widget_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/widget_jesus_image"
+        android:layout_below="@id/widget_streak_label"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="4dp"
+        android:layout_toStartOf="@id/widget_badge"
+        android:text=""
+        android:textColor="#99FFFFFF"
+        android:textSize="9sp"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <!-- Badge estado -->
+    <TextView
+        android:id="@+id/widget_badge"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="4dp"
+        android:background="@drawable/jesus_badge_background"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:paddingTop="3dp"
+        android:paddingBottom="3dp"
+        android:text="Empieza hoy"
+        android:textColor="#888780"
+        android:textSize="9sp"
+        android:textStyle="bold" />
+
+</RelativeLayout>

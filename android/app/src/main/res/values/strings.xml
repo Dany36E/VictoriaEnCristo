@@ -15,4 +15,8 @@
     <string name="verse_widget_label">Versículo del día</string>
     <string name="verse_widget_default_text">Todo lo puedo en Cristo que me fortalece.</string>
     <string name="verse_widget_default_ref">Filipenses 4:13</string>
+
+    <!-- Jesus Streak Widget -->
+    <string name="jesus_widget_name">Victoria en Cristo</string>
+    <string name="jesus_widget_description">Tu racha de victorias diarias con Jesús</string>
 </resources>

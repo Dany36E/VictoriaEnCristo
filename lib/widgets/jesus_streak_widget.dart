@@ -173,6 +173,32 @@ class JesusStreakWidget extends StatelessWidget {
                   ),
                 ),
               ),
+
+              // ─── CAPA 5: Badge de estado ───
+              Positioned(
+                bottom: 12,
+                right: 12,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.5),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: _getBadgeColor(),
+                      width: 0.5,
+                    ),
+                  ),
+                  child: Text(
+                    _getBadgeText(),
+                    style: GoogleFonts.manrope(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: _getBadgeColor(),
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
         ),
@@ -355,5 +381,21 @@ class JesusStreakWidget extends StatelessWidget {
               ),
             ),
     );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // BADGE DE ESTADO
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Color _getBadgeColor() {
+    if (completedToday) return const Color(0xFF4CAF50);
+    if (streakDays > 0) return const Color(0xFFD4AF37);
+    return const Color(0xFF888780);
+  }
+
+  String _getBadgeText() {
+    if (completedToday) return '✓  Día de victoria';
+    if (streakDays > 0) return '⚔  En batalla';
+    return 'Empieza hoy';
   }
 }

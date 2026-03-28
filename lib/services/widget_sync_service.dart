@@ -11,6 +11,7 @@ import '../constants/widget_constants.dart';
 import '../models/widget_config.dart';
 import '../data/bible_verses.dart';
 import 'daily_verse_service.dart';
+import 'jesus_widget_service.dart';
 import 'victory_scoring_service.dart';
 
 class WidgetSyncService {
@@ -51,6 +52,11 @@ class WidgetSyncService {
   static const String _keyVerseText = 'verse_widget_text';
   static const String _keyVerseRef = 'verse_widget_reference';
   static const String _keyVerseIsLight = 'verse_widget_is_light';
+
+  // Keys para widget Jesús (deben coincidir con JesusWidgetProvider.kt)
+  static const String _keyJesusStreak = 'jesus_streak_days';
+  static const String _keyJesusCompleted = 'jesus_completed_today';
+  static const String _keyJesusMessage = 'jesus_widget_message';
   
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -137,6 +143,17 @@ class WidgetSyncService {
       await HomeWidget.saveWidgetData(_keyVerseText, payload.verseText);
       await HomeWidget.saveWidgetData(_keyVerseRef, payload.verseReference);
       await HomeWidget.saveWidgetData(_keyVerseIsLight, payload.isLightTheme);
+      
+      // Widget Jesús (racha con sprite)
+      final completedToday = VictoryScoringService.I.isLoggedToday();
+      final jesusMessage = JesusWidgetService.I.getMessage(
+        streakDays: payload.streakValue,
+        completedToday: completedToday,
+        isNewUser: payload.streakValue == 0 && !completedToday,
+      );
+      await HomeWidget.saveWidgetData(_keyJesusStreak, payload.streakValue);
+      await HomeWidget.saveWidgetData(_keyJesusCompleted, completedToday);
+      await HomeWidget.saveWidgetData(_keyJesusMessage, jesusMessage);
       
       // JSON completo como backup
       await HomeWidget.saveWidgetData(_keyWidgetPayload, payload.toJsonString());
@@ -244,6 +261,13 @@ class WidgetSyncService {
       await HomeWidget.updateWidget(
         androidName: kAndroidVerseWidgetProvider,
         qualifiedAndroidName: kAndroidVerseWidgetQualifiedName,
+      );
+
+      // Widget Jesús (racha con sprite)
+      await HomeWidget.updateWidget(
+        androidName: kAndroidJesusWidgetProvider,
+        qualifiedAndroidName: kAndroidJesusWidgetQualifiedName,
+        iOSName: kIOSJesusWidgetName,
       );
     } catch (e) {
       debugPrint('📱 [WIDGET] Update error: $e');

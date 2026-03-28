@@ -28,6 +28,16 @@ const String kAndroidVerseWidgetProvider = 'VerseOfDayWidgetProvider';
 const String kAndroidVerseWidgetQualifiedName =
     '$kAndroidPackageName.$kAndroidVerseWidgetProvider';
 
+/// Provider del widget de Jesús (racha con sprite)
+const String kAndroidJesusWidgetProvider = 'JesusWidgetProvider';
+
+/// Nombre completo calificado del provider de Jesús
+const String kAndroidJesusWidgetQualifiedName =
+    '$kAndroidPackageName.$kAndroidJesusWidgetProvider';
+
+/// Nombre del widget de Jesús en iOS  
+const String kIOSJesusWidgetName = 'JesusWidget';
+
 /// Validar que las constantes del widget no estén vacías
 bool validateWidgetConstants() {
   return kAndroidPackageName.isNotEmpty &&
