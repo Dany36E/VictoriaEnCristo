@@ -362,12 +362,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                 // ═══════════════════════════════════════════════════════════════
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      0,
-                    ),
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
                     child: JesusStreakWidget(
                       streakDays: _currentStreak,
                       completedToday: _loggedToday,

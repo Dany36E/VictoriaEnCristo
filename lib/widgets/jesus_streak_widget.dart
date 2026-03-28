@@ -141,12 +141,12 @@ class JesusStreakWidget extends StatelessWidget {
                           Text(
                             message,
                             style: GoogleFonts.manrope(
-                              fontSize: 13,
+                              fontSize: 12,
                               fontWeight: FontWeight.w500,
                               color: Colors.white.withOpacity(0.9),
                               height: 1.3,
                             ),
-                            maxLines: 2,
+                            maxLines: 3,
                             overflow: TextOverflow.ellipsis,
                           ),
 
@@ -209,7 +209,7 @@ class JesusStreakWidget extends StatelessWidget {
           Text(
             isNewUser ? '0' : '$streakDays',
             style: GoogleFonts.cinzel(
-              fontSize: 48,
+              fontSize: streakDays >= 100 ? 36.0 : (streakDays >= 10 ? 42.0 : 48.0),
               fontWeight: FontWeight.w900,
               color: Colors.white,
               height: 1,
@@ -217,40 +217,48 @@ class JesusStreakWidget extends StatelessWidget {
           ),
           const SizedBox(width: 8),
           // Label
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  streakDays == 1 ? 'DÍA' : 'DÍAS',
-                  style: GoogleFonts.manrope(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 2,
-                    color: streakColor,
+          Flexible(
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    streakDays == 1 ? 'DÍA' : 'DÍAS',
+                    style: GoogleFonts.manrope(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: streakDays >= 10 ? 0.5 : 1.5,
+                      color: streakColor,
+                    ),
+                    maxLines: 1,
                   ),
-                ),
-                Text(
-                  'DE VICTORIA',
-                  style: GoogleFonts.manrope(
-                    fontSize: 9,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 1.5,
-                    color: Colors.white.withOpacity(0.6),
+                  if (streakDays < 100 && !(completedToday && streakDays >= 10))
+                    Text(
+                      'DE VICTORIA',
+                      style: GoogleFonts.manrope(
+                        fontSize: 9,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.white.withOpacity(0.6),
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ],
 
         // Badge "Hoy ✓"
         if (completedToday && !isLoading) ...[
-          const Spacer(),
+          const SizedBox(width: 4),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            padding: EdgeInsets.symmetric(
+              horizontal: streakDays >= 100 ? 6 : 8,
+              vertical: 4,
+            ),
             decoration: BoxDecoration(
               color: const Color(0xFF4CAF50).withOpacity(0.25),
               borderRadius: BorderRadius.circular(10),
@@ -258,19 +266,21 @@ class JesusStreakWidget extends StatelessWidget {
                 color: const Color(0xFF4CAF50).withOpacity(0.5),
               ),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.check_circle, size: 12, color: Color(0xFF4CAF50)),
-                SizedBox(width: 3),
-                Text(
-                  'Hoy',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: Color(0xFF4CAF50),
+                const Icon(Icons.check_circle, size: 12, color: Color(0xFF4CAF50)),
+                if (streakDays < 100) ...[
+                  const SizedBox(width: 3),
+                  const Text(
+                    'Hoy',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w700,
+                      color: Color(0xFF4CAF50),
+                    ),
                   ),
-                ),
+                ],
               ],
             ),
           )

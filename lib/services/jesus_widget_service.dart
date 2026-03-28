@@ -110,7 +110,7 @@ class JesusWidgetService {
 
     if (completedToday) {
       if (streakDays >= 365) return '¡Un año caminando conmigo!\n¡Eres un guerrero eterno!';
-      if (streakDays >= 100) return '¡100 días de victoria!\n¡Centurión de la fe!';
+      if (streakDays >= 100) return '¡$streakDays días de victoria!\n¡Centurión de la fe!';
       if (streakDays >= 30) return '¡Un mes entero!\nTu armadura brilla';
       if (streakDays >= 7) return '¡Una semana completa!\n¡Sigue adelante!';
       return '¡Victoria de hoy registrada!\n¡Bien hecho, soldado!';
