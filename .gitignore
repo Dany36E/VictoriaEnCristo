@@ -70,3 +70,6 @@ temp_data/
 test_screenshots/
 test_*.png
 scripts/
+
+# Integration tests (contain test credentials)
+integration_test/
