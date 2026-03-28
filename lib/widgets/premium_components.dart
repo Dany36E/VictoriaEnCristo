@@ -298,7 +298,7 @@ class SectionHeader extends StatelessWidget {
               ],
             ],
           ),
-          if (trailing != null) trailing!,
+          ?trailing,
         ],
       ),
     );
@@ -494,7 +494,7 @@ class VictoryProgressRing extends StatelessWidget {
             ),
           ),
           // Center content
-          if (child != null) child!,
+          ?child,
         ],
       ),
     );

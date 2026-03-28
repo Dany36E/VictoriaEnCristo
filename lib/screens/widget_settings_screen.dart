@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import '../models/widget_config.dart';
 import '../services/widget_sync_service.dart';
 import '../services/victory_service.dart';
+import '../services/daily_verse_service.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme.dart';
 
@@ -23,6 +24,9 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   late TextEditingController _titleController;
   bool _isLoading = true;
   bool _hasChanges = false;
+  int _streak = 0;
+  String _verseText = '';
+  String _verseRef = '';
 
   @override
   void initState() {
@@ -32,6 +36,21 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
 
   Future<void> _loadConfig() async {
     await WidgetSyncService.I.init();
+    
+    _streak = VictoryService.I.getCurrentStreak();
+    
+    try {
+      if (DailyVerseService.I.isInitialized) {
+        final verse = await DailyVerseService.I.getForToday();
+        _verseText = verse.verse;
+        _verseRef = verse.reference;
+      }
+    } catch (_) {}
+    if (_verseText.isEmpty) {
+      _verseText = 'Todo lo puedo en Cristo que me fortalece.';
+      _verseRef = 'Filipenses 4:13';
+    }
+    
     setState(() {
       _config = WidgetSyncService.I.currentConfig;
       _titleController = TextEditingController(text: _config.titleText);
@@ -147,9 +166,9 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           
           const SizedBox(height: 24),
           
-          // Contenido
-          _buildSectionHeader('📝 Contenido', isDark),
-          _buildContentCard(isDark),
+          // Título
+          _buildSectionHeader('📝 Título', isDark),
+          _buildTitleCard(isDark),
           
           const SizedBox(height: 24),
           
@@ -178,80 +197,97 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
       children: [
         _buildSectionHeader('👁️ Vista Previa', isDark),
         const SizedBox(height: 8),
+        // Widget 2×2 (Recordatorio)
         Center(
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 300),
-            child: _buildWidgetPreview(),
+          child: Column(
+            children: [
+              Text(
+                'RECORDATORIO · 2×2',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white38 : Colors.black38,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildWidget2x2Preview(),
+            ],
+          ),
+        ),
+        const SizedBox(height: 20),
+        // Widget 4×2 (Versículo del día)
+        Center(
+          child: Column(
+            children: [
+              Text(
+                'VERSÍCULO DEL DÍA · 4×2',
+                style: TextStyle(
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
+                  color: isDark ? Colors.white38 : Colors.black38,
+                  letterSpacing: 1.2,
+                ),
+              ),
+              const SizedBox(height: 8),
+              _buildVerseWidgetPreview(),
+            ],
           ),
         ),
       ],
     );
   }
 
-  Widget _buildWidgetPreview() {
+  Widget _buildWidget2x2Preview() {
     final isLight = _config.theme == WidgetTheme.lightCard;
     final isDiscreet = _config.privacyMode == WidgetPrivacyMode.discreet;
-    final streak = VictoryService.I.getCurrentStreak();
     
-    // === Colores IDÉNTICOS al widget Android ===
-    final bgColor = isLight 
-        ? Colors.white 
-        : const Color(0xFF1E1E2E);
-    final borderColor = isLight 
-        ? const Color(0xFFE0E0E0) 
-        : const Color(0xFF3D3D5C);
-    final textColor = isLight 
-        ? const Color(0xFF212121) 
-        : Colors.white;
-    final subtitleColor = isLight 
-        ? const Color(0xFF757575) 
-        : const Color(0xFFB0B0B0);
+    final bgColor = isLight ? Colors.white : const Color(0xFF1E1E2E);
+    final borderColor = isLight ? const Color(0xFFE0E0E0) : const Color(0xFF3D3D5C);
+    final textColor = isLight ? const Color(0xFF212121) : Colors.white;
+    final subtitleColor = isLight ? const Color(0xFF757575) : const Color(0xFFB0B0B0);
+    // Colores de ícono idénticos al tint de Android
+    final iconColor = isDiscreet
+        ? const Color(0xFF6B4EE6)  // ic_widget_discreet tint
+        : const Color(0xFFFFD54F); // ic_widget_trophy tint
 
-    // Contenido según plantilla (simplificado para 2x2)
-    String title = _config.effectiveTitle;
-    String line1 = '';
-    
+    final title = _config.effectiveTitle;
+    String line1;
     switch (_config.template) {
       case WidgetTemplate.discreet:
         line1 = isDiscreet ? 'Respira. Sigue hoy.' : 'Tu victoria diaria te espera.';
         break;
-        
       case WidgetTemplate.verse:
-        line1 = 'Todo lo puedo en Cristo...';
+        line1 = _truncateForPreview(_verseText, 50);
         break;
-        
       case WidgetTemplate.streak:
-        line1 = _config.getStreakText(streak);
+        line1 = _config.getStreakText(_streak);
         break;
-        
       case WidgetTemplate.combo:
-        line1 = 'Todo lo puedo en Cristo...';
+        line1 = '${_config.getStreakText(_streak)}\n${_truncateForPreview(_verseText, 35)}';
         break;
     }
 
-    // === PREVIEW 2x2 - Layout IDÉNTICO al widget Android ===
     return Container(
-      width: 140, // Simula tamaño 2x2
+      width: 140,
       height: 140,
-      padding: const EdgeInsets.all(8), // Padding externo del FrameLayout
+      padding: const EdgeInsets.all(8),
       child: Container(
-        padding: const EdgeInsets.all(12), // Padding del LinearLayout interno
+        padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: bgColor,
-          borderRadius: BorderRadius.circular(16), // Igual a widget_bg_*.xml
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(color: borderColor, width: 1),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Ícono (32dp en Android)
             Icon(
               isDiscreet ? Icons.today_outlined : Icons.emoji_events_outlined,
               size: 32,
-              color: subtitleColor,
+              color: iconColor,
             ),
             const SizedBox(height: 8),
-            // Título (13sp bold)
             Text(
               title,
               style: TextStyle(
@@ -264,7 +300,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 4),
-            // Línea 1 (11sp)
             Text(
               line1,
               style: TextStyle(
@@ -279,6 +314,75 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
         ),
       ),
     );
+  }
+
+  Widget _buildVerseWidgetPreview() {
+    final isLight = _config.theme == WidgetTheme.lightCard;
+    final bgColor = isLight ? Colors.white : const Color(0xFF1E1E2E);
+    final borderColor = isLight ? const Color(0xFFE0E0E0) : const Color(0xFF3D3D5C);
+    final textColor = isLight ? const Color(0xFF212121) : Colors.white;
+    final labelColor = isLight ? const Color(0xFF757575) : const Color(0xFFB0B0B0);
+    const accentColor = Color(0xFFD4AF37);
+
+    return Container(
+      width: 280,
+      padding: const EdgeInsets.all(8),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: borderColor, width: 1),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'VERSÍCULO DEL DÍA',
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                color: labelColor,
+                letterSpacing: 1.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _verseText,
+              style: TextStyle(
+                fontSize: 14,
+                fontFamily: 'serif',
+                color: textColor,
+                height: 1.3,
+              ),
+              maxLines: 4,
+              overflow: TextOverflow.ellipsis,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _verseRef,
+              style: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: accentColor,
+              ),
+              maxLines: 1,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _truncateForPreview(String text, int maxLength) {
+    if (text.length <= maxLength) return text;
+    final truncated = text.substring(0, maxLength);
+    final lastSpace = truncated.lastIndexOf(' ');
+    if (lastSpace > maxLength * 0.7) {
+      return '${truncated.substring(0, lastSpace)}...';
+    }
+    return '$truncated...';
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -431,10 +535,10 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // CONTENIDO
+  // TÍTULO
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Widget _buildContentCard(bool isDark) {
+  Widget _buildTitleCard(bool isDark) {
     final isDiscreet = _config.privacyMode == WidgetPrivacyMode.discreet;
     final titlePresets = isDiscreet 
         ? WidgetTitlePresets.discreet 
@@ -442,129 +546,71 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
 
     return _buildCard(
       isDark: isDark,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Título personalizado
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Título del widget',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w600,
-                    color: isDark ? Colors.white : Colors.black87,
-                  ),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Título del widget',
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                color: isDark ? Colors.white : Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _titleController,
+              decoration: InputDecoration(
+                hintText: 'Ej: ${titlePresets.first}',
+                filled: true,
+                fillColor: isDark 
+                    ? Colors.white.withOpacity(0.05) 
+                    : Colors.grey.shade100,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
                 ),
-                const SizedBox(height: 8),
-                TextField(
-                  controller: _titleController,
-                  decoration: InputDecoration(
-                    hintText: 'Ej: ${titlePresets.first}',
-                    filled: true,
-                    fillColor: isDark 
-                        ? Colors.white.withOpacity(0.05) 
-                        : Colors.grey.shade100,
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, 
-                      vertical: 12,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16, 
+                  vertical: 12,
+                ),
+              ),
+              onChanged: (value) {
+                _updateConfig(_config.copyWith(titleText: value));
+              },
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 8,
+              runSpacing: 4,
+              children: titlePresets.map((title) {
+                final isSelected = _titleController.text == title;
+                return ActionChip(
+                  label: Text(
+                    title,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: isSelected 
+                          ? Colors.white 
+                          : (isDark ? Colors.white70 : Colors.black87),
                     ),
                   ),
-                  onChanged: (value) {
-                    _updateConfig(_config.copyWith(titleText: value));
+                  backgroundColor: isSelected 
+                      ? AppTheme.primaryColor 
+                      : (isDark 
+                          ? Colors.white.withOpacity(0.1) 
+                          : Colors.grey.shade200),
+                  onPressed: () {
+                    FeedbackEngine.I.tap();
+                    _titleController.text = title;
+                    _updateConfig(_config.copyWith(titleText: title));
                   },
-                ),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 4,
-                  children: titlePresets.map((title) {
-                    final isSelected = _titleController.text == title;
-                    return ActionChip(
-                      label: Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isSelected 
-                              ? Colors.white 
-                              : (isDark ? Colors.white70 : Colors.black87),
-                        ),
-                      ),
-                      backgroundColor: isSelected 
-                          ? AppTheme.primaryColor 
-                          : (isDark 
-                              ? Colors.white.withOpacity(0.1) 
-                              : Colors.grey.shade200),
-                      onPressed: () {
-                        FeedbackEngine.I.tap();
-                        _titleController.text = title;
-                        _updateConfig(_config.copyWith(titleText: title));
-                      },
-                    );
-                  }).toList(),
-                ),
-              ],
+                );
+              }).toList(),
             ),
-          ),
-          
-          const Divider(height: 1),
-          
-          // Toggles de contenido
-          SwitchListTile(
-            title: Text(_config.streakLabel),
-            subtitle: Text(
-              'Mostrar días de ${isDiscreet ? 'progreso' : 'victoria'}',
-              style: TextStyle(fontSize: 13, color: isDark ? Colors.white60 : Colors.black54),
-            ),
-            secondary: const Icon(Icons.trending_up),
-            value: _config.showStreak,
-            onChanged: (value) {
-              FeedbackEngine.I.tap();
-              _updateConfig(_config.copyWith(showStreak: value));
-            },
-            activeColor: AppTheme.primaryColor,
-          ),
-          
-          const Divider(height: 1),
-          
-          SwitchListTile(
-            title: const Text('Versículo'),
-            subtitle: Text(
-              'Mostrar texto del día',
-              style: TextStyle(fontSize: 13, color: isDark ? Colors.white60 : Colors.black54),
-            ),
-            secondary: const Icon(Icons.menu_book),
-            value: _config.showVerse,
-            onChanged: (value) {
-              FeedbackEngine.I.tap();
-              _updateConfig(_config.copyWith(showVerse: value));
-            },
-            activeColor: AppTheme.primaryColor,
-          ),
-          
-          const Divider(height: 1),
-          
-          SwitchListTile(
-            title: const Text('Botón "Abrir"'),
-            subtitle: Text(
-              'Acceso rápido a la app',
-              style: TextStyle(fontSize: 13, color: isDark ? Colors.white60 : Colors.black54),
-            ),
-            secondary: const Icon(Icons.open_in_new),
-            value: _config.showCTA,
-            onChanged: (value) {
-              FeedbackEngine.I.tap();
-              _updateConfig(_config.copyWith(showCTA: value));
-            },
-            activeColor: AppTheme.primaryColor,
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

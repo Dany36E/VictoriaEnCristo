@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/bible_verses.dart';
+import '../utils/result.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════════
 /// FAVORITES SERVICE - Servicio de Versículos Favoritos
@@ -60,52 +61,44 @@ class FavoritesService extends ChangeNotifier {
   }
 
   /// Agrega un versículo a favoritos
-  Future<bool> addFavorite(BibleVerse verse) async {
-    if (isFavorite(verse)) return false;
+  Future<Result<bool>> addFavorite(BibleVerse verse) async {
+    if (isFavorite(verse)) return const Success(false);
     
-    try {
-      _favorites.insert(0, verse); // Agregar al inicio
-      await _saveToStorage();
-      notifyListeners();
-      return true;
-    } catch (e) {
-      debugPrint('Error adding favorite: $e');
-      return false;
-    }
+    _favorites.insert(0, verse);
+    notifyListeners();
+    final saveResult = await _saveToStorage();
+    return saveResult.map((_) => true);
   }
 
   /// Elimina un versículo de favoritos
-  Future<bool> removeFavorite(BibleVerse verse) async {
-    try {
-      _favorites.removeWhere((v) => 
-        v.reference == verse.reference && v.verse == verse.verse
-      );
-      await _saveToStorage();
-      notifyListeners();
-      return true;
-    } catch (e) {
-      debugPrint('Error removing favorite: $e');
-      return false;
-    }
+  Future<Result<bool>> removeFavorite(BibleVerse verse) async {
+    _favorites.removeWhere((v) => 
+      v.reference == verse.reference && v.verse == verse.verse
+    );
+    notifyListeners();
+    final saveResult = await _saveToStorage();
+    return saveResult.map((_) => true);
   }
 
   /// Alterna el estado de favorito (agregar/quitar)
-  Future<bool> toggleFavorite(BibleVerse verse) async {
+  Future<Result<bool>> toggleFavorite(BibleVerse verse) async {
     if (isFavorite(verse)) {
-      return await removeFavorite(verse);
+      return removeFavorite(verse);
     } else {
-      return await addFavorite(verse);
+      return addFavorite(verse);
     }
   }
 
   /// Guarda los favoritos en almacenamiento local
-  Future<void> _saveToStorage() async {
+  Future<Result<void>> _saveToStorage() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonList = _favorites.map((v) => v.toJson()).toList();
       await prefs.setString(_storageKey, json.encode(jsonList));
-    } catch (e) {
+      return const Success(null);
+    } catch (e, st) {
       debugPrint('Error saving favorites: $e');
+      return Failure('Error guardando favoritos', error: e, stackTrace: st);
     }
   }
 

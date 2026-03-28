@@ -896,13 +896,31 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
     try {
       final progressService = PlanProgressService();
       await progressService.init();
-      await progressService.completeDay(widget.plan.id, widget.dayIndex);
+      final result = await progressService.completeDay(widget.plan.id, widget.dayIndex);
       
+      if (result.isFailure && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error_outline, color: Colors.orange),
+                const SizedBox(width: 12),
+                const Expanded(child: Text('Error guardando progreso. Tu avance podría no persistir.',
+                    style: TextStyle(color: AppDesignSystem.pureWhite))),
+              ],
+            ),
+            backgroundColor: AppDesignSystem.midnightLight,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          ),
+        );
+      }
+
       setState(() => _isDayCompleted = true);
       
       FeedbackEngine.I.confirm();
       
-      if (mounted) {
+      if (result.isSuccess && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(

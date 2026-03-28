@@ -21,6 +21,13 @@ const String kIOSWidgetName = 'VictoryWidget';
 /// App Group para iOS
 const String kIOSAppGroup = 'group.com.example.appquitar';
 
+/// Provider del widget 4x2 de versículo del día
+const String kAndroidVerseWidgetProvider = 'VerseOfDayWidgetProvider';
+
+/// Nombre completo calificado del provider de versículo
+const String kAndroidVerseWidgetQualifiedName =
+    '$kAndroidPackageName.$kAndroidVerseWidgetProvider';
+
 /// Validar que las constantes del widget no estén vacías
 bool validateWidgetConstants() {
   return kAndroidPackageName.isNotEmpty &&

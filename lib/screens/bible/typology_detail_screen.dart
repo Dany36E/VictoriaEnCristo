@@ -136,6 +136,7 @@ class TypologyDetailScreen extends StatelessWidget {
                 bookName: parsed['bookName'] as String,
                 chapter: parsed['chapter'] as int,
                 version: BibleUserDataService.I.preferredVersionNotifier.value,
+                initialVerse: parsed['verse'] as int?,
               ),
             ),
           );
@@ -251,6 +252,7 @@ class TypologyDetailScreen extends StatelessWidget {
       'bookNumber': num,
       'bookName': _osisToSpanish[parts[0]] ?? parts[0],
       'chapter': int.tryParse(parts[1]) ?? 1,
+      if (parts.length >= 3) 'verse': int.tryParse(parts[2]),
     };
   }
 

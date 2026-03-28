@@ -262,7 +262,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
                 Image.asset(
                   template.backgroundAsset!,
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => Container(
+                  errorBuilder: (_, _, _) => Container(
                     color: template.isDark
                         ? const Color(0xFF1A1A2E)
                         : const Color(0xFFF5E6C8),

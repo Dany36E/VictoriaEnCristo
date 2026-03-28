@@ -18,7 +18,7 @@ import '../services/content_repository.dart';
 import '../services/plan_repository.dart';
 import '../services/plan_progress_service.dart';
 import '../widgets/plan_card.dart';
-import '../widgets/victory_hero_card.dart';
+import '../widgets/jesus_streak_widget.dart';
 import 'emergency_screen.dart';
 import 'verses_screen.dart';
 import 'prayers_screen.dart';
@@ -368,9 +368,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                       AppDesignSystem.spacingM,
                       0,
                     ),
-                    child: VictoryHeroCard(
+                    child: JesusStreakWidget(
                       streakDays: _currentStreak,
-                      loggedToday: _loggedToday,
+                      completedToday: _loggedToday,
+                      isNewUser: _currentStreak == 0 && !_loggedToday && VictoryScoringService.I.getBestStreakAllTime() == 0,
                       isLoading: _victoryLoading,
                       onRegisterVictory: _registerVictory,
                       onTapCard: _navigateToProgress,

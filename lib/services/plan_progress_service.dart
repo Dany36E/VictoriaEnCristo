@@ -7,6 +7,7 @@ library;
 import 'dart:convert';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/plan.dart';
+import '../utils/result.dart';
 
 class PlanProgressService {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -68,13 +69,14 @@ class PlanProgressService {
     }
   }
   
-  Future<void> _saveAllProgress() async {
+  Future<Result<void>> _saveAllProgress() async {
     try {
       final data = _progressCache.map((key, value) => 
           MapEntry(key, value.toJson()));
       await _prefs?.setString(_keyAllProgress, jsonEncode(data));
-    } catch (e) {
-      // Ignorar errores de guardado
+      return const Success(null);
+    } catch (e, st) {
+      return Failure('Error guardando progreso', error: e, stackTrace: st);
     }
   }
   
@@ -131,7 +133,7 @@ class PlanProgressService {
   }
   
   /// Marcar día como completado
-  Future<void> completeDay(String planId, int dayIndex) async {
+  Future<Result<void>> completeDay(String planId, int dayIndex) async {
     final now = DateTime.now();
     var progress = _progressCache[planId] ?? PlanProgress(planId: planId);
     
@@ -169,32 +171,32 @@ class PlanProgressService {
     );
     
     _progressCache[planId] = progress;
-    await _saveAllProgress();
+    return _saveAllProgress();
   }
   
   /// Actualizar última apertura
-  Future<void> markOpened(String planId) async {
+  Future<Result<void>> markOpened(String planId) async {
     var progress = _progressCache[planId] ?? PlanProgress(planId: planId);
     progress = progress.copyWith(lastOpenedAt: DateTime.now());
     _progressCache[planId] = progress;
-    await _saveAllProgress();
+    return _saveAllProgress();
   }
   
   /// Reiniciar progreso de un plan
-  Future<void> resetProgress(String planId) async {
+  Future<Result<void>> resetProgress(String planId) async {
     _progressCache[planId] = PlanProgress(
       planId: planId,
       lastOpenedAt: DateTime.now(),
     );
-    await _saveAllProgress();
+    return _saveAllProgress();
   }
   
   /// "Retomar hoy" - no resetea, solo marca como abierto
-  Future<void> resumeToday(String planId) async {
+  Future<Result<void>> resumeToday(String planId) async {
     var progress = _progressCache[planId] ?? PlanProgress(planId: planId);
     progress = progress.copyWith(lastOpenedAt: DateTime.now());
     _progressCache[planId] = progress;
-    await _saveAllProgress();
+    return _saveAllProgress();
   }
   
   // ═══════════════════════════════════════════════════════════════════════════
@@ -202,24 +204,25 @@ class PlanProgressService {
   // ═══════════════════════════════════════════════════════════════════════════
   
   /// Guardar configuración de recordatorio
-  Future<void> setReminder(String planId, String time, {bool enabled = true}) async {
+  Future<Result<void>> setReminder(String planId, String time, {bool enabled = true}) async {
     var progress = _progressCache[planId] ?? PlanProgress(planId: planId);
     progress = progress.copyWith(
       hasReminder: enabled,
       reminderTime: time,
     );
     _progressCache[planId] = progress;
-    await _saveAllProgress();
+    return _saveAllProgress();
   }
   
   /// Desactivar recordatorio
-  Future<void> disableReminder(String planId) async {
+  Future<Result<void>> disableReminder(String planId) async {
     var progress = _progressCache[planId];
     if (progress != null) {
       progress = progress.copyWith(hasReminder: false);
       _progressCache[planId] = progress;
-      await _saveAllProgress();
+      return _saveAllProgress();
     }
+    return const Success(null);
   }
   
   /// Obtener hora del recordatorio

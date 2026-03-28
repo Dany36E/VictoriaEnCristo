@@ -133,8 +133,8 @@ class VerseItem extends ContentItem {
     body: title, // El versículo es el body
     extra: {
       'reference': reference,
-      if (howToUse != null) 'howToUse': howToUse,
-      if (whyItApplies != null) 'whyItApplies': whyItApplies,
+      'howToUse': ?howToUse,
+      'whyItApplies': ?whyItApplies,
     },
   );
 
@@ -211,7 +211,7 @@ class JournalPromptItem extends ContentItem {
     type: ContentType.journalPrompt,
     title: prompt,
     body: prompt,
-    extra: {if (followUp != null) 'followUp': followUp},
+    extra: {'followUp': ?followUp},
   );
 
   factory JournalPromptItem.fromJson(Map<String, dynamic> json) {

@@ -16,9 +16,13 @@ const db = admin.firestore();
 // CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Salt secreto para hashing — en producción usar functions.config() o Secret Manager
-const SERVER_SECRET_SALT = process.env.WALL_ABUSE_SALT ||
-  "VeC_s4lt_2026_m@k3_h4sh_1rr3v3rs1bl3";
+// Salt secreto para hashing — DEBE configurarse via environment variable
+// firebase functions:config:set wall.abuse_salt="TU_SALT_SECRETO"
+// O via Secret Manager / process.env.WALL_ABUSE_SALT
+const SERVER_SECRET_SALT = process.env.WALL_ABUSE_SALT;
+if (!SERVER_SECRET_SALT) {
+  console.error("WALL_ABUSE_SALT not configured. Set via environment variable.");
+}
 
 const VALID_GIANTS = [
   "digital", "sexual", "health", "substances", "mental", "emotions",

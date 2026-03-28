@@ -25,6 +25,7 @@ class BibleReaderScreen extends StatefulWidget {
   final String bookName;
   final int chapter;
   final BibleVersion version;
+  final int? initialVerse;
 
   const BibleReaderScreen({
     super.key,
@@ -32,6 +33,7 @@ class BibleReaderScreen extends StatefulWidget {
     required this.bookName,
     required this.chapter,
     required this.version,
+    this.initialVerse,
   });
 
   @override
@@ -58,6 +60,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
     _ctrl.addListener(_onControllerChanged);
     _scrollController.addListener(_onScroll);
+    if (widget.initialVerse != null) {
+      _ctrl.addListener(_scrollToInitialVerse);
+    }
     _pageController = PageController(
       initialPage: 1, // center page = current chapter
       viewportFraction: 0.92,
@@ -67,6 +72,22 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
 
   void _onControllerChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _scrollToInitialVerse() {
+    if (_ctrl.loading || _ctrl.verses.isEmpty) return;
+    _ctrl.removeListener(_scrollToInitialVerse);
+    final verseIdx = (widget.initialVerse! - 1).clamp(0, _ctrl.verses.length - 1);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!_scrollController.hasClients) return;
+      final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
+      final offset = 56.0 + 92.0 + (verseIdx * fontSize * 2.2);
+      _scrollController.animateTo(
+        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+      );
+    });
   }
 
   void _onScroll() {

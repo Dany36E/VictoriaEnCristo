@@ -61,9 +61,6 @@ class WidgetConfig {
   final WidgetTemplate template;
   final WidgetPrivacyMode privacyMode;
   final String titleText;
-  final bool showStreak;
-  final bool showVerse;
-  final bool showCTA;
   final WidgetTheme theme;
   final DateTime lastUpdated;
 
@@ -71,9 +68,6 @@ class WidgetConfig {
     this.template = WidgetTemplate.discreet,
     this.privacyMode = WidgetPrivacyMode.discreet,
     this.titleText = 'Rutina diaria',
-    this.showStreak = true,
-    this.showVerse = false,
-    this.showCTA = true,
     this.theme = WidgetTheme.lightCard,
     DateTime? lastUpdated,
   }) : lastUpdated = lastUpdated ?? const _DefaultDateTime();
@@ -84,9 +78,6 @@ class WidgetConfig {
       template: WidgetTemplate.discreet,
       privacyMode: WidgetPrivacyMode.discreet,
       titleText: WidgetTitlePresets.defaultDiscreet,
-      showStreak: true,
-      showVerse: false,
-      showCTA: true,
       theme: WidgetTheme.lightCard,
       lastUpdated: DateTime.now(),
     );
@@ -97,9 +88,6 @@ class WidgetConfig {
     WidgetTemplate? template,
     WidgetPrivacyMode? privacyMode,
     String? titleText,
-    bool? showStreak,
-    bool? showVerse,
-    bool? showCTA,
     WidgetTheme? theme,
     DateTime? lastUpdated,
   }) {
@@ -107,9 +95,6 @@ class WidgetConfig {
       template: template ?? this.template,
       privacyMode: privacyMode ?? this.privacyMode,
       titleText: titleText ?? this.titleText,
-      showStreak: showStreak ?? this.showStreak,
-      showVerse: showVerse ?? this.showVerse,
-      showCTA: showCTA ?? this.showCTA,
       theme: theme ?? this.theme,
       lastUpdated: lastUpdated ?? DateTime.now(),
     );
@@ -121,9 +106,6 @@ class WidgetConfig {
       'template': template.index,
       'privacyMode': privacyMode.index,
       'titleText': titleText,
-      'showStreak': showStreak,
-      'showVerse': showVerse,
-      'showCTA': showCTA,
       'theme': theme.index,
       'lastUpdated': lastUpdated.toIso8601String(),
     };
@@ -135,9 +117,6 @@ class WidgetConfig {
       template: WidgetTemplate.values[json['template'] as int? ?? 0],
       privacyMode: WidgetPrivacyMode.values[json['privacyMode'] as int? ?? 0],
       titleText: json['titleText'] as String? ?? WidgetTitlePresets.defaultDiscreet,
-      showStreak: json['showStreak'] as bool? ?? true,
-      showVerse: json['showVerse'] as bool? ?? false,
-      showCTA: json['showCTA'] as bool? ?? true,
       theme: WidgetTheme.values[json['theme'] as int? ?? 0],
       lastUpdated: json['lastUpdated'] != null 
           ? DateTime.tryParse(json['lastUpdated'] as String) ?? DateTime.now()
@@ -193,24 +172,11 @@ class WidgetConfig {
         other.template == template &&
         other.privacyMode == privacyMode &&
         other.titleText == titleText &&
-        other.showStreak == showStreak &&
-        other.showVerse == showVerse &&
-        other.showCTA == showCTA &&
         other.theme == theme;
   }
 
   @override
-  int get hashCode {
-    return Object.hash(
-      template,
-      privacyMode,
-      titleText,
-      showStreak,
-      showVerse,
-      showCTA,
-      theme,
-    );
-  }
+  int get hashCode => Object.hash(template, privacyMode, titleText, theme);
 }
 
 /// Helper para DateTime por defecto en const constructor
@@ -225,48 +191,32 @@ class _DefaultDateTime implements DateTime {
 class WidgetPayload {
   final String title;
   final String line1;
-  final String line2;
   final int streakValue;
-  final String verseSnippet;
+  final String verseText;
   final String verseReference;
   final String dateISO;
-  final bool showStreak;
-  final bool showVerse;
-  final bool showCTA;
-  final String ctaText;
   final bool isLightTheme;
   final bool isDiscreetMode;
 
   const WidgetPayload({
     required this.title,
     required this.line1,
-    required this.line2,
     required this.streakValue,
-    required this.verseSnippet,
+    required this.verseText,
     required this.verseReference,
     required this.dateISO,
-    required this.showStreak,
-    required this.showVerse,
-    required this.showCTA,
-    required this.ctaText,
     required this.isLightTheme,
     required this.isDiscreetMode,
   });
 
-  /// Payload por defecto (fallback neutral)
   factory WidgetPayload.fallback() {
     return WidgetPayload(
       title: 'Rutina diaria',
       line1: 'Respira. Sigue hoy.',
-      line2: 'Abre la app cuando puedas.',
       streakValue: 0,
-      verseSnippet: '',
+      verseText: '',
       verseReference: '',
       dateISO: DateTime.now().toIso8601String().split('T').first,
-      showStreak: false,
-      showVerse: false,
-      showCTA: true,
-      ctaText: 'Abrir',
       isLightTheme: true,
       isDiscreetMode: true,
     );
@@ -276,15 +226,10 @@ class WidgetPayload {
     return {
       'title': title,
       'line1': line1,
-      'line2': line2,
       'streakValue': streakValue,
-      'verseSnippet': verseSnippet,
+      'verseText': verseText,
       'verseReference': verseReference,
       'dateISO': dateISO,
-      'showStreak': showStreak,
-      'showVerse': showVerse,
-      'showCTA': showCTA,
-      'ctaText': ctaText,
       'isLightTheme': isLightTheme,
       'isDiscreetMode': isDiscreetMode,
     };

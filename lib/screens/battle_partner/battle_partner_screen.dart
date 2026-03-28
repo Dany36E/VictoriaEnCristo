@@ -565,7 +565,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           ),
         ],
         const Spacer(),
-        if (trailing != null) trailing,
+        ?trailing,
       ],
     );
   }

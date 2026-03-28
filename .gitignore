@@ -68,4 +68,5 @@ functions/node_modules/
 temp_bible_data/
 temp_data/
 test_screenshots/
+test_*.png
 scripts/

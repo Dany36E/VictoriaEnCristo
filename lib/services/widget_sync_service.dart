@@ -42,14 +42,15 @@ class WidgetSyncService {
   static const String _keyWidgetPayload = 'widget_payload_json';
   static const String _keyWidgetTitle = 'widget_title';
   static const String _keyWidgetLine1 = 'widget_line1';
-  static const String _keyWidgetLine2 = 'widget_line2';
   static const String _keyWidgetStreak = 'widget_streak';
-  static const String _keyWidgetShowStreak = 'widget_show_streak';
-  static const String _keyWidgetShowVerse = 'widget_show_verse';
-  static const String _keyWidgetShowCTA = 'widget_show_cta';
   static const String _keyWidgetIsLight = 'widget_is_light';
   static const String _keyWidgetIsDiscreet = 'widget_is_discreet';
   static const String _keyWidgetDate = 'widget_date';
+  
+  // Keys para widget 4×2 de versículo (deben coincidir con VerseOfDayWidgetProvider)
+  static const String _keyVerseText = 'verse_widget_text';
+  static const String _keyVerseRef = 'verse_widget_reference';
+  static const String _keyVerseIsLight = 'verse_widget_is_light';
   
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -124,19 +125,20 @@ class WidgetSyncService {
       // Construir payload
       final payload = await _buildPayload();
       
-      // Guardar datos individuales para acceso nativo fácil
+      // Widget 2×2 (Recordatorio)
       await HomeWidget.saveWidgetData(_keyWidgetTitle, payload.title);
       await HomeWidget.saveWidgetData(_keyWidgetLine1, payload.line1);
-      await HomeWidget.saveWidgetData(_keyWidgetLine2, payload.line2);
       await HomeWidget.saveWidgetData(_keyWidgetStreak, payload.streakValue);
-      await HomeWidget.saveWidgetData(_keyWidgetShowStreak, payload.showStreak);
-      await HomeWidget.saveWidgetData(_keyWidgetShowVerse, payload.showVerse);
-      await HomeWidget.saveWidgetData(_keyWidgetShowCTA, payload.showCTA);
       await HomeWidget.saveWidgetData(_keyWidgetIsLight, payload.isLightTheme);
       await HomeWidget.saveWidgetData(_keyWidgetIsDiscreet, payload.isDiscreetMode);
       await HomeWidget.saveWidgetData(_keyWidgetDate, payload.dateISO);
       
-      // También guardar JSON completo como backup
+      // Widget 4×2 (Versículo del día)
+      await HomeWidget.saveWidgetData(_keyVerseText, payload.verseText);
+      await HomeWidget.saveWidgetData(_keyVerseRef, payload.verseReference);
+      await HomeWidget.saveWidgetData(_keyVerseIsLight, payload.isLightTheme);
+      
+      // JSON completo como backup
       await HomeWidget.saveWidgetData(_keyWidgetPayload, payload.toJsonString());
       
       // Forzar actualización de widgets
@@ -150,12 +152,10 @@ class WidgetSyncService {
   
   /// Construye el payload según la configuración actual
   Future<WidgetPayload> _buildPayload() async {
-    // Asegurar que VictoryScoringService esté inicializado
     if (!VictoryScoringService.I.isInitialized) {
       await VictoryScoringService.I.init();
     }
     
-    // Obtener datos actuales desde VictoryScoringService
     final streak = VictoryScoringService.I.getCurrentStreak();
     final verse = await _getVerseForWidget();
     final today = DateTime.now();
@@ -163,62 +163,33 @@ class WidgetSyncService {
     
     debugPrint('📱 [WIDGET] Building payload: streak=$streak');
     
-    // Construir textos según plantilla y privacidad
-    String title;
-    String line1;
-    String line2;
-    String verseSnippet = '';
-    String verseReference = '';
-    
     final isDiscreet = _config.privacyMode == WidgetPrivacyMode.discreet;
+    final title = _config.effectiveTitle;
     
-    // Título
-    title = _config.effectiveTitle;
-    
-    // Líneas según plantilla
+    // Contenido de línea1 determinado 100% por la plantilla
+    String line1;
     switch (_config.template) {
       case WidgetTemplate.discreet:
         line1 = isDiscreet ? 'Respira. Sigue hoy.' : 'Tu victoria diaria te espera.';
-        line2 = _config.showStreak 
-            ? _config.getStreakText(streak)
-            : 'Abre cuando puedas.';
         break;
-        
       case WidgetTemplate.verse:
-        verseSnippet = _truncateVerse(verse.verse, isDiscreet ? 50 : 80);
-        verseReference = isDiscreet ? '' : verse.reference;
-        line1 = verseSnippet;
-        line2 = verseReference.isNotEmpty ? '— $verseReference' : '';
+        line1 = _truncateVerse(verse.verse, isDiscreet ? 50 : 80);
         break;
-        
       case WidgetTemplate.streak:
         line1 = _config.getStreakText(streak);
-        line2 = isDiscreet 
-            ? 'Mantén tu ritmo' 
-            : streak > 0 ? '¡Sigue adelante!' : 'Hoy es un nuevo día';
         break;
-        
       case WidgetTemplate.combo:
-        verseSnippet = _truncateVerse(verse.verse, 40);
-        line1 = verseSnippet;
-        line2 = _config.showStreak 
-            ? _config.getStreakText(streak)
-            : '';
+        line1 = '${_config.getStreakText(streak)}\n${_truncateVerse(verse.verse, 35)}';
         break;
     }
     
     return WidgetPayload(
       title: title,
       line1: line1,
-      line2: line2,
       streakValue: streak,
-      verseSnippet: verseSnippet,
-      verseReference: verseReference,
+      verseText: verse.verse,
+      verseReference: verse.reference,
       dateISO: dateISO,
-      showStreak: _config.showStreak,
-      showVerse: _config.showVerse,
-      showCTA: _config.showCTA,
-      ctaText: isDiscreet ? 'Abrir' : 'Ver más',
       isLightTheme: _config.theme == WidgetTheme.lightCard,
       isDiscreetMode: isDiscreet,
     );
@@ -254,22 +225,25 @@ class WidgetSyncService {
     return '$truncated...';
   }
   
-  /// Actualiza los widgets en Android e iOS
+  /// Actualiza ambos widgets en Android e iOS
   Future<void> _updateWidgets() async {
-    // Validar constantes antes de intentar actualizar
     if (!validateWidgetConstants()) {
       debugPrint('📱 [WIDGET] ⚠️ Invalid widget constants, skipping update');
       return;
     }
     
     try {
-      // Actualizar widget Android (solo 2x2) - usar constantes validadas
-      // IMPORTANTE: NO llamar updateWidget para iOS en Android y viceversa
-      // porque causa ClassNotFoundException con null
+      // Widget 2×2 (Recordatorio)
       await HomeWidget.updateWidget(
         androidName: kAndroidWidget2x2Provider,
         qualifiedAndroidName: kAndroidWidget2x2QualifiedName,
         iOSName: kIOSWidgetName,
+      );
+      
+      // Widget 4×2 (Versículo del día)
+      await HomeWidget.updateWidget(
+        androidName: kAndroidVerseWidgetProvider,
+        qualifiedAndroidName: kAndroidVerseWidgetQualifiedName,
       );
     } catch (e) {
       debugPrint('📱 [WIDGET] Update error: $e');
@@ -294,17 +268,19 @@ class WidgetSyncService {
     debugPrint('📱 [WIDGET] Clearing widget to defaults (account change)');
     
     try {
-      // Payload neutral y discreto
+      // Widget 2×2 neutral
       await HomeWidget.saveWidgetData(_keyWidgetTitle, '¡Hola!');
       await HomeWidget.saveWidgetData(_keyWidgetLine1, 'Bienvenido');
-      await HomeWidget.saveWidgetData(_keyWidgetLine2, 'Abre la app para comenzar');
       await HomeWidget.saveWidgetData(_keyWidgetStreak, 0);
-      await HomeWidget.saveWidgetData(_keyWidgetShowStreak, false);
-      await HomeWidget.saveWidgetData(_keyWidgetShowVerse, false);
-      await HomeWidget.saveWidgetData(_keyWidgetShowCTA, true);
       await HomeWidget.saveWidgetData(_keyWidgetIsLight, true);
       await HomeWidget.saveWidgetData(_keyWidgetIsDiscreet, true);
       await HomeWidget.saveWidgetData(_keyWidgetDate, '');
+      
+      // Widget 4×2 Versículo defaults
+      await HomeWidget.saveWidgetData(_keyVerseText, 'Todo lo puedo en Cristo que me fortalece.');
+      await HomeWidget.saveWidgetData(_keyVerseRef, 'Filipenses 4:13');
+      await HomeWidget.saveWidgetData(_keyVerseIsLight, false);
+      
       await HomeWidget.saveWidgetData(_keyWidgetPayload, '{}');
       
       // Forzar actualización
