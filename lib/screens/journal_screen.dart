@@ -76,7 +76,7 @@ class _JournalScreenState extends State<JournalScreen> {
             IconButton(
               icon: const Icon(Icons.bar_chart),
               onPressed: () => _showStats(context, isDark),
-              tooltip: 'EstadÃ­sticas',
+              tooltip: 'Estadísticas',
             ),
           ],
         ],
@@ -96,20 +96,20 @@ class _JournalScreenState extends State<JournalScreen> {
   }
 
   Widget _buildBody(bool isDark) {
-    // Si no hay entradas y no hay prompt, mostrar estado vacÃ­o
+    // Si no hay entradas y no hay prompt, mostrar estado vacío
     if (_journalService.entries.isEmpty && _todayPrompt == null) {
       return _buildEmptyState(isDark);
     }
 
     return CustomScrollView(
       slivers: [
-        // Prompt del dÃ­a personalizado
+        // Prompt del día personalizado
         if (_todayPrompt != null)
           SliverToBoxAdapter(
             child: _buildTodayPromptCard(isDark),
           ),
         
-        // Lista de entradas o mensaje si estÃ¡ vacÃ­o
+        // Lista de entradas o mensaje si está vacío
         if (_journalService.entries.isEmpty)
           SliverFillRemaining(
             child: _buildEmptyState(isDark),
@@ -172,7 +172,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     ),
                     const SizedBox(width: 4),
                     Text(
-                      'ReflexiÃ³n del dÃ­a',
+                      'Reflexión del día',
                       style: TextStyle(
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -225,7 +225,7 @@ class _JournalScreenState extends State<JournalScreen> {
           if (prompt.followUp != null && prompt.followUp!.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
-              'TambiÃ©n considera:',
+              'También considera:',
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -234,7 +234,7 @@ class _JournalScreenState extends State<JournalScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'â€¢ ${prompt.followUp}',
+              '• ${prompt.followUp}',
               style: TextStyle(
                 fontSize: 13,
                 fontStyle: FontStyle.italic,
@@ -297,7 +297,7 @@ class _JournalScreenState extends State<JournalScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Tu diario estÃ¡ vacÃ­o',
+              'Tu diario está vacío',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -306,7 +306,7 @@ class _JournalScreenState extends State<JournalScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Escribe tus reflexiones, victorias y luchas.\nTe ayudarÃ¡ a ver tu progreso.',
+              'Escribe tus reflexiones, victorias y luchas.\nTe ayudará a ver tu progreso.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: t.textSecondary,

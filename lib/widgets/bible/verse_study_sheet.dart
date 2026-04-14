@@ -9,7 +9,7 @@ import 'study_tabs/commentary_tab.dart';
 import 'study_tabs/conexiones_tab.dart';
 import 'study_tabs/guzik_tab.dart';
 
-/// Sheet de estudio profundo para un versÃ­culo.
+/// Sheet de estudio profundo para un versículo.
 /// 4 tabs: Interlineal | Comentarios | Conexiones | Estudio Guzik.
 class VerseStudySheet extends StatefulWidget {
   final BibleVerse verse;
