@@ -144,7 +144,18 @@ class _TypologyScreenState extends State<TypologyScreen> {
                 const SizedBox(height: 8),
                 // List
                 Expanded(
-                  child: ListView.builder(
+                  child: _filtered.isEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.search_off, size: 48, color: t.textPrimary.withOpacity(0.3)),
+                            const SizedBox(height: 12),
+                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withOpacity(0.5), fontSize: 14)),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
                     padding: const EdgeInsets.only(bottom: 40, left: 16, right: 16),
                     itemCount: _filtered.length,
                     itemBuilder: (_, i) => _buildTypologyCard(_filtered[i], t),

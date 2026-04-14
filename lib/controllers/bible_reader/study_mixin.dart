@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/bible/enduring_word_service.dart';
 import 'reader_state.dart';
@@ -21,7 +22,7 @@ mixin StudyMixin on ReaderState {
     }
     SharedPreferences.getInstance().then((prefs) {
       prefs.setBool('bible_study_mode_enabled', studyModeEnabled);
-    });
+    }).catchError((e) { debugPrint('⚠️ [StudyMixin] Error guardando study mode: $e'); });
   }
 
   @override
@@ -35,7 +36,7 @@ mixin StudyMixin on ReaderState {
       notifyListeners();
       SharedPreferences.getInstance().then((prefs) {
         prefs.setBool('bible_study_mode_enabled', false);
-      });
+      }).catchError((e) { debugPrint('⚠️ [StudyMixin] Error desactivando study mode: $e'); });
       return;
     }
     guzikChapter = commentary;

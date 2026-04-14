@@ -11,6 +11,7 @@ import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
 import '../services/content_repository.dart';
 import '../models/content_item.dart';
+import '../theme/app_theme_data.dart';
 import 'emotional_verse_jar_screen.dart';
 
 class VersesScreen extends StatefulWidget {
@@ -30,13 +31,6 @@ class _VersesScreenState extends State<VersesScreen>
   // Versículos personalizados
   List<ScoredItem<VerseItem>> _recommendedVerses = [];
   bool _hasPersonalization = false;
-
-  // Colores del Design System
-  static const Color _creamBackground = Color(0xFFFAF7F2); // Fondo crema cálido
-  static const Color _goldAccent = Color(0xFFD4A853);
-  static const Color _goldLight = Color(0xFFE8C97A);
-  static const Color _textDark = Color(0xFF1A1A1A); // Casi negro para versículos
-  static const Color _textMedium = Color(0xFF4A4A4A); // Gris medio oscuro
 
   @override
   void initState() {
@@ -91,8 +85,9 @@ class _VersesScreenState extends State<VersesScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: _creamBackground,
+      backgroundColor: t.scaffoldBg,
       body: Column(
         children: [
           // ═══════════════════════════════════════════════════════════════
@@ -129,7 +124,7 @@ class _VersesScreenState extends State<VersesScreen>
       return Center(
         child: Text(
           'Completa tu onboarding para ver recomendaciones',
-          style: TextStyle(color: _textMedium),
+          style: TextStyle(color: AppThemeData.of(context).textSecondary),
         ),
       );
     }
@@ -154,10 +149,11 @@ class _VersesScreenState extends State<VersesScreen>
   }
   
   Widget _buildPersonalizedVerseCard(BibleVerse verse, String reason, int index) {
+    final t = AppThemeData.of(context);
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: t.cardBg,
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
@@ -167,7 +163,7 @@ class _VersesScreenState extends State<VersesScreen>
           ),
         ],
         border: Border.all(
-          color: _goldAccent.withOpacity(0.2),
+          color: t.accent.withOpacity(0.2),
           width: 1,
         ),
       ),
@@ -194,10 +190,10 @@ class _VersesScreenState extends State<VersesScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: _goldAccent.withOpacity(0.1),
+                    color: t.accent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: _goldAccent.withOpacity(0.3),
+                      color: t.accent.withOpacity(0.3),
                       width: 0.5,
                     ),
                   ),
@@ -207,7 +203,7 @@ class _VersesScreenState extends State<VersesScreen>
                       Icon(
                         Icons.auto_awesome,
                         size: 12,
-                        color: _goldAccent,
+                        color: t.accent,
                       ),
                       const SizedBox(width: 4),
                       Flexible(
@@ -216,7 +212,7 @@ class _VersesScreenState extends State<VersesScreen>
                           style: GoogleFonts.manrope(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
-                            color: _goldAccent,
+                            color: t.accent,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -234,7 +230,7 @@ class _VersesScreenState extends State<VersesScreen>
                   style: GoogleFonts.lora(
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
-                    color: _textDark,
+                    color: t.textPrimary,
                     height: 1.5,
                     fontStyle: FontStyle.italic,
                   ),
@@ -248,7 +244,7 @@ class _VersesScreenState extends State<VersesScreen>
                   style: GoogleFonts.cinzel(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
-                    color: _goldAccent,
+                    color: t.accent,
                   ),
                 ),
               ],
@@ -263,9 +259,10 @@ class _VersesScreenState extends State<VersesScreen>
   // ENCABEZADO PREMIUM CON HERO BANNER
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildPremiumHeader() {
+    final t = AppThemeData.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F0E8), // Crema más cálido para header
+        color: t.surface,
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.04),
@@ -288,9 +285,9 @@ class _VersesScreenState extends State<VersesScreen>
                   // Botón atrás
                   IconButton(
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.arrow_back_ios_new_rounded,
-                      color: _textDark,
+                      color: t.textPrimary,
                       size: 22,
                     ),
                   ),
@@ -301,7 +298,7 @@ class _VersesScreenState extends State<VersesScreen>
                     style: GoogleFonts.cinzel(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
-                      color: _textDark,
+                      color: t.textPrimary,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -347,7 +344,7 @@ class _VersesScreenState extends State<VersesScreen>
                               style: GoogleFonts.manrope(
                                 fontSize: 14,
                                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
-                                color: isActive ? _goldAccent : _textMedium,
+                                color: isActive ? t.accent : t.textSecondary,
                                 letterSpacing: 0.3,
                               ),
                             ),
@@ -358,7 +355,7 @@ class _VersesScreenState extends State<VersesScreen>
                             height: 2,
                             width: isActive ? 40 : 0,
                             decoration: BoxDecoration(
-                              color: _goldAccent,
+                              color: t.accent,
                               borderRadius: BorderRadius.circular(1),
                             ),
                           ),
@@ -380,6 +377,7 @@ class _VersesScreenState extends State<VersesScreen>
   // HERO BANNER - Tarjeta CTA Emocional Destacada
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildEmotionalHeroBanner() {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
@@ -415,7 +413,7 @@ class _VersesScreenState extends State<VersesScreen>
             borderRadius: BorderRadius.circular(24),
             // Borde dorado sutil
             border: Border.all(
-              color: _goldAccent.withOpacity(0.3),
+              color: t.accent.withOpacity(0.3),
               width: 1.5,
             ),
             // Sombra dramática
@@ -426,7 +424,7 @@ class _VersesScreenState extends State<VersesScreen>
                 offset: const Offset(0, 12),
               ),
               BoxShadow(
-                color: _goldAccent.withOpacity(0.1),
+                color: t.accent.withOpacity(0.1),
                 blurRadius: 32,
                 offset: const Offset(0, 4),
               ),
@@ -449,8 +447,8 @@ class _VersesScreenState extends State<VersesScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          _goldAccent.withOpacity(0.15),
-                          _goldAccent.withOpacity(0),
+                          t.accent.withOpacity(0.15),
+                          t.accent.withOpacity(0),
                         ],
                       ),
                     ),
@@ -466,8 +464,8 @@ class _VersesScreenState extends State<VersesScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          _goldAccent.withOpacity(0.1),
-                          _goldAccent.withOpacity(0),
+                          t.accent.withOpacity(0.1),
+                          t.accent.withOpacity(0),
                         ],
                       ),
                     ),
@@ -492,23 +490,23 @@ class _VersesScreenState extends State<VersesScreen>
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: _goldAccent.withOpacity(0.15),
+                                    color: t.accent.withOpacity(0.15),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
-                                  child: const Icon(
+                                  child: Icon(
                                     Icons.auto_awesome_rounded,
-                                    color: _goldAccent,
+                                    color: t.accent,
                                     size: 20,
                                   ),
                                 ).animate(onPlay: (c) => c.repeat(reverse: true))
-                                  .shimmer(duration: 2000.ms, color: _goldLight.withOpacity(0.3)),
+                                  .shimmer(duration: 2000.ms, color: t.accent.withOpacity(0.3)),
                                 const SizedBox(width: 10),
                                 Text(
                                   'NUEVO',
                                   style: GoogleFonts.manrope(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
-                                    color: _goldAccent,
+                                    color: t.accent,
                                     letterSpacing: 2,
                                   ),
                                 ),
@@ -551,16 +549,16 @@ class _VersesScreenState extends State<VersesScreen>
                                 vertical: 12,
                               ),
                               decoration: BoxDecoration(
-                                gradient: const LinearGradient(
+                                gradient: LinearGradient(
                                   colors: [
-                                    Color(0xFFD4A853),
-                                    Color(0xFFE8C97A),
+                                    t.accent,
+                                    t.accentSoft,
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: _goldAccent.withOpacity(0.4),
+                                    color: t.accent.withOpacity(0.4),
                                     blurRadius: 16,
                                     offset: const Offset(0, 6),
                                   ),
@@ -680,17 +678,12 @@ class _PremiumVerseCard extends StatelessWidget {
     required this.index,
   });
 
-  // Colores
-  static const Color _goldAccent = Color(0xFFD4A853);
-  static const Color _goldSubtle = Color(0x15D4A853); // 8% opacity
-  static const Color _textDark = Color(0xFF1A1A1A);
-  static const Color _cardBg = Colors.white;
-
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: _cardBg,
+        color: t.cardBg,
         borderRadius: BorderRadius.circular(20), // Border radius aumentado
         // Sombra suave y difusa (soft shadow)
         boxShadow: [
@@ -719,7 +712,7 @@ class _PremiumVerseCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: _goldSubtle,
+                color: t.accent.withOpacity(0.08),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
@@ -727,7 +720,7 @@ class _PremiumVerseCard extends StatelessWidget {
                 style: GoogleFonts.manrope(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: _goldAccent,
+                  color: t.accent,
                   letterSpacing: 1.5,
                 ),
               ),
@@ -744,7 +737,7 @@ class _PremiumVerseCard extends StatelessWidget {
                 fontSize: 19, // Aumentado significativamente
                 fontWeight: FontWeight.w400,
                 fontStyle: FontStyle.italic,
-                color: _textDark, // Casi negro para máximo contraste
+                color: t.textPrimary, // Casi negro para máximo contraste
                 height: 1.7, // Interlineado generoso
                 letterSpacing: 0.2,
               ),
@@ -768,7 +761,7 @@ class _PremiumVerseCard extends StatelessWidget {
                     style: GoogleFonts.manrope(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
-                      color: _goldAccent,
+                      color: t.accent,
                       letterSpacing: 0.2,
                     ),
                     overflow: TextOverflow.ellipsis,
@@ -872,7 +865,7 @@ class _ActionIcon extends StatelessWidget {
           child: Icon(
             icon,
             size: 18,
-            color: const Color(0xFF8A8A8A),
+            color: AppThemeData.of(context).textSecondary,
           ),
         ),
       ),
@@ -961,7 +954,7 @@ class _FavoriteIconState extends State<_FavoriteIcon> {
           child: Icon(
             isFavorite ? Icons.bookmark_rounded : Icons.bookmark_outline_rounded,
             size: 18,
-            color: isFavorite ? const Color(0xFFD4A853) : const Color(0xFF8A8A8A),
+            color: isFavorite ? AppThemeData.of(context).accent : AppThemeData.of(context).textSecondary,
           ),
         ),
       ),
@@ -1034,7 +1027,7 @@ class _AudioIconState extends State<_AudioIcon> {
           child: Icon(
             _isPlaying ? Icons.stop_rounded : Icons.volume_up_rounded,
             size: 18,
-            color: _isPlaying ? const Color(0xFFD4A853) : const Color(0xFF8A8A8A),
+            color: _isPlaying ? AppThemeData.of(context).accent : AppThemeData.of(context).textSecondary,
           ),
         ),
       ),

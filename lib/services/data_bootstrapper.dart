@@ -13,11 +13,19 @@ import '../repositories/profile_repository.dart';
 import '../repositories/progress_repository.dart';
 import '../repositories/journal_repository.dart';
 import '../repositories/plans_repository.dart';
+import '../repositories/favorites_repository.dart';
+import '../repositories/badge_repository.dart';
 import '../models/user_profile.dart';
 import 'progress_sync_adapter.dart';
 import 'journal_sync_adapter.dart';
+import 'favorites_sync_adapter.dart';
+import 'plans_sync_adapter.dart';
+import 'badge_sync_adapter.dart';
 import 'victory_scoring_service.dart';
 import 'journal_service.dart';
+import 'favorites_service.dart';
+import 'plan_progress_service.dart';
+import 'badge_service.dart';
 
 /// Estado del bootstrapper
 enum BootstrapState {
@@ -75,11 +83,16 @@ class DataBootstrapper {
         ProgressRepository.I.init(),
         JournalRepository.I.init(),
         PlansRepository.I.init(),
+        FavoritesRepository.I.init(),
+        BadgeRepository.I.init(),
       ]);
       
       // Inicializar sync adapters (escuchan cambios de auth automáticamente)
       ProgressSyncAdapter.I.init();
       JournalSyncAdapter.I.init();
+      FavoritesSyncAdapter.I.init();
+      PlansSyncAdapter.I.init();
+      BadgeSyncAdapter.I.init();
       
       // Escuchar cambios de autenticación
       _authSubscription = FirebaseAuth.instance.authStateChanges().listen(_onAuthStateChanged);
@@ -166,6 +179,8 @@ class DataBootstrapper {
         ),
         JournalRepository.I.connectUser(uid),
         PlansRepository.I.connectUser(uid),
+        FavoritesRepository.I.connectUser(uid),
+        BadgeRepository.I.connectUser(uid),
       ]);
       
       // 4. CRÍTICO: Hidratar servicios locales con datos de cloud.
@@ -251,6 +266,41 @@ class DataBootstrapper {
         debugPrint('🚀 [BOOTSTRAP]   ℹ️ Journal: cloud empty, nothing to hydrate');
       }
       
+      // --- Favorites ---
+      final cachedFavorites = FavoritesRepository.I.cachedFavorites;
+      if (cachedFavorites.isNotEmpty) {
+        final favService = FavoritesService();
+        await favService.init();
+        await favService.restoreFromCloud(cachedFavorites);
+        
+        debugPrint('🚀 [BOOTSTRAP]   ✅ Favorites: ${cachedFavorites.length} restored');
+      } else {
+        debugPrint('🚀 [BOOTSTRAP]   ℹ️ Favorites: cloud empty, nothing to hydrate');
+      }
+      
+      // --- Plan Progress ---
+      final cachedPlans = PlansRepository.I.getAll();
+      if (cachedPlans.isNotEmpty) {
+        final planService = PlanProgressService.I;
+        await planService.init();
+        await planService.restoreFromCloud(cachedPlans);
+        
+        debugPrint('🚀 [BOOTSTRAP]   ✅ Plans: ${cachedPlans.length} restored');
+      } else {
+        debugPrint('🚀 [BOOTSTRAP]   ℹ️ Plans: cloud empty, nothing to hydrate');
+      }
+      
+      // --- Badges ---
+      final cachedBadges = BadgeRepository.I.cachedLevels;
+      if (cachedBadges.isNotEmpty) {
+        await BadgeService.I.init();
+        await BadgeService.I.restoreFromCloud(cachedBadges);
+        
+        debugPrint('🚀 [BOOTSTRAP]   ✅ Badges: ${cachedBadges.length} levels restored');
+      } else {
+        debugPrint('🚀 [BOOTSTRAP]   ℹ️ Badges: cloud empty, nothing to hydrate');
+      }
+      
       debugPrint('🚀 [BOOTSTRAP] ✅ Local services hydrated from cloud');
     } catch (e) {
       debugPrint('🚀 [BOOTSTRAP] ⚠️ Hydration error: $e');
@@ -271,6 +321,8 @@ class DataBootstrapper {
       ProgressRepository.I.disconnectUser(),
       JournalRepository.I.disconnectUser(),
       PlansRepository.I.disconnectUser(),
+      FavoritesRepository.I.disconnectUser(),
+      BadgeRepository.I.disconnectUser(),
     ]);
     
     // CRÍTICO: Limpiar cache local para que un re-login
@@ -280,6 +332,8 @@ class DataBootstrapper {
       ProgressRepository.I.clearLocalCache(),
       JournalRepository.I.clearLocalCache(),
       PlansRepository.I.clearLocalCache(),
+      FavoritesRepository.I.clearLocalCache(),
+      BadgeRepository.I.clearLocalCache(),
     ]);
     
     stateNotifier.value = BootstrapState.idle;
@@ -302,6 +356,8 @@ class DataBootstrapper {
       ProgressRepository.I.clearLocalCache(),
       JournalRepository.I.clearLocalCache(),
       PlansRepository.I.clearLocalCache(),
+      FavoritesRepository.I.clearLocalCache(),
+      BadgeRepository.I.clearLocalCache(),
     ]);
     
     debugPrint('🚀 [BOOTSTRAP] ✅ Local cache cleared');
@@ -322,6 +378,8 @@ class DataBootstrapper {
           ProgressRepository.I.clearLocalCache(),
           JournalRepository.I.clearLocalCache(),
           PlansRepository.I.clearLocalCache(),
+          FavoritesRepository.I.clearLocalCache(),
+          BadgeRepository.I.clearLocalCache(),
         ]);
       }
       

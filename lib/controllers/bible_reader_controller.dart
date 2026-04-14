@@ -57,7 +57,7 @@ class BibleReaderController extends ReaderState
         notifyListeners();
         loadGuzikCommentary();
       }
-    });
+    }).catchError((e) { debugPrint('⚠️ [BibleReader] Error cargando prefs: $e'); });
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -158,7 +158,7 @@ class BibleReaderController extends ReaderState
           .then((intro) {
         chapterIntro = intro;
         notifyListeners();
-      });
+      }).catchError((e) { debugPrint('⚠️ [BibleReader] Error cargando intro: $e'); });
 
       _loadConnectionIndicators();
 
@@ -194,7 +194,7 @@ class BibleReaderController extends ReaderState
         prefs.setInt('lastReadBookNumber', bookNumber);
         prefs.setString('lastReadBookName', bookName);
         prefs.setInt('lastReadChapter', currentChapter);
-      });
+      }).catchError((e) { debugPrint('⚠️ [BibleReader] Error guardando posición: $e'); });
 
       // Reload commentary if study mode active
       if (studyModeEnabled) {

@@ -72,7 +72,9 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
           );
           final match = verses.where((v) => v.verse == parsed.verse).firstOrNull;
           previewText = match?.text;
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('📖 [CROSS_REFS] Preview load error for $ref: $e');
+        }
 
         entries.add(_CrossRefEntry(
           ref: ref,
@@ -91,7 +93,8 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
           _loading = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('✝️ [CROSS_REFS] Load error: $e');
       if (mounted) setState(() { _refs = []; _loading = false; });
     }
   }

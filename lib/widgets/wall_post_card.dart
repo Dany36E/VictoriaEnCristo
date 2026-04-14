@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../models/wall_post.dart';
 import '../models/content_enums.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
 import '../services/feedback_engine.dart';
 
 class WallPostCard extends StatelessWidget {
@@ -27,6 +28,7 @@ class WallPostCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     final giant = GiantIdExtension.fromId(post.giantId);
 
     return GestureDetector(
@@ -37,10 +39,10 @@ class WallPostCard extends StatelessWidget {
       child: Container(
         margin: const EdgeInsets.only(bottom: AppDesignSystem.spacingS),
         decoration: BoxDecoration(
-          color: AppDesignSystem.midnightLight.withValues(alpha: 0.7),
+          color: t.inputBg.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
-            color: AppDesignSystem.gold.withValues(alpha: 0.1),
+            color: t.accent.withValues(alpha: 0.1),
           ),
         ),
         child: Padding(
@@ -59,15 +61,15 @@ class WallPostCard extends StatelessWidget {
                       shape: BoxShape.circle,
                       gradient: LinearGradient(
                         colors: [
-                          AppDesignSystem.gold.withValues(alpha: 0.3),
-                          AppDesignSystem.gold.withValues(alpha: 0.1),
+                          t.accent.withValues(alpha: 0.3),
+                          t.accent.withValues(alpha: 0.1),
                         ],
                       ),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.shield_outlined,
                       size: 16,
-                      color: AppDesignSystem.gold,
+                      color: t.accent,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -75,10 +77,10 @@ class WallPostCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       post.alias,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
-                        color: AppDesignSystem.gold,
+                        color: t.accent,
                       ),
                     ),
                   ),
@@ -115,10 +117,10 @@ class WallPostCard extends StatelessWidget {
                 post.body,
                 maxLines: showFullBody ? null : 4,
                 overflow: showFullBody ? null : TextOverflow.ellipsis,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 14,
                   height: 1.5,
-                  color: AppDesignSystem.pureWhite,
+                  color: t.textPrimary,
                 ),
               ),
               const SizedBox(height: 10),
@@ -130,14 +132,14 @@ class WallPostCard extends StatelessWidget {
                   Icon(
                     Icons.access_time_rounded,
                     size: 12,
-                    color: AppDesignSystem.coolGray.withValues(alpha: 0.7),
+                    color: t.textSecondary.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     _formatTimeAgo(post.approvedAt ?? post.createdAt),
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppDesignSystem.coolGray.withValues(alpha: 0.7),
+                      color: t.textSecondary.withValues(alpha: 0.7),
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -145,14 +147,14 @@ class WallPostCard extends StatelessWidget {
                   Icon(
                     Icons.chat_bubble_outline_rounded,
                     size: 13,
-                    color: AppDesignSystem.coolGray.withValues(alpha: 0.7),
+                    color: t.textSecondary.withValues(alpha: 0.7),
                   ),
                   const SizedBox(width: 4),
                   Text(
                     '${post.commentCount}',
                     style: TextStyle(
                       fontSize: 11,
-                      color: AppDesignSystem.coolGray.withValues(alpha: 0.7),
+                      color: t.textSecondary.withValues(alpha: 0.7),
                     ),
                   ),
                   const Spacer(),
@@ -166,7 +168,7 @@ class WallPostCard extends StatelessWidget {
                       child: Icon(
                         Icons.more_horiz_rounded,
                         size: 18,
-                        color: AppDesignSystem.coolGray.withValues(alpha: 0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                       ),
                     ),
                 ],

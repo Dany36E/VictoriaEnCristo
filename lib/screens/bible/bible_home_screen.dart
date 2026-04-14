@@ -340,6 +340,9 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         // Reading stats row (subtle)
         SliverToBoxAdapter(child: _buildStatsRow(t)),
 
+        // Quick study tools strip
+        SliverToBoxAdapter(child: _buildQuickToolsStrip(t)),
+
         // Book list with canonical section headers
         SliverList(
           delegate: SliverChildBuilderDelegate(
@@ -359,7 +362,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           ),
         ),
 
-        // Study tools (collapsed by default)
+        // Study tools (expanded by default)
         SliverToBoxAdapter(child: _buildToolsSection(t)),
 
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
@@ -414,7 +417,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 version: _version,
               ),
             ),
-          ).then((_) => _loadLastRead());
+          ).then((_) => _loadLastRead())
+           .catchError((e) { debugPrint('⚠️ [BibleHome] Nav error: $e'); });
         },
         child: Container(
           height: 72,
@@ -530,14 +534,107 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     );
   }
 
-  // ─── Tools Section (collapsed) ──────────────────────────────────────
+  // ─── Quick Study Tools Strip ────────────────────────────────────────
+
+  Widget _buildQuickToolsStrip(BibleReaderThemeData t) {
+    final quickTools = [
+      _ToolItem(Icons.bookmark_outline, 'Guardados', () => Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (ctx, a, sa, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      )),
+      _ToolItem(Icons.sticky_note_2_outlined, 'Notas', () => Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => const AllNotesScreen(),
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (ctx, a, sa, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      )),
+      _ToolItem(Icons.collections_bookmark_outlined, 'Colecciones', () =>
+          Navigator.push(
+        context,
+        PageRouteBuilder(
+          pageBuilder: (c, a1, a2) => const CollectionsScreen(),
+          transitionDuration: const Duration(milliseconds: 150),
+          transitionsBuilder: (ctx, a, sa, child) =>
+              FadeTransition(opacity: a, child: child),
+        ),
+      )),
+      _ToolItem(Icons.timeline, 'Línea', () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
+      )),
+      _ToolItem(Icons.map_outlined, 'Mapas', () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BibleMapScreen()),
+      )),
+      _ToolItem(Icons.grid_view_rounded, 'Armonía', () => Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const GospelHarmonyScreen()),
+      )),
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(0, 12, 0, 4),
+      child: SizedBox(
+        height: 64,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          itemCount: quickTools.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 10),
+          itemBuilder: (context, index) {
+            final tool = quickTools[index];
+            return GestureDetector(
+              onTap: tool.onTap,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: t.isDark
+                      ? Colors.white.withOpacity(0.05)
+                      : Colors.black.withOpacity(0.04),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: t.accent.withOpacity(0.12),
+                  ),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(tool.icon, color: t.accent, size: 20),
+                    const SizedBox(height: 4),
+                    Text(
+                      tool.label,
+                      style: GoogleFonts.manrope(
+                        color: t.textSecondary.withOpacity(0.6),
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  // ─── Tools Section ──────────────────────────────────────────────────
 
   Widget _buildToolsSection(BibleReaderThemeData t) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
       child: CollapsibleSection(
         title: 'Herramientas de estudio',
-        initiallyExpanded: false,
+        initiallyExpanded: true,
         persistKey: 'bibleHomeToolsExpanded',
         theme: t,
         child: _buildToolsGrid(t),

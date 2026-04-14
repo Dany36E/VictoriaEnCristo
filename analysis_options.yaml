@@ -27,6 +27,16 @@ linter:
   # producing the lint.
   rules:
     avoid_print: false  # Permitir print para debug en desarrollo
+    prefer_const_constructors: true
+    prefer_const_declarations: true
+    prefer_const_literals_to_create_immutables: true
+    cancel_subscriptions: true
+    close_sinks: true
+    use_key_in_widget_constructors: true
+    sized_box_for_whitespace: true
+    avoid_unnecessary_containers: true
+    prefer_is_empty: true
+    prefer_is_not_empty: true
 
 # Additional information about this file can be found at
 # https://dart.dev/guides/language/analysis-options

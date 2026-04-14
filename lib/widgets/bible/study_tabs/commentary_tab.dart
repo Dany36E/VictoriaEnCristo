@@ -55,7 +55,8 @@ class _CommentaryTabState extends State<CommentaryTab>
           _loading = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📝 [COMMENTARY] Load error: $e');
       if (mounted) setState(() => _loading = false);
     }
   }

@@ -45,7 +45,8 @@ class _InterlinealTabState extends State<InterlinealTab>
         widget.verse.verse,
       );
       if (mounted) setState(() { _interlinearVerse = verse; _loading = false; });
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🔤 [INTERLINEAL] Load error: $e');
       if (mounted) setState(() => _loading = false);
     }
   }

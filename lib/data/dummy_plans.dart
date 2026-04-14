@@ -4,6 +4,8 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
+import '../constants/image_urls.dart';
+
 /// Representa un día individual dentro de un plan
 class DayPlan {
   final int dayNumber;
@@ -88,19 +90,19 @@ class SpiritualPlan {
 /// ═══════════════════════════════════════════════════════════════════════════
 
 class DummyPlans {
-  // Imágenes de Unsplash
-  static const String _imgArmadura = 'https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=800&q=80';
-  static const String _imgMente = 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80';
-  static const String _imgFuego = 'https://images.unsplash.com/photo-1478131143081-80f7f84ca84d?auto=format&fit=crop&w=800&q=80';
-  static const String _imgCadenas = 'https://images.unsplash.com/photo-1555596899-d634257b55bb?auto=format&fit=crop&w=800&q=80';
-  static const String _imgPaz = 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&w=800&q=80';
-  static const String _imgIdentidad = 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80';
-  static const String _imgSilencio = 'https://images.unsplash.com/photo-1499002238440-d264edd596ec?auto=format&fit=crop&w=800&q=80';
-  static const String _imgTesoros = 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?auto=format&fit=crop&w=800&q=80';
-  static const String _imgLengua = 'https://images.unsplash.com/photo-1589903308904-1010c2294adc?auto=format&fit=crop&w=800&q=80';
-  static const String _imgAmor = 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80';
-  static const String _imgPureza = 'https://images.unsplash.com/photo-1483354483454-4cd359948304?auto=format&fit=crop&w=800&q=80';
-  static const String _imgDescanso = 'https://images.unsplash.com/photo-1518837695005-2083093ee35b?auto=format&fit=crop&w=800&q=80';
+  // Imágenes centralizadas en ImageUrls
+  static const String _imgArmadura = ImageUrls.planArmadura;
+  static const String _imgMente = ImageUrls.planMente;
+  static const String _imgFuego = ImageUrls.planFuego;
+  static const String _imgCadenas = ImageUrls.planCadenas;
+  static const String _imgPaz = ImageUrls.planPaz;
+  static const String _imgIdentidad = ImageUrls.planIdentidad;
+  static const String _imgSilencio = ImageUrls.planSilencio;
+  static const String _imgTesoros = ImageUrls.planTesoros;
+  static const String _imgLengua = ImageUrls.planLengua;
+  static const String _imgAmor = ImageUrls.planAmor;
+  static const String _imgPureza = ImageUrls.planPureza;
+  static const String _imgDescanso = ImageUrls.planDescanso;
 
   static List<SpiritualPlan> allPlans = [
     // ═══════════════════════════════════════════════════════════════════════

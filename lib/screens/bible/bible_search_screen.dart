@@ -144,7 +144,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         _searching = false;
       });
     }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🔍 [SEARCH] Error searching: $e');
       if (mounted) setState(() => _searching = false);
     }
   }
@@ -472,63 +473,71 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       );
     }
 
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      children: [
-        // Referencia directa card
-        if (hasReference) ...[
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Text(
-              'REFERENCIA DIRECTA',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.5),
-                fontSize: 10,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.5,
-              ),
-            ),
-          ),
-          _buildReferenceCard(result, t),
-          const SizedBox(height: 20),
-        ],
-        // Versículos
-        if (hasVerses) ...[
-          Text(
-            '${result.verses.length} versículo${result.verses.length == 1 ? '' : 's'}',
+    // Build header items + verse items for efficient builder
+    final headerItems = <Widget>[];
+    if (hasReference) {
+      headerItems.addAll([
+        Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: Text(
+            'REFERENCIA DIRECTA',
             style: GoogleFonts.manrope(
               color: t.textSecondary.withOpacity(0.5),
-              fontSize: 12,
-              letterSpacing: 0.5,
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.5,
             ),
           ),
-          const SizedBox(height: 12),
-          ...result.verses.map((verse) {
-            return GestureDetector(
-              onTap: () => _navigateToVerse(verse),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      verse.reference,
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5),
-                        fontSize: 11,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.5,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    _buildHighlightedText(verse.text, _query, t),
-                  ],
+        ),
+        _buildReferenceCard(result, t),
+        const SizedBox(height: 20),
+      ]);
+    }
+    if (hasVerses) {
+      headerItems.addAll([
+        Text(
+          '${result.verses.length} versículo${result.verses.length == 1 ? '' : 's'}',
+          style: GoogleFonts.manrope(
+            color: t.textSecondary.withOpacity(0.5),
+            fontSize: 12,
+            letterSpacing: 0.5,
+          ),
+        ),
+        const SizedBox(height: 12),
+      ]);
+    }
+    final totalItems = headerItems.length + (hasVerses ? result.verses.length : 0);
+
+    return ListView.builder(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      itemCount: totalItems,
+      itemBuilder: (context, index) {
+        if (index < headerItems.length) return headerItems[index];
+        final verseIndex = index - headerItems.length;
+        final verse = result.verses[verseIndex];
+        return GestureDetector(
+          onTap: () => _navigateToVerse(verse),
+          child: Padding(
+            padding: const EdgeInsets.only(bottom: 20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  verse.reference,
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.5),
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                  ),
                 ),
-              ),
-            );
-          }),
-        ],
-      ],
+                const SizedBox(height: 4),
+                _buildHighlightedText(verse.text, _query, t),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -955,7 +964,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           _advancedSearching = false;
         });
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🔍 [SEARCH] Advanced search error: $e');
       if (mounted) setState(() => _advancedSearching = false);
     }
   }
@@ -1109,9 +1119,12 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       groups.putIfAbsent(v.bookName, () => []).add(v);
     }
 
-    return ListView(
+    final groupEntries = groups.entries.toList();
+    return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      children: groups.entries.map((entry) {
+      itemCount: groupEntries.length,
+      itemBuilder: (context, index) {
+        final entry = groupEntries[index];
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1190,7 +1203,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             const SizedBox(height: 8),
           ],
         );
-      }).toList(),
+      },
     );
   }
 }

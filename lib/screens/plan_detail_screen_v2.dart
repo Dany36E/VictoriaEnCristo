@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'dart:ui';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
 import '../models/plan.dart';
 import '../models/plan_day.dart';
 import '../models/plan_metadata.dart';
@@ -86,8 +88,9 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnight,
+      backgroundColor: t.surface,
       body: _isLoading
           ? _buildLoadingState()
           : Stack(
@@ -100,9 +103,9 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   Widget _buildLoadingState() {
-    return const Center(
+    return Center(
       child: CircularProgressIndicator(
-        valueColor: AlwaysStoppedAnimation(AppDesignSystem.gold),
+        valueColor: AlwaysStoppedAnimation(AppThemeData.of(context).accent),
       ),
     );
   }
@@ -125,11 +128,12 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildHeroAppBar(BuildContext context) {
+    final t = AppThemeData.of(context);
     return SliverAppBar(
       expandedHeight: 280,
       pinned: true,
       stretch: true,
-      backgroundColor: AppDesignSystem.midnight,
+      backgroundColor: t.surface,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       leading: _buildBackButton(context),
       actions: [
@@ -158,8 +162,8 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                     colors: [
                       Colors.transparent,
                       Colors.transparent,
-                      AppDesignSystem.midnight.withOpacity(0.8),
-                      AppDesignSystem.midnight,
+                      t.surface.withOpacity(0.8),
+                      t.surface,
                     ],
                     stops: const [0.0, 0.3, 0.7, 1.0],
                   ),
@@ -182,7 +186,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                   // Title
                   Text(
                     _plan.title,
-                    style: AppDesignSystem.headlineMedium(context, color: AppDesignSystem.pureWhite),
+                    style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -191,7 +195,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                   // Subtitle
                   Text(
                     _plan.subtitle,
-                    style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.coolGray),
+                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
@@ -213,6 +217,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   Widget _buildBackButton(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.all(8),
       child: ClipRRect(
@@ -221,12 +226,12 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
           child: Container(
             decoration: BoxDecoration(
-              color: AppDesignSystem.midnight.withOpacity(0.3),
+              color: t.surface.withOpacity(0.3),
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
               icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-              color: AppDesignSystem.pureWhite,
+              color: t.textPrimary,
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
@@ -236,6 +241,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   Widget _buildShareButton() {
+    final t = AppThemeData.of(context);
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: BackdropFilter(
@@ -244,12 +250,12 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: AppDesignSystem.midnight.withOpacity(0.3),
+            color: t.surface.withOpacity(0.3),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
             icon: const Icon(Icons.share_outlined, size: 20),
-            color: AppDesignSystem.pureWhite,
+            color: t.textPrimary,
             onPressed: _sharePlan,
           ),
         ),
@@ -258,6 +264,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   Widget _buildReminderButton() {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 8),
       child: ClipRRect(
@@ -269,8 +276,8 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
             height: 40,
             decoration: BoxDecoration(
               color: _hasReminder 
-                  ? AppDesignSystem.gold.withOpacity(0.3)
-                  : AppDesignSystem.midnight.withOpacity(0.3),
+                  ? t.accent.withOpacity(0.3)
+                  : t.surface.withOpacity(0.3),
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
@@ -278,7 +285,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 _hasReminder ? Icons.notifications_active : Icons.notifications_outlined,
                 size: 20,
               ),
-              color: _hasReminder ? AppDesignSystem.gold : AppDesignSystem.pureWhite,
+              color: _hasReminder ? t.accent : t.textPrimary,
               onPressed: _toggleReminder,
             ),
           ),
@@ -297,22 +304,23 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   Widget _buildTypeBadge() {
+    final t = AppThemeData.of(context);
     final type = _plan.metadata.planType;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.2),
+        color: t.accent.withOpacity(0.2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+        border: Border.all(color: t.accent.withOpacity(0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(_getPlanTypeIcon(type), size: 14, color: AppDesignSystem.gold),
+          Icon(_getPlanTypeIcon(type), size: 14, color: t.accent),
           const SizedBox(width: 6),
           Text(
             type.displayName,
-            style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold).copyWith(
+            style: AppDesignSystem.labelSmall(context, color: t.accent).copyWith(
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -356,6 +364,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPlanInfo(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -376,7 +385,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           // Description
           Text(
             _plan.description,
-            style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.softWhite).copyWith(
+            style: AppDesignSystem.bodyMedium(context, color: t.textPrimary).copyWith(
               height: 1.6,
             ),
           ),
@@ -386,21 +395,22 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   Widget _buildStatChip(IconData icon, String label) {
+    final t = AppThemeData.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: AppDesignSystem.midnightLight,
+        color: t.inputBg,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: AppDesignSystem.goldSubtle),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: AppDesignSystem.gold),
+          Icon(icon, size: 14, color: t.accent),
           const SizedBox(width: 6),
           Text(
             label,
-            style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
+            style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
           ),
         ],
       ),
@@ -453,6 +463,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildMetadataSection(BuildContext context) {
+    final t = AppThemeData.of(context);
     if (_plan.metadata.giants.isEmpty && _plan.metadata.techniques.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -466,7 +477,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           if (_plan.metadata.giants.isNotEmpty) ...[
             Text(
               'Ayuda con:',
-              style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.coolGray),
+              style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -494,7 +505,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           if (_plan.metadata.techniques.isNotEmpty) ...[
             Text(
               'Técnicas:',
-              style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.coolGray),
+              style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
             ),
             const SizedBox(height: 8),
             Wrap(
@@ -504,13 +515,13 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: AppDesignSystem.midnight.withOpacity(0.5),
+                    color: t.surface.withOpacity(0.5),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: AppDesignSystem.coolGray.withOpacity(0.2)),
+                    border: Border.all(color: t.textSecondary.withOpacity(0.2)),
                   ),
                   child: Text(
                     technique.displayName,
-                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
+                    style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
                   ),
                 );
               }).toList(),
@@ -528,6 +539,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildProgressSection(BuildContext context) {
+    final t = AppThemeData.of(context);
     if (!_isStarted) return const SizedBox.shrink();
 
     return Padding(
@@ -558,12 +570,12 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                   CircularProgressIndicator(
                     value: _progressPercent,
                     strokeWidth: 5,
-                    backgroundColor: AppDesignSystem.midnight.withOpacity(0.3),
-                    valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
+                    backgroundColor: t.surface.withOpacity(0.3),
+                    valueColor: AlwaysStoppedAnimation(t.accent),
                   ),
                   Text(
                     '${(_progressPercent * 100).toInt()}%',
-                    style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold).copyWith(
+                    style: AppDesignSystem.labelMedium(context, color: t.accent).copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -579,12 +591,12 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 children: [
                   Text(
                     'Tu progreso',
-                    style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
+                    style: AppDesignSystem.labelMedium(context, color: t.accent),
                   ),
                   const SizedBox(height: 4),
                   Text(
                     '${_progress!.completedDays.length} de ${_plan.durationDays} días completados',
-                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
+                    style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
                   ),
                   if (_progress!.currentStreak > 1) ...[
                     const SizedBox(height: 4),
@@ -594,7 +606,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                         const SizedBox(width: 4),
                         Text(
                           'Racha: ${_progress!.currentStreak} días',
-                          style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                          style: AppDesignSystem.labelSmall(context, color: t.accent),
                         ),
                       ],
                     ),
@@ -613,6 +625,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildDaysList(BuildContext context) {
+    final t = AppThemeData.of(context);
     return SliverPadding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       sliver: SliverList(
@@ -623,7 +636,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 padding: const EdgeInsets.only(bottom: 12),
                 child: Text(
                   'Días del plan',
-                  style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.pureWhite),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               );
             }
@@ -660,6 +673,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
     required bool isCurrentDay,
     required bool isLocked,
   }) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
       child: Material(
@@ -671,12 +685,12 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isCurrentDay
-                  ? AppDesignSystem.gold.withOpacity(0.1)
-                  : AppDesignSystem.midnightLight,
+                  ? t.accent.withOpacity(0.1)
+                  : t.inputBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isCurrentDay
-                    ? AppDesignSystem.gold.withOpacity(0.3)
+                    ? t.accent.withOpacity(0.3)
                     : isCompleted
                         ? AppDesignSystem.victory.withOpacity(0.3)
                         : Colors.transparent,
@@ -693,7 +707,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                         ? AppDesignSystem.victory
                         : isCurrentDay
                             ? AppDesignSystem.gold
-                            : AppDesignSystem.midnight,
+                            : t.surface,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Center(
@@ -704,8 +718,8 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                             style: AppDesignSystem.labelLarge(
                               context,
                               color: isCurrentDay
-                                  ? AppDesignSystem.midnight
-                                  : AppDesignSystem.coolGray,
+                                  ? t.surface
+                                  : t.textSecondary,
                             ).copyWith(fontWeight: FontWeight.bold),
                           ),
                   ),
@@ -722,8 +736,8 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                         style: AppDesignSystem.labelLarge(
                           context,
                           color: isLocked
-                              ? AppDesignSystem.coolGray.withOpacity(0.5)
-                              : AppDesignSystem.pureWhite,
+                              ? t.textSecondary.withOpacity(0.5)
+                              : t.textPrimary,
                         ),
                       ),
                       if (day != null) ...[
@@ -734,14 +748,14 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                               Icon(
                                 Icons.access_time_outlined,
                                 size: 12,
-                                color: AppDesignSystem.coolGray.withOpacity(isLocked ? 0.3 : 0.7),
+                                color: t.textSecondary.withOpacity(isLocked ? 0.3 : 0.7),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 '${day.estimatedMinutes} min',
                                 style: AppDesignSystem.labelSmall(
                                   context,
-                                  color: AppDesignSystem.coolGray.withOpacity(isLocked ? 0.3 : 0.7),
+                                  color: t.textSecondary.withOpacity(isLocked ? 0.3 : 0.7),
                                 ),
                               ),
                             ],
@@ -774,10 +788,10 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 Icon(
                   isLocked ? Icons.lock_outline : Icons.chevron_right,
                   color: isLocked
-                      ? AppDesignSystem.coolGray.withOpacity(0.3)
+                      ? t.textSecondary.withOpacity(0.3)
                       : isCurrentDay
-                          ? AppDesignSystem.gold
-                          : AppDesignSystem.coolGray,
+                          ? t.accent
+                          : t.textSecondary,
                 ),
               ],
             ),
@@ -792,6 +806,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildFAB(BuildContext context) {
+    final t = AppThemeData.of(context);
     String label;
     IconData icon;
 
@@ -815,13 +830,13 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
         icon: Icon(icon),
         label: Text(label),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppDesignSystem.gold,
-          foregroundColor: AppDesignSystem.midnight,
+          backgroundColor: t.accent,
+          foregroundColor: t.surface,
           padding: const EdgeInsets.symmetric(vertical: 16),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          textStyle: AppDesignSystem.labelLarge(context, color: AppDesignSystem.midnight).copyWith(
+          textStyle: AppDesignSystem.labelLarge(context, color: t.surface).copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -868,10 +883,29 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   void _sharePlan() {
-    // TODO: Implement share
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Compartir próximamente')),
-    );
+    final completedDays = _progress?.completedDays.length ?? 0;
+    final totalDays = _plan.durationDays;
+    final percent = (_progressPercent * 100).round();
+    
+    final buffer = StringBuffer();
+    buffer.writeln('📖 ${_plan.title}');
+    if (_plan.subtitle.isNotEmpty) {
+      buffer.writeln(_plan.subtitle);
+    }
+    buffer.writeln();
+    if (completedDays > 0) {
+      buffer.writeln('📊 Progreso: $completedDays/$totalDays días ($percent%)');
+      buffer.writeln();
+    }
+    // Descripción truncada a 200 chars
+    final desc = _plan.description;
+    if (desc.isNotEmpty) {
+      buffer.writeln(desc.length > 200 ? '${desc.substring(0, 200)}...' : desc);
+      buffer.writeln();
+    }
+    buffer.write('— Victoria en Cristo');
+    
+    Share.share(buffer.toString());
   }
 
   void _toggleReminder() async {
@@ -893,9 +927,9 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
         builder: (context, child) {
           return Theme(
             data: Theme.of(context).copyWith(
-              colorScheme: const ColorScheme.dark(
+              colorScheme: ColorScheme.dark(
                 primary: AppDesignSystem.gold,
-                surface: AppDesignSystem.midnightLight,
+                surface: AppThemeData.of(context).inputBg,
               ),
             ),
             child: child!,
@@ -924,7 +958,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   void _openDay(int dayIndex) {
     if (dayIndex >= _plan.days.length) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Contenido del día próximamente')),
+        SnackBar(content: Text('El día ${dayIndex + 1} aún no tiene contenido disponible')),
       );
       return;
     }
@@ -937,6 +971,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           progress: _progress,
         ),
       ),
-    ).then((_) => _loadData()); // Refresh progress on return
+    ).then((_) => _loadData())
+     .catchError((e) { debugPrint('⚠️ [PlanDetail] Nav reader error: $e'); });
   }
 }

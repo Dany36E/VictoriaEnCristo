@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -31,6 +32,7 @@ class BlbApiService {
   String? _apiKey;
 
   static const String _apiKeyPrefKey = 'blb_api_key_user';
+  static const _secureStorage = FlutterSecureStorage();
 
   final ValueNotifier<bool> hasApiKey = ValueNotifier(false);
   final ValueNotifier<int> dailyRequestCount = ValueNotifier(0);
@@ -38,8 +40,15 @@ class BlbApiService {
   /// Inicializa el servicio cargando la API key y preferencias.
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
+    // Migrar key de SharedPreferences a SecureStorage si existe
+    final legacyKey = _prefs?.getString(_apiKeyPrefKey);
+    if (legacyKey != null && legacyKey.isNotEmpty) {
+      await _secureStorage.write(key: _apiKeyPrefKey, value: legacyKey);
+      await _prefs?.remove(_apiKeyPrefKey);
+      debugPrint('📚 [BLB] Migrated API key to SecureStorage');
+    }
     // Prioridad: key guardada por el usuario > key hardcodeada en ApiConfig
-    final userKey = _prefs?.getString(_apiKeyPrefKey);
+    final userKey = await _secureStorage.read(key: _apiKeyPrefKey);
     if (userKey != null && userKey.isNotEmpty) {
       _apiKey = userKey;
     } else {
@@ -51,8 +60,7 @@ class BlbApiService {
 
   /// Guarda una API key proporcionada por el usuario y la activa.
   Future<void> setApiKey(String key) async {
-    _prefs ??= await SharedPreferences.getInstance();
-    await _prefs!.setString(_apiKeyPrefKey, key);
+    await _secureStorage.write(key: _apiKeyPrefKey, value: key);
     _apiKey = key;
     hasApiKey.value = true;
   }
@@ -72,7 +80,8 @@ class BlbApiService {
           .get(uri)
           .timeout(const Duration(seconds: 10));
       return response.statusCode == 200;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📚 [BLB] validateApiKey error: $e');
       return false;
     }
   }
@@ -144,8 +153,8 @@ class BlbApiService {
           data: entry,
           fromCache: true,
         );
-      } catch (_) {
-        // caché corrupta, continuar con API
+      } catch (e) {
+        debugPrint('📚 [BLB] Cache decode error, fetching from API: $e');
       }
     }
 

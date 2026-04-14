@@ -53,10 +53,12 @@ class BibleTtsService {
     _tts = FlutterTts();
     try {
       await _tts!.setLanguage('es-MX');
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🗣️ [TTS] es-MX unavailable: $e');
       try {
         await _tts!.setLanguage('es-US');
-      } catch (_) {
+      } catch (e2) {
+        debugPrint('🗣️ [TTS] es-US unavailable: $e2');
         await _tts!.setLanguage('es-ES');
       }
     }

@@ -134,32 +134,15 @@ class BattlePartnerCard extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        Row(
-          children: [
-            // Racha
-            Text(
-              '🔥 ${partner.streakDays} día${partner.streakDays == 1 ? '' : 's'}',
-              style: TextStyle(
-                fontSize: 12,
-                color: partner.streakDays > 0
-                    ? AppDesignSystem.gold
-                    : Colors.white.withOpacity(0.5),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(width: 12),
-            // Victoria hoy
-            Text(
-              partner.victoryToday ? '⭐ Victoria hoy' : '✝️ Sin registrar',
-              style: TextStyle(
-                fontSize: 12,
-                color: partner.victoryToday
-                    ? AppDesignSystem.victory
-                    : Colors.white.withOpacity(0.4),
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          ],
+        Text(
+          partner.victoryToday ? '⭐ Victoria hoy' : '✝️ Sin registrar',
+          style: TextStyle(
+            fontSize: 12,
+            color: partner.victoryToday
+                ? AppDesignSystem.victory
+                : Colors.white.withOpacity(0.4),
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

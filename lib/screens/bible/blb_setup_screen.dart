@@ -49,6 +49,8 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
         await _blb.setApiKey('');
       }
 
+      if (!mounted) return;
+
       setState(() {
         _verifying = false;
         _verified = isValid;

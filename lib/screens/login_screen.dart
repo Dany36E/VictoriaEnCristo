@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../constants/image_urls.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
 
@@ -41,26 +43,21 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // CAPA 1: Imagen de fondo épica (MISMA que Home)
+          // CAPA 1: Imagen de fondo épica (cacheada, misma que Home)
           Positioned.fill(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80',
+            child: CachedNetworkImage(
+              imageUrl: ImageUrls.heroMountain,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(color: const Color(0xFF0D1B2A));
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [Color(0xFF1B2838), Color(0xFF0D1B2A)],
-                    ),
+              placeholder: (context, url) => Container(color: const Color(0xFF0D1B2A)),
+              errorWidget: (context, url, error) => Container(
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [Color(0xFF1B2838), Color(0xFF0D1B2A)],
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
           
@@ -314,13 +311,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ],
                   ),
                   padding: const EdgeInsets.all(4),
-                  child: Image.network(
-                    'https://www.google.com/favicon.ico',
-                    errorBuilder: (context, error, stackTrace) => const Icon(
-                      Icons.g_mobiledata,
-                      size: 18,
-                      color: Colors.black87,
-                    ),
+                  child: const Icon(
+                    Icons.g_mobiledata,
+                    size: 18,
+                    color: Colors.black87,
                   ),
                 ),
                 const SizedBox(width: 14),

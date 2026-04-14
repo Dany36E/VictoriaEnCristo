@@ -4,8 +4,14 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/widget_constants.dart';
 import '../models/widget_config.dart';
@@ -24,6 +30,8 @@ class WidgetSyncService {
   WidgetSyncService._internal();
   
   static WidgetSyncService get I => _instance;
+
+  StreamSubscription<Uri?>? _widgetClickSub;
   
   // ═══════════════════════════════════════════════════════════════════════════
   // CONSTANTES (usando widget_constants.dart)
@@ -57,6 +65,8 @@ class WidgetSyncService {
   static const String _keyJesusStreak = 'jesus_streak_days';
   static const String _keyJesusCompleted = 'jesus_completed_today';
   static const String _keyJesusMessage = 'jesus_widget_message';
+  static const String _keyJesusSpritePath = 'jesus_sprite_path';
+  static const String _keyJesusBgPath = 'jesus_bg_path';
   
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -146,14 +156,33 @@ class WidgetSyncService {
       
       // Widget Jesús (racha con sprite)
       final completedToday = VictoryScoringService.I.isLoggedToday();
+      final isNewUser = payload.streakValue == 0 && !completedToday;
       final jesusMessage = JesusWidgetService.I.getMessage(
         streakDays: payload.streakValue,
         completedToday: completedToday,
-        isNewUser: payload.streakValue == 0 && !completedToday,
+        isNewUser: isNewUser,
       );
       await HomeWidget.saveWidgetData(_keyJesusStreak, payload.streakValue);
       await HomeWidget.saveWidgetData(_keyJesusCompleted, completedToday);
       await HomeWidget.saveWidgetData(_keyJesusMessage, jesusMessage);
+
+      // Guardar imágenes de sprite y fondo para el widget nativo
+      final spritePath = JesusWidgetService.I.getSprite(
+        streakDays: payload.streakValue,
+        completedToday: completedToday,
+        isNewUser: isNewUser,
+      );
+      final bgPath = JesusWidgetService.I.getBackground(
+        streakDays: payload.streakValue,
+      );
+      final spriteFile = await _saveAssetToWidgetDir(spritePath, 'jesus_sprite.png');
+      final bgFile = await _saveAssetToWidgetDir(bgPath, 'jesus_bg.png');
+      if (spriteFile != null) {
+        await HomeWidget.saveWidgetData(_keyJesusSpritePath, spriteFile);
+      }
+      if (bgFile != null) {
+        await HomeWidget.saveWidgetData(_keyJesusBgPath, bgFile);
+      }
       
       // JSON completo como backup
       await HomeWidget.saveWidgetData(_keyWidgetPayload, payload.toJsonString());
@@ -218,7 +247,9 @@ class WidgetSyncService {
       if (DailyVerseService.I.isInitialized) {
         return await DailyVerseService.I.getForToday();
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('📱 [WIDGET] _getVerseForWidget error: $e');
+    }
     
     // Fallback neutral
     return const BibleVerse(
@@ -277,12 +308,44 @@ class WidgetSyncService {
   // ═══════════════════════════════════════════════════════════════════════════
   // UTILIDADES
   // ═══════════════════════════════════════════════════════════════════════════
-  
-  /// Registra un callback para cuando el usuario interactúa con el widget
-  Future<void> registerInteractionCallback() async {
-    HomeWidget.widgetClicked.listen((uri) {
+
+  /// Copia un Flutter asset a un directorio accesible por el widget nativo
+  Future<String?> _saveAssetToWidgetDir(String assetPath, String filename) async {
+    try {
+      final byteData = await rootBundle.load(assetPath);
+      final dir = await getApplicationDocumentsDirectory();
+      final widgetDir = Directory('${dir.path}/widget_images');
+      if (!widgetDir.existsSync()) {
+        await widgetDir.create(recursive: true);
+      }
+      final file = File('${widgetDir.path}/$filename');
+      await file.writeAsBytes(byteData.buffer.asUint8List());
+      return file.path;
+    } catch (e) {
+      debugPrint('📱 [WIDGET] Error saving asset $assetPath: $e');
+      return null;
+    }
+  }
+
+  /// Registra un callback para cuando el usuario interactúa con el widget.
+  /// [navigatorKey] se usa para push de rutas según el URI del widget.
+  Future<void> registerInteractionCallback({GlobalKey<NavigatorState>? navigatorKey}) async {
+    await _widgetClickSub?.cancel();
+    _widgetClickSub = HomeWidget.widgetClicked.listen((uri) {
       debugPrint('📱 [WIDGET] Clicked: $uri');
-      // El deep link se maneja en main.dart
+      if (uri == null || navigatorKey?.currentState == null) return;
+      
+      final uriStr = uri.toString();
+      final nav = navigatorKey!.currentState!;
+      
+      if (uriStr.contains('emergency')) {
+        nav.pushNamed('/emergency');
+      } else if (uriStr.contains('bible')) {
+        nav.pushNamed('/bible');
+      } else if (uriStr.contains('victory') || uriStr.contains('register')) {
+        // Launch app to home — the JesusStreakWidget handles the tap
+        nav.pushNamedAndRemoveUntil('/', (route) => false);
+      }
     });
   }
   
@@ -321,7 +384,8 @@ class WidgetSyncService {
     try {
       final count = await HomeWidget.getInstalledWidgets();
       return count.isNotEmpty;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📱 [WIDGET] isWidgetInstalled error: $e');
       return false;
     }
   }

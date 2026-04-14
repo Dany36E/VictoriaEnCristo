@@ -202,5 +202,158 @@
       "source": "mixed",
       "reviewLevel": "approved"
     }
+  },
+  {
+    "id": "p013",
+    "title": "Oración de Rendición Total",
+    "content": "Señor Jesús, me rindo completamente a Ti.\n\nReconozco que mis intentos por cambiar con mi propia fuerza han fallado.\n\nHoy te entrego mi voluntad, mis deseos, mis hábitos.\n\nNo quiero seguir luchando solo. Necesito Tu poder.\n\nToma el control de mis pensamientos, mis ojos, mis manos.\n\nQue Tu Espíritu Santo dirija cada decisión que tome hoy.\n\nConfío en que Tú puedes hacer lo que yo no puedo.\n\nAmén.",
+    "category": "liberación",
+    "durationMinutes": 3,
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer"],
+      "triggers": ["fatigue", "loneliness", "night"],
+      "outcomes": ["connectionWithGod", "calm", "resilience"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p014",
+    "title": "Oración de Identidad en Cristo",
+    "content": "Padre, hoy declaro quién soy en Ti.\n\nSoy hijo/a del Rey. Soy nueva criatura.\nSoy templo del Espíritu Santo.\nSoy más que vencedor por medio de Cristo.\n\nMi identidad no está en mi pasado ni en mis fracasos.\nMi identidad está en lo que Tú dices de mí.\n\nRechazo toda mentira del enemigo que me define por mi pecado.\nAbrazo Tu verdad: soy amado, perdonado, libre.\n\nGracias porque mi nombre está escrito en el cielo.\n\nAmén.",
+    "category": "fortaleza",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "substances", "mental", "emotions"],
+      "stage": "restoration",
+      "intensityFit": "medium",
+      "techniques": ["identityDeclaration", "declarativeprayer"],
+      "triggers": ["rejection", "loneliness"],
+      "outcomes": ["hopeRestoration", "selfAwareness", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p015",
+    "title": "Oración por los Pensamientos",
+    "content": "Señor, Tú conoces cada pensamiento antes de que llegue a mi mente.\n\nHoy te pido que pongas guardia en mis pensamientos.\nCada fantasía destructiva, cada imagen dañina, cada recuerdo tentador —\nlo rindo a Tus pies.\n\nLlena mi mente con lo verdadero, lo honesto, lo justo, lo puro.\n\nAyúdame a llevar todo pensamiento cautivo a la obediencia a Cristo.\n\nRenueva mi mente con Tu Palabra hoy.\n\nAmén.",
+    "category": "liberación",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "digital", "mental"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "cognitiveReframe"],
+      "triggers": ["boredom", "night", "socialMedia"],
+      "outcomes": ["purityGuard", "selfAwareness", "focus"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p016",
+    "title": "Oración de Victoria Diaria",
+    "content": "Padre celestial, hoy elijo la victoria.\n\nGracias porque ya venciste en la cruz. Tu victoria es mi victoria.\n\nCubro mi día con la sangre de Cristo.\nDeclaro que hoy caminaré en libertad.\nDeclaro que ninguna tentación será mayor que Tu gracia.\n\nDame ojos para ver las salidas que Tú provees.\nDame pies para correr hacia Ti cuando la prueba llegue.\n\nEste día es Tuyo, Señor. Vivo para Tu gloria.\n\nAmén.",
+    "category": "mañana",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions", "health"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "identityDeclaration"],
+      "triggers": [],
+      "outcomes": ["resilience", "connectionWithGod", "purityGuard"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p017",
+    "title": "Oración en Medio de la Tentación",
+    "content": "¡Señor, ayúdame AHORA!\n\nLa tentación está aquí y siento que me arrastra.\nPero Tú eres más fuerte que cualquier deseo.\n\nEn el nombre de Jesús, ordeno a toda tentación que se aleje.\nEn el nombre de Jesús, cubro mis ojos, mis manos, mi corazón.\n\nEspíritu Santo, llena este momento con Tu presencia.\nDonde Tú estás, el pecado no puede gobernar.\n\nResisto. Me quedo firme. Tú eres mi roca.\n\nAmén.",
+    "category": "emergencia",
+    "durationMinutes": 1,
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer"],
+      "triggers": ["night", "loneliness", "boredom", "stress"],
+      "outcomes": ["calm", "purityGuard", "resilience"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p018",
+    "title": "Oración de Perdón a Mí Mismo",
+    "content": "Padre, si Tú me has perdonado, ¿quién soy yo para no perdonarme?\n\nHoy elijo soltar la culpa que cargo.\nHoy elijo dejar de castigarme por mis caídas.\nHoy acepto Tu gracia que es nueva cada mañana.\n\nLa vergüenza no es de Ti. Tú traes convicción, no condenación.\n\nMe perdono porque Tú me perdonaste primero.\nMe levanto porque Tú me levantas.\n\nGracias por Tu amor que no depende de mi perfección.\n\nAmén.",
+    "category": "restauración",
+    "durationMinutes": 3,
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions"],
+      "stage": "restoration",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "cognitiveReframe"],
+      "triggers": ["rejection"],
+      "outcomes": ["hopeRestoration", "selfAwareness", "gratitude"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p019",
+    "title": "Oración de Protección Nocturna",
+    "content": "Señor, la noche es cuando soy más vulnerable.\n\nProtege mis ojos de lo que no deben ver.\nProtege mi mente de donde no debe vagar.\nProtege mis manos de lo que no deben tocar.\n\nCon Tu ángel a mi lado, duermo en paz.\nCon Tu Palabra en mi corazón, resisto el mal.\n\nGuárdame esta noche como a la niña de Tus ojos.\nEscóndeme bajo la sombra de Tus alas.\n\nMañana me levantaré victorioso. Lo creo.\n\nAmén.",
+    "category": "noche",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "digital", "substances"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "environmentDesign"],
+      "triggers": ["night", "loneliness", "boredom"],
+      "outcomes": ["calm", "purityGuard", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p020",
+    "title": "Oración por Mi Compañero de Batalla",
+    "content": "Señor, gracias por no dejarme luchar solo.\n\nBendice a mi compañero de batalla hoy.\nDale fuerzas donde está débil. Dale victoria donde yo la tengo.\n\nQue juntos nos sostengamos cuando uno caiga.\nQue nuestras oraciones se multipliquen el uno por el otro.\n\nProtege nuestra amistad de la vergüenza y el juicio.\nQue seamos espejo de Tu gracia mutuamente.\n\nGracias por la comunidad que sana.\n\nAmén.",
+    "category": "fortaleza",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["declarativeprayer", "accountabilityCall"],
+      "triggers": ["loneliness"],
+      "outcomes": ["connectionWithGod", "resilience", "gratitude"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "p021",
+    "title": "Oración por Dominio Propio",
+    "content": "Espíritu Santo, necesito Tu fruto de dominio propio hoy.\n\nNo confío en mi disciplina. Confío en Tu poder.\n\nCuando quiera ceder, recuérdame quién soy.\nCuando quiera escapar, muéstrame Tu salida.\nCuando quiera rendirme, llénme de Tu fuerza.\n\nEnséñame a decir no con paz, no con angustia.\nEnséñame a elegir lo bueno con gozo, no con obligación.\n\nHoy camino en dominio propio sobrenatural.\n\nAmén.",
+    "category": "fortaleza",
+    "durationMinutes": 2,
+    "metadata": {
+      "giants": ["substances", "digital", "health", "sexual"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer"],
+      "triggers": ["boredom", "stress", "fatigue"],
+      "outcomes": ["selfAwareness", "resilience", "focus"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
   }
 ]

@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/plan_progress_cloud.dart';
+import '../utils/retry_utils.dart';
 
 class PlansRepository {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -275,11 +276,14 @@ class PlansRepository {
       // CLOUD-FIRST: Siempre descargar desde Firestore como fuente de verdad.
       // NUNCA subir cache local durante el sync — un cache vacío post-logout
       // NO debe sobreescribir datos existentes en la nube.
-      final snapshot = await _firestore
+      final snapshot = await retryWithBackoff(
+        () => _firestore
           .collection('users')
           .doc(uid)
           .collection('plansProgress')
-          .get(const GetOptions(source: Source.server));
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 15)),
+      );
       
       if (snapshot.docs.isNotEmpty) {
         // Nube tiene datos -> SIEMPRE usar como fuente de verdad
@@ -313,8 +317,8 @@ class PlansRepository {
           }
           await _saveLocalCache();
         }
-      } catch (_) {
-        debugPrint('📚 [PLANS_REPO] Firestore cache fallback also failed');
+      } catch (e) {
+        debugPrint('📚 [PLANS_REPO] Firestore cache fallback also failed: $e');
       }
     }
   }

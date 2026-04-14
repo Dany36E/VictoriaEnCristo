@@ -97,12 +97,13 @@ class _PrayerSheetState extends State<PrayerSheet> {
                   if (_existing != null)
                     GestureDetector(
                       onTap: () async {
+                        final nav = Navigator.of(context);
                         await BibleUserDataService.I.deletePrayer(
                           widget.verse.bookNumber,
                           widget.verse.chapter,
                           widget.verse.verse,
                         );
-                        if (mounted) Navigator.pop(context);
+                        if (mounted) nav.pop();
                       },
                       child: Icon(Icons.delete_outline,
                           color: const Color(0xFFE57373), size: 20),

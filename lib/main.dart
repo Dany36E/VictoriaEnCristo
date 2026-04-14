@@ -6,7 +6,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
+import 'theme/app_theme_data.dart';
 import 'screens/home_screen.dart';
+import 'widgets/error_boundary.dart';
 import 'screens/login_screen.dart';
 import 'screens/onboarding/onboarding_welcome_screen.dart';
 import 'screens/widget_settings_screen.dart';
@@ -124,7 +126,7 @@ void main() async {
       if (!success) {
         debugPrint('⚠️ [MAIN] BGM no pudo iniciarse al arrancar la app');
       }
-    });
+    }).catchError((e) { debugPrint('❌ [MAIN] Error iniciando BGM: $e'); });
   }
   
   runApp(VictoriaEnCristoApp(
@@ -151,6 +153,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     with WidgetsBindingObserver {
   late bool _isDarkMode;
   String? _pendingRoute;
+  final _navigatorKey = GlobalKey<NavigatorState>();
   final _navigationChannel = const MethodChannel('victoria/navigation');
   /// Fecha conocida para detectar cambio de día al volver del background
   String _lastKnownDate = TimeUtils.todayISO();
@@ -163,6 +166,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     widget.themeService.addListener(_onThemeChanged);
     _updateSystemUI();
     _checkInitialRoute();
+    WidgetSyncService.I.registerInteractionCallback(navigatorKey: _navigatorKey);
   }
   
   /// Lee la ruta inicial desde el widget (Android)
@@ -245,7 +249,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
 
   @override
   Widget build(BuildContext context) {
+    final appTheme = widget.themeService.currentTheme;
     return MaterialApp(
+      navigatorKey: _navigatorKey,
       title: 'Victoria en Cristo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
@@ -259,9 +265,14 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         '/emergency': (context) => const EmergencyScreen(),
       },
       onGenerateRoute: (settings) {
-        // Manejador de rutas para navegación nombrada
         return MaterialPageRoute(
           builder: (context) => _buildHomeOrOnboarding(),
+        );
+      },
+      builder: (context, child) {
+        return AppThemeData.provider(
+          theme: appTheme,
+          child: child ?? const SizedBox.shrink(),
         );
       },
       home: _buildHomeOrOnboarding(),
@@ -493,56 +504,26 @@ class _ProfileGateState extends State<_ProfileGate> {
       if (mounted) {
         setState(() {
           _status = _ProfileGateStatus.error;
-          _errorMessage = e.toString();
+          _errorMessage = 'No se pudo cargar tu perfil. Verifica tu conexión e intenta de nuevo.';
         });
       }
     }
   }
   
-  /// Fetch perfil DIRECTAMENTE desde Firestore (sin cache)
+  /// Fetch perfil vía ProfileRepository (source of truth centralizado)
   Future<UserProfile?> _fetchProfileFromCloud(String uid) async {
-    try {
-      final doc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(uid)
-          .get(const GetOptions(source: Source.server)); // FORZAR SERVER
-      
-      if (doc.exists) {
-        return UserProfile.fromFirestore(doc);
-      }
-      return null;
-    } catch (e) {
-      debugPrint('🚪 [PROFILE_GATE] Cloud fetch error: $e');
-      // Si hay error de red, intentar cache como último recurso
-      // PERO solo si el cache pertenece al mismo UID
-      final cachedProfile = ProfileRepository.I.currentProfile;
-      if (cachedProfile != null && cachedProfile.uid == uid) {
-        debugPrint('🚪 [PROFILE_GATE] Using cache for same UID as fallback');
-        return cachedProfile;
-      }
-      rethrow;
-    }
+    return ProfileRepository.I.fetchProfileFromServer(uid);
   }
   
-  /// Crear perfil minimal con onboardingCompleted=false
-  /// NOTA: Si las reglas de Firestore son muy restrictivas, el auth_service
-  /// ya debería haber creado el documento. Usamos merge:true para agregar
-  /// campos sin sobrescribir.
+  /// Crear perfil minimal vía ProfileRepository
   Future<void> _createMinimalProfile(String uid) async {
     final user = widget.user;
-    
-    // Usar merge:true para agregar campos sin conflicto con reglas estrictas
-    await FirebaseFirestore.instance.collection('users').doc(uid).set({
-      'uid': uid,
-      'email': user.email,
-      'displayName': user.displayName ?? 'Usuario',
-      'photoURL': user.photoURL,
-      'createdAt': FieldValue.serverTimestamp(),
-      'onboardingCompleted': false, // CRÍTICO: siempre false
-      'selectedGiants': [], // CRÍTICO: vacío
-    }, SetOptions(merge: true));
-    
-    debugPrint('🚪 [PROFILE_GATE] Created/merged minimal profile with onboardingCompleted=false');
+    await ProfileRepository.I.createMinimalProfile(
+      uid: uid,
+      email: user.email,
+      displayName: user.displayName,
+      photoURL: user.photoURL,
+    );
   }
   
   /// Conectar SOLO ProfileRepository para onboarding
@@ -682,7 +663,9 @@ class _ProfileGateState extends State<_ProfileGate> {
         return _NavigationHandler(
           pendingRoute: widget.pendingRoute,
           onRouteConsumed: widget.onRouteConsumed,
-          child: HomeScreen(onThemeChanged: widget.onThemeChanged),
+          child: ErrorBoundary(
+            child: HomeScreen(onThemeChanged: widget.onThemeChanged),
+          ),
         );
     }
   }

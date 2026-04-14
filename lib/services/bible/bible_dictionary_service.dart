@@ -72,7 +72,8 @@ class BibleDictionaryService {
     final lower = term.toLowerCase();
     try {
       return _all.firstWhere((e) => e.term.toLowerCase() == lower);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📖 [DICT] lookupTerm($term): $e');
       return null;
     }
   }

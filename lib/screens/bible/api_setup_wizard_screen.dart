@@ -62,6 +62,19 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
     final key = _keyController.text.trim();
     if (key.isEmpty) return;
 
+    // Validar formato básico de API key
+    if (key.length < 10 || !RegExp(r'^[a-zA-Z0-9\-_]+$').hasMatch(key)) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('La API key no parece válida. Revisa que la hayas copiado bien.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      }
+      return;
+    }
+
     setState(() {
       _verifying = true;
       _verified = null;

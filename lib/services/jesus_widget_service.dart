@@ -106,22 +106,24 @@ class JesusWidgetService {
     required bool completedToday,
     required bool isNewUser,
   }) {
-    if (isNewUser) return '¡Bienvenido, guerrero!\nComienza tu camino de victoria';
+    if (isNewUser) return 'Todo camino comienza\ncon un primer paso';
 
     if (completedToday) {
-      if (streakDays >= 365) return '¡Un año caminando conmigo!\n¡Eres un guerrero eterno!';
-      if (streakDays >= 100) return '¡$streakDays días de victoria!\n¡Centurión de la fe!';
-      if (streakDays >= 30) return '¡Un mes entero!\nTu armadura brilla';
-      if (streakDays >= 7) return '¡Una semana completa!\n¡Sigue adelante!';
-      return '¡Victoria de hoy registrada!\n¡Bien hecho, soldado!';
+      if (streakDays >= 365) return 'Un año de fidelidad.\nDios se glorifica en ti';
+      if (streakDays >= 100) return '$streakDays días firme.\nTu fe mueve montañas';
+      if (streakDays >= 30) return 'Un mes de victoria.\n¡Dios pelea por ti!';
+      if (streakDays >= 14) return '$streakDays días con Cristo.\nSu gracia te sostiene';
+      if (streakDays >= 7) return 'Una semana fiel.\n¡El Señor está contigo!';
+      if (streakDays >= 3) return '$streakDays días seguidos.\n¡Vas con todo!';
+      return '¡Victoria de hoy!\nCada día cuenta';
     }
 
     // No completó hoy
-    if (streakDays == 0) return 'Tu racha se reinició\nPero hoy puedes empezar de nuevo';
-    if (streakDays >= 30) return '¡$streakDays días de racha!\nNo te detengas ahora';
-    if (streakDays >= 7) return '$streakDays días seguidos\n¡Registra tu victoria hoy!';
-    if (streakDays >= 1) return 'Llevas $streakDays día${streakDays > 1 ? 's' : ''}\n¡No pierdas la racha!';
+    if (streakDays == 0) return 'Su misericordia es nueva\ncada mañana';
+    if (streakDays >= 30) return '$streakDays días de racha.\n¡No te detengas!';
+    if (streakDays >= 7) return '$streakDays días firme.\nRegistra tu victoria hoy';
+    if (streakDays >= 1) return 'Llevas $streakDays día${streakDays > 1 ? 's' : ''}.\n¡Sigue adelante!';
 
-    return '¡Registra tu primera victoria!';
+    return 'Hoy es un buen día\npara empezar';
   }
 }

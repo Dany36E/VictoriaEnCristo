@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/journal_entry_cloud.dart';
+import '../utils/retry_utils.dart';
 import '../utils/time_utils.dart';
 
 class JournalRepository {
@@ -299,12 +300,15 @@ class JournalRepository {
       // CLOUD-FIRST: Siempre descargar desde Firestore como fuente de verdad.
       // NUNCA subir cache local durante el sync — un cache vacío post-logout
       // NO debe sobreescribir datos existentes en la nube.
-      final snapshot = await _firestore
+      final snapshot = await retryWithBackoff(
+        () => _firestore
           .collection('users')
           .doc(uid)
           .collection('journalEntries')
           .orderBy('timestamp', descending: true)
-          .get(const GetOptions(source: Source.server));
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 15)),
+      );
       
       if (snapshot.docs.isNotEmpty) {
         // Nube tiene datos -> SIEMPRE usar como fuente de verdad
@@ -339,8 +343,8 @@ class JournalRepository {
           }
           await _saveLocalCache();
         }
-      } catch (_) {
-        debugPrint('📓 [JOURNAL_REPO] Firestore cache fallback also failed');
+      } catch (e) {
+        debugPrint('📓 [JOURNAL_REPO] Firestore cache fallback also failed: $e');
       }
     }
   }

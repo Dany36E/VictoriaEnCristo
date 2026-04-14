@@ -1,37 +1,33 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 /// MONTHLY VICTORY CALENDAR - Calendario Mensual de Victorias
-/// Muestra días de victoria (⭐) y gracia (✝️) en un calendario navegable
+/// Diseño amigable y cálido · fácil de leer
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../services/feedback_engine.dart';
 
-/// Calendario mensual que muestra días de victoria y gracia
 class MonthlyVictoryCalendar extends StatelessWidget {
   final DateTime visibleMonth;
   final Set<String> victoryDaysISO;
   final DateTime selectedDate;
   final Function(DateTime) onSelectDay;
   final Function(DateTime) onMonthChanged;
-  final bool useLightTheme;
-  
-  // Design constants - Dark theme
-  static const Color _midnight = Color(0xFF0A0A12);
-  static const Color _midnightLight = Color(0xFF121225);
-  static const Color _gold = Color(0xFFD4AF37);
-  static const Color _goldLight = Color(0xFFE8C872);
-  static const Color _pearlGray = Color(0xFF9E9E9E);
-  static const Color _cardBg = Color(0xFF1A1A2E);
-  
-  // Design constants - Light theme
-  static const Color _lightBg = Color(0xFFFFFFFF);
-  static const Color _lightSurface = Color(0xFFF6F7FB);
-  static const Color _lightText = Color(0xFF0A0A12);
-  static const Color _lightBorder = Color(0xFFE5E7EB);
-  static const Color _victory = Color(0xFF27AE60);
-  
+  final Set<String> journalDaysISO;
+  final Set<String> bibleDaysISO;
+  final Set<String> planDaysISO;
+
+  static const Color _gold = Color(0xFFD4A853);
+  static const Color _textPrimary = Color(0xFFF0F0F0);
+  static const Color _textMuted = Color(0xFF8A8A9A);
+  static const Color _victory = Color(0xFF66BB6A);
+  static const Color _warmBg = Color(0xFF1A1520);
+  static const Color _journal = Color(0xFFCE93D8);
+  static const Color _bible = Color(0xFFE8C97A);
+  static const Color _plan = Color(0xFF64B5F6);
+
   const MonthlyVictoryCalendar({
     super.key,
     required this.visibleMonth,
@@ -39,69 +35,51 @@ class MonthlyVictoryCalendar extends StatelessWidget {
     required this.selectedDate,
     required this.onSelectDay,
     required this.onMonthChanged,
-    this.useLightTheme = false,
+    this.journalDaysISO = const {},
+    this.bibleDaysISO = const {},
+    this.planDaysISO = const {},
   });
-  
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: useLightTheme 
-          ? null 
-          : const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [_midnightLight, _midnight],
-            ),
-        color: useLightTheme ? _lightBg : null,
+        color: _warmBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: useLightTheme ? _lightBorder : _gold.withOpacity(0.2),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
         boxShadow: [
           BoxShadow(
-            color: useLightTheme 
-              ? Colors.black.withOpacity(0.05)
-              : Colors.black.withOpacity(0.3),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.2),
+            blurRadius: 8,
+            offset: const Offset(0, 3),
           ),
         ],
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Header con navegación de mes
           _buildMonthHeader(),
           const SizedBox(height: 16),
-          
-          // Días de la semana
           _buildWeekDaysRow(),
           const SizedBox(height: 8),
-          
-          // Grid de días
           _buildDaysGrid(),
-          const SizedBox(height: 16),
-          
-          // Leyenda
+          const SizedBox(height: 14),
           _buildLegend(),
         ],
       ),
-    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0);
+    ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.05, end: 0);
   }
-  
+
   Widget _buildMonthHeader() {
-    final monthNames = [
+    const monthNames = [
       '', 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
       'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
     ];
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        // Botón mes anterior
         _buildNavButton(
           icon: Icons.chevron_left_rounded,
           onTap: () {
@@ -109,34 +87,14 @@ class MonthlyVictoryCalendar extends StatelessWidget {
             onMonthChanged(DateTime(visibleMonth.year, visibleMonth.month - 1, 1));
           },
         ),
-        
-        // Título del mes
-        useLightTheme 
-          ? Text(
-              '${monthNames[visibleMonth.month]} ${visibleMonth.year}',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: _lightText,
-                letterSpacing: 1.0,
-              ),
-            )
-          : ShaderMask(
-              shaderCallback: (bounds) => const LinearGradient(
-                colors: [_gold, _goldLight],
-              ).createShader(bounds),
-              child: Text(
-                '${monthNames[visibleMonth.month]} ${visibleMonth.year}',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ),
-        
-        // Botón mes siguiente
+        Text(
+          '${monthNames[visibleMonth.month]} ${visibleMonth.year}',
+          style: GoogleFonts.manrope(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: _textPrimary,
+          ),
+        ),
         _buildNavButton(
           icon: Icons.chevron_right_rounded,
           onTap: () {
@@ -147,31 +105,24 @@ class MonthlyVictoryCalendar extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildNavButton({required IconData icon, required VoidCallback onTap}) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: useLightTheme ? _lightSurface : _cardBg,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: useLightTheme ? _lightBorder : _gold.withOpacity(0.3),
-          ),
+          color: Colors.white.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(
-          icon,
-          color: useLightTheme ? _lightText : _gold,
-          size: 24,
-        ),
+        child: Icon(icon, color: _textPrimary.withOpacity(0.7), size: 24),
       ),
     );
   }
-  
+
   Widget _buildWeekDaysRow() {
     const weekDays = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
-    
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: weekDays.map((day) => SizedBox(
@@ -179,37 +130,34 @@ class MonthlyVictoryCalendar extends StatelessWidget {
         child: Text(
           day,
           textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 12,
+          style: GoogleFonts.manrope(
+            fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: useLightTheme 
-              ? _lightText.withOpacity(0.6)
-              : _pearlGray.withOpacity(0.8),
-            letterSpacing: 0.5,
+            color: _textMuted.withOpacity(0.5),
           ),
         ),
       )).toList(),
     );
   }
-  
+
   Widget _buildDaysGrid() {
     final days = _generateDaysForMonth();
-    
+
     return Column(
       children: List.generate(
         (days.length / 7).ceil(),
         (weekIndex) {
           final startIndex = weekIndex * 7;
           final weekDays = days.sublist(
-            startIndex, 
+            startIndex,
             (startIndex + 7).clamp(0, days.length),
           );
-          
+
           return Padding(
             padding: const EdgeInsets.symmetric(vertical: 2),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: weekDays.map((dayInfo) => 
+              children: weekDays.map((dayInfo) =>
                 _buildDayTile(dayInfo)
               ).toList(),
             ),
@@ -218,141 +166,105 @@ class MonthlyVictoryCalendar extends StatelessWidget {
       ),
     );
   }
-  
+
   List<_DayInfo> _generateDaysForMonth() {
     final days = <_DayInfo>[];
-    
-    // Primer día del mes
+
     final firstOfMonth = DateTime(visibleMonth.year, visibleMonth.month, 1);
-    // Último día del mes
     final lastOfMonth = DateTime(visibleMonth.year, visibleMonth.month + 1, 0);
-    
-    // Día de la semana del primer día (1 = Lunes, 7 = Domingo)
     int firstWeekday = firstOfMonth.weekday;
-    
-    // Agregar días del mes anterior
+
+    // Días del mes anterior
     final prevMonth = DateTime(visibleMonth.year, visibleMonth.month, 0);
     for (int i = firstWeekday - 1; i > 0; i--) {
       final day = prevMonth.day - i + 1;
       days.add(_DayInfo(
         day: day,
         date: DateTime(prevMonth.year, prevMonth.month, day),
-        isCurrentMonth: false,
-        isToday: false,
-        isSelected: false,
-        isVictory: false,
-        isFuture: false,
+        isCurrentMonth: false, isToday: false, isSelected: false,
+        isVictory: false, isFuture: false,
       ));
     }
-    
-    // Agregar días del mes actual
+
+    // Días del mes actual
     final today = DateTime.now();
     for (int day = 1; day <= lastOfMonth.day; day++) {
       final date = DateTime(visibleMonth.year, visibleMonth.month, day);
       final dateStr = _dateToString(date);
-      final isToday = date.year == today.year && 
-                      date.month == today.month && 
+      final isToday = date.year == today.year &&
+                      date.month == today.month &&
                       date.day == today.day;
-      final isSelected = date.year == selectedDate.year && 
-                         date.month == selectedDate.month && 
+      final isSelected = date.year == selectedDate.year &&
+                         date.month == selectedDate.month &&
                          date.day == selectedDate.day;
       final isFuture = date.isAfter(today);
       final isVictory = victoryDaysISO.contains(dateStr);
-      
+      final hasJournal = journalDaysISO.contains(dateStr);
+      final hasBible = bibleDaysISO.contains(dateStr);
+      final hasPlan = planDaysISO.contains(dateStr);
+
       days.add(_DayInfo(
-        day: day,
-        date: date,
-        isCurrentMonth: true,
-        isToday: isToday,
-        isSelected: isSelected,
-        isVictory: isVictory,
-        isFuture: isFuture,
+        day: day, date: date, isCurrentMonth: true,
+        isToday: isToday, isSelected: isSelected,
+        isVictory: isVictory, isFuture: isFuture,
+        hasJournal: hasJournal, hasBible: hasBible, hasPlan: hasPlan,
       ));
     }
-    
-    // Agregar días del mes siguiente para completar la última semana
+
+    // Completar última semana
     int remainingDays = 7 - (days.length % 7);
     if (remainingDays < 7) {
       for (int i = 1; i <= remainingDays; i++) {
         days.add(_DayInfo(
           day: i,
           date: DateTime(visibleMonth.year, visibleMonth.month + 1, i),
-          isCurrentMonth: false,
-          isToday: false,
-          isSelected: false,
-          isVictory: false,
-          isFuture: true,
+          isCurrentMonth: false, isToday: false, isSelected: false,
+          isVictory: false, isFuture: true,
         ));
       }
     }
-    
+
     return days;
   }
-  
+
   Widget _buildDayTile(_DayInfo dayInfo) {
-    // Determinar el icono a mostrar
-    Widget? iconWidget;
-    
-    if (dayInfo.isCurrentMonth && !dayInfo.isFuture) {
-      if (dayInfo.isVictory) {
-        // Victoria: estrella dorada
-        iconWidget = const Text(
-          '⭐',
-          style: TextStyle(fontSize: 14),
-        );
-      } else {
-        // Gracia: cruz sutil (no agresiva)
-        iconWidget = Text(
-          '✝️',
-          style: TextStyle(
-            fontSize: 12,
-            color: useLightTheme 
-              ? _lightText.withOpacity(0.4)
-              : _pearlGray.withOpacity(0.6),
-          ),
-        );
-      }
-    }
-    
-    // Colores basados en estado y tema
+    // Colores
     Color bgColor = Colors.transparent;
-    Color textColor = useLightTheme 
-      ? _lightText.withOpacity(0.3)
-      : _pearlGray.withOpacity(0.4);
-    Border? border;
-    
-    if (dayInfo.isCurrentMonth) {
-      textColor = useLightTheme 
-        ? _lightText.withOpacity(0.9)
-        : Colors.white.withOpacity(0.9);
-      bgColor = useLightTheme 
-        ? _lightSurface.withOpacity(0.7)
-        : _cardBg.withOpacity(0.5);
-      
-      if (dayInfo.isToday) {
-        bgColor = useLightTheme 
-          ? _victory.withOpacity(0.1)
-          : _gold.withOpacity(0.15);
-      }
-      
-      if (dayInfo.isSelected) {
-        border = Border.all(
-          color: useLightTheme ? _victory : _gold,
-          width: 2,
-        );
-        bgColor = useLightTheme 
-          ? _victory.withOpacity(0.15)
-          : _gold.withOpacity(0.2);
-      }
-      
-      if (dayInfo.isFuture) {
-        textColor = useLightTheme 
-          ? _lightText.withOpacity(0.25)
-          : _pearlGray.withOpacity(0.3);
-        bgColor = Colors.transparent;
-      }
+    Color textColor = _textMuted.withOpacity(0.2);
+
+    if (dayInfo.isCurrentMonth && !dayInfo.isFuture) {
+      textColor = _textPrimary.withOpacity(0.85);
+      bgColor = Colors.white.withOpacity(0.03);
     }
-    
+
+    if (dayInfo.isFuture && dayInfo.isCurrentMonth) {
+      textColor = _textMuted.withOpacity(0.25);
+      bgColor = Colors.transparent;
+    }
+
+    // Victoria: fondo verde sutil
+    if (dayInfo.isVictory && dayInfo.isCurrentMonth) {
+      bgColor = _victory.withOpacity(0.12);
+    }
+
+    Border? border;
+    if (dayInfo.isSelected) {
+      border = Border.all(color: _gold, width: 2);
+      bgColor = _gold.withOpacity(0.18);
+    } else if (dayInfo.isToday) {
+      bgColor = _gold.withOpacity(0.12);
+    }
+
+    // Indicador de victoria: checkmark ✓
+    Widget? indicator;
+    if (dayInfo.isCurrentMonth && !dayInfo.isFuture && dayInfo.isVictory) {
+      indicator = Icon(
+        Icons.check_rounded,
+        size: 12,
+        color: _victory,
+      );
+    }
+
     return GestureDetector(
       onTap: dayInfo.isCurrentMonth ? () {
         FeedbackEngine.I.select();
@@ -361,7 +273,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 200),
         width: 40,
-        height: 48,
+        height: 46,
         decoration: BoxDecoration(
           color: bgColor,
           borderRadius: BorderRadius.circular(10),
@@ -372,66 +284,105 @@ class MonthlyVictoryCalendar extends StatelessWidget {
           children: [
             Text(
               dayInfo.day.toString(),
-              style: TextStyle(
+              style: GoogleFonts.manrope(
                 fontSize: 14,
-                fontWeight: dayInfo.isToday ? FontWeight.bold : FontWeight.w500,
-                color: textColor,
+                fontWeight: dayInfo.isToday || dayInfo.isVictory ? FontWeight.w700 : FontWeight.w500,
+                color: dayInfo.isVictory && dayInfo.isCurrentMonth ? _victory : textColor,
               ),
             ),
-            if (iconWidget != null) ...[
+            if (indicator != null) ...[
+              const SizedBox(height: 1),
+              indicator,            ] else if (_hasOverlayDots(dayInfo)) ...[
+              const SizedBox(height: 1),
+              _buildOverlayDots(dayInfo),            ] else if (dayInfo.isToday && !dayInfo.isSelected) ...[  
               const SizedBox(height: 2),
-              iconWidget,
+              Container(
+                width: 5,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: _gold,
+                  shape: BoxShape.circle,
+                ),
+              ),
             ],
           ],
         ),
       ),
     );
   }
-  
-  Widget _buildLegend() {
+
+  bool _hasOverlayDots(_DayInfo d) =>
+      d.isCurrentMonth && !d.isFuture && (d.hasJournal || d.hasBible || d.hasPlan);
+
+  Widget _buildOverlayDots(_DayInfo d) {
+    final dots = <Color>[];
+    if (d.hasBible) dots.add(_bible);
+    if (d.hasJournal) dots.add(_journal);
+    if (d.hasPlan) dots.add(_plan);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+      mainAxisSize: MainAxisSize.min,
+      children: dots.take(3).map((c) => Container(
+        width: 4, height: 4,
+        margin: const EdgeInsets.symmetric(horizontal: 1),
+        decoration: BoxDecoration(color: c, shape: BoxShape.circle),
+      )).toList(),
+    );
+  }
+
+  Widget _buildLegend() {
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: 16,
+      runSpacing: 6,
       children: [
-        // Victoria
-        _buildLegendItem('⭐', 'Victoria', useLightTheme ? _victory : _gold),
-        const SizedBox(width: 24),
-        // Gracia
-        _buildLegendItem('✝️', 'Gracia', useLightTheme 
-          ? _lightText.withOpacity(0.5)
-          : _pearlGray.withOpacity(0.6)),
+        _buildLegendItem(emoji: '✅', label: 'Victoria'),
+        _buildLegendItem(emoji: '🕊️', label: 'Gracia'),
+        if (journalDaysISO.isNotEmpty || bibleDaysISO.isNotEmpty || planDaysISO.isNotEmpty) ...[
+          _buildDotLegend(color: _bible, label: 'Biblia'),
+          _buildDotLegend(color: _journal, label: 'Diario'),
+          _buildDotLegend(color: _plan, label: 'Plan'),
+        ],
       ],
     );
   }
-  
-  Widget _buildLegendItem(String icon, String label, Color color) {
+
+  Widget _buildDotLegend({required Color color, required String label}) {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Text(
-          icon,
-          style: const TextStyle(fontSize: 14),
+        Container(
+          width: 8, height: 8,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
+        const SizedBox(width: 4),
+        Text(label, style: GoogleFonts.manrope(fontSize: 11, color: _textMuted)),
+      ],
+    );
+  }
+
+  Widget _buildLegendItem({required String emoji, required String label}) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(emoji, style: const TextStyle(fontSize: 14)),
         const SizedBox(width: 6),
         Text(
           label,
-          style: TextStyle(
+          style: GoogleFonts.manrope(
             fontSize: 12,
-            color: useLightTheme 
-              ? _lightText.withOpacity(0.6)
-              : _pearlGray.withOpacity(0.7),
+            color: _textMuted.withOpacity(0.7),
             fontWeight: FontWeight.w500,
           ),
         ),
       ],
     );
   }
-  
+
   String _dateToString(DateTime date) {
     return '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
   }
 }
 
-/// Información de un día para el calendario
 class _DayInfo {
   final int day;
   final DateTime date;
@@ -440,14 +391,14 @@ class _DayInfo {
   final bool isSelected;
   final bool isVictory;
   final bool isFuture;
-  
+  final bool hasJournal;
+  final bool hasBible;
+  final bool hasPlan;
+
   _DayInfo({
-    required this.day,
-    required this.date,
-    required this.isCurrentMonth,
-    required this.isToday,
-    required this.isSelected,
-    required this.isVictory,
-    required this.isFuture,
+    required this.day, required this.date, required this.isCurrentMonth,
+    required this.isToday, required this.isSelected, required this.isVictory,
+    required this.isFuture, this.hasJournal = false, this.hasBible = false,
+    this.hasPlan = false,
   });
 }

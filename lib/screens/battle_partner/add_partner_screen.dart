@@ -160,7 +160,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
   }
 
   Widget _buildSearchButton() {
-    final codeReady = _codeController.text.length == 8;
+    final codeReady = _codeController.text.trim().length == 8;
     return FilledButton(
       onPressed: codeReady && !_searching ? _lookup : null,
       style: FilledButton.styleFrom(

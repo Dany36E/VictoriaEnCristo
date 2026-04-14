@@ -33,6 +33,9 @@ enum BgmPlaybackState {
   error,     // Error en la reproducción
 }
 
+/// Contextos de BGM para switch automático por pantalla
+enum BgmContext { home, bible, journal, prayer, exercise, plan }
+
 class AudioEngine {
   // ═══════════════════════════════════════════════════════════════════════════
   // SINGLETON REAL
@@ -505,6 +508,55 @@ class AudioEngine {
   // SCREEN MUTE — silencia BGM cuando el usuario sale de HomeScreen
   // ═══════════════════════════════════════════════════════════════════════
   bool _mutedByScreen = false;
+
+  /// Contextos de BGM y sus assets correspondientes
+  static const Map<BgmContext, String> _bgmContextAssets = {
+    BgmContext.home: 'assets/sounds/Worship_pads.mp3',
+    BgmContext.bible: 'assets/sounds/Worship_pads2.mp3',
+    BgmContext.journal: 'assets/sounds/Worship_pads2.mp3',
+    BgmContext.prayer: 'assets/sounds/Worship_pads.mp3',
+    BgmContext.exercise: 'assets/sounds/Worship_pads2.mp3',
+    BgmContext.plan: 'assets/sounds/Worship_pads2.mp3',
+  };
+
+  BgmContext _currentContext = BgmContext.home;
+
+  /// Cambiar BGM según contexto de pantalla (crossfade suave)
+  Future<void> switchBgmContext(BgmContext context) async {
+    if (!bgmEnabled.value || context == _currentContext) return;
+
+    final targetAsset = _bgmContextAssets[context] ?? _bgmCandidates.first;
+    _currentContext = context;
+
+    // Si el asset deseado es el mismo que el actual, solo ajustar volumen
+    if (_currentBgmAsset == targetAsset) {
+      if (_mutedByScreen) await unmuteForScreen();
+      return;
+    }
+
+    // Cambiar al nuevo asset con fade
+    _log('BGM', '🎵 Switching context: ${context.name} → $targetAsset');
+    try {
+      // Fade out suave
+      if (bgmState.value == BgmPlaybackState.playing) {
+        await _bgmPlayer?.setVolume(0.0);
+        await _bgmPlayer?.stop();
+      }
+
+      // Cargar nuevo asset
+      await _bgmPlayer?.setAsset(targetAsset);
+      _currentBgmAsset = targetAsset;
+
+      // Fade in
+      final vol = bgmMuted.value ? 0.0 : bgmVolume.value;
+      await _bgmPlayer?.setVolume(vol);
+      await _bgmPlayer?.play();
+      bgmState.value = BgmPlaybackState.playing;
+      _mutedByScreen = false;
+    } catch (e) {
+      _log('BGM', '⚠️ Context switch failed: $e');
+    }
+  }
 
   /// Silenciar BGM al navegar fuera de HomeScreen (no pausa, solo vol 0)
   Future<void> muteForScreen() async {

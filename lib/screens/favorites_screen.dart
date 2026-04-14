@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../services/favorites_service.dart';
+import '../theme/app_theme_data.dart';
 import '../widgets/share_verse_modal.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════════
@@ -24,11 +25,6 @@ class FavoritesScreen extends StatefulWidget {
 class _FavoritesScreenState extends State<FavoritesScreen> {
   final FavoritesService _favoritesService = FavoritesService();
 
-  // Colores del Design System
-  static const Color _darkBg = Color(0xFF0A0E14);
-  static const Color _goldAccent = Color(0xFFD4A853);
-  static const Color _creamBg = Color(0xFFFAF8F5);
-
   @override
   void initState() {
     super.initState();
@@ -47,8 +43,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: _creamBg,
+      backgroundColor: t.scaffoldBg,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -59,9 +56,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             expandedHeight: 180,
             floating: false,
             pinned: true,
-            backgroundColor: _darkBg,
+            backgroundColor: t.surface,
             leading: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_rounded, color: Colors.white),
+              icon: Icon(Icons.arrow_back_ios_rounded, color: t.textPrimary),
               onPressed: () => Navigator.pop(context),
             ),
             flexibleSpace: FlexibleSpaceBar(
@@ -71,8 +68,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      _darkBg,
-                      const Color(0xFF1A2D42),
+                      t.surface,
+                      t.scaffoldBg,
                     ],
                   ),
                 ),
@@ -89,7 +86,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              _goldAccent.withOpacity(0.15),
+                              t.accent.withOpacity(0.15),
                               Colors.transparent,
                             ],
                           ),
@@ -108,12 +105,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: _goldAccent.withOpacity(0.15),
+                              color: t.accent.withOpacity(0.15),
                               borderRadius: BorderRadius.circular(14),
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.bookmark_rounded,
-                              color: _goldAccent,
+                              color: t.accent,
                               size: 28,
                             ),
                           ),
@@ -123,7 +120,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             style: GoogleFonts.cinzel(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: t.textPrimary,
                               letterSpacing: 1,
                             ),
                           ),
@@ -132,7 +129,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                             '${_favoritesService.count} versículos guardados',
                             style: GoogleFonts.manrope(
                               fontSize: 14,
-                              color: Colors.white60,
+                              color: t.textSecondary,
                             ),
                           ),
                         ],
@@ -182,6 +179,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   }
 
   Widget _buildEmptyState() {
+    final t = AppThemeData.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40),
@@ -191,13 +189,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: _goldAccent.withOpacity(0.1),
+                color: t.accent.withOpacity(0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.bookmark_outline_rounded,
                 size: 64,
-                color: _goldAccent.withOpacity(0.5),
+                color: t.accent.withOpacity(0.5),
               ),
             ),
             const SizedBox(height: 24),
@@ -206,7 +204,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               style: GoogleFonts.cinzel(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
-                color: _darkBg,
+                color: t.textPrimary,
               ),
             ),
             const SizedBox(height: 12),
@@ -215,7 +213,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               textAlign: TextAlign.center,
               style: GoogleFonts.manrope(
                 fontSize: 14,
-                color: Colors.black54,
+                color: t.textSecondary,
                 height: 1.6,
               ),
             ),
@@ -225,13 +223,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [_goldAccent, Color(0xFFE8C97A)],
+                  gradient: LinearGradient(
+                    colors: [t.accent, t.accentSoft],
                   ),
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: _goldAccent.withOpacity(0.4),
+                      color: t.accent.withOpacity(0.4),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -290,7 +288,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
           ],
         ),
-        backgroundColor: _darkBg,
+        backgroundColor: const Color(0xFF0A0E14),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -318,11 +316,9 @@ class _FavoriteVerseCard extends StatelessWidget {
     required this.onShare,
   });
 
-  static const Color _goldAccent = Color(0xFFD4A853);
-  static const Color _textDark = Color(0xFF1A1A1A);
-
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Dismissible(
       key: ValueKey('${verse.reference}_${verse.verse.hashCode}'),
       direction: DismissDirection.endToStart,
@@ -342,7 +338,7 @@ class _FavoriteVerseCard extends StatelessWidget {
       ),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: t.cardBg,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -361,7 +357,7 @@ class _FavoriteVerseCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: _goldAccent.withOpacity(0.1),
+                  color: t.accent.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -369,7 +365,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                   style: GoogleFonts.manrope(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
-                    color: _goldAccent,
+                    color: t.accent,
                     letterSpacing: 1.2,
                   ),
                 ),
@@ -384,7 +380,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                   fontSize: 17,
                   fontWeight: FontWeight.w400,
                   fontStyle: FontStyle.italic,
-                  color: _textDark,
+                  color: t.textPrimary,
                   height: 1.6,
                 ),
               ),
@@ -399,7 +395,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                     style: GoogleFonts.manrope(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
-                      color: _goldAccent,
+                      color: t.accent,
                     ),
                   ),
                   const Spacer(),
@@ -453,6 +449,7 @@ class _MiniActionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -460,7 +457,7 @@ class _MiniActionButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: isDestructive 
               ? Colors.red.shade50 
-              : const Color(0xFFF5F5F5),
+              : t.inputBg,
           borderRadius: BorderRadius.circular(10),
         ),
         child: Icon(
@@ -468,7 +465,7 @@ class _MiniActionButton extends StatelessWidget {
           size: 18,
           color: isDestructive 
               ? Colors.red.shade400 
-              : const Color(0xFF8A8A8A),
+              : t.textSecondary,
         ),
       ),
     );

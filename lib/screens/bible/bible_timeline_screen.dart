@@ -39,7 +39,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
   Future<void> _load() async {
     try {
       await BibleTimelineService.I.init();
-    } catch (_) { /* timeline data failed to load */ }
+    } catch (e) { debugPrint('⏳ [TIMELINE] Load error: $e'); }
     if (mounted) {
       setState(() => _loading = false);
       // Si viene de un capítulo, seleccionar el período relevante

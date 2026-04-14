@@ -211,7 +211,8 @@ class WallService {
       );
     } on FirebaseFunctionsException catch (e) {
       return WallPostResult(success: false, message: _mapFunctionError(e));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🧱 [WALL] reportPost error: $e');
       return WallPostResult(success: false, message: 'Error al reportar.');
     }
   }
@@ -311,7 +312,8 @@ class WallService {
       );
     } on FirebaseFunctionsException catch (e) {
       return WallPostResult(success: false, message: _mapFunctionError(e));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🧱 [WALL] moderate error: $e');
       return WallPostResult(success: false, message: 'Error al moderar.');
     }
   }
@@ -335,7 +337,8 @@ class WallService {
       );
     } on FirebaseFunctionsException catch (e) {
       return WallPostResult(success: false, message: _mapFunctionError(e));
-    } catch (_) {
+    } catch (e) {
+      debugPrint('🧱 [WALL] ban error: $e');
       return WallPostResult(success: false, message: 'Error al banear.');
     }
   }

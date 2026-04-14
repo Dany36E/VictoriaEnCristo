@@ -7,6 +7,7 @@ import '../../models/bible/bible_note.dart';
 import '../../models/bible/saved_verse.dart';
 import '../../models/bible/verse_prayer.dart';
 import '../../models/bible/bible_version.dart';
+import '../theme_service.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE USER DATA SERVICE - Singleton
@@ -47,6 +48,7 @@ class BibleUserDataService {
   final ValueNotifier<double> fontSizeNotifier = ValueNotifier(20.0);
   final ValueNotifier<String> readerThemeNotifier = ValueNotifier('dark');
   final ValueNotifier<bool> redLettersEnabledNotifier = ValueNotifier(true);
+  final ValueNotifier<bool> useAppThemeNotifier = ValueNotifier(true);
 
   // ── Subscriptions ──
   final List<StreamSubscription> _subscriptions = [];
@@ -65,6 +67,9 @@ class BibleUserDataService {
     // Cargar preferencias
     await _loadPreferences();
 
+    // Vincular tema de la Biblia al tema de la app si useAppTheme está activo
+    _syncBibleThemeToApp();
+
     // Escuchar colecciones
     _listenHighlights();
     _listenNotes();
@@ -73,6 +78,7 @@ class BibleUserDataService {
   }
 
   void stop() {
+    ThemeService().themeIdNotifier.removeListener(_onAppThemeChanged);
     for (final sub in _subscriptions) {
       sub.cancel();
     }
@@ -347,6 +353,7 @@ class BibleUserDataService {
           fontSizeNotifier.value = (data['fontSize'] as num?)?.toDouble() ?? 20.0;
           readerThemeNotifier.value = data['readerTheme'] as String? ?? 'dark';
           redLettersEnabledNotifier.value = data['redLettersEnabled'] as bool? ?? true;
+          useAppThemeNotifier.value = data['useAppTheme'] as bool? ?? true;
 
           // Restore recent colors from Firestore to SharedPreferences
           final cloudColors = (data['recentColors'] as List<dynamic>?)
@@ -375,12 +382,41 @@ class BibleUserDataService {
 
   Future<void> setReaderTheme(String theme) async {
     readerThemeNotifier.value = theme;
+    // Si el usuario elige manualmente un tema de Biblia, desactivar "usar tema de app"
+    if (useAppThemeNotifier.value) {
+      useAppThemeNotifier.value = false;
+      ThemeService().themeIdNotifier.removeListener(_onAppThemeChanged);
+    }
     await _savePreferences();
   }
 
   Future<void> setRedLettersEnabled(bool enabled) async {
     redLettersEnabledNotifier.value = enabled;
     await _savePreferences();
+  }
+
+  /// Activar/desactivar "Usar tema de la app" para la Biblia
+  Future<void> setUseAppTheme(bool enabled) async {
+    useAppThemeNotifier.value = enabled;
+    _syncBibleThemeToApp();
+    await _savePreferences();
+  }
+
+  /// Sincroniza el tema de la Biblia con el de la app
+  void _syncBibleThemeToApp() {
+    final ts = ThemeService();
+    // Siempre remover primero para evitar duplicados
+    ts.themeIdNotifier.removeListener(_onAppThemeChanged);
+    if (useAppThemeNotifier.value) {
+      readerThemeNotifier.value = ts.themeId;
+      ts.themeIdNotifier.addListener(_onAppThemeChanged);
+    }
+  }
+
+  void _onAppThemeChanged() {
+    if (useAppThemeNotifier.value) {
+      readerThemeNotifier.value = ThemeService().themeId;
+    }
   }
 
   Future<void> _savePreferences() async {
@@ -390,6 +426,7 @@ class BibleUserDataService {
       'fontSize': fontSizeNotifier.value,
       'readerTheme': readerThemeNotifier.value,
       'redLettersEnabled': redLettersEnabledNotifier.value,
+      'useAppTheme': useAppThemeNotifier.value,
       'updatedAt': FieldValue.serverTimestamp(),
     }, SetOptions(merge: true));
   }

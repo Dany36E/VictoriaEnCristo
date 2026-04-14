@@ -72,7 +72,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     SharedPreferences.getInstance().then((prefs) {
       final saved = prefs.getDouble('parallel_font_size');
       if (saved != null && mounted) setState(() => _parallelFontSize = saved);
-    });
+    }).catchError((e) { debugPrint('⚠️ [Parallel] Error cargando font size: $e'); });
     _loadAll();
   }
 
@@ -120,7 +120,8 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       ]);
       _leftVerses = results[0];
       _rightVerses = results[1];
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📖 [PARALLEL] Error loading chapters: $e');
       _leftVerses = [];
       _rightVerses = [];
     }
@@ -407,7 +408,8 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           GestureDetector(
             onTap: () {
               setState(() => _parallelFontSize = (_parallelFontSize - 1).clamp(10.0, 24.0));
-              SharedPreferences.getInstance().then((p) => p.setDouble('parallel_font_size', _parallelFontSize));
+              SharedPreferences.getInstance().then((p) => p.setDouble('parallel_font_size', _parallelFontSize))
+                  .catchError((e) { debugPrint('⚠️ [Parallel] Error guardando font size: $e'); return false; });
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -421,7 +423,8 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           GestureDetector(
             onTap: () {
               setState(() => _parallelFontSize = (_parallelFontSize + 1).clamp(10.0, 24.0));
-              SharedPreferences.getInstance().then((p) => p.setDouble('parallel_font_size', _parallelFontSize));
+              SharedPreferences.getInstance().then((p) => p.setDouble('parallel_font_size', _parallelFontSize))
+                  .catchError((e) { debugPrint('⚠️ [Parallel] Error guardando font size: $e'); return false; });
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
@@ -677,7 +680,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       ),
     ).then((_) {
       if (mounted) setState(() => _selectedVerse = null);
-    });
+    }).catchError((e) { debugPrint('⚠️ [Parallel] Nav error: $e'); });
   }
 
   Widget _actionChip(

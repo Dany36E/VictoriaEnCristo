@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
 import '../data/bible_verses.dart';
 import '../widgets/premium_components.dart';
 import '../services/feedback_engine.dart';
@@ -97,6 +98,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
 
   void _showVictoryDialog() {
     FeedbackEngine.I.confirm();  // Haptic + SFX confirm (victoria)
+    final t = AppThemeData.of(context);
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -107,7 +109,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           child: Container(
             padding: const EdgeInsets.all(AppDesignSystem.spacingL),
             decoration: BoxDecoration(
-              color: AppDesignSystem.midnight,
+              color: t.surface,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
               border: Border.all(
                 color: AppDesignSystem.victory.withOpacity(0.3),
@@ -165,7 +167,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   textAlign: TextAlign.center,
                   style: AppDesignSystem.bodyLarge(
                     context,
-                    color: AppDesignSystem.coolGray,
+                    color: t.textSecondary,
                   ),
                 ),
                 
@@ -184,7 +186,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                         textAlign: TextAlign.center,
                         style: AppDesignSystem.scripture(
                           context,
-                          color: AppDesignSystem.pureWhite,
+                          color: t.textPrimary,
                         ),
                       ),
                       const SizedBox(height: AppDesignSystem.spacingS),
@@ -211,7 +213,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                       'CONTINUAR EN VICTORIA',
                       style: AppDesignSystem.labelLarge(
                         context,
-                        color: AppDesignSystem.pureWhite,
+                        color: Colors.white,
                       ),
                     ),
                   ),
@@ -230,15 +232,16 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   @override
   Widget build(BuildContext context) {
     final currentStepData = _steps[_currentStep];
+    final t = AppThemeData.of(context);
     
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnightDeep,
+      backgroundColor: t.scaffoldBg,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: AppDesignSystem.pureWhite),
+          icon: Icon(Icons.close, color: t.textPrimary),
           onPressed: () {
             FeedbackEngine.I.tap();  // Haptic + SFX tap
             Navigator.pop(context);
@@ -248,7 +251,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           'AYUDA DE EMERGENCIA',
           style: AppDesignSystem.labelLarge(
             context,
-            color: AppDesignSystem.pureWhite,
+            color: t.textPrimary,
           ),
         ),
         centerTitle: true,
@@ -266,7 +269,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     radius: 1.5 + (_breatheController.value * 0.2),
                     colors: [
                       AppDesignSystem.struggle.withOpacity(0.15),
-                      AppDesignSystem.midnightDeep,
+                      t.scaffoldBg,
                     ],
                   ),
                 ),
@@ -304,6 +307,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   }
 
   Widget _buildProgressIndicator() {
+    final t = AppThemeData.of(context);
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(_steps.length, (index) {
@@ -318,7 +322,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           height: 12,
           decoration: BoxDecoration(
             gradient: isActive ? AppDesignSystem.goldShimmer : null,
-            color: isActive ? null : AppDesignSystem.pureWhite.withOpacity(0.15),
+            color: isActive ? null : t.textSecondary.withOpacity(0.2),
             borderRadius: BorderRadius.circular(6),
             boxShadow: isCurrent ? AppDesignSystem.shadowGold : null,
           ),
@@ -330,6 +334,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   }
 
   Widget _buildStepContent(EmergencyStep step) {
+    final t = AppThemeData.of(context);
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
@@ -353,7 +358,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             step.title,
             style: AppDesignSystem.displayMedium(
               context,
-              color: AppDesignSystem.pureWhite,
+              color: t.textPrimary,
             ),
           )
               .animate(key: ValueKey('title-$_currentStep'))
@@ -364,7 +369,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           
           // Instruction card
           GlassContainer(
-            backgroundColor: AppDesignSystem.pureWhite.withOpacity(0.08),
+            backgroundColor: t.textPrimary.withOpacity(0.08),
             padding: const EdgeInsets.all(AppDesignSystem.spacingL),
             child: Column(
               children: [
@@ -373,7 +378,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   textAlign: TextAlign.center,
                   style: AppDesignSystem.bodyLarge(
                     context,
-                    color: AppDesignSystem.pureWhite,
+                    color: t.textPrimary,
                   ),
                 ),
                 if (_currentStep == 2) ...[
@@ -393,7 +398,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                           textAlign: TextAlign.center,
                           style: AppDesignSystem.scripture(
                             context,
-                            color: AppDesignSystem.pureWhite,
+                            color: t.textPrimary,
                           ),
                         ),
                         const SizedBox(height: AppDesignSystem.spacingM),
@@ -424,17 +429,18 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   }
 
   Widget _buildQuickPrayer() {
+    final t = AppThemeData.of(context);
     return GlassContainer(
-      backgroundColor: AppDesignSystem.pureWhite.withOpacity(0.05),
+      backgroundColor: t.textPrimary.withOpacity(0.05),
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
+              Icon(
                 Icons.format_quote,
-                color: AppDesignSystem.gold,
+                color: t.accent,
                 size: 20,
               ),
               const SizedBox(width: AppDesignSystem.spacingS),
@@ -442,7 +448,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                 'ORACIÓN RÁPIDA',
                 style: AppDesignSystem.labelMedium(
                   context,
-                  color: AppDesignSystem.gold,
+                  color: t.accent,
                 ),
               ),
             ],
@@ -453,7 +459,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             textAlign: TextAlign.center,
             style: AppDesignSystem.bodyMedium(
               context,
-              color: AppDesignSystem.coolGray,
+              color: t.textSecondary,
             ),
           ),
         ],
@@ -465,13 +471,14 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   }
 
   Widget _buildNextButton() {
+    final t = AppThemeData.of(context);
     final isLastStep = _currentStep == _steps.length - 1;
     
     return SizedBox(
       width: double.infinity,
       child: PremiumButton(
         onPressed: _nextStep,
-        backgroundColor: isLastStep ? AppDesignSystem.victory : AppDesignSystem.gold,
+        backgroundColor: isLastStep ? AppDesignSystem.victory : t.accent,
         shadow: isLastStep ? AppDesignSystem.shadowVictory : AppDesignSystem.shadowGold,
         padding: const EdgeInsets.symmetric(
           vertical: AppDesignSystem.spacingL,
@@ -484,13 +491,13 @@ class _EmergencyScreenState extends State<EmergencyScreen>
               isLastStep ? '¡LO LOGRÉ!' : 'SIGUIENTE PASO',
               style: AppDesignSystem.labelLarge(
                 context,
-                color: isLastStep ? AppDesignSystem.pureWhite : AppDesignSystem.midnight,
+                color: isLastStep ? Colors.white : t.surface,
               ),
             ),
             const SizedBox(width: AppDesignSystem.spacingS),
             Icon(
               isLastStep ? Icons.celebration : Icons.arrow_forward,
-              color: isLastStep ? AppDesignSystem.pureWhite : AppDesignSystem.midnight,
+              color: isLastStep ? Colors.white : t.surface,
             ),
           ],
         ),

@@ -3,6 +3,7 @@
 library;
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 
 /// Plantilla visual del widget
 enum WidgetTemplate {
@@ -131,7 +132,8 @@ class WidgetConfig {
   factory WidgetConfig.fromJsonString(String jsonString) {
     try {
       return WidgetConfig.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('⚠️ [WidgetConfig] fromJsonString parse error: $e');
       return WidgetConfig.defaultConfig();
     }
   }

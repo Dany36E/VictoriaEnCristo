@@ -315,6 +315,12 @@ class VictoryScoringService {
     final dateISO = _dateToISO(DateTime.now());
     return _victoryByGiant.containsKey(dateISO);
   }
+
+  /// Verifica si hay datos guardados para una fecha arbitraria
+  bool isDateLogged(DateTime date) {
+    final dateISO = _dateToISO(date);
+    return _victoryByGiant.containsKey(dateISO);
+  }
   
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADÍSTICAS
@@ -459,7 +465,35 @@ class VictoryScoringService {
     
     debugPrint('📊 [SCORING] restoreFromCloud: ✅ hydrated, streak=${getCurrentStreak()}');
   }
-  
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // WEEKLY STATUS (para mini-calendario semanal)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  /// Retorna el estado de cada día de la semana actual (lunes→domingo)
+  /// Cada elemento: {'date': DateTime, 'completed': bool, 'isToday': bool}
+  List<Map<String, dynamic>> getWeeklyStatus() {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    // Calcular lunes de esta semana
+    final monday = today.subtract(Duration(days: today.weekday - 1));
+
+    final result = <Map<String, dynamic>>[];
+    for (int i = 0; i < 7; i++) {
+      final day = monday.add(Duration(days: i));
+      final isToday = day.year == today.year &&
+          day.month == today.month &&
+          day.day == today.day;
+      final isFutureDay = day.isAfter(today);
+      result.add({
+        'date': day,
+        'completed': isFutureDay ? false : isVictoryDay(day),
+        'isToday': isToday,
+      });
+    }
+    return result;
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // HELPERS
   // ═══════════════════════════════════════════════════════════════════════════

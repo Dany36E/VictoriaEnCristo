@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
+import '../services/badge_service.dart';
+import '../services/victory_scoring_service.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
+import '../widgets/badge_grid_section.dart';
+import '../widgets/theme_selector.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onLogout;
@@ -23,6 +31,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserData() async {
+    await BadgeService.I.init();
     final data = await _authService.getUserData();
     setState(() {
       _userData = data;
@@ -32,196 +41,236 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
     final user = _authService.currentUser;
+    final t = AppThemeData.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Mi Perfil'),
-      ),
+      backgroundColor: t.scaffoldBg,
       body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                children: [
-                  // Avatar
-                  _buildAvatar(isDark, user?.photoURL),
-                  const SizedBox(height: 16),
-                  
-                  // Nombre
-                  Text(
-                    user?.displayName ?? _userData?.displayName ?? 'Usuario',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+          ? Center(child: CircularProgressIndicator(color: t.accent))
+          : CustomScrollView(
+              physics: const BouncingScrollPhysics(),
+              slivers: [
+                // ─── Header con gradient suave ───
+                SliverToBoxAdapter(
+                  child: Container(
+                    padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 16, 24, 28),
+                    decoration: BoxDecoration(
+                      gradient: t.headerGradient,
+                    ),
+                    child: Column(
+                      children: [
+                        // Back + title row
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                HapticFeedback.lightImpact();
+                                Navigator.maybePop(context);
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(8),
+                                decoration: BoxDecoration(
+                                  color: t.textPrimary.withOpacity(0.06),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: t.textPrimary.withOpacity(0.7)),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            Text(
+                              'Mi Perfil',
+                              style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, color: t.textPrimary),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 28),
+
+                        // Avatar
+                        _buildAvatar(user?.photoURL),
+                        const SizedBox(height: 14),
+
+                        // Nombre
+                        Text(
+                          user?.displayName ?? _userData?.displayName ?? 'Usuario',
+                          style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, color: t.textPrimary),
+                        ),
+                        const SizedBox(height: 2),
+
+                        // Email
+                        Text(
+                          user?.email ?? '',
+                          style: GoogleFonts.manrope(fontSize: 13, color: t.textSecondary),
+                        ),
+                        const SizedBox(height: 20),
+
+                        // Stats row
+                        _buildStatsRow(),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  
-                  // Email
-                  Text(
-                    user?.email ?? '',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+                ),
+
+                // ─── Insignias ───
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
+                    child: const BadgeGridSection(),
+                  ),
+                ),
+
+                // ─── Tema de la app ───
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: t.cardDecoration,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(Icons.palette_outlined, size: 18, color: t.accent),
+                              const SizedBox(width: 8),
+                              Text(
+                                'Tema de la app',
+                                style: GoogleFonts.manrope(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w700,
+                                  color: t.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          const ThemeSelectorWidget(swatchSize: 36),
+                        ],
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 32),
-                  
-                  // Stats Card
-                  _buildStatsCard(isDark),
-                  const SizedBox(height: 24),
-                  
-                  // Opciones
-                  _buildOptionsSection(isDark),
-                  const SizedBox(height: 32),
-                  
-                  // Cerrar sesión
-                  _buildLogoutButton(isDark),
-                  
-                  // Safe Area bottom padding
-                  SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
-                ],
-              ),
+                ),
+
+                // ─── Opciones ───
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    child: _buildOptionsSection(),
+                  ),
+                ),
+
+                // ─── Cerrar sesión ───
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
+                    child: _buildLogoutButton(),
+                  ),
+                ),
+
+                SliverToBoxAdapter(
+                  child: SizedBox(height: MediaQuery.of(context).padding.bottom + 30),
+                ),
+              ],
             ),
     );
   }
 
-  Widget _buildAvatar(bool isDark, String? photoUrl) {
+  Widget _buildAvatar(String? photoUrl) {
+    final t = AppThemeData.of(context);
     return Container(
-      width: 100,
-      height: 100,
+      width: 88,
+      height: 88,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: (isDark ? AppTheme.darkPrimary : AppTheme.primaryColor).withOpacity(0.1),
-        border: Border.all(
-          color: isDark ? AppTheme.darkAccent : AppTheme.accentColor,
-          width: 3,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [t.accent.withOpacity(0.3), t.accent.withOpacity(0.1)],
         ),
+        border: Border.all(color: t.accent.withOpacity(0.4), width: 3),
+        boxShadow: [
+          BoxShadow(color: t.accent.withOpacity(0.15), blurRadius: 16, spreadRadius: 2),
+        ],
       ),
       child: ClipOval(
         child: photoUrl != null
-            ? Image.network(
-                photoUrl,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => _buildDefaultAvatar(isDark),
-              )
-            : _buildDefaultAvatar(isDark),
+            ? Image.network(photoUrl, fit: BoxFit.cover,
+                errorBuilder: (c, e, s) => _buildDefaultAvatar())
+            : _buildDefaultAvatar(),
       ),
     );
   }
 
-  Widget _buildDefaultAvatar(bool isDark) {
-    return Icon(
-      Icons.person,
-      size: 50,
-      color: isDark ? AppTheme.darkPrimary : AppTheme.primaryColor,
+  Widget _buildDefaultAvatar() {
+    return Center(
+      child: Text('😊', style: const TextStyle(fontSize: 38)),
     );
   }
 
-  Widget _buildStatsCard(bool isDark) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          Expanded(
-            child: _buildStatItem(
-              '🏆',
-              '${_userData?.victoryDays ?? 0}',
-              'Días de Victoria',
-              isDark,
-            ),
-          ),
-          Container(
-            width: 1,
-            height: 50,
-            color: isDark ? AppTheme.darkTextSecondary.withOpacity(0.3) : Colors.grey.shade200,
-          ),
-          Expanded(
-            child: _buildStatItem(
-              '📅',
-              _formatDate(_userData?.createdAt),
-              'Miembro desde',
-              isDark,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  Widget _buildStatsRow() {
+    final streak = VictoryScoringService.I.getCurrentStreak();
+    final victories = _userData?.victoryDays ?? 0;
+    final memberDate = _formatDate(_userData?.createdAt);
 
-  Widget _buildStatItem(String emoji, String value, String label, bool isDark) {
-    return Column(
+    return Row(
       children: [
-        Text(emoji, style: const TextStyle(fontSize: 24)),
-        const SizedBox(height: 8),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
-          ),
-        ),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 12,
-            color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
-          ),
-        ),
+        _buildStatChip('🔥', '$streak', 'Racha'),
+        const SizedBox(width: 10),
+        _buildStatChip('🏆', '$victories', 'Victorias'),
+        const SizedBox(width: 10),
+        _buildStatChip('📅', memberDate, 'Miembro'),
       ],
     );
   }
 
-  Widget _buildOptionsSection(bool isDark) {
-    return Container(
-      decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
-            blurRadius: 10,
-          ),
-        ],
+  Widget _buildStatChip(String emoji, String value, String label) {
+    final t = AppThemeData.of(context);
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: t.cardBg,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: t.cardBorder, width: 1),
+          boxShadow: t.cardShadow,
+        ),
+        child: Column(
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 20)),
+            const SizedBox(height: 4),
+            Text(value, style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800, color: t.textPrimary)),
+            Text(label, style: GoogleFonts.manrope(fontSize: 11, color: t.textSecondary)),
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildOptionsSection() {
+    final t = AppThemeData.of(context);
+    return Container(
+      decoration: t.cardDecoration,
       child: Column(
         children: [
           _buildOptionTile(
-            icon: Icons.cloud_upload,
+            icon: Icons.cloud_upload_rounded,
             title: 'Sincronizar datos',
-            subtitle: 'Última sync: ahora',
+            subtitle: 'Respaldar en la nube',
             onTap: _syncData,
-            isDark: isDark,
           ),
-          Divider(height: 1, color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+          Divider(height: 1, indent: 60, endIndent: 16, color: t.divider),
           _buildOptionTile(
-            icon: Icons.download,
+            icon: Icons.download_rounded,
             title: 'Exportar mi progreso',
-            subtitle: 'Descargar datos',
+            subtitle: 'Descargar mis datos',
             onTap: () {},
-            isDark: isDark,
           ),
-          Divider(height: 1, color: isDark ? Colors.grey.shade800 : Colors.grey.shade200),
+          Divider(height: 1, indent: 60, endIndent: 16, color: t.divider),
           _buildOptionTile(
-            icon: Icons.delete_outline,
+            icon: Icons.delete_outline_rounded,
             title: 'Eliminar cuenta',
             subtitle: 'Esta acción es irreversible',
             onTap: _confirmDeleteAccount,
-            isDark: isDark,
             isDestructive: true,
           ),
         ],
@@ -234,60 +283,56 @@ class _ProfileScreenState extends State<ProfileScreen> {
     required String title,
     required String subtitle,
     required VoidCallback onTap,
-    required bool isDark,
     bool isDestructive = false,
   }) {
-    final color = isDestructive
-        ? AppTheme.emergencyColor
-        : (isDark ? AppTheme.darkPrimary : AppTheme.primaryColor);
+    final t = AppThemeData.of(context);
+    const danger = AppDesignSystem.struggle;
+    final color = isDestructive ? danger : t.accent;
 
     return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 2),
       leading: Container(
-        padding: const EdgeInsets.all(8),
+        width: 40,
+        height: 40,
         decoration: BoxDecoration(
           color: color.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(12),
         ),
-        child: Icon(icon, color: color),
+        child: Icon(icon, color: color, size: 20),
       ),
       title: Text(
         title,
-        style: TextStyle(
+        style: GoogleFonts.manrope(
+          fontSize: 14,
           fontWeight: FontWeight.w600,
-          color: isDestructive
-              ? AppTheme.emergencyColor
-              : (isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary),
+          color: isDestructive ? danger : t.textPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
-        style: TextStyle(
-          fontSize: 12,
-          color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
-        ),
+        style: GoogleFonts.manrope(fontSize: 12, color: t.textSecondary),
       ),
-      trailing: Icon(
-        Icons.chevron_right,
-        color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
-      ),
+      trailing: Icon(Icons.chevron_right_rounded, color: t.textSecondary.withOpacity(0.5), size: 20),
       onTap: onTap,
     );
   }
 
-  Widget _buildLogoutButton(bool isDark) {
+  Widget _buildLogoutButton() {
+    final t = AppThemeData.of(context);
     return SizedBox(
       width: double.infinity,
       child: OutlinedButton.icon(
         onPressed: _handleLogout,
-        icon: const Icon(Icons.logout),
-        label: const Text('Cerrar Sesión'),
+        icon: Icon(Icons.logout_rounded, size: 18, color: t.textSecondary),
+        label: Text(
+          'Cerrar Sesión',
+          style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w600),
+        ),
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppTheme.emergencyColor,
-          side: const BorderSide(color: AppTheme.emergencyColor),
+          foregroundColor: t.textSecondary,
+          side: BorderSide(color: t.textSecondary.withOpacity(0.25)),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
       ),
     );
@@ -393,6 +438,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
       builder: (dialogContext) {
         final passwordController = TextEditingController();
         bool isLoading = false;
+        // Dispose controller when dialog closes
+        void disposeController() => passwordController.dispose();
         
         return StatefulBuilder(
           builder: (context, setState) {
@@ -464,7 +511,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(dialogContext),
+                  onPressed: isLoading ? null : () {
+                    disposeController();
+                    Navigator.pop(dialogContext);
+                  },
                   child: const Text('Cancelar'),
                 ),
                 
@@ -475,6 +525,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ? null 
                         : () async {
                             setState(() => isLoading = true);
+                            disposeController();
                             Navigator.pop(dialogContext);
                             await _deleteWithGoogleReauth();
                           },
@@ -490,7 +541,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     onPressed: isLoading 
                         ? null 
                         : () async {
-                            final password = passwordController.text;
+                            final password = passwordController.text.trim();
                             if (password.isEmpty) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
@@ -501,6 +552,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               return;
                             }
                             setState(() => isLoading = true);
+                            disposeController();
                             Navigator.pop(dialogContext);
                             await _deleteWithPasswordReauth(password);
                           },
@@ -618,7 +670,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: 'Soporte',
               textColor: Colors.white,
               onPressed: () {
-                // TODO: Abrir link de soporte
+                launchUrl(
+                  Uri.parse('mailto:soporte@victoriaencristo.app?subject=Problema%20al%20eliminar%20cuenta'),
+                  mode: LaunchMode.externalApplication,
+                );
               },
             ),
           ),

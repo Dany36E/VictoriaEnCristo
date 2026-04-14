@@ -146,7 +146,18 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                     color: t.textPrimary.withOpacity(0.08)),
                 // Categories list
                 Expanded(
-                  child: ListView.builder(
+                  child: _categories.where((c) => _getFilteredSections(c).isNotEmpty).isEmpty && _searchQuery.isNotEmpty
+                    ? Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.search_off, size: 48, color: t.textPrimary.withOpacity(0.3)),
+                            const SizedBox(height: 12),
+                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withOpacity(0.5), fontSize: 14)),
+                          ],
+                        ),
+                      )
+                    : ListView.builder(
                     padding: const EdgeInsets.only(bottom: 40),
                     itemCount: _categories.length,
                     itemBuilder: (_, i) =>

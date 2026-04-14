@@ -3,10 +3,13 @@ package com.example.app_quitar
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.widget.RemoteViews
 import android.app.PendingIntent
 import android.content.Intent
 import es.antonborri.home_widget.HomeWidgetPlugin
+import java.io.File
 
 class JesusWidgetProvider : AppWidgetProvider() {
 
@@ -27,6 +30,8 @@ class JesusWidgetProvider : AppWidgetProvider() {
         private const val KEY_STREAK = "jesus_streak_days"
         private const val KEY_COMPLETED = "jesus_completed_today"
         private const val KEY_MESSAGE = "jesus_widget_message"
+        private const val KEY_SPRITE_PATH = "jesus_sprite_path"
+        private const val KEY_BG_PATH = "jesus_bg_path"
 
         fun updateWidget(
             context: Context,
@@ -42,20 +47,35 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 val completedToday = prefs.getBoolean(KEY_COMPLETED, false)
                 val message = prefs.getString(KEY_MESSAGE, "¡Empieza hoy!") ?: "¡Empieza hoy!"
 
+                // ─── Cargar sprite de Jesús (escalado) ───
+                val spritePath = prefs.getString(KEY_SPRITE_PATH, null)
+                if (spritePath != null) {
+                    val spriteFile = File(spritePath)
+                    if (spriteFile.exists()) {
+                        val bitmap = decodeSampledBitmap(spritePath, 400, 400)
+                        if (bitmap != null) {
+                            views.setImageViewBitmap(R.id.widget_jesus_image, bitmap)
+                        }
+                    }
+                }
+
+                // ─── Cargar fondo dinámico (escalado) ───
+                val bgPath = prefs.getString(KEY_BG_PATH, null)
+                if (bgPath != null) {
+                    val bgFile = File(bgPath)
+                    if (bgFile.exists()) {
+                        val bitmap = decodeSampledBitmap(bgPath, 800, 800)
+                        if (bitmap != null) {
+                            views.setImageViewBitmap(R.id.widget_bg_image, bitmap)
+                        }
+                    }
+                }
+
                 // Número de racha
                 views.setTextViewText(R.id.widget_streak_number, streakDays.toString())
 
-                // Color del número según racha
-                val streakColor = when {
-                    streakDays == 0   -> 0xFF888780.toInt()
-                    streakDays <= 6   -> 0xFF3B6D11.toInt()
-                    streakDays <= 13  -> 0xFF185FA5.toInt()
-                    streakDays <= 29  -> 0xFFBA7517.toInt()
-                    streakDays <= 59  -> 0xFF534AB7.toInt()
-                    streakDays <= 99  -> 0xFFA32D2D.toInt()
-                    else              -> 0xFFD4AF37.toInt()
-                }
-                views.setTextColor(R.id.widget_streak_number, streakColor)
+                // Número siempre blanco — el color queda en el fondo/contexto
+                views.setTextColor(R.id.widget_streak_number, 0xFFFFFFFF.toInt())
 
                 // Mensaje
                 views.setTextViewText(R.id.widget_message, message)
@@ -66,25 +86,26 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 when {
                     completedToday -> {
                         badgeText = "✓ Día de victoria"
-                        badgeColor = 0xFF4CAF50.toInt()
+                        badgeColor = 0xFF66BB6A.toInt()
                     }
                     streakDays > 0 -> {
                         badgeText = "⚔ En batalla"
-                        badgeColor = 0xFFD4AF37.toInt()
+                        badgeColor = 0xFFFFA726.toInt()
                     }
                     else -> {
                         badgeText = "Empieza hoy"
-                        badgeColor = 0xFF888780.toInt()
+                        badgeColor = 0xFF9E9E9E.toInt()
                     }
                 }
                 views.setTextViewText(R.id.widget_badge, badgeText)
                 views.setTextColor(R.id.widget_badge, badgeColor)
 
-                // Label días
+                // Label días — uppercase apilado
                 views.setTextViewText(
                     R.id.widget_streak_label,
-                    if (streakDays == 1) "día de victoria" else "días de victoria"
+                    if (streakDays == 1) "DÍA" else "DÍAS"
                 )
+                views.setTextViewText(R.id.widget_streak_sublabel, "DE VICTORIA")
 
                 // Tap abre la app
                 val intent = Intent(context, MainActivity::class.java).apply {
@@ -103,7 +124,37 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 views.setTextViewText(R.id.widget_badge, "Empieza hoy")
             }
 
-            appWidgetManager.updateAppWidget(appWidgetId, views)
+            try {
+                appWidgetManager.updateAppWidget(appWidgetId, views)
+            } catch (e: Exception) {
+                // Si aún excede memoria, enviar vista sin imágenes
+                val fallback = RemoteViews(context.packageName, R.layout.jesus_widget)
+                fallback.setTextViewText(R.id.widget_streak_number, "0")
+                fallback.setTextViewText(R.id.widget_message, "Abre la app")
+                fallback.setTextViewText(R.id.widget_badge, "Empieza hoy")
+                appWidgetManager.updateAppWidget(appWidgetId, fallback)
+            }
+        }
+
+        private fun decodeSampledBitmap(path: String, reqWidth: Int, reqHeight: Int): Bitmap? {
+            val options = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(path, options)
+            options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
+            options.inJustDecodeBounds = false
+            return BitmapFactory.decodeFile(path, options)
+        }
+
+        private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+            val (height, width) = options.outHeight to options.outWidth
+            var inSampleSize = 1
+            if (height > reqHeight || width > reqWidth) {
+                val halfHeight = height / 2
+                val halfWidth = width / 2
+                while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                    inSampleSize *= 2
+                }
+            }
+            return inSampleSize
         }
     }
 }

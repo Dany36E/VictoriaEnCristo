@@ -56,7 +56,8 @@ class BibleMapsService {
     await _ensureLoaded();
     try {
       return _maps?.firstWhere((m) => m.id == mapId);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📍 [MAPS] getMapById($mapId): $e');
       return null;
     }
   }

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -33,8 +33,7 @@ class ShareUtils {
       WebDownloaderImpl.download(bytes, fileName);
       return true;
     } catch (e) {
-      // ignore: avoid_print
-      print('Error descargando en web: $e');
+      debugPrint('⚠️ [SHARE] Error descargando en web: $e');
       return false;
     }
   }
@@ -65,8 +64,7 @@ class ShareUtils {
       return result.status == ShareResultStatus.success || 
              result.status == ShareResultStatus.dismissed;
     } catch (e) {
-      // ignore: avoid_print
-      print('Error compartiendo en móvil: $e');
+      debugPrint('⚠️ [SHARE] Error compartiendo en móvil: $e');
       return false;
     }
   }

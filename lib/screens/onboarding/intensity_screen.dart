@@ -214,7 +214,9 @@ class _IntensityScreenState extends State<IntensityScreen>
     if (uid != null) {
       try {
         await ProfileRepository.I.connectUser(uid);
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('🏠 [ONBOARDING] Profile reconnect error: $e');
+      }
     }
     await Future.delayed(const Duration(milliseconds: 200));
     
@@ -318,11 +320,12 @@ class _IntensityScreenState extends State<IntensityScreen>
               onTap: () async {
                 HapticFeedback.lightImpact();
                 final newState = !isBgmEnabled;
+                final messenger = ScaffoldMessenger.of(context);
                 final success = await AudioEngine.I.setBgmEnabled(newState);
                 
                 // Si intentó activar pero falló, mostrar feedback
                 if (newState && !success && mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(
+                  messenger.showSnackBar(
                     SnackBar(
                       content: Text(
                         'No se pudo cargar la música',

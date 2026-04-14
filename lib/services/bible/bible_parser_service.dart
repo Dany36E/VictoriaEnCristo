@@ -159,7 +159,8 @@ class BibleParserService {
     );
     try {
       return verses.firstWhere((v) => v.verse == verse);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📖 [PARSER] getVerse not found: $e');
       return null;
     }
   }
@@ -240,7 +241,8 @@ class BibleParserService {
     final books = await getBooks(version);
     try {
       return books.firstWhere((b) => b.number == bookNumber).name;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📖 [PARSER] getBookName($bookNumber): $e');
       return 'Libro $bookNumber';
     }
   }
@@ -272,7 +274,8 @@ class BibleParserService {
   static String _decodeBytes(List<int> bytes, String label) {
     try {
       return utf8.decode(bytes);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📖 [PARSER] UTF-8 decode failed for $label: $e');
       try {
         debugPrint('📖 [BIBLE] $label: fallback to Latin-1 encoding');
         return latin1.decode(bytes);

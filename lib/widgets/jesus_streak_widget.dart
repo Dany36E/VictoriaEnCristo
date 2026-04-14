@@ -44,7 +44,7 @@ class JesusStreakWidget extends StatelessWidget {
     );
 
     return GestureDetector(
-      onTap: onTapCard,
+      onTap: onRegisterVictory,
       child: Container(
         height: 220,
         decoration: BoxDecoration(
@@ -174,31 +174,7 @@ class JesusStreakWidget extends StatelessWidget {
                 ),
               ),
 
-              // ─── CAPA 5: Badge de estado ───
-              Positioned(
-                bottom: 12,
-                right: 12,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.5),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: _getBadgeColor(),
-                      width: 0.5,
-                    ),
-                  ),
-                  child: Text(
-                    _getBadgeText(),
-                    style: GoogleFonts.manrope(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: _getBadgeColor(),
-                    ),
-                  ),
-                ),
-              ),
+
             ],
           ),
         ),
@@ -327,75 +303,41 @@ class JesusStreakWidget extends StatelessWidget {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildActionButton(Color streakColor) {
-    final bool showRegister = !completedToday;
-
-    return SizedBox(
-      width: double.infinity,
-      height: 38,
-      child: showRegister
-          ? ElevatedButton.icon(
-              onPressed: isLoading ? null : onRegisterVictory,
-              icon: Icon(
-                isNewUser ? Icons.play_arrow_rounded : Icons.shield_rounded,
-                size: 18,
-              ),
-              label: Text(
-                isNewUser ? 'COMENZAR' : 'REGISTRAR VICTORIA',
-                style: GoogleFonts.manrope(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1,
-                ),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: streakColor.withOpacity(0.9),
-                foregroundColor: Colors.black,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 0,
-              ),
-            )
-              .animate(onPlay: (c) => c.repeat(reverse: true))
-              .shimmer(
-                duration: 2000.ms,
-                color: Colors.white.withOpacity(0.15),
-              )
-          : OutlinedButton.icon(
-              onPressed: onTapCard,
-              icon: const Icon(Icons.insights_rounded, size: 16),
-              label: Text(
-                'VER MI PROGRESO',
-                style: GoogleFonts.manrope(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 1,
-                ),
-              ),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: streakColor,
-                side: BorderSide(color: streakColor.withOpacity(0.5)),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
+    return GestureDetector(
+      onTap: isLoading ? null : onRegisterVictory,
+      child: Container(
+        margin: const EdgeInsets.only(top: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+        decoration: BoxDecoration(
+          color: const Color(0xFFD4AF37).withOpacity(0.15),
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: const Color(0xFFD4AF37).withOpacity(0.5),
+            width: 0.8,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              completedToday ? Icons.insights_rounded : Icons.shield_outlined,
+              color: const Color(0xFFD4AF37),
+              size: 16,
+            ),
+            const SizedBox(width: 6),
+            Text(
+              completedToday ? 'Ver mi progreso' : 'Registrar victoria',
+              style: GoogleFonts.manrope(
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFFD4AF37),
               ),
             ),
+          ],
+        ),
+      ),
     );
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // BADGE DE ESTADO
-  // ═══════════════════════════════════════════════════════════════════════════
 
-  Color _getBadgeColor() {
-    if (completedToday) return const Color(0xFF4CAF50);
-    if (streakDays > 0) return const Color(0xFFD4AF37);
-    return const Color(0xFF888780);
-  }
-
-  String _getBadgeText() {
-    if (completedToday) return '✓  Día de victoria';
-    if (streakDays > 0) return '⚔  En batalla';
-    return 'Empieza hoy';
-  }
 }

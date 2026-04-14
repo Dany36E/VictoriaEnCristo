@@ -212,7 +212,8 @@ class IqBibleService {
 
     try {
       return json.decode(raw) as Map<String, dynamic>;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📚 [IQ] JSON decode cache error: $e');
       return null;
     }
   }

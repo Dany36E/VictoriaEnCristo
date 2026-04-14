@@ -13,10 +13,15 @@ import '../repositories/profile_repository.dart';
 import '../repositories/progress_repository.dart';
 import '../repositories/journal_repository.dart';
 import '../repositories/plans_repository.dart';
+import '../repositories/favorites_repository.dart';
+import '../repositories/badge_repository.dart';
 import '../models/user_profile.dart';
 import 'widget_sync_service.dart';
 import 'victory_scoring_service.dart';
 import 'journal_service.dart';
+import 'favorites_service.dart';
+import 'plan_progress_service.dart';
+import 'badge_service.dart';
 import 'battle_partner_service.dart';
 import 'bible/bible_user_data_service.dart';
 import 'bible/bible_reading_stats_service.dart';
@@ -33,6 +38,7 @@ import 'bible/treasury_service.dart';
 import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
+import 'notification_service.dart';
 
 /// Clave para guardar el último UID conocido
 const String _keyLastKnownUid = 'account_last_known_uid';
@@ -223,6 +229,8 @@ class AccountSessionManager {
       ProgressRepository.I.disconnectUser(),
       JournalRepository.I.disconnectUser(),
       PlansRepository.I.disconnectUser(),
+      FavoritesRepository.I.disconnectUser(),
+      BadgeRepository.I.disconnectUser(),
     ]);
   }
   
@@ -269,6 +277,8 @@ class AccountSessionManager {
         ProgressRepository.I.clearLocalCache(),
         JournalRepository.I.clearLocalCache(),
         PlansRepository.I.clearLocalCache(),
+        FavoritesRepository.I.clearLocalCache(),
+        BadgeRepository.I.clearLocalCache(),
       ]);
       
       // Limpiar servicios legacy que usan SharedPreferences directamente
@@ -326,6 +336,8 @@ class AccountSessionManager {
         ProgressRepository.I.init(),
         JournalRepository.I.init(),
         PlansRepository.I.init(),
+        FavoritesRepository.I.init(),
+        BadgeRepository.I.init(),
       ]);
       
       // 2. Conectar ProfileRepository primero (contiene config de gigantes)
@@ -352,6 +364,8 @@ class AccountSessionManager {
         ),
         JournalRepository.I.connectUser(uid),
         PlansRepository.I.connectUser(uid),
+        FavoritesRepository.I.connectUser(uid),
+        BadgeRepository.I.connectUser(uid),
       ]);
       
       // 5. Hidratar servicios locales con datos de cloud
@@ -382,6 +396,9 @@ class AccountSessionManager {
 
       // 12. Precargar servicios de estudio offline (no bloquean)
       unawaited(_preloadBibleAssets());
+
+      // 13. Reprogramar notificaciones (sobreviven reinicios de app)
+      unawaited(_rescheduleNotifications());
       
       stateNotifier.value = SessionState.ready;
       
@@ -456,6 +473,41 @@ class AccountSessionManager {
         debugPrint('🔐 [SESSION]   ✅ Journal: ${cachedEntries.length} entries hydrated');
       } else {
         debugPrint('🔐 [SESSION]   ℹ️ Journal: cloud empty');
+      }
+      
+      // --- Favorites ---
+      final cachedFavorites = FavoritesRepository.I.cachedFavorites;
+      if (cachedFavorites.isNotEmpty) {
+        final favService = FavoritesService();
+        await favService.init();
+        await favService.restoreFromCloud(cachedFavorites);
+        
+        debugPrint('🔐 [SESSION]   ✅ Favorites: ${cachedFavorites.length} restored');
+      } else {
+        debugPrint('🔐 [SESSION]   ℹ️ Favorites: cloud empty');
+      }
+      
+      // --- Plan Progress ---
+      final cachedPlans = PlansRepository.I.getAll();
+      if (cachedPlans.isNotEmpty) {
+        final planService = PlanProgressService.I;
+        await planService.init();
+        await planService.restoreFromCloud(cachedPlans);
+        
+        debugPrint('🔐 [SESSION]   ✅ Plans: ${cachedPlans.length} restored');
+      } else {
+        debugPrint('🔐 [SESSION]   ℹ️ Plans: cloud empty');
+      }
+      
+      // --- Badges ---
+      final cachedBadges = BadgeRepository.I.cachedLevels;
+      if (cachedBadges.isNotEmpty) {
+        await BadgeService.I.init();
+        await BadgeService.I.restoreFromCloud(cachedBadges);
+        
+        debugPrint('🔐 [SESSION]   ✅ Badges: ${cachedBadges.length} levels restored');
+      } else {
+        debugPrint('🔐 [SESSION]   ℹ️ Badges: cloud empty');
       }
       
       debugPrint('🔐 [SESSION] ✅ Local services hydrated');
@@ -589,6 +641,18 @@ class AccountSessionManager {
       unawaited(ShareCacheService.I.warmUp());
     } catch (e) {
       debugPrint('📖 [BIBLE] Preload error (non-blocking): $e');
+    }
+  }
+
+  /// Reprogramar notificaciones tras reinicio de app
+  Future<void> _rescheduleNotifications() async {
+    try {
+      final ns = NotificationService();
+      await ns.initialize();
+      await ns.scheduleAllNotifications();
+      debugPrint('🔔 [SESSION] Notifications rescheduled');
+    } catch (e) {
+      debugPrint('🔔 [SESSION] Notification reschedule error (non-blocking): $e');
     }
   }
 

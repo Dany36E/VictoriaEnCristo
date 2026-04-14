@@ -22,6 +22,9 @@ class FavoritesService extends ChangeNotifier {
   List<BibleVerse> _favorites = [];
   bool _isInitialized = false;
 
+  /// Callback para sincronización write-through (usado por FavoritesSyncAdapter)
+  void Function(List<BibleVerse> favorites)? onFavoritesChanged;
+
   /// Lista de versículos favoritos
   List<BibleVerse> get favorites => List.unmodifiable(_favorites);
 
@@ -41,7 +44,15 @@ class FavoritesService extends ChangeNotifier {
       
       if (jsonString != null && jsonString.isNotEmpty) {
         final List<dynamic> jsonList = json.decode(jsonString);
-        _favorites = jsonList.map((item) => BibleVerse.fromJson(item)).toList();
+        final List<BibleVerse> loaded = [];
+        for (final item in jsonList) {
+          try {
+            loaded.add(BibleVerse.fromJson(item));
+          } catch (e) {
+            debugPrint('FavoritesService: favorito corrupto ignorado: $e');
+          }
+        }
+        _favorites = loaded;
       }
       
       _isInitialized = true;
@@ -67,6 +78,7 @@ class FavoritesService extends ChangeNotifier {
     _favorites.insert(0, verse);
     notifyListeners();
     final saveResult = await _saveToStorage();
+    onFavoritesChanged?.call(List.unmodifiable(_favorites));
     return saveResult.map((_) => true);
   }
 
@@ -77,6 +89,7 @@ class FavoritesService extends ChangeNotifier {
     );
     notifyListeners();
     final saveResult = await _saveToStorage();
+    onFavoritesChanged?.call(List.unmodifiable(_favorites));
     return saveResult.map((_) => true);
   }
 
@@ -100,6 +113,16 @@ class FavoritesService extends ChangeNotifier {
       debugPrint('Error saving favorites: $e');
       return Failure('Error guardando favoritos', error: e, stackTrace: st);
     }
+  }
+
+  /// Restaurar favoritos desde cloud (usado por DataBootstrapper)
+  Future<void> restoreFromCloud(List<BibleVerse> cloudFavorites) async {
+    if (cloudFavorites.isEmpty) return;
+    
+    _favorites = List.from(cloudFavorites);
+    await _saveToStorage();
+    notifyListeners();
+    debugPrint('⭐ [FAV_SERVICE] Restored ${cloudFavorites.length} favorites from cloud');
   }
 
   /// Limpia todos los favoritos

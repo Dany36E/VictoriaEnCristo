@@ -32,15 +32,27 @@ class JournalEntry {
     'verseOfDay': verseOfDay,
   };
 
-  factory JournalEntry.fromJson(Map<String, dynamic> json) => JournalEntry(
-    id: json['id'],
-    date: DateTime.parse(json['date']),
-    content: json['content'],
-    mood: json['mood'],
-    triggers: List<String>.from(json['triggers'] ?? []),
-    hadVictory: json['hadVictory'] ?? true,
-    verseOfDay: json['verseOfDay'],
-  );
+  factory JournalEntry.fromJson(Map<String, dynamic> json) {
+    final id = json['id'];
+    final date = json['date'];
+    final content = json['content'];
+    final mood = json['mood'];
+    if (id is! String || date is! String || content is! String || mood is! String) {
+      throw FormatException(
+        'JournalEntry.fromJson: campos requeridos nulos o tipo incorrecto '
+        '(id=$id, date=$date, content=${content?.runtimeType}, mood=$mood)',
+      );
+    }
+    return JournalEntry(
+      id: id,
+      date: DateTime.parse(date),
+      content: content,
+      mood: mood,
+      triggers: List<String>.from(json['triggers'] ?? []),
+      hadVictory: json['hadVictory'] ?? true,
+      verseOfDay: json['verseOfDay'],
+    );
+  }
 }
 
 /// Servicio para manejar el diario personal
@@ -110,7 +122,15 @@ class JournalService {
     
     if (entriesJson != null) {
       final List<dynamic> decoded = jsonDecode(entriesJson);
-      _entries = decoded.map((e) => JournalEntry.fromJson(e)).toList();
+      final List<JournalEntry> loaded = [];
+      for (final e in decoded) {
+        try {
+          loaded.add(JournalEntry.fromJson(e));
+        } catch (err) {
+          debugPrint('JournalService: entrada corrupta ignorada: $err');
+        }
+      }
+      _entries = loaded;
       _entries.sort((a, b) => b.date.compareTo(a.date)); // Más recientes primero
     }
   }

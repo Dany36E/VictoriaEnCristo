@@ -332,15 +332,6 @@ class BibleAudioService {
     }
   }
 
-  String _getFilesetForBook(int bookNumber) {
-    final isNT = bookNumber >= 40;
-    // Si ya tenemos uno funcional, usarlo directamente
-    final cached = isNT ? _workingNtFileset : _workingOtFileset;
-    if (cached != null) return cached;
-    // Default: primer fileset de la lista
-    return isNT ? _kFilesets[0]['nt']! : _kFilesets[0]['ot']!;
-  }
-
   /// Obtiene un fileset funcional para el libro dado, probando en orden.
   /// Retorna el fileset ID y la URL del audio, o null si ninguno funciona.
   Future<(String filesetId, String url)?> _findWorkingFileset({

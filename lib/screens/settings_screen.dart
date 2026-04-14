@@ -4,7 +4,8 @@ import '../services/theme_service.dart';
 import '../services/notification_service.dart';
 import '../services/audio_service.dart';
 import '../services/feedback_engine.dart';
-import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
+import '../widgets/theme_selector.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onThemeChanged;
@@ -36,7 +37,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final t = AppThemeData.of(context);
+    final isDark = t.isDark;
     
     return Scaffold(
       appBar: AppBar(
@@ -50,17 +52,53 @@ class _SettingsScreenState extends State<SettingsScreen> {
           _buildSettingCard(
             isDark: isDark,
             children: [
-              _buildSwitchTile(
-                title: 'Modo Oscuro',
-                subtitle: 'Tema oscuro para uso nocturno',
-                icon: Icons.dark_mode,
-                value: _themeService.isDarkMode,
-                onChanged: (value) async {
-                  await _themeService.toggleTheme();
-                  widget.onThemeChanged();
-                  setState(() {});
-                },
-                isDark: isDark,
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: BoxDecoration(
+                        color: t.accent.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Icon(Icons.palette, color: t.accent),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Tema de la App',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: t.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            'Selecciona un estilo visual',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: t.textSecondary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                child: ThemeSelectorWidget(
+                  swatchSize: 36,
+                  showLabels: true,
+                  onChanged: () {
+                    widget.onThemeChanged();
+                    setState(() {});
+                  },
+                ),
               ),
               const Divider(height: 1),
               _buildSwitchTile(
@@ -150,9 +188,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     icon: Icons.music_note,
                     value: isBgmEnabled,
                     onChanged: (value) async {
+                      final messenger = ScaffoldMessenger.of(context);
                       final success = await AudioEngine.I.setBgmEnabled(value);
                       if (value && !success && mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
+                        messenger.showSnackBar(
                           const SnackBar(
                             content: Text('No se pudo cargar la música'),
                             backgroundColor: Colors.red,
@@ -291,27 +330,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.primaryColor.withOpacity(0.1),
+                    color: t.accent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.widgets, color: AppTheme.primaryColor),
+                  child: Icon(Icons.widgets, color: t.accent),
                 ),
                 title: Text(
                   'Configurar Widget',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+                    color: AppThemeData.of(context).textPrimary,
                   ),
                 ),
                 subtitle: Text(
                   'Personaliza el widget de tu pantalla de inicio',
                   style: TextStyle(
-                    color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+                    color: AppThemeData.of(context).textSecondary,
                   ),
                 ),
                 trailing: Icon(
                   Icons.chevron_right,
-                  color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+                  color: AppThemeData.of(context).textSecondary,
                 ),
                 onTap: () {
                   Navigator.pushNamed(context, '/widget-settings');
@@ -331,22 +370,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: AppTheme.accentColor.withOpacity(0.1),
+                    color: t.accent.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Icon(Icons.shield, color: AppTheme.accentColor),
+                  child: Icon(Icons.shield, color: t.accent),
                 ),
                 title: Text(
                   'Victoria en Cristo',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+                    color: AppThemeData.of(context).textPrimary,
                   ),
                 ),
                 subtitle: Text(
                   'Versión 1.0.0',
                   style: TextStyle(
-                    color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+                    color: AppThemeData.of(context).textSecondary,
                   ),
                 ),
               ),
@@ -364,13 +403,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   'Hecho con amor',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+                    color: AppThemeData.of(context).textPrimary,
                   ),
                 ),
                 subtitle: Text(
                   'Para la gloria de Dios',
                   style: TextStyle(
-                    color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+                    color: AppThemeData.of(context).textSecondary,
                   ),
                 ),
               ),
@@ -384,6 +423,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSectionHeader(String title, bool isDark) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
@@ -391,16 +431,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: TextStyle(
           fontSize: 16,
           fontWeight: FontWeight.w600,
-          color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+          color: t.textPrimary,
         ),
       ),
     );
   }
 
   Widget _buildSettingCard({required List<Widget> children, required bool isDark}) {
+    final t = AppThemeData.of(context);
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : Colors.white,
+        color: t.cardBg,
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
@@ -422,35 +463,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ValueChanged<bool> onChanged,
     required bool isDark,
   }) {
+    final t = AppThemeData.of(context);
     return ListTile(
       leading: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: (isDark ? AppTheme.darkPrimary : AppTheme.primaryColor).withOpacity(0.1),
+          color: t.accent.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
         child: Icon(
           icon,
-          color: isDark ? AppTheme.darkPrimary : AppTheme.primaryColor,
+          color: t.accent,
         ),
       ),
       title: Text(
         title,
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+          color: t.textPrimary,
         ),
       ),
       subtitle: Text(
         subtitle,
         style: TextStyle(
-          color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+          color: t.textSecondary,
         ),
       ),
       trailing: Switch(
         value: value,
         onChanged: onChanged,
-        activeThumbColor: isDark ? AppTheme.darkAccent : AppTheme.accentColor,
+        activeThumbColor: t.accent,
       ),
     );
   }
@@ -461,6 +503,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ValueChanged<TimeOfDay> onChanged,
     required bool isDark,
   }) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -470,7 +513,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Text(
               title,
               style: TextStyle(
-                color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+                color: t.textSecondary,
               ),
             ),
           ),
@@ -488,7 +531,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
               style: TextStyle(
                 fontWeight: FontWeight.w600,
-                color: isDark ? AppTheme.darkAccent : AppTheme.accentColor,
+                color: t.accent,
               ),
             ),
           ),
@@ -498,6 +541,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSpeedSelector(bool isDark) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -507,7 +551,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             'Velocidad de reproducción',
             style: TextStyle(
               fontWeight: FontWeight.w600,
-              color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+              color: t.textPrimary,
             ),
           ),
           const SizedBox(height: 12),
@@ -528,6 +572,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Widget _buildSpeedChip(double speed, bool isDark) {
+    final t = AppThemeData.of(context);
     final isSelected = _audioService.audioSpeed == speed;
     return GestureDetector(
       onTap: () async {
@@ -538,8 +583,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isSelected
-              ? (isDark ? AppTheme.darkAccent : AppTheme.accentColor)
-              : (isDark ? AppTheme.darkSurface : Colors.grey.shade100),
+              ? t.accent
+              : (isDark ? t.surface : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
@@ -547,7 +592,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           style: TextStyle(
             color: isSelected
                 ? (isDark ? Colors.black87 : Colors.white)
-                : (isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary),
+                : t.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -651,6 +696,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required ValueChanged<double> onChanged,
     required bool isDark,
   }) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       child: Row(
@@ -661,16 +707,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
               label,
               style: TextStyle(
                 fontSize: 12,
-                color: isDark ? AppTheme.darkTextSecondary : AppTheme.textSecondary,
+                color: t.textSecondary,
               ),
             ),
           ),
           Expanded(
             child: SliderTheme(
               data: SliderTheme.of(context).copyWith(
-                activeTrackColor: isDark ? AppTheme.darkAccent : AppTheme.accentColor,
-                thumbColor: isDark ? AppTheme.darkAccent : AppTheme.accentColor,
-                overlayColor: (isDark ? AppTheme.darkAccent : AppTheme.accentColor).withOpacity(0.2),
+                activeTrackColor: t.accent,
+                thumbColor: t.accent,
+                overlayColor: t.accent.withOpacity(0.2),
               ),
               child: Slider(
                 value: value,
@@ -688,7 +734,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: isDark ? AppTheme.darkTextPrimary : AppTheme.textPrimary,
+                color: t.textPrimary,
               ),
             ),
           ),
@@ -700,10 +746,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// Panel de Diagnóstico de Audio para debug
   Widget _buildAudioDiagnosticPanel(bool isDark) {
     final audioEngine = AudioEngine.I;
+    final t = AppThemeData.of(context);
     
     return Container(
       decoration: BoxDecoration(
-        color: isDark ? AppTheme.darkCard : Colors.white,
+        color: t.cardBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: Colors.orange.withOpacity(0.5),

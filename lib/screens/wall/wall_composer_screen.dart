@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
 import '../../models/content_enums.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../services/wall_service.dart';
@@ -62,9 +63,12 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
     FeedbackEngine.I.confirm();
     setState(() => _sending = true);
 
+    // Sanitizar: quitar caracteres de control (excepto newlines)
+    final body = _textController.text.trim().replaceAll(RegExp(r'[\x00-\x09\x0B\x0C\x0E-\x1F]'), '');
+
     final result = await WallService.I.submitPost(
       giantId: _selectedGiant!.id,
-      body: _textController.text.trim(),
+      body: body,
     );
 
     if (!mounted) return;
@@ -77,7 +81,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
         SnackBar(
           content: Text(
             result.message,
-            style: const TextStyle(color: AppDesignSystem.pureWhite),
+            style: TextStyle(color: AppThemeData.of(context).textPrimary),
           ),
           backgroundColor: AppDesignSystem.struggle,
           behavior: SnackBarBehavior.floating,
@@ -88,21 +92,22 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnight,
+      backgroundColor: t.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Compartir en el Muro',
           style: TextStyle(
             fontSize: 17,
             fontWeight: FontWeight.w700,
-            color: AppDesignSystem.pureWhite,
+            color: t.textPrimary,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.close_rounded, color: AppDesignSystem.pureWhite),
+          icon: Icon(Icons.close_rounded, color: t.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -111,12 +116,12 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
             child: TextButton(
               onPressed: _canPublish ? _publish : null,
               child: _sending
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 18,
                       height: 18,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: AppDesignSystem.gold,
+                        color: t.accent,
                       ),
                     )
                   : Text(
@@ -125,8 +130,8 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
                         color: _canPublish
-                            ? AppDesignSystem.gold
-                            : AppDesignSystem.coolGray.withValues(alpha: 0.4),
+                            ? t.accent
+                            : t.textSecondary.withValues(alpha: 0.4),
                       ),
                     ),
             ),
@@ -143,10 +148,10 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withValues(alpha: 0.08),
+                  color: t.accent.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppDesignSystem.gold.withValues(alpha: 0.15),
+                    color: t.accent.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
@@ -154,7 +159,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                     Icon(
                       Icons.security_rounded,
                       size: 18,
-                      color: AppDesignSystem.gold.withValues(alpha: 0.8),
+                      color: t.accent.withValues(alpha: 0.8),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -163,7 +168,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                         style: TextStyle(
                           fontSize: 12,
                           height: 1.4,
-                          color: AppDesignSystem.gold.withValues(alpha: 0.8),
+                          color: t.accent.withValues(alpha: 0.8),
                         ),
                       ),
                     ),
@@ -173,12 +178,12 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
               const SizedBox(height: 20),
 
               // ── Giant selector ──
-              const Text(
+              Text(
                 '¿Sobre qué lucha quieres hablar?',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppDesignSystem.pureWhite,
+                  color: t.textPrimary,
                 ),
               ),
               const SizedBox(height: 10),
@@ -200,13 +205,13 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                       ),
                       decoration: BoxDecoration(
                         color: selected
-                            ? AppDesignSystem.gold.withValues(alpha: 0.2)
-                            : AppDesignSystem.midnightLight,
+                            ? t.accent.withValues(alpha: 0.2)
+                            : t.inputBg,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: selected
-                              ? AppDesignSystem.gold.withValues(alpha: 0.5)
-                              : AppDesignSystem.gold.withValues(alpha: 0.1),
+                              ? t.accent.withValues(alpha: 0.5)
+                              : t.accent.withValues(alpha: 0.1),
                           width: selected ? 1.5 : 0.5,
                         ),
                       ),
@@ -217,8 +222,8 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                           fontWeight:
                               selected ? FontWeight.w700 : FontWeight.w500,
                           color: selected
-                              ? AppDesignSystem.gold
-                              : AppDesignSystem.coolGray,
+                              ? t.accent
+                              : t.textSecondary,
                         ),
                       ),
                     ),
@@ -228,12 +233,12 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
               const SizedBox(height: 24),
 
               // ── Text field ──
-              const Text(
+              Text(
                 'Tu mensaje',
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: AppDesignSystem.pureWhite,
+                  color: t.textPrimary,
                 ),
               ),
               const SizedBox(height: 8),
@@ -242,30 +247,30 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                 maxLength: _kMaxPostLength,
                 maxLines: 8,
                 minLines: 5,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   height: 1.5,
-                  color: AppDesignSystem.pureWhite,
+                  color: t.textPrimary,
                 ),
                 decoration: InputDecoration(
                   hintText:
                       'Comparte tu lucha, tu victoria o una palabra de aliento...',
                   hintStyle: TextStyle(
                     fontSize: 14,
-                    color: AppDesignSystem.coolGray.withValues(alpha: 0.4),
+                    color: t.textSecondary.withValues(alpha: 0.4),
                   ),
                   filled: true,
-                  fillColor: const Color(0xFF1A1A2E),
+                  fillColor: t.surface,
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                     borderSide: BorderSide(
-                      color: AppDesignSystem.gold.withValues(alpha: 0.15),
+                      color: t.accent.withValues(alpha: 0.15),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                    borderSide: const BorderSide(
-                      color: Color(0xFFD4AF37),
+                    borderSide: BorderSide(
+                      color: t.accent,
                       width: 1.5,
                     ),
                   ),
@@ -274,10 +279,10 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                     fontSize: 11,
                     color: _charCount > _kMaxPostLength * 0.9
                         ? AppDesignSystem.struggle
-                        : AppDesignSystem.coolGray.withValues(alpha: 0.5),
+                        : t.textSecondary.withValues(alpha: 0.5),
                   ),
                 ),
-                cursorColor: AppDesignSystem.gold,
+                cursorColor: t.accent,
               ),
               const SizedBox(height: 8),
               // Min chars hint
@@ -286,7 +291,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                   'Mínimo 10 caracteres (${10 - _charCount} más)',
                   style: TextStyle(
                     fontSize: 11,
-                    color: AppDesignSystem.coolGray.withValues(alpha: 0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                   ),
                 ),
               const SizedBox(height: 24),
@@ -297,7 +302,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                   Icon(
                     Icons.visibility_outlined,
                     size: 14,
-                    color: AppDesignSystem.coolGray.withValues(alpha: 0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                   ),
                   const SizedBox(width: 6),
                   Expanded(
@@ -305,7 +310,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                       'Tu mensaje será revisado antes de ser publicado.',
                       style: TextStyle(
                         fontSize: 11,
-                        color: AppDesignSystem.coolGray.withValues(alpha: 0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                       ),
                     ),
                   ),

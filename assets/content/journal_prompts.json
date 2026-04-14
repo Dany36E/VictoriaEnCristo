@@ -178,5 +178,155 @@
       "source": "mixed",
       "reviewLevel": "approved"
     }
+  },
+  {
+    "id": "jp013",
+    "prompt": "¿Cuántos días llevas de victoria? ¿Qué ha sido diferente en estos días?",
+    "followUp": "Identifica lo que estás haciendo BIEN y repítelo intencionalmente.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling"],
+      "triggers": [],
+      "outcomes": ["selfAwareness", "gratitude"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp014",
+    "prompt": "Si pudieras hablar con tu 'yo' de hace un año, ¿qué le dirías sobre esta lucha?",
+    "followUp": "¿Qué has aprendido que tu 'yo' del pasado necesitaba saber?",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions"],
+      "stage": "restoration",
+      "intensityFit": "medium",
+      "techniques": ["journaling", "cognitiveReframe"],
+      "triggers": [],
+      "outcomes": ["selfAwareness", "hopeRestoration"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp015",
+    "prompt": "¿Qué emoción estás evitando sentir? ¿Cómo el vicio te ayuda a 'escapar' de ella?",
+    "followUp": "¿Qué pasaría si le permitieras a Dios entrar en esa emoción contigo?",
+    "metadata": {
+      "giants": ["emotions", "mental", "substances"],
+      "stage": "habit",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "triggerAwareness"],
+      "triggers": ["anxiety", "loneliness", "stress"],
+      "outcomes": ["selfAwareness", "calm"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp016",
+    "prompt": "Describe un momento esta semana donde Dios te mostró Su fidelidad.",
+    "followUp": "¿Cómo puedes recordar este momento la próxima vez que dudes de Su ayuda?",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental", "emotions", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling", "scriptureMeditation"],
+      "triggers": [],
+      "outcomes": ["gratitude", "connectionWithGod", "hopeRestoration"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp017",
+    "prompt": "¿Hay algo que no le has dicho a Dios por vergüenza? Escríbelo aquí como oración.",
+    "followUp": "Recuerda: no hay nada que Dios no sepa ya. Tu honestidad lo honra.",
+    "metadata": {
+      "giants": ["sexual", "substances"],
+      "stage": "restoration",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "declarativeprayer"],
+      "triggers": ["rejection"],
+      "outcomes": ["connectionWithGod", "hopeRestoration"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp018",
+    "prompt": "¿Tu ambiente actual (cuarto, teléfono, amistades) te ayuda o te estorba en tu libertad?",
+    "followUp": "¿Qué cambio práctico puedes hacer HOY en tu ambiente para protegerte?",
+    "metadata": {
+      "giants": ["sexual", "digital", "substances"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["journaling", "environmentDesign", "triggerAwareness"],
+      "triggers": ["boredom", "night", "socialMedia"],
+      "outcomes": ["selfAwareness", "purityGuard"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp019",
+    "prompt": "¿Cómo te sientes físicamente hoy? ¿Cómo conecta eso con tu vulnerabilidad espiritual?",
+    "followUp": "El cuerpo y el espíritu están conectados. ¿Qué necesita tu cuerpo ahora?",
+    "metadata": {
+      "giants": ["health", "emotions", "substances"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["journaling", "triggerAwareness"],
+      "triggers": ["fatigue", "stress"],
+      "outcomes": ["selfAwareness", "calm"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp020",
+    "prompt": "Escribe una carta a la persona que serás cuando seas libre de este vicio. ¿Cómo es su vida?",
+    "followUp": "Esa persona ya está naciendo dentro de ti. ¿Qué paso darás hoy hacia ella?",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling", "cognitiveReframe"],
+      "triggers": [],
+      "outcomes": ["hopeRestoration", "selfAwareness", "resilience"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp021",
+    "prompt": "¿Qué mentira has creído sobre ti mismo por tu adicción? Escribe la verdad de Dios al lado.",
+    "followUp": "Lee la verdad en voz alta 3 veces. La fe viene por el oír.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental"],
+      "stage": "restoration",
+      "intensityFit": "strong",
+      "techniques": ["journaling", "identityDeclaration", "cognitiveReframe"],
+      "triggers": ["rejection", "loneliness"],
+      "outcomes": ["selfAwareness", "hopeRestoration"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "jp022",
+    "prompt": "¿Cuál fue tu mayor victoria esta semana, por pequeña que sea? Celébrala.",
+    "followUp": "Las pequeñas victorias construyen la fortaleza para las grandes batallas.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling"],
+      "triggers": [],
+      "outcomes": ["gratitude", "selfAwareness", "resilience"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
   }
 ]

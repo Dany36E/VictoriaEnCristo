@@ -1,8 +1,12 @@
+import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import '../models/content_enums.dart';
 import '../models/content_item.dart';
 import '../models/giant_frequency.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'content_repository.dart';
 import 'onboarding_service.dart';
+import 'victory_scoring_service.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// PERSONALIZATION ENGINE
@@ -20,6 +24,59 @@ class PersonalizationEngine {
   // Dependencias
   final ContentRepository _repo = ContentRepository.I;
   final OnboardingService _onboarding = OnboardingService();
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HISTORIAL DE RECOMENDACIONES (diario, reset cada día)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  static const String _historyKey = 'recommendation_history_v1';
+  Set<String> _shownToday = {};
+  String _historyDate = '';
+
+  /// Cargar IDs mostrados hoy desde SharedPreferences
+  Future<void> _loadHistory() async {
+    final today = DateTime.now().toIso8601String().substring(0, 10);
+    if (_historyDate == today && _shownToday.isNotEmpty) return;
+
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final raw = prefs.getString(_historyKey);
+      if (raw != null) {
+        final data = jsonDecode(raw) as Map<String, dynamic>;
+        final savedDate = data['date'] as String? ?? '';
+        if (savedDate == today) {
+          _shownToday = Set<String>.from(data['ids'] as List<dynamic>? ?? []);
+        } else {
+          _shownToday = {};
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ [PERSONALIZATION] _loadHistory error: $e');
+      _shownToday = {};
+    }
+    _historyDate = today;
+  }
+
+  /// Persistir IDs mostrados hoy
+  Future<void> _saveHistory() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString(_historyKey, jsonEncode({
+        'date': _historyDate,
+        'ids': _shownToday.toList(),
+      }));
+    } catch (e) {
+      debugPrint('⚠️ [PERSONALIZATION] _saveHistory error: $e');
+    }
+  }
+
+  /// Registrar IDs como mostrados y obtener historial actual
+  Set<String> _getRecentIds() => Set<String>.from(_shownToday);
+
+  void _recordShownIds(Set<String> ids) {
+    _shownToday.addAll(ids);
+    _saveHistory(); // fire-and-forget
+  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONTEXTO DEL USUARIO
@@ -74,7 +131,9 @@ class PersonalizationEngine {
   ContentStage getUserStage({bool isCrisisMode = false, bool recentRelapse = false}) {
     if (isCrisisMode) return ContentStage.crisis;
     if (recentRelapse) return ContentStage.restoration;
-    // TODO: Calcular basado en racha real
+    
+    final streak = VictoryScoringService.I.currentStreakNotifier.value;
+    if (streak >= 66) return ContentStage.maintenance;
     return ContentStage.habit;
   }
 
@@ -109,7 +168,7 @@ class PersonalizationEngine {
       // Match con algún gigante seleccionado
       score += 50;
       final matchedGiant = item.metadata.giants
-          .firstWhere((g) => userGiants.contains(g), orElse: () => item.metadata.giants.first);
+          .firstWhere((g) => userGiants.contains(g), orElse: () => item.metadata.giants.isNotEmpty ? item.metadata.giants.first : userGiants.first);
       reasons.add(matchedGiant.displayName);
     }
 
@@ -277,7 +336,9 @@ class PersonalizationEngine {
 
   /// Obtener recomendaciones mixtas para "Para ti hoy"
   ForYouTodayBundle getForYouToday({bool isCrisisMode = false}) {
-    final recentIds = <String>{}; // TODO: Cargar de historial real
+    // Cargar historial (async pero no bloqueante — usa cache en memoria)
+    _loadHistory(); // fire-and-forget, próxima vez tendrá datos
+    final recentIds = _getRecentIds();
 
     // 1 versículo ancla
     final anchor = getAnchorVerse(isCrisisMode: isCrisisMode);
@@ -307,6 +368,9 @@ class PersonalizationEngine {
     final exercises = isCrisisMode 
         ? getRecommendedExercises(limit: 2)
         : <ScoredItem<ExerciseItem>>[];
+
+    // Registrar todos los IDs mostrados para no repetir hoy
+    _recordShownIds(recentIds);
 
     return ForYouTodayBundle(
       primaryGiant: primaryGiant,

@@ -12,6 +12,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_profile.dart';
+import '../utils/retry_utils.dart';
 
 class ProfileRepository {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -194,6 +195,37 @@ class ProfileRepository {
     final profile = await getProfile();
     return profile?.selectedGiants ?? [];
   }
+
+  /// Fetch perfil directamente desde servidor (para ProfileGate).
+  /// Retorna null si no existe. Si falla el server, intenta cache solo
+  /// si el UID coincide con la sesión actual.
+  Future<UserProfile?> fetchProfileFromServer(String uid) async {
+    final cloudProfile = await _loadFromCloud(uid);
+    if (cloudProfile != null) {
+      _cachedProfile = cloudProfile;
+      profileNotifier.value = cloudProfile;
+    }
+    return cloudProfile;
+  }
+
+  /// Crear/merge perfil minimal para un usuario nuevo (para ProfileGate).
+  Future<void> createMinimalProfile({
+    required String uid,
+    String? email,
+    String? displayName,
+    String? photoURL,
+  }) async {
+    await _firestore.collection('users').doc(uid).set({
+      'uid': uid,
+      'email': email,
+      'displayName': displayName ?? 'Usuario',
+      'photoURL': photoURL,
+      'createdAt': FieldValue.serverTimestamp(),
+      'onboardingCompleted': false,
+      'selectedGiants': [],
+    }, SetOptions(merge: true));
+    debugPrint('👤 [PROFILE_REPO] Created/merged minimal profile');
+  }
   
   // ═══════════════════════════════════════════════════════════════════════════
   // ESCRITURA
@@ -265,8 +297,11 @@ class ProfileRepository {
     try {
       // FORZAR lectura desde servidor para evitar datos stale del cache
       // del SDK de Firestore (persiste entre reinicios de app)
-      final doc = await _firestore.collection('users').doc(uid)
-          .get(const GetOptions(source: Source.server));
+      final doc = await retryWithBackoff(
+        () => _firestore.collection('users').doc(uid)
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 15)),
+      );
       
       if (doc.exists) {
         return UserProfile.fromFirestore(doc);
@@ -282,7 +317,9 @@ class ProfileRepository {
           debugPrint('👤 [PROFILE_REPO] Using Firestore cache as fallback');
           return UserProfile.fromFirestore(doc);
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('👤 [PROFILE_REPO] Cache fallback also failed: $e');
+      }
       return null;
     }
   }
@@ -454,7 +491,9 @@ class ProfileRepository {
       if (frequenciesJson != null) {
         try {
           frequencies = Map<String, String>.from(jsonDecode(frequenciesJson));
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('👤 [PROFILE_REPO] Error parsing giant frequencies: $e');
+        }
       }
       
       // Migrar a nuevo sistema

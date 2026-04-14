@@ -70,7 +70,9 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
             preview = '${preview.substring(0, 117)}...';
           }
         }
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('📖 [CROSS_REF] Preview load error for $ref: $e');
+      }
 
       final formatted = TreasuryService.formatReference(ref);
       entries.add(_ClassifiedRef(

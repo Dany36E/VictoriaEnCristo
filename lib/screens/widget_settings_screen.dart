@@ -45,7 +45,9 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
         _verseText = verse.verse;
         _verseRef = verse.reference;
       }
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('📱 [WIDGET_SETTINGS] Verse load error: $e');
+    }
     if (_verseText.isEmpty) {
       _verseText = 'Todo lo puedo en Cristo que me fortalece.';
       _verseRef = 'Filipenses 4:13';

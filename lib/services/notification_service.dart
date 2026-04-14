@@ -5,9 +5,8 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../data/bible_verses.dart';
 
-/// Servicio de notificaciones para recordatorios diarios
-/// Nota: Para notificaciones locales reales se necesita flutter_local_notifications
-/// Este servicio maneja la lógica y configuración
+/// Servicio de notificaciones para recordatorios diarios.
+/// Usa flutter_local_notifications con timezone para scheduling recurrente.
 class NotificationService {
   static const String _morningEnabledKey = 'morning_notification_enabled';
   static const String _morningTimeKey = 'morning_notification_time';
@@ -151,28 +150,106 @@ class NotificationService {
     await _saveSettings();
   }
 
+  // IDs fijos para notificaciones recurrentes
+  static const int _morningNotificationId = 1001;
+  static const int _nightNotificationId = 1002;
+
+  /// Calcular próxima hora de disparo
+  tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled = tz.TZDateTime(
+      tz.local, now.year, now.month, now.day, time.hour, time.minute,
+    );
+    if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+    return scheduled;
+  }
+
   /// Programar notificación matutina
   Future<void> _scheduleMorningNotification() async {
-    // Aquí iría la lógica de flutter_local_notifications
-    // Por ahora es un placeholder
-    final verse = BibleVerses.getRandomVerse();
-    print('Notificación matutina programada para ${_morningTime.hour}:${_morningTime.minute}');
-    print('Versículo: ${verse.reference}');
+    if (!_notificationsInitialized) await _initNotifications();
+    if (!_notificationsInitialized) return;
+    try {
+      await _flnp.cancel(_morningNotificationId);
+      final verse = BibleVerses.getRandomVerse();
+      final body = '🌅 "${verse.verse.substring(0, verse.verse.length > 80 ? 80 : verse.verse.length)}..." — ${verse.reference}';
+      const details = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'morning_reminders',
+          'Recordatorio matutino',
+          channelDescription: 'Versículo y motivación cada mañana',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+        ),
+      );
+      await _flnp.zonedSchedule(
+        _morningNotificationId,
+        'Buenos días, guerrero',
+        body,
+        _nextInstanceOfTime(_morningTime),
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+      debugPrint('🔔 Notificación matutina programada: ${_morningTime.hour}:${_morningTime.minute.toString().padLeft(2, '0')}');
+    } catch (e) {
+      debugPrint('⚠️ Error programando notificación matutina: $e');
+    }
   }
 
   /// Programar notificación nocturna
   Future<void> _scheduleNightNotification() async {
-    print('Notificación nocturna programada para ${_nightTime.hour}:${_nightTime.minute}');
+    if (!_notificationsInitialized) await _initNotifications();
+    if (!_notificationsInitialized) return;
+    try {
+      await _flnp.cancel(_nightNotificationId);
+      const details = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'night_reminders',
+          'Recordatorio nocturno',
+          channelDescription: 'Recordatorio para registrar tu día',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+        ),
+      );
+      await _flnp.zonedSchedule(
+        _nightNotificationId,
+        '¿Cómo estuvo tu día?',
+        '🌙 Recuerda registrar tu progreso antes de dormir.',
+        _nextInstanceOfTime(_nightTime),
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+      );
+      debugPrint('🔔 Notificación nocturna programada: ${_nightTime.hour}:${_nightTime.minute.toString().padLeft(2, '0')}');
+    } catch (e) {
+      debugPrint('⚠️ Error programando notificación nocturna: $e');
+    }
   }
 
   /// Cancelar notificación matutina
   Future<void> _cancelMorningNotification() async {
-    print('Notificación matutina cancelada');
+    try {
+      await _flnp.cancel(_morningNotificationId);
+      debugPrint('🔔 Notificación matutina cancelada');
+    } catch (e) {
+      debugPrint('⚠️ Error cancelando notificación matutina: $e');
+    }
   }
 
   /// Cancelar notificación nocturna
   Future<void> _cancelNightNotification() async {
-    print('Notificación nocturna cancelada');
+    try {
+      await _flnp.cancel(_nightNotificationId);
+      debugPrint('🔔 Notificación nocturna cancelada');
+    } catch (e) {
+      debugPrint('⚠️ Error cancelando notificación nocturna: $e');
+    }
   }
 
   /// Programar todas las notificaciones
@@ -230,7 +307,7 @@ class NotificationService {
         body ?? 'Tu sesión de hoy está lista.',
         scheduled,
         details,
-        androidAllowWhileIdle: true,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
       );

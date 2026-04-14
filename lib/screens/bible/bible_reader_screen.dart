@@ -51,7 +51,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   @override
   void initState() {
     super.initState();
-    AudioEngine.I.muteForScreen();
+    AudioEngine.I.switchBgmContext(BgmContext.bible);
     _ctrl = BibleReaderController(
       bookNumber: widget.bookNumber,
       bookName: widget.bookName,

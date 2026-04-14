@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
 import '../models/plan.dart';
 import '../models/plan_metadata.dart';
 import '../models/content_enums.dart';
@@ -9,6 +10,7 @@ import '../services/plan_progress_service.dart';
 import '../services/audio_engine.dart';
 import '../widgets/plan_list_tile.dart';
 import '../widgets/plan_filter_sheet.dart';
+import '../widgets/offline_banner.dart';
 import 'plan_detail_screen_v2.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -96,59 +98,61 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
     }
     
     // 2. Aplicar búsqueda sobre la lista filtrada por tab
-    if (_searchQuery.isNotEmpty) {
-      final lowerQuery = _searchQuery.toLowerCase();
-      plans = plans.where((p) {
-        return p.title.toLowerCase().contains(lowerQuery) ||
-               p.subtitle.toLowerCase().contains(lowerQuery) ||
-               p.description.toLowerCase().contains(lowerQuery) ||
-               p.metadata.tags.any((t) => t.toLowerCase().contains(lowerQuery));
-      }).toList();
-    }
+    final String lowerQuery;
+    final bool hasSearch = _searchQuery.isNotEmpty;
+    lowerQuery = hasSearch ? _searchQuery.toLowerCase() : '';
     
-    // 3. Aplicar filtros adicionales del sheet sobre la lista ya filtrada
-    if (!_filters.isEmpty) {
-      // Filtrar por gigantes
-      if (_filters.giants.isNotEmpty) {
-        plans = plans.where((p) => 
-            p.metadata.giants.any((g) => _filters.giants.contains(g))
-        ).toList();
-      }
-      
-      // Filtrar por tipo (adicional al tab)
-      if (_filters.types.isNotEmpty) {
-        plans = plans.where((p) => _filters.types.contains(p.metadata.planType)).toList();
-      }
-      
-      // Filtrar por dificultad
-      if (_filters.difficulties.isNotEmpty) {
-        plans = plans.where((p) => _filters.difficulties.contains(p.metadata.difficulty)).toList();
-      }
-      
-      // Filtrar por stage
-      if (_filters.stages.isNotEmpty) {
-        plans = plans.where((p) => _filters.stages.contains(p.metadata.stage)).toList();
-      }
-      
-      // Filtrar por duración
-      if (_filters.durations.isNotEmpty) {
-        plans = plans.where((p) => _filters.durations.contains(p.durationDays)).toList();
-      }
-      
-      // Filtrar por tiempo máximo
-      if (_filters.maxMinutesPerDay != null) {
-        plans = plans.where((p) => p.minutesPerDay <= _filters.maxMinutesPerDay!).toList();
-      }
-      
-      // Filtrar para nuevos en la fe
-      if (_filters.forNewBelievers == true) {
-        plans = plans.where((p) => p.metadata.recommendedFor.newBeliever).toList();
-      }
-      
-      // Filtrar para crisis
-      if (_filters.forCrisis == true) {
-        plans = plans.where((p) => p.metadata.recommendedFor.crisis).toList();
-      }
+    // 3. Aplicar todos los filtros en un solo paso
+    final hasFilters = !_filters.isEmpty;
+    
+    if (hasSearch || hasFilters) {
+      plans = plans.where((p) {
+        // Búsqueda por texto
+        if (hasSearch) {
+          final matches = p.title.toLowerCase().contains(lowerQuery) ||
+              p.subtitle.toLowerCase().contains(lowerQuery) ||
+              p.description.toLowerCase().contains(lowerQuery) ||
+              p.metadata.tags.any((t) => t.toLowerCase().contains(lowerQuery));
+          if (!matches) return false;
+        }
+        
+        if (hasFilters) {
+          if (_filters.giants.isNotEmpty &&
+              !p.metadata.giants.any((g) => _filters.giants.contains(g))) {
+            return false;
+          }
+          if (_filters.types.isNotEmpty &&
+              !_filters.types.contains(p.metadata.planType)) {
+            return false;
+          }
+          if (_filters.difficulties.isNotEmpty &&
+              !_filters.difficulties.contains(p.metadata.difficulty)) {
+            return false;
+          }
+          if (_filters.stages.isNotEmpty &&
+              !_filters.stages.contains(p.metadata.stage)) {
+            return false;
+          }
+          if (_filters.durations.isNotEmpty &&
+              !_filters.durations.contains(p.durationDays)) {
+            return false;
+          }
+          if (_filters.maxMinutesPerDay != null &&
+              p.minutesPerDay > _filters.maxMinutesPerDay!) {
+            return false;
+          }
+          if (_filters.forNewBelievers == true &&
+              !p.metadata.recommendedFor.newBeliever) {
+            return false;
+          }
+          if (_filters.forCrisis == true &&
+              !p.metadata.recommendedFor.crisis) {
+            return false;
+          }
+        }
+        
+        return true;
+      }).toList();
     }
     
     return plans;
@@ -156,30 +160,39 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnight,
-      body: NestedScrollView(
-        controller: _scrollController,
-        headerSliverBuilder: (context, innerBoxIsScrolled) => [
-          _buildAppBar(context, innerBoxIsScrolled),
+      backgroundColor: t.surface,
+      body: Column(
+        children: [
+          const OfflineBanner(),
+          Expanded(
+            child: NestedScrollView(
+              controller: _scrollController,
+              headerSliverBuilder: (context, innerBoxIsScrolled) => [
+                _buildAppBar(context, innerBoxIsScrolled),
+              ],
+              body: _isLoading
+                  ? _buildLoadingState()
+                  : _buildContent(),
+            ),
+          ),
         ],
-        body: _isLoading
-            ? _buildLoadingState()
-            : _buildContent(),
       ),
     );
   }
 
   Widget _buildAppBar(BuildContext context, bool innerBoxIsScrolled) {
+    final t = AppThemeData.of(context);
     return SliverAppBar(
       pinned: true,
       floating: true,
       expandedHeight: 140,
-      backgroundColor: AppDesignSystem.midnight,
+      backgroundColor: t.surface,
       surfaceTintColor: Colors.transparent,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       leading: IconButton(
-        icon: const Icon(Icons.arrow_back_ios, color: AppDesignSystem.pureWhite),
+        icon: Icon(Icons.arrow_back_ios, color: t.textPrimary),
         onPressed: () => Navigator.of(context).pop(),
       ),
       actions: [
@@ -187,7 +200,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
         Stack(
           children: [
             IconButton(
-              icon: const Icon(Icons.tune, color: AppDesignSystem.pureWhite),
+              icon: Icon(Icons.tune, color: t.textPrimary),
               onPressed: _showFilters,
             ),
             if (!_filters.isEmpty)
@@ -197,15 +210,15 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
                 child: Container(
                   width: 16,
                   height: 16,
-                  decoration: const BoxDecoration(
-                    color: AppDesignSystem.gold,
+                  decoration: BoxDecoration(
+                    color: t.accent,
                     shape: BoxShape.circle,
                   ),
                   child: Center(
                     child: Text(
                       '${_filters.activeCount}',
-                      style: const TextStyle(
-                        color: AppDesignSystem.midnight,
+                      style: TextStyle(
+                        color: t.surface,
                         fontSize: 10,
                         fontWeight: FontWeight.bold,
                       ),
@@ -219,7 +232,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
         IconButton(
           icon: Icon(
             _isSearching ? Icons.close : Icons.search,
-            color: AppDesignSystem.pureWhite,
+            color: t.textPrimary,
           ),
           onPressed: () {
             setState(() {
@@ -243,10 +256,10 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
                   child: TextField(
                     controller: _searchController,
                     autofocus: true,
-                    style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.pureWhite),
+                    style: AppDesignSystem.bodyMedium(context, color: t.textPrimary),
                     decoration: InputDecoration(
                       hintText: 'Buscar planes...',
-                      hintStyle: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.coolGray),
+                      hintStyle: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.zero,
                     ),
@@ -257,12 +270,12 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
                 )
               : Text(
                   'Planes',
-                  style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.pureWhite),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
         ),
         background: Container(
-          decoration: const BoxDecoration(
-            gradient: AppDesignSystem.midnightGradient,
+          decoration: BoxDecoration(
+            gradient: t.headerGradient,
           ),
         ),
       ),
@@ -273,12 +286,12 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
           child: TabBar(
             controller: _tabController,
             isScrollable: true,
-            indicatorColor: AppDesignSystem.gold,
+            indicatorColor: t.accent,
             indicatorWeight: 2,
             indicatorPadding: EdgeInsets.zero,
             dividerHeight: 0,
-            labelColor: AppDesignSystem.gold,
-            unselectedLabelColor: AppDesignSystem.coolGray,
+            labelColor: t.accent,
+            unselectedLabelColor: t.textSecondary,
             tabAlignment: TabAlignment.start,
             labelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
             unselectedLabelStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
@@ -303,17 +316,18 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
   }
 
   Widget _buildLoadingState() {
+    final t = AppThemeData.of(context);
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const CircularProgressIndicator(
-            valueColor: AlwaysStoppedAnimation(AppDesignSystem.gold),
+          CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation(t.accent),
           ),
           const SizedBox(height: 16),
           Text(
             'Cargando planes...',
-            style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.coolGray),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
           ),
         ],
       ),
@@ -321,6 +335,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
   }
 
   Widget _buildContent() {
+    final t = AppThemeData.of(context);
     final plans = _filteredPlans;
     
     if (plans.isEmpty) {
@@ -329,8 +344,8 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
     
     return RefreshIndicator(
       onRefresh: _loadPlans,
-      color: AppDesignSystem.gold,
-      backgroundColor: AppDesignSystem.midnightLight,
+      color: t.accent,
+      backgroundColor: t.inputBg,
       child: CustomScrollView(
         slivers: [
           // Active filters chips
@@ -345,7 +360,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
                 children: [
                   Text(
                     '${plans.length} planes',
-                    style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.coolGray),
+                    style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
                   ),
                   const Spacer(),
                   // View toggle could go here
@@ -381,6 +396,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
   }
 
   Widget _buildEmptyState() {
+    final t = AppThemeData.of(context);
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(32),
@@ -390,14 +406,14 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
             Icon(
               Icons.search_off,
               size: 64,
-              color: AppDesignSystem.coolGray.withOpacity(0.5),
+              color: t.textSecondary.withOpacity(0.5),
             ),
             const SizedBox(height: 16),
             Text(
               _searchQuery.isNotEmpty
                   ? 'No encontramos planes para "$_searchQuery"'
                   : 'No hay planes con estos filtros',
-              style: AppDesignSystem.bodyLarge(context, color: AppDesignSystem.coolGray),
+              style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
               textAlign: TextAlign.center,
             ),
             const SizedBox(height: 24),
@@ -413,8 +429,8 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
               icon: const Icon(Icons.refresh),
               label: const Text('Limpiar filtros'),
               style: OutlinedButton.styleFrom(
-                foregroundColor: AppDesignSystem.gold,
-                side: const BorderSide(color: AppDesignSystem.gold),
+                foregroundColor: t.accent,
+                side: BorderSide(color: t.accent),
               ),
             ),
           ],
@@ -473,7 +489,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
                 onPressed: () => setState(() => _filters = PlanFilters.empty),
                 child: Text(
                   'Limpiar',
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                  style: AppDesignSystem.labelSmall(context, color: AppThemeData.of(context).accent),
                 ),
               ),
             ),
@@ -483,29 +499,30 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
   }
 
   Widget _buildFilterChip(String label, VoidCallback onRemove) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppDesignSystem.gold.withOpacity(0.15),
+          color: t.accent.withOpacity(0.15),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+          border: Border.all(color: t.accent.withOpacity(0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Text(
               label,
-              style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+              style: AppDesignSystem.labelSmall(context, color: t.accent),
             ),
             const SizedBox(width: 4),
             GestureDetector(
               onTap: onRemove,
-              child: const Icon(
+              child: Icon(
                 Icons.close,
                 size: 14,
-                color: AppDesignSystem.gold,
+                color: t.accent,
               ),
             ),
           ],

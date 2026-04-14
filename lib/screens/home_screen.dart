@@ -2,42 +2,49 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import '../constants/image_urls.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../widgets/home/daily_verse_section.dart';
+import '../widgets/home/home_header.dart';
+import '../widgets/home/sos_button.dart';
+import '../widgets/home/for_you_section.dart';
+import '../widgets/home/plans_section.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
 import '../data/bible_verses.dart';
-import '../models/content_enums.dart';
 import '../services/daily_verse_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/widget_sync_service.dart';
-import '../models/content_item.dart';
 import '../models/plan.dart';
 import '../services/personalization_engine.dart';
 import '../services/content_repository.dart';
 import '../services/plan_repository.dart';
 import '../services/plan_progress_service.dart';
-import '../widgets/plan_card.dart';
 import '../widgets/jesus_streak_widget.dart';
-import 'emergency_screen.dart';
 import 'verses_screen.dart';
 import 'prayers_screen.dart';
 import 'plan_library_screen.dart';
 import 'plan_detail_screen_v2.dart';
 import 'progress_screen.dart';
-import 'settings_screen.dart';
+import 'victory_celebration_screen.dart';
 import 'journal_screen.dart';
-import 'profile_screen.dart';
-import 'favorites_screen.dart';
+
 import 'battle_partner/battle_partner_screen.dart';
 import 'wall/wall_screen.dart';
 import 'admin/admin_wall_screen.dart';
 import 'bible/bible_home_screen.dart';
+import 'exercises_screen.dart';
+import '../models/content_enums.dart';
 import '../utils/bible_navigation_helper.dart';
-import '../services/favorites_service.dart';
 import '../services/battle_partner_service.dart';
 import '../services/audio_engine.dart';
+import '../services/badge_service.dart';
+import '../widgets/badge_celebration.dart';
 import '../repositories/profile_repository.dart';
+import '../widgets/morning_checkin_sheet.dart';
+import '../widgets/offline_banner.dart';
 import '../main.dart' show routeObserver;
 
 // Enum para tipos de animación de iconos
@@ -60,8 +67,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, RouteAware {
   late BibleVerse dailyVerse;
-  late AnimationController _breatheController;
-  late AnimationController _glowController;
   
   // Personalización
   ForYouTodayBundle? _forYouBundle;
@@ -77,24 +82,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   int _currentStreak = 0;
   bool _loggedToday = false;
   bool _victoryLoading = true;
+  bool _celebrationShownToday = false;
 
   @override
   void initState() {
     super.initState();
     // Versículo del día determinístico (no aleatorio)
     dailyVerse = DailyVerseService.I.getForTodaySync();
-    
-    // Breathing animation for SOS button (heartbeat effect)
-    _breatheController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..repeat(reverse: true);
-    
-    // Glow animation for SOS button
-    _glowController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
     
     // Cargar contenido personalizado
     _loadPersonalizedContent();
@@ -139,53 +133,85 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
         });
       }
     }
+    
+    // Verificar insignias después de cargar datos
+    _checkBadgesAndNotify();
+    
+    // Mostrar check-in matutino (una vez al día)
+    _showMorningCheckinIfNeeded();
+  }
+
+  Future<void> _showMorningCheckinIfNeeded() async {
+    try {
+      if (!mounted) return;
+      final shouldShow = await MorningCheckinSheet.shouldShow();
+      if (shouldShow && mounted) {
+        // Pequeño delay para que la UI se estabilice
+        await Future.delayed(const Duration(milliseconds: 800));
+        if (!mounted) return;
+        showModalBottomSheet(
+          context: context,
+          isScrollControlled: true,
+          backgroundColor: Colors.transparent,
+          builder: (_) => const MorningCheckinSheet(),
+        );
+      }
+    } catch (e) {
+      debugPrint('[HOME] Error showing morning check-in: $e');
+    }
   }
   
   Future<void> _registerVictory() async {
-    // Si ya tiene victoria completa hoy, navegar a progreso para ajustar
+    debugPrint('🎉 _registerVictory called: _loggedToday=$_loggedToday, isTodayVictory=${VictoryScoringService.I.isTodayVictory()}, _celebrationShown=$_celebrationShownToday');
+    
+    // Si ya tiene victoria completa hoy
     if (_loggedToday && VictoryScoringService.I.isTodayVictory()) {
+      // Mostrar celebración una vez por sesión si aún no se ha visto
+      if (!_celebrationShownToday) {
+        debugPrint('🎉 Showing celebration (already logged today, first time this session)');
+        _showCelebration(VictoryScoringService.I.getCurrentStreak());
+        return;
+      }
+      debugPrint('🎉 Going to progress (already shown celebration)');
       _navigateToProgress();
       return;
     }
     
-    // Feedback táctil y sonoro
-    FeedbackEngine.I.confirm();
-    
     // Registrar victoria en todos los gigantes
+    debugPrint('🎉 Logging victory for today...');
     await VictoryScoringService.I.logVictoryForToday();
     
     if (mounted) {
+      final newStreak = VictoryScoringService.I.getCurrentStreak();
+      debugPrint('🎉 Victory logged! newStreak=$newStreak, showing celebration');
+      
       setState(() {
-        _currentStreak = VictoryScoringService.I.getCurrentStreak();
+        _currentStreak = newStreak;
         _loggedToday = true;
       });
       
       // Sincronizar widget de inicio con nuevo streak
       WidgetSyncService.I.syncWidget();
       
-      // Mostrar snackbar de confirmación
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Row(
-            children: [
-              const Icon(Icons.emoji_events, color: Color(0xFFD4AF37)),
-              const SizedBox(width: 12),
-              Text(
-                '¡Victoria registrada! Racha: $_currentStreak días',
-                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w500),
-              ),
-            ],
-          ),
-          backgroundColor: const Color(0xFF1A1A2E),
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-            side: const BorderSide(color: Color(0xFFD4AF37), width: 1),
-          ),
-          duration: const Duration(seconds: 3),
-        ),
-      );
+      _showCelebration(newStreak);
     }
+  }
+
+  void _showCelebration(int streak) {
+    _celebrationShownToday = true;
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => VictoryCelebrationScreen(
+          streakDays: streak,
+          isNewUser: streak <= 1,
+        ),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(opacity: animation, child: child);
+        },
+        transitionDuration: const Duration(milliseconds: 400),
+      ),
+    );
   }
   
   void _navigateToProgress() {
@@ -198,7 +224,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
     ).then((_) {
       // Recargar datos de victoria al volver (por si editó días)
       _refreshVictoryData();
-    });
+    }).catchError((e) { debugPrint('⚠️ [HOME] Nav progress error: $e'); });
   }
   
   /// Refresca los datos de victoria sin recargar todo
@@ -273,8 +299,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
     routeObserver.unsubscribe(this);
     VictoryScoringService.I.currentStreakNotifier.removeListener(_onScoringChanged);
     VictoryScoringService.I.loggedTodayNotifier.removeListener(_onScoringChanged);
-    _breatheController.dispose();
-    _glowController.dispose();
     super.dispose();
   }
 
@@ -283,62 +307,77 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   void didPush() => AudioEngine.I.unmuteForScreen();
 
   @override
-  void didPopNext() => AudioEngine.I.unmuteForScreen();
+  void didPopNext() {
+    AudioEngine.I.unmuteForScreen();
+    _checkBadgesAndNotify();
+  }
 
   @override
   void didPushNext() => AudioEngine.I.muteForScreen();
 
+  /// Verifica insignias y muestra snackbar si hay nuevas
+  Future<void> _checkBadgesAndNotify() async {
+    final newBadges = await BadgeService.I.checkForNewBadges();
+    if (!mounted || newBadges.isEmpty) return;
+    for (final badge in newBadges) {
+      BadgeCelebration.showSnackbar(context, badge);
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (!mounted) return;
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
+    final t = AppThemeData.of(context);
+    // Forzar íconos claros en status bar: el fondo hero siempre es oscuro arriba
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: const SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: Brightness.light,
+        statusBarBrightness: Brightness.dark, // iOS
+      ),
+      child: Scaffold(
+      backgroundColor: t.scaffoldBg,
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // CAPA 1: Imagen de fondo épica
+          // CAPA 1: Imagen de fondo épica (cacheada)
           Positioned.fill(
-            child: Image.network(
-              'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=80',
+            child: CachedNetworkImage(
+              imageUrl: ImageUrls.heroMountain,
               fit: BoxFit.cover,
-              loadingBuilder: (context, child, loadingProgress) {
-                if (loadingProgress == null) return child;
-                return Container(
-                  color: const Color(0xFF0D1B2A),
-                );
-              },
-              errorBuilder: (context, error, stackTrace) {
-                return Container(
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color(0xFF1B2838),
-                        Color(0xFF0D1B2A),
-                        Color(0xFF051015),
-                      ],
-                    ),
+              placeholder: (context, url) => Container(color: t.scaffoldBg),
+              errorWidget: (context, url, error) => Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      t.surface,
+                      t.scaffoldBg,
+                      t.scaffoldBg,
+                    ],
                   ),
-                );
-              },
+                ),
+              ),
             ),
           ),
           
-          // CAPA 2: Overlay gradiente oscuro (de abajo hacia arriba)
+          // CAPA 2: Overlay gradiente (adapta opacidad según tema)
           Positioned.fill(
             child: Container(
-              decoration: const BoxDecoration(
+              decoration: BoxDecoration(
                 gradient: LinearGradient(
                   begin: Alignment.bottomCenter,
                   end: Alignment.topCenter,
                   colors: [
-                    Colors.black,
-                    Color(0xCC000000), // 80%
-                    Color(0x80000000), // 50%
-                    Color(0x40000000), // 25%
+                    t.scaffoldBg,
+                    t.scaffoldBg.withOpacity(0.85),
+                    t.scaffoldBg.withOpacity(0.5),
+                    t.scaffoldBg.withOpacity(0.25),
                     Colors.transparent,
                   ],
-                  stops: [0.0, 0.2, 0.4, 0.6, 1.0],
+                  stops: const [0.0, 0.2, 0.4, 0.6, 1.0],
                 ),
               ),
             ),
@@ -349,11 +388,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
             child: CustomScrollView(
               physics: const BouncingScrollPhysics(),
               slivers: [
+                // Banner de conectividad
+                const SliverToBoxAdapter(
+                  child: OfflineBanner(),
+                ),
                 // Header
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-                    child: _buildHeader(context),
+                    child: HomeHeader(
+                      onThemeChanged: () {
+                        widget.onThemeChanged?.call();
+                        setState(() {});
+                      },
+                    ),
                   ),
                 ),
                 
@@ -383,7 +431,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                       AppDesignSystem.spacingM,
                       0,
                     ),
-                    child: _buildDailyVerseSection(),
+                    child: DailyVerseSection(
+                      dailyVerse: dailyVerse,
+                      onTapVerse: (ref) => BibleNavigationHelper.navigateToSpanishRef(context, ref),
+                    ),
                   ),
                 ),
                 
@@ -399,10 +450,33 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                         AppDesignSystem.spacingM,
                         0,
                       ),
-                      child: _buildForYouTodaySection(),
+                      child: ForYouTodaySection(
+                        primaryGiant: _forYouBundle!.primaryGiant!,
+                        anchorVerse: _forYouBundle!.anchorVerse,
+                        battleVersesCount: _forYouBundle!.battleVerses.length,
+                        prayersCount: _forYouBundle!.prayers.length,
+                        onTapVerse: (ref) => BibleNavigationHelper.navigateToSpanishRef(context, ref),
+                        onTapVerses: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VersesScreen())),
+                        onTapPrayers: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrayersScreen())),
+                      ),
                     ),
                   ),
                 
+                // ═══════════════════════════════════════════════════════════
+                // QUICK GLANCE - Compañero + Insignias + Etapa
+                // ═══════════════════════════════════════════════════════════
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDesignSystem.spacingM,
+                      AppDesignSystem.spacingL,
+                      AppDesignSystem.spacingM,
+                      0,
+                    ),
+                    child: _buildQuickGlance(),
+                  ),
+                ),
+
                 // Tools Section Header
                 SliverToBoxAdapter(
                   child: Padding(
@@ -608,7 +682,20 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                             ),
                           ),
                           const SizedBox(width: AppDesignSystem.spacingM),
-                          const Expanded(child: SizedBox()),
+                          Expanded(
+                            child: _GlassmorphicMenuButton(
+                              icon: Icons.fitness_center,
+                              title: 'Ejercicios',
+                              subtitle: 'Prácticas y técnicas',
+                              accentColor: const Color(0xFF80CBC4),
+                              animationType: IconAnimationType.pulse,
+                              index: 9,
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ExercisesScreen()),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
                       // ── Admin row (hidden, solo si isAdmin) ──
@@ -624,7 +711,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                   subtitle: 'Admin',
                                   accentColor: AppDesignSystem.struggle,
                                   animationType: IconAnimationType.pulse,
-                                  index: 9,
+                                  index: 10,
                                   onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (_) => const AdminWallScreen()),
@@ -644,7 +731,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                 // SECCIÓN DE PLANES
                 // ═══════════════════════════════════════════════════════════════
                 if (_recommendedPlans.isNotEmpty || _activePlan != null)
-                  SliverToBoxAdapter(child: _buildPlansSection(context)),
+                  SliverToBoxAdapter(child: PlansSection(
+                    activePlan: _activePlan,
+                    activeProgress: _activeProgress,
+                    recommendedPlans: _recommendedPlans,
+                    planProgressMap: _planProgressMap,
+                    onOpenPlanDetail: _openPlanDetail,
+                  )),
                 
                 // Bottom spacing for FAB + Safe Area
                 SliverToBoxAdapter(
@@ -659,217 +752,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
             left: 0,
             right: 0,
             bottom: MediaQuery.of(context).padding.bottom + 24,
-            child: Center(
-              child: _buildBreathingSosButton(context),
+            child: const Center(
+              child: BreathingSosButton(),
             ),
           ),
         ],
       ),
-    );
+    ),  // Scaffold
+    );  // AnnotatedRegion
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SECCIÓN DE PLANES RECOMENDADOS
   // ═══════════════════════════════════════════════════════════════════════════
-
-  Widget _buildPlansSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 32),
-        
-        // Header
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingL),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppDesignSystem.gold.withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: const Icon(
-                      Icons.auto_awesome,
-                      color: AppDesignSystem.gold,
-                      size: 18,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'PLANES PARA TI',
-                    style: TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.5,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                  ),
-                ],
-              ),
-              TextButton(
-                onPressed: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PlanLibraryScreen()),
-                ),
-                child: Row(
-                  children: [
-                    Text(
-                      'Ver todos',
-                      style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
-                    ),
-                    const SizedBox(width: 4),
-                    const Icon(Icons.arrow_forward_ios, size: 12, color: AppDesignSystem.gold),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-
-        // Plan activo destacado
-        if (_activePlan != null)
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingL),
-            child: _buildActivePlanCard(context),
-          ),
-
-        if (_activePlan != null) const SizedBox(height: 16),
-
-        // Carousel de planes recomendados
-        SizedBox(
-          height: 220,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingL),
-            itemCount: _recommendedPlans.length,
-            itemBuilder: (context, index) {
-              final plan = _recommendedPlans[index];
-              final progress = _planProgressMap[plan.id];
-              
-              return Padding(
-                padding: EdgeInsets.only(
-                  right: index < _recommendedPlans.length - 1 ? 12 : 0,
-                ),
-                child: PlanCard.poster(
-                  plan: plan,
-                  progress: progress,
-                  width: 145,
-                  height: 215,
-                  onTap: () => _openPlanDetail(plan),
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildActivePlanCard(BuildContext context) {
-    final plan = _activePlan!;
-    final progress = _activeProgress;
-    final progressPercent = progress?.progressPercentage(plan.durationDays) ?? 0.0;
-    final currentDay = progress?.currentDay ?? 0;
-
-    return GestureDetector(
-      onTap: () => _openPlanDetail(plan),
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              AppDesignSystem.gold.withOpacity(0.2),
-              AppDesignSystem.gold.withOpacity(0.05),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
-        ),
-        child: Row(
-          children: [
-            // Progress ring
-            SizedBox(
-              width: 56,
-              height: 56,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  CircularProgressIndicator(
-                    value: progressPercent,
-                    strokeWidth: 4,
-                    backgroundColor: AppDesignSystem.midnight.withOpacity(0.3),
-                    valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '${currentDay + 1}',
-                        style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.gold).copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      Text(
-                        'de ${plan.durationDays}',
-                        style: TextStyle(
-                          fontSize: 9,
-                          color: AppDesignSystem.coolGray.withOpacity(0.8),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(width: 16),
-
-            // Info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Continúa tu plan',
-                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    plan.title,
-                    style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.pureWhite).copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Día ${currentDay + 1}: ${plan.days.length > currentDay ? plan.days[currentDay].title : ""}',
-                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            ),
-
-            // Arrow
-            const Icon(
-              Icons.play_circle_fill,
-              color: AppDesignSystem.gold,
-              size: 32,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   void _openPlanDetail(Plan plan) {
     Navigator.push(
@@ -877,7 +772,54 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       MaterialPageRoute(
         builder: (_) => PlanDetailScreenV2(plan: plan),
       ),
-    ).then((_) => _loadPersonalizedContent()); // Refresh on return
+    ).then((_) => _loadPersonalizedContent())
+     .catchError((e) => debugPrint('⚠️ [HOME] Nav plan detail error: $e'));
+  }
+
+  Widget _buildQuickGlance() {
+    final partners = BattlePartnerService.I.partnersNotifier.value;
+    final totalBadges = BadgeService.I.totalUnlocked;
+    final stage = ContentRepository.I.isInitialized
+        ? PersonalizationEngine.I.getUserStage()
+        : null;
+
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        // Partner status
+        if (partners.isNotEmpty)
+          _QuickGlanceChip(
+            emoji: '🛡️',
+            label: '${partners.length} compañero${partners.length > 1 ? 's' : ''}',
+            color: const Color(0xFFFFAB40),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BattlePartnerScreen()),
+            ),
+          ),
+
+        // Badges
+        if (totalBadges > 0)
+          _QuickGlanceChip(
+            emoji: '🏅',
+            label: '$totalBadges insignia${totalBadges > 1 ? 's' : ''}',
+            color: AppDesignSystem.gold,
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ProgressScreen()),
+            ),
+          ),
+
+        // Stage
+        if (stage != null)
+          _QuickGlanceChip(
+            emoji: stage.emoji,
+            label: stage.displayName,
+            color: AppDesignSystem.hope,
+          ),
+      ],
+    ).animate().fadeIn(delay: 400.ms, duration: 400.ms);
   }
 
   Widget _buildSectionHeader() {
@@ -916,642 +858,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
         .slideX(begin: -0.1, end: 0);
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SECCIÓN: PARA TI HOY - Contenido personalizado
-  // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildForYouTodaySection() {
-    final bundle = _forYouBundle!;
-    final primary = bundle.primaryGiant!;
-    
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Header con gigante primario
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppDesignSystem.spacingS),
-              decoration: BoxDecoration(
-                color: const Color(0xFFD4AF37).withOpacity(0.2),
-                borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-                border: Border.all(
-                  color: const Color(0xFFD4AF37).withOpacity(0.4),
-                  width: 0.5,
-                ),
-              ),
-              child: Text(
-                primary.emoji,
-                style: const TextStyle(fontSize: 18),
-              ),
-            ),
-            const SizedBox(width: AppDesignSystem.spacingS),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'PARA TI HOY',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 1.2,
-                      color: Color(0xFFD4AF37),
-                    ),
-                  ),
-                  Text(
-                    'Enfoque: ${primary.displayName}',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.7),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ).animate().fadeIn(delay: 200.ms, duration: 400.ms),
-        
-        const SizedBox(height: AppDesignSystem.spacingM),
-        
-        // Versículo ancla del día
-        if (bundle.anchorVerse != null)
-          _buildAnchorVerseCard(bundle.anchorVerse!),
-        
-        const SizedBox(height: AppDesignSystem.spacingS),
-        
-        // Quick actions row
-        Row(
-          children: [
-            // Versículos recomendados
-            Expanded(
-              child: _buildQuickActionChip(
-                emoji: '📖',
-                label: '${bundle.battleVerses.length} Versículos',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const VersesScreen()),
-                ),
-              ),
-            ),
-            const SizedBox(width: AppDesignSystem.spacingS),
-            // Oraciones recomendadas
-            Expanded(
-              child: _buildQuickActionChip(
-                emoji: '🙏',
-                label: '${bundle.prayers.length} Oraciones',
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PrayersScreen()),
-                ),
-              ),
-            ),
-          ],
-        ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
-      ],
-    );
-  }
-  
-  Widget _buildAnchorVerseCard(ScoredItem<VerseItem> scoredVerse) {
-    final verse = scoredVerse.item;
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        BibleNavigationHelper.navigateToSpanishRef(
-          context, verse.reference);
-      },
-      child: Container(
-        padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              Colors.white.withOpacity(0.12),
-              Colors.white.withOpacity(0.05),
-            ],
-          ),
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          border: Border.all(
-            color: const Color(0xFFD4AF37).withOpacity(0.3),
-            width: 1,
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                const Icon(
-                  Icons.anchor,
-                  color: Color(0xFFD4AF37),
-                  size: 16,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'Versículo ancla',
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
-                    color: const Color(0xFFD4AF37).withOpacity(0.9),
-                  ),
-                ),
-                const Spacer(),
-                Icon(
-                  Icons.arrow_forward_ios_rounded,
-                  size: 12,
-                  color: Colors.white.withOpacity(0.4),
-                ),
-              ],
-            ),
-            const SizedBox(height: AppDesignSystem.spacingS),
-            Text(
-              '"${verse.title}"',
-              style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w500,
-                color: Colors.white,
-                fontStyle: FontStyle.italic,
-                height: 1.4,
-              ),
-              maxLines: 3,
-              overflow: TextOverflow.ellipsis,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              verse.reference,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: Colors.white.withOpacity(0.6),
-              ),
-            ),
-            const SizedBox(height: 6),
-            // Razón de recomendación
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
-                borderRadius: BorderRadius.circular(4),
-              ),
-              child: Text(
-                scoredVerse.reason,
-                style: TextStyle(
-                  fontSize: 10,
-                  color: Colors.white.withOpacity(0.5),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    ).animate().fadeIn(delay: 300.ms, duration: 400.ms).slideY(begin: 0.1, end: 0);
-  }
-  
-  Widget _buildQuickActionChip({
-    required String emoji,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppDesignSystem.spacingM,
-          vertical: AppDesignSystem.spacingS,
-        ),
-        decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-          border: Border.all(
-            color: Colors.white.withOpacity(0.15),
-            width: 0.5,
-          ),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 16)),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: Colors.white.withOpacity(0.8),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
-  Widget _buildHeader(BuildContext context) {
-    User? user;
-    try {
-      user = FirebaseAuth.instance.currentUser;
-    } catch (e) {
-      user = null;
-    }
-    final isLoggedIn = user != null;
-    
-    return Row(
-      children: [
-        // Avatar con borde cristal
-        GestureDetector(
-          onTap: () {
-            HapticFeedback.lightImpact();
-            if (isLoggedIn) {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const ProfileScreen(
-                    // NO pasar onLogout con navegación manual.
-                    // ProfileScreen.handleLogout hace signOut + popUntil(isFirst)
-                    // y el StreamBuilder en main.dart maneja la transición a Login.
-                  ),
-                ),
-              );
-            } else {
-              // Si no está logueado, volver a la raíz para que
-              // el StreamBuilder muestre LoginScreen
-              Navigator.of(context).popUntil((route) => route.isFirst);
-            }
-          },
-          child: Container(
-            padding: const EdgeInsets.all(2),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: Colors.white.withOpacity(0.3),
-                width: 1.5,
-              ),
-            ),
-            child: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
-              ),
-              child: Icon(
-                isLoggedIn ? Icons.person : Icons.shield_outlined,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-          ),
-        )
-            .animate()
-            .fadeIn(duration: 400.ms)
-            .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
-        
-        const SizedBox(width: AppDesignSystem.spacingM),
-        
-        // Welcome text
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                isLoggedIn ? '¡Bienvenido!' : 'Victoria en Cristo',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.6),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                isLoggedIn 
-                    ? (user.displayName?.split(' ').first ?? 'Guerrero')
-                    : 'Tu camino a la libertad',
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          )
-              .animate()
-              .fadeIn(delay: 100.ms, duration: 400.ms)
-              .slideX(begin: 0.1, end: 0),
-        ),
-        
-        // Favorites button
-        IconButton(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const FavoritesScreen(),
-              ),
-            );
-          },
-          icon: Stack(
-            children: [
-              Icon(
-                Icons.bookmark_rounded,
-                color: Colors.white.withOpacity(0.7),
-              ),
-              if (FavoritesService().count > 0)
-                Positioned(
-                  right: 0,
-                  top: 0,
-                  child: Container(
-                    padding: const EdgeInsets.all(4),
-                    decoration: const BoxDecoration(
-                      color: Color(0xFFD4A853),
-                      shape: BoxShape.circle,
-                    ),
-                    constraints: const BoxConstraints(
-                      minWidth: 16,
-                      minHeight: 16,
-                    ),
-                    child: Text(
-                      '${FavoritesService().count}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-        
-        // Settings button
-        IconButton(
-          onPressed: () {
-            HapticFeedback.lightImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => SettingsScreen(
-                  onThemeChanged: () {
-                    widget.onThemeChanged?.call();
-                    setState(() {});
-                  },
-                ),
-              ),
-            );
-          },
-          icon: Icon(
-            Icons.tune_rounded,
-            color: Colors.white.withOpacity(0.7),
-          ),
-        ),
-      ],
-    );
-  }
 
-  // Breathing SOS Button - RED GLASS INFERNO STYLE
-  // Looks like a burning ember or power gem floating over the mountain
-  Widget _buildBreathingSosButton(BuildContext context) {
-    return AnimatedBuilder(
-      animation: Listenable.merge([_breatheController, _glowController]),
-      builder: (context, child) {
-        final breatheCurve = Curves.easeInOutSine.transform(_breatheController.value);
-        final glowCurve = Curves.easeInOut.transform(_glowController.value);
-        
-        final scale = 1.0 + (breatheCurve * 0.05);
-        final glowOpacity = 0.5 + (glowCurve * 0.3);
-        
-        return Transform.scale(
-          scale: scale,
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              // Neon glow shadow - more diffuse for light emission effect
-              boxShadow: [
-                // Primary outer glow - large and diffuse
-                BoxShadow(
-                  color: Colors.redAccent.withOpacity(glowOpacity * 0.6),
-                  blurRadius: 30,
-                  spreadRadius: 5,
-                ),
-                // Secondary inner glow - warm orange tint
-                BoxShadow(
-                  color: Colors.deepOrange.withOpacity(glowOpacity * 0.4),
-                  blurRadius: 20,
-                  spreadRadius: 2,
-                ),
-                // Core intense glow
-                BoxShadow(
-                  color: const Color(0xFFFF5722).withOpacity(glowOpacity * 0.3),
-                  blurRadius: 10,
-                  spreadRadius: 1,
-                ),
-              ],
-            ),
-            child: child,
-          ),
-        );
-      },
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () {
-            HapticFeedback.heavyImpact();
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const EmergencyScreen()),
-            );
-          },
-          borderRadius: BorderRadius.circular(30),
-          child: Container(
-            padding: const EdgeInsets.symmetric(
-              vertical: AppDesignSystem.spacingM,
-              horizontal: AppDesignSystem.spacingXL,
-            ),
-            decoration: BoxDecoration(
-              // Crystal glass texture - vertical gradient for depth
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.redAccent.withOpacity(0.95),
-                  Colors.deepOrange.withOpacity(0.85),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(30),
-              // Highlight border for glass effect
-              border: Border.all(
-                color: Colors.white.withOpacity(0.4),
-                width: 1.5,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: const [
-                // Pure white icon for maximum contrast
-                Icon(
-                  Icons.emergency_outlined,
-                  color: Colors.white,
-                  size: 24,
-                ),
-                SizedBox(width: AppDesignSystem.spacingS),
-                // Pure white text
-                Text(
-                  '¡NECESITO AYUDA!',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(delay: 500.ms, duration: 600.ms)
-        .slideY(begin: 0.5, end: 0, curve: Curves.easeOutBack);
-  }
 
-  Widget _buildDailyVerseSection() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Section header - SIN botón de refresh (versículo fijo del día)
-        Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppDesignSystem.spacingS),
-              decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
-                borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
-                  width: 0.5,
-                ),
-              ),
-              child: const Icon(
-                Icons.auto_stories_outlined,
-                color: Colors.white,
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: AppDesignSystem.spacingS),
-            Text(
-              'VERSÍCULO DEL DÍA',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
-                color: Colors.white.withOpacity(0.6),
-              ),
-            ),
-          ],
-        ),
-        
-        const SizedBox(height: AppDesignSystem.spacingM),
-        
-        // Scripture Card - CRISTAL
-        _buildScriptureCard(),
-      ],
-    )
-        .animate()
-        .fadeIn(delay: 200.ms, duration: 400.ms)
-        .slideY(begin: 0.1, end: 0);
-  }
 
-  Widget _buildScriptureCard() {
-    return GestureDetector(
-      onTap: () {
-        HapticFeedback.lightImpact();
-        BibleNavigationHelper.navigateToSpanishRef(
-          context, dailyVerse.reference);
-      },
-      child: ClipRRect(
-      borderRadius: BorderRadius.circular(20),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 25, sigmaY: 25),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(AppDesignSystem.spacingL),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [
-                Colors.white.withOpacity(0.12),
-                Colors.white.withOpacity(0.03),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.2),
-              width: 0.5,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Quote icon
-              Icon(
-                Icons.format_quote_rounded,
-                size: 32,
-                color: Colors.white.withOpacity(0.7),
-              ),
-              const SizedBox(height: AppDesignSystem.spacingM),
-              
-              // Verse text
-              Text(
-                dailyVerse.verse,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w400,
-                  fontStyle: FontStyle.italic,
-                  height: 1.6,
-                  color: Colors.white,
-                ),
-              ),
-              const SizedBox(height: AppDesignSystem.spacingM),
-              
-              // Reference
-              Row(
-                children: [
-                  Container(
-                    width: 24,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.5),
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                  ),
-                  const SizedBox(width: AppDesignSystem.spacingS),
-                  Text(
-                    dailyVerse.reference,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white.withOpacity(0.8),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-    );
-  }
+
+
+
 }
 
 // ============================================================================
@@ -1983,3 +1296,56 @@ class _NeonGradientBorderPainter extends CustomPainter {
 }
 
 // Ya no necesitamos el CustomPainter - usamos borde simple
+
+// ============================================================================
+// QUICK GLANCE CHIP
+// ============================================================================
+
+class _QuickGlanceChip extends StatelessWidget {
+  final String emoji;
+  final String label;
+  final Color color;
+  final VoidCallback? onTap;
+
+  const _QuickGlanceChip({
+    required this.emoji,
+    required this.label,
+    required this.color,
+    this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        if (onTap != null) {
+          FeedbackEngine.I.tap();
+          onTap!();
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: color.withOpacity(0.12),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: color.withOpacity(0.25), width: 0.5),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(emoji, style: const TextStyle(fontSize: 14)),
+            const SizedBox(width: 6),
+            Text(
+              label,
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

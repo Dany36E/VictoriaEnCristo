@@ -8,6 +8,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
 import '../../models/wall_post.dart';
 import '../../models/content_enums.dart';
 import '../../services/wall_service.dart';
@@ -84,11 +85,11 @@ class _WallScreenState extends State<WallScreen> {
     if (result == true && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text(
+          content: Text(
             'Tu mensaje fue enviado y será revisado pronto.',
-            style: TextStyle(color: AppDesignSystem.pureWhite),
+            style: TextStyle(color: AppThemeData.of(context).textPrimary),
           ),
-          backgroundColor: AppDesignSystem.midnightLight,
+          backgroundColor: AppThemeData.of(context).inputBg,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         ),
@@ -108,7 +109,7 @@ class _WallScreenState extends State<WallScreen> {
     FeedbackEngine.I.tap();
     showModalBottomSheet(
       context: context,
-      backgroundColor: AppDesignSystem.midnightLight,
+      backgroundColor: AppThemeData.of(context).inputBg,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -125,9 +126,9 @@ class _WallScreenState extends State<WallScreen> {
               SnackBar(
                 content: Text(
                   res.success ? 'Gracias por reportar.' : res.message,
-                  style: const TextStyle(color: AppDesignSystem.pureWhite),
+                  style: TextStyle(color: AppThemeData.of(context).textPrimary),
                 ),
-                backgroundColor: AppDesignSystem.midnightLight,
+                backgroundColor: AppThemeData.of(context).inputBg,
                 behavior: SnackBarBehavior.floating,
               ),
             );
@@ -139,32 +140,33 @@ class _WallScreenState extends State<WallScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnight,
+      backgroundColor: t.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
+        title: Text(
           'Muro de Batalla',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
-            color: AppDesignSystem.pureWhite,
+            color: t.textPrimary,
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_rounded, color: AppDesignSystem.pureWhite),
+          icon: Icon(Icons.arrow_back_ios_rounded, color: t.textPrimary),
           onPressed: () => Navigator.pop(context),
         ),
       ),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _openComposer,
-        backgroundColor: AppDesignSystem.gold,
-        icon: const Icon(Icons.edit_rounded, color: AppDesignSystem.midnightDeep),
-        label: const Text(
+        backgroundColor: t.accent,
+        icon: Icon(Icons.edit_rounded, color: t.surface),
+        label: Text(
           'Compartir',
           style: TextStyle(
-            color: AppDesignSystem.midnightDeep,
+            color: t.surface,
             fontWeight: FontWeight.w700,
           ),
         ),
@@ -173,7 +175,7 @@ class _WallScreenState extends State<WallScreen> {
         children: [
           // ── Giant filter chips ──
           _buildGiantFilter(),
-          const Divider(height: 1, color: Color(0x22D4A853)),
+          Divider(height: 1, color: t.accent.withOpacity(0.13)),
           // ── Feed ──
           Expanded(child: _buildFeedContent()),
         ],
@@ -210,9 +212,10 @@ class _WallScreenState extends State<WallScreen> {
   }
 
   Widget _buildFeedContent() {
+    final t = AppThemeData.of(context);
     if (_loading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppDesignSystem.gold),
+      return Center(
+        child: CircularProgressIndicator(color: t.accent),
       );
     }
 
@@ -226,7 +229,7 @@ class _WallScreenState extends State<WallScreen> {
               Icon(
                 Icons.forum_outlined,
                 size: 64,
-                color: AppDesignSystem.gold.withValues(alpha: 0.3),
+                color: t.accent.withValues(alpha: 0.3),
               ),
               const SizedBox(height: 16),
               Text(
@@ -236,7 +239,7 @@ class _WallScreenState extends State<WallScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 15,
-                  color: AppDesignSystem.coolGray.withValues(alpha: 0.7),
+                  color: t.textSecondary.withValues(alpha: 0.7),
                   height: 1.5,
                 ),
               ),
@@ -247,8 +250,8 @@ class _WallScreenState extends State<WallScreen> {
     }
 
     return RefreshIndicator(
-      color: AppDesignSystem.gold,
-      backgroundColor: AppDesignSystem.midnightLight,
+      color: t.accent,
+      backgroundColor: t.inputBg,
       onRefresh: () async {
         _subscribeFeed();
         await Future.delayed(const Duration(milliseconds: 500));
@@ -292,6 +295,7 @@ class _GiantChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -299,13 +303,13 @@ class _GiantChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 7),
         decoration: BoxDecoration(
           color: selected
-              ? AppDesignSystem.gold.withValues(alpha: 0.2)
-              : AppDesignSystem.midnightLight.withValues(alpha: 0.5),
+              ? t.accent.withValues(alpha: 0.2)
+              : t.inputBg.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: selected
-                ? AppDesignSystem.gold.withValues(alpha: 0.5)
-                : AppDesignSystem.gold.withValues(alpha: 0.1),
+                ? t.accent.withValues(alpha: 0.5)
+                : t.accent.withValues(alpha: 0.1),
             width: selected ? 1.0 : 0.5,
           ),
         ),
@@ -315,8 +319,8 @@ class _GiantChip extends StatelessWidget {
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
             color: selected
-                ? AppDesignSystem.gold
-                : AppDesignSystem.coolGray,
+                ? t.accent
+                : t.textSecondary,
           ),
         ),
       ),
@@ -335,6 +339,7 @@ class _ReportSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.all(AppDesignSystem.spacingL),
@@ -342,12 +347,12 @@ class _ReportSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
+            Text(
               'Reportar contenido',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
-                color: AppDesignSystem.pureWhite,
+                color: t.textPrimary,
               ),
             ),
             const SizedBox(height: 4),
@@ -355,7 +360,7 @@ class _ReportSheet extends StatelessWidget {
               'Selecciona la razón del reporte:',
               style: TextStyle(
                 fontSize: 13,
-                color: AppDesignSystem.coolGray.withValues(alpha: 0.8),
+                color: t.textSecondary.withValues(alpha: 0.8),
               ),
             ),
             const SizedBox(height: 16),
@@ -370,9 +375,9 @@ class _ReportSheet extends StatelessWidget {
                 ),
                 title: Text(
                   reason.displayName,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontSize: 14,
-                    color: AppDesignSystem.pureWhite,
+                    color: t.textPrimary,
                   ),
                 ),
                 onTap: () {

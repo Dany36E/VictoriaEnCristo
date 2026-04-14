@@ -5,6 +5,7 @@
 library;
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 class VictoryDay {
   final String dateISO; // YYYY-MM-DD
@@ -162,10 +163,15 @@ class VictoryDay {
   
   static Map<String, int> _toIntMap(dynamic value) {
     if (value is Map) {
-      return value.map((k, v) => MapEntry(
-        k.toString(),
-        (v is int) ? v : (v is num) ? v.toInt() : 0,
-      ));
+      return value.map((k, v) {
+        if (v is! num) {
+          debugPrint('VictoryDay._toIntMap: valor no numérico para key="$k": $v (${v.runtimeType}), usando 0');
+        }
+        return MapEntry(
+          k.toString(),
+          (v is int) ? v : (v is num) ? v.toInt() : 0,
+        );
+      });
     }
     return {};
   }

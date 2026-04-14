@@ -171,8 +171,8 @@ class AuthService {
     
     try {
       await googleSignIn.signOut();
-    } catch (_) {
-      // Ignorar error si Google Sign-In no está inicializado
+    } catch (e) {
+      debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
     }
     
     // El DataBootstrapper escucha authStateChanges y desconectará
@@ -334,7 +334,9 @@ class AuthService {
         // pero el usuario sigue existiendo en Firebase Auth
         try {
           await googleSignIn.signOut();
-        } catch (_) {}
+        } catch (e) {
+          debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+        }
         await _auth.signOut();
         
         return DeleteAccountResult.cloudFunctionFailed(
@@ -353,14 +355,16 @@ class AuthService {
       // ═══════════════════════════════════════════════════════════════════════
       try {
         await googleSignIn.signOut();
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+      }
       
       // El usuario ya no existe en Auth (eliminado por Cloud Function)
       // pero hacemos signOut por si acaso para forzar el authStateChange
       try {
         await _auth.signOut();
-      } catch (_) {
-        // Puede fallar si el usuario ya no existe, está bien
+      } catch (e) {
+        debugPrint('🔐 [AUTH] Sign-out error (user may not exist): $e');
       }
       
       debugPrint('🔐 [AUTH] ✅ Account deletion TRULY complete');

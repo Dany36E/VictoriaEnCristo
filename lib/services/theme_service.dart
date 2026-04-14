@@ -1,22 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../theme/app_theme_data.dart';
 
-/// Servicio para manejar el tema de la aplicación (claro/oscuro)
+/// Servicio para manejar el tema seleccionable de la app (9 temas)
 class ThemeService extends ChangeNotifier {
-  static const String _themeModeKey = 'theme_mode';
+  // Legacy keys (para migración)
+  static const String _legacyThemeModeKey = 'theme_mode';
+  static const String _themeIdKey = 'app_theme_id';
   static const String _autoThemeKey = 'auto_theme';
+  static const String _lastDarkThemeKey = 'last_dark_theme';
+  static const String _lastLightThemeKey = 'last_light_theme';
 
   // Singleton con ChangeNotifier
   static final ThemeService _instance = ThemeService._internal();
   factory ThemeService() => _instance;
   ThemeService._internal();
 
-  ThemeMode _themeMode = ThemeMode.light;
-  bool _autoTheme = false; // Cambio automático según hora
+  String _themeId = 'night_pure';
+  bool _autoTheme = false;
+  String _lastDarkTheme = 'night_pure';
+  String _lastLightTheme = 'clean_page';
 
-  ThemeMode get themeMode => _themeMode;
+  /// Notifier para escuchar cambios de tema
+  final ValueNotifier<String> themeIdNotifier = ValueNotifier('night_pure');
+
+  String get themeId => _themeId;
   bool get autoTheme => _autoTheme;
-  bool get isDarkMode => _themeMode == ThemeMode.dark;
+  AppThemeData get currentTheme => AppThemeData.fromId(_themeId);
+  bool get isDarkMode => currentTheme.isDark;
+  ThemeMode get themeMode => isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
   /// Inicializar servicio
   Future<void> initialize() async {
@@ -26,42 +38,70 @@ class ThemeService extends ChangeNotifier {
     }
   }
 
-  /// Cargar configuración guardada
+  /// Cargar configuración guardada (con migración de legacy)
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final themeModeIndex = prefs.getInt(_themeModeKey) ?? 0;
-    _themeMode = ThemeMode.values[themeModeIndex];
+
+    // Migración: si existe theme_mode pero no theme_id
+    final savedThemeId = prefs.getString(_themeIdKey);
+    if (savedThemeId != null) {
+      _themeId = savedThemeId;
+    } else {
+      // Migrar desde el sistema legacy light/dark
+      final legacyIndex = prefs.getInt(_legacyThemeModeKey);
+      if (legacyIndex != null) {
+        // 0=system, 1=light, 2=dark → mapear
+        _themeId = (legacyIndex == 2) ? 'night_pure' : 'clean_page';
+        await prefs.setString(_themeIdKey, _themeId);
+      }
+    }
+
     _autoTheme = prefs.getBool(_autoThemeKey) ?? false;
+    _lastDarkTheme = prefs.getString(_lastDarkThemeKey) ?? 'night_pure';
+    _lastLightTheme = prefs.getString(_lastLightThemeKey) ?? 'clean_page';
+    themeIdNotifier.value = _themeId;
   }
 
   /// Guardar configuración
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_themeModeKey, _themeMode.index);
+    await prefs.setString(_themeIdKey, _themeId);
     await prefs.setBool(_autoThemeKey, _autoTheme);
+    await prefs.setString(_lastDarkThemeKey, _lastDarkTheme);
+    await prefs.setString(_lastLightThemeKey, _lastLightTheme);
   }
 
-  /// Cambiar modo de tema
-  Future<void> setThemeMode(ThemeMode mode) async {
-    _themeMode = mode;
+  /// Cambiar tema por ID
+  Future<void> setTheme(String id) async {
+    if (_themeId == id) return;
+    _themeId = id;
+    themeIdNotifier.value = id;
+
+    // Recordar último tema claro/oscuro
+    final theme = AppThemeData.fromId(id);
+    if (theme.isDark) {
+      _lastDarkTheme = id;
+    } else {
+      _lastLightTheme = id;
+    }
+
     await _saveSettings();
     notifyListeners();
   }
 
-  /// Alternar entre claro y oscuro
+  /// Alternar entre último tema claro y oscuro (conveniencia)
   Future<void> toggleTheme() async {
-    _themeMode = _themeMode == ThemeMode.light ? ThemeMode.dark : ThemeMode.light;
-    await _saveSettings();
-    notifyListeners();
+    final next = isDarkMode ? _lastLightTheme : _lastDarkTheme;
+    await setTheme(next);
   }
 
   /// Habilitar/deshabilitar tema automático
   Future<void> setAutoTheme(bool enabled) async {
     _autoTheme = enabled;
-    await _saveSettings();
     if (enabled) {
       _applyAutoTheme();
     }
+    await _saveSettings();
     notifyListeners();
   }
 
@@ -69,12 +109,13 @@ class ThemeService extends ChangeNotifier {
   void _applyAutoTheme() {
     final hour = DateTime.now().hour;
     // Oscuro de 7pm a 6am
-    if (hour >= 19 || hour < 6) {
-      _themeMode = ThemeMode.dark;
-    } else {
-      _themeMode = ThemeMode.light;
+    final shouldBeDark = hour >= 19 || hour < 6;
+    final targetId = shouldBeDark ? _lastDarkTheme : _lastLightTheme;
+    if (_themeId != targetId) {
+      _themeId = targetId;
+      themeIdNotifier.value = _themeId;
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   /// Verificar y actualizar tema automático (llamar periódicamente)

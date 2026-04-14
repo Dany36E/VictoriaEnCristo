@@ -319,6 +319,8 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         templateId: template.id,
       );
 
+      if (!mounted) return;
+
       if (cached != null) {
         Navigator.pop(context);
         await Share.shareXFiles(

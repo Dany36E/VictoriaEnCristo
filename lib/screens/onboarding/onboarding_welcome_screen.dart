@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import '../../constants/image_urls.dart';
 import '../../theme/app_theme.dart';
 import '../../services/audio_engine.dart';
 import 'giant_selection_screen.dart';
@@ -27,8 +28,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
   late Animation<double> _buttonScaleAnimation;
 
   // Imagen de fondo: Montaña épica con luz dorada
-  static const String _heroImageUrl = 
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80';
+  static const String _heroImageUrl = ImageUrls.onboardingMountain;
 
   @override
   void initState() {

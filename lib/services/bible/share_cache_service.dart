@@ -46,7 +46,9 @@ class ShareCacheService {
       final fileName = _buildFileName(verseKey, templateId, cardSize);
       final file = File('${dir.path}/$fileName');
       if (await file.exists()) return file;
-    } catch (_) {}
+    } catch (e) {
+      debugPrint('🖼️ [SHARE-CACHE] Cache lookup error: $e');
+    }
     return null;
   }
 

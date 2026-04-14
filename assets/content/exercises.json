@@ -254,5 +254,161 @@
       "source": "mixed",
       "reviewLevel": "approved"
     }
+  },
+  {
+    "id": "e011",
+    "title": "Caminata con Propósito",
+    "subtitle": "Mueve tu cuerpo, renueva tu mente",
+    "durationMinutes": 10,
+    "steps": [
+      "La actividad física libera endorfinas que reducen la ansiedad y el deseo.",
+      "Sal a caminar ahora mismo. No necesitas prepararte.",
+      "Mientras caminas, observa 5 cosas que puedas ver.",
+      "Escucha 4 sonidos diferentes a tu alrededor.",
+      "Siente 3 texturas diferentes (brisa, ropa, piso).",
+      "Con cada paso, di mentalmente: 'Un paso más hacia la libertad.'",
+      "Ora caminando: habla con Dios como con un amigo.",
+      "Al regresar, nota cómo cambió tu estado emocional."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions", "health"],
+      "stage": "crisis",
+      "intensityFit": "medium",
+      "techniques": ["grounding", "breathingExercise"],
+      "triggers": ["boredom", "stress", "anxiety"],
+      "outcomes": ["calm", "selfAwareness", "focus"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e012",
+    "title": "Escudo de Fe",
+    "subtitle": "Declara verdades bíblicas contra mentiras",
+    "durationMinutes": 5,
+    "steps": [
+      "Identifica la mentira que te empuja a caer (ej: 'Nadie lo sabrá', 'Lo merezco').",
+      "Escríbela en un papel o en tu mente.",
+      "Ahora busca la verdad bíblica que la destruye.",
+      "Mentira: 'No puedo cambiar' → Verdad: 'Soy nueva criatura' (2 Cor 5:17).",
+      "Mentira: 'Nadie lo sabrá' → Verdad: 'Dios ve todo' (Hebreos 4:13).",
+      "Mentira: 'Solo una vez más' → Verdad: 'El pecado siempre esclaviza' (Juan 8:34).",
+      "Declara la verdad en voz alta 3 veces. La fe viene por el oír.",
+      "Guarda estas verdades como tu armadura diaria."
+    ],
+    "metadata": {
+      "giants": ["sexual", "digital", "substances", "mental"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["identityDeclaration", "cognitiveReframe", "scriptureMeditation"],
+      "triggers": ["night", "loneliness", "boredom"],
+      "outcomes": ["purityGuard", "resilience", "selfAwareness"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e013",
+    "title": "Diario de Gratitud Rápido",
+    "subtitle": "Cambia tu enfoque en 3 minutos",
+    "durationMinutes": 3,
+    "steps": [
+      "La gratitud activa áreas del cerebro incompatibles con el deseo adictivo.",
+      "Toma tu teléfono o un papel.",
+      "Escribe 3 cosas por las que estás agradecido HOY.",
+      "Pueden ser simples: respirar, un amigo, comida caliente.",
+      "Para cada una, escribe POR QUÉ estás agradecido.",
+      "Ahora escribe 1 cosa buena que Dios hizo esta semana.",
+      "Termina con: 'Gracias, Señor, por estar conmigo también en la lucha.'",
+      "Haz esto cada vez que sientas vacío o insatisfacción."
+    ],
+    "metadata": {
+      "giants": ["emotions", "mental", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["journaling", "cognitiveReframe"],
+      "triggers": ["loneliness", "boredom", "anxiety"],
+      "outcomes": ["gratitude", "selfAwareness", "calm"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e014",
+    "title": "Técnica HALT",
+    "subtitle": "Identifica tu verdadera necesidad",
+    "durationMinutes": 3,
+    "steps": [
+      "HALT es un acrónimo: Hambriento, Airado, Solo, Tiredness (cansado).",
+      "Pregúntate: ¿Tengo Hambre física? Si sí, come algo nutritivo.",
+      "¿Estoy Airado/frustrado? Identifica contra qué o quién.",
+      "¿Me siento Solo? Llama o escribe a alguien ahora.",
+      "¿Estoy Cansado? Tu cuerpo necesita descanso, no estimulación.",
+      "La mayoría de las recaídas ocurren en alguno de estos 4 estados.",
+      "Atiende la necesidad REAL en vez de usar el vicio como parche.",
+      "Escribe qué estado encontraste y qué acción tomarás."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "health"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["triggerAwareness", "cognitiveReframe"],
+      "triggers": ["fatigue", "stress", "loneliness", "anxiety"],
+      "outcomes": ["selfAwareness", "calm", "resilience"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e015",
+    "title": "Visualización de Libertad",
+    "subtitle": "Imagina tu vida libre del vicio",
+    "durationMinutes": 5,
+    "steps": [
+      "Cierra los ojos y respira profundo 3 veces.",
+      "Imagina tu vida dentro de 1 año si sigues en el vicio. ¿Cómo te ves?",
+      "Siente el dolor, la vergüenza, el desgaste. Quédate ahí 30 segundos.",
+      "Ahora imagina tu vida dentro de 1 año LIBRE del vicio.",
+      "¿Cómo te ves? ¿Cómo son tus relaciones? ¿Tu salud? ¿Tu paz interior?",
+      "Siente la alegría, la libertad, el orgullo santo. Quédate ahí 1 minuto.",
+      "Abre los ojos. Esa segunda imagen es posible con Dios.",
+      "Cada decisión de hoy te acerca a una de esas dos versiones. Elige la libertad."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["grounding", "cognitiveReframe"],
+      "triggers": ["boredom", "stress"],
+      "outcomes": ["hopeRestoration", "selfAwareness", "resilience"],
+      "source": "psychology",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "e016",
+    "title": "Adoración como Arma",
+    "subtitle": "Cuando adoras, el enemigo huye",
+    "durationMinutes": 5,
+    "steps": [
+      "La adoración cambia la atmósfera espiritual. David adoraba y los demonios huían.",
+      "Pon una canción de adoración (o canta sin música).",
+      "Cierra los ojos y enfoca tu mente en quién es Dios, no en tu problema.",
+      "Levanta tus manos como señal de rendición y adoración.",
+      "Canta o declara: 'Tú eres más grande que mi tentación.'",
+      "Quédate en Su presencia al menos 3 minutos. No pidas nada. Solo adora.",
+      "Nota cómo la urgencia de la tentación disminuye en Su presencia.",
+      "Guarda esta canción como tu arma de emergencia."
+    ],
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer"],
+      "triggers": ["night", "loneliness", "stress", "anxiety"],
+      "outcomes": ["calm", "connectionWithGod", "purityGuard"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
   }
 ]

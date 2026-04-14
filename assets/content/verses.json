@@ -338,5 +338,379 @@
       "source": "pastoral",
       "reviewLevel": "approved"
     }
+  },
+  {
+    "id": "v021",
+    "verse": "Todo lo puedo en Cristo que me fortalece.",
+    "reference": "Filipenses 4:13",
+    "howToUse": "Declara esto cuando sientas que no tienes fuerzas para resistir. Tu fuerza viene de Cristo.",
+    "whyItApplies": "No dependes de tu propia voluntad. Cristo te da poder sobrenatural para vencer.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental", "emotions", "health"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "scriptureMeditation"],
+      "triggers": ["fatigue", "stress", "loneliness"],
+      "outcomes": ["resilience", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v022",
+    "verse": "Porque no nos ha dado Dios espíritu de cobardía, sino de poder, de amor y de dominio propio.",
+    "reference": "2 Timoteo 1:7",
+    "howToUse": "Cuando sientas miedo de recaer, recuerda que Dios te dio dominio propio como regalo.",
+    "whyItApplies": "El dominio propio no es algo que fabricas tú; es un don del Espíritu Santo.",
+    "metadata": {
+      "giants": ["sexual", "substances", "emotions"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["scriptureMeditation", "declarativeprayer"],
+      "triggers": ["anxiety", "stress"],
+      "outcomes": ["calm", "selfAwareness", "resilience"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v023",
+    "verse": "De modo que si alguno está en Cristo, nueva criatura es; las cosas viejas pasaron; he aquí todas son hechas nuevas.",
+    "reference": "2 Corintios 5:17",
+    "howToUse": "Cuando la vergüenza por el pasado te ataque, declara tu nueva identidad en Cristo.",
+    "whyItApplies": "Tu identidad no se define por tu adicción o tu pasado. Eres una nueva creación.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental"],
+      "stage": "restoration",
+      "intensityFit": "medium",
+      "techniques": ["identityDeclaration", "scriptureMeditation"],
+      "triggers": ["rejection", "loneliness"],
+      "outcomes": ["hopeRestoration", "selfAwareness"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v024",
+    "verse": "Mas el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza; contra tales cosas no hay ley.",
+    "reference": "Gálatas 5:22-23",
+    "howToUse": "Pide al Espíritu Santo que produzca templanza en ti hoy. No luches solo con voluntad humana.",
+    "whyItApplies": "La templanza (dominio propio) es fruto del Espíritu, no de esfuerzo humano.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["scriptureMeditation", "declarativeprayer"],
+      "triggers": [],
+      "outcomes": ["calm", "selfAwareness", "focus"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v025",
+    "verse": "Echando toda vuestra ansiedad sobre él, porque él tiene cuidado de vosotros.",
+    "reference": "1 Pedro 5:7",
+    "howToUse": "Cuando la ansiedad te empuje a buscar escape en el vicio, entrégala a Dios en oración.",
+    "whyItApplies": "Muchas recaídas nacen de la ansiedad. Dios te invita a soltar esa carga.",
+    "metadata": {
+      "giants": ["substances", "digital", "emotions", "mental"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "breathingExercise"],
+      "triggers": ["anxiety", "stress", "loneliness"],
+      "outcomes": ["calm", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v026",
+    "verse": "Hermanos, si alguno fuere sorprendido en alguna falta, vosotros que sois espirituales, restauradle con espíritu de mansedumbre.",
+    "reference": "Gálatas 6:1",
+    "howToUse": "Si recaíste, busca a alguien de confianza. La restauración viene en comunidad, no en aislamiento.",
+    "whyItApplies": "Dios diseñó la restauración para hacerse en compañía. No tienes que cargar la vergüenza solo.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "restoration",
+      "intensityFit": "medium",
+      "techniques": ["accountabilityCall"],
+      "triggers": ["rejection", "loneliness"],
+      "outcomes": ["hopeRestoration", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v027",
+    "verse": "Claman los justos, y Jehová oye, y los libra de todas sus angustias.",
+    "reference": "Salmos 34:17",
+    "howToUse": "Cuando sientas que nadie te escucha, clama a Dios. Él promete escuchar y librar.",
+    "whyItApplies": "Tu clamor no es en vano. Dios responde activamente a quienes le buscan.",
+    "metadata": {
+      "giants": ["sexual", "substances", "emotions", "mental"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "scriptureMeditation"],
+      "triggers": ["loneliness", "night", "stress"],
+      "outcomes": ["calm", "connectionWithGod", "hopeRestoration"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v028",
+    "verse": "No se amolden al mundo actual, sino sean transformados mediante la renovación de su mente.",
+    "reference": "Romanos 12:2",
+    "howToUse": "Renueva tu mente meditando en la Palabra. Lo que alimentas tu mente determina tus acciones.",
+    "whyItApplies": "La transformación no es instantánea; es un proceso de renovar patrones de pensamiento.",
+    "metadata": {
+      "giants": ["sexual", "digital", "mental"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["scriptureMeditation", "cognitiveReframe"],
+      "triggers": ["boredom", "socialMedia"],
+      "outcomes": ["selfAwareness", "focus", "purityGuard"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v029",
+    "verse": "Porque donde están dos o tres congregados en mi nombre, allí estoy yo en medio de ellos.",
+    "reference": "Mateo 18:20",
+    "howToUse": "Busca un compañero de oración o grupo. La presencia de Cristo se multiplica en comunidad.",
+    "whyItApplies": "El aislamiento es caldo de cultivo para la tentación. La comunidad trae la presencia de Cristo.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["accountabilityCall"],
+      "triggers": ["loneliness"],
+      "outcomes": ["connectionWithGod", "resilience"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v030",
+    "verse": "Yo soy la vid, vosotros los pámpanos; el que permanece en mí, y yo en él, éste lleva mucho fruto; porque separados de mí nada podéis hacer.",
+    "reference": "Juan 15:5",
+    "howToUse": "Permanece conectado a Jesús con oración diaria. Sin Él, la victoria es imposible.",
+    "whyItApplies": "La dependencia total de Cristo no es debilidad, es tu mayor fortaleza.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental", "emotions", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["scriptureMeditation", "declarativeprayer"],
+      "triggers": [],
+      "outcomes": ["connectionWithGod", "resilience", "focus"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v031",
+    "verse": "Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.",
+    "reference": "Mateo 11:28",
+    "howToUse": "Cuando la lucha te agote, acércate a Jesús. No tienes que ganar solo; Él ofrece descanso.",
+    "whyItApplies": "La fatiga emocional y espiritual te hace vulnerable. Jesús ofrece descanso real.",
+    "metadata": {
+      "giants": ["mental", "emotions", "health"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer", "breathingExercise"],
+      "triggers": ["fatigue", "stress", "anxiety"],
+      "outcomes": ["calm", "connectionWithGod", "hopeRestoration"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v032",
+    "verse": "Fortaleceos en el Señor, y en el poder de su fuerza. Vestíos de toda la armadura de Dios.",
+    "reference": "Efesios 6:10-11",
+    "howToUse": "Cada mañana, vístete espiritualmente. Declara la verdad, justicia, fe y salvación como tu armadura.",
+    "whyItApplies": "La batalla es espiritual. Necesitas protección espiritual, no solo fuerza de voluntad.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "identityDeclaration"],
+      "triggers": ["night", "stress"],
+      "outcomes": ["resilience", "purityGuard", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v033",
+    "verse": "No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo.",
+    "reference": "Isaías 41:10",
+    "howToUse": "Repite esto cuando el miedo a la recaída te paralice. Dios camina contigo.",
+    "whyItApplies": "El miedo alimenta el ciclo adictivo. La presencia de Dios rompe ese ciclo.",
+    "metadata": {
+      "giants": ["substances", "emotions", "mental"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["scriptureMeditation", "declarativeprayer"],
+      "triggers": ["anxiety", "loneliness", "night"],
+      "outcomes": ["calm", "hopeRestoration", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v034",
+    "verse": "Bienaventurado el varón que soporta la tentación; porque cuando haya resistido la prueba, recibirá la corona de vida.",
+    "reference": "Santiago 1:12",
+    "howToUse": "Recuerda que hay recompensa eterna por resistir. Cada victoria cuenta.",
+    "whyItApplies": "La resistencia tiene propósito y recompensa. No es sufrimiento sin sentido.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["scriptureMeditation"],
+      "triggers": ["boredom", "fatigue"],
+      "outcomes": ["resilience", "hopeRestoration"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v035",
+    "verse": "Hijo mío, si los pecadores te quisieren engañar, no consientas.",
+    "reference": "Proverbios 1:10",
+    "howToUse": "Establece límites claros con personas o ambientes que te arrastran al pecado.",
+    "whyItApplies": "A veces la tentación viene por influencia social. Saber decir no es sabiduría.",
+    "metadata": {
+      "giants": ["substances", "digital", "sexual"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["triggerAwareness", "environmentDesign"],
+      "triggers": ["socialMedia", "conflict"],
+      "outcomes": ["purityGuard", "selfAwareness"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v036",
+    "verse": "Jehová es mi pastor; nada me faltará. En lugares de delicados pastos me hará descansar; junto a aguas de reposo me pastoreará.",
+    "reference": "Salmos 23:1-2",
+    "howToUse": "Medita en que Dios provee todo lo que necesitas. El vacío que sientes lo llena Él.",
+    "whyItApplies": "Muchas adicciones nacen de un vacío emocional. Dios es suficiente para llenarlo.",
+    "metadata": {
+      "giants": ["emotions", "mental", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["scriptureMeditation", "breathingExercise"],
+      "triggers": ["loneliness", "anxiety"],
+      "outcomes": ["calm", "connectionWithGod", "hopeRestoration"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v037",
+    "verse": "Porque el Señor es el Espíritu; y donde está el Espíritu del Señor, allí hay libertad.",
+    "reference": "2 Corintios 3:17",
+    "howToUse": "Invita al Espíritu Santo a llenar el espacio donde vivía tu esclavitud.",
+    "whyItApplies": "La libertad verdadera no es solo dejar el vicio, sino ser lleno del Espíritu.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "mental"],
+      "stage": "restoration",
+      "intensityFit": "medium",
+      "techniques": ["declarativeprayer", "identityDeclaration"],
+      "triggers": [],
+      "outcomes": ["hopeRestoration", "connectionWithGod", "resilience"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v038",
+    "verse": "Porque yo Jehová soy tu Dios, quien te sostiene de tu mano derecha, y te dice: No temas, yo te ayudo.",
+    "reference": "Isaías 41:13",
+    "howToUse": "Visualiza a Dios sosteniendo tu mano en este momento. No estás luchando solo.",
+    "whyItApplies": "La imagen de Dios sosteniéndote trae paz tangible en momentos de desesperación.",
+    "metadata": {
+      "giants": ["emotions", "mental", "substances"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["scriptureMeditation", "grounding"],
+      "triggers": ["anxiety", "night", "fatigue"],
+      "outcomes": ["calm", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v039",
+    "verse": "Si confesamos nuestros pecados, él es fiel y justo para perdonar nuestros pecados, y limpiarnos de toda maldad.",
+    "reference": "1 Juan 1:9",
+    "howToUse": "Después de una caída, confiesa inmediatamente. No dejes que la vergüenza te aleje de Dios.",
+    "whyItApplies": "El perdón está disponible ahora mismo. La confesión rompe el ciclo de vergüenza-recaída.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital"],
+      "stage": "restoration",
+      "intensityFit": "strong",
+      "techniques": ["declarativeprayer"],
+      "triggers": ["rejection"],
+      "outcomes": ["hopeRestoration", "connectionWithGod", "relapseRecovery"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v040",
+    "verse": "Acercaos a Dios, y él se acercará a vosotros.",
+    "reference": "Santiago 4:8",
+    "howToUse": "Da un paso hacia Dios ahora: ora, lee, adora. Él responde acercándose a ti.",
+    "whyItApplies": "La proximidad a Dios es la mejor defensa contra la tentación. Cada paso cuenta.",
+    "metadata": {
+      "giants": ["sexual", "substances", "digital", "emotions", "health"],
+      "stage": "maintenance",
+      "intensityFit": "light",
+      "techniques": ["scriptureMeditation", "declarativeprayer"],
+      "triggers": ["boredom", "loneliness"],
+      "outcomes": ["connectionWithGod", "calm", "focus"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v041",
+    "verse": "Confía en Jehová con todo tu corazón, y no te apoyes en tu propia prudencia.",
+    "reference": "Proverbios 3:5",
+    "howToUse": "Deja de confiar en tu fuerza de voluntad. Pon tu confianza totalmente en Dios.",
+    "whyItApplies": "La soberbia de creer que puedes solo lleva a la caída. La humildad te sostiene.",
+    "metadata": {
+      "giants": ["mental", "health", "emotions"],
+      "stage": "habit",
+      "intensityFit": "medium",
+      "techniques": ["scriptureMeditation", "cognitiveReframe"],
+      "triggers": ["stress"],
+      "outcomes": ["selfAwareness", "connectionWithGod"],
+      "source": "pastoral",
+      "reviewLevel": "approved"
+    }
+  },
+  {
+    "id": "v042",
+    "verse": "Estad quietos, y conoced que yo soy Dios.",
+    "reference": "Salmos 46:10",
+    "howToUse": "Para todo. Cierra los ojos. Respira. Reconoce que Dios tiene el control.",
+    "whyItApplies": "En medio de la urgencia de la tentación, detenerse es un acto de fe poderoso.",
+    "metadata": {
+      "giants": ["emotions", "mental", "health"],
+      "stage": "crisis",
+      "intensityFit": "strong",
+      "techniques": ["breathingExercise", "grounding", "scriptureMeditation"],
+      "triggers": ["anxiety", "stress", "boredom"],
+      "outcomes": ["calm", "connectionWithGod", "selfAwareness"],
+      "source": "mixed",
+      "reviewLevel": "approved"
+    }
   }
 ]

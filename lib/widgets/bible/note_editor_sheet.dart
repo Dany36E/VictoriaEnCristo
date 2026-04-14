@@ -97,12 +97,13 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                   if (_existing != null)
                     GestureDetector(
                       onTap: () async {
+                        final nav = Navigator.of(context);
                         await BibleUserDataService.I.deleteNote(
                           widget.verse.bookNumber,
                           widget.verse.chapter,
                           widget.verse.verse,
                         );
-                        if (mounted) Navigator.pop(context);
+                        if (mounted) nav.pop();
                       },
                       child: Icon(Icons.delete_outline,
                           color: const Color(0xFFE57373), size: 20),

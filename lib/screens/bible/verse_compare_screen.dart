@@ -69,7 +69,8 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
           }
         });
       }
-    } catch (_) {
+    } catch (e) {
+      debugPrint('📖 [COMPARE] Error loading $version: $e');
       if (mounted) {
         setState(() {
           _loading.remove(version);

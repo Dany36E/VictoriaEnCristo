@@ -1,80 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/jesus_widget_container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/jesus_widget_background"
-    android:padding="8dp">
+    android:background="@drawable/jesus_widget_background">
 
-    <!-- Imagen de Jesús (se actualiza desde Flutter) -->
+    <!-- Fondo dinámico (imagen según racha) -->
     <ImageView
-        android:id="@+id/widget_jesus_image"
-        android:layout_width="80dp"
-        android:layout_height="80dp"
-        android:layout_alignParentStart="true"
-        android:layout_centerVertical="true"
-        android:scaleType="fitCenter"
-        android:contentDescription="Jesús" />
+        android:id="@+id/widget_bg_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:contentDescription="@null" />
 
-    <!-- Número de racha -->
-    <TextView
-        android:id="@+id/widget_streak_number"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/widget_jesus_image"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:text="0"
-        android:textColor="#D4AF37"
-        android:textSize="36sp"
-        android:textStyle="bold"
-        android:fontFamily="serif" />
+    <!-- Gradiente sutil bottom -->
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/jesus_widget_gradient"
+        android:contentDescription="@null" />
 
-    <!-- Label días -->
-    <TextView
-        android:id="@+id/widget_streak_label"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/widget_jesus_image"
-        android:layout_below="@id/widget_streak_number"
-        android:layout_marginStart="8dp"
-        android:text="días de victoria"
-        android:textColor="#CCFFFFFF"
-        android:textSize="10sp" />
+    <!-- Contenido principal -->
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="10dp">
 
-    <!-- Mensaje de aliento -->
-    <TextView
-        android:id="@+id/widget_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_toEndOf="@id/widget_jesus_image"
-        android:layout_below="@id/widget_streak_label"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="4dp"
-        android:layout_toStartOf="@id/widget_badge"
-        android:text=""
-        android:textColor="#99FFFFFF"
-        android:textSize="9sp"
-        android:maxLines="2"
-        android:ellipsize="end" />
+        <!-- Jesús sprite — prominente lado izquierdo -->
+        <ImageView
+            android:id="@+id/widget_jesus_image"
+            android:layout_width="140dp"
+            android:layout_height="140dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:scaleType="fitCenter"
+            android:contentDescription="Jesús" />
 
-    <!-- Badge estado -->
-    <TextView
-        android:id="@+id/widget_badge"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_margin="4dp"
-        android:background="@drawable/jesus_badge_background"
-        android:paddingStart="8dp"
-        android:paddingEnd="8dp"
-        android:paddingTop="3dp"
-        android:paddingBottom="3dp"
-        android:text="Empieza hoy"
-        android:textColor="#888780"
-        android:textSize="9sp"
-        android:textStyle="bold" />
+        <!-- Bloque derecho: 🔥 número + label apilado -->
+        <LinearLayout
+            android:id="@+id/widget_streak_block"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_jesus_image"
+            android:layout_marginTop="6dp"
+            android:layout_marginStart="2dp"
+            android:orientation="horizontal"
+            android:gravity="center_vertical">
 
-</RelativeLayout>
+            <!-- Fuego + Número enorme -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:gravity="center_horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="🔥"
+                    android:textSize="22sp"
+                    android:includeFontPadding="false"
+                    android:gravity="center" />
+
+                <TextView
+                    android:id="@+id/widget_streak_number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-6dp"
+                    android:text="0"
+                    android:textColor="#FFFFFFFF"
+                    android:textSize="58sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black"
+                    android:includeFontPadding="false"
+                    android:shadowColor="#66000000"
+                    android:shadowDx="2"
+                    android:shadowDy="3"
+                    android:shadowRadius="6" />
+
+            </LinearLayout>
+
+            <!-- DÍAS / DE VICTORIA apilado -->
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/widget_streak_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="DÍAS"
+                    android:textColor="#EEFFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-black"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.08"
+                    android:shadowColor="#66000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="3" />
+
+                <TextView
+                    android:id="@+id/widget_streak_sublabel"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="-2dp"
+                    android:text="DE VICTORIA"
+                    android:textColor="#CCFFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-medium"
+                    android:includeFontPadding="false"
+                    android:letterSpacing="0.05"
+                    android:shadowColor="#66000000"
+                    android:shadowDx="1"
+                    android:shadowDy="1"
+                    android:shadowRadius="3" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Mensaje motivacional — debajo del streak -->
+        <TextView
+            android:id="@+id/widget_message"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/widget_jesus_image"
+            android:layout_below="@id/widget_streak_block"
+            android:layout_marginStart="4dp"
+            android:layout_marginTop="4dp"
+            android:layout_marginEnd="10dp"
+            android:text=""
+            android:textColor="#DDFFFFFF"
+            android:textSize="13sp"
+            android:fontFamily="sans-serif-medium"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:lineSpacingMultiplier="1.15"
+            android:shadowColor="#88000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="3" />
+
+        <!-- Badge de estado — bottom-right pill -->
+        <TextView
+            android:id="@+id/widget_badge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/jesus_badge_background"
+            android:paddingStart="14dp"
+            android:paddingEnd="14dp"
+            android:paddingTop="5dp"
+            android:paddingBottom="5dp"
+            android:text="Empieza hoy"
+            android:textColor="#9E9E9E"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium"
+            android:shadowColor="#AA000000"
+            android:shadowDx="1"
+            android:shadowDy="1"
+            android:shadowRadius="2" />
+
+    </RelativeLayout>
+</FrameLayout>

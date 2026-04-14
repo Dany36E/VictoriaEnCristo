@@ -490,8 +490,8 @@ class BattlePartnerService {
           _db.collection('users').doc(invite.fromUid).collection('battlePartners').doc(uid),
           {'status': 'rejected'},
         );
-      } catch (_) {
-        // Si no existe, no importa
+      } catch (e) {
+        debugPrint('🤝 [BATTLE] Error updating other side rejection: $e');
       }
 
       await batch.commit();
@@ -525,7 +525,9 @@ class BattlePartnerService {
           _db.collection('users').doc(partnerUid).collection('battlePartners').doc(uid),
           {'status': 'removed'},
         );
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('🤝 [BATTLE] Error updating partner side removal: $e');
+      }
 
       await batch.commit();
       debugPrint('🤝 [BATTLE] Compañero $partnerUid removido');
@@ -611,7 +613,9 @@ class BattlePartnerService {
             .collection('battlePartners')
             .doc(toUid)
             .update({'lastMessageSentAt': FieldValue.serverTimestamp()});
-      } catch (_) {}
+      } catch (e) {
+        debugPrint('🤝 [BATTLE] Error updating lastMessageSentAt: $e');
+      }
 
       // Registrar rate-limit
       _recordMessageSent(toUid);

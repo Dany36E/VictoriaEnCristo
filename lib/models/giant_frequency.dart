@@ -4,6 +4,8 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
+import 'package:flutter/foundation.dart';
+
 /// Frecuencias de lucha disponibles
 enum BattleFrequency {
   daily,           // Diario
@@ -164,7 +166,8 @@ class Giants {
   static Map<String, String>? getById(String id) {
     try {
       return all.firstWhere((g) => g['id'] == id);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('⚠️ [GiantData] getById($id): $e');
       return null;
     }
   }

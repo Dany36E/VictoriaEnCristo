@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
 import '../models/plan.dart';
 import '../models/plan_day.dart';
 import '../services/plan_progress_service.dart';
+import '../services/badge_service.dart';
 import '../services/feedback_engine.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -155,7 +159,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnight,
+      backgroundColor: AppThemeData.of(context).surface,
       body: AnnotatedRegion<SystemUiOverlayStyle>(
         value: SystemUiOverlayStyle.light,
         child: SafeArea(
@@ -176,13 +180,14 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildHeader(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
       child: Row(
         children: [
           // Back button
           IconButton(
-            icon: const Icon(Icons.close, color: AppDesignSystem.pureWhite),
+            icon: Icon(Icons.close, color: t.textPrimary),
             onPressed: () => Navigator.of(context).pop(),
           ),
           
@@ -191,12 +196,12 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               children: [
                 Text(
                   'Día ${widget.dayIndex + 1}',
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                  style: AppDesignSystem.labelSmall(context, color: t.accent),
                 ),
                 const SizedBox(height: 2),
                 Text(
                   _day.title,
-                  style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.pureWhite),
+                  style: AppDesignSystem.labelMedium(context, color: t.textPrimary),
                   textAlign: TextAlign.center,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -213,6 +218,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildQuickModeToggle(BuildContext context) {
+    final t = AppThemeData.of(context);
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -239,7 +245,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
             Icon(
               Icons.bolt,
               size: 14,
-              color: _isQuickMode ? AppDesignSystem.midnight : AppDesignSystem.hope,
+              color: _isQuickMode ? t.surface : AppDesignSystem.hope,
             ),
             const SizedBox(width: 4),
             Text(
@@ -247,7 +253,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: _isQuickMode ? AppDesignSystem.midnight : AppDesignSystem.hope,
+                color: _isQuickMode ? t.surface : AppDesignSystem.hope,
               ),
             ),
           ],
@@ -265,7 +271,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
       return Center(
         child: Text(
           'No hay contenido disponible',
-          style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.coolGray),
+          style: AppDesignSystem.bodyMedium(context, color: AppThemeData.of(context).textSecondary),
         ),
       );
     }
@@ -306,6 +312,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildScriptureSection(_Section section) {
+    final t = AppThemeData.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -318,12 +325,12 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.15),
+              color: t.accent.withOpacity(0.15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(
+            child: Icon(
               Icons.menu_book_outlined,
-              color: AppDesignSystem.gold,
+              color: t.accent,
               size: 28,
             ),
           ),
@@ -332,7 +339,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           // Reference
           Text(
             section.title,
-            style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.gold),
+            style: AppDesignSystem.labelLarge(context, color: t.accent),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 24),
@@ -340,7 +347,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           // Scripture text
           Text(
             '"${section.content}"',
-            style: AppDesignSystem.displaySmall(context, color: AppDesignSystem.pureWhite).copyWith(
+            style: AppDesignSystem.displaySmall(context, color: t.textPrimary).copyWith(
               fontStyle: FontStyle.italic,
               height: 1.5,
             ),
@@ -354,6 +361,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildReflectionSection(_Section section) {
+    final t = AppThemeData.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -380,7 +388,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               const SizedBox(width: 12),
               Text(
                 section.title,
-                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.pureWhite),
+                style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
               ),
             ],
           ),
@@ -389,7 +397,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           // Content
           Text(
             section.content,
-            style: AppDesignSystem.bodyLarge(context, color: AppDesignSystem.softWhite).copyWith(
+            style: AppDesignSystem.bodyLarge(context, color: t.textPrimary).copyWith(
               height: 1.7,
             ),
           ),
@@ -401,6 +409,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildCrisisToolSection(_Section section) {
+    final t = AppThemeData.of(context);
     final steps = section.steps ?? section.content.split('\n\n');
     
     return SingleChildScrollView(
@@ -430,7 +439,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               Expanded(
                 child: Text(
                   section.title,
-                  style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.pureWhite),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -451,13 +460,13 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: AppDesignSystem.gold.withOpacity(0.2),
+                      color: t.accent.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
                       child: Text(
                         '${index + 1}',
-                        style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold).copyWith(
+                        style: AppDesignSystem.labelMedium(context, color: t.accent).copyWith(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -467,7 +476,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                   Expanded(
                     child: Text(
                       step,
-                      style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.softWhite).copyWith(
+                      style: AppDesignSystem.bodyMedium(context, color: t.textPrimary).copyWith(
                         height: 1.5,
                       ),
                     ),
@@ -484,6 +493,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildActionSection(_Section section) {
+    final t = AppThemeData.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -500,16 +510,16 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppDesignSystem.gold.withOpacity(0.3),
-                  AppDesignSystem.gold.withOpacity(0.1),
+                  t.accent.withOpacity(0.3),
+                  t.accent.withOpacity(0.1),
                 ],
               ),
               shape: BoxShape.circle,
-              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+              border: Border.all(color: t.accent.withOpacity(0.3)),
             ),
-            child: const Icon(
+            child: Icon(
               Icons.flash_on,
-              color: AppDesignSystem.gold,
+              color: t.accent,
               size: 32,
             ),
           ),
@@ -518,7 +528,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           // Title
           Text(
             section.title,
-            style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.gold),
+            style: AppDesignSystem.headlineSmall(context, color: t.accent),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 20),
@@ -527,13 +537,13 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: AppDesignSystem.midnightLight,
+              color: t.inputBg,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.2)),
+              border: Border.all(color: t.accent.withOpacity(0.2)),
             ),
             child: Text(
               section.content,
-              style: AppDesignSystem.bodyLarge(context, color: AppDesignSystem.pureWhite).copyWith(
+              style: AppDesignSystem.bodyLarge(context, color: t.textPrimary).copyWith(
                 height: 1.6,
               ),
               textAlign: TextAlign.center,
@@ -547,6 +557,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildCheckInSection(_Section section) {
+    final t = AppThemeData.of(context);
     final questions = section.questions ?? section.content.split('\n\n');
     
     return SingleChildScrollView(
@@ -575,7 +586,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               const SizedBox(width: 12),
               Text(
                 section.title,
-                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.pureWhite),
+                style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
               ),
             ],
           ),
@@ -588,7 +599,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.midnightLight,
+                  color: t.inputBg,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: AppDesignSystem.hope.withOpacity(0.2)),
                 ),
@@ -604,7 +615,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                     Expanded(
                       child: Text(
                         question,
-                        style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.softWhite).copyWith(
+                        style: AppDesignSystem.bodyMedium(context, color: t.textPrimary).copyWith(
                           height: 1.5,
                         ),
                       ),
@@ -622,6 +633,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildPrayerSection(_Section section) {
+    final t = AppThemeData.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -656,7 +668,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           // Prayer text
           Text(
             section.content,
-            style: AppDesignSystem.bodyLarge(context, color: AppDesignSystem.softWhite).copyWith(
+            style: AppDesignSystem.bodyLarge(context, color: t.textPrimary).copyWith(
               height: 1.7,
               fontStyle: FontStyle.italic,
             ),
@@ -670,6 +682,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildCompletionSection(_Section section) {
+    final t = AppThemeData.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -704,7 +717,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           // Title
           Text(
             _isDayCompleted ? '¡Día completado!' : '¡Terminaste el día ${widget.dayIndex + 1}!',
-            style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.pureWhite),
+            style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 12),
@@ -714,7 +727,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
             _isDayCompleted
                 ? 'Vuelve mañana para continuar tu progreso'
                 : 'Marca este día como completado',
-            style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.coolGray),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
             textAlign: TextAlign.center,
           ),
           const SizedBox(height: 32),
@@ -745,6 +758,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   }
 
   Widget _buildQuickVersionSection(_Section section) {
+    final t = AppThemeData.of(context);
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -776,7 +790,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           // Content
           Text(
             section.content,
-            style: AppDesignSystem.bodyLarge(context, color: AppDesignSystem.softWhite).copyWith(
+            style: AppDesignSystem.bodyLarge(context, color: t.textPrimary).copyWith(
               height: 1.7,
             ),
           ),
@@ -792,8 +806,8 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 icon: const Icon(Icons.check),
                 label: const Text('Completar día'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppDesignSystem.gold,
-                  foregroundColor: AppDesignSystem.midnight,
+                  backgroundColor: t.accent,
+                  foregroundColor: t.surface,
                   padding: const EdgeInsets.symmetric(vertical: 16),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -813,12 +827,13 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildNavigationBar(BuildContext context) {
+    final t = AppThemeData.of(context);
     return Container(
       padding: EdgeInsets.fromLTRB(24, 16, 24, 16 + MediaQuery.of(context).padding.bottom),
       decoration: BoxDecoration(
-        color: AppDesignSystem.midnightLight,
+        color: t.inputBg,
         border: Border(
-          top: BorderSide(color: AppDesignSystem.midnight.withOpacity(0.5)),
+          top: BorderSide(color: t.surface.withOpacity(0.5)),
         ),
       ),
       child: Row(
@@ -846,10 +861,10 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                       height: 8,
                       decoration: BoxDecoration(
                         color: isActive
-                            ? AppDesignSystem.gold
+                            ? t.accent
                             : isCompleted
-                                ? AppDesignSystem.gold.withOpacity(0.5)
-                                : AppDesignSystem.coolGray.withOpacity(0.3),
+                                ? t.accent.withOpacity(0.5)
+                                : t.textSecondary.withOpacity(0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -863,7 +878,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           if (_currentSection < _sections.length - 1)
             IconButton(
               onPressed: _nextSection,
-              icon: const Icon(Icons.arrow_forward, color: AppDesignSystem.gold),
+              icon: Icon(Icons.arrow_forward, color: t.accent),
             )
           else if (!_isDayCompleted)
             TextButton.icon(
@@ -905,11 +920,11 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               children: [
                 const Icon(Icons.error_outline, color: Colors.orange),
                 const SizedBox(width: 12),
-                const Expanded(child: Text('Error guardando progreso. Tu avance podría no persistir.',
-                    style: TextStyle(color: AppDesignSystem.pureWhite))),
+                Expanded(child: Text('Error guardando progreso. Tu avance podría no persistir.',
+                    style: TextStyle(color: AppThemeData.of(context).textPrimary))),
               ],
             ),
-            backgroundColor: AppDesignSystem.midnightLight,
+            backgroundColor: AppThemeData.of(context).inputBg,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
@@ -919,21 +934,32 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
       setState(() => _isDayCompleted = true);
       
       FeedbackEngine.I.confirm();
+
+      // Check if entire plan is now completed
+      final progress = progressService.getProgress(widget.plan.id);
+      final totalDays = widget.plan.durationDays;
+      final completedCount = progress?.completedDays.length ?? 0;
+      final isPlanComplete = completedCount >= totalDays;
+
+      // Check for new badges
+      BadgeService.I.checkForNewBadges();
       
-      if (result.isSuccess && mounted) {
+      if (isPlanComplete && mounted) {
+        _showPlanCompletionDialog();
+      } else if (result.isSuccess && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Row(
               children: [
-                const Icon(Icons.celebration, color: AppDesignSystem.gold),
+                Icon(Icons.celebration, color: AppThemeData.of(context).accent),
                 const SizedBox(width: 12),
                 Text(
                   '¡Día ${widget.dayIndex + 1} completado!',
-                  style: const TextStyle(color: AppDesignSystem.pureWhite),
+                  style: TextStyle(color: AppThemeData.of(context).textPrimary),
                 ),
               ],
             ),
-            backgroundColor: AppDesignSystem.midnightLight,
+            backgroundColor: AppThemeData.of(context).inputBg,
             behavior: SnackBarBehavior.floating,
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
@@ -942,6 +968,114 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
     } catch (e) {
       debugPrint('Error completing day: $e');
     }
+  }
+
+  void _showPlanCompletionDialog() {
+    final td = AppThemeData.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(32),
+          decoration: BoxDecoration(
+            color: td.cardBg,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: const Color(0xFFD4AF37).withOpacity(0.4),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFD4AF37).withOpacity(0.15),
+                blurRadius: 40,
+                spreadRadius: 5,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 80,
+                height: 80,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFFD4AF37),
+                      const Color(0xFFD4AF37).withOpacity(0.6),
+                    ],
+                  ),
+                ),
+                child: const Icon(
+                  Icons.emoji_events_rounded,
+                  color: Colors.white,
+                  size: 40,
+                ),
+              ).animate()
+                .scale(begin: const Offset(0, 0), end: const Offset(1, 1),
+                    duration: 500.ms, curve: Curves.elasticOut)
+                .shimmer(delay: 500.ms, duration: 1500.ms,
+                    color: Colors.white.withOpacity(0.3)),
+              const SizedBox(height: 24),
+              Text(
+                '¡PLAN COMPLETADO!',
+                style: GoogleFonts.cinzel(
+                  color: const Color(0xFFD4AF37),
+                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
+              ).animate().fadeIn(delay: 300.ms, duration: 500.ms),
+              const SizedBox(height: 12),
+              Text(
+                widget.plan.title,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.manrope(
+                  color: td.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ).animate().fadeIn(delay: 500.ms, duration: 500.ms),
+              const SizedBox(height: 8),
+              Text(
+                '${widget.plan.durationDays} días completados',
+                style: GoogleFonts.manrope(
+                  color: td.textSecondary,
+                  fontSize: 13,
+                ),
+              ).animate().fadeIn(delay: 600.ms, duration: 500.ms),
+              const SizedBox(height: 28),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    Navigator.of(context).pop();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFFD4AF37),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    'Continuar',
+                    style: GoogleFonts.manrope(
+                      fontWeight: FontWeight.w600,
+                      fontSize: 15,
+                    ),
+                  ),
+                ),
+              ).animate().fadeIn(delay: 800.ms, duration: 500.ms),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 

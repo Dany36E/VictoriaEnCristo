@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/foundation.dart';
 
 /// Nota de estudio asociada a un capítulo completo (no a un versículo).
 class ChapterStudyNote {
@@ -38,7 +39,8 @@ class ChapterStudyNote {
   int get colorValue {
     try {
       return int.parse('FF$colorHex', radix: 16);
-    } catch (_) {
+    } catch (e) {
+      debugPrint('⚠️ [StudyNote] colorValue parse error: $e');
       return 0xFFD4A853;
     }
   }

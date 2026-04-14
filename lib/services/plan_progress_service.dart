@@ -5,8 +5,10 @@
 library;
 
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/plan.dart';
+import '../models/plan_progress_cloud.dart';
 import '../utils/result.dart';
 
 class PlanProgressService {
@@ -35,6 +37,10 @@ class PlanProgressService {
   String? _activePlanId;
   Map<String, PlanProgress> _progressCache = {};
   bool _isInitialized = false;
+  
+  /// Callbacks para sincronización write-through (usado por PlansSyncAdapter en DataBootstrapper)
+  void Function(String planId, int dayIndex)? onDayCompleted;
+  void Function(String planId)? onPlanActivated;
   
   bool get isInitialized => _isInitialized;
   
@@ -103,6 +109,7 @@ class PlanProgressService {
       );
       await _saveAllProgress();
     }
+    onPlanActivated?.call(planId);
   }
   
   /// Limpiar plan activo
@@ -171,7 +178,14 @@ class PlanProgressService {
     );
     
     _progressCache[planId] = progress;
-    return _saveAllProgress();
+    try {
+      final result = await _saveAllProgress();
+      onDayCompleted?.call(planId, dayIndex);
+      return result;
+    } catch (e) {
+      debugPrint('⚠️ [PlanProgress] Error guardando progreso: $e');
+      return Failure<void>(e.toString());
+    }
   }
   
   /// Actualizar última apertura
@@ -197,6 +211,28 @@ class PlanProgressService {
     progress = progress.copyWith(lastOpenedAt: DateTime.now());
     _progressCache[planId] = progress;
     return _saveAllProgress();
+  }
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // HIDRATACIÓN DESDE CLOUD
+  // ═══════════════════════════════════════════════════════════════════════════
+  
+  /// Restaurar progreso desde datos de cloud (usado por DataBootstrapper)
+  Future<void> restoreFromCloud(List<PlanProgressCloud> cloudPlans) async {
+    if (cloudPlans.isEmpty) return;
+    
+    for (final cloud in cloudPlans) {
+      _progressCache[cloud.planId] = PlanProgress(
+        planId: cloud.planId,
+        completedDays: Set<int>.from(cloud.completedDays),
+        lastCompletedAt: cloud.lastCompletedAt,
+        currentStreak: cloud.currentStreak,
+        currentDay: cloud.lastDayRead + 1,
+      );
+    }
+    
+    await _saveAllProgress();
+    debugPrint('📚 [PLAN_SERVICE] Restored ${cloudPlans.length} plans from cloud');
   }
   
   // ═══════════════════════════════════════════════════════════════════════════
