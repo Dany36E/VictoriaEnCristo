@@ -205,6 +205,8 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         if (engine.bgmEnabled.value) {
           engine.resumeBgm();
         }
+        // Sincronizar widget al volver (actualiza saludo por hora del día)
+        WidgetSyncService.I.syncWidget();
         // Detectar cambio de día
         final today = TimeUtils.todayISO();
         if (today != _lastKnownDate) {

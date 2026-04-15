@@ -303,9 +303,13 @@ class VictoryScoringService {
     onDayChanged?.call(date);
   }
   
+  /// Verifica si la hora actual permite registrar victoria (>= 18:00)
+  bool canLogVictoryNow() => DateTime.now().hour >= 18;
+
   /// Registra victoria completa para hoy (todos gigantes = 1)
-  /// Retorna true siempre (ya no bloquea si ya existe)
+  /// Retorna false si aún no son las 6pm
   Future<bool> logVictoryForToday() async {
+    if (!canLogVictoryNow()) return false;
     await setDayAllGiants(DateTime.now(), 1);
     return true;
   }

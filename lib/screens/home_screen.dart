@@ -177,6 +177,19 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       return;
     }
     
+    // Verificar que sean las 6pm o más tarde
+    if (!VictoryScoringService.I.canLogVictoryNow()) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Podrás registrar tu victoria después de las 6:00 PM'),
+            duration: Duration(seconds: 3),
+          ),
+        );
+      }
+      return;
+    }
+    
     // Registrar victoria en todos los gigantes
     debugPrint('🎉 Logging victory for today...');
     await VictoryScoringService.I.logVictoryForToday();

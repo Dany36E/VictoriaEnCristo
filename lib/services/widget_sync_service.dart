@@ -7,7 +7,6 @@ library;
 import 'dart:async';
 import 'dart:io';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:home_widget/home_widget.dart';
@@ -205,18 +204,21 @@ class WidgetSyncService {
     final streak = VictoryScoringService.I.getCurrentStreak();
     final verse = await _getVerseForWidget();
     final today = DateTime.now();
+    final hour = today.hour;
     final dateISO = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
     
-    debugPrint('📱 [WIDGET] Building payload: streak=$streak');
+    debugPrint('📱 [WIDGET] Building payload: streak=$streak, hour=$hour');
     
     final isDiscreet = _config.privacyMode == WidgetPrivacyMode.discreet;
     final title = _config.effectiveTitle;
     
-    // Contenido de línea1 determinado 100% por la plantilla
+    // Contenido de línea1 determinado por plantilla + hora del día
     String line1;
     switch (_config.template) {
       case WidgetTemplate.discreet:
-        line1 = isDiscreet ? 'Respira. Sigue hoy.' : 'Tu victoria diaria te espera.';
+        line1 = isDiscreet
+            ? _getTimeOfDayMessage(hour, discreet: true)
+            : _getTimeOfDayMessage(hour, discreet: false);
         break;
       case WidgetTemplate.verse:
         line1 = _truncateVerse(verse.verse, isDiscreet ? 50 : 80);
@@ -271,6 +273,25 @@ class WidgetSyncService {
       return '${truncated.substring(0, lastSpace)}...';
     }
     return '$truncated...';
+  }
+
+  /// Mensaje contextual por hora del día
+  String _getTimeOfDayMessage(int hour, {required bool discreet}) {
+    final hasVictory = VictoryScoringService.I.isTodayVictory();
+
+    if (discreet) {
+      if (hour < 6)  return 'Descansa bien.';
+      if (hour < 12) return 'Nuevo día, nuevo inicio.';
+      if (hour < 18) return 'Sigue firme.';
+      if (hasVictory) return 'Buen cierre de día.';
+      return 'Hora de cerrar el día.';
+    }
+
+    if (hour < 6)  return 'Descansa en paz, Dios vela por ti.';
+    if (hour < 12) return 'Buenos días. Hoy es un día de victoria.';
+    if (hour < 18) return 'Sigue firme. Tu victoria se acerca.';
+    if (hasVictory) return '¡Día de victoria registrado!';
+    return 'Es hora de registrar tu victoria.';
   }
   
   /// Actualiza ambos widgets en Android e iOS
