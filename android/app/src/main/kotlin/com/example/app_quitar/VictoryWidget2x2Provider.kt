@@ -56,9 +56,20 @@ class VictoryWidget2x2Provider : AppWidgetProvider() {
 
                 // Leer datos con fallbacks
                 val title = prefs.getString(KEY_TITLE, DEFAULT_TITLE) ?: DEFAULT_TITLE
-                val line1 = prefs.getString(KEY_LINE1, DEFAULT_LINE1) ?: DEFAULT_LINE1
+                val rawLine1 = prefs.getString(KEY_LINE1, DEFAULT_LINE1) ?: DEFAULT_LINE1
                 val isLight = prefs.getBoolean(KEY_IS_LIGHT, true)
                 val isDiscreet = prefs.getBoolean(KEY_IS_DISCREET, true)
+
+                // Si el texto es el default, usar mensaje por hora del día
+                val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+                val line1 = if (rawLine1 == DEFAULT_LINE1) {
+                    when {
+                        hour < 6  -> "Descansa bien."
+                        hour < 12 -> "Nuevo día, nuevo inicio."
+                        hour < 18 -> "Sigue firme."
+                        else      -> "Hora de cerrar el día."
+                    }
+                } else rawLine1
 
                 // Crear RemoteViews para el layout 2x2
                 val views = RemoteViews(context.packageName, R.layout.widget_victory_2x2)

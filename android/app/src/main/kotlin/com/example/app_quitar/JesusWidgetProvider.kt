@@ -80,13 +80,18 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 // Mensaje
                 views.setTextViewText(R.id.widget_message, message)
 
-                // Badge de estado
+                // Badge de estado (con hora del día)
+                val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
                 val badgeText: String
                 val badgeColor: Int
                 when {
                     completedToday -> {
                         badgeText = "✓ Día de victoria"
                         badgeColor = 0xFF66BB6A.toInt()
+                    }
+                    hour >= 18 && streakDays > 0 -> {
+                        badgeText = "⚔ Registra tu victoria"
+                        badgeColor = 0xFFD4AF37.toInt()
                     }
                     streakDays > 0 -> {
                         badgeText = "⚔ En batalla"
@@ -97,6 +102,17 @@ class JesusWidgetProvider : AppWidgetProvider() {
                         badgeColor = 0xFF9E9E9E.toInt()
                     }
                 }
+
+                // Mensaje con contexto de hora si Flutter no lo actualizó
+                val timeMessage = when {
+                    completedToday -> message
+                    hour < 6  -> "Descansa en paz, Dios vela por ti"
+                    hour < 12 -> "Buenos días. Hoy es un día de victoria"
+                    hour < 18 -> "Sigue firme. Tu victoria se acerca"
+                    else      -> "Es hora de registrar tu victoria"
+                }
+                views.setTextViewText(R.id.widget_message, timeMessage)
+
                 views.setTextViewText(R.id.widget_badge, badgeText)
                 views.setTextColor(R.id.widget_badge, badgeColor)
 

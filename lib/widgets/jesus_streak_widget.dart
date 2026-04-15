@@ -303,6 +303,18 @@ class JesusStreakWidget extends StatelessWidget {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildActionButton(Color streakColor) {
+    final canRegister = !completedToday && DateTime.now().hour >= 18;
+    final label = completedToday
+        ? 'Ver mi progreso'
+        : canRegister
+            ? 'Registrar victoria'
+            : 'Disponible a las 6pm';
+    final icon = completedToday
+        ? Icons.insights_rounded
+        : canRegister
+            ? Icons.shield_outlined
+            : Icons.schedule_outlined;
+
     return GestureDetector(
       onTap: isLoading ? null : onRegisterVictory,
       child: Container(
@@ -320,13 +332,13 @@ class JesusStreakWidget extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(
-              completedToday ? Icons.insights_rounded : Icons.shield_outlined,
+              icon,
               color: const Color(0xFFD4AF37),
               size: 16,
             ),
             const SizedBox(width: 6),
             Text(
-              completedToday ? 'Ver mi progreso' : 'Registrar victoria',
+              label,
               style: GoogleFonts.manrope(
                 fontSize: 13,
                 fontWeight: FontWeight.w700,

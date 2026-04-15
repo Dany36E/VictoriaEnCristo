@@ -63,7 +63,7 @@ class VictoryWidgetProvider : AppWidgetProvider() {
 
             // Leer datos con fallbacks
             val title = prefs.getString(KEY_TITLE, DEFAULT_TITLE) ?: DEFAULT_TITLE
-            val line1 = prefs.getString(KEY_LINE1, DEFAULT_LINE1) ?: DEFAULT_LINE1
+            val rawLine1 = prefs.getString(KEY_LINE1, DEFAULT_LINE1) ?: DEFAULT_LINE1
             val line2 = prefs.getString(KEY_LINE2, DEFAULT_LINE2) ?: DEFAULT_LINE2
             val streak = prefs.getInt(KEY_STREAK, 0)
             val showStreak = prefs.getBoolean(KEY_SHOW_STREAK, false)
@@ -71,6 +71,17 @@ class VictoryWidgetProvider : AppWidgetProvider() {
             val showCTA = prefs.getBoolean(KEY_SHOW_CTA, true)
             val isLight = prefs.getBoolean(KEY_IS_LIGHT, true)
             val isDiscreet = prefs.getBoolean(KEY_IS_DISCREET, true)
+
+            // Mensaje por hora del día si es el default
+            val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+            val line1 = if (rawLine1 == DEFAULT_LINE1) {
+                when {
+                    hour < 6  -> "Descansa bien."
+                    hour < 12 -> "Nuevo día, nuevo inicio."
+                    hour < 18 -> "Sigue firme."
+                    else      -> "Hora de cerrar el día."
+                }
+            } else rawLine1
 
             // Crear RemoteViews
             val views = RemoteViews(context.packageName, R.layout.widget_victory)
