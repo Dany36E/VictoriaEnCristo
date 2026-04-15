@@ -32,6 +32,9 @@ class JesusWidgetProvider : AppWidgetProvider() {
         private const val KEY_MESSAGE = "jesus_widget_message"
         private const val KEY_SPRITE_PATH = "jesus_sprite_path"
         private const val KEY_BG_PATH = "jesus_bg_path"
+        private const val KEY_BADGE_TEXT = "jesus_badge_text"
+        private const val KEY_BADGE_COLOR = "jesus_badge_color"
+        private const val KEY_STREAK_COLOR = "jesus_streak_color"
 
         fun updateWidget(
             context: Context,
@@ -74,54 +77,41 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 // Número de racha
                 views.setTextViewText(R.id.widget_streak_number, streakDays.toString())
 
-                // Número siempre blanco — el color queda en el fondo/contexto
-                views.setTextColor(R.id.widget_streak_number, 0xFFFFFFFF.toInt())
+                // Color de racha sincronizado desde Flutter (mismo que in-app)
+                val streakColor = prefs.getLong(KEY_STREAK_COLOR, 0xFFFFFFFF).toInt()
+                views.setTextColor(R.id.widget_streak_number, streakColor)
 
-                // Mensaje
+                // Mensaje motivacional — usar SIEMPRE el de Flutter (mismo que in-app)
                 views.setTextViewText(R.id.widget_message, message)
 
-                // Badge de estado (con hora del día)
-                val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-                val badgeText: String
-                val badgeColor: Int
-                when {
-                    completedToday -> {
-                        badgeText = "✓ Día de victoria"
-                        badgeColor = 0xFF66BB6A.toInt()
-                    }
-                    hour >= 18 && streakDays > 0 -> {
-                        badgeText = "⚔ Registra tu victoria"
-                        badgeColor = 0xFFD4AF37.toInt()
-                    }
-                    streakDays > 0 -> {
-                        badgeText = "⚔ En batalla"
-                        badgeColor = 0xFFFFA726.toInt()
-                    }
-                    else -> {
-                        badgeText = "Empieza hoy"
-                        badgeColor = 0xFF9E9E9E.toInt()
+                // Badge sincronizado desde Flutter (mismo texto que el botón in-app)
+                val badgeText = prefs.getString(KEY_BADGE_TEXT, null)
+                val badgeColor = prefs.getLong(KEY_BADGE_COLOR, 0xFF9E9E9E).toInt()
+
+                // Fallback nativo solo si Flutter no actualizó aún
+                val finalBadgeText = if (badgeText != null) {
+                    badgeText
+                } else {
+                    val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+                    when {
+                        completedToday -> "✓ Día de victoria"
+                        hour >= 18 -> "Registrar victoria"
+                        streakDays > 0 -> "Disponible a las 6pm"
+                        else -> "Empieza hoy"
                     }
                 }
 
-                // Mensaje con contexto de hora si Flutter no lo actualizó
-                val timeMessage = when {
-                    completedToday -> message
-                    hour < 6  -> "Descansa en paz, Dios vela por ti"
-                    hour < 12 -> "Buenos días. Hoy es un día de victoria"
-                    hour < 18 -> "Sigue firme. Tu victoria se acerca"
-                    else      -> "Es hora de registrar tu victoria"
-                }
-                views.setTextViewText(R.id.widget_message, timeMessage)
-
-                views.setTextViewText(R.id.widget_badge, badgeText)
+                views.setTextViewText(R.id.widget_badge, finalBadgeText)
                 views.setTextColor(R.id.widget_badge, badgeColor)
 
-                // Label días — uppercase apilado
+                // Label días — uppercase apilado (colores sincronizados con in-app)
                 views.setTextViewText(
                     R.id.widget_streak_label,
                     if (streakDays == 1) "DÍA" else "DÍAS"
                 )
+                views.setTextColor(R.id.widget_streak_label, streakColor)
                 views.setTextViewText(R.id.widget_streak_sublabel, "DE VICTORIA")
+                views.setTextColor(R.id.widget_streak_sublabel, 0x99FFFFFF.toInt())
 
                 // Tap abre la app
                 val intent = Intent(context, MainActivity::class.java).apply {

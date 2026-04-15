@@ -66,6 +66,9 @@ class WidgetSyncService {
   static const String _keyJesusMessage = 'jesus_widget_message';
   static const String _keyJesusSpritePath = 'jesus_sprite_path';
   static const String _keyJesusBgPath = 'jesus_bg_path';
+  static const String _keyJesusBadgeText = 'jesus_badge_text';
+  static const String _keyJesusBadgeColor = 'jesus_badge_color';
+  static const String _keyJesusStreakColor = 'jesus_streak_color';
   
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -164,6 +167,26 @@ class WidgetSyncService {
       await HomeWidget.saveWidgetData(_keyJesusStreak, payload.streakValue);
       await HomeWidget.saveWidgetData(_keyJesusCompleted, completedToday);
       await HomeWidget.saveWidgetData(_keyJesusMessage, jesusMessage);
+
+      // Badge text y color — mismo que el botón del widget in-app
+      final hour = DateTime.now().hour;
+      final canRegister = !completedToday && hour >= 18;
+      final badgeText = completedToday
+          ? '✓ Día de victoria'
+          : canRegister
+              ? 'Registrar victoria'
+              : hour < 18 && !isNewUser
+                  ? 'Disponible a las 6pm'
+                  : 'Empieza hoy';
+      final badgeColor = completedToday
+          ? 0xFF4CAF50  // verde
+          : canRegister
+              ? 0xFFD4AF37  // oro
+              : 0xFF9E9E9E; // gris
+      final streakColor = JesusWidgetService.I.getStreakColor(payload.streakValue);
+      await HomeWidget.saveWidgetData(_keyJesusBadgeText, badgeText);
+      await HomeWidget.saveWidgetData(_keyJesusBadgeColor, badgeColor);
+      await HomeWidget.saveWidgetData(_keyJesusStreakColor, streakColor.value);
 
       // Guardar imágenes de sprite y fondo para el widget nativo
       final spritePath = JesusWidgetService.I.getSprite(

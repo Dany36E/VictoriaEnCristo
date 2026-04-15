@@ -148,7 +148,7 @@
             android:shadowDy="1"
             android:shadowRadius="3" />
 
-        <!-- Badge de estado — bottom-right pill -->
+        <!-- Badge/botón de estado — pill estilo igual al botón in-app -->
         <TextView
             android:id="@+id/widget_badge"
             android:layout_width="wrap_content"
@@ -156,13 +156,13 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentBottom="true"
             android:background="@drawable/jesus_badge_background"
-            android:paddingStart="14dp"
-            android:paddingEnd="14dp"
-            android:paddingTop="5dp"
-            android:paddingBottom="5dp"
+            android:paddingStart="18dp"
+            android:paddingEnd="18dp"
+            android:paddingTop="6dp"
+            android:paddingBottom="6dp"
             android:text="Empieza hoy"
-            android:textColor="#9E9E9E"
-            android:textSize="12sp"
+            android:textColor="#D4AF37"
+            android:textSize="13sp"
             android:textStyle="bold"
             android:fontFamily="sans-serif-medium"
             android:shadowColor="#AA000000"

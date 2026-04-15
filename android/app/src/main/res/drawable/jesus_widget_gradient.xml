@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Gradiente izquierda→derecha igual que el widget in-app (Flutter) -->
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <gradient
         android:type="linear"
-        android:startColor="#00000000"
-        android:centerColor="#10000000"
-        android:endColor="#44000000"
-        android:angle="270" />
+        android:startColor="#B3000000"
+        android:centerColor="#33000000"
+        android:endColor="#80000000"
+        android:angle="0" />
 </shape>
