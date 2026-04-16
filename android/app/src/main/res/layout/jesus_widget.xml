@@ -14,7 +14,7 @@
         android:scaleType="centerCrop"
         android:contentDescription="@null" />
 
-    <!-- Gradiente sutil bottom -->
+    <!-- Gradiente sutil L→R -->
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -27,7 +27,7 @@
         android:layout_height="match_parent"
         android:padding="10dp">
 
-        <!-- Jesús sprite — prominente lado izquierdo -->
+        <!-- Jesús sprite — lado izquierdo -->
         <ImageView
             android:id="@+id/widget_jesus_image"
             android:layout_width="140dp"
@@ -37,56 +37,51 @@
             android:scaleType="fitCenter"
             android:contentDescription="Jesús" />
 
-        <!-- Bloque derecho: 🔥 número + label apilado -->
+        <!-- Streak counter: icono fuego + número + labels + badge Hoy -->
         <LinearLayout
             android:id="@+id/widget_streak_block"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toEndOf="@id/widget_jesus_image"
-            android:layout_marginTop="6dp"
+            android:layout_marginTop="8dp"
             android:layout_marginStart="2dp"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="bottom">
 
-            <!-- Fuego + Número enorme -->
-            <LinearLayout
+            <!-- Icono fuego (tintable desde Kotlin, igual que in-app) -->
+            <ImageView
+                android:id="@+id/widget_fire_icon"
+                android:layout_width="26dp"
+                android:layout_height="26dp"
+                android:layout_gravity="center_vertical"
+                android:layout_marginBottom="12dp"
+                android:src="@drawable/ic_fire"
+                android:contentDescription="@null" />
+
+            <!-- Número grande de racha -->
+            <TextView
+                android:id="@+id/widget_streak_number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center_horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="🔥"
-                    android:textSize="22sp"
-                    android:includeFontPadding="false"
-                    android:gravity="center" />
-
-                <TextView
-                    android:id="@+id/widget_streak_number"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="-6dp"
-                    android:text="0"
-                    android:textColor="#FFFFFFFF"
-                    android:textSize="58sp"
-                    android:textStyle="bold"
-                    android:fontFamily="sans-serif-black"
-                    android:includeFontPadding="false"
-                    android:shadowColor="#66000000"
-                    android:shadowDx="2"
-                    android:shadowDy="3"
-                    android:shadowRadius="6" />
-
-            </LinearLayout>
+                android:layout_marginStart="4dp"
+                android:text="0"
+                android:textColor="#FFFFFFFF"
+                android:textSize="48sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-black"
+                android:includeFontPadding="false"
+                android:shadowColor="#66000000"
+                android:shadowDx="2"
+                android:shadowDy="3"
+                android:shadowRadius="6" />
 
             <!-- DÍAS / DE VICTORIA apilado -->
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="6dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_gravity="bottom"
                 android:orientation="vertical">
 
                 <TextView
@@ -94,16 +89,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="DÍAS"
-                    android:textColor="#EEFFFFFF"
-                    android:textSize="14sp"
+                    android:textColor="#FF69F0AE"
+                    android:textSize="12sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-black"
                     android:includeFontPadding="false"
-                    android:letterSpacing="0.08"
-                    android:shadowColor="#66000000"
-                    android:shadowDx="1"
-                    android:shadowDy="1"
-                    android:shadowRadius="3" />
+                    android:letterSpacing="0.08" />
 
                 <TextView
                     android:id="@+id/widget_streak_sublabel"
@@ -111,22 +102,38 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="-2dp"
                     android:text="DE VICTORIA"
-                    android:textColor="#CCFFFFFF"
-                    android:textSize="12sp"
+                    android:textColor="#99FFFFFF"
+                    android:textSize="9sp"
                     android:textStyle="bold"
                     android:fontFamily="sans-serif-medium"
-                    android:includeFontPadding="false"
-                    android:letterSpacing="0.05"
-                    android:shadowColor="#66000000"
-                    android:shadowDx="1"
-                    android:shadowDy="1"
-                    android:shadowRadius="3" />
+                    android:includeFontPadding="false" />
 
             </LinearLayout>
 
+            <!-- Badge "✓ Hoy" (visible solo cuando completedToday) -->
+            <TextView
+                android:id="@+id/widget_hoy_badge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="6dp"
+                android:layout_marginBottom="12dp"
+                android:layout_gravity="bottom"
+                android:background="@drawable/jesus_hoy_badge_bg"
+                android:paddingStart="7dp"
+                android:paddingEnd="8dp"
+                android:paddingTop="3dp"
+                android:paddingBottom="3dp"
+                android:text="✓ Hoy"
+                android:textColor="#FF4CAF50"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:fontFamily="sans-serif-medium"
+                android:includeFontPadding="false"
+                android:visibility="gone" />
+
         </LinearLayout>
 
-        <!-- Mensaje motivacional — debajo del streak -->
+        <!-- Mensaje motivacional — max 3 líneas como in-app -->
         <TextView
             android:id="@+id/widget_message"
             android:layout_width="wrap_content"
@@ -134,13 +141,13 @@
             android:layout_toEndOf="@id/widget_jesus_image"
             android:layout_below="@id/widget_streak_block"
             android:layout_marginStart="4dp"
-            android:layout_marginTop="4dp"
+            android:layout_marginTop="2dp"
             android:layout_marginEnd="10dp"
             android:text=""
-            android:textColor="#DDFFFFFF"
+            android:textColor="#E6FFFFFF"
             android:textSize="13sp"
             android:fontFamily="sans-serif-medium"
-            android:maxLines="2"
+            android:maxLines="3"
             android:ellipsize="end"
             android:lineSpacingMultiplier="1.15"
             android:shadowColor="#88000000"
@@ -148,12 +155,12 @@
             android:shadowDy="1"
             android:shadowRadius="3" />
 
-        <!-- Badge/botón de estado — pill estilo igual al botón in-app -->
+        <!-- Botón de acción — pill dorado centrado, igual que in-app -->
         <TextView
             android:id="@+id/widget_badge"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentEnd="true"
+            android:layout_centerHorizontal="true"
             android:layout_alignParentBottom="true"
             android:background="@drawable/jesus_badge_background"
             android:paddingStart="18dp"
@@ -161,14 +168,10 @@
             android:paddingTop="6dp"
             android:paddingBottom="6dp"
             android:text="Empieza hoy"
-            android:textColor="#D4AF37"
+            android:textColor="#FFD4AF37"
             android:textSize="13sp"
             android:textStyle="bold"
-            android:fontFamily="sans-serif-medium"
-            android:shadowColor="#AA000000"
-            android:shadowDx="1"
-            android:shadowDy="1"
-            android:shadowRadius="2" />
+            android:fontFamily="sans-serif-medium" />
 
     </RelativeLayout>
 </FrameLayout>

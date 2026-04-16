@@ -174,7 +174,7 @@ class WidgetSyncService {
       await HomeWidget.saveWidgetData(_keyJesusMessage, jesusMessage);
       await HomeWidget.saveWidgetData(_keyJesusCheckinDone, checkinDone);
 
-      // Badge text y color — sincronizado con getBadgeText() del widget in-app
+      // Badge text y color — sincronizado con _buildActionButton() del widget in-app
       final hour = DateTime.now().hour;
       final canRegister = !completedToday && hour >= 18;
       final badgeText = JesusWidgetService.I.getBadgeText(
@@ -182,13 +182,16 @@ class WidgetSyncService {
         isNewUser: isNewUser,
         checkinDone: checkinDone,
       );
-      final badgeColor = completedToday
-          ? 0xFF4CAF50  // verde
+      // Usar misma lógica que _buildActionButton del JesusStreakWidget
+      final finalBadgeText = completedToday
+          ? '✨ Ver mi progreso'
           : canRegister
-              ? 0xFFD4AF37  // oro
-              : 0xFF9E9E9E; // gris
+              ? '⚔️ Registrar victoria'
+              : badgeText;
+      // Botón siempre dorado (igual que in-app)
+      const badgeColor = 0xFFD4AF37;
       final streakColor = JesusWidgetService.I.getStreakColor(payload.streakValue);
-      await HomeWidget.saveWidgetData(_keyJesusBadgeText, badgeText);
+      await HomeWidget.saveWidgetData(_keyJesusBadgeText, finalBadgeText);
       await HomeWidget.saveWidgetData(_keyJesusBadgeColor, badgeColor);
       await HomeWidget.saveWidgetData(_keyJesusStreakColor, streakColor.value);
 

@@ -5,6 +5,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.view.View
 import android.widget.RemoteViews
 import android.app.PendingIntent
 import android.content.Intent
@@ -82,12 +83,21 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 val streakColor = prefs.getLong(KEY_STREAK_COLOR, 0xFFFFFFFF).toInt()
                 views.setTextColor(R.id.widget_streak_number, streakColor)
 
+                // Tint del icono fuego con streakColor (igual que in-app)
+                views.setInt(R.id.widget_fire_icon, "setColorFilter", streakColor)
+
                 // Mensaje motivacional — usar SIEMPRE el de Flutter (mismo que in-app)
                 views.setTextViewText(R.id.widget_message, message)
 
-                // Badge sincronizado desde Flutter (mismo texto que el botón in-app)
+                // Badge "✓ Hoy" — visible solo cuando completedToday (igual que in-app)
+                if (completedToday) {
+                    views.setViewVisibility(R.id.widget_hoy_badge, View.VISIBLE)
+                } else {
+                    views.setViewVisibility(R.id.widget_hoy_badge, View.GONE)
+                }
+
+                // Badge/botón sincronizado desde Flutter (mismo texto que botón in-app)
                 val badgeText = prefs.getString(KEY_BADGE_TEXT, null)
-                val badgeColor = prefs.getLong(KEY_BADGE_COLOR, 0xFF9E9E9E).toInt()
 
                 // Fallback nativo solo si Flutter no actualizó aún (7 franjas horarias)
                 val checkinDone = prefs.getBoolean(KEY_CHECKIN_DONE, false)
@@ -96,9 +106,9 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 } else {
                     val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
                     when {
-                        completedToday -> "✓ Día de victoria"
+                        completedToday -> "✨ Ver mi progreso"
+                        !completedToday && hour >= 18 -> "⚔️ Registrar victoria"
                         checkinDone && hour < 18 -> "🙏 Devocional hecho"
-                        hour >= 18 -> "⚔️ Registrar victoria"
                         hour >= 15 -> "⏰ Casi es hora"
                         hour >= 12 -> "\uD83D\uDEE1️ En batalla"
                         hour >= 8  -> "💪 Sigue firme"
@@ -108,7 +118,8 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 }
 
                 views.setTextViewText(R.id.widget_badge, finalBadgeText)
-                views.setTextColor(R.id.widget_badge, badgeColor)
+                // Botón siempre dorado (igual que in-app _buildActionButton)
+                views.setTextColor(R.id.widget_badge, 0xFFD4AF37.toInt())
 
                 // Label días — uppercase apilado (colores sincronizados con in-app)
                 views.setTextViewText(
