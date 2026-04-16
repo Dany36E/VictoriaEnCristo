@@ -5,6 +5,8 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.os.Bundle
+import android.util.TypedValue
 import android.view.View
 import android.widget.RemoteViews
 import android.app.PendingIntent
@@ -24,6 +26,16 @@ class JesusWidgetProvider : AppWidgetProvider() {
         }
     }
 
+    override fun onAppWidgetOptionsChanged(
+        context: Context,
+        appWidgetManager: AppWidgetManager,
+        appWidgetId: Int,
+        newOptions: Bundle
+    ) {
+        // Re-render when widget is resized
+        updateWidget(context, appWidgetManager, appWidgetId)
+    }
+
     override fun onEnabled(context: Context) {}
     override fun onDisabled(context: Context) {}
 
@@ -38,12 +50,24 @@ class JesusWidgetProvider : AppWidgetProvider() {
         private const val KEY_STREAK_COLOR = "jesus_streak_color"
         private const val KEY_CHECKIN_DONE = "jesus_checkin_done"
 
+        // Size breakpoints (dp)
+        private const val COMPACT_WIDTH = 200   // 3×2 small
+        private const val MEDIUM_WIDTH = 280    // 4×2
+        private const val COMPACT_HEIGHT = 120  // 2-row
+
         fun updateWidget(
             context: Context,
             appWidgetManager: AppWidgetManager,
             appWidgetId: Int
         ) {
             val views = RemoteViews(context.packageName, R.layout.jesus_widget)
+
+            // ─── Get widget dimensions for responsive sizing ───
+            val options = appWidgetManager.getAppWidgetOptions(appWidgetId)
+            val widthDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_WIDTH, 180)
+            val heightDp = options.getInt(AppWidgetManager.OPTION_APPWIDGET_MIN_HEIGHT, 130)
+            val isCompactW = widthDp < MEDIUM_WIDTH
+            val isCompactH = heightDp < COMPACT_HEIGHT
 
             try {
                 val prefs = HomeWidgetPlugin.getData(context)
@@ -52,85 +76,124 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 val completedToday = prefs.getBoolean(KEY_COMPLETED, false)
                 val message = prefs.getString(KEY_MESSAGE, "¡Empieza hoy!") ?: "¡Empieza hoy!"
 
-                // ─── Cargar sprite de Jesús (escalado) ───
+                // ─── Cargar sprite de Jesús ───
                 val spritePath = prefs.getString(KEY_SPRITE_PATH, null)
                 if (spritePath != null) {
                     val spriteFile = File(spritePath)
                     if (spriteFile.exists()) {
-                        val bitmap = decodeSampledBitmap(spritePath, 400, 400)
+                        val spriteSize = if (isCompactW) 300 else 400
+                        val bitmap = decodeSampledBitmap(spritePath, spriteSize, spriteSize)
                         if (bitmap != null) {
                             views.setImageViewBitmap(R.id.widget_jesus_image, bitmap)
                         }
                     }
                 }
 
-                // ─── Cargar fondo dinámico (escalado) ───
+                // ─── Cargar fondo dinámico ───
                 val bgPath = prefs.getString(KEY_BG_PATH, null)
                 if (bgPath != null) {
                     val bgFile = File(bgPath)
                     if (bgFile.exists()) {
-                        val bitmap = decodeSampledBitmap(bgPath, 800, 800)
+                        val bitmap = decodeSampledBitmap(bgPath, 800, 400)
                         if (bitmap != null) {
                             views.setImageViewBitmap(R.id.widget_bg_image, bitmap)
                         }
                     }
                 }
 
-                // Número de racha
-                views.setTextViewText(R.id.widget_streak_number, streakDays.toString())
-
-                // Color de racha sincronizado desde Flutter (mismo que in-app)
+                // ─── Streak color (synced from Flutter) ───
                 val streakColor = prefs.getLong(KEY_STREAK_COLOR, 0xFFFFFFFF).toInt()
-                views.setTextColor(R.id.widget_streak_number, streakColor)
 
-                // Tint del icono fuego con streakColor (igual que in-app)
+                // ─── Número de racha — responsive font size ───
+                views.setTextViewText(R.id.widget_streak_number, streakDays.toString())
+                val numberSize = when {
+                    isCompactH -> if (streakDays >= 100) 30f else 36f
+                    isCompactW -> if (streakDays >= 100) 34f else 40f
+                    else -> if (streakDays >= 100) 38f else 46f
+                }
+                views.setTextViewTextSize(R.id.widget_streak_number,
+                    TypedValue.COMPLEX_UNIT_SP, numberSize)
+
+                // Color del número: use streakColor but with shadow for contrast
+                views.setTextColor(R.id.widget_streak_number, 0xFFFFFFFF.toInt())
+
+                // ─── Icono fuego — tinted with streakColor ───
                 views.setInt(R.id.widget_fire_icon, "setColorFilter", streakColor)
+                val fireSize = if (isCompactH) 18f else 22f
+                // Fire icon size via layout params isn't possible in RemoteViews,
+                // but the vector drawable auto-scales
 
-                // Mensaje motivacional — usar SIEMPRE el de Flutter (mismo que in-app)
-                views.setTextViewText(R.id.widget_message, message)
+                // ─── DÍAS / DE VICTORIA labels ───
+                views.setTextViewText(
+                    R.id.widget_streak_label,
+                    if (streakDays == 1) "DÍA" else "DÍAS"
+                )
+                views.setTextColor(R.id.widget_streak_label, streakColor)
 
-                // Badge "✓ Hoy" — visible solo cuando completedToday (igual que in-app)
+                val labelSize = if (isCompactW) 10f else 11f
+                views.setTextViewTextSize(R.id.widget_streak_label,
+                    TypedValue.COMPLEX_UNIT_SP, labelSize)
+
+                views.setTextViewText(R.id.widget_streak_sublabel, "DE VICTORIA")
+                views.setTextColor(R.id.widget_streak_sublabel, 0x99FFFFFF.toInt())
+
+                val sublabelSize = if (isCompactW) 7f else 8f
+                views.setTextViewTextSize(R.id.widget_streak_sublabel,
+                    TypedValue.COMPLEX_UNIT_SP, sublabelSize)
+
+                // Hide DE VICTORIA when very compact
+                if (isCompactH) {
+                    views.setViewVisibility(R.id.widget_streak_sublabel, View.GONE)
+                } else {
+                    views.setViewVisibility(R.id.widget_streak_sublabel, View.VISIBLE)
+                }
+
+                // ─── Badge "✓ Hoy" ───
                 if (completedToday) {
                     views.setViewVisibility(R.id.widget_hoy_badge, View.VISIBLE)
                 } else {
                     views.setViewVisibility(R.id.widget_hoy_badge, View.GONE)
                 }
 
-                // Badge/botón sincronizado desde Flutter (mismo texto que botón in-app)
-                val badgeText = prefs.getString(KEY_BADGE_TEXT, null)
+                // ─── Mensaje motivacional ───
+                views.setTextViewText(R.id.widget_message, message)
+                val msgSize = if (isCompactW) 11f else 12f
+                views.setTextViewTextSize(R.id.widget_message,
+                    TypedValue.COMPLEX_UNIT_SP, msgSize)
 
-                // Fallback nativo solo si Flutter no actualizó aún (7 franjas horarias)
+                // ─── Botón de acción (siempre dorado) ───
+                val badgeText = prefs.getString(KEY_BADGE_TEXT, null)
                 val checkinDone = prefs.getBoolean(KEY_CHECKIN_DONE, false)
                 val finalBadgeText = if (badgeText != null) {
                     badgeText
                 } else {
-                    val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
+                    val hour = java.util.Calendar.getInstance()
+                        .get(java.util.Calendar.HOUR_OF_DAY)
                     when {
                         completedToday -> "✨ Ver mi progreso"
                         !completedToday && hour >= 18 -> "⚔️ Registrar victoria"
                         checkinDone && hour < 18 -> "🙏 Devocional hecho"
                         hour >= 15 -> "⏰ Casi es hora"
-                        hour >= 12 -> "\uD83D\uDEE1️ En batalla"
+                        hour >= 12 -> "🛡️ En batalla"
                         hour >= 8  -> "💪 Sigue firme"
                         hour >= 5  -> "☀️ Buenos días"
-                        else -> "\uD83C\uDF19 Descansa en paz"
+                        else -> "🌙 Descansa en paz"
                     }
                 }
-
                 views.setTextViewText(R.id.widget_badge, finalBadgeText)
-                // Botón siempre dorado (igual que in-app _buildActionButton)
                 views.setTextColor(R.id.widget_badge, 0xFFD4AF37.toInt())
+                val badgeSize = if (isCompactW) 11f else 12f
+                views.setTextViewTextSize(R.id.widget_badge,
+                    TypedValue.COMPLEX_UNIT_SP, badgeSize)
 
-                // Label días — uppercase apilado (colores sincronizados con in-app)
-                views.setTextViewText(
-                    R.id.widget_streak_label,
-                    if (streakDays == 1) "DÍA" else "DÍAS"
-                )
-                views.setTextColor(R.id.widget_streak_label, streakColor)
-                views.setTextViewText(R.id.widget_streak_sublabel, "DE VICTORIA")
-                views.setTextColor(R.id.widget_streak_sublabel, 0x99FFFFFF.toInt())
+                // Hide button when very compact height
+                if (isCompactH) {
+                    views.setViewVisibility(R.id.widget_badge, View.GONE)
+                } else {
+                    views.setViewVisibility(R.id.widget_badge, View.VISIBLE)
+                }
 
-                // Tap abre la app
+                // ─── Tap → abre la app ───
                 val intent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
                 }
@@ -141,7 +204,6 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 views.setOnClickPendingIntent(R.id.jesus_widget_container, pendingIntent)
 
             } catch (e: Exception) {
-                // Fallback: mostrar datos por defecto
                 views.setTextViewText(R.id.widget_streak_number, "0")
                 views.setTextViewText(R.id.widget_message, "Abre la app")
                 views.setTextViewText(R.id.widget_badge, "Empieza hoy")
@@ -150,7 +212,6 @@ class JesusWidgetProvider : AppWidgetProvider() {
             try {
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             } catch (e: Exception) {
-                // Si aún excede memoria, enviar vista sin imágenes
                 val fallback = RemoteViews(context.packageName, R.layout.jesus_widget)
                 fallback.setTextViewText(R.id.widget_streak_number, "0")
                 fallback.setTextViewText(R.id.widget_message, "Abre la app")
@@ -167,13 +228,18 @@ class JesusWidgetProvider : AppWidgetProvider() {
             return BitmapFactory.decodeFile(path, options)
         }
 
-        private fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
+        private fun calculateInSampleSize(
+            options: BitmapFactory.Options,
+            reqWidth: Int,
+            reqHeight: Int
+        ): Int {
             val (height, width) = options.outHeight to options.outWidth
             var inSampleSize = 1
             if (height > reqHeight || width > reqWidth) {
                 val halfHeight = height / 2
                 val halfWidth = width / 2
-                while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
+                while (halfHeight / inSampleSize >= reqHeight &&
+                       halfWidth / inSampleSize >= reqWidth) {
                     inSampleSize *= 2
                 }
             }
