@@ -258,7 +258,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
     // Indicador de victoria: checkmark ✓
     Widget? indicator;
     if (dayInfo.isCurrentMonth && !dayInfo.isFuture && dayInfo.isVictory) {
-      indicator = Icon(
+      indicator = const Icon(
         Icons.check_rounded,
         size: 12,
         color: _victory,
@@ -299,7 +299,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
               Container(
                 width: 5,
                 height: 5,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: _gold,
                   shape: BoxShape.circle,
                 ),

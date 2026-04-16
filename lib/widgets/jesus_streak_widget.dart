@@ -14,6 +14,7 @@ class JesusStreakWidget extends StatelessWidget {
   final bool completedToday;
   final bool isNewUser;
   final bool isLoading;
+  final bool checkinDone;
   final VoidCallback onRegisterVictory;
   final VoidCallback? onTapCard;
 
@@ -23,6 +24,7 @@ class JesusStreakWidget extends StatelessWidget {
     required this.completedToday,
     required this.isNewUser,
     this.isLoading = false,
+    this.checkinDone = false,
     required this.onRegisterVictory,
     this.onTapCard,
   });
@@ -303,17 +305,30 @@ class JesusStreakWidget extends StatelessWidget {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildActionButton(Color streakColor) {
-    final canRegister = !completedToday && DateTime.now().hour >= 18;
+    final hour = DateTime.now().hour;
+    final canRegister = !completedToday && hour >= 18;
+    final badgeText = JesusWidgetService.I.getBadgeText(
+      completedToday: completedToday,
+      isNewUser: isNewUser,
+      checkinDone: checkinDone,
+    );
+    // En ventana de registro usar CTA directa; completado → progreso
     final label = completedToday
         ? 'Ver mi progreso'
         : canRegister
             ? 'Registrar victoria'
-            : 'Disponible a las 6pm';
+            : badgeText;
     final icon = completedToday
         ? Icons.insights_rounded
         : canRegister
             ? Icons.shield_outlined
-            : Icons.schedule_outlined;
+            : hour < 5
+                ? Icons.nightlight_round
+                : hour < 12
+                    ? Icons.wb_sunny_outlined
+                    : hour < 18
+                        ? Icons.shield_outlined
+                        : Icons.shield_outlined;
 
     return GestureDetector(
       onTap: isLoading ? null : onRegisterVictory,

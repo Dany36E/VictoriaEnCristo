@@ -88,8 +88,8 @@ void main() {
     });
 
     test('computed redLetterColor differs by isDark', () {
-      final dark = BibleReaderThemeData.nightPure;
-      final light = BibleReaderThemeData.cleanPage;
+      const dark = BibleReaderThemeData.nightPure;
+      const light = BibleReaderThemeData.cleanPage;
       expect(dark.redLetterColor, isNot(equals(light.redLetterColor)));
     });
   });

@@ -69,6 +69,7 @@ class WidgetSyncService {
   static const String _keyJesusBadgeText = 'jesus_badge_text';
   static const String _keyJesusBadgeColor = 'jesus_badge_color';
   static const String _keyJesusStreakColor = 'jesus_streak_color';
+  static const String _keyJesusCheckinDone = 'jesus_checkin_done';
   
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -159,6 +160,10 @@ class WidgetSyncService {
       // Widget Jesús (racha con sprite)
       final completedToday = VictoryScoringService.I.isLoggedToday();
       final isNewUser = payload.streakValue == 0 && !completedToday;
+      // Detectar si hizo el devocional matutino hoy
+      final checkinLast = _prefs?.getString('morning_checkin_last_shown') ?? '';
+      final todayISO = payload.dateISO;
+      final checkinDone = checkinLast == todayISO;
       final jesusMessage = JesusWidgetService.I.getMessage(
         streakDays: payload.streakValue,
         completedToday: completedToday,
@@ -167,17 +172,16 @@ class WidgetSyncService {
       await HomeWidget.saveWidgetData(_keyJesusStreak, payload.streakValue);
       await HomeWidget.saveWidgetData(_keyJesusCompleted, completedToday);
       await HomeWidget.saveWidgetData(_keyJesusMessage, jesusMessage);
+      await HomeWidget.saveWidgetData(_keyJesusCheckinDone, checkinDone);
 
-      // Badge text y color — mismo que el botón del widget in-app
+      // Badge text y color — sincronizado con getBadgeText() del widget in-app
       final hour = DateTime.now().hour;
       final canRegister = !completedToday && hour >= 18;
-      final badgeText = completedToday
-          ? '✓ Día de victoria'
-          : canRegister
-              ? 'Registrar victoria'
-              : hour < 18 && !isNewUser
-                  ? 'Disponible a las 6pm'
-                  : 'Empieza hoy';
+      final badgeText = JesusWidgetService.I.getBadgeText(
+        completedToday: completedToday,
+        isNewUser: isNewUser,
+        checkinDone: checkinDone,
+      );
       final badgeColor = completedToday
           ? 0xFF4CAF50  // verde
           : canRegister

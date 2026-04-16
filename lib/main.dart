@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'theme/app_theme_data.dart';
@@ -21,6 +24,7 @@ import 'services/feedback_engine.dart';
 import 'services/content_repository.dart';
 import 'services/widget_sync_service.dart';
 import 'services/victory_scoring_service.dart';
+import 'services/jesus_widget_service.dart';
 import 'services/data_bootstrapper.dart';
 import 'services/account_session_manager.dart';
 import 'services/daily_verse_service.dart';
@@ -29,6 +33,8 @@ import 'models/user_profile.dart';
 import 'utils/time_utils.dart';
 import 'services/bible/bible_parser_service.dart';
 import 'services/bible/bible_download_service.dart';
+import 'services/notification_service.dart';
+import 'services/emergency_sos_service.dart';
 
 /// RouteObserver global para detectar navegación (usado por HomeScreen)
 final RouteObserver<ModalRoute<void>> routeObserver =
@@ -42,80 +48,66 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  // Crashlytics: capturar errores no manejados
+  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  PlatformDispatcher.instance.onError = (error, stack) {
+    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+    return true;
+  };
+
+  // Analytics: se usa en NavigatorObserver (ver MaterialApp)
+
   // Firestore: garantizar persistencia offline y cache generoso
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
   
-  // Inicializar el servicio de temas
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FASE 1 — Servicios independientes (en paralelo)
+  // Ninguno depende de otro; todos solo usan SharedPreferences/assets/plugins
+  // ═══════════════════════════════════════════════════════════════════════════
   final themeService = ThemeService();
-  await themeService.initialize();
-  
-  // Inicializar el servicio de favoritos
-  final favoritesService = FavoritesService();
-  await favoritesService.init();
-  
-  // Inicializar el servicio de onboarding
   final onboardingService = OnboardingService();
-  await onboardingService.init();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // AUDIO ENGINE - Sistema unificado de audio (BGM + SFX)
-  // Solo UNA instancia, inicializada UNA vez aquí
-  // ═══════════════════════════════════════════════════════════════════════════
+  final favoritesService = FavoritesService();
   final audioEngine = AudioEngine.I;
-  await audioEngine.init();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // FEEDBACK ENGINE - Haptics + SFX para UI (premium)
-  // ═══════════════════════════════════════════════════════════════════════════
   final feedbackEngine = FeedbackEngine.I;
-  await feedbackEngine.init();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // CONTENT REPOSITORY - Contenido personalizado desde assets JSON
-  // ═══════════════════════════════════════════════════════════════════════════
   final contentRepo = ContentRepository.I;
-  await contentRepo.init();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // WIDGET SYNC SERVICE - Sincronización con widgets nativos (Home Screen)
-  // ═══════════════════════════════════════════════════════════════════════════
   final widgetService = WidgetSyncService.I;
-  await widgetService.init();
-  
+  final notificationService = NotificationService();
+
+  await Future.wait([
+    themeService.initialize(),
+    onboardingService.init(),
+    favoritesService.init(),
+    audioEngine.init(),
+    feedbackEngine.init(),
+    contentRepo.init(),
+    widgetService.init(),
+    JesusWidgetService.I.init(),
+    notificationService.initialize(),
+    BibleDownloadService.I.init(),
+  ]);
+
   // ═══════════════════════════════════════════════════════════════════════════
-  // VICTORY SCORING SERVICE - Sistema de victoria compuesta por gigantes
+  // FASE 2 — Servicios con dependencias (en paralelo entre sí)
+  // VictoryScoringService necesita OnboardingService (ya listo)
+  // BibleParserService necesita BibleDownloadService (ya listo)
   // ═══════════════════════════════════════════════════════════════════════════
   final scoringService = VictoryScoringService.I;
-  await scoringService.init();
-  
+
+  await Future.wait([
+    scoringService.init(),
+    BibleParserService.I.init(),
+    notificationService.scheduleAllNotifications(),
+    EmergencySosService.I.init(),
+  ]);
+
   // ═══════════════════════════════════════════════════════════════════════════
-  // DATA BOOTSTRAPPER - Orquestador de sincronización cloud
-  // Maneja la carga de datos al login y preservación al logout
+  // FASE 3 — Orquestadores (secuencial, dependen de todo lo anterior)
   // ═══════════════════════════════════════════════════════════════════════════
-  final bootstrapper = DataBootstrapper.I;
-  await bootstrapper.init();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // BIBLE DOWNLOAD SERVICE - Gestión de descargas offline de Biblias
-  // Extrae XMLs de assets a almacenamiento local para acceso rápido
-  // ═══════════════════════════════════════════════════════════════════════════
-  await BibleDownloadService.I.init();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // BIBLE PARSER SERVICE - Parser XML de Biblias desde assets
-  // Carga el índice de la versión por defecto (RVR1960)
-  // ═══════════════════════════════════════════════════════════════════════════
-  await BibleParserService.I.init();
-  
-  // ═══════════════════════════════════════════════════════════════════════════
-  // ACCOUNT SESSION MANAGER - Aislamiento de datos por UID
-  // Detecta cambios de cuenta, purga cache, y previene mezcla de datos
-  // ═══════════════════════════════════════════════════════════════════════════
-  final sessionManager = AccountSessionManager.I;
-  await sessionManager.init();
+  await DataBootstrapper.I.init();
+  await AccountSessionManager.I.init();
   
   // Sincronizar widget al inicio
   widgetService.syncWidget();
@@ -259,7 +251,10 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
-      navigatorObservers: [routeObserver],
+      navigatorObservers: [
+        routeObserver,
+        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+      ],
       // Ruta inicial
       initialRoute: '/',
       routes: {

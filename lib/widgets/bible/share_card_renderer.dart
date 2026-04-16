@@ -502,11 +502,11 @@ class _CircularTextPainter extends CustomPainter {
             fontWeight: FontWeight.w600,
             shadows: addShadow
                 ? [
-                    Shadow(
+                    const Shadow(
                       color: Color(0xCC000000),
                       blurRadius: 6,
                     ),
-                    Shadow(
+                    const Shadow(
                       color: Color(0x80000000),
                       blurRadius: 12,
                     ),

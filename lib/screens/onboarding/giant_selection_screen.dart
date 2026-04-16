@@ -309,7 +309,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
           // Barra de progreso
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
+            child: const LinearProgressIndicator(
               value: 0.5,
               backgroundColor: AppDesignSystem.midnightLight,
               valueColor: AlwaysStoppedAnimation<Color>(AppDesignSystem.gold),
@@ -327,7 +327,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
       child: Column(
         children: [
           ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
+            shaderCallback: (bounds) => const LinearGradient(
               colors: [
                 AppDesignSystem.gold,
                 AppDesignSystem.goldLight,
@@ -501,7 +501,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                         ),
                       ],
                     ),
-                    child: Icon(
+                    child: const Icon(
                       Icons.check_rounded,
                       color: AppDesignSystem.midnight,
                       size: 16,
@@ -562,7 +562,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                   ),
                   if (hasSelection) ...[
                     const SizedBox(width: 10),
-                    Icon(
+                    const Icon(
                       Icons.arrow_forward_rounded,
                       color: AppDesignSystem.midnight,
                       size: 20,

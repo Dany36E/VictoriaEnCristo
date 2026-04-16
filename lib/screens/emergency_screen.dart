@@ -3,9 +3,9 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'dart:ui';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
-import '../data/bible_verses.dart';
 import '../widgets/premium_components.dart';
 import '../services/feedback_engine.dart';
+import '../services/emergency_sos_service.dart';
 
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
@@ -20,45 +20,55 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   late AnimationController _breatheController;
   late Animation<double> _pulseAnimation;
   int _currentStep = 0;
-  late BibleVerse _currentVerse;
 
-  final List<EmergencyStep> _steps = [
-    EmergencyStep(
-      emoji: '🛑',
-      title: 'DETENTE',
-      instruction: 'Respira profundo. Cierra los ojos por un momento.',
-      duration: 5,
-    ),
-    EmergencyStep(
-      emoji: '🙏',
-      title: 'ORA',
-      instruction: 'Di en voz alta: "Señor, necesito Tu ayuda ahora mismo"',
-      duration: 10,
-    ),
-    EmergencyStep(
-      emoji: '📖',
-      title: 'LEE',
-      instruction: 'Medita en este versículo:',
-      duration: 15,
-    ),
-    EmergencyStep(
-      emoji: '🚶',
-      title: 'MUÉVETE',
-      instruction: 'Levántate y cambia de ambiente. Sal de donde estás.',
-      duration: 5,
-    ),
-    EmergencyStep(
-      emoji: '📞',
-      title: 'CONECTA',
-      instruction: 'Llama o escribe a alguien de confianza. No enfrentes esto solo.',
-      duration: 5,
-    ),
-  ];
+  late List<PersonalizedStep> _steps;
+  late String _giantName;
 
   @override
   void initState() {
     super.initState();
-    _currentVerse = BibleVerses.getRandomVerseByCategory('tentación');
+    
+    final sos = EmergencySosService.I;
+    _steps = sos.getPersonalizedSteps();
+    _giantName = sos.getGiantDisplayName();
+    
+    // Fallback por si el servicio no cargó
+    if (_steps.isEmpty) {
+      _steps = [
+        const PersonalizedStep(
+          emoji: '🛑',
+          title: 'DETENTE',
+          instruction: 'Respira profundo. Cierra los ojos por un momento.',
+          duration: 5,
+        ),
+        const PersonalizedStep(
+          emoji: '🙏',
+          title: 'ORA',
+          instruction: 'Di en voz alta: "Señor, necesito Tu ayuda ahora mismo"',
+          duration: 10,
+          prayer: 'Señor Jesús, en este momento de debilidad vengo a Ti. Dame la fuerza para resistir. En Tu nombre, Amén.',
+        ),
+        const PersonalizedStep(
+          emoji: '📖',
+          title: 'LEE',
+          instruction: 'Medita en la Palabra de Dios.',
+          duration: 15,
+        ),
+        const PersonalizedStep(
+          emoji: '🚶',
+          title: 'MUÉVETE',
+          instruction: 'Levántate y cambia de ambiente. Sal de donde estás.',
+          duration: 5,
+        ),
+        const PersonalizedStep(
+          emoji: '📞',
+          title: 'CONECTA',
+          instruction: 'Llama o escribe a alguien de confianza.',
+          duration: 5,
+        ),
+      ];
+      _giantName = 'General';
+    }
     
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
@@ -83,13 +93,10 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   }
 
   void _nextStep() {
-    FeedbackEngine.I.confirm();  // Haptic + SFX confirm
+    FeedbackEngine.I.confirm();
     if (_currentStep < _steps.length - 1) {
       setState(() {
         _currentStep++;
-        if (_currentStep == 2) {
-          _currentVerse = BibleVerses.getRandomVerseByCategory('tentación');
-        }
       });
     } else {
       _showVictoryDialog();
@@ -97,7 +104,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   }
 
   void _showVictoryDialog() {
-    FeedbackEngine.I.confirm();  // Haptic + SFX confirm (victoria)
+    FeedbackEngine.I.confirm();
     final t = AppThemeData.of(context);
     showDialog(
       context: context,
@@ -120,7 +127,6 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Trophy icon with glow
                 Container(
                   padding: const EdgeInsets.all(AppDesignSystem.spacingL),
                   decoration: BoxDecoration(
@@ -148,7 +154,6 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                 
                 const SizedBox(height: AppDesignSystem.spacingL),
                 
-                // Victory title
                 Text(
                   '¡VICTORIA!',
                   style: AppDesignSystem.displaySmall(
@@ -243,7 +248,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         leading: IconButton(
           icon: Icon(Icons.close, color: t.textPrimary),
           onPressed: () {
-            FeedbackEngine.I.tap();  // Haptic + SFX tap
+            FeedbackEngine.I.tap();
             Navigator.pop(context);
           },
         ),
@@ -277,13 +282,16 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             },
           ),
           
-          // Content
           SafeArea(
-            bottom: false, // Manejamos el bottom manualmente
+            bottom: false,
             child: Padding(
               padding: const EdgeInsets.all(AppDesignSystem.spacingL),
               child: Column(
                 children: [
+                  // Giant badge
+                  _buildGiantBadge(),
+                  const SizedBox(height: AppDesignSystem.spacingM),
+                  
                   // Progress indicator
                   _buildProgressIndicator(),
                   const SizedBox(height: AppDesignSystem.spacingXL),
@@ -295,7 +303,6 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   
                   // Next button
                   _buildNextButton(),
-                  // Safe Area bottom padding
                   SizedBox(height: MediaQuery.of(context).padding.bottom + AppDesignSystem.spacingM),
                 ],
               ),
@@ -304,6 +311,32 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         ],
       ),
     );
+  }
+
+  Widget _buildGiantBadge() {
+    final t = AppThemeData.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppDesignSystem.spacingM,
+        vertical: AppDesignSystem.spacingXS,
+      ),
+      decoration: BoxDecoration(
+        color: AppDesignSystem.struggle.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+        border: Border.all(
+          color: AppDesignSystem.struggle.withOpacity(0.3),
+        ),
+      ),
+      child: Text(
+        'Plan personalizado: $_giantName',
+        style: AppDesignSystem.labelSmall(
+          context,
+          color: t.textSecondary,
+        ),
+      ),
+    )
+        .animate()
+        .fadeIn(delay: 50.ms);
   }
 
   Widget _buildProgressIndicator() {
@@ -333,7 +366,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         .fadeIn(delay: 100.ms);
   }
 
-  Widget _buildStepContent(EmergencyStep step) {
+  Widget _buildStepContent(PersonalizedStep step) {
     final t = AppThemeData.of(context);
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -381,7 +414,20 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     color: t.textPrimary,
                   ),
                 ),
-                if (_currentStep == 2) ...[
+                // Detalle psicológico
+                if (step.detail != null) ...[
+                  const SizedBox(height: AppDesignSystem.spacingM),
+                  Text(
+                    step.detail!,
+                    textAlign: TextAlign.center,
+                    style: AppDesignSystem.bodyMedium(
+                      context,
+                      color: t.textSecondary,
+                    ),
+                  ),
+                ],
+                // Versículo personalizado
+                if (step.verse != null) ...[
                   const SizedBox(height: AppDesignSystem.spacingL),
                   const GoldenDivider(),
                   const SizedBox(height: AppDesignSystem.spacingL),
@@ -394,7 +440,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     child: Column(
                       children: [
                         Text(
-                          '"${_currentVerse.verse}"',
+                          '"${step.verse!.title}"',
                           textAlign: TextAlign.center,
                           style: AppDesignSystem.scripture(
                             context,
@@ -403,7 +449,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                         ),
                         const SizedBox(height: AppDesignSystem.spacingM),
                         Text(
-                          _currentVerse.reference,
+                          step.verse!.reference,
                           style: AppDesignSystem.scriptureReference(context),
                         ),
                       ],
@@ -417,9 +463,10 @@ class _EmergencyScreenState extends State<EmergencyScreen>
               .fadeIn(delay: 150.ms, duration: 400.ms)
               .slideY(begin: 0.1, end: 0),
           
-          if (_currentStep == 1) ...[
+          // Oración personalizada
+          if (step.prayer != null) ...[
             const SizedBox(height: AppDesignSystem.spacingL),
-            _buildQuickPrayer(),
+            _buildPrayerCard(step.prayer!),
           ],
           
           const SizedBox(height: AppDesignSystem.spacingL),
@@ -428,7 +475,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
     );
   }
 
-  Widget _buildQuickPrayer() {
+  Widget _buildPrayerCard(String prayer) {
     final t = AppThemeData.of(context);
     return GlassContainer(
       backgroundColor: t.textPrimary.withOpacity(0.05),
@@ -445,7 +492,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
               ),
               const SizedBox(width: AppDesignSystem.spacingS),
               Text(
-                'ORACIÓN RÁPIDA',
+                'ORACIÓN',
                 style: AppDesignSystem.labelMedium(
                   context,
                   color: t.accent,
@@ -455,7 +502,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Text(
-            '"Señor Jesús, en este momento de debilidad vengo a Ti. Dame la fuerza para resistir. En Tu nombre, Amén."',
+            prayer,
             textAlign: TextAlign.center,
             style: AppDesignSystem.bodyMedium(
               context,
@@ -507,18 +554,4 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         .fadeIn(delay: 200.ms)
         .slideY(begin: 0.2, end: 0);
   }
-}
-
-class EmergencyStep {
-  final String emoji;
-  final String title;
-  final String instruction;
-  final int duration;
-
-  EmergencyStep({
-    required this.emoji,
-    required this.title,
-    required this.instruction,
-    required this.duration,
-  });
 }

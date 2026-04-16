@@ -137,7 +137,7 @@ class CollectionDetailScreen extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
         child:
-            Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
+            const Icon(Icons.delete_outline, color: Colors.redAccent, size: 20),
       ),
       onDismissed: (_) {
         CollectionService.I.removeVerse(

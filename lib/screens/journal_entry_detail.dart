@@ -98,7 +98,7 @@ class JournalEntryDetail extends StatelessWidget {
                     ),
                     child: Text(
                       trigger,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppTheme.emergencyColor,
                         fontWeight: FontWeight.w500,
                       ),

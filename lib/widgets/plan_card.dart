@@ -355,7 +355,7 @@ class PlanCard extends StatelessWidget {
                     Row(
                       children: [
                         // Duration
-                        Icon(Icons.calendar_today_outlined, size: 12, color: AppDesignSystem.gold),
+                        const Icon(Icons.calendar_today_outlined, size: 12, color: AppDesignSystem.gold),
                         const SizedBox(width: 4),
                         Text(
                           plan.durationLabel,
@@ -364,7 +364,7 @@ class PlanCard extends StatelessWidget {
                         const SizedBox(width: 12),
 
                         // Time per day
-                        Icon(Icons.access_time_outlined, size: 12, color: AppDesignSystem.gold),
+                        const Icon(Icons.access_time_outlined, size: 12, color: AppDesignSystem.gold),
                         const SizedBox(width: 4),
                         Text(
                           '${plan.minutesPerDay} min',

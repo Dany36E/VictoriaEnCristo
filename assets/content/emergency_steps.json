@@ -1,0 +1,381 @@
+{
+  "version": 1,
+  "description": "Pasos de emergencia personalizados por gigante. Cada gigante tiene 6 fases terapéuticas adaptadas a su mecanismo psicológico.",
+  "giants": {
+    "sexual": {
+      "name": "Pureza Sexual",
+      "color_hint": "struggle",
+      "steps": [
+        {
+          "emoji": "🛑",
+          "title": "APARTA LA MIRADA",
+          "instruction": "Cierra la pantalla. Cierra los ojos. Ahora mismo. No hay negociación con lo que ves.",
+          "detail": "La tentación sexual entra por los ojos. El primer paso es cortar el estímulo visual de raíz. No intentes luchar mirando — huye.",
+          "duration": 5,
+          "technique": "triggerAwareness"
+        },
+        {
+          "emoji": "🌬️",
+          "title": "RESPIRA Y ENFRÍA",
+          "instruction": "Inhala 4 segundos. Mantén 7. Exhala 8. Repite 4 veces.",
+          "detail": "La excitación activa tu sistema nervioso simpático. La respiración 4-7-8 activa el parasimpático y baja la respuesta fisiológica.",
+          "duration": 8,
+          "technique": "breathingExercise"
+        },
+        {
+          "emoji": "🙏",
+          "title": "CLAMA A DIOS",
+          "instruction": "Di en voz alta: \"Señor, mis ojos son Tuyos. Dame pureza ahora mismo.\"",
+          "prayer": "Padre, reconozco mi debilidad en este momento. Mi cuerpo es templo del Espíritu Santo. Te pido que limpies mi mente y renueves mis pensamientos. En el nombre de Jesús, reprendo todo deseo impuro. Amén.",
+          "duration": 10,
+          "technique": "declarativeprayer"
+        },
+        {
+          "emoji": "📖",
+          "title": "MEDITA EN LA PALABRA",
+          "instruction": "Lee este versículo lentamente, dos veces:",
+          "show_verse": true,
+          "duration": 15,
+          "technique": "scriptureMeditation"
+        },
+        {
+          "emoji": "🚿",
+          "title": "CAMBIA DE AMBIENTE",
+          "instruction": "Levántate y ve a un lugar con otras personas. Lávate la cara con agua fría. No te quedes solo.",
+          "detail": "La tentación sexual pierde fuerza cuando cambias de contexto físico. El aislamiento es su mejor aliado.",
+          "duration": 5,
+          "technique": "environmentDesign"
+        },
+        {
+          "emoji": "📞",
+          "title": "LLAMA A TU COMPAÑERO",
+          "instruction": "Escribe o llama a tu compañero de batalla. No carges esto solo. La vergüenza pierde poder cuando se comparte.",
+          "detail": "Santiago 5:16 — 'Confesaos vuestras ofensas unos a otros, y orad unos por otros, para que seáis sanados.'",
+          "duration": 5,
+          "technique": "accountability"
+        }
+      ]
+    },
+    "digital": {
+      "name": "Mundo Digital",
+      "color_hint": "struggle",
+      "steps": [
+        {
+          "emoji": "📵",
+          "title": "SUELTA EL DISPOSITIVO",
+          "instruction": "Pon tu teléfono boca abajo en otra habitación. Ahora mismo. Físicamente lejos de ti.",
+          "detail": "El scroll infinito y las notificaciones explotan tu dopamina. La única forma de romper el ciclo es crear una barrera física.",
+          "duration": 5,
+          "technique": "environmentDesign"
+        },
+        {
+          "emoji": "🌬️",
+          "title": "RECONECTA CON TU CUERPO",
+          "instruction": "Cierra los ojos. Siente tus pies en el suelo. Inhala profundo 4 veces. Estás en el mundo real.",
+          "detail": "El mundo digital te desconecta de tu cuerpo. El grounding te trae de vuelta al presente físico.",
+          "duration": 8,
+          "technique": "grounding"
+        },
+        {
+          "emoji": "🙏",
+          "title": "CLAMA A DIOS",
+          "instruction": "Di: \"Señor, este tiempo es Tuyo. Ayúdame a usarlo para Tu gloria.\"",
+          "prayer": "Padre, reconozco que he estado desperdiciando el tiempo que me diste. Perdóname por buscar satisfacción en pantallas en vez de en Ti. Renueva mi mente. Dame hambre de Tu Palabra y no de contenido vacío. En el nombre de Jesús. Amén.",
+          "duration": 10,
+          "technique": "declarativeprayer"
+        },
+        {
+          "emoji": "📖",
+          "title": "MEDITA EN LA PALABRA",
+          "instruction": "Lee este versículo lentamente, dos veces:",
+          "show_verse": true,
+          "duration": 15,
+          "technique": "scriptureMeditation"
+        },
+        {
+          "emoji": "🚶",
+          "title": "HAZ ALGO CON TUS MANOS",
+          "instruction": "Sal a caminar 10 minutos. O haz algo tangible: lava platos, ordena tu cuarto, haz ejercicio.",
+          "detail": "Tu cerebro necesita dopamina, pero la sana viene del movimiento y logro real, no de scroll.",
+          "duration": 10,
+          "technique": "replacementHabit"
+        },
+        {
+          "emoji": "📞",
+          "title": "CONECTA EN PERSONA",
+          "instruction": "Llama (no textees) a alguien. O sal y habla con alguien cara a cara. La conexión real sana.",
+          "detail": "Proverbios 27:17 — 'Hierro con hierro se aguza; Y así el hombre aguza el rostro de su amigo.'",
+          "duration": 5,
+          "technique": "accountability"
+        }
+      ]
+    },
+    "substances": {
+      "name": "Sustancias",
+      "color_hint": "struggle",
+      "steps": [
+        {
+          "emoji": "🛑",
+          "title": "DETENTE Y RECONOCE",
+          "instruction": "Di en voz alta: \"Esto es un antojo. No soy mi antojo. Pasará.\"",
+          "detail": "Nombrar el impulso lo separa de tu identidad. Tú no eres tu adicción. El antojo es una ola — sube y baja.",
+          "duration": 5,
+          "technique": "cravingSurfing"
+        },
+        {
+          "emoji": "🌬️",
+          "title": "RESPIRA PROFUNDO",
+          "instruction": "Inhala 4 segundos. Mantén 7. Exhala 8. Repite hasta que tu cuerpo se calme.",
+          "detail": "Tu sistema nervioso está gritando por la sustancia. La respiración profunda activa tu sistema de calma y reduce la urgencia física.",
+          "duration": 10,
+          "technique": "breathingExercise"
+        },
+        {
+          "emoji": "🙏",
+          "title": "CLAMA A DIOS",
+          "instruction": "Di: \"Señor, Tú eres mi refugio. No necesito esta sustancia. Te necesito a Ti.\"",
+          "prayer": "Dios todopoderoso, este deseo es fuerte pero Tú eres más fuerte. Rompe las cadenas que me atan. Mi cuerpo es Tu templo y no lo entregaré a ninguna sustancia. Declaro que soy libre en Cristo. Dame fuerzas para este momento. Amén.",
+          "duration": 10,
+          "technique": "declarativeprayer"
+        },
+        {
+          "emoji": "📖",
+          "title": "MEDITA EN LA PALABRA",
+          "instruction": "Lee este versículo lentamente, dos veces:",
+          "show_verse": true,
+          "duration": 15,
+          "technique": "scriptureMeditation"
+        },
+        {
+          "emoji": "🚶",
+          "title": "ALÉJATE FÍSICAMENTE",
+          "instruction": "Sal del lugar donde está la sustancia. Ve afuera. Camina 10 minutos. Toma agua fría.",
+          "detail": "Si la sustancia está cerca, tu cerebro la busca automáticamente. Distancia física = resistencia reducida.",
+          "duration": 10,
+          "technique": "environmentDesign"
+        },
+        {
+          "emoji": "📞",
+          "title": "LLAMA A ALGUIEN AHORA",
+          "instruction": "Llama a tu compañero de batalla, tu pastor, o alguien de confianza. Di: \"Necesito ayuda.\"",
+          "detail": "Eclesiastés 4:9-10 — 'Mejores son dos que uno... porque si cayeren, el uno levantará a su compañero.'",
+          "duration": 5,
+          "technique": "accountability"
+        }
+      ]
+    },
+    "mental": {
+      "name": "Batallas Mentales",
+      "color_hint": "struggle",
+      "steps": [
+        {
+          "emoji": "⏸️",
+          "title": "PAUSA",
+          "instruction": "Detén lo que estás haciendo. Siéntate. Pon ambas manos sobre tus rodillas. Siente su peso.",
+          "detail": "La ansiedad y los pensamientos negativos te aceleran. El primer paso es desacelerar físicamente.",
+          "duration": 5,
+          "technique": "grounding"
+        },
+        {
+          "emoji": "🌬️",
+          "title": "ANCLAJE 5-4-3-2-1",
+          "instruction": "Nombra: 5 cosas que VES. 4 que TOCAS. 3 que ESCUCHAS. 2 que HUELES. 1 que SABOREAS.",
+          "detail": "Esta técnica de grounding saca tu mente de la espiral de pensamientos y la trae al presente sensorial.",
+          "duration": 10,
+          "technique": "grounding"
+        },
+        {
+          "emoji": "🙏",
+          "title": "ENTREGA TUS PENSAMIENTOS",
+          "instruction": "Di: \"Señor, estos pensamientos no son la verdad. Tu Palabra es la verdad.\"",
+          "prayer": "Padre, mi mente está agitada y llena de mentiras. Te entrego cada pensamiento que no viene de Ti. Tú me diste espíritu de poder, de amor y de dominio propio, no de temor. Declaro que guardo mi mente en Tu paz perfecta. Amén.",
+          "duration": 10,
+          "technique": "declarativeprayer"
+        },
+        {
+          "emoji": "📖",
+          "title": "MEDITA EN LA PALABRA",
+          "instruction": "Lee este versículo lentamente, dos veces:",
+          "show_verse": true,
+          "duration": 15,
+          "technique": "scriptureMeditation"
+        },
+        {
+          "emoji": "✍️",
+          "title": "ESCRIBE LO QUE SIENTES",
+          "instruction": "Toma papel o abre tu diario. Escribe exactamente lo que piensas. Luego escribe la verdad de Dios al lado.",
+          "detail": "Poner en papel los pensamientos los saca de tu cabeza. El reencuadre cognitivo reemplaza la mentira con la verdad bíblica.",
+          "duration": 10,
+          "technique": "journaling"
+        },
+        {
+          "emoji": "📞",
+          "title": "HABLA CON ALGUIEN",
+          "instruction": "No sufras en silencio. Llama a alguien de confianza y cuéntale cómo te sientes. No estás solo.",
+          "detail": "Gálatas 6:2 — 'Sobrellevad los unos las cargas de los otros, y cumplid así la ley de Cristo.'",
+          "duration": 5,
+          "technique": "accountability"
+        }
+      ]
+    },
+    "emotions": {
+      "name": "Emociones Tóxicas",
+      "color_hint": "struggle",
+      "steps": [
+        {
+          "emoji": "🛑",
+          "title": "DETENTE ANTES DE REACCIONAR",
+          "instruction": "No digas nada. No hagas nada. Cuenta hasta 10 lentamente en voz baja.",
+          "detail": "La ira y el resentimiento producen un \"secuestro emocional\". Los primeros 10 segundos son los más peligrosos. No reacciones — responde.",
+          "duration": 5,
+          "technique": "urgeDelay"
+        },
+        {
+          "emoji": "🌬️",
+          "title": "RESPIRA Y SUELTA",
+          "instruction": "Inhala profundo. Al exhalar, imagina que sueltas la emoción. Repite: \"Yo elijo la paz.\"",
+          "detail": "La respiración consciente desactiva la respuesta de lucha-huida. Cada exhalación es una decisión de soltar.",
+          "duration": 10,
+          "technique": "breathingExercise"
+        },
+        {
+          "emoji": "🙏",
+          "title": "ENTREGA LA EMOCIÓN",
+          "instruction": "Di: \"Señor, esto que siento es real, pero Tú eres más grande. Te entrego mi ira/dolor.\"",
+          "prayer": "Padre, mi corazón está herido y enojado. Sé que no quieres que guarde amargura. Te entrego esta emoción. Si necesito perdonar, dame fuerza. Si necesito poner límites, dame sabiduría. Llena con Tu amor el espacio que deja esta herida. Amén.",
+          "duration": 10,
+          "technique": "declarativeprayer"
+        },
+        {
+          "emoji": "📖",
+          "title": "MEDITA EN LA PALABRA",
+          "instruction": "Lee este versículo lentamente, dos veces:",
+          "show_verse": true,
+          "duration": 15,
+          "technique": "scriptureMeditation"
+        },
+        {
+          "emoji": "🚶",
+          "title": "MUEVE TU CUERPO",
+          "instruction": "Sal a caminar rápido. Haz 20 flexiones. Mueve la energía emocional con ejercicio físico.",
+          "detail": "Las emociones intensas producen cortisol y adrenalina. El movimiento físico las metaboliza de forma sana.",
+          "duration": 10,
+          "technique": "replacementHabit"
+        },
+        {
+          "emoji": "📞",
+          "title": "HABLA ANTES DE ACTUAR",
+          "instruction": "Antes de confrontar, habla con alguien sabio. Un amigo, compañero de batalla o pastor pueden darte perspectiva.",
+          "detail": "Proverbios 15:1 — 'La blanda respuesta quita la ira; mas la palabra áspera hace subir el furor.'",
+          "duration": 5,
+          "technique": "accountability"
+        }
+      ]
+    },
+    "health": {
+      "name": "Cuerpo & Salud",
+      "color_hint": "struggle",
+      "steps": [
+        {
+          "emoji": "⏸️",
+          "title": "PAUSA DE 10 MINUTOS",
+          "instruction": "No comas/actúes todavía. Pon un timer de 10 minutos. Solo espera.",
+          "detail": "La mayoría de antojos de comida o impulsos sedentarios pierden hasta el 70% de su fuerza en 10 minutos. El \"todavía no\" es más fácil que el \"no\".",
+          "duration": 10,
+          "technique": "urgeDelay"
+        },
+        {
+          "emoji": "💧",
+          "title": "TOMA AGUA Y RESPIRA",
+          "instruction": "Toma un vaso completo de agua. Luego haz 4 respiraciones profundas.",
+          "detail": "Muchas veces confundimos sed con hambre. El agua además activa tu sistema digestivo y calma la ansiedad oral.",
+          "duration": 5,
+          "technique": "breathingExercise"
+        },
+        {
+          "emoji": "🙏",
+          "title": "CONSAGRA TU CUERPO",
+          "instruction": "Di: \"Señor, mi cuerpo es Tu templo. Ayúdame a honrarte con lo que como y hago.\"",
+          "prayer": "Padre, gracias por este cuerpo que me diste. Perdóname cuando no lo cuido como debería. Hoy elijo tratarlo como Tu templo sagrado. Dame dominio propio sobre lo que como y la fuerza para moverme. Amén.",
+          "duration": 10,
+          "technique": "declarativeprayer"
+        },
+        {
+          "emoji": "📖",
+          "title": "MEDITA EN LA PALABRA",
+          "instruction": "Lee este versículo lentamente, dos veces:",
+          "show_verse": true,
+          "duration": 15,
+          "technique": "scriptureMeditation"
+        },
+        {
+          "emoji": "🚶",
+          "title": "MUÉVETE 5 MINUTOS",
+          "instruction": "Haz algo físico ahora: camina, estira, sube escaleras. Solo 5 minutos.",
+          "detail": "El ejercicio produce endorfinas — la misma sensación de bienestar que buscas en la comida, pero sana.",
+          "duration": 5,
+          "technique": "replacementHabit"
+        },
+        {
+          "emoji": "📞",
+          "title": "COMPARTE TU META",
+          "instruction": "Dile a alguien tu meta de hoy: \"Hoy voy a cuidar mi templo.\" La accountability funciona.",
+          "detail": "Proverbios 27:17 — 'Hierro con hierro se aguza; Y así el hombre aguza el rostro de su amigo.'",
+          "duration": 5,
+          "technique": "accountability"
+        }
+      ]
+    },
+    "general": {
+      "name": "General",
+      "color_hint": "struggle",
+      "steps": [
+        {
+          "emoji": "🛑",
+          "title": "DETENTE",
+          "instruction": "Respira profundo. Cierra los ojos por un momento. Reconoce lo que estás sintiendo.",
+          "duration": 5,
+          "technique": "triggerAwareness"
+        },
+        {
+          "emoji": "🌬️",
+          "title": "RESPIRA",
+          "instruction": "Inhala 4 segundos. Mantén 7. Exhala 8. Repite 4 veces.",
+          "duration": 8,
+          "technique": "breathingExercise"
+        },
+        {
+          "emoji": "🙏",
+          "title": "ORA",
+          "instruction": "Di en voz alta: \"Señor, necesito Tu ayuda ahora mismo.\"",
+          "prayer": "Señor Jesús, en este momento de debilidad vengo a Ti. Dame la fuerza para resistir. Llena mi mente con Tu paz y mi corazón con Tu amor. En Tu nombre, Amén.",
+          "duration": 10,
+          "technique": "declarativeprayer"
+        },
+        {
+          "emoji": "📖",
+          "title": "LEE",
+          "instruction": "Medita en este versículo:",
+          "show_verse": true,
+          "duration": 15,
+          "technique": "scriptureMeditation"
+        },
+        {
+          "emoji": "🚶",
+          "title": "MUÉVETE",
+          "instruction": "Levántate y cambia de ambiente. Sal de donde estás.",
+          "duration": 5,
+          "technique": "replacementHabit"
+        },
+        {
+          "emoji": "📞",
+          "title": "CONECTA",
+          "instruction": "Llama o escribe a alguien de confianza. No enfrentes esto solo.",
+          "detail": "Eclesiastés 4:9-10 — 'Mejores son dos que uno... porque si cayeren, el uno levantará a su compañero.'",
+          "duration": 5,
+          "technique": "accountability"
+        }
+      ]
+    }
+  }
+}

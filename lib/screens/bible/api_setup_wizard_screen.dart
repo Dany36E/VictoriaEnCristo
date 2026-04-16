@@ -47,7 +47,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
   }
 
   Future<void> _launchRapidApi() async {
-    await Clipboard.setData(ClipboardData(text: _rapidApiUrl));
+    await Clipboard.setData(const ClipboardData(text: _rapidApiUrl));
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -167,7 +167,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.api, color: const Color(0xFFD4AF37), size: 48),
+          const Icon(Icons.api, color: Color(0xFFD4AF37), size: 48),
           const SizedBox(height: 20),
           Text(
             'IQ Bible API',
@@ -237,7 +237,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(Icons.key, color: const Color(0xFFD4AF37), size: 48),
+          const Icon(Icons.key, color: Color(0xFFD4AF37), size: 48),
           const SizedBox(height: 20),
           Text(
             'Pega tu API Key',
@@ -357,8 +357,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
               shape: BoxShape.circle,
               color: const Color(0xFF4CAF50).withOpacity(0.15),
             ),
-            child: Icon(Icons.check_circle,
-                color: const Color(0xFF4CAF50), size: 64),
+            child: const Icon(Icons.check_circle,
+                color: Color(0xFF4CAF50), size: 64),
           ),
           const SizedBox(height: 24),
           Text(

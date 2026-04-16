@@ -275,7 +275,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                         : null,
                   ),
                   child: selected
-                      ? Icon(Icons.check, color: Colors.white, size: 14)
+                      ? const Icon(Icons.check, color: Colors.white, size: 14)
                       : null,
                 ),
               );

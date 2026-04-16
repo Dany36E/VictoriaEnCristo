@@ -491,8 +491,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             child: Row(
               children: [
                 if (streak > 0) ...[
-                  Icon(Icons.local_fire_department,
-                      color: const Color(0xFFFF6B35), size: 14),
+                  const Icon(Icons.local_fire_department,
+                      color: Color(0xFFFF6B35), size: 14),
                   const SizedBox(width: 3),
                   Text(
                     '$streak días',
@@ -588,7 +588,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 24),
           itemCount: quickTools.length,
-          separatorBuilder: (_, __) => const SizedBox(width: 10),
+          separatorBuilder: (_, _) => const SizedBox(width: 10),
           itemBuilder: (context, index) {
             final tool = quickTools[index];
             return GestureDetector(

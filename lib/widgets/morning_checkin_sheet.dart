@@ -1,4 +1,6 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,6 +9,7 @@ import '../theme/app_theme_data.dart';
 import '../services/daily_verse_service.dart';
 import '../services/personalization_engine.dart';
 import '../services/feedback_engine.dart';
+import '../services/widget_sync_service.dart';
 import '../utils/time_utils.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -26,10 +29,12 @@ class MorningCheckinSheet extends StatefulWidget {
     return lastShown != today;
   }
 
-  /// Marca como mostrado hoy
+  /// Marca como mostrado hoy y sincroniza widget
   static Future<void> markShown() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('morning_checkin_last_shown', TimeUtils.todayISO());
+    // Actualizar widget nativo para reflejar que hizo devocional
+    WidgetSyncService.I.syncWidget();
   }
 
   @override
@@ -38,6 +43,47 @@ class MorningCheckinSheet extends StatefulWidget {
 
 class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
   int _step = 0; // 0=greeting, 1=verse, 2=intention, 3=prayer
+  String _todayIntention = '';
+  String _todayPrayer = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadRotatingContent();
+  }
+
+  Future<void> _loadRotatingContent() async {
+    final stage = PersonalizationEngine.I.getUserStage().name;
+    final now = DateTime.now();
+    final dayHash = now.year * 1000 + now.day + now.month * 37;
+
+    // Cargar intenciones
+    try {
+      final ijson = await rootBundle.loadString('assets/content/daily_intentions.json');
+      final idata = jsonDecode(ijson) as Map<String, dynamic>;
+      final stageList = (idata[stage] as List?)?.cast<String>() ?? [];
+      final universalList = (idata['universal'] as List?)?.cast<String>() ?? [];
+      final pool = [...stageList, ...universalList];
+      if (pool.isNotEmpty) {
+        _todayIntention = pool[dayHash % pool.length];
+      }
+    } catch (_) {}
+
+    // Cargar oraciones
+    try {
+      final pjson = await rootBundle.loadString('assets/content/daily_prayers.json');
+      final pdata = jsonDecode(pjson) as Map<String, dynamic>;
+      final stageList = (pdata[stage] as List?)?.cast<String>() ?? [];
+      final universalList = (pdata['universal'] as List?)?.cast<String>() ?? [];
+      final pool = [...stageList, ...universalList];
+      if (pool.isNotEmpty) {
+        // Usar offset para que intención y oración no coincidan en patrón
+        _todayPrayer = pool[(dayHash + 7) % pool.length];
+      }
+    } catch (_) {}
+
+    if (mounted) setState(() {});
+  }
 
   String get _greeting {
     final hour = DateTime.now().hour;
@@ -159,7 +205,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     return Column(
       key: const ValueKey('verse'),
       children: [
-        Icon(
+        const Icon(
           Icons.menu_book_rounded,
           color: AppDesignSystem.gold,
           size: 32,
@@ -202,7 +248,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     return Column(
       key: const ValueKey('intention'),
       children: [
-        Icon(
+        const Icon(
           Icons.shield_rounded,
           color: AppDesignSystem.victory,
           size: 32,
@@ -219,7 +265,9 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Hoy elijo caminar en victoria.\nCon la ayuda de Dios, resistiré toda tentación.\nNo dependo de mis fuerzas, sino de Su poder.',
+          _todayIntention.isNotEmpty
+              ? _todayIntention
+              : 'Hoy elijo caminar en victoria.\nCon la ayuda de Dios, resistiré toda tentación.\nNo dependo de mis fuerzas, sino de Su poder.',
           textAlign: TextAlign.center,
           style: GoogleFonts.manrope(
             color: td.textPrimary,
@@ -235,9 +283,9 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     return Column(
       key: const ValueKey('prayer'),
       children: [
-        Icon(
+        const Icon(
           Icons.favorite_rounded,
-          color: const Color(0xFFE8C97A),
+          color: Color(0xFFE8C97A),
           size: 32,
         ),
         const SizedBox(height: 12),
@@ -252,7 +300,9 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         ),
         const SizedBox(height: 12),
         Text(
-          'Señor, te entrego este día.\nCúbreme con Tu gracia.\nGuarda mis ojos, mis manos y mi corazón.\nQue cada paso me acerque más a Ti.\nAmén.',
+          _todayPrayer.isNotEmpty
+              ? _todayPrayer
+              : 'Señor, te entrego este día.\nCúbreme con Tu gracia.\nGuarda mis ojos, mis manos y mi corazón.\nQue cada paso me acerque más a Ti.\nAmén.',
           textAlign: TextAlign.center,
           style: GoogleFonts.crimsonPro(
             color: td.textPrimary,

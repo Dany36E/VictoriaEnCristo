@@ -42,53 +42,53 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
 
   // Definición de emociones
   final List<EmotionData> _emotions = [
-    EmotionData(
+    const EmotionData(
       id: 'feliz',
       name: 'Feliz',
       label: 'PARA LA ALEGRÍA',
       icon: Icons.wb_sunny_rounded,
-      color: const Color(0xFFFFD700), // Amarillo Ámbar
-      darkColor: const Color(0xFFB8860B),
+      color: Color(0xFFFFD700), // Amarillo Ámbar
+      darkColor: Color(0xFFB8860B),
     ),
-    EmotionData(
+    const EmotionData(
       id: 'ansioso',
       name: 'Ansioso',
       label: 'PARA LA ANSIEDAD',
       icon: Icons.air_rounded,
-      color: const Color(0xFF98FF98), // Verde Salvia
-      darkColor: const Color(0xFF2E8B57),
+      color: Color(0xFF98FF98), // Verde Salvia
+      darkColor: Color(0xFF2E8B57),
     ),
-    EmotionData(
+    const EmotionData(
       id: 'agradecido',
       name: 'Agradecido',
       label: 'PARA LA GRATITUD',
       icon: Icons.favorite_rounded,
-      color: const Color(0xFFFF7F50), // Naranja Coral
-      darkColor: const Color(0xFFCD5C5C),
+      color: Color(0xFFFF7F50), // Naranja Coral
+      darkColor: Color(0xFFCD5C5C),
     ),
-    EmotionData(
+    const EmotionData(
       id: 'solo',
       name: 'Solo',
       label: 'PARA LA SOLEDAD',
       icon: Icons.cloud_rounded,
-      color: const Color(0xFF87CEEB), // Azul Cielo
-      darkColor: const Color(0xFF4682B4),
+      color: Color(0xFF87CEEB), // Azul Cielo
+      darkColor: Color(0xFF4682B4),
     ),
-    EmotionData(
+    const EmotionData(
       id: 'enojado',
       name: 'Enojado',
       label: 'PARA LA IRA',
       icon: Icons.flash_on_rounded,
-      color: const Color(0xFFFF6B6B), // Rosa/Rojo Suave
-      darkColor: const Color(0xFFDC143C),
+      color: Color(0xFFFF6B6B), // Rosa/Rojo Suave
+      darkColor: Color(0xFFDC143C),
     ),
-    EmotionData(
+    const EmotionData(
       id: 'triste',
       name: 'Triste',
       label: 'PARA LA TRISTEZA',
       icon: Icons.water_drop_rounded,
-      color: const Color(0xFF6A5ACD), // Azul Índigo
-      darkColor: const Color(0xFF483D8B),
+      color: Color(0xFF6A5ACD), // Azul Índigo
+      darkColor: Color(0xFF483D8B),
     ),
   ];
 
@@ -464,7 +464,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.refresh_rounded,
                         color: Colors.white70,
                         size: 20,

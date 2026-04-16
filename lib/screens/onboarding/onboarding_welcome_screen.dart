@@ -127,7 +127,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                 color: AppDesignSystem.midnight,
               ),
               errorWidget: (context, url, error) => Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
@@ -327,7 +327,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           width: 2,
         ),
       ),
-      child: Center(
+      child: const Center(
         child: Icon(
           Icons.shield_outlined,
           color: AppDesignSystem.gold,
@@ -339,13 +339,13 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
 
   Widget _buildTitle() {
     return ShaderMask(
-      shaderCallback: (bounds) => LinearGradient(
+      shaderCallback: (bounds) => const LinearGradient(
         colors: [
           AppDesignSystem.gold,
           AppDesignSystem.goldLight,
           AppDesignSystem.gold,
         ],
-        stops: const [0.0, 0.5, 1.0],
+        stops: [0.0, 0.5, 1.0],
       ).createShader(bounds),
       child: Text(
         'PREPÁRATE\nPARA LA BATALLA',
@@ -399,7 +399,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(
+              const Icon(
                 Icons.lock_outline,
                 color: AppDesignSystem.gold,
                 size: 18,
@@ -464,7 +464,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                   ),
                 ),
                 const SizedBox(width: 12),
-                Icon(
+                const Icon(
                   Icons.arrow_forward_rounded,
                   color: AppDesignSystem.midnight,
                   size: 22,

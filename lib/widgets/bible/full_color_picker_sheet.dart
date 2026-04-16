@@ -317,7 +317,7 @@ class _SVPainter extends CustomPainter {
     canvas.drawRect(rect, Paint()..shader = satGrad.createShader(rect));
 
     // Vertical: transparent → black
-    final valGrad = const LinearGradient(
+    const valGrad = LinearGradient(
       begin: Alignment.topCenter,
       end: Alignment.bottomCenter,
       colors: [Colors.transparent, Colors.black],

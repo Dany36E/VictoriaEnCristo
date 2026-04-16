@@ -67,7 +67,7 @@ class WallService {
       );
     } catch (e) {
       debugPrint('❌ [WALL] submitPost unexpected: $e');
-      return WallPostResult(
+      return const WallPostResult(
         success: false,
         message: 'Error inesperado. Intenta de nuevo.',
       );
@@ -101,7 +101,7 @@ class WallService {
         message: _mapFunctionError(e),
       );
     } catch (e) {
-      return WallPostResult(
+      return const WallPostResult(
         success: false,
         message: 'Error inesperado. Intenta de nuevo.',
       );
@@ -213,7 +213,7 @@ class WallService {
       return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
       debugPrint('🧱 [WALL] reportPost error: $e');
-      return WallPostResult(success: false, message: 'Error al reportar.');
+      return const WallPostResult(success: false, message: 'Error al reportar.');
     }
   }
 
@@ -314,7 +314,7 @@ class WallService {
       return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
       debugPrint('🧱 [WALL] moderate error: $e');
-      return WallPostResult(success: false, message: 'Error al moderar.');
+      return const WallPostResult(success: false, message: 'Error al moderar.');
     }
   }
 
@@ -339,7 +339,7 @@ class WallService {
       return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
       debugPrint('🧱 [WALL] ban error: $e');
-      return WallPostResult(success: false, message: 'Error al banear.');
+      return const WallPostResult(success: false, message: 'Error al banear.');
     }
   }
 

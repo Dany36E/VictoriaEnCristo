@@ -410,46 +410,46 @@ class _GeneratedCoverContent extends StatelessWidget {
     // Paletas oscuras premium por tipo de plan
     switch (plan.metadata.planType) {
       case PlanType.giantFocused:
-        return _CoverPalette(
-          primary: const Color(0xFF1A1A2E),
-          secondary: const Color(0xFF16213E),
-          tertiary: const Color(0xFF0F3460),
+        return const _CoverPalette(
+          primary: Color(0xFF1A1A2E),
+          secondary: Color(0xFF16213E),
+          tertiary: Color(0xFF0F3460),
           accent: AppDesignSystem.gold,
         );
       case PlanType.emotionalRegulation:
-        return _CoverPalette(
-          primary: const Color(0xFF0D1B2A),
-          secondary: const Color(0xFF1B263B),
-          tertiary: const Color(0xFF415A77),
-          accent: const Color(0xFF778DA9),
+        return const _CoverPalette(
+          primary: Color(0xFF0D1B2A),
+          secondary: Color(0xFF1B263B),
+          tertiary: Color(0xFF415A77),
+          accent: Color(0xFF778DA9),
         );
       case PlanType.relapseRecovery:
-        return _CoverPalette(
-          primary: const Color(0xFF2D132C),
-          secondary: const Color(0xFF801336),
-          tertiary: const Color(0xFFC72C41),
-          accent: const Color(0xFFEE4540),
+        return const _CoverPalette(
+          primary: Color(0xFF2D132C),
+          secondary: Color(0xFF801336),
+          tertiary: Color(0xFFC72C41),
+          accent: Color(0xFFEE4540),
         );
       case PlanType.scriptureDepth:
-        return _CoverPalette(
-          primary: const Color(0xFF1A1A2E),
-          secondary: const Color(0xFF0F4C5C),
-          tertiary: const Color(0xFF5F0A87),
-          accent: const Color(0xFFA7489B),
+        return const _CoverPalette(
+          primary: Color(0xFF1A1A2E),
+          secondary: Color(0xFF0F4C5C),
+          tertiary: Color(0xFF5F0A87),
+          accent: Color(0xFFA7489B),
         );
       case PlanType.newInFaith:
-        return _CoverPalette(
-          primary: const Color(0xFF1B2631),
-          secondary: const Color(0xFF212F3D),
-          tertiary: const Color(0xFF2E4053),
+        return const _CoverPalette(
+          primary: Color(0xFF1B2631),
+          secondary: Color(0xFF212F3D),
+          tertiary: Color(0xFF2E4053),
           accent: AppDesignSystem.gold,
         );
       case PlanType.discipleship:
-        return _CoverPalette(
-          primary: const Color(0xFF0B3D0B),
-          secondary: const Color(0xFF155D27),
-          tertiary: const Color(0xFF1A7431),
-          accent: const Color(0xFF2DC653),
+        return const _CoverPalette(
+          primary: Color(0xFF0B3D0B),
+          secondary: Color(0xFF155D27),
+          tertiary: Color(0xFF1A7431),
+          accent: Color(0xFF2DC653),
         );
     }
   }

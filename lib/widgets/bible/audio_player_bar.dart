@@ -93,11 +93,11 @@ class AudioPlayerBar extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(6),
               child: buffering
-                  ? SizedBox(
+                  ? const SizedBox(
                       width: 20, height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: const Color(0xFFD4AF37),
+                        color: Color(0xFFD4AF37),
                       ),
                     )
                   : Icon(

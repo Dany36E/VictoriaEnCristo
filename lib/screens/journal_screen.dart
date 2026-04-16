@@ -369,11 +369,11 @@ class _JournalScreenState extends State<JournalScreen> {
                         color: AppTheme.successColor.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Row(
+                      child: const Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.check_circle, size: 14, color: AppTheme.successColor),
-                          const SizedBox(width: 4),
+                          SizedBox(width: 4),
                           Text(
                             'Victoria',
                             style: TextStyle(
@@ -544,7 +544,7 @@ class _JournalScreenState extends State<JournalScreen> {
                             children: [
                               Text(
                                 '${victoryPercentage.toStringAsFixed(0)}%',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   fontSize: 28, fontWeight: FontWeight.w700,
                                   color: AppTheme.successColor,
                                 ),
@@ -572,7 +572,7 @@ class _JournalScreenState extends State<JournalScreen> {
                           final week = weeklyMoods[3 - i]!;
                           final total = week['total'] ?? 0;
                           final vic = week['victory'] ?? 0;
-                          final maxH = 60.0;
+                          const maxH = 60.0;
                           final h = total > 0 ? (total / totalEntries.clamp(1, 100)) * maxH * 4 : 4.0;
                           final vicRatio = total > 0 ? vic / total : 0.0;
                           return Expanded(
@@ -670,7 +670,7 @@ class _JournalScreenState extends State<JournalScreen> {
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(e.key, style: TextStyle(color: t.textPrimary, fontSize: 13)),
-                                Text('${e.value}x', style: TextStyle(
+                                Text('${e.value}x', style: const TextStyle(
                                   color: AppDesignSystem.struggle, fontWeight: FontWeight.w600, fontSize: 13)),
                               ],
                             ),

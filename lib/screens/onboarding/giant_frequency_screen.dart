@@ -508,7 +508,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                         ),
                         if (_isComplete) ...[
                           const SizedBox(width: 8),
-                          Icon(
+                          const Icon(
                             Icons.arrow_forward_rounded,
                             color: AppDesignSystem.midnight,
                             size: 20,

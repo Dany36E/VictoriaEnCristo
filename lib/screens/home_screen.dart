@@ -10,6 +10,7 @@ import '../widgets/home/home_header.dart';
 import '../widgets/home/sos_button.dart';
 import '../widgets/home/for_you_section.dart';
 import '../widgets/home/plans_section.dart';
+import '../widgets/home/bible_reading_streak.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../data/bible_verses.dart';
@@ -83,6 +84,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   bool _loggedToday = false;
   bool _victoryLoading = true;
   bool _celebrationShownToday = false;
+  bool _checkinDoneToday = false;
 
   @override
   void initState() {
@@ -145,16 +147,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
     try {
       if (!mounted) return;
       final shouldShow = await MorningCheckinSheet.shouldShow();
-      if (shouldShow && mounted) {
+      if (!shouldShow) {
+        // Ya hizo el check-in hoy
+        if (mounted) setState(() => _checkinDoneToday = true);
+        return;
+      }
+      if (mounted) {
         // Pequeño delay para que la UI se estabilice
         await Future.delayed(const Duration(milliseconds: 800));
         if (!mounted) return;
-        showModalBottomSheet(
+        await showModalBottomSheet(
           context: context,
           isScrollControlled: true,
           backgroundColor: Colors.transparent,
           builder: (_) => const MorningCheckinSheet(),
         );
+        // Verificar si realmente completó (markShown pudo no haberse llamado si descartó el sheet)
+        final wasCompleted = !(await MorningCheckinSheet.shouldShow());
+        if (mounted && wasCompleted) setState(() => _checkinDoneToday = true);
       }
     } catch (e) {
       debugPrint('[HOME] Error showing morning check-in: $e');
@@ -429,6 +439,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                       completedToday: _loggedToday,
                       isNewUser: _currentStreak == 0 && !_loggedToday && VictoryScoringService.I.getBestStreakAllTime() == 0,
                       isLoading: _victoryLoading,
+                      checkinDone: _checkinDoneToday,
                       onRegisterVictory: _registerVictory,
                       onTapCard: _navigateToProgress,
                     ),
@@ -447,6 +458,24 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                     child: DailyVerseSection(
                       dailyVerse: dailyVerse,
                       onTapVerse: (ref) => BibleNavigationHelper.navigateToSpanishRef(context, ref),
+                    ),
+                  ),
+                ),
+                
+                // Bible Reading Streak (mini-card)
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDesignSystem.spacingM,
+                      AppDesignSystem.spacingM,
+                      AppDesignSystem.spacingM,
+                      0,
+                    ),
+                    child: BibleReadingStreak(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
+                      ),
                     ),
                   ),
                 ),

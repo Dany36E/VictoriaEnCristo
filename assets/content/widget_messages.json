@@ -1,0 +1,145 @@
+{
+  "_doc": "Mensajes del widget organizados por franja horaria. Cada mensaje tiene texto + versículo. Etiquetas opcionales: stage (crisis/habit/maintenance/restoration), giant (sexual/digital/substances/mental/emotions/health). Sin etiquetas = universal.",
+
+  "night": [
+    {"text": "Dios vela tu sueño. Descansa en Él.", "verse": "Salmo 4:8", "stage": "crisis"},
+    {"text": "Entrega tus preocupaciones. Él cuida de ti.", "verse": "1 Pedro 5:7", "stage": "crisis"},
+    {"text": "No temas. Yo estoy contigo.", "verse": "Isaías 41:10", "stage": "crisis"},
+    {"text": "En la noche Su canto está conmigo.", "verse": "Salmo 42:8"},
+    {"text": "El Señor es tu guardián. No duerme.", "verse": "Salmo 121:4"},
+    {"text": "En paz me acuesto y duermo.", "verse": "Salmo 4:8"},
+    {"text": "Su amor no termina. Sus misericordias no cesan.", "verse": "Lamentaciones 3:22"},
+    {"text": "Guarda mi corazón esta noche, Señor.", "verse": "Proverbios 4:23", "giant": "sexual"},
+    {"text": "Renueva mi mente mientras descanso.", "verse": "Romanos 12:2", "giant": "digital"},
+    {"text": "Mi cuerpo es templo del Espíritu Santo.", "verse": "1 Corintios 6:19", "giant": "substances"},
+    {"text": "No se angustie tu corazón. Confía.", "verse": "Juan 14:1", "giant": "mental"},
+    {"text": "Deja toda amargura antes de dormir.", "verse": "Efesios 4:26", "giant": "emotions"}
+  ],
+
+  "dawn": [
+    {"text": "Sus misericordias son nuevas cada mañana.", "verse": "Lamentaciones 3:23"},
+    {"text": "Este es el día que hizo el Señor.", "verse": "Salmo 118:24"},
+    {"text": "Busca a Dios de mañana y lo hallarás.", "verse": "Proverbios 8:17"},
+    {"text": "Grande es Tu fidelidad, Señor.", "verse": "Lamentaciones 3:23"},
+    {"text": "Hoy es un nuevo comienzo. La gracia te sostiene.", "verse": "2 Corintios 12:9", "stage": "restoration"},
+    {"text": "Si caíste, levántate. Dios no te suelta.", "verse": "Miqueas 7:8", "stage": "restoration"},
+    {"text": "Eres nueva criatura. Lo viejo pasó.", "verse": "2 Corintios 5:17", "stage": "habit"},
+    {"text": "Tu fidelidad agrada al Padre.", "verse": "Proverbios 3:3", "stage": "maintenance"},
+    {"text": "Clama a Mí y Yo te responderé.", "verse": "Jeremías 33:3", "stage": "crisis"},
+    {"text": "Pon tus ojos en cosas de arriba hoy.", "verse": "Colosenses 3:2", "giant": "sexual"},
+    {"text": "Hoy camina en el Espíritu, no en la carne.", "verse": "Gálatas 5:16", "giant": "substances"},
+    {"text": "No te conformes a este mundo.", "verse": "Romanos 12:2", "giant": "digital"}
+  ],
+
+  "morning": [
+    {"text": "Mayor es el que está en ti.", "verse": "1 Juan 4:4"},
+    {"text": "Todo lo puedo en Cristo que me fortalece.", "verse": "Filipenses 4:13"},
+    {"text": "Fuerte y valiente. Dios va contigo.", "verse": "Josué 1:9"},
+    {"text": "Eres más que vencedor en Cristo.", "verse": "Romanos 8:37"},
+    {"text": "Revístete de toda la armadura de Dios.", "verse": "Efesios 6:11"},
+    {"text": "El Señor peleará por ti. Tú solo quédate quieto.", "verse": "Éxodo 14:14", "stage": "crisis"},
+    {"text": "No mires atrás. Dios hace algo nuevo.", "verse": "Isaías 43:19", "stage": "restoration"},
+    {"text": "Cada día te hace más fuerte en Él.", "verse": "Isaías 40:31", "stage": "habit"},
+    {"text": "Linaje escogido. Nación santa.", "verse": "1 Pedro 2:9", "stage": "maintenance"},
+    {"text": "Guarda tu corazón. De él mana la vida.", "verse": "Proverbios 4:23", "giant": "sexual"},
+    {"text": "La paz de Dios guarda tu mente.", "verse": "Filipenses 4:7", "giant": "mental"},
+    {"text": "No seas esclavo de nada. Cristo te libertó.", "verse": "Gálatas 5:1", "giant": "substances"},
+    {"text": "Sed sobrios y velad.", "verse": "1 Pedro 5:8", "giant": "digital"},
+    {"text": "Quita la amargura. Vive en gracia.", "verse": "Efesios 4:31", "giant": "emotions"},
+    {"text": "Tu cuerpo es templo. Glorifica a Dios en él.", "verse": "1 Corintios 6:20", "giant": "health"}
+  ],
+
+  "midday": [
+    {"text": "No te canses de hacer el bien.", "verse": "Gálatas 6:9"},
+    {"text": "Dios es fiel. No permite tentación sin salida.", "verse": "1 Corintios 10:13"},
+    {"text": "Resiste al diablo y huirá de ti.", "verse": "Santiago 4:7"},
+    {"text": "Los que esperan en el Señor renuevan fuerzas.", "verse": "Isaías 40:31"},
+    {"text": "Pelea la buena batalla de la fe.", "verse": "1 Timoteo 6:12"},
+    {"text": "Un paso a la vez. Dios guía tus pasos.", "verse": "Proverbios 16:9"},
+    {"text": "Cuando soy débil, entonces soy fuerte.", "verse": "2 Corintios 12:10", "stage": "crisis"},
+    {"text": "El hábito se vuelve carácter. Sigue así.", "verse": "Romanos 5:4", "stage": "habit"},
+    {"text": "Tu constancia produce corona de vida.", "verse": "Santiago 1:12", "stage": "maintenance"},
+    {"text": "No te condenes. No hay condenación en Cristo.", "verse": "Romanos 8:1", "stage": "restoration"},
+    {"text": "Hice pacto con mis ojos.", "verse": "Job 31:1", "giant": "sexual"},
+    {"text": "Piensa en todo lo puro y admirable.", "verse": "Filipenses 4:8", "giant": "digital"},
+    {"text": "No os embriaguéis. Sed llenos del Espíritu.", "verse": "Efesios 5:18", "giant": "substances"},
+    {"text": "Echa tu ansiedad sobre Él.", "verse": "1 Pedro 5:7", "giant": "mental"},
+    {"text": "Tardo para la ira, rico en misericordia.", "verse": "Santiago 1:19", "giant": "emotions"}
+  ],
+
+  "afternoon": [
+    {"text": "Tu victoria se acerca. No sueltes la fe.", "verse": "Hebreos 10:36"},
+    {"text": "Falta poco. El que persevera será salvo.", "verse": "Mateo 24:13"},
+    {"text": "La prueba de tu fe produce paciencia.", "verse": "Santiago 1:3"},
+    {"text": "Hoy luchaste bien. Dios ve tu esfuerzo.", "verse": "Hebreos 6:10"},
+    {"text": "No desmayes. El Señor renueva tus fuerzas.", "verse": "Isaías 40:29"},
+    {"text": "Bienaventurado el que soporta la tentación.", "verse": "Santiago 1:12"},
+    {"text": "Sé que hoy fue difícil. Dios también lo sabe.", "verse": "Salmo 56:8", "stage": "crisis"},
+    {"text": "Vas construyendo algo nuevo. No pares.", "verse": "Filipenses 1:6", "stage": "habit"},
+    {"text": "Tu disciplina inspira. Sigue firme.", "verse": "1 Corintios 9:27", "stage": "maintenance"},
+    {"text": "Su gracia es mayor que tu caída.", "verse": "Romanos 5:20", "stage": "restoration"},
+    {"text": "Aparta tu mirada de lo vano.", "verse": "Salmo 119:37", "giant": "sexual"},
+    {"text": "Desintoxica tu mente. Llénala de Su Palabra.", "verse": "Josué 1:8", "giant": "digital"},
+    {"text": "La libertad ya es tuya. Vive en ella.", "verse": "Juan 8:36", "giant": "substances"},
+    {"text": "Deposita tu carga en el Señor.", "verse": "Salmo 55:22", "giant": "mental"},
+    {"text": "Respuesta suave quita la ira.", "verse": "Proverbios 15:1", "giant": "emotions"},
+    {"text": "Honra a Dios con tu cuerpo.", "verse": "1 Corintios 6:20", "giant": "health"}
+  ],
+
+  "evening": [
+    {"text": "Es hora de cerrar tu día con victoria.", "verse": "2 Timoteo 4:7"},
+    {"text": "Peleaste la buena batalla. Registra tu victoria.", "verse": "2 Timoteo 4:7"},
+    {"text": "Cristo ya venció. Tú solo decláralo.", "verse": "Juan 16:33"},
+    {"text": "Hoy fuiste fiel. Dios se alegra.", "verse": "Mateo 25:21"},
+    {"text": "Tu batalla diaria tiene recompensa eterna.", "verse": "Santiago 1:12"},
+    {"text": "No por tu fuerza. Por Mi Espíritu.", "verse": "Zacarías 4:6"},
+    {"text": "Cada día de victoria es un ladrillo del muro.", "verse": "Nehemías 4:6", "stage": "habit"},
+    {"text": "Tu fidelidad mueve el cielo.", "verse": "Apocalipsis 2:10", "stage": "maintenance"},
+    {"text": "Si sobreviviste hoy, hay esperanza.", "verse": "Lamentaciones 3:21", "stage": "crisis"},
+    {"text": "Dios restaura lo que la langosta comió.", "verse": "Joel 2:25", "stage": "restoration"}
+  ],
+
+  "latenight": [
+    {"text": "Otro día completo. Descansa, guerrero.", "verse": "Mateo 11:28"},
+    {"text": "Bien hecho, siervo fiel.", "verse": "Mateo 25:21"},
+    {"text": "Duerme en paz. Mañana hay nueva gracia.", "verse": "Lamentaciones 3:23"},
+    {"text": "Entrega la noche al Señor. Él vela.", "verse": "Salmo 121:4"},
+    {"text": "Gracias por luchar un día más.", "verse": "Salmo 116:7"},
+    {"text": "Tu esfuerzo no es en vano en el Señor.", "verse": "1 Corintios 15:58"},
+    {"text": "Protege tu mente antes de dormir.", "verse": "Filipenses 4:8", "giant": "sexual"},
+    {"text": "Suelta el teléfono. Dios tiene tu atención.", "verse": "Salmo 46:10", "giant": "digital"},
+    {"text": "Duerme sobrio. Mañana serás más fuerte.", "verse": "1 Tesalonicenses 5:6", "giant": "substances"},
+    {"text": "Encomienda al Señor tus pensamientos.", "verse": "Proverbios 16:3", "giant": "mental"}
+  ],
+
+  "completed": [
+    {"text": "¡Victoria registrada! El cielo celebra contigo.", "verse": "Lucas 15:10"},
+    {"text": "¡Día de victoria! Tu fidelidad tiene fruto.", "verse": "Gálatas 6:9"},
+    {"text": "¡Bien hecho! Cada día cuenta en el Reino.", "verse": "Mateo 25:21"},
+    {"text": "¡Victoria! Cristo peleó contigo hoy.", "verse": "Romanos 8:37"},
+    {"text": "¡Hoy venciste! Su gracia fue suficiente.", "verse": "2 Corintios 12:9"},
+    {"text": "¡Día marcado! Tu constancia produce esperanza.", "verse": "Romanos 5:4"},
+    {"text": "¡Victoria! Estás forjando armadura eterna.", "verse": "Efesios 6:13", "stage": "habit"},
+    {"text": "¡Otro día firme! Tu legado crece.", "verse": "Proverbios 10:25", "stage": "maintenance"},
+    {"text": "¡Lo lograste! Dios te sostuvo hoy.", "verse": "Salmo 18:35", "stage": "crisis"},
+    {"text": "¡Victoria! La restauración avanza.", "verse": "Joel 2:25", "stage": "restoration"}
+  ],
+
+  "newuser": [
+    {"text": "Todo camino comienza con un primer paso.", "verse": "Proverbios 4:12"},
+    {"text": "Bienvenido, guerrero. Dios te trajo aquí.", "verse": "Jeremías 29:11"},
+    {"text": "Hoy empieza tu historia de victoria.", "verse": "Filipenses 1:6"},
+    {"text": "No importa tu pasado. Cristo te hace nuevo.", "verse": "2 Corintios 5:17"}
+  ],
+
+  "streakLost": [
+    {"text": "Su misericordia es nueva cada mañana.", "verse": "Lamentaciones 3:23"},
+    {"text": "Siete veces cae el justo y se levanta.", "verse": "Proverbios 24:16"},
+    {"text": "No hay condenación para los que están en Cristo.", "verse": "Romanos 8:1"},
+    {"text": "Dios no te descarta. Te restaura.", "verse": "Salmo 51:12"},
+    {"text": "Olvida lo que quedó atrás. Sigue adelante.", "verse": "Filipenses 3:13"},
+    {"text": "Si confesamos, Él es fiel para perdonar.", "verse": "1 Juan 1:9"},
+    {"text": "Tu caída no define tu destino.", "verse": "Miqueas 7:8"},
+    {"text": "La gracia es mayor que el pecado.", "verse": "Romanos 5:20"}
+  ]
+}

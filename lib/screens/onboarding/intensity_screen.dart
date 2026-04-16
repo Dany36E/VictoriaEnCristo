@@ -193,9 +193,9 @@ class _IntensityScreenState extends State<IntensityScreen>
       debugPrint('⚠️ OnboardingComplete: Timeout guardando datos (continuando): $e');
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
+          const SnackBar(
             content: Text('Guardado lento, pero continuamos...'),
-            duration: const Duration(seconds: 2),
+            duration: Duration(seconds: 2),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -400,7 +400,7 @@ class _IntensityScreenState extends State<IntensityScreen>
           
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
-            child: LinearProgressIndicator(
+            child: const LinearProgressIndicator(
               value: 1.0,
               backgroundColor: AppDesignSystem.midnightLight,
               valueColor: AlwaysStoppedAnimation<Color>(AppDesignSystem.gold),
@@ -418,7 +418,7 @@ class _IntensityScreenState extends State<IntensityScreen>
       child: Column(
         children: [
           ShaderMask(
-            shaderCallback: (bounds) => LinearGradient(
+            shaderCallback: (bounds) => const LinearGradient(
               colors: [
                 AppDesignSystem.gold,
                 AppDesignSystem.goldLight,
@@ -715,7 +715,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                     Opacity(
                       opacity: _glowAnimation.value,
                       child: ShaderMask(
-                        shaderCallback: (bounds) => LinearGradient(
+                        shaderCallback: (bounds) => const LinearGradient(
                           colors: [
                             AppDesignSystem.gold,
                             AppDesignSystem.goldLight,

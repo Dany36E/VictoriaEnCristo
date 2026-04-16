@@ -8,7 +8,6 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'onboarding_service.dart';
-import 'victory_service.dart';
 import '../utils/time_utils.dart';
 
 class VictoryScoringService {
@@ -164,10 +163,13 @@ class VictoryScoringService {
     if (migrated) return;
     
     try {
-      // Obtener días de victoria del sistema antiguo
-      final oldService = VictoryService.I;
-      await oldService.init();
-      final oldDays = oldService.getAllVictoryDays();
+      // Leer directamente del SharedPreferences del sistema antiguo
+      final oldJson = _prefs?.getString('victory_days_set');
+      Set<String> oldDays = {};
+      if (oldJson != null) {
+        final List<dynamic> list = jsonDecode(oldJson);
+        oldDays = list.map((e) => e.toString()).toSet();
+      }
       
       if (oldDays.isNotEmpty && _victoryByGiant.isEmpty) {
         debugPrint('📊 [SCORING] Migrando ${oldDays.length} días del sistema antiguo');

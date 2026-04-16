@@ -61,7 +61,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
     return Container(
       decoration: BoxDecoration(
         color: t.surface,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom,
@@ -105,8 +105,8 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                         );
                         if (mounted) nav.pop();
                       },
-                      child: Icon(Icons.delete_outline,
-                          color: const Color(0xFFE57373), size: 20),
+                      child: const Icon(Icons.delete_outline,
+                          color: Color(0xFFE57373), size: 20),
                     ),
                 ],
               ),

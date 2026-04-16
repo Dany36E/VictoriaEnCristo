@@ -120,8 +120,8 @@ class PlanListTile extends StatelessWidget {
             bottom: 0,
             child: Container(
               height: 4,
-              decoration: BoxDecoration(
-                borderRadius: const BorderRadius.vertical(
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(
                   bottom: Radius.circular(10),
                 ),
                 color: Colors.black54,
@@ -130,8 +130,8 @@ class PlanListTile extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 widthFactor: _progressPercent,
                 child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.vertical(
                       bottom: Radius.circular(10),
                     ),
                     color: AppDesignSystem.gold,
@@ -161,7 +161,7 @@ class PlanListTile extends StatelessWidget {
         // Duración + categoría
         Row(
           children: [
-            Icon(
+            const Icon(
               Icons.calendar_today_outlined,
               size: 12,
               color: AppDesignSystem.gold,

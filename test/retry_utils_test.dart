@@ -101,7 +101,7 @@ void main() {
     test('preserva el tipo de excepción original', () async {
       expect(
         () => retryWithBackoff(
-          () async => throw FormatException('bad format'),
+          () async => throw const FormatException('bad format'),
           maxAttempts: 1,
           initialDelay: const Duration(milliseconds: 1),
         ),

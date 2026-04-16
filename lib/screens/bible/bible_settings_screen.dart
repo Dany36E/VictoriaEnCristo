@@ -41,7 +41,7 @@ class BibleSettingsScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         children: [
           // ── Versión preferida ──
-          _SettingsSection(title: 'VERSIÓN POR DEFECTO'),
+          const _SettingsSection(title: 'VERSIÓN POR DEFECTO'),
           ValueListenableBuilder<BibleVersion>(
             valueListenable: BibleUserDataService.I.preferredVersionNotifier,
             builder: (context, version, _) {
@@ -113,7 +113,7 @@ class BibleSettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // ── Tamaño de fuente ──
-          _SettingsSection(title: 'TAMAÑO DE FUENTE'),
+          const _SettingsSection(title: 'TAMAÑO DE FUENTE'),
           ValueListenableBuilder<double>(
             valueListenable: BibleUserDataService.I.fontSizeNotifier,
             builder: (context, fontSize, _) {
@@ -182,7 +182,7 @@ class BibleSettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // ── Tema del lector ──
-          _SettingsSection(title: 'TEMA DEL LECTOR'),
+          const _SettingsSection(title: 'TEMA DEL LECTOR'),
           ValueListenableBuilder<String>(
             valueListenable: BibleUserDataService.I.readerThemeNotifier,
             builder: (context, rawTheme, _) {
@@ -271,7 +271,7 @@ class BibleSettingsScreen extends StatelessWidget {
           const SizedBox(height: 24),
 
           // ── Estudio bíblico local ──
-          _SettingsSection(title: 'ESTUDIO BÍBLICO'),
+          const _SettingsSection(title: 'ESTUDIO BÍBLICO'),
           ValueListenableBuilder<bool>(
             valueListenable: BibleUserDataService.I.redLettersEnabledNotifier,
             builder: (context, enabled, _) {
@@ -443,7 +443,7 @@ class BibleSettingsScreen extends StatelessWidget {
           ),          const SizedBox(height: 24),
 
           // ── Descargas offline ──
-          _SettingsSection(title: 'DESCARGAS OFFLINE'),
+          const _SettingsSection(title: 'DESCARGAS OFFLINE'),
           _DownloadsSection(),
         ],
       ),

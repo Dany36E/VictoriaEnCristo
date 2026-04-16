@@ -91,7 +91,7 @@ class ExercisesScreen extends StatelessWidget {
             // SECCIÓN CRISIS
             // ═════════════════════════════════════════════════════════════
             if (crisisExercises.isNotEmpty) ...[
-              _SectionTitle(
+              const _SectionTitle(
                 emoji: '🆘',
                 title: 'Momento de Crisis',
                 subtitle: 'Para cuando la tentación es fuerte',
@@ -111,7 +111,7 @@ class ExercisesScreen extends StatelessWidget {
             // SECCIÓN HÁBITO
             // ═════════════════════════════════════════════════════════════
             if (habitExercises.isNotEmpty) ...[
-              _SectionTitle(
+              const _SectionTitle(
                 emoji: '🔄',
                 title: 'Formación de Hábito',
                 subtitle: 'Fortalece tu mente cada día',

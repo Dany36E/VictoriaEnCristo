@@ -112,10 +112,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
                 // ─── Insignias ───
-                SliverToBoxAdapter(
+                const SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(20, 4, 20, 16),
-                    child: const BadgeGridSection(),
+                    padding: EdgeInsets.fromLTRB(20, 4, 20, 16),
+                    child: BadgeGridSection(),
                   ),
                 ),
 
@@ -202,8 +202,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildDefaultAvatar() {
-    return Center(
-      child: Text('😊', style: const TextStyle(fontSize: 38)),
+    return const Center(
+      child: Text('😊', style: TextStyle(fontSize: 38)),
     );
   }
 

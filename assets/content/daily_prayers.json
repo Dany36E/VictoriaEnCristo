@@ -1,0 +1,48 @@
+{
+  "_doc": "Oraciones rotatorias para el morning check-in. Organizadas por etapa. Se selecciona una por día usando hash de fecha.",
+
+  "universal": [
+    "Señor, te entrego este día.\nCúbreme con Tu gracia.\nGuarda mis ojos, mis manos y mi corazón.\nQue cada paso me acerque más a Ti.\nAmén.",
+    "Padre, dame fuerzas hoy.\nNo las mías, sino las Tuyas.\nQue Tu Espíritu me guíe en cada decisión.\nEn el nombre de Jesús.\nAmén.",
+    "Dios, hoy te necesito.\nSin Ti no puedo, pero contigo todo es posible.\nSé mi escudo y mi fortaleza.\nAmén.",
+    "Señor Jesús, gracias por un nuevo día.\nTe pido sabiduría para cada momento.\nAyúdame a caminar en Tu voluntad.\nQue mi vida te honre hoy.\nAmén.",
+    "Espíritu Santo, llena cada rincón de mi mente.\nDonde hay oscuridad, trae Tu luz.\nDonde hay debilidad, trae Tu poder.\nDonde hay miedo, trae Tu paz.\nAmén.",
+    "Padre celestial, renueva mi mente hoy.\nQue piense lo que Tú piensas de mí.\nQue vea lo que Tú ves.\nTransfórmame de adentro hacia afuera.\nAmén.",
+    "Señor, enséñame a depender de Ti.\nNo de mi fuerza de voluntad.\nNo de mis estrategias humanas.\nSolo de Tu gracia y Tu poder.\nAmén.",
+    "Dios de paz, calma mi corazón.\nSuelta las tensiones que cargo.\nRecuérdame que estás en control.\nTe confío este día por completo.\nAmén.",
+    "Jesús, gracias por no rendirte conmigo.\nAunque yo fallo, Tú permaneces fiel.\nAyúdame a reflejar Tu fidelidad.\nDame una victoria más hoy.\nAmén.",
+    "Padre, que hoy no viva en piloto automático.\nQue sea consciente de Tu presencia.\nQue cada momento sea una oportunidad de adorarte.\nVive en mí hoy.\nAmén."
+  ],
+
+  "crisis": [
+    "Señor, me siento débil ahora mismo.\nPero Tú eres fuerte en mi debilidad.\nSostenme. No me sueltes.\nUn minuto a la vez, contigo.\nAmén.",
+    "Dios, estoy al borde.\nPero clamo a Ti antes de caer.\nSé mi refugio en este momento.\nNo me dejes ceder.\nAmén.",
+    "Jesús, Tú venciste toda tentación.\nEnséñame cómo. Camina conmigo.\nDame una salida cuando sienta que no la hay.\nConfío en Tu promesa.\nAmén.",
+    "Padre, el enemigo ruge pero Tú eres más grande.\nCúbreme con Tu sangre.\nProtege mi mente, mis ojos, mis manos.\nHoy me amparo en Ti.\nAmén.",
+    "Señor, no puedo solo.\nY no tengo que poder solo.\nTome Tu mano ahora.\nGuíame a través de este momento.\nAmén."
+  ],
+
+  "habit": [
+    "Dios, gracias por cada día de progreso.\nSigue moldeando mi carácter.\nQue esta disciplina se convierta en naturaleza.\nSigo caminando contigo.\nAmén.",
+    "Señor, que este nuevo hábito eche raíces.\nRiégalo con Tu Espíritu.\nQue no sea solo esfuerzo humano.\nSino fruto de Tu obra en mí.\nAmén.",
+    "Padre, cada día que resisto me acerco más a Ti.\nNo es solo disciplina, es adoración.\nRecibe mi esfuerzo como ofrenda.\nEn el nombre de Jesús.\nAmén.",
+    "Jesús, ayúdame a no cansarme de hacer el bien.\nMuéstrame el fruto que no veo.\nSé que estás obrando en secreto.\nConfío en Tu proceso.\nAmén.",
+    "Señor, no me conformo con resistir.\nQuiero ser transformado por dentro.\nCambia mi corazón, no solo mi conducta.\nHazme nuevo cada día.\nAmén."
+  ],
+
+  "maintenance": [
+    "Dios, gracias por Tu fidelidad en mi vida.\nMiro atrás y veo Tu mano.\nQue nunca olvide de dónde me sacaste.\nToda la gloria es Tuya.\nAmén.",
+    "Padre, no permitas que la confianza se vuelva descuido.\nMantenme humilde y vigilante.\nQue nunca piense que puedo solo.\nSiempre Te necesito.\nAmén.",
+    "Señor, usa mi historia para Tu gloria.\nQue mi testimonio sea luz.\nQue otros vean que el cambio es posible.\nPorque Tú eres real.\nAmén.",
+    "Jesús, profundiza mi intimidad contigo.\nNo me conformo con la superficie.\nQuiero conocerte más cada día.\nRevelate a mi corazón.\nAmén.",
+    "Padre, guárdame del orgullo espiritual.\nTodo lo que soy es por gracia.\nMantenme agradecido y disponible.\nPara lo que Tú quieras.\nAmén."
+  ],
+
+  "restoration": [
+    "Señor, me arrodillo otra vez ante Ti.\nNo escondo mi fracaso.\nLo pongo a Tus pies.\nLímpiame y restaura mi camino.\nAmén.",
+    "Dios, sé que Tu amor no depende de mi rendimiento.\nMe amas en la victoria y en la caída.\nAyúdame a recibir Tu gracia.\nSin vergüenza. Sin culpa.\nAmén.",
+    "Jesús, como Pedro después de negarte,\nvuelvo a Ti con lágrimas pero también con fe.\nRestáurame. Renueva mi llamado.\nNo he terminado.\nAmén.",
+    "Padre, planta mis pies de nuevo en roca firme.\nQue esta caída sea combustible para levantarme.\nNo con amargura, sino con esperanza.\nTú haces nuevas todas las cosas.\nAmén.",
+    "Señor, decido no revolcarme en la culpa.\nTú ya pagaste por esto.\nMe levanto, me sacudo el polvo.\nY camino de nuevo contigo.\nAmén."
+  ]
+}

@@ -130,7 +130,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle.dark,
             leading: IconButton(
-              icon: Icon(Icons.arrow_back, color: AppDesignSystem.midnight),
+              icon: const Icon(Icons.arrow_back, color: AppDesignSystem.midnight),
               onPressed: () {
                 _audioService.stop();
                 Navigator.pop(context);
@@ -206,7 +206,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                     width: double.infinity,
                     padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
+                      gradient: const LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
@@ -313,7 +313,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           ? FloatingActionButton.extended(
               onPressed: _completeDay,
               backgroundColor: AppDesignSystem.gold,
-              icon: Icon(Icons.check, color: AppDesignSystem.midnight),
+              icon: const Icon(Icons.check, color: AppDesignSystem.midnight),
               label: Text(
                 'COMPLETAR',
                 style: GoogleFonts.manrope(
@@ -502,7 +502,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                   color: AppDesignSystem.gold.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(
+                child: const Icon(
                   Icons.lightbulb_outline,
                   color: AppDesignSystem.gold,
                   size: 22,
@@ -576,9 +576,9 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
             // Borde izquierdo grueso dorado
             Container(
               width: 5,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppDesignSystem.gold,
-                borderRadius: const BorderRadius.only(
+                borderRadius: BorderRadius.only(
                   topLeft: Radius.circular(16),
                   bottomLeft: Radius.circular(16),
                 ),
@@ -678,7 +678,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.check_circle_outline,
                   color: AppDesignSystem.midnight,
                   size: 26,
@@ -713,7 +713,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.check_circle,
             color: AppDesignSystem.victory,
             size: 28,
@@ -775,7 +775,7 @@ class _CompletionDialog extends StatelessWidget {
             Container(
               width: 80,
               height: 80,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 gradient: AppDesignSystem.goldShimmer,
                 shape: BoxShape.circle,
               ),

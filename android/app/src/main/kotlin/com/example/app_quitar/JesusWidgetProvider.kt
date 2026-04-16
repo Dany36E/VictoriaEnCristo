@@ -35,6 +35,7 @@ class JesusWidgetProvider : AppWidgetProvider() {
         private const val KEY_BADGE_TEXT = "jesus_badge_text"
         private const val KEY_BADGE_COLOR = "jesus_badge_color"
         private const val KEY_STREAK_COLOR = "jesus_streak_color"
+        private const val KEY_CHECKIN_DONE = "jesus_checkin_done"
 
         fun updateWidget(
             context: Context,
@@ -88,16 +89,21 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 val badgeText = prefs.getString(KEY_BADGE_TEXT, null)
                 val badgeColor = prefs.getLong(KEY_BADGE_COLOR, 0xFF9E9E9E).toInt()
 
-                // Fallback nativo solo si Flutter no actualizó aún
+                // Fallback nativo solo si Flutter no actualizó aún (7 franjas horarias)
+                val checkinDone = prefs.getBoolean(KEY_CHECKIN_DONE, false)
                 val finalBadgeText = if (badgeText != null) {
                     badgeText
                 } else {
                     val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
                     when {
                         completedToday -> "✓ Día de victoria"
-                        hour >= 18 -> "Registrar victoria"
-                        streakDays > 0 -> "Disponible a las 6pm"
-                        else -> "Empieza hoy"
+                        checkinDone && hour < 18 -> "🙏 Devocional hecho"
+                        hour >= 18 -> "⚔️ Registrar victoria"
+                        hour >= 15 -> "⏰ Casi es hora"
+                        hour >= 12 -> "\uD83D\uDEE1️ En batalla"
+                        hour >= 8  -> "💪 Sigue firme"
+                        hour >= 5  -> "☀️ Buenos días"
+                        else -> "\uD83C\uDF19 Descansa en paz"
                     }
                 }
 

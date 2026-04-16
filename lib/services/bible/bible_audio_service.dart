@@ -127,7 +127,7 @@ class BibleAudioService {
     required String bookCode,
     required int chapter,
   }) async {
-    final apiKey = ApiConfig.bibleBrainKey;
+    const apiKey = ApiConfig.bibleBrainKey;
     if (apiKey.isEmpty) return null;
 
     final cacheKey = '${filesetId}_${bookCode}_$chapter';
@@ -168,7 +168,7 @@ class BibleAudioService {
     required String bookCode,
     required int chapter,
   }) async {
-    final apiKey = ApiConfig.bibleBrainKey;
+    const apiKey = ApiConfig.bibleBrainKey;
     if (apiKey.isEmpty) return [];
     if (!ConnectivityService.I.hasInternet) return [];
 

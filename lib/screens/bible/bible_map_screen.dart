@@ -1152,12 +1152,12 @@ class _PlaceLabelWidget extends StatelessWidget {
         textAlign: TextAlign.center,
         maxLines: 1,
         overflow: TextOverflow.ellipsis,
-        style: TextStyle(
+        style: const TextStyle(
           fontFamily: 'Georgia',
           fontSize: 11,
           fontWeight: FontWeight.w600,
           color: _kDarkText,
-          shadows: const [
+          shadows: [
             Shadow(offset: Offset(1, 1), blurRadius: 2, color: Colors.white),
             Shadow(offset: Offset(-1, -1), blurRadius: 2, color: Colors.white),
             Shadow(offset: Offset(1, -1), blurRadius: 2, color: Colors.white),

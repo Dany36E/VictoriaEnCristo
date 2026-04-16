@@ -1,0 +1,48 @@
+{
+  "_doc": "Intenciones rotatorias para el morning check-in. Organizadas por etapa. Se selecciona una por día usando hash de fecha.",
+
+  "universal": [
+    "Hoy elijo caminar en victoria.\nCon la ayuda de Dios, resistiré toda tentación.\nNo dependo de mis fuerzas, sino de Su poder.",
+    "Hoy decido honrar a Dios con mis decisiones.\nCada momento es una oportunidad de obedecerle.\nSu gracia me capacita.",
+    "Hoy pongo mis ojos en lo eterno.\nLo temporal no me definirá.\nCristo es mi identidad.",
+    "Hoy camino en libertad.\nNo soy esclavo de nada ni de nadie.\nCristo pagó el precio por mi libertad.",
+    "Hoy elijo la gratitud sobre la queja.\nCada respiro es un regalo de Dios.\nViviré agradecido.",
+    "Hoy seré intencional con mis pensamientos.\nLlenaré mi mente de verdad, no de mentiras.\nLa Palabra es mi filtro.",
+    "Hoy buscaré amar como Cristo me amó.\nNo me cerraré al prójimo.\nEl amor es mi arma más fuerte.",
+    "Hoy acepto que no soy perfecto.\nPero camino con un Dios que sí lo es.\nSu perfección cubre mi debilidad.",
+    "Hoy no me compararé con nadie.\nMi carrera es única. Mi proceso es válido.\nDios no me mide como el mundo.",
+    "Hoy renuncio al control.\nConfío en que Dios tiene un plan.\nSu voluntad es buena, agradable y perfecta."
+  ],
+
+  "crisis": [
+    "Hoy sobrevivir es suficiente.\nNo necesito ser perfecto, solo fiel.\nDios ve mi lucha y me sostiene.",
+    "Hoy no estoy solo en esta batalla.\nEl Espíritu Santo pelea conmigo.\nSolo necesito resistir un momento a la vez.",
+    "Hoy clamo a Dios antes de caer.\nNo después. Antes.\nÉl es mi refugio en la tentación.",
+    "Hoy recuerdo que la tentación no es pecado.\nSentir la lucha no me condena.\nResistir es victoria.",
+    "Hoy huyo de lo que me destruye.\nNo tengo que demostrar fortaleza.\nHuir también es sabiduría."
+  ],
+
+  "habit": [
+    "Hoy construyo un ladrillo más del muro.\nCada día de obediencia es un cimiento.\nEstoy forjando carácter eterno.",
+    "Hoy practico la disciplina como acto de adoración.\nNo es carga, es ofrenda.\nMi constancia honra a Dios.",
+    "Hoy recuerdo por qué empecé.\nNo por obligación, sino por amor.\nAmo a Dios más que a mis impulsos.",
+    "Hoy seré paciente con mi proceso.\nEl cambio toma tiempo.\nDios está haciendo algo nuevo en mí.",
+    "Hoy celebro cada pequeña victoria.\nNo desprecio los pequeños comienzos.\nDios se alegra en mi esfuerzo."
+  ],
+
+  "maintenance": [
+    "Hoy no bajo la guardia.\nLa victoria constante requiere vigilancia constante.\nMi armadura sigue puesta.",
+    "Hoy recuerdo de dónde Dios me sacó.\nNo por orgullo, sino por gratitud.\nSu poder me transformó.",
+    "Hoy uso mi historia para inspirar.\nMi victoria puede ser esperanza para otros.\nEl testimonio tiene poder.",
+    "Hoy profundizo mi relación con Dios.\nNo me conformo con la rutina.\nBusco intimidad, no solo disciplina.",
+    "Hoy permanezco humilde.\nLa fidelidad no es mérito propio.\nEs fruto de Su gracia operando en mí."
+  ],
+
+  "restoration": [
+    "Hoy me levanto sin vergüenza.\nDios no me descarta por caer.\nSu misericordia me restaura.",
+    "Hoy elijo el perdón hacia mí mismo.\nSi Dios me perdonó, ¿quién soy yo para condenarme?\nSu sangre es suficiente.",
+    "Hoy empiezo de nuevo sin amargura.\nEl pasado no tiene la última palabra.\nCristo escribe un nuevo capítulo.",
+    "Hoy recuerdo que Pedro negó a Jesús tres veces.\nY aun así, Jesús lo restauró.\nMi caída no es el final.",
+    "Hoy dejo de contarle a Dios mis fracasos.\nÉl ya los conoce y me ama igual.\nSu gracia es mayor que mi pecado."
+  ]
+}

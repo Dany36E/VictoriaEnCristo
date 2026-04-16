@@ -18,6 +18,7 @@ import '../services/badge_service.dart';
 import '../widgets/badge_celebration.dart';
 import '../widgets/badge_grid_section.dart';
 import '../widgets/offline_banner.dart';
+import '../utils/progress_export.dart';
 import 'journal_screen.dart';
 
 class ProgressScreen extends StatefulWidget {
@@ -45,6 +46,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
   JournalEntry? _selectedJournalEntry;
   bool _isLoadingJournal = false;
   final JournalService _journalService = JournalService();
+  final GlobalKey _shareBoundaryKey = GlobalKey();
   
   // Animation controllers
   late AnimationController _chartAnimationController;
@@ -464,15 +466,18 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                     slivers: [
                       // 1. Victory Summary Header
                       SliverToBoxAdapter(
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
-                          child: VictorySummaryHeader(
-                            currentStreak: _currentStreak,
-                            longestStreak: _longestStreak,
-                            totalVictories: _totalVictories,
-                            isLoggedToday: _isLoggedToday,
-                            canRegisterToday: DateTime.now().hour >= 18,
-                            onRegisterVictory: _registerTodayVictory,
+                        child: RepaintBoundary(
+                          key: _shareBoundaryKey,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
+                            child: VictorySummaryHeader(
+                              currentStreak: _currentStreak,
+                              longestStreak: _longestStreak,
+                              totalVictories: _totalVictories,
+                              isLoggedToday: _isLoggedToday,
+                              canRegisterToday: DateTime.now().hour >= 18,
+                              onRegisterVictory: _registerTodayVictory,
+                            ),
                           ),
                         ),
                       ),
@@ -606,6 +611,25 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                       ),
                     ),
                   ],
+                ),
+              ),
+              // Botón compartir progreso
+              GestureDetector(
+                onTap: () {
+                  HapticFeedback.lightImpact();
+                  ProgressExport.captureAndShare(context, _shareBoundaryKey);
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: t.textPrimary.withOpacity(0.06),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    Icons.share_rounded,
+                    size: 18,
+                    color: t.textPrimary.withOpacity(0.8),
+                  ),
                 ),
               ),
             ],

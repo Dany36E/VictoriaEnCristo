@@ -70,14 +70,14 @@ class BibleVerseTile extends StatelessWidget {
                     if (hasNote)
                       WidgetSpan(
                         child: Padding(
-                          padding: EdgeInsets.only(left: 4),
+                          padding: const EdgeInsets.only(left: 4),
                           child: Icon(Icons.note, color: t.accent, size: 14),
                         ),
                       ),
                     if (isSaved)
                       WidgetSpan(
                         child: Padding(
-                          padding: EdgeInsets.only(left: 4),
+                          padding: const EdgeInsets.only(left: 4),
                           child: Icon(Icons.bookmark, color: t.accent, size: 14),
                         ),
                       ),

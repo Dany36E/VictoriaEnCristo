@@ -642,8 +642,8 @@ class _LoginScreenState extends State<LoginScreen> {
           fontSize: 15,
           fontWeight: FontWeight.w400,
         ),
-        floatingLabelStyle: TextStyle(
-          color: const Color(0xFFD4AF37), // Dorado cuando flota
+        floatingLabelStyle: const TextStyle(
+          color: Color(0xFFD4AF37), // Dorado cuando flota
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),

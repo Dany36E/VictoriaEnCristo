@@ -62,7 +62,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
         ),
         actions: [
           IconButton(
-            icon: Icon(Icons.person_add_alt_1, color: AppDesignSystem.gold, size: 22),
+            icon: const Icon(Icons.person_add_alt_1, color: AppDesignSystem.gold, size: 22),
             tooltip: 'Agregar compañero',
             onPressed: _navigateToAddPartner,
           ),

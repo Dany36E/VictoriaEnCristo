@@ -47,8 +47,8 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
         children: [
           // Recientes
           if (_recentColors.isNotEmpty) ...[
-            Padding(
-              padding: const EdgeInsets.only(right: 6),
+            const Padding(
+              padding: EdgeInsets.only(right: 6),
               child: Text(
                 'RECIENTES',
                 style: TextStyle(

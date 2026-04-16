@@ -7,7 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import '../models/widget_config.dart';
 import '../services/widget_sync_service.dart';
-import '../services/victory_service.dart';
+import '../services/victory_scoring_service.dart';
 import '../services/daily_verse_service.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme.dart';
@@ -37,7 +37,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   Future<void> _loadConfig() async {
     await WidgetSyncService.I.init();
     
-    _streak = VictoryService.I.getCurrentStreak();
+    _streak = VictoryScoringService.I.getCurrentStreak();
     
     try {
       if (DailyVerseService.I.isInitialized) {
@@ -703,7 +703,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             ),
             if (isSelected) ...[
               const SizedBox(height: 4),
-              Icon(Icons.check_circle, color: AppTheme.primaryColor, size: 18),
+              const Icon(Icons.check_circle, color: AppTheme.primaryColor, size: 18),
             ],
           ],
         ),
