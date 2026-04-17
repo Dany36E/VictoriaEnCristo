@@ -148,6 +148,22 @@ Amén.''',
       category: 'mañana',
       durationMinutes: 3,
     ),
+    Prayer(
+      title: 'Propósitos del día',
+      content: '''Señor, antes de ponerme en movimiento hoy declaro tres cosas.
+
+Uno: mis ojos son Tuyos. Hago pacto contigo de no detenerme en lo que contamina (Job 31:1).
+
+Dos: mi tiempo es Tuyo. No desperdiciaré horas en scroll que no me edifica; lo que gane en tiempo lo invierto en Ti, en mi familia o en servir.
+
+Tres: mi lengua es Tuya. Solo saldrán de mi boca palabras de vida.
+
+Ayúdame, Espíritu Santo. En mis fuerzas fallo; en las Tuyas venzo.
+
+Amén.''',
+      category: 'mañana',
+      durationMinutes: 2,
+    ),
   ];
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -201,6 +217,22 @@ Calla toda voz que no sea la Tuya. Sella mis ojos y mi mente contra toda impurez
 Que descanse en Ti como un niño descansa en su padre.
 
 En el nombre de Jesús. Amén.''',
+      category: 'noche',
+      durationMinutes: 2,
+    ),
+    Prayer(
+      title: 'Oración antes de dormir',
+      content: '''Señor Jesús, cierro los ojos confiando en Ti.
+
+Tú nunca duermes ni te adormeces, por eso puedo descansar tranquilo. Mi guardador eres Tú (Sal 121:4).
+
+Sana las heridas de hoy. Restaura lo que se gastó. Trae gozo en la mañana.
+
+Si desperté en la madrugada tentado, Tu Espíritu me recuerde Tu Palabra y huiré como José. No me dejaré arrastrar por la noche.
+
+Duermo en paz porque Tú velas por mí. Buenas noches, Padre.
+
+Amén.''',
       category: 'noche',
       durationMinutes: 2,
     ),
@@ -260,6 +292,22 @@ Amén.''',
       category: 'fortaleza',
       durationMinutes: 3,
     ),
+    Prayer(
+      title: 'Ancla en la tormenta',
+      content: '''Señor, siento que las olas me golpean. Ansiedad, desánimo, viejos recuerdos que vuelven.
+
+No miraré las olas. Miro a Ti, como Pedro cuando andaba sobre el agua.
+
+Tu Palabra es mi ancla: "El que habita al abrigo del Altísimo morará bajo la sombra del Omnipotente" (Sal 91:1).
+
+No soy lo que siento. Soy lo que Tú dices que soy: amado, perdonado, libre.
+
+Respiro profundo. Tu paz, que sobrepasa todo entendimiento, guarde mi corazón y mis pensamientos en Cristo Jesús (Fil 4:7).
+
+Amén.''',
+      category: 'fortaleza',
+      durationMinutes: 2,
+    ),
   ];
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -305,6 +353,22 @@ Gracias por esta batalla — porque me empuja a Tus brazos. Gracias porque la te
 "Tened por sumo gozo cuando os halléis en diversas pruebas" (Stg 1:2).
 
 No pido ausencia de batalla; pido presencia Tuya en ella. Eso me basta.
+
+Amén.''',
+      category: 'gratitud',
+      durationMinutes: 2,
+    ),
+    Prayer(
+      title: 'Por lo que todavía no llega',
+      content: '''Padre, quiero darte gracias por las victorias que todavía no veo.
+
+Por el día 30, por el día 100, por el año entero que viene caminando contigo.
+
+Por la libertad que ya decretaste sobre mí aunque hoy sienta que aprieta.
+
+Por la persona en la que me estás transformando: paciente, puro, firme, lleno de Tu Espíritu.
+
+Te creo antes de ver. Fe es la certeza de lo que se espera (Heb 11:1). Gracias porque Tú cumples Tu Palabra.
 
 Amén.''',
       category: 'gratitud',
@@ -418,6 +482,20 @@ En el nombre de Jesús. Amén.''',
       category: 'guerra',
       durationMinutes: 3,
     ),
+    Prayer(
+      title: 'Cancelando ciclos heredados',
+      content: '''Padre Celestial, en el nombre de Jesús rompo hoy todo ciclo de pecado heredado en mi familia.
+
+La sangre de Cristo corta lo que generaciones pasadas cultivaron: adicción, infidelidad, amargura, miedo, lujuria. Lo que entró por pactos, palabras o costumbres, lo cancelo ahora.
+
+Yo soy nueva criatura (2 Cor 5:17). En mi línea empieza algo nuevo.
+
+Declaro bendición sobre mis hijos y sobre los que vendrán: serán libres, serán santos, serán usados por Ti.
+
+En el nombre poderoso de Jesús. Amén.''',
+      category: 'guerra',
+      durationMinutes: 3,
+    ),
   ];
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -464,11 +542,25 @@ Empieza por mí. No esperaré a que el otro cambie; yo me muevo primero hacia Ti
 
 Si hace falta pedir perdón, dame valor. Si hace falta perdonar, dame amor.
 
-Bendita paz, desciende sobre este vínculo.
-
 En el nombre de Jesús. Amén.''',
       category: 'familia',
       durationMinutes: 3,
+    ),
+    Prayer(
+      title: 'Por mi hogar como templo',
+      content: '''Señor, consagro mi hogar como Tu templo.
+
+Que cada habitación sea lugar de Tu presencia. Que nada impuro habite entre estas paredes.
+
+Cubro con Tu sangre puertas, pantallas, redes, conversaciones. Nada de lo que Tú no bendices tendrá cabida aquí.
+
+Que al entrar a mi casa se respire paz. Que al salir, llevemos Tu luz.
+
+"Yo y mi casa serviremos al Señor" (Jos 24:15). Lo declaro como pacto contigo.
+
+Amén.''',
+      category: 'familia',
+      durationMinutes: 2,
     ),
   ];
 

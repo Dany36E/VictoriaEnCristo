@@ -209,14 +209,25 @@ class JesusStreakWidget extends StatelessWidget {
             size: 28,
           ),
           const SizedBox(width: 6),
-          // Número grande
-          Text(
-            isNewUser ? '0' : '$streakDays',
-            style: GoogleFonts.cinzel(
-              fontSize: streakDays >= 100 ? 36.0 : (streakDays >= 10 ? 42.0 : 48.0),
-              fontWeight: FontWeight.w900,
-              color: Colors.white,
-              height: 1,
+          // Número grande (se adapta si tiene 4+ dígitos)
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerLeft,
+              child: Text(
+                isNewUser ? '0' : '$streakDays',
+                style: GoogleFonts.cinzel(
+                  fontSize: streakDays >= 1000
+                      ? 30.0
+                      : streakDays >= 100
+                          ? 36.0
+                          : (streakDays >= 10 ? 42.0 : 48.0),
+                  fontWeight: FontWeight.w900,
+                  color: Colors.white,
+                  height: 1,
+                ),
+                maxLines: 1,
+              ),
             ),
           ),
           const SizedBox(width: 8),
@@ -237,6 +248,7 @@ class JesusStreakWidget extends StatelessWidget {
                       color: streakColor,
                     ),
                     maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   if (streakDays < 100 && !(completedToday && streakDays >= 10))
                     Text(

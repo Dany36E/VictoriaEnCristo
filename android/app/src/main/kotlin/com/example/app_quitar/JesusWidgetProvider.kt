@@ -77,20 +77,27 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 val message = prefs.getString(KEY_MESSAGE, "¡Empieza hoy!") ?: "¡Empieza hoy!"
 
                 // ─── Cargar sprite de Jesús ───
-                // Resolución generosa: el widget puede escalar hasta 4x2 / 5x2
-                // en launchers grandes. Con 300–400 px el sprite se ve borroso
-                // (la paloma y detalles finos pierden nitidez). 720 px de lado
-                // mantiene el sprite ntido en cualquier breakpoint.
+                // NOTA IMPORTANTE: RemoteViews envían el bitmap por IPC y
+                // tienen un límite efectivo de ~1 MB por transacción. Si
+                // pasamos un bitmap muy grande, Android lo rechaza o lo
+                // re-escala agresivamente y el resultado se ve borroso.
+                //
+                // Estrategia: decodificar a la resolución nativa mínima
+                // necesaria con inSampleSize, luego createScaledBitmap al
+                // tamaño final exacto con filtrado bilineal. Mantenemos
+                // nitidez garantizada sin exceder el límite de IPC.
                 val spritePath = prefs.getString(KEY_SPRITE_PATH, null)
                 if (spritePath != null) {
                     val spriteFile = File(spritePath)
                     if (spriteFile.exists()) {
-                        val spriteSize = when {
-                            isCompactH && isCompactW -> 480
-                            isCompactW -> 560
-                            else -> 720
+                        // Target final del ImageView (alto físico). Con 520px
+                        // el bitmap pesa ~520*390*4 ≈ 0.78 MB (bajo el límite).
+                        val (targetW, targetH) = when {
+                            isCompactH && isCompactW -> 300 to 400
+                            isCompactW -> 360 to 480
+                            else -> 420 to 560
                         }
-                        val bitmap = decodeSampledBitmap(spritePath, spriteSize, spriteSize)
+                        val bitmap = decodeExactBitmap(spritePath, targetW, targetH)
                         if (bitmap != null) {
                             views.setImageViewBitmap(R.id.widget_jesus_image, bitmap)
                         }
@@ -98,14 +105,14 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 }
 
                 // ─── Cargar fondo dinámico ───
-                // Subimos la resolución para evitar bordes borrosos.
+                // Mismo criterio: bitmap al tamaño exacto con filtrado
+                // bilineal, presupuesto ~1MB por IPC.
                 val bgPath = prefs.getString(KEY_BG_PATH, null)
                 if (bgPath != null) {
                     val bgFile = File(bgPath)
                     if (bgFile.exists()) {
-                        val bgW = if (isCompactW) 960 else 1280
-                        val bgH = if (isCompactH) 480 else 640
-                        val bitmap = decodeSampledBitmap(bgPath, bgW, bgH)
+                        val (bgW, bgH) = if (isCompactW) 480 to 240 else 640 to 320
+                        val bitmap = decodeExactBitmap(bgPath, bgW, bgH)
                         if (bitmap != null) {
                             views.setImageViewBitmap(R.id.widget_bg_image, bitmap)
                         }
@@ -241,6 +248,45 @@ class JesusWidgetProvider : AppWidgetProvider() {
             options.inPreferredConfig = Bitmap.Config.ARGB_8888
             options.inScaled = false
             return BitmapFactory.decodeFile(path, options)
+        }
+
+        /**
+         * Decodifica y re-escala exactamente al tamaño destino. Garantiza
+         * nitidez porque el ImageView no tiene que re-escalar, y evita que
+         * RemoteViews choque con el límite IPC (~1 MB) en bitmaps grandes.
+         *
+         * Algoritmo:
+         *   1. Lee dimensiones originales (inJustDecodeBounds).
+         *   2. Decodifica con inSampleSize al doble de lo pedido (máx).
+         *   3. createScaledBitmap con filtrado bilineal al tamaño exacto.
+         */
+        private fun decodeExactBitmap(path: String, targetW: Int, targetH: Int): Bitmap? {
+            val bounds = BitmapFactory.Options().apply { inJustDecodeBounds = true }
+            BitmapFactory.decodeFile(path, bounds)
+            if (bounds.outWidth <= 0 || bounds.outHeight <= 0) return null
+
+            // Decodificamos a 2x del target (máx) para que createScaledBitmap
+            // tenga suficiente detalle sin desperdiciar memoria.
+            val intermediateW = targetW * 2
+            val intermediateH = targetH * 2
+            val opts = BitmapFactory.Options().apply {
+                inSampleSize = calculateInSampleSize(bounds, intermediateW, intermediateH)
+                inPreferredConfig = Bitmap.Config.ARGB_8888
+                inScaled = false
+            }
+            val raw = BitmapFactory.decodeFile(path, opts) ?: return null
+
+            // Preservar aspect ratio del bitmap original al escalar al target.
+            val ratio = raw.width.toFloat() / raw.height.toFloat()
+            val (finalW, finalH) = if (ratio >= targetW.toFloat() / targetH.toFloat()) {
+                targetW to (targetW / ratio).toInt().coerceAtLeast(1)
+            } else {
+                (targetH * ratio).toInt().coerceAtLeast(1) to targetH
+            }
+            if (raw.width == finalW && raw.height == finalH) return raw
+            val scaled = Bitmap.createScaledBitmap(raw, finalW, finalH, true)
+            if (scaled !== raw) raw.recycle()
+            return scaled
         }
 
         private fun calculateInSampleSize(
