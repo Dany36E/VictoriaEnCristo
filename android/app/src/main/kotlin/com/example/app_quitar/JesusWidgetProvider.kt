@@ -77,11 +77,19 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 val message = prefs.getString(KEY_MESSAGE, "¡Empieza hoy!") ?: "¡Empieza hoy!"
 
                 // ─── Cargar sprite de Jesús ───
+                // Resolución generosa: el widget puede escalar hasta 4x2 / 5x2
+                // en launchers grandes. Con 300–400 px el sprite se ve borroso
+                // (la paloma y detalles finos pierden nitidez). 720 px de lado
+                // mantiene el sprite ntido en cualquier breakpoint.
                 val spritePath = prefs.getString(KEY_SPRITE_PATH, null)
                 if (spritePath != null) {
                     val spriteFile = File(spritePath)
                     if (spriteFile.exists()) {
-                        val spriteSize = if (isCompactW) 300 else 400
+                        val spriteSize = when {
+                            isCompactH && isCompactW -> 480
+                            isCompactW -> 560
+                            else -> 720
+                        }
                         val bitmap = decodeSampledBitmap(spritePath, spriteSize, spriteSize)
                         if (bitmap != null) {
                             views.setImageViewBitmap(R.id.widget_jesus_image, bitmap)
@@ -90,11 +98,14 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 }
 
                 // ─── Cargar fondo dinámico ───
+                // Subimos la resolución para evitar bordes borrosos.
                 val bgPath = prefs.getString(KEY_BG_PATH, null)
                 if (bgPath != null) {
                     val bgFile = File(bgPath)
                     if (bgFile.exists()) {
-                        val bitmap = decodeSampledBitmap(bgPath, 800, 400)
+                        val bgW = if (isCompactW) 960 else 1280
+                        val bgH = if (isCompactH) 480 else 640
+                        val bitmap = decodeSampledBitmap(bgPath, bgW, bgH)
                         if (bitmap != null) {
                             views.setImageViewBitmap(R.id.widget_bg_image, bitmap)
                         }
@@ -225,6 +236,10 @@ class JesusWidgetProvider : AppWidgetProvider() {
             BitmapFactory.decodeFile(path, options)
             options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight)
             options.inJustDecodeBounds = false
+            // Mejor calidad + sin pre-escalado automático: el ImageView
+            // se encarga del scaling final con filtrado bilineal.
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888
+            options.inScaled = false
             return BitmapFactory.decodeFile(path, options)
         }
 

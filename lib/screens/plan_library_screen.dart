@@ -54,13 +54,14 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
   @override
   void initState() {
     super.initState();
-    AudioEngine.I.muteForScreen();
+    AudioEngine.I.switchBgmContext(BgmContext.plan);
     _tabController = TabController(length: _tabs.length, vsync: this);
     _loadPlans();
   }
 
   @override
   void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.home);
     _tabController.dispose();
     _searchController.dispose();
     _scrollController.dispose();

@@ -8,8 +8,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/home/daily_verse_section.dart';
 import '../widgets/home/home_header.dart';
 import '../widgets/home/sos_button.dart';
-import '../widgets/home/for_you_section.dart';
-import '../widgets/home/plans_section.dart';
 import '../widgets/home/bible_reading_streak.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
@@ -18,16 +16,11 @@ import '../services/daily_verse_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/widget_sync_service.dart';
-import '../models/plan.dart';
-import '../services/personalization_engine.dart';
 import '../services/content_repository.dart';
-import '../services/plan_repository.dart';
-import '../services/plan_progress_service.dart';
 import '../widgets/jesus_streak_widget.dart';
 import 'verses_screen.dart';
 import 'prayers_screen.dart';
 import 'plan_library_screen.dart';
-import 'plan_detail_screen_v2.dart';
 import 'progress_screen.dart';
 import 'victory_celebration_screen.dart';
 import 'journal_screen.dart';
@@ -37,7 +30,6 @@ import 'wall/wall_screen.dart';
 import 'admin/admin_wall_screen.dart';
 import 'bible/bible_home_screen.dart';
 import 'exercises_screen.dart';
-import '../models/content_enums.dart';
 import '../utils/bible_navigation_helper.dart';
 import '../services/battle_partner_service.dart';
 import '../services/audio_engine.dart';
@@ -68,16 +60,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, RouteAware {
   late BibleVerse dailyVerse;
-  
-  // Personalización
-  ForYouTodayBundle? _forYouBundle;
-  bool _contentLoading = true;
-  
-  // Planes recomendados
-  List<Plan> _recommendedPlans = [];
-  Map<String, PlanProgress> _planProgressMap = {};
-  Plan? _activePlan;
-  PlanProgress? _activeProgress;
   
   // Victoria del día
   int _currentStreak = 0;
@@ -196,6 +178,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
             duration: Duration(seconds: 3),
           ),
         );
+        _navigateToProgress();
       }
       return;
     }
@@ -262,52 +245,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   Future<void> _loadPersonalizedContent() async {
     try {
       await ContentRepository.I.init();
-      
-      // Cargar planes
-      final planRepo = PlanRepository();
-      await planRepo.init();
-      
-      final progressService = PlanProgressService();
-      await progressService.init();
-      
-      // Obtener plan activo
-      final activePlanId = progressService.activePlanId;
-      Plan? activePlan;
-      PlanProgress? activeProgress;
-      
-      if (activePlanId != null) {
-        activePlan = planRepo.getPlan(activePlanId);
-        activeProgress = progressService.getProgress(activePlanId);
-      }
-      
-      // Obtener planes recomendados (crisis + reinicio para empezar)
-      final recommendedPlans = planRepo.plans
-          .where((p) => p.isPublished)
-          .take(6)
-          .toList();
-      
-      // Mapear progreso
-      final progressMap = <String, PlanProgress>{};
-      for (final progress in progressService.allProgress) {
-        progressMap[progress.planId] = progress;
-      }
-      
-      if (mounted) {
-        setState(() {
-          _forYouBundle = PersonalizationEngine.I.getForYouToday();
-          _recommendedPlans = recommendedPlans;
-          _planProgressMap = progressMap;
-          _activePlan = activePlan;
-          _activeProgress = activeProgress;
-          _contentLoading = false;
-        });
-      }
     } catch (e) {
-      if (mounted) {
-        setState(() {
-          _contentLoading = false;
-        });
-      }
+      debugPrint('⚠️ [HOME] Error loading home content: $e');
     }
   }
 
@@ -480,30 +419,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                   ),
                 ),
                 
-                // ═══════════════════════════════════════════════════════════════
-                // SECCIÓN: PARA TI HOY (Personalizada)
-                // ═══════════════════════════════════════════════════════════════
-                if (!_contentLoading && _forYouBundle != null && _forYouBundle!.primaryGiant != null)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppDesignSystem.spacingM,
-                        AppDesignSystem.spacingL,
-                        AppDesignSystem.spacingM,
-                        0,
-                      ),
-                      child: ForYouTodaySection(
-                        primaryGiant: _forYouBundle!.primaryGiant!,
-                        anchorVerse: _forYouBundle!.anchorVerse,
-                        battleVersesCount: _forYouBundle!.battleVerses.length,
-                        prayersCount: _forYouBundle!.prayers.length,
-                        onTapVerse: (ref) => BibleNavigationHelper.navigateToSpanishRef(context, ref),
-                        onTapVerses: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const VersesScreen())),
-                        onTapPrayers: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const PrayersScreen())),
-                      ),
-                    ),
-                  ),
-                
                 // ═══════════════════════════════════════════════════════════
                 // QUICK GLANCE - Compañero + Insignias + Etapa
                 // ═══════════════════════════════════════════════════════════
@@ -519,7 +434,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                   ),
                 ),
 
-                // Tools Section Header
+                // Tools Section Header — PRÁCTICA DIARIA
                 SliverToBoxAdapter(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(
@@ -528,88 +443,56 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                       AppDesignSystem.spacingM,
                       AppDesignSystem.spacingM,
                     ),
-                    child: _buildSectionHeader(),
+                    child: _buildSectionHeader(
+                      label: 'PRÁCTICA DIARIA',
+                      icon: Icons.wb_sunny_outlined,
+                      accent: const Color(0xFFFF80AB),
+                      animationDelayMs: 250,
+                    ),
                   ),
                 ),
-                
-                // Tools Grid - Diseño compacto tipo lista de tarjetas
+
+                // Grid: Práctica diaria (Oraciones, Ejercicios, Mi Diario, Versículos)
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(
                     horizontal: AppDesignSystem.spacingM,
                   ),
                   sliver: SliverList(
                     delegate: SliverChildListDelegate([
-                      // Primera fila
                       Row(
                         children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.menu_book_outlined,
-                              title: 'Versículos',
-                              subtitle: 'Armadura espiritual',
-                              accentColor: const Color(0xFF64B5F6), // Cyan brillante
-                              animationType: IconAnimationType.shimmer,
-                              index: 0,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const VersesScreen()),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
                           Expanded(
                             child: _GlassmorphicMenuButton(
                               icon: Icons.favorite,
                               title: 'Oraciones',
                               subtitle: 'Conexión con Dios',
-                              accentColor: const Color(0xFFFF80AB), // Rosa neón suave
+                              accentColor: const Color(0xFFFF80AB),
                               animationType: IconAnimationType.heartbeat,
-                              index: 1,
+                              index: 0,
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (_) => const PrayersScreen()),
                               ),
                             ),
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: AppDesignSystem.spacingM),
-                      // Segunda fila
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.wb_sunny,
-                              title: 'Planes',
-                              subtitle: 'Crecimiento espiritual',
-                              accentColor: const Color(0xFFFFD740), // Ámbar/Dorado
-                              animationType: IconAnimationType.rotate,
-                              index: 2,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const PlanLibraryScreen()),
-                              ),
-                            ),
-                          ),
                           const SizedBox(width: AppDesignSystem.spacingM),
                           Expanded(
                             child: _GlassmorphicMenuButton(
-                              icon: Icons.show_chart,
-                              title: 'Mi Progreso',
-                              subtitle: 'Días de victoria',
-                              accentColor: const Color(0xFF69F0AE), // Verde menta eléctrico
-                              animationType: IconAnimationType.drawUp,
-                              index: 3,
+                              icon: Icons.fitness_center,
+                              title: 'Ejercicios',
+                              subtitle: 'Respira y ancla',
+                              accentColor: const Color(0xFF80CBC4),
+                              animationType: IconAnimationType.pulse,
+                              index: 1,
                               onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                                MaterialPageRoute(builder: (_) => const ExercisesScreen()),
                               ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: AppDesignSystem.spacingM),
-                      // Tercera fila - Mi Diario + Widget
                       Row(
                         children: [
                           Expanded(
@@ -617,9 +500,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                               icon: Icons.auto_stories,
                               title: 'Mi Diario',
                               subtitle: 'Reflexiones',
-                              accentColor: const Color(0xFFCE93D8), // Lavanda neón
+                              accentColor: const Color(0xFFCE93D8),
                               animationType: IconAnimationType.pulse,
-                              index: 4,
+                              index: 2,
                               onTap: () => Navigator.push(
                                 context,
                                 MaterialPageRoute(builder: (_) => const JournalScreen()),
@@ -629,19 +512,132 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                           const SizedBox(width: AppDesignSystem.spacingM),
                           Expanded(
                             child: _GlassmorphicMenuButton(
-                              icon: Icons.widgets_outlined,
-                              title: 'Widget',
-                              subtitle: 'Pantalla inicio',
-                              accentColor: const Color(0xFF81D4FA), // Azul claro
-                              animationType: IconAnimationType.pulse,
+                              icon: Icons.menu_book_outlined,
+                              title: 'Versículos',
+                              subtitle: 'Armadura espiritual',
+                              accentColor: const Color(0xFF64B5F6),
+                              animationType: IconAnimationType.shimmer,
+                              index: 3,
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const VersesScreen()),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ]),
+                  ),
+                ),
+
+                // Tools Section Header — CRECIMIENTO
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDesignSystem.spacingM,
+                      AppDesignSystem.spacingL,
+                      AppDesignSystem.spacingM,
+                      AppDesignSystem.spacingM,
+                    ),
+                    child: _buildSectionHeader(
+                      label: 'CRECIMIENTO',
+                      icon: Icons.trending_up_rounded,
+                      accent: const Color(0xFFE8C97A),
+                      animationDelayMs: 300,
+                    ),
+                  ),
+                ),
+
+                // Grid: Crecimiento (Planes, La Biblia, Mi Progreso)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDesignSystem.spacingM,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _GlassmorphicMenuButton(
+                              icon: Icons.wb_sunny,
+                              title: 'Planes',
+                              subtitle: 'Crecimiento espiritual',
+                              accentColor: const Color(0xFFFFD740),
+                              animationType: IconAnimationType.rotate,
+                              index: 4,
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const PlanLibraryScreen()),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppDesignSystem.spacingM),
+                          Expanded(
+                            child: _GlassmorphicMenuButton(
+                              icon: Icons.menu_book,
+                              title: 'La Biblia',
+                              subtitle: 'Palabra de Dios',
+                              accentColor: const Color(0xFFE8C97A),
+                              animationType: IconAnimationType.shimmer,
                               index: 5,
-                              onTap: () => Navigator.pushNamed(context, '/widget-settings'),
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
+                              ),
                             ),
                           ),
                         ],
                       ),
                       const SizedBox(height: AppDesignSystem.spacingM),
-                      // Cuarta fila - Compañero de Batalla
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _GlassmorphicMenuButton(
+                              icon: Icons.show_chart,
+                              title: 'Mi Progreso',
+                              subtitle: 'Días de victoria',
+                              accentColor: const Color(0xFF69F0AE),
+                              animationType: IconAnimationType.drawUp,
+                              index: 6,
+                              onTap: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: AppDesignSystem.spacingM),
+                          const Expanded(child: SizedBox()),
+                        ],
+                      ),
+                    ]),
+                  ),
+                ),
+
+                // Tools Section Header — COMUNIDAD
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(
+                      AppDesignSystem.spacingM,
+                      AppDesignSystem.spacingL,
+                      AppDesignSystem.spacingM,
+                      AppDesignSystem.spacingM,
+                    ),
+                    child: _buildSectionHeader(
+                      label: 'COMUNIDAD',
+                      icon: Icons.groups_rounded,
+                      accent: const Color(0xFFFFAB40),
+                      animationDelayMs: 350,
+                    ),
+                  ),
+                ),
+
+                // Grid: Comunidad (Compañero, Muro de Batalla)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppDesignSystem.spacingM,
+                  ),
+                  sliver: SliverList(
+                    delegate: SliverChildListDelegate([
                       Row(
                         children: [
                           Expanded(
@@ -657,7 +653,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                       subtitle: 'De Batalla',
                                       accentColor: const Color(0xFFFFAB40),
                                       animationType: IconAnimationType.pulse,
-                                      index: 6,
+                                      index: 7,
                                       onTap: () => Navigator.push(
                                         context,
                                         MaterialPageRoute(builder: (_) => const BattlePartnerScreen()),
@@ -696,45 +692,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                               subtitle: 'Batalla',
                               accentColor: const Color(0xFF64B5F6),
                               animationType: IconAnimationType.shimmer,
-                              index: 7,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const WallScreen()),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppDesignSystem.spacingM),
-                      // Quinta fila - La Biblia
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.menu_book,
-                              title: 'La Biblia',
-                              subtitle: 'Palabra de Dios',
-                              accentColor: const Color(0xFFE8C97A), // Gold Light
-                              animationType: IconAnimationType.shimmer,
                               index: 8,
                               onTap: () => Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.fitness_center,
-                              title: 'Ejercicios',
-                              subtitle: 'Prácticas y técnicas',
-                              accentColor: const Color(0xFF80CBC4),
-                              animationType: IconAnimationType.pulse,
-                              index: 9,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const ExercisesScreen()),
+                                MaterialPageRoute(builder: (_) => const WallScreen()),
                               ),
                             ),
                           ),
@@ -753,7 +714,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                   subtitle: 'Admin',
                                   accentColor: AppDesignSystem.struggle,
                                   animationType: IconAnimationType.pulse,
-                                  index: 10,
+                                  index: 9,
                                   onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(builder: (_) => const AdminWallScreen()),
@@ -768,18 +729,6 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                     ]),
                   ),
                 ),
-                
-                // ═══════════════════════════════════════════════════════════════
-                // SECCIÓN DE PLANES
-                // ═══════════════════════════════════════════════════════════════
-                if (_recommendedPlans.isNotEmpty || _activePlan != null)
-                  SliverToBoxAdapter(child: PlansSection(
-                    activePlan: _activePlan,
-                    activeProgress: _activeProgress,
-                    recommendedPlans: _recommendedPlans,
-                    planProgressMap: _planProgressMap,
-                    onOpenPlanDetail: _openPlanDetail,
-                  )),
                 
                 // Bottom spacing for FAB + Safe Area
                 SliverToBoxAdapter(
@@ -808,85 +757,60 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   // SECCIÓN DE PLANES RECOMENDADOS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  void _openPlanDetail(Plan plan) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => PlanDetailScreenV2(plan: plan),
-      ),
-    ).then((_) => _loadPersonalizedContent())
-     .catchError((e) => debugPrint('⚠️ [HOME] Nav plan detail error: $e'));
-  }
-
   Widget _buildQuickGlance() {
     final partners = BattlePartnerService.I.partnersNotifier.value;
-    final totalBadges = BadgeService.I.totalUnlocked;
-    final stage = ContentRepository.I.isInitialized
-        ? PersonalizationEngine.I.getUserStage()
-        : null;
+
+    // Solo mostramos compañeros para no saturar la home.
+    // Insignias y etapa viven en ProgressScreen donde hay espacio para
+    // mostrarlas con el detalle que merecen.
+    if (partners.isEmpty) return const SizedBox.shrink();
 
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: [
-        // Partner status
-        if (partners.isNotEmpty)
-          _QuickGlanceChip(
-            emoji: '🛡️',
-            label: '${partners.length} compañero${partners.length > 1 ? 's' : ''}',
-            color: const Color(0xFFFFAB40),
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const BattlePartnerScreen()),
-            ),
+        _QuickGlanceChip(
+          emoji: '🛡️',
+          label: '${partners.length} compañero${partners.length > 1 ? 's' : ''}',
+          color: const Color(0xFFFFAB40),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const BattlePartnerScreen()),
           ),
-
-        // Badges
-        if (totalBadges > 0)
-          _QuickGlanceChip(
-            emoji: '🏅',
-            label: '$totalBadges insignia${totalBadges > 1 ? 's' : ''}',
-            color: AppDesignSystem.gold,
-            onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const ProgressScreen()),
-            ),
-          ),
-
-        // Stage
-        if (stage != null)
-          _QuickGlanceChip(
-            emoji: stage.emoji,
-            label: stage.displayName,
-            color: AppDesignSystem.hope,
-          ),
+        ),
       ],
     ).animate().fadeIn(delay: 400.ms, duration: 400.ms);
   }
 
-  Widget _buildSectionHeader() {
+  Widget _buildSectionHeader({
+    String label = 'HERRAMIENTAS DE VICTORIA',
+    IconData icon = Icons.shield_outlined,
+    Color? accent,
+    int animationDelayMs = 300,
+  }) {
+    final color = accent ?? Colors.white;
     return Row(
       children: [
         Container(
           padding: const EdgeInsets.all(AppDesignSystem.spacingS),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.1),
+            color: color.withOpacity(0.1),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
             border: Border.all(
-              color: Colors.white.withOpacity(0.2),
+              color: color.withOpacity(0.25),
               width: 0.5,
             ),
           ),
-          child: const Icon(
-            Icons.shield_outlined,
-            color: Colors.white,
+          child: Icon(
+            icon,
+            color: color,
             size: 20,
           ),
         ),
         const SizedBox(width: AppDesignSystem.spacingS),
-        const Text(
-          'HERRAMIENTAS DE VICTORIA',
-          style: TextStyle(
+        Text(
+          label,
+          style: const TextStyle(
             fontSize: 12,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.2,
@@ -896,7 +820,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       ],
     )
         .animate()
-        .fadeIn(delay: 300.ms, duration: 400.ms)
+        .fadeIn(delay: Duration(milliseconds: animationDelayMs), duration: 400.ms)
         .slideX(begin: -0.1, end: 0);
   }
 
@@ -1307,20 +1231,22 @@ class _NeonGradientBorderPainter extends CustomPainter {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(20));
     
-    // Gradiente que va del color neón (esquina superior izquierda) a transparente
+    // Gradiente que va del color neón (esquina superior izquierda) a transparente,
+    // usando SOLO el accentColor. Antes había paradas de blanco que hacían que
+    // el borde inferior se viera «blancoso» sobre fondos claros.
     final gradient = SweepGradient(
       center: Alignment.topLeft,
       startAngle: 0,
       endAngle: math.pi * 2,
       colors: [
-        accentColor.withOpacity(isHovered ? 0.9 : 0.6),
-        accentColor.withOpacity(isHovered ? 0.5 : 0.3),
-        Colors.white.withOpacity(0.1),
-        Colors.white.withOpacity(0.05),
-        Colors.white.withOpacity(0.1),
-        accentColor.withOpacity(isHovered ? 0.4 : 0.2),
+        accentColor.withOpacity(isHovered ? 0.9 : 0.65),
+        accentColor.withOpacity(isHovered ? 0.55 : 0.35),
+        accentColor.withOpacity(isHovered ? 0.30 : 0.18),
+        accentColor.withOpacity(isHovered ? 0.22 : 0.12),
+        accentColor.withOpacity(isHovered ? 0.30 : 0.18),
+        accentColor.withOpacity(isHovered ? 0.45 : 0.28),
       ],
-      stops: const [0.0, 0.12, 0.25, 0.5, 0.85, 1.0],
+      stops: const [0.0, 0.12, 0.28, 0.5, 0.78, 1.0],
     );
 
     final paint = Paint()
