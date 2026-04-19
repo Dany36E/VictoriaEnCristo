@@ -1,0 +1,484 @@
+[
+  {
+    "id": "q_cv_jn316",
+    "type": "complete_verse",
+    "prompt": "«Porque de tal manera ___ Dios al mundo, que ha dado a su Hijo unigénito...»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "amó",
+    "explanation": "Juan 3:16 es el evangelio en miniatura: el amor de Dios es la razón del envío del Hijo.",
+    "reference": "Juan 3:16",
+    "tags": ["amor", "evangelio", "identidad"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_cv_fil413",
+    "type": "complete_verse",
+    "prompt": "«Todo lo puedo en Cristo que me ___.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "fortalece",
+    "explanation": "Pablo escribe desde la cárcel: la fuerza no es suya, viene de Cristo.",
+    "reference": "Filipenses 4:13",
+    "tags": ["fe", "fuerza"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_cv_sal231",
+    "type": "complete_verse",
+    "prompt": "«Jehová es mi ___, nada me faltará.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "pastor",
+    "explanation": "David se ve como oveja: depende, no compite.",
+    "reference": "Salmos 23:1",
+    "tags": ["confianza", "provision"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_cv_prov36",
+    "type": "complete_verse",
+    "prompt": "«Reconócelo en todos tus caminos, y él enderezará tus ___.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "veredas",
+    "explanation": "Proverbios 3:6 — la confianza en Dios se traduce en decisiones claras.",
+    "reference": "Proverbios 3:6",
+    "tags": ["decisiones", "sabiduria"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_cv_rom828",
+    "type": "complete_verse",
+    "prompt": "«Y sabemos que a los que aman a Dios, todas las cosas les ayudan a ___.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "bien",
+    "explanation": "Romanos 8:28 no promete que todo sea bueno, sino que Dios lo integra para bien.",
+    "reference": "Romanos 8:28",
+    "tags": ["proposito", "sufrimiento"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_cv_is4031",
+    "type": "complete_verse",
+    "prompt": "«Los que esperan a Jehová tendrán nuevas ___.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "fuerzas",
+    "explanation": "Isaías 40:31 — esperar es una postura activa de confianza.",
+    "reference": "Isaías 40:31",
+    "tags": ["esperanza", "fuerza"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_ws_yosoypan",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Yo soy el pan de vida»?",
+    "options": ["Moisés", "Juan el Bautista", "Jesús", "Pablo"],
+    "correctIndex": 2,
+    "explanation": "Jesús, tras alimentar a los 5000, explica que él mismo es el sustento verdadero (Juan 6:35).",
+    "reference": "Juan 6:35",
+    "tags": ["identidad_cristo"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_ws_sigueme",
+    "type": "who_said",
+    "prompt": "¿Quién dijo a sus discípulos: «Sígueme, y haré que seáis pescadores de hombres»?",
+    "options": ["Juan el Bautista", "Pedro", "Jesús", "Andrés"],
+    "correctIndex": 2,
+    "explanation": "Jesús llamó así a Pedro y Andrés junto al mar de Galilea (Mateo 4:19).",
+    "reference": "Mateo 4:19",
+    "tags": ["llamado"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_ws_hagase",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «He aquí la sierva del Señor; hágase conmigo conforme a tu palabra»?",
+    "options": ["Sara", "María madre de Jesús", "Ana", "María Magdalena"],
+    "correctIndex": 1,
+    "explanation": "María responde al ángel Gabriel con fe y rendición (Lucas 1:38).",
+    "reference": "Lucas 1:38",
+    "tags": ["fe", "rendicion"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_ws_aquiestoy",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Heme aquí, envíame a mí»?",
+    "options": ["Moisés", "Isaías", "Jeremías", "Jonás"],
+    "correctIndex": 1,
+    "explanation": "Isaías, tras ver la gloria de Dios y ser limpio, responde al llamado (Isaías 6:8).",
+    "reference": "Isaías 6:8",
+    "tags": ["mision", "llamado"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_ws_novolveras",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Donde tú fueres, iré yo»?",
+    "options": ["Rebeca", "Rut", "Ester", "Débora"],
+    "correctIndex": 1,
+    "explanation": "Rut a Noemí; un pacto de lealtad que la lleva al linaje de Cristo (Rut 1:16).",
+    "reference": "Rut 1:16",
+    "tags": ["lealtad", "pacto"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_ws_consumado",
+    "type": "who_said",
+    "prompt": "¿Quién dijo en la cruz: «Consumado es»?",
+    "options": ["Pedro", "Jesús", "Esteban", "Juan"],
+    "correctIndex": 1,
+    "explanation": "Jesús declara terminada la obra de la redención (Juan 19:30).",
+    "reference": "Juan 19:30",
+    "tags": ["cruz", "redencion"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_tf_davidjefe",
+    "type": "true_false",
+    "prompt": "David escribió todos los Salmos.",
+    "options": ["Verdadero", "Falso"],
+    "correctIndex": 1,
+    "explanation": "David escribió muchos (≈73), pero también Asaf, Coré, Moisés (Sal 90) y otros.",
+    "reference": null,
+    "tags": ["salmos", "autores"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_tf_jonas",
+    "type": "true_false",
+    "prompt": "Jonás fue enviado a Nínive, no a Tarsis.",
+    "options": ["Verdadero", "Falso"],
+    "correctIndex": 0,
+    "explanation": "Dios lo envió a Nínive; él huyó hacia Tarsis (Jonás 1:2-3).",
+    "reference": "Jonás 1:2",
+    "tags": ["obediencia", "mision"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_tf_pentecostes",
+    "type": "true_false",
+    "prompt": "El Espíritu Santo descendió en Pentecostés sobre los apóstoles reunidos.",
+    "options": ["Verdadero", "Falso"],
+    "correctIndex": 0,
+    "explanation": "Hechos 2: lenguas de fuego y don de idiomas; nace la iglesia.",
+    "reference": "Hechos 2:1-4",
+    "tags": ["iglesia", "espiritu"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_tf_pablo12",
+    "type": "true_false",
+    "prompt": "Pablo fue uno de los doce discípulos originales de Jesús.",
+    "options": ["Verdadero", "Falso"],
+    "correctIndex": 1,
+    "explanation": "Pablo fue llamado después de la resurrección (Hechos 9); reemplazo de Judas fue Matías.",
+    "reference": "Hechos 9:3-6",
+    "tags": ["apostoles"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_tf_abra100",
+    "type": "true_false",
+    "prompt": "Abraham tenía 100 años cuando nació Isaac.",
+    "options": ["Verdadero", "Falso"],
+    "correctIndex": 0,
+    "explanation": "Génesis 21:5 — «era Abraham de cien años, cuando nació Isaac su hijo».",
+    "reference": "Génesis 21:5",
+    "tags": ["abraham", "promesa"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_tf_diezman",
+    "type": "true_false",
+    "prompt": "Los Diez Mandamientos fueron entregados en el Monte Sinaí.",
+    "options": ["Verdadero", "Falso"],
+    "correctIndex": 0,
+    "explanation": "Éxodo 19-20 — Dios se manifiesta a Moisés en Sinaí.",
+    "reference": "Éxodo 20",
+    "tags": ["ley"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_mc_primerrey",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue el primer rey de Israel?",
+    "options": ["David", "Saúl", "Samuel", "Salomón"],
+    "correctIndex": 1,
+    "explanation": "Saúl fue ungido por Samuel (1 Samuel 10), antes de David.",
+    "reference": "1 Samuel 10:1",
+    "tags": ["reyes"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_mc_librocapt",
+    "type": "multiple_choice",
+    "prompt": "¿En qué libro está la historia del valle de los huesos secos?",
+    "options": ["Isaías", "Jeremías", "Ezequiel", "Daniel"],
+    "correctIndex": 2,
+    "explanation": "Ezequiel 37 — visión de restauración del pueblo en el exilio.",
+    "reference": "Ezequiel 37",
+    "tags": ["profetas", "restauracion"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_mc_betel",
+    "type": "multiple_choice",
+    "prompt": "¿Quién soñó con una escalera que llegaba al cielo?",
+    "options": ["Abraham", "Isaac", "Jacob", "José"],
+    "correctIndex": 2,
+    "explanation": "Jacob en Betel (Génesis 28); Dios confirma el pacto.",
+    "reference": "Génesis 28:12",
+    "tags": ["patriarcas"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_mc_cuantasplagas",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas plagas cayeron sobre Egipto?",
+    "options": ["Siete", "Nueve", "Diez", "Doce"],
+    "correctIndex": 2,
+    "explanation": "Éxodo 7-12 registra diez plagas; la última es la muerte de los primogénitos.",
+    "reference": "Éxodo 7-12",
+    "tags": ["exodo"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_mc_frutoespiritu",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál NO forma parte del fruto del Espíritu?",
+    "options": ["Gozo", "Paz", "Riqueza", "Templanza"],
+    "correctIndex": 2,
+    "explanation": "Gálatas 5:22-23: amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza.",
+    "reference": "Gálatas 5:22-23",
+    "tags": ["espiritu", "caracter"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_mc_bienaventuranza",
+    "type": "multiple_choice",
+    "prompt": "Según las bienaventuranzas, ¿quiénes heredarán la tierra?",
+    "options": ["Los pobres de espíritu", "Los que lloran", "Los mansos", "Los misericordiosos"],
+    "correctIndex": 2,
+    "explanation": "Mateo 5:5 — «Bienaventurados los mansos».",
+    "reference": "Mateo 5:5",
+    "tags": ["sermon_monte"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_cv_sal4610",
+    "type": "complete_verse",
+    "prompt": "«Estad quietos, y conoced que yo soy ___.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "Dios",
+    "explanation": "Salmos 46:10 — invita a descansar en la soberanía de Dios.",
+    "reference": "Salmos 46:10",
+    "tags": ["descanso", "soberania"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_cv_mt1128",
+    "type": "complete_verse",
+    "prompt": "«Venid a mí todos los que estáis ___ y cargados, y yo os haré descansar.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "trabajados",
+    "explanation": "Mateo 11:28 — Jesús ofrece descanso al alma cansada.",
+    "reference": "Mateo 11:28",
+    "tags": ["descanso", "invitacion"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_ws_temevid",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «No temas, cree solamente»?",
+    "options": ["Jesús", "Pedro", "Juan el Bautista", "Elías"],
+    "correctIndex": 0,
+    "explanation": "Jesús a Jairo cuando su hija murió (Marcos 5:36).",
+    "reference": "Marcos 5:36",
+    "tags": ["fe", "temor"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_tf_beren",
+    "type": "true_false",
+    "prompt": "Los bereanos examinaban diariamente las Escrituras para ver si lo predicado era así.",
+    "options": ["Verdadero", "Falso"],
+    "correctIndex": 0,
+    "explanation": "Hechos 17:11 los llama «más nobles» por esa actitud.",
+    "reference": "Hechos 17:11",
+    "tags": ["escrituras"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_mc_mandamamor",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál dijo Jesús que es el gran mandamiento?",
+    "options": [
+      "Honra a tu padre y madre",
+      "No matarás",
+      "Amarás al Señor tu Dios con todo tu corazón",
+      "No robarás"
+    ],
+    "correctIndex": 2,
+    "explanation": "Mateo 22:37-38; el segundo es amar al prójimo como a uno mismo.",
+    "reference": "Mateo 22:37-38",
+    "tags": ["amor", "ley"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_mc_oracionmodelo",
+    "type": "multiple_choice",
+    "prompt": "En el Padrenuestro, ¿qué pedimos primero?",
+    "options": [
+      "El pan de cada día",
+      "Que sea santificado el nombre del Padre",
+      "El perdón de deudas",
+      "Librarnos del mal"
+    ],
+    "correctIndex": 1,
+    "explanation": "Mateo 6:9 — la oración empieza reconociendo a Dios antes que nuestras necesidades.",
+    "reference": "Mateo 6:9",
+    "tags": ["oracion"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_order_exodo",
+    "type": "order_events",
+    "prompt": "Ordena cronológicamente estos eventos del Éxodo:",
+    "options": [
+      "Moisés ve la zarza ardiente",
+      "Las diez plagas sobre Egipto",
+      "Cruce del Mar Rojo",
+      "Entrega de los Diez Mandamientos"
+    ],
+    "correctOrder": [0, 1, 2, 3],
+    "correctIndex": 0,
+    "explanation": "Éxodo 3→12→14→20: llamado, juicio, liberación y pacto.",
+    "reference": "Éxodo 3—20",
+    "tags": ["historia", "exodo"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_order_pasion",
+    "type": "order_events",
+    "prompt": "Ordena los eventos de la Semana de la Pasión:",
+    "options": [
+      "Entrada triunfal a Jerusalén",
+      "Última Cena",
+      "Crucifixión",
+      "Resurrección"
+    ],
+    "correctOrder": [0, 1, 2, 3],
+    "correctIndex": 0,
+    "explanation": "Del domingo de ramos al domingo de resurrección.",
+    "reference": "Mateo 21—28",
+    "tags": ["jesus", "pasion"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_match_profetas",
+    "type": "match_pairs",
+    "prompt": "Conecta cada profeta con su mensaje principal:",
+    "options": [],
+    "correctIndex": 0,
+    "pairs": [
+      {"left": "Isaías", "right": "El Siervo Sufriente"},
+      {"left": "Jeremías", "right": "Nuevo pacto en el corazón"},
+      {"left": "Ezequiel", "right": "Huesos secos revividos"},
+      {"left": "Jonás", "right": "Misión a Nínive"}
+    ],
+    "explanation": "Cada profeta lleva un mensaje distintivo del corazón de Dios.",
+    "reference": "Profetas Mayores y Menores",
+    "tags": ["profetas"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_match_apostoles",
+    "type": "match_pairs",
+    "prompt": "Conecta cada apóstol con su carta o evangelio:",
+    "options": [],
+    "correctIndex": 0,
+    "pairs": [
+      {"left": "Pablo", "right": "Romanos"},
+      {"left": "Juan", "right": "Apocalipsis"},
+      {"left": "Pedro", "right": "1 Pedro"},
+      {"left": "Santiago", "right": "Santiago"}
+    ],
+    "explanation": "Identifica la voz pastoral detrás de cada libro.",
+    "reference": "Nuevo Testamento",
+    "tags": ["apostoles"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_ref_jn316",
+    "type": "choose_reference",
+    "prompt": "«Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito...»",
+    "options": [
+      "Romanos 8:28",
+      "Juan 3:16",
+      "1 Juan 4:8",
+      "Efesios 2:8"
+    ],
+    "correctIndex": 1,
+    "ttsEnabled": true,
+    "explanation": "El versículo más citado del Nuevo Testamento.",
+    "reference": "Juan 3:16",
+    "tags": ["evangelio"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_ref_sal231",
+    "type": "choose_reference",
+    "prompt": "«Jehová es mi pastor, nada me faltará.»",
+    "options": [
+      "Salmos 23:1",
+      "Salmos 27:1",
+      "Isaías 40:11",
+      "Juan 10:11"
+    ],
+    "correctIndex": 0,
+    "ttsEnabled": true,
+    "explanation": "Apertura del salmo pastoral de David.",
+    "reference": "Salmos 23:1",
+    "tags": ["confianza"],
+    "difficulty": 1
+  },
+  {
+    "id": "q_sit_tentacion",
+    "type": "situational",
+    "prompt": "Estás bajo una fuerte tentación antes de dormir. ¿Cuál es la respuesta bíblica más sabia?",
+    "options": [
+      "Ignorarla con fuerza de voluntad",
+      "Huir de la situación y orar (2 Timoteo 2:22)",
+      "Negociar con ella",
+      "Esperar a que pase sola"
+    ],
+    "correctIndex": 1,
+    "explanation": "«Huye también de las pasiones juveniles, y sigue la justicia» — escapar + buscar comunión.",
+    "reference": "2 Timoteo 2:22",
+    "tags": ["tentacion", "victoria"],
+    "difficulty": 2
+  },
+  {
+    "id": "q_sit_ofensa",
+    "type": "situational",
+    "prompt": "Un hermano te ofendió. ¿Cuál es el primer paso que enseña Jesús?",
+    "options": [
+      "Publicarlo para que todos sepan",
+      "Guardar silencio y alejarte",
+      "Hablar con él a solas (Mateo 18:15)",
+      "Devolver la ofensa"
+    ],
+    "correctIndex": 2,
+    "explanation": "Mateo 18:15 — la reconciliación empieza en privado, con humildad.",
+    "reference": "Mateo 18:15",
+    "tags": ["relaciones", "perdon"],
+    "difficulty": 2
+  }
+]
