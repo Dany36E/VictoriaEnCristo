@@ -123,6 +123,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
             child: CachedNetworkImage(
               imageUrl: _heroImageUrl,
               fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
               placeholder: (context, url) => Container(
                 color: AppDesignSystem.midnight,
               ),

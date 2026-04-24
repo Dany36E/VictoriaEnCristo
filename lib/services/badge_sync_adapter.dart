@@ -11,6 +11,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 import '../repositories/badge_repository.dart';
+import '../utils/sync_retry.dart';
 import 'badge_service.dart';
 
 class BadgeSyncAdapter {
@@ -38,11 +39,10 @@ class BadgeSyncAdapter {
 
   /// Sincronizar badges a cloud
   Future<void> _syncToCloud(Map<String, int> levels) async {
-    try {
-      await BadgeRepository.I.saveAllToCloud(levels);
-    } catch (e) {
-      debugPrint('❌ [BADGE_SYNC] Sync error: $e');
-    }
+    await SyncRetry.withBackoff(
+      () => BadgeRepository.I.saveAllToCloud(levels),
+      where: 'BadgeSync.save',
+    );
   }
 
   /// Forzar sincronización completa de LOCAL → CLOUD

@@ -21,3 +21,10 @@ export {
   reportContent,
   banAbuseHash,
 } from "./wallFunctions";
+
+// Compañero de Batalla - Push notifications y purga
+export {
+  onPartnerInviteCreated,
+  onBattleMessageCreated,
+  purgeOldPartnerInvites,
+} from "./battlePartnerFunctions";

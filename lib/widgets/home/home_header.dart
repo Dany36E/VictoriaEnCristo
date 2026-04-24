@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
 import '../../services/favorites_service.dart';
-import '../../../screens/profile_screen.dart';
+import '../../screens/profile_screen.dart';
 import '../../screens/favorites_screen.dart';
 import '../../screens/settings_screen.dart';
 
@@ -18,6 +19,10 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    // Header sits on top of the dark hero image, but for light themes
+    // the gradient may encroach; use theme-adaptive colors.
+    final fg = t.isDark ? Colors.white : t.textPrimary;
     User? user;
     try {
       user = FirebaseAuth.instance.currentUser;
@@ -49,7 +54,7 @@ class HomeHeader extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: Colors.white.withOpacity(0.3),
+                color: fg.withOpacity(0.3),
                 width: 1.5,
               ),
             ),
@@ -58,11 +63,11 @@ class HomeHeader extends StatelessWidget {
               height: 46,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.white.withOpacity(0.1),
+                color: fg.withOpacity(0.1),
               ),
               child: Icon(
                 isLoggedIn ? Icons.person : Icons.shield_outlined,
-                color: Colors.white,
+                color: fg,
                 size: 24,
               ),
             ),
@@ -86,7 +91,7 @@ class HomeHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: Colors.white.withOpacity(0.6),
+                  color: fg.withOpacity(0.6),
                 ),
               ),
               const SizedBox(height: 2),
@@ -94,10 +99,10 @@ class HomeHeader extends StatelessWidget {
                 isLoggedIn
                     ? (user.displayName?.split(' ').first ?? 'Guerrero')
                     : 'Tu camino a la libertad',
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
-                  color: Colors.white,
+                  color: fg,
                 ),
               ),
             ],
@@ -121,7 +126,7 @@ class HomeHeader extends StatelessWidget {
             children: [
               Icon(
                 Icons.bookmark_rounded,
-                color: Colors.white.withOpacity(0.7),
+                color: fg.withOpacity(0.7),
               ),
               if (FavoritesService().count > 0)
                 Positioned(
@@ -168,7 +173,7 @@ class HomeHeader extends StatelessWidget {
           },
           icon: Icon(
             Icons.tune_rounded,
-            color: Colors.white.withOpacity(0.7),
+            color: fg.withOpacity(0.7),
           ),
         ),
       ],

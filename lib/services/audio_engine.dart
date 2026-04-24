@@ -112,12 +112,10 @@ class AudioEngine {
   // ═══════════════════════════════════════════════════════════════════════════
   
   /// Assets en orden de preferencia:
-  /// 1. worship_pad.mp3 (el del usuario si existe)
-  /// 2. Worship_pads.mp3 (principal largo)
-  /// 3. Worship_pads2.mp3 (alternativo)
-  /// 4. test_song.mp3 (fallback)
+  /// 1. Worship_pads.mp3 (principal largo)
+  /// 2. Worship_pads2.mp3 (alternativo)
+  /// 3. test_song.mp3 (fallback)
   static const List<String> _bgmCandidates = [
-    'assets/sounds/worship_pad.mp3',    // El del usuario
     'assets/sounds/Worship_pads.mp3',   // Principal largo
     'assets/sounds/Worship_pads2.mp3',  // Alternativo
     'assets/sounds/test_song.mp3',      // Fallback

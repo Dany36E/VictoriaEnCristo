@@ -48,6 +48,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: CachedNetworkImage(
               imageUrl: ImageUrls.heroMountain,
               fit: BoxFit.cover,
+              filterQuality: FilterQuality.high,
               placeholder: (context, url) => Container(color: const Color(0xFF0D1B2A)),
               errorWidget: (context, url, error) => Container(
                 decoration: const BoxDecoration(

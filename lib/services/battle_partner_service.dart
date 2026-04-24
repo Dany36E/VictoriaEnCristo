@@ -9,10 +9,13 @@ library;
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/battle_partner_data.dart';
 import '../constants/battle_messages.dart';
+import 'notification_service.dart';
 import 'victory_scoring_service.dart';
 
 /// Máximo de compañeros por usuario
@@ -21,19 +24,19 @@ const int kMaxBattlePartners = 5;
 /// Máximo de mensajes al mismo compañero en 24h
 const int kMaxMessagesPerDay = 3;
 
+/// Máximo de SOS de oración por día (broadcast a todos los compañeros).
+const int kMaxSosPerDay = 1;
+
 /// Caracteres permitidos para inviteCode (sin O/0/I/1)
 const String _codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 class BattlePartnerService {
   // ═══════════════════════════════════════════════════════════════════════════
-  // SINGLETON
+  // SINGLETON — patrón unificado (solo .I) para alinear con resto de servicios.
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static final BattlePartnerService _instance = BattlePartnerService._internal();
-  factory BattlePartnerService() => _instance;
-  BattlePartnerService._internal();
-
-  static BattlePartnerService get I => _instance;
+  BattlePartnerService._();
+  static final BattlePartnerService I = BattlePartnerService._();
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -60,6 +63,24 @@ class BattlePartnerService {
   final ValueNotifier<List<BattleMessageData>> unreadMessagesNotifier =
       ValueNotifier([]);
 
+  /// ¿El usuario acepta nuevas invitaciones? (modo pausa)
+  /// Se persiste localmente y se replica al doc del usuario.
+  final ValueNotifier<bool> acceptingInvitesNotifier = ValueNotifier(true);
+
+  /// UID del compañero con el que se comparte "gigante en batalla" (opt-in).
+  /// `null` = sin compañero de confianza configurado. Solo uno a la vez.
+  final ValueNotifier<String?> trustedPartnerUidNotifier = ValueNotifier(null);
+
+  /// Cache local de progreso público por partnerUid. Evita releer los 5 docs
+  /// cada vez que cambia CUALQUIER campo en battlePartners (fix N+1 reads).
+  final Map<String, Map<String, dynamic>?> _progressCache = {};
+
+  /// Debounce del auto-sync de publicProgress al cambiar la racha.
+  Timer? _publicProgressDebounce;
+  /// Listener a VictoryScoringService para mantener publicProgress fresco
+  /// sin escribir en cada evento (debounce 5 min).
+  VoidCallback? _streakListener;
+
   /// Número de invitaciones pendientes (para badge)
   int get pendingInviteCount => pendingInvitesNotifier.value.length;
 
@@ -79,7 +100,14 @@ class BattlePartnerService {
     _uid = uid;
     _prefs ??= await SharedPreferences.getInstance();
 
+    // Cargar flags persistentes (pausa, trusted partner) antes de exponerlos.
+    acceptingInvitesNotifier.value =
+        _prefs?.getBool(_kAcceptingInvitesKey) ?? true;
+    trustedPartnerUidNotifier.value =
+        _prefs?.getString(_kTrustedPartnerKey);
+
     _startListening();
+    _attachStreakListener();
     _isInitialized = true;
   }
 
@@ -92,9 +120,14 @@ class BattlePartnerService {
     _invitesSubscription = null;
     _messagesSubscription = null;
 
+    _detachStreakListener();
+    _publicProgressDebounce?.cancel();
+    _publicProgressDebounce = null;
+
     partnersNotifier.value = [];
     pendingInvitesNotifier.value = [];
     unreadMessagesNotifier.value = [];
+    _progressCache.clear();
 
     _uid = null;
     _isInitialized = false;
@@ -119,9 +152,7 @@ class BattlePartnerService {
         .listen(
       (snapshot) => _onPartnersChanged(snapshot),
       onError: (e) => debugPrint('🤝 [BATTLE] Partners stream error: $e'),
-    );
-
-    // Invitaciones pendientes
+    );    // Invitaciones pendientes
     _invitesSubscription?.cancel();
     _invitesSubscription = _db
         .collection('users')
@@ -136,6 +167,7 @@ class BattlePartnerService {
             .toList();
         pendingInvitesNotifier.value = invites;
         debugPrint('🤝 [BATTLE] ${invites.length} invitaciones pendientes');
+        _maybeNotifyNewInvites(snapshot);
       },
       onError: (e) => debugPrint('🤝 [BATTLE] Invites stream error: $e'),
     );
@@ -156,42 +188,64 @@ class BattlePartnerService {
             .map((doc) => BattleMessageData.fromFirestore(doc.id, doc.data()))
             .toList();
         unreadMessagesNotifier.value = msgs;
+        _maybeNotifyNewMessages(snapshot);
       },
       onError: (e) => debugPrint('🤝 [BATTLE] Messages stream error: $e'),
     );
   }
 
-  /// Cuando cambian los partners, fetch su publicProgress para cada uno
+  /// Cuando cambian los partners, fetch su publicProgress SOLO si es doc
+  /// nuevo o modificado (fix N+1 reads). Los restantes reutilizan el cache.
   Future<void> _onPartnersChanged(QuerySnapshot snapshot) async {
     try {
-      final List<BattlePartnerData> partners = [];
+      // Mapear docChanges a uids que realmente requieren relectura.
+      final Set<String> toRefetch = {};
+      for (final ch in snapshot.docChanges) {
+        if (ch.type == DocumentChangeType.removed) continue;
+        final data = ch.doc.data() as Map<String, dynamic>?;
+        final pUid = data?['partnerUid'] as String? ?? '';
+        if (pUid.isEmpty) continue;
+        // Si no tengo cache aún, hay que leerlo. Si está cacheado, solo
+        // releemos cuando el cambio remoto no es una escritura local optimista.
+        final hasCache = _progressCache.containsKey(pUid);
+        final pending = ch.doc.metadata.hasPendingWrites;
+        if (!hasCache || (!pending && ch.type == DocumentChangeType.modified)) {
+          toRefetch.add(pUid);
+        }
+      }
 
+      // Releer sólo los cambiados (paralelo).
+      if (toRefetch.isNotEmpty) {
+        await Future.wait(toRefetch.map((pUid) async {
+          try {
+            final doc = await _db
+                .collection('users')
+                .doc(pUid)
+                .collection('publicProgress')
+                .doc('latest')
+                .get();
+            _progressCache[pUid] = doc.exists ? doc.data() : null;
+          } catch (e) {
+            debugPrint('🤝 [BATTLE] Error reading progress for $pUid: $e');
+            _progressCache.putIfAbsent(pUid, () => null);
+          }
+        }));
+      }
+
+      final List<BattlePartnerData> partners = [];
       for (final doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         final partnerUid = data['partnerUid'] as String? ?? '';
         if (partnerUid.isEmpty) continue;
-
-        // Leer publicProgress del compañero
-        Map<String, dynamic>? progressData;
-        try {
-          final progressDoc = await _db
-              .collection('users')
-              .doc(partnerUid)
-              .collection('publicProgress')
-              .doc('latest')
-              .get();
-          if (progressDoc.exists) {
-            progressData = progressDoc.data();
-          }
-        } catch (e) {
-          debugPrint('🤝 [BATTLE] Error reading progress for $partnerUid: $e');
-        }
-
         partners.add(BattlePartnerData.fromFirestore(
           data,
-          progressDoc: progressData,
+          progressDoc: _progressCache[partnerUid],
         ));
       }
+
+      // Purgar cache de uids ya no presentes.
+      final presentUids = partners.map((p) => p.uid).toSet();
+      _progressCache.removeWhere((k, _) => !presentUids.contains(k));
 
       // Ordenar: inactivos al final
       partners.sort((a, b) {
@@ -201,10 +255,123 @@ class BattlePartnerService {
       });
 
       partnersNotifier.value = partners;
-      debugPrint('🤝 [BATTLE] ${partners.length} compañeros activos');
+      debugPrint('🤝 [BATTLE] ${partners.length} compañeros activos '
+          '(refetched ${toRefetch.length})');
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error procesando partners: $e');
     }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // NOTIFICACIONES PUSH LOCALES
+  // ─────────────────────────────────────────────────────────────────────────
+  // Al detectar docs NUEVAS (type=added) en los streams de invitaciones y
+  // mensajes, disparamos una notificación local. Evitamos duplicados tras
+  // reconexión persistiendo el timestamp más reciente notificado por uid.
+  // No generamos reads extra: reutilizamos los listeners ya activos.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  String get _kLastInviteMs => 'battle.lastNotifiedInviteMs.$_uid';
+  String get _kLastMessageMs => 'battle.lastNotifiedMessageMs.$_uid';
+
+  int _loadLastMs(String key) => _prefs?.getInt(key) ?? 0;
+
+  Future<void> _saveLastMs(String key, int ms) async {
+    await _prefs?.setInt(key, ms);
+  }
+
+  /// ID estable y positivo para flutter_local_notifications a partir del docId.
+  int _notifIdFor(String prefix, String docId) {
+    // Prefijo (20/21) reservado para battle; evita colisión con recordatorios
+    // fijos (1001-1004) y permite distinguir invites de mensajes.
+    final hash = docId.hashCode & 0x3FFFFFFF; // positivo de 30 bits
+    return prefix == 'invite' ? (0x20000000 | hash) : (0x40000000 | hash);
+  }
+
+  void _maybeNotifyNewInvites(QuerySnapshot<Map<String, dynamic>> snap) {
+    final lastMs = _loadLastMs(_kLastInviteMs);
+    int maxSeen = lastMs;
+    for (final change in snap.docChanges) {
+      if (change.type != DocumentChangeType.added) continue;
+      // hasPendingWrites=true significa que la escritura es optimista local
+      // (p.ej. aceptación en este mismo cliente) → no notificar.
+      if (change.doc.metadata.hasPendingWrites) continue;
+      final data = change.doc.data();
+      if (data == null) continue;
+      final ts = data['createdAt'];
+      final ms = _tsToMs(ts);
+      if (ms == 0 || ms <= lastMs) continue;
+      final fromName = (data['fromName'] as String?)?.trim();
+      unawaited(NotificationService().showBattlePartnerInvite(
+        id: _notifIdFor('invite', change.doc.id),
+        fromName: (fromName == null || fromName.isEmpty)
+            ? 'Alguien'
+            : fromName,
+      ));
+      if (ms > maxSeen) maxSeen = ms;
+    }
+    if (maxSeen > lastMs) unawaited(_saveLastMs(_kLastInviteMs, maxSeen));
+  }
+
+  void _maybeNotifyNewMessages(QuerySnapshot<Map<String, dynamic>> snap) {
+    final lastMs = _loadLastMs(_kLastMessageMs);
+    int maxSeen = lastMs;
+    for (final change in snap.docChanges) {
+      if (change.type != DocumentChangeType.added) continue;
+      if (change.doc.metadata.hasPendingWrites) continue;
+      final data = change.doc.data();
+      if (data == null) continue;
+      final ts = data['sentAt'];
+      final ms = _tsToMs(ts);
+      if (ms == 0 || ms <= lastMs) continue;
+      final fromUid = data['fromUid'] as String? ?? '';
+      final key = data['messageKey'] as String? ?? '';
+      final isSos = key == kBattleSosKey;
+      final text = kBattleMessageMap[key]?.text ?? 'Te envió un mensaje';
+      // Resolver nombre desde el notifier de partners (cache local, 0 lecturas).
+      final fromName = partnersNotifier.value
+          .firstWhere(
+            (p) => p.uid == fromUid,
+            orElse: () => BattlePartnerData(
+              uid: fromUid,
+              name: 'Un compañero',
+              addedAt: DateTime.now(),
+              status: PartnerStatus.active,
+            ),
+          )
+          .name;
+
+      // Haptic + sonido suave si la app está en foreground (#10).
+      // El SOS siempre vibra aunque la pantalla esté abierta.
+      if (!NotificationService.isViewingBattlePartner.value || isSos) {
+        unawaited(HapticFeedback.mediumImpact());
+      }
+
+      if (isSos) {
+        unawaited(NotificationService().showBattleSos(
+          id: _notifIdFor('message', change.doc.id),
+          fromName: fromName,
+        ));
+      } else {
+        unawaited(NotificationService().showBattleMessage(
+          id: _notifIdFor('message', change.doc.id),
+          fromName: fromName,
+          text: text,
+        ));
+      }
+      if (ms > maxSeen) maxSeen = ms;
+    }
+    if (maxSeen > lastMs) unawaited(_saveLastMs(_kLastMessageMs, maxSeen));
+  }
+
+  /// Convierte Firestore Timestamp (o num, o DateTime, o String ISO) a millis.
+  int _tsToMs(dynamic v) {
+    if (v == null) return 0;
+    if (v is Timestamp) return v.millisecondsSinceEpoch;
+    if (v is DateTime) return v.millisecondsSinceEpoch;
+    if (v is num) return v.toInt();
+    if (v is String) return DateTime.tryParse(v)?.millisecondsSinceEpoch ?? 0;
+    return 0;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -306,6 +473,24 @@ class BattlePartnerService {
         return const InviteResult(type: InviteResultType.selfInvite);
       }
 
+      // Verificar si el destinatario pausó invitaciones (#12).
+      // El flag vive en publicProgress/latest (legible por cualquier auth).
+      try {
+        final pubDoc = await _db
+            .collection('users')
+            .doc(targetUid)
+            .collection('publicProgress')
+            .doc('latest')
+            .get();
+        final accepting = pubDoc.data()?['acceptingInvites'];
+        if (accepting is bool && accepting == false) {
+          return const InviteResult(type: InviteResultType.targetPaused);
+        }
+      } catch (_) {
+        // Si no hay doc o no podemos leer, asumimos que acepta. El write
+        // posterior será validado por reglas.
+      }
+
       // Verificar si ya están vinculados
       final existingDoc = await _db
           .collection('users')
@@ -391,6 +576,8 @@ class BattlePartnerService {
       await batch.commit();
       debugPrint('🤝 [BATTLE] Invitación enviada a $targetName');
 
+      unawaited(_logEvent('battle_invite_sent', const {}));
+
       return InviteResult(
         type: InviteResultType.success,
         targetUid: targetUid,
@@ -430,15 +617,38 @@ class BattlePartnerService {
           myDoc.data()?['displayName'] as String? ??
           'Compañero';
 
+      // Detectar invitación cruzada (ambos se invitaron a la vez) y
+      // auto-fusionar (#5): si yo ya envié invite al mismo `fromUid`,
+      // limpiamos la mía para no dejar docs fantasma.
+      try {
+        final mutual = await _db
+            .collection('users')
+            .doc(invite.fromUid)
+            .collection('partnerInvites')
+            .where('fromUid', isEqualTo: uid)
+            .where('status', isEqualTo: 'pending')
+            .limit(1)
+            .get();
+        if (mutual.docs.isNotEmpty) {
+          // Lo borramos (mejor que dejar accepted/rejected acumulado — fix #4).
+          await mutual.docs.first.reference.delete().catchError((_) {});
+          debugPrint('🤝 [BATTLE] Invitación cruzada detectada y fusionada');
+        }
+      } catch (e) {
+        debugPrint('🤝 [BATTLE] Error revisando invitación cruzada: $e');
+      }
+
       final batch = _db.batch();
 
-      // Actualizar invitación a accepted
-      batch.update(
-        _db.collection('users').doc(uid).collection('partnerInvites').doc(invite.inviteId),
-        {'status': 'accepted'},
-      );
+      // Borrar mi invitación entrante (en lugar de actualizar status) para
+      // no acumular docs en el tiempo (fix #4).
+      batch.delete(_db
+          .collection('users')
+          .doc(uid)
+          .collection('partnerInvites')
+          .doc(invite.inviteId));
 
-      // Crear partner en MI lista (status=active)
+      // Crear/mergear partner en MI lista (status=active)
       batch.set(
         _db.collection('users').doc(uid).collection('battlePartners').doc(invite.fromUid),
         {
@@ -447,18 +657,28 @@ class BattlePartnerService {
           'status': 'active',
           'addedAt': FieldValue.serverTimestamp(),
         },
+        SetOptions(merge: true),
       );
 
-      // Actualizar status del partner en la lista del OTRO (pending → active)
-      batch.update(
+      // Actualizar/crear partner doc en la lista del OTRO (idempotente).
+      // set(merge:true) evita fallos si el otro limpió su doc (fix #3).
+      batch.set(
         _db.collection('users').doc(invite.fromUid).collection('battlePartners').doc(uid),
         {
-          'status': 'active',
+          'partnerUid': uid,
           'partnerName': myName,
+          'status': 'active',
+          'addedAt': FieldValue.serverTimestamp(),
         },
+        SetOptions(merge: true),
       );
 
       await batch.commit();
+
+      // Analytics (#24)
+      unawaited(_logEvent('battle_invite_accepted', {
+        'from_uid_hash': invite.fromUid.hashCode.abs(),
+      }));
 
       // Sincronizar mi progreso público para que el nuevo compañero lo vea
       await syncPublicProgress();
@@ -476,25 +696,29 @@ class BattlePartnerService {
     if (uid == null) return false;
 
     try {
-      final batch = _db.batch();
+      // Borrar la invitación (en lugar de marcar rejected): evita acumulación
+      // de docs inservibles en la bandeja (fix #4).
+      await _db
+          .collection('users')
+          .doc(uid)
+          .collection('partnerInvites')
+          .doc(invite.inviteId)
+          .delete();
 
-      // Marcar invitación como rechazada
-      batch.update(
-        _db.collection('users').doc(uid).collection('partnerInvites').doc(invite.inviteId),
-        {'status': 'rejected'},
-      );
-
-      // Actualizar el partner doc del otro lado si existe
+      // Actualizar el partner doc del otro lado si existe (best-effort,
+      // merge para tolerar que ya no exista — fix #3).
       try {
-        batch.update(
-          _db.collection('users').doc(invite.fromUid).collection('battlePartners').doc(uid),
-          {'status': 'rejected'},
-        );
+        await _db
+            .collection('users')
+            .doc(invite.fromUid)
+            .collection('battlePartners')
+            .doc(uid)
+            .set({'status': 'rejected'}, SetOptions(merge: true));
       } catch (e) {
         debugPrint('🤝 [BATTLE] Error updating other side rejection: $e');
       }
 
-      await batch.commit();
+      unawaited(_logEvent('battle_invite_rejected', const {}));
       debugPrint('🤝 [BATTLE] Invitación rechazada de ${invite.fromName}');
       return true;
     } catch (e) {
@@ -512,24 +736,27 @@ class BattlePartnerService {
     if (uid == null) return false;
 
     try {
-      final batch = _db.batch();
-
-      batch.update(
-        _db.collection('users').doc(uid).collection('battlePartners').doc(partnerUid),
-        {'status': 'removed'},
-      );
-
-      // También en el otro lado
-      try {
-        batch.update(
-          _db.collection('users').doc(partnerUid).collection('battlePartners').doc(uid),
-          {'status': 'removed'},
-        );
-      } catch (e) {
-        debugPrint('🤝 [BATTLE] Error updating partner side removal: $e');
+      // Usamos set(merge:true) para tolerar que el otro lado ya haya
+      // eliminado su doc (fix #3). También limpiamos trustedPartner si
+      // coincide (no debe quedar una referencia huérfana).
+      if (trustedPartnerUidNotifier.value == partnerUid) {
+        await setTrustedPartner(null);
       }
 
+      final batch = _db.batch();
+      batch.set(
+        _db.collection('users').doc(uid).collection('battlePartners').doc(partnerUid),
+        {'status': 'removed'},
+        SetOptions(merge: true),
+      );
+      batch.set(
+        _db.collection('users').doc(partnerUid).collection('battlePartners').doc(uid),
+        {'status': 'removed'},
+        SetOptions(merge: true),
+      );
       await batch.commit();
+
+      unawaited(_logEvent('battle_partner_removed', const {}));
       debugPrint('🤝 [BATTLE] Compañero $partnerUid removido');
       return true;
     } catch (e) {
@@ -544,7 +771,7 @@ class BattlePartnerService {
   // NUNCA: giants, diario, score por gigante
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Future<void> syncPublicProgress() async {
+  Future<void> syncPublicProgress({String? sharedGiantId}) async {
     final uid = _uid;
     if (uid == null) return;
 
@@ -553,19 +780,33 @@ class BattlePartnerService {
       final streak = scoring.getCurrentStreak();
       final victoryToday = scoring.isLoggedToday();
 
+      final payload = <String, dynamic>{
+        'streakDays': streak,
+        'victoryToday': victoryToday,
+        'lastOpenedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        // Flag público de "pausa" — usado por lookupCode del otro usuario.
+        'acceptingInvites': acceptingInvitesNotifier.value,
+      };
+      // Solo exponer sharedGiantId si existe compañero de confianza (#19).
+      if (trustedPartnerUidNotifier.value != null && sharedGiantId != null) {
+        payload['sharedGiantId'] = sharedGiantId;
+        payload['trustedPartnerUid'] = trustedPartnerUidNotifier.value;
+      } else {
+        // Asegurar que se quita si antes estaba.
+        payload['sharedGiantId'] = FieldValue.delete();
+        payload['trustedPartnerUid'] = FieldValue.delete();
+      }
+
       await _db
           .collection('users')
           .doc(uid)
           .collection('publicProgress')
           .doc('latest')
-          .set({
-        'streakDays': streak,
-        'victoryToday': victoryToday,
-        'lastOpenedAt': FieldValue.serverTimestamp(),
-        'updatedAt': FieldValue.serverTimestamp(),
-      });
+          .set(payload, SetOptions(merge: true));
 
-      debugPrint('🤝 [BATTLE] Public progress synced: streak=$streak, today=$victoryToday');
+      debugPrint('🤝 [BATTLE] Public progress synced: '
+          'streak=$streak, today=$victoryToday, accepting=${acceptingInvitesNotifier.value}');
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error syncing public progress: $e');
     }
@@ -584,6 +825,11 @@ class BattlePartnerService {
     // Validar que es un mensaje válido
     if (!isValidMessageKey(messageKey)) {
       debugPrint('🤝 [BATTLE] Invalid message key: $messageKey');
+      return false;
+    }
+    // El SOS se envía por broadcast dedicado (sendSos), no por este path.
+    if (messageKey == kBattleSosKey) {
+      debugPrint('🤝 [BATTLE] sos_prayer debe enviarse con sendSos()');
       return false;
     }
 
@@ -605,20 +851,26 @@ class BattlePartnerService {
         'read': false,
       });
 
-      // Actualizar lastMessageSentAt
+      // Actualizar lastMessageSentAt (best-effort, merge para tolerar doc ausente)
       try {
         await _db
             .collection('users')
             .doc(uid)
             .collection('battlePartners')
             .doc(toUid)
-            .update({'lastMessageSentAt': FieldValue.serverTimestamp()});
+            .set(
+              {'lastMessageSentAt': FieldValue.serverTimestamp()},
+              SetOptions(merge: true),
+            );
       } catch (e) {
         debugPrint('🤝 [BATTLE] Error updating lastMessageSentAt: $e');
       }
 
       // Registrar rate-limit
       _recordMessageSent(toUid);
+
+      // Analytics (#24)
+      unawaited(_logEvent('battle_message_sent', {'message_key': messageKey}));
 
       debugPrint('🤝 [BATTLE] Mensaje "$messageKey" enviado a $toUid');
       return true;
@@ -743,6 +995,155 @@ class BattlePartnerService {
       debugPrint('🤝 [BATTLE] Nombre público actualizado: $newName');
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error actualizando nombre: $e');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PAUSA DE INVITACIONES (#12)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  static const String _kAcceptingInvitesKey = 'battle.acceptingInvites';
+
+  /// Activa/desactiva la recepción de nuevas solicitudes de compañero.
+  /// Persiste localmente y replica el flag a publicProgress/latest para
+  /// que quien busque tu código lo vea antes de enviarte la invitación.
+  Future<void> setAcceptingInvites(bool value) async {
+    acceptingInvitesNotifier.value = value;
+    await _prefs?.setBool(_kAcceptingInvitesKey, value);
+    unawaited(_logEvent('battle_pause_toggled', {'accepting': value}));
+    // Refrescar el doc público (usa merge).
+    unawaited(syncPublicProgress());
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COMPAÑERO DE CONFIANZA (#19) — opt-in para compartir "gigante"
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  static const String _kTrustedPartnerKey = 'battle.trustedPartnerUid';
+
+  /// Marca a un compañero como "de confianza": permite compartir con él
+  /// (y SÓLO con él) el id del gigante actualmente en batalla. Pasar
+  /// `null` para revocar. La UI llamará `syncPublicProgress(sharedGiantId:..)`
+  /// cuando el usuario seleccione el gigante a compartir.
+  Future<void> setTrustedPartner(String? partnerUid) async {
+    trustedPartnerUidNotifier.value = partnerUid;
+    if (partnerUid == null) {
+      await _prefs?.remove(_kTrustedPartnerKey);
+    } else {
+      await _prefs?.setString(_kTrustedPartnerKey, partnerUid);
+    }
+    unawaited(_logEvent('battle_trusted_partner_changed',
+        {'has_trusted': partnerUid != null}));
+    unawaited(syncPublicProgress()); // limpia sharedGiantId si ya no hay trusted
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SOS — "Oren por mí ahora" (#16)
+  // Broadcast a TODOS los compañeros activos. Rate-limit: 1/día.
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  String get _kLastSosIso => 'battle.lastSosAt.$_uid';
+
+  /// ¿Cuántos SOS le quedan hoy al usuario?
+  int remainingSosToday() {
+    final iso = _prefs?.getString(_kLastSosIso);
+    if (iso == null) return kMaxSosPerDay;
+    final last = DateTime.tryParse(iso);
+    if (last == null) return kMaxSosPerDay;
+    if (DateTime.now().difference(last).inHours >= 24) return kMaxSosPerDay;
+    return 0;
+  }
+
+  /// Envía un "SOS de oración" a todos los compañeros activos.
+  /// Retorna el número de compañeros a los que se notificó; 0 = rate-limited
+  /// o no hay compañeros.
+  Future<int> sendSos() async {
+    final uid = _uid;
+    if (uid == null) return 0;
+    if (remainingSosToday() <= 0) {
+      debugPrint('🤝 [BATTLE] SOS rate-limited (1/día)');
+      return 0;
+    }
+    final partners = partnersNotifier.value
+        .where((p) => p.status == PartnerStatus.active)
+        .toList();
+    if (partners.isEmpty) return 0;
+
+    int sent = 0;
+    final batch = _db.batch();
+    for (final p in partners) {
+      final ref = _db
+          .collection('users')
+          .doc(p.uid)
+          .collection('battleMessages')
+          .doc();
+      batch.set(ref, {
+        'fromUid': uid,
+        'messageKey': kBattleSosKey,
+        'sentAt': FieldValue.serverTimestamp(),
+        'read': false,
+        'priority': 'sos',
+      });
+      sent++;
+    }
+    try {
+      await batch.commit();
+      await _prefs?.setString(_kLastSosIso, DateTime.now().toIso8601String());
+      unawaited(_logEvent('battle_sos_sent', {'recipients': sent}));
+      debugPrint('🤝 [BATTLE] 🆘 SOS enviado a $sent compañero(s)');
+      return sent;
+    } catch (e) {
+      debugPrint('🤝 [BATTLE] Error enviando SOS: $e');
+      return 0;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // STREAK LISTENER — auto-sync publicProgress con debounce (#22)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  void _attachStreakListener() {
+    _detachStreakListener();
+    _streakListener = _onStreakChanged;
+    VictoryScoringService.I.currentStreakNotifier
+        .addListener(_streakListener!);
+    VictoryScoringService.I.loggedTodayNotifier.addListener(_streakListener!);
+  }
+
+  void _detachStreakListener() {
+    final l = _streakListener;
+    if (l != null) {
+      VictoryScoringService.I.currentStreakNotifier.removeListener(l);
+      VictoryScoringService.I.loggedTodayNotifier.removeListener(l);
+      _streakListener = null;
+    }
+  }
+
+  void _onStreakChanged() {
+    _publicProgressDebounce?.cancel();
+    _publicProgressDebounce = Timer(const Duration(minutes: 5), () {
+      if (_uid != null) {
+        unawaited(syncPublicProgress());
+      }
+    });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // ANALYTICS HELPER (#24)
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Future<void> _logEvent(String name, Map<String, Object?> params) async {
+    try {
+      final clean = <String, Object>{};
+      params.forEach((k, v) {
+        if (v is String || v is num || v is bool) {
+          clean[k] = v as Object;
+        }
+      });
+      await FirebaseAnalytics.instance
+          .logEvent(name: name, parameters: clean);
+    } catch (e) {
+      debugPrint('🤝 [BATTLE] Analytics error ($name): $e');
     }
   }
 }

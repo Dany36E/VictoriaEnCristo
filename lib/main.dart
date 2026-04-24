@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'theme/app_theme_data.dart';
@@ -16,11 +17,16 @@ import 'screens/login_screen.dart';
 import 'screens/onboarding/onboarding_welcome_screen.dart';
 import 'screens/widget_settings_screen.dart';
 import 'screens/emergency_screen.dart';
+import 'screens/devotional_screen.dart';
+import 'screens/journal_screen.dart';
+import 'screens/battle_partner/battle_partner_screen.dart';
 import 'services/theme_service.dart';
 import 'services/favorites_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/audio_engine.dart';
+import 'services/app_error_handler.dart';
 import 'services/feedback_engine.dart';
+import 'services/exercise_log_service.dart';
 import 'services/content_repository.dart';
 import 'services/widget_sync_service.dart';
 import 'services/victory_scoring_service.dart';
@@ -35,6 +41,10 @@ import 'services/bible/bible_parser_service.dart';
 import 'services/bible/bible_download_service.dart';
 import 'services/notification_service.dart';
 import 'services/emergency_sos_service.dart';
+import 'services/fcm_service.dart';
+import 'services/daily_practice_service.dart';
+import 'services/learning/learning_registry.dart';
+import 'data/devotionals.dart';
 
 /// RouteObserver global para detectar navegación (usado por HomeScreen)
 final RouteObserver<ModalRoute<void>> routeObserver =
@@ -42,7 +52,12 @@ final RouteObserver<ModalRoute<void>> routeObserver =
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  
+
+  // google_fonts: desactivar descargas en runtime. Las fuentes están
+  // bundled en `google_fonts/` y declaradas como fonts nativas en pubspec,
+  // así evitamos tráfico de red y latencia al pintar texto.
+  GoogleFonts.config.allowRuntimeFetching = false;
+
   // Inicializar Firebase con opciones de plataforma
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
@@ -64,54 +79,32 @@ void main() async {
   );
   
   // ═══════════════════════════════════════════════════════════════════════════
-  // FASE 1 — Servicios independientes (en paralelo)
-  // Ninguno depende de otro; todos solo usan SharedPreferences/assets/plugins
+  // FASE 1 — CRÍTICO pre-runApp (bloquea el primer frame)
+  // Solo lo indispensable para renderizar Login/Home correctamente.
   // ═══════════════════════════════════════════════════════════════════════════
   final themeService = ThemeService();
   final onboardingService = OnboardingService();
   final favoritesService = FavoritesService();
   final audioEngine = AudioEngine.I;
-  final feedbackEngine = FeedbackEngine.I;
   final contentRepo = ContentRepository.I;
-  final widgetService = WidgetSyncService.I;
-  final notificationService = NotificationService();
 
   await Future.wait([
     themeService.initialize(),
     onboardingService.init(),
     favoritesService.init(),
     audioEngine.init(),
-    feedbackEngine.init(),
     contentRepo.init(),
-    widgetService.init(),
-    JesusWidgetService.I.init(),
-    notificationService.initialize(),
-    BibleDownloadService.I.init(),
+    Devotionals.init(),
   ]);
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // FASE 2 — Servicios con dependencias (en paralelo entre sí)
-  // VictoryScoringService necesita OnboardingService (ya listo)
-  // BibleParserService necesita BibleDownloadService (ya listo)
+  // FASE 2 — dependientes pre-runApp (Home necesita streak y bootstrap)
   // ═══════════════════════════════════════════════════════════════════════════
   final scoringService = VictoryScoringService.I;
-
-  await Future.wait([
-    scoringService.init(),
-    BibleParserService.I.init(),
-    notificationService.scheduleAllNotifications(),
-    EmergencySosService.I.init(),
-  ]);
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // FASE 3 — Orquestadores (secuencial, dependen de todo lo anterior)
-  // ═══════════════════════════════════════════════════════════════════════════
+  await scoringService.init();
   await DataBootstrapper.I.init();
   await AccountSessionManager.I.init();
-  
-  // Sincronizar widget al inicio
-  widgetService.syncWidget();
-  
+
   // Si el audio estaba habilitado, intentar reproducir (fire-and-forget)
   if (audioEngine.bgmEnabled.value) {
     audioEngine.startBgm().then((success) {
@@ -120,11 +113,45 @@ void main() async {
       }
     }).catchError((e) { debugPrint('❌ [MAIN] Error iniciando BGM: $e'); });
   }
-  
+
   runApp(VictoriaEnCristoApp(
     themeService: themeService,
     onboardingService: onboardingService,
   ));
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FASE 3 — NO CRÍTICO post-runApp (después del primer frame)
+  // Estos servicios no son necesarios para la primera pantalla y
+  // diferirlos acelera el tiempo de arranque percibido.
+  // ═══════════════════════════════════════════════════════════════════════════
+  WidgetsBinding.instance.addPostFrameCallback((_) async {
+    final sw = Stopwatch()..start();
+    try {
+      final notificationService = NotificationService();
+      await Future.wait([
+        FeedbackEngine.I.init(),
+        ExerciseLogService.I.init(),
+        WidgetSyncService.I.init(),
+        JesusWidgetService.I.init(),
+        notificationService.initialize(),
+        BibleDownloadService.I.init(),
+        EmergencySosService.I.init(),
+        DailyPracticeService.I.init(),
+        FcmService.I.init(),
+        // Escuela del Reino: un único entrypoint en lugar de 18 inits sueltos.
+        LearningRegistry.I.initAll(),
+      ]);
+      // Requieren que las anteriores estén listas
+      await Future.wait([
+        BibleParserService.I.init(),
+        notificationService.scheduleAllNotifications(),
+      ]);
+      WidgetSyncService.I.syncWidget();
+      debugPrint('🚀 [MAIN] Deferred services ready in ${sw.elapsedMilliseconds}ms');
+    } catch (e) {
+      debugPrint('⚠️ [MAIN] Deferred init error: $e');
+    }
+  });
 }
 
 class VictoriaEnCristoApp extends StatefulWidget {
@@ -159,6 +186,52 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     _updateSystemUI();
     _checkInitialRoute();
     WidgetSyncService.I.registerInteractionCallback(navigatorKey: _navigatorKey);
+
+    // Deep-link desde notificaciones locales.
+    // Ejecutamos tras el primer frame para asegurar que el Navigator exista.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _consumeNotificationPayload(NotificationService.lastTapPayload.value);
+      NotificationService.lastTapPayload.addListener(_onNotificationPayload);
+    });
+  }
+
+  void _onNotificationPayload() {
+    _consumeNotificationPayload(NotificationService.lastTapPayload.value);
+  }
+
+  /// Traduce el payload de una notificación a una ruta y navega.
+  void _consumeNotificationPayload(String? payload) {
+    if (payload == null || payload.isEmpty) return;
+    final nav = _navigatorKey.currentState;
+    if (nav == null) return;
+
+    // Limpiamos antes de navegar para no re-disparar si vuelve a reconstruir.
+    NotificationService.lastTapPayload.value = null;
+
+    try {
+      if (payload == NotificationService.payloadMorning) {
+        nav.push(MaterialPageRoute(builder: (_) => const DevotionalScreen()));
+      } else if (payload == NotificationService.payloadNight) {
+        nav.push(MaterialPageRoute(builder: (_) => const JournalScreen()));
+      } else if (payload == NotificationService.payloadBattleInvite ||
+          payload == NotificationService.payloadBattleMessage ||
+          payload == NotificationService.payloadBattleSos) {
+        nav.push(MaterialPageRoute(builder: (_) => const BattlePartnerScreen()));
+      } else if (payload == NotificationService.payloadVictory) {
+        // Victoria se marca desde Home; llevamos a home sin push extra.
+        nav.popUntil((r) => r.isFirst);
+      } else if (payload == NotificationService.payloadReengagement) {
+        nav.popUntil((r) => r.isFirst);
+      } else if (payload.startsWith(NotificationService.payloadPlanPrefix)) {
+        // Plan deep-link: por ahora llevamos a home; el Plan Screen se abre
+        // desde el dashboard. (Extender aquí cuando haya ruta específica.)
+        nav.popUntil((r) => r.isFirst);
+      } else {
+        debugPrint('🔔 Payload de notificación desconocido: $payload');
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error navegando desde notificación: $e');
+    }
   }
   
   /// Lee la ruta inicial desde el widget (Android)
@@ -177,6 +250,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     widget.themeService.removeListener(_onThemeChanged);
+    NotificationService.lastTapPayload.removeListener(_onNotificationPayload);
     super.dispose();
   }
 
@@ -246,6 +320,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     final appTheme = widget.themeService.currentTheme;
     return MaterialApp(
       navigatorKey: _navigatorKey,
+      scaffoldMessengerKey: AppErrorHandler.I.messengerKey,
       title: 'Victoria en Cristo',
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,

@@ -143,8 +143,8 @@ void main() {
   });
 
   group('BadgeCategory enum', () {
-    test('tiene exactamente 7 categorías', () {
-      expect(BadgeCategory.values.length, 7);
+    test('tiene exactamente 9 categorías', () {
+      expect(BadgeCategory.values.length, 9);
     });
 
     test('displayName no está vacío', () {

@@ -426,6 +426,7 @@ class PlanCard extends StatelessWidget {
       return Image.network(
         imagePath,
         fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
         errorBuilder: (_, _, _) {
           debugPrint('⚠️ Missing cover for planId=${plan.id} path=$imagePath');
           return _buildImagePlaceholder();
@@ -440,6 +441,7 @@ class PlanCard extends StatelessWidget {
       return Image.asset(
         imagePath,
         fit: BoxFit.cover,
+        filterQuality: FilterQuality.high,
         errorBuilder: (_, _, _) {
           debugPrint('⚠️ Missing cover for planId=${plan.id} path=$imagePath');
           return _buildImagePlaceholder();
@@ -565,10 +567,10 @@ class PlanCard extends StatelessWidget {
             colors: [
               Colors.transparent,
               Colors.transparent,
-              AppDesignSystem.midnightDeep.withOpacity(intensified ? 0.8 : 0.7),
-              AppDesignSystem.midnightDeep.withOpacity(intensified ? 1.0 : 0.95),
+              AppDesignSystem.midnightDeep.withOpacity(intensified ? 0.6 : 0.5),
+              AppDesignSystem.midnightDeep.withOpacity(intensified ? 0.85 : 0.75),
             ],
-            stops: const [0.0, 0.3, 0.7, 1.0],
+            stops: const [0.0, 0.35, 0.75, 1.0],
           ),
         ),
       ),

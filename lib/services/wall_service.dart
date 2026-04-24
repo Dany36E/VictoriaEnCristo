@@ -165,13 +165,14 @@ class WallService {
   // COMENTARIOS APROBADOS
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Stream de comentarios aprobados de un post.
+  /// Stream de comentarios aprobados de un post (limitado a los 50 más recientes).
   Stream<List<WallComment>> watchApprovedComments(String postId) {
     return _postsRef
         .doc(postId)
         .collection('comments')
         .where('status', isEqualTo: 'approved')
         .orderBy('approvedAt', descending: false)
+        .limit(50)
         .snapshots()
         .map((snap) =>
             snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
@@ -226,6 +227,7 @@ class WallService {
     return _postsRef
         .where('status', isEqualTo: 'pending')
         .orderBy('createdAt', descending: false) // FIFO
+        .limit(100)
         .snapshots()
         .map((snap) =>
             snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
@@ -237,6 +239,7 @@ class WallService {
         .where('status', isEqualTo: 'approved')
         .where('reportCount', isGreaterThan: 0)
         .orderBy('reportCount', descending: true)
+        .limit(100)
         .snapshots()
         .map((snap) =>
             snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
@@ -264,24 +267,26 @@ class WallService {
             snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
   }
 
-  /// Stream de comentarios pendientes de un post (admin).
+  /// Stream de comentarios pendientes de un post (admin, límite 100).
   Stream<List<WallComment>> watchPendingComments(String postId) {
     return _postsRef
         .doc(postId)
         .collection('comments')
         .where('status', isEqualTo: 'pending')
         .orderBy('createdAt', descending: false)
+        .limit(100)
         .snapshots()
         .map((snap) =>
             snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
   }
 
-  /// Stream de todos los comentarios de un post (admin).
+  /// Stream de todos los comentarios de un post (admin, límite 200).
   Stream<List<WallComment>> watchAllComments(String postId) {
     return _postsRef
         .doc(postId)
         .collection('comments')
         .orderBy('createdAt', descending: false)
+        .limit(200)
         .snapshots()
         .map((snap) =>
             snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());

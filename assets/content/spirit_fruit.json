@@ -1,0 +1,173 @@
+[
+  {
+    "id": "love",
+    "order": 1,
+    "name": "Amor",
+    "greek": "Agápē",
+    "icon": "favorite",
+    "colorHex": "#E85A7C",
+    "definition": "Buscar activamente el bien del otro, independientemente de lo que merece o de lo que yo sienta. Es decisión y entrega, no solo emoción.",
+    "keyVerse": "El amor es sufrido, es benigno; el amor no tiene envidia, no es jactancioso, no se envanece.",
+    "keyVerseRef": "1 Corintios 13:4",
+    "meditation": "Ágape no ama porque el otro sea digno; ama porque Dios amó primero. Cuando cuesta amar, recuerda la cruz: ahí está el estándar.",
+    "actions": [
+      {"id": "a1", "text": "Hoy dile a alguien cercano algo específico que valoras de esa persona."},
+      {"id": "a2", "text": "Ora por alguien que te ha herido, pidiendo bien para esa persona."},
+      {"id": "a3", "text": "Haz un acto de servicio sin que nadie lo vea."}
+    ],
+    "reflectionPrompt": "¿A quién necesito amar esta semana con agápē en vez de solo con simpatía?",
+    "xpReward": 40
+  },
+  {
+    "id": "joy",
+    "order": 2,
+    "name": "Gozo",
+    "greek": "Chará",
+    "icon": "wb_sunny",
+    "colorHex": "#F5C542",
+    "definition": "Alegría profunda que no depende de las circunstancias, sino de saber a quién pertenezco. Gozo no es el contrario de la tristeza: es la fuente debajo de ella.",
+    "keyVerse": "Regocijaos en el Señor siempre. Otra vez digo: ¡Regocijaos!",
+    "keyVerseRef": "Filipenses 4:4",
+    "meditation": "Pablo lo escribió desde la cárcel. El gozo cristiano sobrevive cuando todo lo demás falla, porque su raíz es Dios, no la situación.",
+    "actions": [
+      {"id": "a1", "text": "Escribe 3 cosas por las que puedes agradecer ahora mismo."},
+      {"id": "a2", "text": "Canta en voz alta una canción de adoración, aunque no 'sientas' nada."},
+      {"id": "a3", "text": "Comparte con alguien una buena noticia, por pequeña que sea."}
+    ],
+    "reflectionPrompt": "¿Dónde he estado buscando gozo en lo equivocado?",
+    "xpReward": 40
+  },
+  {
+    "id": "peace",
+    "order": 3,
+    "name": "Paz",
+    "greek": "Eirḗnē / Shalom",
+    "icon": "spa",
+    "colorHex": "#6BC5A0",
+    "definition": "No es solo ausencia de conflicto: es plenitud, integridad, todo en su lugar delante de Dios. Shalom es paz con Dios, conmigo mismo y con otros.",
+    "keyVerse": "La paz os dejo, mi paz os doy; yo no os la doy como el mundo la da. No se turbe vuestro corazón.",
+    "keyVerseRef": "Juan 14:27",
+    "meditation": "La paz del mundo es circunstancial. La Suya es una Persona que vive en ti. Por eso puede coexistir con la tormenta.",
+    "actions": [
+      {"id": "a1", "text": "Busca reconciliarte con alguien: envía un mensaje, una disculpa, un gesto."},
+      {"id": "a2", "text": "Apaga notificaciones 1 hora y dedica ese tiempo a silencio + oración."},
+      {"id": "a3", "text": "Antes de dormir, entrega a Dios 3 preocupaciones por nombre."}
+    ],
+    "reflectionPrompt": "¿Qué conflicto interno o externo necesita el shalom de Dios esta semana?",
+    "xpReward": 40
+  },
+  {
+    "id": "patience",
+    "order": 4,
+    "name": "Paciencia",
+    "greek": "Makrothymía",
+    "icon": "hourglass_empty",
+    "colorHex": "#7CB8E8",
+    "definition": "Literalmente 'ira tardía': capacidad de soportar con otros, con procesos y con uno mismo sin estallar. Es la paciencia de Dios con nosotros, aprendida y reflejada.",
+    "keyVerse": "Sea vuestra gentileza conocida de todos los hombres. El Señor está cerca.",
+    "keyVerseRef": "Filipenses 4:5",
+    "meditation": "Makrothymía es larga de fusible. Si Dios te ha esperado así, puedes esperar a otros — y a ti mismo — así.",
+    "actions": [
+      {"id": "a1", "text": "Elige hoy una situación irritante y respóndele con 5 segundos de pausa."},
+      {"id": "a2", "text": "Haz una cosa lenta a propósito (comer sin prisa, caminar sin revisar el teléfono)."},
+      {"id": "a3", "text": "Pide perdón si te impacientaste con alguien esta semana."}
+    ],
+    "reflectionPrompt": "¿Con qué persona o proceso necesito practicar makrothymía esta semana?",
+    "xpReward": 40
+  },
+  {
+    "id": "kindness",
+    "order": 5,
+    "name": "Benignidad",
+    "greek": "Chrēstótēs",
+    "icon": "volunteer_activism",
+    "colorHex": "#C8A2D9",
+    "definition": "Una bondad activa y dulce, útil al otro. No es solo 'no ser malo': es salir al paso con gestos concretos que dejan mejor al que los recibe.",
+    "keyVerse": "La benignidad de Dios te guía al arrepentimiento.",
+    "keyVerseRef": "Romanos 2:4",
+    "meditation": "No es la amenaza lo que cambia corazones, es la bondad. Ese es el método de Dios; hagamos el nuestro.",
+    "actions": [
+      {"id": "a1", "text": "Sé inesperadamente amable con quien te atiende (cajero, repartidor, mesero)."},
+      {"id": "a2", "text": "Escribe un mensaje de ánimo específico a alguien que lo necesite."},
+      {"id": "a3", "text": "Haz un favor pequeño en casa sin que te lo pidan."}
+    ],
+    "reflectionPrompt": "¿Cómo fue la última benignidad que recibí yo, y cómo la puedo devolver al mundo?",
+    "xpReward": 40
+  },
+  {
+    "id": "goodness",
+    "order": 6,
+    "name": "Bondad",
+    "greek": "Agathōsýnē",
+    "icon": "emoji_events",
+    "colorHex": "#D4A853",
+    "definition": "La bondad con integridad: hacer lo correcto aun cuando nadie mira. No es solo ser amable, es ser íntegro — y hacer el bien incluso cuando incomoda.",
+    "keyVerse": "Bueno es Jehová para con todos, y sus misericordias sobre todas sus obras.",
+    "keyVerseRef": "Salmo 145:9",
+    "meditation": "Chrēstótēs es suave. Agathōsýnē es la bondad con espina dorsal — la que vuelca la mesa del templo cuando hace falta.",
+    "actions": [
+      {"id": "a1", "text": "Haz lo correcto hoy en un detalle pequeño donde nadie te ve."},
+      {"id": "a2", "text": "Ofrece ayuda concreta (no solo 'cualquier cosa avísame')."},
+      {"id": "a3", "text": "Defiende a alguien ausente en una conversación, con respeto."}
+    ],
+    "reflectionPrompt": "¿En qué área he confundido 'ser amable' con 'ser bueno'? ¿Dónde necesito más integridad?",
+    "xpReward": 40
+  },
+  {
+    "id": "faithfulness",
+    "order": 7,
+    "name": "Fidelidad",
+    "greek": "Pístis",
+    "icon": "verified",
+    "colorHex": "#A37BC7",
+    "definition": "Ser confiable. Cumplir la palabra. Presente cuando dije que estaría. La fidelidad en lo pequeño abre la puerta a lo grande (Lucas 16:10).",
+    "keyVerse": "El que es fiel en lo muy poco, también en lo más es fiel.",
+    "keyVerseRef": "Lucas 16:10",
+    "meditation": "Dios se llama a sí mismo fiel. No es su adjetivo favorito por capricho: es el cimiento sobre el que descansa nuestra confianza.",
+    "actions": [
+      {"id": "a1", "text": "Haz algo que prometiste y no has terminado."},
+      {"id": "a2", "text": "Llega puntual a todo hoy."},
+      {"id": "a3", "text": "Mantén una promesa silenciosa: un hábito, una disciplina, una hora de oración."}
+    ],
+    "reflectionPrompt": "¿Dónde he estado fallando en fidelidad en lo pequeño?",
+    "xpReward": 40
+  },
+  {
+    "id": "gentleness",
+    "order": 8,
+    "name": "Mansedumbre",
+    "greek": "Praÿtēs",
+    "icon": "cruelty_free",
+    "colorHex": "#8EC5B5",
+    "definition": "Fuerza bajo control. El caballo domado sigue siendo fuerte, pero responde al jinete. No es debilidad: es poder sujeto.",
+    "keyVerse": "Bienaventurados los mansos, porque ellos recibirán la tierra por heredad.",
+    "keyVerseRef": "Mateo 5:5",
+    "meditation": "Jesús fue llamado manso y humilde de corazón — y también volcó mesas. Praÿtēs no es no tener fuerza; es saber cuándo y cómo usarla.",
+    "actions": [
+      {"id": "a1", "text": "Cede en una discusión hoy, no porque tengas que, sino porque puedes."},
+      {"id": "a2", "text": "Escucha sin interrumpir a alguien durante toda una conversación."},
+      {"id": "a3", "text": "Responde una crítica con una pregunta, no con defensa."}
+    ],
+    "reflectionPrompt": "¿Dónde confundo mansedumbre con cobardía o con dejarme pisar?",
+    "xpReward": 40
+  },
+  {
+    "id": "self_control",
+    "order": 9,
+    "name": "Dominio propio",
+    "greek": "Enkráteia",
+    "icon": "fitness_center",
+    "colorHex": "#D66A5E",
+    "definition": "Literalmente 'fuerza interior'. Poder gobernarse a sí mismo: palabra, impulso, deseo. Es la clave para vencer vicios — y fruto del Espíritu, no esfuerzo solitario.",
+    "keyVerse": "Como ciudad derribada y sin muro es el hombre que no tiene dominio de su espíritu.",
+    "keyVerseRef": "Proverbios 25:28",
+    "meditation": "Enkráteia no se logra por fuerza bruta; se cultiva como fruto — regado por el Espíritu, en comunión constante. Cada 'no' a la carne es un 'sí' a Él.",
+    "actions": [
+      {"id": "a1", "text": "Identifica el gatillo principal de tu vicio y quita su acceso hoy mismo."},
+      {"id": "a2", "text": "Haz una pausa antes de reaccionar: 'Señor, Tú'."},
+      {"id": "a3", "text": "Ayuna de algo pequeño (pantalla, dulce, queja) durante 24 h."}
+    ],
+    "reflectionPrompt": "¿Qué 'muro' necesita ser reconstruido esta semana en mi vida?",
+    "xpReward": 50
+  }
+]

@@ -13,6 +13,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../repositories/journal_repository.dart';
+import '../utils/sync_retry.dart';
 import 'journal_service.dart';
 
 class JournalSyncAdapter {
@@ -42,6 +43,9 @@ class JournalSyncAdapter {
     _localService.onEntryAdded = (entry) {
       syncEntryToCloud(entry);
     };
+    _localService.onEntryUpdated = (entry) {
+      updateEntryInCloud(entry);
+    };
     _localService.onEntryDeleted = (id) {
       deleteEntryFromCloud(id);
     };
@@ -56,23 +60,57 @@ class JournalSyncAdapter {
   //   NUNCA debe disparar escrituras batch hacia Firestore.
 
   /// Sincronizar una entrada específica a cloud
-  /// Llamar después de addEntry o updateEntry en JournalService
+  /// Llamar después de addEntry en JournalService. Usa el mismo id local
+  /// para que updates/deletes futuros puedan localizar el doc cloud.
   Future<void> syncEntryToCloud(JournalEntry entry) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
-    
+
+    await SyncRetry.withBackoff(
+      () => JournalRepository.I.add(
+        id: entry.id,
+        content: entry.content,
+        mood: entry.mood,
+        triggers: entry.triggers,
+        hadVictory: entry.hadVictory,
+        verseOfDay: entry.verseOfDay,
+      ),
+      where: 'JournalSync.add',
+    );
+    debugPrint('☁️ [JOURNAL_SYNC] Synced entry ${entry.id} to cloud');
+  }
+
+  /// Actualizar entrada en cloud. Fallback a add() si el doc aún no existe
+  /// (por ejemplo, entradas creadas antes de alinear los IDs local/cloud).
+  Future<void> updateEntryInCloud(JournalEntry entry) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
     try {
-      // Usar el método add del repository que ya maneja la lógica
-      await JournalRepository.I.add(
+      final ok = await JournalRepository.I.update(
+        entry.id,
         content: entry.content,
         mood: entry.mood,
         triggers: entry.triggers,
         hadVictory: entry.hadVictory,
         verseOfDay: entry.verseOfDay,
       );
-      debugPrint('☁️ [JOURNAL_SYNC] Synced entry ${entry.id} to cloud');
+      if (!ok) {
+        // No existe en cloud: crearlo con el mismo id local
+        await JournalRepository.I.add(
+          id: entry.id,
+          content: entry.content,
+          mood: entry.mood,
+          triggers: entry.triggers,
+          hadVictory: entry.hadVictory,
+          verseOfDay: entry.verseOfDay,
+        );
+        debugPrint('☁️ [JOURNAL_SYNC] Update fallback: added entry ${entry.id} to cloud');
+      } else {
+        debugPrint('☁️ [JOURNAL_SYNC] Updated entry ${entry.id} in cloud');
+      }
     } catch (e) {
-      debugPrint('❌ [JOURNAL_SYNC] Sync entry error: $e');
+      debugPrint('❌ [JOURNAL_SYNC] Update entry error: $e');
     }
   }
 
@@ -80,13 +118,12 @@ class JournalSyncAdapter {
   Future<void> deleteEntryFromCloud(String id) async {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) return;
-    
-    try {
-      await JournalRepository.I.delete(id);
-      debugPrint('☁️ [JOURNAL_SYNC] Deleted entry $id from cloud');
-    } catch (e) {
-      debugPrint('❌ [JOURNAL_SYNC] Delete entry error: $e');
-    }
+
+    await SyncRetry.withBackoff(
+      () => JournalRepository.I.delete(id),
+      where: 'JournalSync.delete',
+    );
+    debugPrint('☁️ [JOURNAL_SYNC] Deleted entry $id from cloud');
   }
 
   /// Forzar sincronización completa de LOCAL → CLOUD (solo para uso explícito)

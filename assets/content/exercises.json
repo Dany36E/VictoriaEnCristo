@@ -7,12 +7,15 @@
     "steps": [
       "Siéntate cómodo con la espalda recta.",
       "Exhala completamente por la boca.",
-      "Inhala por la nariz contando hasta 4.",
-      "Mantén la respiración contando hasta 7.",
-      "Exhala lentamente por la boca contando hasta 8.",
-      "Repite 4 ciclos completos.",
+      "Sigue el círculo: inhala, retén, exhala. Repítelo 4 veces.",
       "Nota cómo tu cuerpo se relaja con cada exhalación."
     ],
+    "phases": [
+      { "label": "Inhala", "seconds": 4, "action": "expand" },
+      { "label": "Mantén", "seconds": 7, "action": "hold" },
+      { "label": "Exhala", "seconds": 8, "action": "contract" }
+    ],
+    "scriptureAnchor": "Salmos 23:1 — Jehová es mi pastor; nada me faltará.",
     "metadata": {
       "giants": ["mental", "sexual", "emotions"],
       "stage": "crisis",
@@ -38,6 +41,7 @@
       "Nombra 1 cosa que puedes SABOREAR.",
       "Respira profundo. Estás aquí. Estás presente. Estás bien."
     ],
+    "scriptureAnchor": "Salmos 46:10 — Estad quietos, y conoced que yo soy Dios.",
     "metadata": {
       "giants": ["mental", "emotions"],
       "stage": "crisis",
@@ -64,6 +68,7 @@
       "Después de 10 minutos, nota cómo el impulso ha cambiado.",
       "Celebra: sobreviviste la ola. Eres más fuerte de lo que crees."
     ],
+    "scriptureAnchor": "1 Corintios 10:13 — Fiel es Dios, que no os dejará ser tentados más de lo que podéis resistir.",
     "metadata": {
       "giants": ["sexual", "substances", "digital", "health"],
       "stage": "crisis",
@@ -89,6 +94,7 @@
       "Si aún quieres, espera 10 minutos más.",
       "La mayoría de impulsos pierden fuerza después de 10-20 minutos."
     ],
+    "scriptureAnchor": "Filipenses 4:13 — Todo lo puedo en Cristo que me fortalece.",
     "metadata": {
       "giants": ["sexual", "substances", "digital", "health"],
       "stage": "crisis",
@@ -114,6 +120,7 @@
       "Lee el pensamiento nuevo en voz alta.",
       "Nota cómo cambia tu emoción con el nuevo pensamiento."
     ],
+    "scriptureAnchor": "Romanos 12:2 — Transformaos por medio de la renovación de vuestro entendimiento.",
     "metadata": {
       "giants": ["mental", "emotions"],
       "stage": "habit",
@@ -140,6 +147,7 @@
       "'Puedo todas las cosas en Cristo. (Filipenses 4:13)'",
       "Repite las declaraciones que más necesitas hoy."
     ],
+    "scriptureAnchor": "Gálatas 5:1 — Estad, pues, firmes en la libertad con que Cristo nos hizo libres.",
     "metadata": {
       "giants": ["sexual", "mental", "emotions"],
       "stage": "crisis",
@@ -166,6 +174,7 @@
       "Escribe UNA acción preventiva para ese gatillo.",
       "Ejemplo: 'Si estoy solo de noche, llamaré a mi compañero de rendición de cuentas.'"
     ],
+    "scriptureAnchor": "Proverbios 4:23 — Sobre toda cosa guardada, guarda tu corazón; porque de él mana la vida.",
     "metadata": {
       "giants": ["sexual", "substances", "digital"],
       "stage": "habit",
@@ -192,6 +201,7 @@
       "Los días se convierten en semanas. Las semanas en meses.",
       "Victoria diaria, vida transformada."
     ],
+    "scriptureAnchor": "Mateo 6:34 — Así que, no os afanéis por el día de mañana.",
     "metadata": {
       "giants": ["sexual", "substances", "health", "digital"],
       "stage": "habit",
@@ -219,6 +229,7 @@
       "Hazla más fácil de acceder: ponla a la vista, en tu bolsillo.",
       "Pequeños cambios de entorno = grandes cambios de comportamiento."
     ],
+    "scriptureAnchor": "1 Corintios 15:33 — Las malas conversaciones corrompen las buenas costumbres.",
     "metadata": {
       "giants": ["sexual", "digital", "substances"],
       "stage": "habit",
@@ -244,6 +255,7 @@
       "Pide que te pregunte regularmente cómo vas.",
       "La vulnerabilidad da miedo, pero la libertad vale más."
     ],
+    "scriptureAnchor": "Eclesiastés 4:9-10 — Mejores son dos que uno; porque tienen mejor paga de su trabajo.",
     "metadata": {
       "giants": ["sexual", "substances"],
       "stage": "habit",

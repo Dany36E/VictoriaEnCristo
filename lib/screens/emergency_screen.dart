@@ -99,8 +99,237 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         _currentStep++;
       });
     } else {
-      _showVictoryDialog();
+      _showPostSosCheckin();
     }
+  }
+
+  /// Check-in tras los 5 pasos: "¿Estás bien ahora?"
+  /// - Sí → diálogo de victoria + logra la victoria emocional.
+  /// - Sigo luchando → ofrece escalación (partner, wall, repetir pasos).
+  void _showPostSosCheckin() {
+    FeedbackEngine.I.confirm();
+    final t = AppThemeData.of(context);
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 4, sigmaY: 4),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          child: Container(
+            padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+            decoration: BoxDecoration(
+              color: t.surface,
+              borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+              border: Border.all(
+                color: AppDesignSystem.gold.withOpacity(0.3),
+              ),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.favorite_border_rounded,
+                  size: 56,
+                  color: AppDesignSystem.gold,
+                ),
+                const SizedBox(height: AppDesignSystem.spacingM),
+                Text(
+                  '¿Cómo te sientes ahora?',
+                  textAlign: TextAlign.center,
+                  style: AppDesignSystem.displaySmall(
+                    context,
+                    color: t.textPrimary,
+                  ),
+                ),
+                const SizedBox(height: AppDesignSystem.spacingS),
+                Text(
+                  'No hay respuesta incorrecta. Solo queremos acompañarte.',
+                  textAlign: TextAlign.center,
+                  style: AppDesignSystem.bodyMedium(
+                    context,
+                    color: t.textSecondary,
+                  ),
+                ),
+                const SizedBox(height: AppDesignSystem.spacingL),
+                SizedBox(
+                  width: double.infinity,
+                  child: PremiumButton(
+                    onPressed: () {
+                      Navigator.of(ctx).pop();
+                      _showVictoryDialog();
+                    },
+                    backgroundColor: AppDesignSystem.victory,
+                    shadow: AppDesignSystem.shadowVictory,
+                    child: Text(
+                      'Ya estoy bien',
+                      style: AppDesignSystem.labelLarge(
+                        context,
+                        color: Colors.white,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: AppDesignSystem.spacingS),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _showEscalationSheet();
+                  },
+                  child: Text(
+                    'Sigo luchando',
+                    style: AppDesignSystem.labelLarge(
+                      context,
+                      color: AppDesignSystem.gold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Hoja de escalación: si tras los 5 pasos el usuario sigue luchando.
+  void _showEscalationSheet() {
+    final t = AppThemeData.of(context);
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (ctx) => SafeArea(
+        child: Container(
+          padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+          decoration: BoxDecoration(
+            color: t.surface,
+            borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppDesignSystem.radiusL),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  margin: const EdgeInsets.only(
+                      bottom: AppDesignSystem.spacingM),
+                  decoration: BoxDecoration(
+                    color: t.textSecondary.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              Text(
+                'No estás solo en esto',
+                textAlign: TextAlign.center,
+                style: AppDesignSystem.headlineSmall(
+                  context,
+                  color: t.textPrimary,
+                ),
+              ),
+              const SizedBox(height: AppDesignSystem.spacingS),
+              Text(
+                'La valentía no es no caer — es pedir ayuda. Elige un paso:',
+                textAlign: TextAlign.center,
+                style: AppDesignSystem.bodyMedium(
+                  context,
+                  color: t.textSecondary,
+                ),
+              ),
+              const SizedBox(height: AppDesignSystem.spacingL),
+              _EscalationTile(
+                icon: Icons.people_alt_rounded,
+                title: 'Escribir a mi compañero de batalla',
+                subtitle: 'Un mensaje corto basta.',
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pop(); // volver al home
+                },
+              ),
+              const SizedBox(height: AppDesignSystem.spacingS),
+              _EscalationTile(
+                icon: Icons.forum_rounded,
+                title: 'Pedir oración en el muro',
+                subtitle: 'Anónimo. Hay gente orando por ti ahora.',
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+              const SizedBox(height: AppDesignSystem.spacingS),
+              _EscalationTile(
+                icon: Icons.replay_rounded,
+                title: 'Repetir los 5 pasos',
+                subtitle: 'Sin prisa. Este momento pasará.',
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  setState(() => _currentStep = 0);
+                },
+              ),
+              const SizedBox(height: AppDesignSystem.spacingS),
+              _EscalationTile(
+                icon: Icons.phone_rounded,
+                title: 'Línea de ayuda en crisis',
+                subtitle:
+                    'México 800 290 0024 · España 024 · USA 988',
+                onTap: () {
+                  Navigator.of(ctx).pop();
+                  _showCrisisLinesDialog();
+                },
+              ),
+              const SizedBox(height: AppDesignSystem.spacingL),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showCrisisLinesDialog() {
+    final t = AppThemeData.of(context);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: t.surface,
+        title: Text(
+          'Líneas de ayuda',
+          style: AppDesignSystem.headlineSmall(
+            context,
+            color: t.textPrimary,
+          ),
+        ),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const _CrisisLine(country: 'México', number: '800 290 0024'),
+            const _CrisisLine(country: 'España', number: '024'),
+            const _CrisisLine(country: 'USA/CA', number: '988'),
+            const _CrisisLine(country: 'Argentina', number: '135'),
+            const _CrisisLine(country: 'Colombia', number: '106'),
+            const SizedBox(height: AppDesignSystem.spacingM),
+            Text(
+              'Si estás en peligro inmediato, llama al número de emergencias local.',
+              style: AppDesignSystem.bodyMedium(
+                context,
+                color: t.textSecondary,
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
   }
 
   void _showVictoryDialog() {
@@ -110,7 +339,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
       context: context,
       barrierDismissible: false,
       builder: (context) => BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Dialog(
           backgroundColor: Colors.transparent,
           child: Container(
@@ -553,5 +782,117 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         .animate(key: ValueKey('button-$_currentStep'))
         .fadeIn(delay: 200.ms)
         .slideY(begin: 0.2, end: 0);
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// Helpers para escalación post-SOS
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _EscalationTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _EscalationTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    return Semantics(
+      button: true,
+      label: title,
+      hint: subtitle,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+            decoration: BoxDecoration(
+              color: t.scaffoldBg,
+              borderRadius:
+                  BorderRadius.circular(AppDesignSystem.radiusM),
+              border: Border.all(
+                color: AppDesignSystem.gold.withOpacity(0.18),
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(icon, color: AppDesignSystem.gold, size: 26),
+                const SizedBox(width: AppDesignSystem.spacingM),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        title,
+                        style: AppDesignSystem.bodyLarge(
+                          context,
+                          color: t.textPrimary,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        style: AppDesignSystem.bodyMedium(
+                          context,
+                          color: t.textSecondary,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: t.textSecondary.withOpacity(0.6),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CrisisLine extends StatelessWidget {
+  final String country;
+  final String number;
+  const _CrisisLine({required this.country, required this.number});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              country,
+              style: AppDesignSystem.bodyMedium(
+                context,
+                color: t.textSecondary,
+              ),
+            ),
+          ),
+          Text(
+            number,
+            style: AppDesignSystem.bodyLarge(
+              context,
+              color: AppDesignSystem.gold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

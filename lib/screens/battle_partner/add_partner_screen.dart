@@ -193,6 +193,12 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
         return _errorCard('⚠️', 'Límite alcanzado', 'Solo puedes tener $kMaxBattlePartners compañeros. Desvincula uno para agregar otro.');
       case InviteResultType.notFound:
         return _errorCard('❓', 'Código no encontrado', 'Verifica que el código sea correcto e intenta de nuevo.');
+      case InviteResultType.targetPaused:
+        return _errorCard(
+          '⏸️',
+          'Invitaciones pausadas',
+          'Esta persona ha pausado las nuevas invitaciones por ahora. Inténtalo más adelante.',
+        );
       case InviteResultType.error:
         return _errorCard('⚠️', 'Error', result.errorMessage ?? 'Intenta de nuevo más tarde.');
     }

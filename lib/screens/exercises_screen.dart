@@ -6,9 +6,13 @@ import '../theme/app_theme_data.dart';
 import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
 import '../services/content_repository.dart';
+import '../services/exercise_log_service.dart';
 import '../models/content_item.dart';
 import '../models/content_enums.dart';
 import '../widgets/premium_components.dart';
+import '../widgets/exercises/breathing_guide.dart';
+import '../widgets/exercises/crisis_exercises_sheet.dart';
+import '../widgets/exercises/post_exercise_reflection.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // EXERCISES SCREEN - Galería de Ejercicios Prácticos
@@ -17,6 +21,18 @@ import '../widgets/premium_components.dart';
 
 class ExercisesScreen extends StatelessWidget {
   const ExercisesScreen({super.key});
+
+  void _openExercise(BuildContext context, ExerciseItem ex, Color color) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ExerciseDetailScreen(
+          exercise: ex,
+          accentColor: color,
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,13 +46,21 @@ class ExercisesScreen extends StatelessWidget {
         : <ScoredItem<ExerciseItem>>[];
     final hasPersonalization = recommended.isNotEmpty;
     final primaryGiant = engine.primaryGiant;
+    final recommendedIds = recommended.map((e) => e.item.id).toSet();
 
-    // Todos los ejercicios agrupados por etapa
+    // Todos los ejercicios agrupados por etapa, excluyendo los ya mostrados
+    // en la sección "Para Ti" para evitar duplicación visual.
     final allExercises = repo.exercises;
-    final crisisExercises =
-        allExercises.where((e) => e.metadata.stage == ContentStage.crisis).toList();
-    final habitExercises =
-        allExercises.where((e) => e.metadata.stage == ContentStage.habit).toList();
+    final crisisExercises = allExercises
+        .where((e) =>
+            e.metadata.stage == ContentStage.crisis &&
+            !recommendedIds.contains(e.id))
+        .toList();
+    final habitExercises = allExercises
+        .where((e) =>
+            e.metadata.stage == ContentStage.habit &&
+            !recommendedIds.contains(e.id))
+        .toList();
 
     return Scaffold(
       backgroundColor: t.scaffoldBg,
@@ -45,88 +69,250 @@ class ExercisesScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: SingleChildScrollView(
-        padding: EdgeInsets.fromLTRB(
-            16, 8, 16, MediaQuery.of(context).padding.bottom + 24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Descripción
-            Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Text(
-                'Técnicas prácticas para resistir la tentación y fortalecer tu mente.',
-                style: TextStyle(
-                  color: t.textSecondary,
-                  fontSize: 14,
-                  height: 1.5,
+      body: AnimatedBuilder(
+        animation: ExerciseLogService.I,
+        builder: (context, _) {
+          final log = ExerciseLogService.I;
+          final doneToday = log.todayCompletedIds();
+
+          return SingleChildScrollView(
+            padding: EdgeInsets.fromLTRB(
+                16, 8, 16, MediaQuery.of(context).padding.bottom + 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Descripción
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Text(
+                    'Técnicas prácticas para resistir la tentación y fortalecer tu mente.',
+                    style: TextStyle(
+                      color: t.textSecondary,
+                      fontSize: 14,
+                      height: 1.5,
+                    ),
+                  ),
+                ),
+
+                // ─────────────────────────────────────────────────────────
+                // CTA: ACCESO RÁPIDO A CRISIS (1 tap desde cualquier punto)
+                // ─────────────────────────────────────────────────────────
+                _CrisisQuickCta(
+                  onTap: () {
+                    FeedbackEngine.I.tap();
+                    CrisisExercisesSheet.show(
+                      context,
+                      onTapExercise: (ex) =>
+                          _openExercise(context, ex, AppDesignSystem.struggle),
+                    );
+                  },
+                ),
+                const SizedBox(height: 22),
+
+                // Contador de ejercicios completados (self-efficacy)
+                if (log.totalCount > 0) ...[
+                  _CompletionsBanner(total: log.totalCount),
+                  const SizedBox(height: 18),
+                ],
+
+                // ═════════════════════════════════════════════════════════
+                // SECCIÓN PERSONALIZADA
+                // ═════════════════════════════════════════════════════════
+                if (hasPersonalization) ...[
+                  _SectionTitle(
+                    emoji: '⭐',
+                    title: 'Para Ti',
+                    subtitle: primaryGiant != null
+                        ? 'Enfoque: ${primaryGiant.displayName}'
+                        : 'Recomendados para tu batalla',
+                    color: AppDesignSystem.gold,
+                  ),
+                  const SizedBox(height: 12),
+                  ...recommended.asMap().entries.map((entry) =>
+                      _ExerciseCard(
+                        exercise: entry.value.item,
+                        reason: entry.value.reason,
+                        index: entry.key,
+                        accentColor: AppDesignSystem.gold,
+                        doneToday: doneToday.contains(entry.value.item.id),
+                      )),
+                  const SizedBox(height: 28),
+                ],
+
+                // ═════════════════════════════════════════════════════════
+                // SECCIÓN CRISIS
+                // ═════════════════════════════════════════════════════════
+                if (crisisExercises.isNotEmpty) ...[
+                  const _SectionTitle(
+                    emoji: '🆘',
+                    title: 'Momento de Crisis',
+                    subtitle: 'Para cuando la tentación es fuerte',
+                    color: AppDesignSystem.struggle,
+                  ),
+                  const SizedBox(height: 12),
+                  ...crisisExercises.asMap().entries.map((entry) =>
+                      _ExerciseCard(
+                        exercise: entry.value,
+                        index: entry.key,
+                        accentColor: AppDesignSystem.struggle,
+                        doneToday: doneToday.contains(entry.value.id),
+                      )),
+                  const SizedBox(height: 28),
+                ],
+
+                // ═════════════════════════════════════════════════════════
+                // SECCIÓN HÁBITO
+                // ═════════════════════════════════════════════════════════
+                if (habitExercises.isNotEmpty) ...[
+                  const _SectionTitle(
+                    emoji: '🔄',
+                    title: 'Formación de Hábito',
+                    subtitle: 'Fortalece tu mente cada día',
+                    color: AppDesignSystem.hope,
+                  ),
+                  const SizedBox(height: 12),
+                  ...habitExercises.asMap().entries.map((entry) =>
+                      _ExerciseCard(
+                        exercise: entry.value,
+                        index: entry.key,
+                        accentColor: AppDesignSystem.hope,
+                        doneToday: doneToday.contains(entry.value.id),
+                      )),
+                ],
+              ],
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// CRISIS QUICK CTA — 1-tap shortcut a ejercicios de crisis
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _CrisisQuickCta extends StatelessWidget {
+  final VoidCallback onTap;
+  const _CrisisQuickCta({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+        child: Container(
+          padding: const EdgeInsets.all(14),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppDesignSystem.struggle.withOpacity(0.18),
+                AppDesignSystem.struggle.withOpacity(0.08),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+            border: Border.all(
+              color: AppDesignSystem.struggle.withOpacity(0.4),
+              width: 1.2,
+            ),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: const BoxDecoration(
+                  color: AppDesignSystem.struggle,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.shield_moon,
+                    color: Colors.white, size: 24),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Necesito ayuda ahora',
+                      style: TextStyle(
+                        color: t.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Acceso directo a 3 ejercicios de crisis',
+                      style: TextStyle(
+                        color: t.textSecondary,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-
-            // ═════════════════════════════════════════════════════════════
-            // SECCIÓN PERSONALIZADA
-            // ═════════════════════════════════════════════════════════════
-            if (hasPersonalization) ...[
-              _SectionTitle(
-                emoji: '⭐',
-                title: 'Para Ti',
-                subtitle: primaryGiant != null
-                    ? 'Enfoque: ${primaryGiant.displayName}'
-                    : 'Recomendados para tu batalla',
-                color: AppDesignSystem.gold,
-              ),
-              const SizedBox(height: 12),
-              ...recommended.asMap().entries.map((entry) =>
-                  _ExerciseCard(
-                    exercise: entry.value.item,
-                    reason: entry.value.reason,
-                    index: entry.key,
-                    accentColor: AppDesignSystem.gold,
-                  )),
-              const SizedBox(height: 28),
+              const Icon(Icons.arrow_forward,
+                  color: AppDesignSystem.struggle, size: 20),
             ],
-
-            // ═════════════════════════════════════════════════════════════
-            // SECCIÓN CRISIS
-            // ═════════════════════════════════════════════════════════════
-            if (crisisExercises.isNotEmpty) ...[
-              const _SectionTitle(
-                emoji: '🆘',
-                title: 'Momento de Crisis',
-                subtitle: 'Para cuando la tentación es fuerte',
-                color: AppDesignSystem.struggle,
-              ),
-              const SizedBox(height: 12),
-              ...crisisExercises.asMap().entries.map((entry) =>
-                  _ExerciseCard(
-                    exercise: entry.value,
-                    index: entry.key,
-                    accentColor: AppDesignSystem.struggle,
-                  )),
-              const SizedBox(height: 28),
-            ],
-
-            // ═════════════════════════════════════════════════════════════
-            // SECCIÓN HÁBITO
-            // ═════════════════════════════════════════════════════════════
-            if (habitExercises.isNotEmpty) ...[
-              const _SectionTitle(
-                emoji: '🔄',
-                title: 'Formación de Hábito',
-                subtitle: 'Fortalece tu mente cada día',
-                color: AppDesignSystem.hope,
-              ),
-              const SizedBox(height: 12),
-              ...habitExercises.asMap().entries.map((entry) =>
-                  _ExerciseCard(
-                    exercise: entry.value,
-                    index: entry.key,
-                    accentColor: AppDesignSystem.hope,
-                  )),
-            ],
-          ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMPLETIONS BANNER — Self-efficacy ("has completado N ejercicios")
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _CompletionsBanner extends StatelessWidget {
+  final int total;
+  const _CompletionsBanner({required this.total});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+      decoration: BoxDecoration(
+        color: AppDesignSystem.victory.withOpacity(0.10),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: AppDesignSystem.victory.withOpacity(0.3),
+        ),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.fitness_center,
+              color: AppDesignSystem.victory, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  color: t.textPrimary,
+                  fontSize: 13,
+                  height: 1.3,
+                ),
+                children: [
+                  const TextSpan(text: 'Has completado '),
+                  TextSpan(
+                    text: '$total ${total == 1 ? "ejercicio" : "ejercicios"}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w700,
+                      color: AppDesignSystem.victory,
+                    ),
+                  ),
+                  const TextSpan(text: ' — tu mente se está fortaleciendo.'),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -193,12 +379,14 @@ class _ExerciseCard extends StatelessWidget {
   final String? reason;
   final int index;
   final Color accentColor;
+  final bool doneToday;
 
   const _ExerciseCard({
     required this.exercise,
     this.reason,
     required this.index,
     required this.accentColor,
+    this.doneToday = false,
   });
 
   IconData _iconForExercise(String id) {
@@ -247,9 +435,11 @@ class _ExerciseCard extends StatelessWidget {
                 color: t.cardBg,
                 borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                 border: Border.all(
-                  color: reason != null
-                      ? accentColor.withOpacity(0.4)
-                      : t.cardBorder,
+                  color: doneToday
+                      ? AppDesignSystem.victory.withOpacity(0.5)
+                      : reason != null
+                          ? accentColor.withOpacity(0.4)
+                          : t.cardBorder,
                 ),
                 boxShadow: AppDesignSystem.shadowSoft,
               ),
@@ -276,24 +466,58 @@ class _ExerciseCard extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        if (reason != null)
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 4),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 8, vertical: 2),
-                            decoration: BoxDecoration(
-                              color: accentColor.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              reason!,
-                              style: TextStyle(
-                                color: accentColor,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
+                        Row(
+                          children: [
+                            if (reason != null)
+                              Flexible(
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 4, right: 6),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: accentColor.withOpacity(0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    reason!,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: accentColor,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
+                            if (doneToday)
+                              Container(
+                                margin: const EdgeInsets.only(bottom: 4),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: AppDesignSystem.victory.withOpacity(0.18),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.check_circle,
+                                        size: 12,
+                                        color: AppDesignSystem.victory),
+                                    SizedBox(width: 3),
+                                    Text(
+                                      'Hecho hoy',
+                                      style: TextStyle(
+                                        color: AppDesignSystem.victory,
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
                         Text(
                           exercise.title,
                           style: TextStyle(
@@ -376,15 +600,18 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
     with TickerProviderStateMixin {
   int _currentStep = 0;
   bool _timerRunning = false;
-  int _timerSeconds = 0;
   int _totalTimerSeconds = 0;
+  late final ValueNotifier<int> _timerSecondsVN;
   Timer? _timer;
   late final AnimationController _pulseController;
   late final PageController _pageController;
+  final DateTime _startedAt = DateTime.now();
+  bool _completed = false;
 
   @override
   void initState() {
     super.initState();
+    _timerSecondsVN = ValueNotifier<int>(0);
     _pageController = PageController();
     _pulseController = AnimationController(
       vsync: this,
@@ -398,6 +625,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
     _timer?.cancel();
     _pulseController.dispose();
     _pageController.dispose();
+    _timerSecondsVN.dispose();
     super.dispose();
   }
 
@@ -435,15 +663,19 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
       _pulseController.repeat(reverse: true);
       setState(() => _timerRunning = true);
       _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-        setState(() {
-          _timerSeconds++;
-          if (_timerSeconds >= _totalTimerSeconds) {
-            _timer?.cancel();
-            _timerRunning = false;
-            _pulseController.stop();
-            FeedbackEngine.I.confirm();
-          }
-        });
+        // Defensa ante dispose: si el widget se desmontó, cancelamos.
+        if (!mounted) {
+          timer.cancel();
+          return;
+        }
+        final next = _timerSecondsVN.value + 1;
+        _timerSecondsVN.value = next;
+        if (next >= _totalTimerSeconds) {
+          timer.cancel();
+          _pulseController.stop();
+          setState(() => _timerRunning = false);
+          FeedbackEngine.I.confirm();
+        }
       });
     }
   }
@@ -451,16 +683,60 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
   void _resetTimer() {
     _timer?.cancel();
     _pulseController.stop();
-    setState(() {
-      _timerSeconds = 0;
-      _timerRunning = false;
-    });
+    _timerSecondsVN.value = 0;
+    setState(() => _timerRunning = false);
+  }
+
+  /// Flujo de finalización: pide reflexión opcional, registra log, sale.
+  Future<void> _completeExercise() async {
+    if (_completed) return; // evita doble-tap
+    _completed = true;
+    FeedbackEngine.I.confirm();
+
+    // Detener timer si seguía corriendo
+    _timer?.cancel();
+    _pulseController.stop();
+
+    // Pedir reflexión post-ejercicio (opcional, no bloqueante en lo emocional)
+    final moodAfter = await PostExerciseReflectionSheet.show(
+      context,
+      accentColor: widget.accentColor,
+    );
+
+    if (!mounted) return;
+
+    // Calcular duración real (mejor señal que el timer in-app)
+    final realDurationSeconds =
+        DateTime.now().difference(_startedAt).inSeconds;
+
+    // Registrar la compleción (offline-first + Firestore best-effort)
+    await ExerciseLogService.I.log(
+      exerciseId: widget.exercise.id,
+      durationSeconds: realDurationSeconds,
+      moodAfter: moodAfter,
+    );
+
+    if (!mounted) return;
+    Navigator.pop(context);
   }
 
   String _formatTime(int seconds) {
     final m = seconds ~/ 60;
     final s = seconds % 60;
     return '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+  }
+
+  /// La guía de respiración aparece en el último paso del ejercicio,
+  /// que es donde se invita al usuario a poner en práctica el ciclo.
+  bool _shouldShowBreathingGuideAt(int stepIndex) {
+    final phases = widget.exercise.phases;
+    if (phases == null || phases.isEmpty) return false;
+    return stepIndex == widget.exercise.steps.length - 1;
+  }
+
+  bool _shouldShowScriptureAt(int stepIndex) {
+    if (widget.exercise.scriptureAnchor == null) return false;
+    return stepIndex == widget.exercise.steps.length - 1;
   }
 
   @override
@@ -471,9 +747,6 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
     final progress = steps.isEmpty
         ? 0.0
         : (_currentStep + 1) / steps.length;
-    final timerProgress = _totalTimerSeconds > 0
-        ? _timerSeconds / _totalTimerSeconds
-        : 0.0;
 
     return Scaffold(
       backgroundColor: t.scaffoldBg,
@@ -600,6 +873,27 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
                                 fontWeight: FontWeight.w400,
                               ),
                             ),
+
+                            // Breathing guide: solo en el último paso, si el
+                            // ejercicio tiene fases declaradas. Anima un
+                            // círculo según inhala/mantén/exhala.
+                            if (_shouldShowBreathingGuideAt(index)) ...[
+                              const SizedBox(height: 28),
+                              BreathingGuide(
+                                phases: widget.exercise.phases!,
+                                color: color,
+                                isRunning: _timerRunning,
+                              ),
+                            ],
+
+                            // Scripture anchor: visible en el último paso.
+                            if (_shouldShowScriptureAt(index)) ...[
+                              const SizedBox(height: 24),
+                              _ScriptureAnchorCard(
+                                reference: widget.exercise.scriptureAnchor!,
+                                color: color,
+                              ),
+                            ],
                           ],
                         ),
                       ).animate().fadeIn(
@@ -627,7 +921,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
             child: Column(
               children: [
                 // Timer section
-                _buildTimerSection(t, color, timerProgress),
+                _buildTimerSection(t, color),
                 const SizedBox(height: 16),
 
                 // Navigation buttons
@@ -672,10 +966,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
                               ),
                             )
                           : ElevatedButton.icon(
-                              onPressed: () {
-                                FeedbackEngine.I.confirm();
-                                Navigator.pop(context);
-                              },
+                              onPressed: _completed ? null : _completeExercise,
                               icon: const Icon(Icons.check_circle_outline,
                                   size: 20),
                               label: const Text('Completar'),
@@ -701,7 +992,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
     );
   }
 
-  Widget _buildTimerSection(AppThemeData t, Color color, double timerProgress) {
+  Widget _buildTimerSection(AppThemeData t, Color color) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
@@ -711,7 +1002,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
       ),
       child: Row(
         children: [
-          // Timer display
+          // Timer display (solo se reconstruye este Text cada segundo)
           AnimatedBuilder(
             animation: _pulseController,
             builder: (context, child) {
@@ -723,14 +1014,17 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
                 child: child,
               );
             },
-            child: Text(
-              _formatTime(_timerSeconds),
-              style: TextStyle(
-                color: _timerRunning ? color : t.textPrimary,
-                fontSize: 28,
-                fontWeight: FontWeight.w700,
-                fontFamily: 'Manrope',
-                fontFeatures: const [FontFeature.tabularFigures()],
+            child: ValueListenableBuilder<int>(
+              valueListenable: _timerSecondsVN,
+              builder: (context, seconds, _) => Text(
+                _formatTime(seconds),
+                style: TextStyle(
+                  color: _timerRunning ? color : t.textPrimary,
+                  fontSize: 28,
+                  fontWeight: FontWeight.w700,
+                  fontFamily: 'Manrope',
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
               ),
             ),
           ),
@@ -745,18 +1039,25 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
 
           const Spacer(),
 
-          // Timer controls
-          if (_timerSeconds > 0)
-            IconButton(
-              onPressed: _resetTimer,
-              icon: Icon(
-                Icons.replay,
-                color: t.textSecondary,
-                size: 22,
-              ),
-              tooltip: 'Reiniciar',
-            ),
-          const SizedBox(width: 4),
+          // Botón reiniciar (solo aparece cuando hay tiempo acumulado)
+          ValueListenableBuilder<int>(
+            valueListenable: _timerSecondsVN,
+            builder: (context, seconds, _) {
+              if (seconds == 0) return const SizedBox.shrink();
+              return Padding(
+                padding: const EdgeInsets.only(right: 4),
+                child: IconButton(
+                  onPressed: _resetTimer,
+                  icon: Icon(
+                    Icons.replay,
+                    color: t.textSecondary,
+                    size: 22,
+                  ),
+                  tooltip: 'Reiniciar',
+                ),
+              );
+            },
+          ),
           SizedBox(
             width: 48,
             height: 48,
@@ -779,5 +1080,67 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
         ],
       ),
     );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// SCRIPTURE ANCHOR CARD — Versículo de cierre del ejercicio
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _ScriptureAnchorCard extends StatelessWidget {
+  final String reference;
+  final Color color;
+
+  const _ScriptureAnchorCard({
+    required this.reference,
+    required this.color,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: color.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.menu_book, color: color, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                'Ancla en la Palabra',
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            reference,
+            style: TextStyle(
+              color: t.textPrimary,
+              fontSize: 14,
+              height: 1.5,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
+        ],
+      ),
+    ).animate().fadeIn(duration: AppDesignSystem.durationMedium).slideY(
+          begin: 0.1,
+          duration: AppDesignSystem.durationMedium,
+          curve: Curves.easeOutCubic,
+        );
   }
 }

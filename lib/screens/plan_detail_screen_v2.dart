@@ -223,7 +223,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: Container(
             decoration: BoxDecoration(
               color: t.surface.withOpacity(0.3),
@@ -245,7 +245,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
         child: Container(
           width: 40,
           height: 40,
@@ -270,7 +270,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: Container(
             width: 40,
             height: 40,

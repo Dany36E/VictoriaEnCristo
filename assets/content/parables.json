@@ -1,0 +1,263 @@
+[
+  {
+    "id": "sower",
+    "order": 1,
+    "title": "El Sembrador",
+    "subtitle": "Cuatro terrenos, una misma semilla",
+    "icon": "grass",
+    "reference": "Mateo 13:3-23",
+    "keyVerse": "El que fue sembrado en buena tierra, este es el que oye y entiende la palabra, y da fruto.",
+    "scenes": [
+      {"text": "Un sembrador salió temprano, con el saco al hombro, a lanzar semilla sobre la tierra endurecida por el sol de Galilea.", "speaker": null},
+      {"text": "Parte de la semilla cayó junto al camino; vinieron las aves y se la comieron.", "speaker": null},
+      {"text": "Otra cayó en pedregales, brotó rápido, pero al salir el sol se quemó porque no tenía raíz.", "speaker": null},
+      {"text": "Otra cayó entre espinos, y los espinos la ahogaron.", "speaker": null},
+      {"text": "Y otra cayó en buena tierra, y dio fruto: a ciento, a sesenta, a treinta por uno.", "speaker": null},
+      {"text": "El que tiene oídos para oír, oiga.", "speaker": "Jesús"}
+    ],
+    "meaning": "La semilla es la Palabra del Reino. Los terrenos son cuatro tipos de corazón: el indiferente (camino), el superficial (pedregal), el dividido (espinos), y el receptivo (buena tierra). Solo el último entiende y persevera.",
+    "questions": [
+      {
+        "prompt": "¿Qué representa la semilla en la parábola?",
+        "options": ["El dinero", "La Palabra del Reino", "La buena obra", "La fe del sembrador"],
+        "correctIndex": 1,
+        "explanation": "Jesús explica que 'la semilla es la palabra de Dios' (Lucas 8:11)."
+      },
+      {
+        "prompt": "¿Qué ahoga la palabra en el terreno de espinos?",
+        "options": ["Las aves del cielo", "El sol ardiente", "Los afanes y engaño de las riquezas", "La falta de raíz"],
+        "correctIndex": 2,
+        "explanation": "Mateo 13:22: 'los afanes de este siglo y el engaño de las riquezas ahogan la palabra'."
+      }
+    ],
+    "applicationPrompt": "¿Qué tipo de tierra soy esta semana? ¿Qué afán o distracción está ahogando la Palabra en mí?",
+    "xpReward": 25
+  },
+  {
+    "id": "prodigal_son",
+    "order": 2,
+    "title": "El Hijo Pródigo",
+    "subtitle": "El abrazo del Padre",
+    "icon": "home",
+    "reference": "Lucas 15:11-32",
+    "keyVerse": "Este mi hijo muerto era, y ha revivido; se había perdido, y es hallado.",
+    "scenes": [
+      {"text": "El hijo menor exigió su herencia antes de tiempo. El padre la partió. Él la tomó y se fue a una tierra lejana.", "speaker": null},
+      {"text": "Vivió perdidamente hasta que gastó todo. Llegó una gran hambre, y empezó a faltarle.", "speaker": null},
+      {"text": "Terminó cuidando cerdos, deseando llenarse de las algarrobas que ellos comían, y nadie le daba.", "speaker": null},
+      {"text": "Volviendo en sí dijo: 'Cuántos jornaleros en casa de mi padre tienen pan de sobra, y yo aquí perezco'. Me levantaré e iré a mi padre.", "speaker": "Hijo menor"},
+      {"text": "Cuando aún estaba lejos, su padre lo vio, fue movido a misericordia, corrió, se echó sobre su cuello y lo besó.", "speaker": null},
+      {"text": "¡Pronto, sacad el mejor vestido, poned un anillo en su mano y calzado en sus pies! Porque este mi hijo muerto era, y ha revivido.", "speaker": "Padre"}
+    ],
+    "meaning": "El Padre no sale a buscar con reproche, sale corriendo con abrazo. La parábola revela el corazón de Dios: no solo perdona al que vuelve arrepentido, lo restaura como hijo, no como jornalero. Y también retrata al hermano mayor: el religioso que sirve pero no conoce la alegría del Padre.",
+    "questions": [
+      {
+        "prompt": "¿Qué hace el padre cuando ve venir al hijo?",
+        "options": ["Lo espera con reproche", "Corre, lo abraza y lo besa", "Manda llamarlo", "Le exige devolver lo gastado"],
+        "correctIndex": 1,
+        "explanation": "Lucas 15:20 — 'cuando aún estaba lejos, lo vio su padre, y fue movido a misericordia, y corrió'."
+      },
+      {
+        "prompt": "¿Qué representa el hermano mayor?",
+        "options": ["Al discípulo fiel", "Al corazón religioso que no entiende la gracia", "Al gentil convertido", "Al Mesías"],
+        "correctIndex": 1,
+        "explanation": "Está en casa pero no en el corazón del Padre — es el fariseo de la historia."
+      }
+    ],
+    "applicationPrompt": "¿Eres hoy el hijo menor (alejado), el hijo mayor (religioso) o el hijo amado en casa? ¿Qué te dice el Padre?",
+    "xpReward": 30
+  },
+  {
+    "id": "good_samaritan",
+    "order": 3,
+    "title": "El Buen Samaritano",
+    "subtitle": "¿Quién es mi prójimo?",
+    "icon": "favorite",
+    "reference": "Lucas 10:25-37",
+    "keyVerse": "Vé, y haz tú lo mismo.",
+    "scenes": [
+      {"text": "Un hombre descendía de Jerusalén a Jericó. Cayó en manos de ladrones: lo despojaron, lo hirieron y se fueron dejándolo medio muerto.", "speaker": null},
+      {"text": "Un sacerdote pasó por aquel camino. Lo vio. Pasó de largo por el otro lado.", "speaker": null},
+      {"text": "Un levita llegó al lugar. También pasó de largo.", "speaker": null},
+      {"text": "Pero un samaritano, yendo de camino, lo vio y fue movido a misericordia.", "speaker": null},
+      {"text": "Se acercó, vendó sus heridas, echándoles aceite y vino; lo puso en su cabalgadura y lo llevó al mesón y cuidó de él.", "speaker": null},
+      {"text": "Al día siguiente dio dos denarios al mesonero: 'Cuídamelo, y todo lo que gastes de más te lo pagaré cuando regrese'.", "speaker": "Samaritano"}
+    ],
+    "meaning": "El prójimo no es el que es 'como yo'; es el que necesita misericordia, sin importar su raza o religión. El samaritano — despreciado por los judíos — es el ejemplo. El amor no pregunta '¿quién merece mi ayuda?', pregunta '¿a quién puedo ser prójimo hoy?'",
+    "questions": [
+      {
+        "prompt": "¿Quién mostró verdadera misericordia?",
+        "options": ["El sacerdote", "El levita", "El samaritano", "El ladrón arrepentido"],
+        "correctIndex": 2,
+        "explanation": "El menos esperado — el extranjero — fue el que amó como prójimo."
+      },
+      {
+        "prompt": "¿Qué ordena Jesús al intérprete de la ley al final?",
+        "options": ["Estudia más la Torá", "Vé, y haz tú lo mismo", "Regresa al templo", "Busca quién te ayude"],
+        "correctIndex": 1,
+        "explanation": "Lucas 10:37 — la parábola no es para admirar, es para imitar."
+      }
+    ],
+    "applicationPrompt": "¿Hay alguien caído en tu camino esta semana al que has pasado de largo? ¿Qué gesto concreto haría hoy un samaritano?",
+    "xpReward": 25
+  },
+  {
+    "id": "unforgiving_servant",
+    "order": 4,
+    "title": "El Siervo que no Perdonó",
+    "subtitle": "Perdonado y sin piedad",
+    "icon": "balance",
+    "reference": "Mateo 18:21-35",
+    "keyVerse": "¿No debías tú también tener misericordia de tu consiervo, como yo tuve misericordia de ti?",
+    "scenes": [
+      {"text": "Un rey quiso hacer cuentas con sus siervos. Le fue presentado uno que le debía diez mil talentos — una deuda imposible.", "speaker": null},
+      {"text": "El siervo cayó de rodillas: 'Señor, ten paciencia conmigo, y yo te lo pagaré todo'.", "speaker": "Siervo"},
+      {"text": "El rey, movido a misericordia, le soltó y le perdonó la deuda. Toda.", "speaker": null},
+      {"text": "Saliendo el siervo, halló a un consiervo que le debía cien denarios. Lo tomó del cuello: '¡Págame lo que me debes!'", "speaker": "Siervo"},
+      {"text": "El consiervo rogó igual que él había rogado. Pero él no quiso, sino que lo metió en la cárcel.", "speaker": null},
+      {"text": "Entonces el señor, enojado, le dijo: 'Siervo malvado, toda aquella deuda te perdoné'. Y lo entregó a los verdugos.", "speaker": "Rey"}
+    ],
+    "meaning": "Un talento equivalía a 6,000 denarios: 10,000 talentos eran impagables en varias vidas. Cien denarios eran pocas semanas de trabajo. La desproporción es la clave: Dios me ha perdonado lo impagable; no perdonar a otros lo pequeño es contradecir lo que recibí.",
+    "questions": [
+      {
+        "prompt": "¿Cuánto debía el primer siervo al rey?",
+        "options": ["100 denarios", "1,000 dracmas", "10,000 talentos (impagable)", "30 piezas de plata"],
+        "correctIndex": 2,
+        "explanation": "Una deuda deliberadamente imposible — imagen de nuestra deuda ante Dios."
+      },
+      {
+        "prompt": "¿Qué exige la parábola sobre el perdón?",
+        "options": ["Perdonar solo si hay arrepentimiento visible", "Perdonar porque hemos sido perdonados primero", "Perdonar solo una vez", "Perdonar sin importar nada nunca"],
+        "correctIndex": 1,
+        "explanation": "El patrón del Reino: recibimos misericordia y la extendemos."
+      }
+    ],
+    "applicationPrompt": "¿Hay una deuda — ofensa, herida, traición — que te cuesta perdonar? ¿Cuál es tu 'deuda con Dios' comparada con ella?",
+    "xpReward": 30
+  },
+  {
+    "id": "mustard_seed",
+    "order": 5,
+    "title": "La Semilla de Mostaza",
+    "subtitle": "Lo pequeño que se vuelve grande",
+    "icon": "park",
+    "reference": "Mateo 13:31-32",
+    "keyVerse": "Cuando crece, es la mayor de las hortalizas, y se hace árbol.",
+    "scenes": [
+      {"text": "El reino de los cielos es semejante al grano de mostaza, que un hombre tomó y sembró en su campo.", "speaker": "Jesús"},
+      {"text": "Que a la verdad es la más pequeña de todas las semillas...", "speaker": null},
+      {"text": "...pero cuando ha crecido, es la mayor de las hortalizas, y se hace árbol, de tal manera que vienen las aves del cielo y hacen nidos en sus ramas.", "speaker": null}
+    ],
+    "meaning": "El Reino no empieza con fanfarrias: empieza pequeño, escondido, casi invisible. Doce hombres, una cruz aparentemente derrotada, un grupo perseguido. Pero crece hasta cubrir la tierra. Lo mismo con la obra de Dios en tu vida: lo que hoy parece insignificante puede ser el árbol bajo el que otros encontrarán refugio mañana.",
+    "questions": [
+      {
+        "prompt": "¿A qué compara Jesús el Reino de los cielos aquí?",
+        "options": ["A un cedro del Líbano", "A la semilla de mostaza", "A una higuera", "A un olivo"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Qué lección central enseña?",
+        "options": ["Lo rápido es mejor", "El Reino empieza pequeño pero crece inmenso", "Dios solo usa lo grande", "Hay que esforzarse más"],
+        "correctIndex": 1
+      }
+    ],
+    "applicationPrompt": "¿Qué 'semilla pequeña' (hábito, obediencia, oración, servicio) necesitas sembrar hoy, aun sin ver resultado inmediato?",
+    "xpReward": 20
+  },
+  {
+    "id": "lost_sheep",
+    "order": 6,
+    "title": "La Oveja Perdida",
+    "subtitle": "El Pastor que deja las 99",
+    "icon": "pets",
+    "reference": "Lucas 15:3-7",
+    "keyVerse": "Hay más gozo en el cielo por un pecador que se arrepiente, que por noventa y nueve justos.",
+    "scenes": [
+      {"text": "¿Qué hombre de vosotros, teniendo cien ovejas, si pierde una de ellas, no deja las noventa y nueve en el desierto...", "speaker": "Jesús"},
+      {"text": "...y va tras la que se perdió, hasta encontrarla?", "speaker": null},
+      {"text": "Y cuando la encuentra, la pone sobre sus hombros gozoso.", "speaker": null},
+      {"text": "Y al llegar a casa, reúne a sus amigos y vecinos: '¡Gozaos conmigo, porque he hallado mi oveja que se había perdido!'", "speaker": "Pastor"}
+    ],
+    "meaning": "Jesús no espera a que la oveja regrese: va a buscarla. Y no la arrastra: la carga sobre sus hombros. Su gozo no está en las 99 que 'están bien', sino en la 1 recuperada. Así ama Dios al que se siente lejos.",
+    "questions": [
+      {
+        "prompt": "¿Qué hace el pastor al encontrar la oveja?",
+        "options": ["La regaña y la arrastra", "La pone sobre sus hombros gozoso", "La deja volver sola", "La vende"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Qué provoca más gozo en el cielo?",
+        "options": ["99 justos", "Un pecador que se arrepiente", "Una ofrenda grande", "Un templo lleno"],
+        "correctIndex": 1,
+        "explanation": "Lucas 15:7."
+      }
+    ],
+    "applicationPrompt": "¿Te sientes 'oveja perdida' en algún área? Recuerda: Él ya salió a buscarte. ¿Y conoces a alguien a quien tú podrías ir a buscar?",
+    "xpReward": 25
+  },
+  {
+    "id": "talents",
+    "order": 7,
+    "title": "Los Talentos",
+    "subtitle": "Lo que haces con lo que recibes",
+    "icon": "diamond",
+    "reference": "Mateo 25:14-30",
+    "keyVerse": "Bien, buen siervo y fiel; sobre poco has sido fiel, sobre mucho te pondré.",
+    "scenes": [
+      {"text": "Un hombre, yéndose lejos, llamó a sus siervos y les entregó sus bienes. A uno dio cinco talentos, a otro dos, a otro uno; a cada uno conforme a su capacidad.", "speaker": null},
+      {"text": "El que recibió cinco, negoció con ellos y ganó otros cinco. El que recibió dos ganó otros dos.", "speaker": null},
+      {"text": "Pero el que recibió uno fue y cavó en la tierra y escondió el dinero de su señor.", "speaker": null},
+      {"text": "Después de mucho tiempo, vino el señor y arregló cuentas. A los dos fieles: 'Bien, buen siervo y fiel; entra en el gozo de tu señor'.", "speaker": "Señor"},
+      {"text": "El de un talento dijo: 'Tuve miedo, y fui y escondí tu talento en la tierra; aquí tienes lo que es tuyo'.", "speaker": "Siervo 3"},
+      {"text": "Siervo malo y negligente... al menos debías haber dado mi dinero a los banqueros. Quitadle el talento.", "speaker": "Señor"}
+    ],
+    "meaning": "Dios da a cada uno según su capacidad — no a todos igual, pero a nadie nada. El pecado no fue 'no ganar mucho', fue no hacer nada por miedo. El Reino premia la fidelidad con lo que uno tiene, no la comparación con lo que otros recibieron.",
+    "questions": [
+      {
+        "prompt": "¿Por qué es reprendido el siervo de un talento?",
+        "options": ["Porque perdió el dinero", "Porque no lo invirtió por miedo", "Porque robó al señor", "Porque se lo dio a otros"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Qué principio enseña la parábola?",
+        "options": ["Solo los ricos reciben recompensa", "Fidelidad en lo poco abre la puerta a lo mucho", "Hay que ganar como otros", "Dios premia la cautela"],
+        "correctIndex": 1,
+        "explanation": "'Sobre poco has sido fiel, sobre mucho te pondré' (Mateo 25:21)."
+      }
+    ],
+    "applicationPrompt": "¿Qué 'talento' (don, tiempo, influencia, recurso) has estado enterrando por miedo? ¿Cómo puedes invertirlo esta semana?",
+    "xpReward": 30
+  },
+  {
+    "id": "ten_virgins",
+    "order": 8,
+    "title": "Las Diez Vírgenes",
+    "subtitle": "Prudentes e insensatas",
+    "icon": "schedule",
+    "reference": "Mateo 25:1-13",
+    "keyVerse": "Velad, pues, porque no sabéis el día ni la hora.",
+    "scenes": [
+      {"text": "El reino de los cielos será semejante a diez vírgenes que tomando sus lámparas, salieron a recibir al esposo.", "speaker": null},
+      {"text": "Cinco de ellas eran prudentes y cinco insensatas. Las insensatas tomaron sus lámparas, pero no aceite; las prudentes tomaron aceite en sus vasijas.", "speaker": null},
+      {"text": "Tardándose el esposo, cabecearon todas y se durmieron. A medianoche se oyó un clamor: '¡Aquí viene el esposo; salid a recibirle!'", "speaker": null},
+      {"text": "Las insensatas a las prudentes: 'Dadnos de vuestro aceite; porque nuestras lámparas se apagan'.", "speaker": "Insensatas"},
+      {"text": "Id más bien a los que venden, y comprad para vosotras.", "speaker": "Prudentes"},
+      {"text": "Mientras iban a comprar, vino el esposo; las preparadas entraron a las bodas, y se cerró la puerta.", "speaker": null}
+    ],
+    "meaning": "No basta con tener lámpara (apariencia de fe); hace falta aceite (vida real con Dios). El aceite no se presta a última hora. La preparación espiritual es personal e intransferible. Vela — hoy — porque no sabes cuándo será 'medianoche'.",
+    "questions": [
+      {
+        "prompt": "¿Qué distinguía a las prudentes de las insensatas?",
+        "options": ["Las lámparas", "El vestido", "El aceite de reserva", "La hora de llegada"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Cuál es la enseñanza central?",
+        "options": ["Hay que compartir todo", "Velar y prepararse porque no sabemos el día", "Las bodas son importantes", "Dormir es pecado"],
+        "correctIndex": 1
+      }
+    ],
+    "applicationPrompt": "Si 'medianoche' llegara hoy, ¿tienes aceite — comunión real, no solo apariencia? ¿Qué necesitas reponer esta semana?",
+    "xpReward": 30
+  }
+]

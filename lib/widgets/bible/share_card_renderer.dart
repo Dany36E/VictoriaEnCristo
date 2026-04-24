@@ -41,6 +41,7 @@ class ShareCardRenderer extends StatelessWidget {
               child: Image.asset(
                 template.backgroundAsset!,
                 fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
                 errorBuilder: (_, _, _) => CustomPaint(
                   size: cardSize,
                   painter: _FallbackBackgroundPainter(isDark: template.isDark),

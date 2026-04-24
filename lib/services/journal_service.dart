@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:convert';
+import 'daily_practice_service.dart';
 
 /// Modelo para una entrada del diario
 class JournalEntry {
@@ -79,6 +80,7 @@ class JournalService {
   /// Callbacks para write-through a cloud (lo configura JournalSyncAdapter)
   /// Evita import circular: JournalService no importa el adapter.
   void Function(JournalEntry entry)? onEntryAdded;
+  void Function(JournalEntry entry)? onEntryUpdated;
   void Function(String id)? onEntryDeleted;
 
   // Lista de triggers comunes para sugerencias
@@ -147,6 +149,10 @@ class JournalService {
     _entries.insert(0, entry); // Agregar al inicio
     await _saveEntries();
     _notifyChange();
+    // Marca la práctica "diario" del día.
+    try {
+      DailyPracticeService.I.mark(DailyPractice.journal);
+    } catch (_) {}
     // Write-through: notificar al sync adapter para subir a cloud
     onEntryAdded?.call(entry);
   }
@@ -158,6 +164,8 @@ class JournalService {
       _entries[index] = entry;
       await _saveEntries();
       _notifyChange();
+      // Write-through: notificar al sync adapter para actualizar en cloud
+      onEntryUpdated?.call(entry);
     }
   }
 

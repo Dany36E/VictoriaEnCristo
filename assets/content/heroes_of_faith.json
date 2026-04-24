@@ -1,0 +1,338 @@
+[
+  {
+    "id": "abraham",
+    "order": 1,
+    "era": "patriarch",
+    "name": "Abraham",
+    "epithet": "Padre de la fe",
+    "giantDefeated": "Incertidumbre",
+    "icon": "star",
+    "story": "Dios llamó a Abraham a dejar su tierra y su familia sin decirle a dónde iría. A los 75 años, se levantó y salió —no porque supiera el camino, sino porque conocía al que lo llamaba. Años después, cuando Dios le pidió ofrecer a Isaac, el hijo de la promesa, caminó tres días al monte Moriah creyendo que Dios podía resucitar a su hijo. Su fe no se basó en ver, sino en confiar.",
+    "keyVerseReference": "Romanos 4:20-21",
+    "keyVerseText": "Tampoco dudó, por incredulidad, de la promesa de Dios, sino que se fortaleció en fe, dando gloria a Dios, plenamente convencido de que era también poderoso para hacer todo lo que había prometido.",
+    "lesson": "La fe no exige ver el final del camino. Exige confiar en quién te llama. Da hoy el paso que Dios ya te pidió, aunque el siguiente todavía no esté claro.",
+    "challenges": [
+      {
+        "prompt": "¿Qué hizo Abraham cuando Dios lo llamó a salir de su tierra?",
+        "options": ["Pidió una señal clara del destino", "Obedeció sin saber a dónde iba", "Consultó con su padre Taré"],
+        "correctIndex": 1,
+        "explanation": "Hebreos 11:8 — «Salió sin saber a dónde iba»."
+      },
+      {
+        "prompt": "¿Cuál fue la prueba máxima de Abraham?",
+        "options": ["Enfrentar a los reyes de Sodoma", "Ofrecer a Isaac en el monte Moriah", "Esperar 25 años por un hijo"],
+        "correctIndex": 1,
+        "explanation": "Génesis 22 — Dios proveyó el cordero; Abraham creyó en la resurrección."
+      }
+    ],
+    "xpReward": 25
+  },
+  {
+    "id": "jose",
+    "order": 2,
+    "era": "patriarch",
+    "name": "José",
+    "epithet": "El soñador fiel",
+    "giantDefeated": "Resentimiento",
+    "icon": "palette",
+    "story": "Vendido por sus hermanos, esclavizado, calumniado, olvidado en una cárcel egipcia durante años. José tenía mil razones para odiar. Pero cuando finalmente se reveló a sus hermanos, les dijo: 'Vosotros pensasteis mal contra mí, mas Dios lo encaminó a bien'. No guardó resentimiento porque supo ver la mano de Dios detrás de cada herida.",
+    "keyVerseReference": "Génesis 50:20",
+    "keyVerseText": "Vosotros pensasteis mal contra mí, mas Dios lo encaminó a bien, para hacer lo que vemos hoy, para mantener en vida a mucho pueblo.",
+    "lesson": "El perdón no niega el dolor: lo redime. Cuando entregas tu herida a Dios, Él la convierte en semilla de bendición para otros.",
+    "challenges": [
+      {
+        "prompt": "¿Cómo respondió José a sus hermanos cuando se reveló ante ellos?",
+        "options": ["Los castigó como merecían", "Los perdonó y proveyó para ellos", "Les exigió disculpas públicas"],
+        "correctIndex": 1,
+        "explanation": "Génesis 45 — José lloró y los abrazó."
+      },
+      {
+        "prompt": "¿Qué actitud definió a José en la cárcel?",
+        "options": ["Desesperación", "Fidelidad y servicio a otros", "Planear venganza"],
+        "correctIndex": 1,
+        "explanation": "Sirvió al copero y al panadero interpretando sueños."
+      }
+    ],
+    "xpReward": 25
+  },
+  {
+    "id": "moises",
+    "order": 3,
+    "era": "exodus",
+    "name": "Moisés",
+    "epithet": "El libertador reticente",
+    "giantDefeated": "Inseguridad",
+    "icon": "waves",
+    "story": "Moisés vio la zarza ardiendo y escuchó el llamado más grande de la historia: liberar a un pueblo. Su respuesta: '¿Quién soy yo?'. Tartamudeaba, tenía 80 años y un pasado de fracaso. Pero Dios no lo llamó por su capacidad: lo llamó por Su presencia. 'Yo estaré contigo', prometió el Eterno. Y eso bastó para partir un mar.",
+    "keyVerseReference": "Éxodo 3:12",
+    "keyVerseText": "Y él respondió: Ve, porque yo estaré contigo; y esto te será por señal de que yo te he enviado.",
+    "lesson": "Dios no busca los capaces: busca los disponibles. Tu inseguridad no lo descalifica a Él. Donde tú ves limitaciones, Él ve una vasija que Él mismo puede llenar.",
+    "challenges": [
+      {
+        "prompt": "¿Cuál fue la primera respuesta de Moisés al llamado de Dios?",
+        "options": ["Aquí estoy, envíame", "¿Quién soy yo para ir?", "Necesito tiempo para pensar"],
+        "correctIndex": 1,
+        "explanation": "Éxodo 3:11 — protestó cinco veces."
+      },
+      {
+        "prompt": "¿Qué le respondió Dios a sus excusas?",
+        "options": ["Búscate un reemplazo", "Yo estaré contigo", "Primero aprende a hablar"],
+        "correctIndex": 1,
+        "explanation": "La presencia de Dios es la credencial."
+      }
+    ],
+    "xpReward": 25
+  },
+  {
+    "id": "josue",
+    "order": 4,
+    "era": "exodus",
+    "name": "Josué",
+    "epithet": "El conquistador valiente",
+    "giantDefeated": "Miedo",
+    "icon": "flag",
+    "story": "Josué había visto morir a toda una generación en el desierto por incredulidad. Ahora Dios le pedía liderar la conquista de una tierra llena de gigantes y ciudades amuralladas. Cuatro veces Dios le repitió: 'Esfuérzate y sé valiente'. No porque el miedo estuviera mal, sino porque la obediencia no espera a que el miedo se vaya: la obediencia avanza con el miedo.",
+    "keyVerseReference": "Josué 1:9",
+    "keyVerseText": "Mira que te mando que te esfuerces y seas valiente; no temas ni desmayes, porque Jehová tu Dios estará contigo en dondequiera que vayas.",
+    "lesson": "La valentía no es ausencia de miedo: es obedecer a pesar del miedo. Lo que Dios manda, Él lo sostiene.",
+    "challenges": [
+      {
+        "prompt": "¿Qué mandato repitió Dios a Josué varias veces?",
+        "options": ["Esfuérzate y sé valiente", "Huye del peligro", "Consulta a los ancianos"],
+        "correctIndex": 0,
+        "explanation": "Josué 1:6,7,9,18 — el mandato se repitió cuatro veces."
+      },
+      {
+        "prompt": "¿Cómo cayeron los muros de Jericó?",
+        "options": ["Con arietes y sitio", "Por obediencia al plan de Dios (marchar y gritar)", "Con un pacto secreto"],
+        "correctIndex": 1,
+        "explanation": "Josué 6 — obediencia exacta + fe."
+      }
+    ],
+    "xpReward": 25
+  },
+  {
+    "id": "david",
+    "order": 5,
+    "era": "kingdom",
+    "name": "David",
+    "epithet": "El corazón conforme a Dios",
+    "giantDefeated": "Intimidación",
+    "icon": "music_note",
+    "story": "Un pastor adolescente enfrentó a un gigante de tres metros con cinco piedras y una honda. Pero el arma real de David no fue la piedra: fue su perspectiva. Mientras Israel veía a Goliat como demasiado grande para vencer, David lo vio como demasiado grande para fallar. '¿Quién es este filisteo incircunciso para provocar al Dios vivo?'. Su fe no calculó el tamaño del enemigo: recordó el tamaño de su Dios.",
+    "keyVerseReference": "1 Samuel 17:45",
+    "keyVerseText": "Entonces dijo David al filisteo: Tú vienes a mí con espada y lanza y jabalina; mas yo vengo a ti en el nombre de Jehová de los ejércitos, el Dios de los escuadrones de Israel, a quien tú has provocado.",
+    "lesson": "Cuando tu gigante parece enorme, es porque tu Dios se ve pequeño. Ajusta la perspectiva, no la artillería.",
+    "challenges": [
+      {
+        "prompt": "¿Qué llevó David al enfrentar a Goliat?",
+        "options": ["Una armadura prestada", "Cinco piedras, una honda y fe", "Un ejército selecto"],
+        "correctIndex": 1,
+        "explanation": "1 Samuel 17:40 — rechazó la armadura de Saúl."
+      },
+      {
+        "prompt": "¿Cómo describió David la batalla?",
+        "options": ["Un duelo entre hombres", "De Jehová es la batalla", "Una prueba de fuerza"],
+        "correctIndex": 1,
+        "explanation": "1 Samuel 17:47 — la victoria ya era de Dios."
+      }
+    ],
+    "xpReward": 30
+  },
+  {
+    "id": "elias",
+    "order": 6,
+    "era": "prophets",
+    "name": "Elías",
+    "epithet": "El profeta de fuego",
+    "giantDefeated": "Desánimo",
+    "icon": "whatshot",
+    "story": "Después de triunfar sobre 450 profetas de Baal en el monte Carmelo, Elías huyó aterrado por la amenaza de Jezabel. Bajo un enebro quiso morir: 'Basta ya, Señor, quítame la vida'. Pero Dios no lo reprendió: envió un ángel con pan y agua, lo dejó dormir, y luego se reveló no en el terremoto ni en el fuego, sino en un silbo apacible. Dios sabe restaurar incluso al héroe agotado.",
+    "keyVerseReference": "1 Reyes 19:12",
+    "keyVerseText": "Y tras el fuego un silbo apacible y delicado. Y cuando lo oyó Elías, cubrió su rostro con su manto, y salió, y se puso a la puerta de la cueva.",
+    "lesson": "El cansancio espiritual no es pecado: es humanidad. Dios ministra con pan, descanso y Su voz suave antes de enviarte de nuevo.",
+    "challenges": [
+      {
+        "prompt": "¿Cómo se manifestó Dios a Elías en Horeb?",
+        "options": ["En el fuego intenso", "En el viento poderoso", "En un silbo apacible"],
+        "correctIndex": 2,
+        "explanation": "1 Reyes 19:12 — Dios susurra."
+      },
+      {
+        "prompt": "¿Qué hizo Dios primero por Elías agotado?",
+        "options": ["Le dio una misión urgente", "Le dio comida y descanso", "Le reprendió por huir"],
+        "correctIndex": 1,
+        "explanation": "1 Reyes 19:5-8 — pan y descanso antes del mandato."
+      }
+    ],
+    "xpReward": 30
+  },
+  {
+    "id": "daniel",
+    "order": 7,
+    "era": "prophets",
+    "name": "Daniel",
+    "epithet": "El íntegro en Babilonia",
+    "giantDefeated": "Compromiso",
+    "icon": "shield",
+    "story": "Cautivo en Babilonia desde joven, Daniel decidió 'no contaminarse'. Cuando un decreto prohibió orar a cualquier dios excepto al rey, Daniel abrió sus ventanas hacia Jerusalén y oró tres veces al día —como siempre. La integridad no se inventa en la crisis: se cultiva en la rutina. Por eso, cuando lo echaron al foso, los leones no lo tocaron: ya habían visto su carácter en oración.",
+    "keyVerseReference": "Daniel 6:10",
+    "keyVerseText": "Cuando Daniel supo que el edicto había sido firmado, entró en su casa, y abiertas las ventanas de su cámara que daban hacia Jerusalén, se arrodillaba tres veces al día, y oraba y daba gracias delante de su Dios, como lo solía hacer antes.",
+    "lesson": "La fidelidad se decide antes de la prueba. Tu rutina de hoy es tu testimonio de mañana.",
+    "challenges": [
+      {
+        "prompt": "¿Qué hizo Daniel cuando se prohibió orar a Dios?",
+        "options": ["Oró en secreto", "Oró como siempre, con ventanas abiertas", "Dejó de orar un mes"],
+        "correctIndex": 1,
+        "explanation": "Daniel 6:10 — no cambió su rutina."
+      },
+      {
+        "prompt": "¿Cuál fue la clave del testimonio de Daniel?",
+        "options": ["Su posición política", "Su integridad constante", "Sus dones de interpretación"],
+        "correctIndex": 1,
+        "explanation": "Daniel 6:4 — no hallaron falta en él."
+      }
+    ],
+    "xpReward": 30
+  },
+  {
+    "id": "ester",
+    "order": 8,
+    "era": "prophets",
+    "name": "Ester",
+    "epithet": "Reina para tal tiempo",
+    "giantDefeated": "Cobardía",
+    "icon": "diamond",
+    "story": "Una huérfana judía se convirtió en reina del imperio persa. Cuando Amán tramó exterminar a su pueblo, su primo Mardoqueo la confrontó: '¿Quién sabe si para esta hora has llegado al reino?'. Ester tembló —entrar al rey sin ser llamada podía costarle la vida— pero dijo: 'Si perezco, que perezca'. Ayunó tres días, entró al trono, y Dios obró liberación para toda una nación.",
+    "keyVerseReference": "Ester 4:14",
+    "keyVerseText": "Porque si callas absolutamente en este tiempo, respiro y liberación vendrá de alguna otra parte para los judíos; mas tú y la casa de tu padre pereceréis. ¿Y quién sabe si para esta hora has llegado al reino?",
+    "lesson": "Dios te pone donde estás con un propósito. El silencio cómodo traiciona; la valentía oportuna salva vidas.",
+    "challenges": [
+      {
+        "prompt": "¿Qué hizo Ester antes de entrar al rey?",
+        "options": ["Consultó a los magos", "Ayunó tres días con su pueblo", "Preparó regalos"],
+        "correctIndex": 1,
+        "explanation": "Ester 4:16 — ayuno colectivo."
+      },
+      {
+        "prompt": "¿Cuál fue su respuesta al llamado?",
+        "options": ["Huyamos del palacio", "Si perezco, que perezca", "Busquemos otra reina"],
+        "correctIndex": 1,
+        "explanation": "Ester 4:16 — valentía entregada."
+      }
+    ],
+    "xpReward": 30
+  },
+  {
+    "id": "maria",
+    "order": 9,
+    "era": "gospels",
+    "name": "María",
+    "epithet": "La sierva del Señor",
+    "giantDefeated": "Vergüenza",
+    "icon": "favorite",
+    "story": "Una joven campesina de Nazaret recibió el anuncio más inesperado: daría a luz al Mesías. Un embarazo fuera del matrimonio significaba vergüenza pública, posible rechazo de José y hasta la muerte por apedreamiento. Pero María respondió: 'He aquí la sierva del Señor; hágase conmigo conforme a tu palabra'. No entendió el cómo, pero confió en el quién. Su humildad se convirtió en el puente por donde Dios se hizo hombre.",
+    "keyVerseReference": "Lucas 1:38",
+    "keyVerseText": "Entonces María dijo: He aquí la sierva del Señor; hágase conmigo conforme a tu palabra. Y el ángel se fue de su presencia.",
+    "lesson": "Obedecer a Dios a veces cuesta tu reputación. Pero lo que pierdes a ojos de los hombres, Dios lo vuelve historia eterna.",
+    "challenges": [
+      {
+        "prompt": "¿Cuál fue la respuesta de María al ángel?",
+        "options": ["Necesito tiempo para pensar", "He aquí la sierva del Señor", "Esto no puede ser verdad"],
+        "correctIndex": 1,
+        "explanation": "Lucas 1:38 — entrega total."
+      },
+      {
+        "prompt": "¿Qué cantó María tras visitar a Elisabet?",
+        "options": ["El Salmo 23", "El Magníficat", "El Shemá"],
+        "correctIndex": 1,
+        "explanation": "Lucas 1:46-55 — 'Engrandece mi alma al Señor'."
+      }
+    ],
+    "xpReward": 30
+  },
+  {
+    "id": "pedro",
+    "order": 10,
+    "era": "gospels",
+    "name": "Pedro",
+    "epithet": "La roca restaurada",
+    "giantDefeated": "Fracaso",
+    "icon": "anchor",
+    "story": "Pedro juró seguir a Jesús hasta la muerte. Pocas horas después, lo negó tres veces y salió a llorar amargamente. El fracaso era total. Pero Jesús no lo descartó: lo buscó a la orilla del mar de Galilea, le preparó desayuno, y tres veces le preguntó: '¿Me amas?'. Tres preguntas para sanar tres negaciones. Y lo restauró con un mandato: 'Apacienta mis ovejas'. Pedro predicó Pentecostés 50 días después.",
+    "keyVerseReference": "Juan 21:17",
+    "keyVerseText": "Le dijo la tercera vez: Simón, hijo de Jonás, ¿me amas? Pedro se entristeció de que le dijese la tercera vez: ¿Me amas? y le respondió: Señor, tú lo sabes todo; tú sabes que te amo. Jesús le dijo: Apacienta mis ovejas.",
+    "lesson": "Tu peor caída no es tu última palabra. Jesús restaura con preguntas que sanan, no con acusaciones que hunden.",
+    "challenges": [
+      {
+        "prompt": "¿Cuántas veces preguntó Jesús a Pedro '¿Me amas?'",
+        "options": ["Una vez", "Tres veces", "Siete veces"],
+        "correctIndex": 1,
+        "explanation": "Juan 21 — una por cada negación."
+      },
+      {
+        "prompt": "¿Qué mandato recibió Pedro al ser restaurado?",
+        "options": ["Apacienta mis ovejas", "Construye un templo", "Regresa a Galilea"],
+        "correctIndex": 0,
+        "explanation": "Juan 21:15-17 — pastoreo."
+      }
+    ],
+    "xpReward": 30
+  },
+  {
+    "id": "pablo",
+    "order": 11,
+    "era": "earlyChurch",
+    "name": "Pablo",
+    "epithet": "El perseguidor transformado",
+    "giantDefeated": "Religiosidad",
+    "icon": "auto_stories",
+    "story": "Saulo de Tarso iba camino a Damasco con cartas de autorización para encarcelar cristianos. Creía estar sirviendo a Dios persiguiéndolos. Una luz lo derribó del caballo: 'Saulo, Saulo, ¿por qué me persigues?'. Quedó ciego tres días. Cuando recuperó la vista, ya no era el mismo: el fariseo más celoso se convirtió en el apóstol más fructífero. Dios no descalifica tu pasado: lo reescribe.",
+    "keyVerseReference": "Filipenses 3:7-8",
+    "keyVerseText": "Pero cuantas cosas eran para mí ganancia, las he estimado como pérdida por amor de Cristo. Y ciertamente, aun estimo todas las cosas como pérdida por la excelencia del conocimiento de Cristo Jesús, mi Señor.",
+    "lesson": "La religión sin Cristo mata. El encuentro con Jesús cambia tus créditos en pérdidas y tus pérdidas en ganancia eterna.",
+    "challenges": [
+      {
+        "prompt": "¿Qué le pasó a Pablo camino a Damasco?",
+        "options": ["Vio a Jesús en una luz y quedó ciego", "Tuvo un sueño", "Fue asaltado por bandidos"],
+        "correctIndex": 0,
+        "explanation": "Hechos 9 — encuentro con el Cristo resucitado."
+      },
+      {
+        "prompt": "¿Cómo describió Pablo sus logros pasados?",
+        "options": ["Como oro de alta calidad", "Como basura comparada con conocer a Cristo", "Como el mejor testimonio"],
+        "correctIndex": 1,
+        "explanation": "Filipenses 3:8 — el verdadero valor está en Cristo."
+      }
+    ],
+    "xpReward": 35
+  },
+  {
+    "id": "juan",
+    "order": 12,
+    "era": "earlyChurch",
+    "name": "Juan",
+    "epithet": "El discípulo amado",
+    "giantDefeated": "Soledad",
+    "icon": "visibility",
+    "story": "Desterrado en la isla de Patmos, anciano, solo, separado de las iglesias que pastoreaba, Juan parecía olvidado. Pero en aquella roca solitaria, 'estuvo en el Espíritu en el día del Señor' y recibió la revelación más asombrosa de la Escritura: el Apocalipsis. La misma soledad que parecía castigo se convirtió en ventana al cielo. Dios usa incluso tu aislamiento para mostrarte la gloria futura.",
+    "keyVerseReference": "Apocalipsis 1:10",
+    "keyVerseText": "Yo estaba en el Espíritu en el día del Señor, y oí detrás de mí una gran voz como de trompeta.",
+    "lesson": "Tu Patmos puede ser tu mayor revelación. Cuando el mundo te aparta, el cielo se acerca. La soledad con Dios nunca es vacío.",
+    "challenges": [
+      {
+        "prompt": "¿Dónde recibió Juan el Apocalipsis?",
+        "options": ["En Éfeso", "En la isla de Patmos", "En Jerusalén"],
+        "correctIndex": 1,
+        "explanation": "Apocalipsis 1:9 — desterrado por causa del evangelio."
+      },
+      {
+        "prompt": "¿Cómo se describe Juan a sí mismo en su evangelio?",
+        "options": ["El más sabio de los apóstoles", "El discípulo al que Jesús amaba", "El primero entre los once"],
+        "correctIndex": 1,
+        "explanation": "Su identidad se definía por el amor de Cristo."
+      }
+    ],
+    "xpReward": 35
+  }
+]

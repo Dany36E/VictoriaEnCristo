@@ -209,6 +209,7 @@ class JournalRepository {
     List<String> triggers = const [],
     bool hadVictory = true,
     String? verseOfDay,
+    String? id,
   }) async {
     if (!_isInitialized) await init();
     
@@ -218,6 +219,7 @@ class JournalRepository {
       triggers: triggers,
       hadVictory: hadVictory,
       verseOfDay: verseOfDay,
+      id: id,
     );
     
     _cache[entry.id] = entry;

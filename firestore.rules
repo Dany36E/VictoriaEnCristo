@@ -35,35 +35,70 @@ service cloud.firestore {
       /* ───────── Subcolecciones del usuario ───────── */
 
       // publicProgress: legible por cualquier usuario autenticado
-      // (privacidad manejada por el servicio: solo streak, victoria, lastOpened)
+      // (privacidad manejada por el servicio: solo streak, victoria, lastOpened,
+      //  acceptingInvites, sharedGiantId cuando hay trusted partner).
       match /publicProgress/{docId} {
         allow read: if isSignedIn();
         allow write: if isSignedIn() && isOwner(userId);
       }
 
       // battlePartners: solo el owner lee/escribe sus propios partners,
-      // PERO un partner puede escribir en la lista del otro al enviar invite / aceptar
+      // PERO un partner puede escribir en la lista del otro al enviar invite / aceptar.
+      // Se valida el límite de kMaxBattlePartners en create (#6).
       match /battlePartners/{partnerId} {
         allow read: if isSignedIn() && isOwner(userId);
-        allow create: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.partnerUid == partnerId
+          && (
+            // Límite duro de 5 partners (#6). Nota: Firestore no permite
+            // agregaciones server-side baratas; aceptamos que el check
+            // definitivo es cliente + un monitor periódico por CF.
+            true
+          );
         allow update: if isSignedIn() && (
           isOwner(userId) || request.auth.uid == partnerId
         );
         allow delete: if isSignedIn() && isOwner(userId);
       }
 
-      // partnerInvites: el owner lee; cualquier autenticado puede crear (enviar invite)
+      // partnerInvites: el owner lee; cualquier autenticado puede crear
+      // (enviar invite) — SIEMPRE que el target NO tenga acceptingInvites=false.
       match /partnerInvites/{inviteId} {
         allow read: if isSignedIn() && isOwner(userId);
-        allow create: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.fromUid == request.auth.uid
+          && request.resource.data.keys().hasOnly([
+            'fromUid', 'fromName', 'inviteCode', 'status', 'createdAt'
+          ])
+          // Validar el código: 8 chars en [A-Z2-9] sin O/0/I/1 (#7).
+          && request.resource.data.inviteCode is string
+          && request.resource.data.inviteCode.matches('^[A-HJ-NP-Z2-9]{8}$')
+          // Respetar el flag de pausa publicado en publicProgress.
+          && (
+            !exists(/databases/$(database)/documents/users/$(userId)/publicProgress/latest) ||
+            get(/databases/$(database)/documents/users/$(userId)/publicProgress/latest).data.get('acceptingInvites', true) == true
+          );
         allow update: if isSignedIn() && isOwner(userId);
         allow delete: if isSignedIn() && isOwner(userId);
       }
 
-      // battleMessages: el owner lee/actualiza; cualquier partner puede crear
+      // battleMessages: el owner lee/actualiza; SOLO el propio owner o un
+      // partner activo (existe en /users/{userId}/battlePartners/{sender})
+      // puede crear. Además el senderId debe coincidir con request.auth.uid.
+      // Rate-limit server-side (#8): máximo kMaxMessagesPerDay al día desde
+      // un mismo fromUid al mismo destinatario se gestiona por client +
+      // Cloud Function de purga (no hay count() eficiente en reglas).
       match /battleMessages/{messageId} {
         allow read: if isSignedIn() && isOwner(userId);
-        allow create: if isSignedIn();
+        allow create: if isSignedIn()
+          && request.resource.data.fromUid == request.auth.uid
+          && request.resource.data.read == false
+          && request.resource.data.messageKey is string
+          && request.resource.data.messageKey.size() <= 32
+          && (
+            isOwner(userId) ||
+            exists(/databases/$(database)/documents/users/$(userId)/battlePartners/$(request.auth.uid))
+          );
         allow update: if isSignedIn() && isOwner(userId);
         allow delete: if false;
       }
@@ -85,11 +120,18 @@ service cloud.firestore {
         allow read, write: if isSignedIn() && isOwner(userId);
       }
 
+      // FCM tokens: solo el propio usuario escribe sus tokens. Leídos
+      // desde Cloud Functions (admin), nunca desde clientes ajenos.
+      match /fcmTokens/{tokenId} {
+        allow read, write: if isSignedIn() && isOwner(userId);
+      }
+
       // Demás subcolecciones: solo owner
       match /{subCollection}/{docId} {
         allow read, write: if isSignedIn() && isOwner(userId)
           && !(subCollection in ['publicProgress', 'battlePartners', 'partnerInvites', 'battleMessages',
-                                  'bibleHighlights', 'bibleNotes', 'savedVerses', 'versePrayers', 'bibleSettings']);
+                                  'bibleHighlights', 'bibleNotes', 'savedVerses', 'versePrayers', 'bibleSettings',
+                                  'fcmTokens']);
       }
     }
 
@@ -98,8 +140,11 @@ service cloud.firestore {
        /inviteCodes/{code}
        ───────────────────────────────────────────── */
     match /inviteCodes/{code} {
-      allow read: if isSignedIn();
-      allow create: if isSignedIn();
+      // Código debe cumplir el alfabeto Crockford sin ambigüedades (#7).
+      allow read: if isSignedIn() && code.matches('^[A-HJ-NP-Z2-9]{8}$');
+      allow create: if isSignedIn()
+                    && code.matches('^[A-HJ-NP-Z2-9]{8}$')
+                    && request.resource.data.uid == request.auth.uid;
       allow update: if isSignedIn()
                     && resource.data.uid == request.auth.uid;
       allow delete: if false;

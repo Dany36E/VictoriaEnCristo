@@ -109,6 +109,7 @@ class PlanCover extends StatelessWidget {
         Image.asset(
           path,
           fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
           errorBuilder: (_, _, _) => _buildGeneratedCoverFallback(),
         ),
         // Overlay oscuro sutil
@@ -119,10 +120,10 @@ class PlanCover extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black.withOpacity(0.3),
-                Colors.black.withOpacity(0.7),
+                Colors.black.withOpacity(0.2),
+                Colors.black.withOpacity(0.5),
               ],
-              stops: const [0.0, 0.5, 1.0],
+              stops: const [0.0, 0.6, 1.0],
             ),
           ),
         ),

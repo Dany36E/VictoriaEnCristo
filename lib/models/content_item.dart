@@ -232,6 +232,14 @@ class JournalPromptItem extends ContentItem {
 class ExerciseItem extends ContentItem {
   final List<String> steps;
 
+  /// Fases de respiración (inhala/mantén/exhala) si el ejercicio es guiado.
+  /// Si está presente, la UI puede renderizar un círculo animado.
+  final List<BreathingPhase>? phases;
+
+  /// Versículo de anclaje cristiano que se muestra al final del ejercicio.
+  /// Ej: "Salmos 23:1 — El Señor es mi pastor, nada me faltará."
+  final String? scriptureAnchor;
+
   ExerciseItem({
     required super.id,
     required super.title,
@@ -239,13 +247,20 @@ class ExerciseItem extends ContentItem {
     required this.steps,
     required super.durationMinutes,
     required super.metadata,
+    this.phases,
+    this.scriptureAnchor,
   }) : super(
     type: ContentType.exercise,
     body: steps.join('\n'),
-    extra: {'steps': steps},
+    extra: {
+      'steps': steps,
+      if (phases != null) 'phases': phases.map((p) => p.toJson()).toList(),
+      'scriptureAnchor': ?scriptureAnchor,
+    },
   );
 
   factory ExerciseItem.fromJson(Map<String, dynamic> json) {
+    final phasesRaw = json['phases'] as List<dynamic>?;
     return ExerciseItem(
       id: json['id'] as String,
       title: json['title'] as String,
@@ -255,6 +270,57 @@ class ExerciseItem extends ContentItem {
       metadata: json['metadata'] != null
           ? ContentMetadata.fromJson(json['metadata'] as Map<String, dynamic>)
           : ContentMetadata.empty,
+      phases: phasesRaw?.whereType<Map<String, dynamic>>()
+              .map(BreathingPhase.fromJson)
+              .toList(),
+      scriptureAnchor: json['scriptureAnchor'] as String?,
     );
   }
 }
+
+/// Una fase de un ejercicio guiado de respiración.
+class BreathingPhase {
+  /// Etiqueta visible: "Inhala", "Mantén", "Exhala", "Pausa"...
+  final String label;
+
+  /// Duración de la fase en segundos.
+  final int seconds;
+
+  /// Acción visual sugerida: "expand" (círculo crece),
+  /// "hold" (estático), "contract" (círculo decrece).
+  final BreathingAction action;
+
+  const BreathingPhase({
+    required this.label,
+    required this.seconds,
+    this.action = BreathingAction.hold,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'label': label,
+        'seconds': seconds,
+        'action': action.name,
+      };
+
+  factory BreathingPhase.fromJson(Map<String, dynamic> json) {
+    return BreathingPhase(
+      label: json['label'] as String? ?? '',
+      seconds: (json['seconds'] as num?)?.toInt() ?? 4,
+      action: _parseAction(json['action'] as String?),
+    );
+  }
+
+  static BreathingAction _parseAction(String? raw) {
+    switch (raw) {
+      case 'expand':
+        return BreathingAction.expand;
+      case 'contract':
+        return BreathingAction.contract;
+      case 'hold':
+      default:
+        return BreathingAction.hold;
+    }
+  }
+}
+
+enum BreathingAction { expand, hold, contract }

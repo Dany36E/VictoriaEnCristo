@@ -1,0 +1,48 @@
+{
+  "rounds": [
+    {
+      "id": "birth",
+      "title": "Nacimiento del Mesías",
+      "description": "Profecías sobre la venida del Cristo cumplidas en el Nuevo Testamento.",
+      "xpReward": 40,
+      "pairs": [
+        {"id":"b1","topic":"Linaje davídico","prophecyRef":"2 Samuel 7:12-13","prophecyText":"Yo levantaré a un descendiente tuyo y afirmaré el trono de su reino para siempre.","fulfillmentRef":"Lucas 1:32-33","fulfillmentText":"El Señor Dios le dará el trono de David su padre."},
+        {"id":"b2","topic":"Virgen concebirá","prophecyRef":"Isaías 7:14","prophecyText":"La virgen concebirá, y dará a luz un hijo, y llamará su nombre Emanuel.","fulfillmentRef":"Mateo 1:22-23","fulfillmentText":"He aquí, una virgen concebirá y dará a luz un hijo."},
+        {"id":"b3","topic":"Nacido en Belén","prophecyRef":"Miqueas 5:2","prophecyText":"Tú, Belén Efrata... de ti me saldrá el que será Señor en Israel.","fulfillmentRef":"Mateo 2:1","fulfillmentText":"Cuando Jesús nació en Belén de Judea..."},
+        {"id":"b4","topic":"Precursor en el desierto","prophecyRef":"Isaías 40:3","prophecyText":"Voz que clama en el desierto: Preparad camino a Jehová.","fulfillmentRef":"Mateo 3:1-3","fulfillmentText":"Juan el Bautista predicando en el desierto de Judea."},
+        {"id":"b5","topic":"Llamado de Egipto","prophecyRef":"Oseas 11:1","prophecyText":"De Egipto llamé a mi hijo.","fulfillmentRef":"Mateo 2:15","fulfillmentText":"Para que se cumpliese... De Egipto llamé a mi Hijo."}
+      ]
+    },
+    {
+      "id": "ministry",
+      "title": "Ministerio y rechazo",
+      "description": "El Mesías predica, sana y es rechazado por los suyos.",
+      "xpReward": 40,
+      "pairs": [
+        {"id":"m1","topic":"Luz a los gentiles","prophecyRef":"Isaías 9:1-2","prophecyText":"El pueblo que andaba en tinieblas vio gran luz.","fulfillmentRef":"Mateo 4:13-16","fulfillmentText":"Jesús se estableció en Capernaum, tierra de Zabulón y Neftalí."},
+        {"id":"m2","topic":"Sanador","prophecyRef":"Isaías 35:5-6","prophecyText":"Los ojos de los ciegos serán abiertos.","fulfillmentRef":"Mateo 11:4-5","fulfillmentText":"Los ciegos ven, los cojos andan, los sordos oyen."},
+        {"id":"m3","topic":"Hablaba por parábolas","prophecyRef":"Salmo 78:2","prophecyText":"Abriré mi boca en parábolas.","fulfillmentRef":"Mateo 13:34-35","fulfillmentText":"Todo esto habló Jesús por parábolas a la gente."},
+        {"id":"m4","topic":"Rechazado por los suyos","prophecyRef":"Isaías 53:3","prophecyText":"Despreciado y desechado entre los hombres.","fulfillmentRef":"Juan 1:11","fulfillmentText":"A lo suyo vino, y los suyos no le recibieron."},
+        {"id":"m5","topic":"Entrada en Jerusalén","prophecyRef":"Zacarías 9:9","prophecyText":"He aquí tu rey vendrá a ti... humilde, cabalgando sobre un asno.","fulfillmentRef":"Juan 12:14-15","fulfillmentText":"Halló Jesús un asnillo y montó sobre él."}
+      ]
+    },
+    {
+      "id": "passion",
+      "title": "Pasión y resurrección",
+      "description": "Profecías centrales del sacrificio y triunfo del Cordero.",
+      "xpReward": 50,
+      "pairs": [
+        {"id":"p1","topic":"Traicionado por amigo","prophecyRef":"Salmo 41:9","prophecyText":"El que comía mi pan levantó contra mí el calcañar.","fulfillmentRef":"Juan 13:18","fulfillmentText":"El que come pan conmigo, levantó contra mí su calcañar."},
+        {"id":"p2","topic":"30 piezas de plata","prophecyRef":"Zacarías 11:12-13","prophecyText":"Pesaron por mi salario treinta piezas de plata.","fulfillmentRef":"Mateo 26:14-15","fulfillmentText":"Le pesaron treinta piezas de plata."},
+        {"id":"p3","topic":"Herido por nuestras rebeliones","prophecyRef":"Isaías 53:5","prophecyText":"Mas él herido fue por nuestras rebeliones, molido por nuestros pecados.","fulfillmentRef":"1 Pedro 2:24","fulfillmentText":"Él mismo llevó nuestros pecados en su cuerpo sobre el madero."},
+        {"id":"p4","topic":"Silencio ante acusadores","prophecyRef":"Isaías 53:7","prophecyText":"Como cordero ante los trasquiladores, enmudeció.","fulfillmentRef":"Mateo 27:12-14","fulfillmentText":"Nada respondió, de tal manera que el gobernador se maravillaba."},
+        {"id":"p5","topic":"Manos y pies horadados","prophecyRef":"Salmo 22:16","prophecyText":"Horadaron mis manos y mis pies.","fulfillmentRef":"Juan 20:25","fulfillmentText":"Si no viere en sus manos la señal de los clavos..."},
+        {"id":"p6","topic":"Sorteo de sus vestidos","prophecyRef":"Salmo 22:18","prophecyText":"Repartieron entre sí mis vestidos, y sobre mi ropa echaron suertes.","fulfillmentRef":"Juan 19:23-24","fulfillmentText":"Echemos suertes sobre ella, a ver de quién será."},
+        {"id":"p7","topic":"Ni un hueso quebrado","prophecyRef":"Salmo 34:20","prophecyText":"Él guarda todos sus huesos; ni uno de ellos será quebrantado.","fulfillmentRef":"Juan 19:36","fulfillmentText":"No será quebrado hueso suyo."},
+        {"id":"p8","topic":"Sepultado con los ricos","prophecyRef":"Isaías 53:9","prophecyText":"Se dispuso con los ricos su sepultura.","fulfillmentRef":"Mateo 27:57-60","fulfillmentText":"José de Arimatea, hombre rico... lo puso en su sepulcro nuevo."},
+        {"id":"p9","topic":"No vería corrupción","prophecyRef":"Salmo 16:10","prophecyText":"No permitirás que tu Santo vea corrupción.","fulfillmentRef":"Hechos 2:31","fulfillmentText":"Hablando de la resurrección de Cristo... ni su carne vio corrupción."},
+        {"id":"p10","topic":"Ascensión a la diestra","prophecyRef":"Salmo 110:1","prophecyText":"Siéntate a mi diestra, hasta que ponga a tus enemigos por estrado.","fulfillmentRef":"Hechos 2:33-34","fulfillmentText":"Exaltado por la diestra de Dios."}
+      ]
+    }
+  ]
+}

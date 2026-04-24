@@ -112,9 +112,9 @@ class StickerPickerSheet extends StatelessWidget {
                 crossAxisSpacing: 10,
                 mainAxisSpacing: 10,
               ),
-              itemCount: kBattleMessages.length,
+              itemCount: kBattleMessagesSelectable.length,
               itemBuilder: (context, index) {
-                final msg = kBattleMessages[index];
+                final msg = kBattleMessagesSelectable[index];
                 return _StickerButton(
                   message: msg,
                   enabled: !isLimited,
@@ -144,6 +144,9 @@ class StickerPickerSheet extends StatelessWidget {
 
   Future<void> _sendSticker(BuildContext context, BattleMessage msg) async {
     FeedbackEngine.I.confirm();
+    // Pequeña animación de "vuelo": overlay con el icono creciendo y
+    // desvaneciéndose (200ms) para dar sensación de envío.
+    _showFlyingStickerOverlay(context, msg.icon);
     final sent = await BattlePartnerService.I.sendMessage(toUid, msg.key);
     if (context.mounted) {
       Navigator.pop(context, sent);
@@ -158,6 +161,72 @@ class StickerPickerSheet extends StatelessWidget {
         );
       }
     }
+  }
+
+  /// Overlay breve con el emoji del sticker creciendo y desvaneciéndose.
+  /// 100% visual, no bloquea navegación ni el envío Firestore.
+  void _showFlyingStickerOverlay(BuildContext context, String icon) {
+    final overlay = Overlay.maybeOf(context, rootOverlay: true);
+    if (overlay == null) return;
+    late OverlayEntry entry;
+    entry = OverlayEntry(
+      builder: (_) => _FlyingStickerOverlay(
+        icon: icon,
+        onDone: () => entry.remove(),
+      ),
+    );
+    overlay.insert(entry);
+  }
+}
+
+class _FlyingStickerOverlay extends StatefulWidget {
+  final String icon;
+  final VoidCallback onDone;
+  const _FlyingStickerOverlay({required this.icon, required this.onDone});
+  @override
+  State<_FlyingStickerOverlay> createState() => _FlyingStickerOverlayState();
+}
+
+class _FlyingStickerOverlayState extends State<_FlyingStickerOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 650),
+  )..forward().whenComplete(widget.onDone);
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+  @override
+  Widget build(BuildContext context) {
+    return IgnorePointer(
+      child: AnimatedBuilder(
+        animation: _c,
+        builder: (_, _) {
+          final t = Curves.easeOutCubic.transform(_c.value);
+          final size = MediaQuery.of(context).size;
+          return Stack(
+            children: [
+              Positioned(
+                left: size.width / 2 - 40,
+                top: size.height * (0.55 - 0.45 * t),
+                child: Opacity(
+                  opacity: 1.0 - t,
+                  child: Transform.scale(
+                    scale: 1.0 + 0.6 * t,
+                    child: Text(
+                      widget.icon,
+                      style: const TextStyle(fontSize: 56),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          );
+        },
+      ),
+    );
   }
 }
 

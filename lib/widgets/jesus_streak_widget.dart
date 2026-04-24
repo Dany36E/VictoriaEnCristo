@@ -45,18 +45,24 @@ class JesusStreakWidget extends StatelessWidget {
       isNewUser: isNewUser,
     );
 
-    return GestureDetector(
-      onTap: onRegisterVictory,
-      child: Container(
-        height: 220,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: streakColor.withOpacity(0.3),
-              blurRadius: 20,
-              spreadRadius: 0,
-              offset: const Offset(0, 4),
+    return Semantics(
+      button: true,
+      label: completedToday
+          ? 'Racha actual: $streakDays días. Victoria de hoy ya registrada.'
+          : 'Registrar victoria de hoy. Racha actual: $streakDays días.',
+      child: GestureDetector(
+        onTap: onRegisterVictory,
+        child: Container(
+          height: 240,
+          margin: const EdgeInsets.only(top: 20),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: streakColor.withOpacity(0.3),
+                blurRadius: 20,
+                spreadRadius: 0,
+                offset: const Offset(0, 4),
             ),
           ],
         ),
@@ -69,6 +75,7 @@ class JesusStreakWidget extends StatelessWidget {
               Image.asset(
                 bgPath,
                 fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
                 errorBuilder: (context, error, stackTrace) => Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -90,9 +97,9 @@ class JesusStreakWidget extends StatelessWidget {
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      Colors.black.withOpacity(0.7),
-                      Colors.black.withOpacity(0.2),
-                      Colors.black.withOpacity(0.5),
+                      Colors.black.withOpacity(0.45),
+                      Colors.black.withOpacity(0.1),
+                      Colors.black.withOpacity(0.3),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                   ),
@@ -104,27 +111,31 @@ class JesusStreakWidget extends StatelessWidget {
                 children: [
                   // ─── Sprite de Jesús (izquierda) ───
                   SizedBox(
-                    width: 140,
-                    child: Padding(
-                      padding: const EdgeInsets.only(bottom: 0, left: 8),
-                      child: Image.asset(
-                        spritePath,
-                        fit: BoxFit.contain,
-                        errorBuilder: (context, error, stackTrace) => const Icon(
-                          Icons.person,
-                          size: 80,
-                          color: Colors.white24,
-                        ),
-                      )
-                          .animate()
-                          .fadeIn(duration: 600.ms)
-                          .slideY(
-                            begin: 0.1,
-                            end: 0,
-                            duration: 500.ms,
-                            curve: Curves.easeOutBack,
+                    width: 150,
+                    child: Transform.translate(
+                      offset: const Offset(0, -20),
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 8),
+                        child: Image.asset(
+                          spritePath,
+                          fit: BoxFit.contain,
+                          filterQuality: FilterQuality.high,
+                          errorBuilder: (context, error, stackTrace) => const Icon(
+                            Icons.person,
+                            size: 80,
+                            color: Colors.white24,
                           ),
-                    ),
+                        ),
+                      ),
+                    )
+                        .animate()
+                        .fadeIn(duration: 600.ms)
+                        .slideY(
+                          begin: 0.1,
+                          end: 0,
+                          duration: 500.ms,
+                          curve: Curves.easeOutBack,
+                        ),
                   ),
 
                   // ─── Info de racha (derecha) ───
@@ -175,11 +186,10 @@ class JesusStreakWidget extends StatelessWidget {
                   ),
                 ),
               ),
-
-
             ],
           ),
         ),
+      ),
       ),
     );
   }

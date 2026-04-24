@@ -99,16 +99,16 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
           child: ClipRRect(
             borderRadius: BorderRadius.circular(24),
             child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+              filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
               child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF0A0A12).withOpacity(0.95),
-                      const Color(0xFF121225).withOpacity(0.92),
-                      const Color(0xFF0A0A12).withOpacity(0.95),
+                      const Color(0xFF0A0A12).withOpacity(0.85),
+                      const Color(0xFF121225).withOpacity(0.80),
+                      const Color(0xFF0A0A12).withOpacity(0.85),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                   ),

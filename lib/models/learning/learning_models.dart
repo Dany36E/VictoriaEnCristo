@@ -345,10 +345,15 @@ class LearningProgress {
   /// Versículos en nivel 5 (dominados).
   final int versesMastered;
 
-  /// Corazones disponibles hoy (se regeneran a 3 cada día).
+  /// Corazones disponibles ahora mismo (capa de gracia: regenerable).
   final int hearts;
 
-  /// Fecha (ISO) en que se regeneraron los hearts.
+  /// Timestamp (ms desde epoch) del último refill calculado. Se usa para
+  /// regenerar 1 heart cada [HeartsPolicy.regenIntervalHours] horas.
+  /// Mantenemos también [heartsRefillDate] por compatibilidad con datos viejos.
+  final int heartsLastRefillMs;
+
+  /// Fecha (ISO) en que se regeneraron los hearts (legacy, pre-v2).
   final String heartsRefillDate;
 
   /// Última fecha en que se cerró una sesión (para streak de estudio).
@@ -357,24 +362,33 @@ class LearningProgress {
   /// Racha de días estudiando.
   final int studyStreak;
 
+  /// ISO date del último día en que se concedió "escudo de gracia"
+  /// (perdón de un hueco para mantener la racha). Se permite usarlo
+  /// 1 vez por semana ISO (lunes-domingo).
+  final String lastGraceShieldDate;
+
   const LearningProgress({
     required this.totalXp,
     required this.sessionsCompleted,
     required this.versesMastered,
     required this.hearts,
+    required this.heartsLastRefillMs,
     required this.heartsRefillDate,
     required this.lastStudyDate,
     required this.studyStreak,
+    required this.lastGraceShieldDate,
   });
 
   const LearningProgress.initial()
       : totalXp = 0,
         sessionsCompleted = 0,
         versesMastered = 0,
-        hearts = 3,
+        hearts = 5,
+        heartsLastRefillMs = 0,
         heartsRefillDate = '',
         lastStudyDate = '',
-        studyStreak = 0;
+        studyStreak = 0,
+        lastGraceShieldDate = '';
 
   SpiritualLevel get level => SpiritualLevelInfo.forXp(totalXp);
 
@@ -394,18 +408,22 @@ class LearningProgress {
     int? sessionsCompleted,
     int? versesMastered,
     int? hearts,
+    int? heartsLastRefillMs,
     String? heartsRefillDate,
     String? lastStudyDate,
     int? studyStreak,
+    String? lastGraceShieldDate,
   }) {
     return LearningProgress(
       totalXp: totalXp ?? this.totalXp,
       sessionsCompleted: sessionsCompleted ?? this.sessionsCompleted,
       versesMastered: versesMastered ?? this.versesMastered,
       hearts: hearts ?? this.hearts,
+      heartsLastRefillMs: heartsLastRefillMs ?? this.heartsLastRefillMs,
       heartsRefillDate: heartsRefillDate ?? this.heartsRefillDate,
       lastStudyDate: lastStudyDate ?? this.lastStudyDate,
       studyStreak: studyStreak ?? this.studyStreak,
+      lastGraceShieldDate: lastGraceShieldDate ?? this.lastGraceShieldDate,
     );
   }
 
@@ -414,18 +432,22 @@ class LearningProgress {
         'sessionsCompleted': sessionsCompleted,
         'versesMastered': versesMastered,
         'hearts': hearts,
+        'heartsLastRefillMs': heartsLastRefillMs,
         'heartsRefillDate': heartsRefillDate,
         'lastStudyDate': lastStudyDate,
         'studyStreak': studyStreak,
+        'lastGraceShieldDate': lastGraceShieldDate,
       };
 
   factory LearningProgress.fromJson(Map<String, dynamic> j) => LearningProgress(
         totalXp: (j['totalXp'] as num?)?.toInt() ?? 0,
         sessionsCompleted: (j['sessionsCompleted'] as num?)?.toInt() ?? 0,
         versesMastered: (j['versesMastered'] as num?)?.toInt() ?? 0,
-        hearts: (j['hearts'] as num?)?.toInt() ?? 3,
+        hearts: (j['hearts'] as num?)?.toInt() ?? 5,
+        heartsLastRefillMs: (j['heartsLastRefillMs'] as num?)?.toInt() ?? 0,
         heartsRefillDate: (j['heartsRefillDate'] as String?) ?? '',
         lastStudyDate: (j['lastStudyDate'] as String?) ?? '',
         studyStreak: (j['studyStreak'] as num?)?.toInt() ?? 0,
+        lastGraceShieldDate: (j['lastGraceShieldDate'] as String?) ?? '',
       );
 }

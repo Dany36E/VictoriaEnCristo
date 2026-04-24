@@ -9,6 +9,8 @@ enum BadgeCategory {
   journal,     // Entradas de diario
   highlights,  // Textos resaltados
   favorites,   // Versículos guardados
+  quiz,        // Sesiones Maná completadas
+  memory,      // Versículos dominados
 }
 
 enum BadgeLevel {
@@ -69,6 +71,8 @@ extension BadgeCategoryInfo on BadgeCategory {
       case BadgeCategory.journal:    return 'Reflexión';
       case BadgeCategory.highlights: return 'Resaltados';
       case BadgeCategory.favorites:  return 'Versículos Favoritos';
+      case BadgeCategory.quiz:       return 'Maná Diario';
+      case BadgeCategory.memory:     return 'Armadura Memorizada';
     }
   }
 
@@ -80,8 +84,8 @@ extension BadgeCategoryInfo on BadgeCategory {
       case BadgeCategory.bible:      return '📜';
       case BadgeCategory.journal:    return '📝';
       case BadgeCategory.highlights: return '🖍️';
-      case BadgeCategory.favorites:  return '⭐';
-    }
+      case BadgeCategory.favorites:  return '⭐';      case BadgeCategory.quiz:      return '🧠';
+      case BadgeCategory.memory:    return '🛡️';    }
   }
 
   /// Umbrales para los 7 niveles
@@ -94,6 +98,8 @@ extension BadgeCategoryInfo on BadgeCategory {
       case BadgeCategory.journal:    return [5, 25, 75, 150, 365, 700, 1000];
       case BadgeCategory.highlights: return [5, 20, 50, 100, 250, 500, 1000];
       case BadgeCategory.favorites:  return [5, 15, 40, 100, 200, 400, 750];
+      case BadgeCategory.quiz:       return [1, 7, 30, 60, 120, 200, 365];
+      case BadgeCategory.memory:     return [1, 3, 5, 10, 15, 20, 30];
     }
   }
 

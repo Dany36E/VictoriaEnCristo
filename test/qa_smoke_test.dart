@@ -106,7 +106,7 @@ void main() {
             theme: AppThemeData.nightPure,
             child: SizedBox(
               width: 380,
-              height: 200,
+              height: 240,
               child: JesusStreakWidget(
                 streakDays: s.streak,
                 completedToday: s.done,
@@ -135,7 +135,7 @@ void main() {
         theme: AppThemeData.nightPure,
         child: SizedBox(
           width: 320,
-          height: 200,
+          height: 240,
           child: JesusStreakWidget(
             streakDays: 999,
             completedToday: true,

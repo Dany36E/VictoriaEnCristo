@@ -39,6 +39,8 @@ import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 import 'notification_service.dart';
+import 'learning/learning_cloud_sync.dart';
+import 'learning/talents_service.dart';
 
 /// Clave para guardar el último UID conocido
 const String _keyLastKnownUid = 'account_last_known_uid';
@@ -165,6 +167,15 @@ class AccountSessionManager {
   /// Manejar logout
   Future<void> _handleUserLogout() async {
     debugPrint('🔐 [SESSION] User logout detected');
+    
+    // 0. Flush de sincronización de Escuela del Reino + Talentos para no
+    // perder cambios pendientes antes de desconectar.
+    try {
+      await LearningCloudSync.I.flush();
+      await TalentsService.I.flushSync();
+    } catch (e) {
+      debugPrint('🔐 [SESSION] flush learning sync falló: $e');
+    }
     
     // 1. Cancelar listeners de Firestore
     await _disconnectAllRepositories();

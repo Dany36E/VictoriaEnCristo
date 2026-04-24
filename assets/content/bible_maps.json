@@ -1,0 +1,150 @@
+[
+  {
+    "id": "tierra_prometida",
+    "order": 1,
+    "region": "tierra_prometida",
+    "title": "Tierra Prometida",
+    "subtitle": "Israel y sus ciudades",
+    "icon": "terrain",
+    "description": "La tierra que Dios prometió a Abraham y sus descendientes. Ubica las ciudades clave de Israel.",
+    "xpReward": 30,
+    "landmarks": [
+      {"type": "sea", "label": "Mar Mediterráneo", "x": 0.06, "y": 0.45, "width": 0.12, "height": 0.70},
+      {"type": "sea", "label": "Mar Muerto", "x": 0.62, "y": 0.70, "width": 0.10, "height": 0.22},
+      {"type": "river", "label": "Río Jordán", "x": 0.58, "y": 0.42, "width": 0.04, "height": 0.35},
+      {"type": "sea", "label": "Mar de Galilea", "x": 0.55, "y": 0.22, "width": 0.10, "height": 0.10},
+      {"type": "mountain", "label": "Monte Carmelo", "x": 0.28, "y": 0.28},
+      {"type": "desert", "label": "Desierto del Néguev", "x": 0.35, "y": 0.90}
+    ],
+    "places": [
+      {"id": "jerusalen", "name": "Jerusalén", "x": 0.50, "y": 0.65, "hint": "Ciudad santa, capital del reino de David"},
+      {"id": "belen", "name": "Belén", "x": 0.48, "y": 0.70, "hint": "Lugar de nacimiento de Jesús"},
+      {"id": "nazaret", "name": "Nazaret", "x": 0.38, "y": 0.25, "hint": "Donde creció Jesús"},
+      {"id": "capernaum", "name": "Capernaúm", "x": 0.52, "y": 0.18, "hint": "Centro del ministerio de Jesús en Galilea"},
+      {"id": "jerico", "name": "Jericó", "x": 0.58, "y": 0.62, "hint": "La primera ciudad conquistada por Josué"},
+      {"id": "samaria", "name": "Samaria", "x": 0.42, "y": 0.42, "hint": "Capital del reino del norte"}
+    ]
+  },
+  {
+    "id": "egipto_sinai",
+    "order": 2,
+    "region": "egipto",
+    "title": "Egipto y Sinaí",
+    "subtitle": "La ruta del Éxodo",
+    "icon": "landscape",
+    "description": "Los israelitas fueron esclavos en Egipto y Dios los liberó. Ubica los lugares clave del Éxodo.",
+    "xpReward": 30,
+    "landmarks": [
+      {"type": "river", "label": "Río Nilo", "x": 0.22, "y": 0.30, "width": 0.04, "height": 0.50},
+      {"type": "sea", "label": "Mar Rojo", "x": 0.52, "y": 0.68, "width": 0.25, "height": 0.20},
+      {"type": "sea", "label": "Mar Mediterráneo", "x": 0.40, "y": 0.06, "width": 0.50, "height": 0.10},
+      {"type": "desert", "label": "Desierto de Sinaí", "x": 0.55, "y": 0.50},
+      {"type": "mountain", "label": "Monte Sinaí", "x": 0.60, "y": 0.60}
+    ],
+    "places": [
+      {"id": "goshen", "name": "Gosén", "x": 0.30, "y": 0.25, "hint": "Donde habitaron los israelitas en Egipto"},
+      {"id": "menfis", "name": "Menfis", "x": 0.20, "y": 0.35, "hint": "Gran ciudad del Faraón"},
+      {"id": "sinai", "name": "Monte Sinaí", "x": 0.60, "y": 0.60, "hint": "Donde Moisés recibió los mandamientos"},
+      {"id": "cades_barnea", "name": "Cadés-barnea", "x": 0.58, "y": 0.28, "hint": "Donde los espías exploraron la tierra"},
+      {"id": "mar_rojo", "name": "Cruce del Mar Rojo", "x": 0.42, "y": 0.48, "hint": "Dios abrió el mar para su pueblo"},
+      {"id": "mara", "name": "Mara", "x": 0.48, "y": 0.52, "hint": "Aguas amargas que Dios endulzó"}
+    ]
+  },
+  {
+    "id": "mesopotamia",
+    "order": 3,
+    "region": "mesopotamia",
+    "title": "Mesopotamia",
+    "subtitle": "Cuna de civilizaciones",
+    "icon": "account_balance",
+    "description": "Entre los ríos Tigris y Éufrates se desarrollaron las primeras civilizaciones. Aquí comenzó la historia de Abraham.",
+    "xpReward": 30,
+    "landmarks": [
+      {"type": "river", "label": "Río Éufrates", "x": 0.35, "y": 0.30, "width": 0.04, "height": 0.55},
+      {"type": "river", "label": "Río Tigris", "x": 0.60, "y": 0.25, "width": 0.04, "height": 0.55},
+      {"type": "sea", "label": "Golfo Pérsico", "x": 0.55, "y": 0.88, "width": 0.30, "height": 0.12},
+      {"type": "desert", "label": "Desierto de Arabia", "x": 0.25, "y": 0.75}
+    ],
+    "places": [
+      {"id": "ur", "name": "Ur", "x": 0.50, "y": 0.78, "hint": "Ciudad natal de Abraham"},
+      {"id": "babel", "name": "Babel", "x": 0.45, "y": 0.58, "hint": "Donde construyeron la torre hasta el cielo"},
+      {"id": "ninive", "name": "Nínive", "x": 0.55, "y": 0.22, "hint": "Ciudad a la que fue enviado Jonás"},
+      {"id": "haran", "name": "Harán", "x": 0.28, "y": 0.15, "hint": "Donde Abraham vivió antes de ir a Canaán"},
+      {"id": "babilonia", "name": "Babilonia", "x": 0.44, "y": 0.55, "hint": "Imperio que destruyó Jerusalén y exilió a Judá"},
+      {"id": "susa", "name": "Susa", "x": 0.72, "y": 0.55, "hint": "Donde Ester fue reina"}
+    ]
+  },
+  {
+    "id": "viajes_pablo_1",
+    "order": 4,
+    "region": "viajes_pablo",
+    "title": "Viajes de Pablo",
+    "subtitle": "Misiones por el Mediterráneo",
+    "icon": "sailing",
+    "description": "Pablo llevó el evangelio por todo el mundo romano. Ubica las ciudades donde predicó.",
+    "xpReward": 35,
+    "landmarks": [
+      {"type": "sea", "label": "Mar Mediterráneo", "x": 0.45, "y": 0.55, "width": 0.60, "height": 0.30},
+      {"type": "label", "label": "Asia Menor", "x": 0.60, "y": 0.20},
+      {"type": "label", "label": "Grecia", "x": 0.25, "y": 0.28},
+      {"type": "label", "label": "Italia", "x": 0.08, "y": 0.18}
+    ],
+    "places": [
+      {"id": "antioquia", "name": "Antioquía", "x": 0.78, "y": 0.30, "hint": "Base misionera de Pablo"},
+      {"id": "efeso", "name": "Éfeso", "x": 0.55, "y": 0.28, "hint": "Iglesia a la que Pablo escribió una carta"},
+      {"id": "corinto", "name": "Corinto", "x": 0.30, "y": 0.42, "hint": "Ciudad griega con dos cartas de Pablo"},
+      {"id": "filipos", "name": "Filipos", "x": 0.35, "y": 0.20, "hint": "Primera iglesia en Europa"},
+      {"id": "atenas", "name": "Atenas", "x": 0.30, "y": 0.38, "hint": "Donde Pablo habló del Dios desconocido"},
+      {"id": "roma", "name": "Roma", "x": 0.08, "y": 0.22, "hint": "Capital del imperio, destino final de Pablo"},
+      {"id": "tarso", "name": "Tarso", "x": 0.72, "y": 0.25, "hint": "Ciudad natal de Pablo"}
+    ]
+  },
+  {
+    "id": "reino_david",
+    "order": 5,
+    "region": "tierra_prometida",
+    "title": "El Reino de David",
+    "subtitle": "Israel unido",
+    "icon": "castle",
+    "description": "David unificó las tribus de Israel y creó un gran reino. Ubica las ciudades clave de su reinado.",
+    "xpReward": 35,
+    "landmarks": [
+      {"type": "sea", "label": "Mar Mediterráneo", "x": 0.06, "y": 0.45, "width": 0.12, "height": 0.70},
+      {"type": "sea", "label": "Mar Muerto", "x": 0.62, "y": 0.70, "width": 0.10, "height": 0.22},
+      {"type": "river", "label": "Río Jordán", "x": 0.58, "y": 0.42, "width": 0.04, "height": 0.35},
+      {"type": "mountain", "label": "Monte Sión", "x": 0.50, "y": 0.64}
+    ],
+    "places": [
+      {"id": "jerusalen_d", "name": "Jerusalén", "x": 0.50, "y": 0.65, "hint": "David la conquistó y la hizo su capital"},
+      {"id": "hebron", "name": "Hebrón", "x": 0.46, "y": 0.75, "hint": "Donde David reinó 7 años sobre Judá"},
+      {"id": "belen_d", "name": "Belén", "x": 0.48, "y": 0.70, "hint": "Ciudad natal de David, el pastor"},
+      {"id": "gat", "name": "Gat", "x": 0.30, "y": 0.68, "hint": "Ciudad filistea de Goliat"},
+      {"id": "silo", "name": "Siló", "x": 0.44, "y": 0.48, "hint": "Donde estuvo el tabernáculo"},
+      {"id": "dan", "name": "Dan", "x": 0.52, "y": 0.08, "hint": "Límite norte de Israel: «de Dan a Beerseba»"}
+    ]
+  },
+  {
+    "id": "7_iglesias",
+    "order": 6,
+    "region": "imperio_romano",
+    "title": "7 Iglesias de Apocalipsis",
+    "subtitle": "Las cartas de Juan",
+    "icon": "church",
+    "description": "Jesús envió mensajes a siete iglesias en Asia Menor. Ubica cada una en el mapa.",
+    "xpReward": 40,
+    "landmarks": [
+      {"type": "sea", "label": "Mar Egeo", "x": 0.15, "y": 0.55, "width": 0.20, "height": 0.35},
+      {"type": "label", "label": "Asia Menor", "x": 0.55, "y": 0.15},
+      {"type": "sea", "label": "Mar Mediterráneo", "x": 0.20, "y": 0.90, "width": 0.60, "height": 0.12}
+    ],
+    "places": [
+      {"id": "efeso_7", "name": "Éfeso", "x": 0.30, "y": 0.62, "hint": "Dejaste tu primer amor"},
+      {"id": "esmirna", "name": "Esmirna", "x": 0.28, "y": 0.48, "hint": "Sé fiel hasta la muerte"},
+      {"id": "pergamo", "name": "Pérgamo", "x": 0.35, "y": 0.32, "hint": "Donde está el trono de Satanás"},
+      {"id": "tiatira", "name": "Tiatira", "x": 0.42, "y": 0.30, "hint": "Toleras a Jezabel"},
+      {"id": "sardis", "name": "Sardis", "x": 0.42, "y": 0.45, "hint": "Tienes nombre de que vives, y estás muerto"},
+      {"id": "filadelfia", "name": "Filadelfia", "x": 0.50, "y": 0.50, "hint": "Puerta abierta que nadie puede cerrar"},
+      {"id": "laodicea", "name": "Laodicea", "x": 0.55, "y": 0.58, "hint": "Ni frío ni caliente"}
+    ]
+  }
+]

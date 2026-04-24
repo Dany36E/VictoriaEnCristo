@@ -34,6 +34,28 @@ class NotificationService {
   final FlutterLocalNotificationsPlugin _flnp = FlutterLocalNotificationsPlugin();
   bool _notificationsInitialized = false;
 
+  /// Último payload tappeado. Lo observa `main.dart` para hacer deep-link
+  /// a la pantalla correspondiente cuando el usuario abre la app desde una
+  /// notificación (tanto en foreground como cold-start).
+  static final ValueNotifier<String?> lastTapPayload = ValueNotifier<String?>(null);
+
+  /// Payloads conocidos (mantener sincronizados con el router).
+  static const String payloadMorning = 'route:devotional';
+  static const String payloadNight = 'route:journal';
+  static const String payloadVictory = 'route:victory';
+  static const String payloadReengagement = 'route:home';
+  static const String payloadPlanPrefix = 'route:plan:';
+  static const String payloadBattleInvite = 'route:battle_invite';
+  static const String payloadBattleMessage = 'route:battle_message';
+  static const String payloadBattleSos = 'route:battle_sos';
+
+  /// Se alterna a `true` mientras el usuario esté viendo la pantalla de
+  /// Compañero de Batalla. Si es `true`, suprimimos notificaciones locales
+  /// de invitaciones / mensajes porque la UI ya los muestra reactivamente
+  /// (evita ruido duplicado). Lo controla el propio `BattlePartnerScreen`.
+  static final ValueNotifier<bool> isViewingBattlePartner =
+      ValueNotifier<bool>(false);
+
   // Getters
   TimeOfDay get morningTime => _morningTime;
   TimeOfDay get nightTime => _nightTime;
@@ -81,13 +103,44 @@ class NotificationService {
     try {
       tz.initializeTimeZones();
       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
-      const init = InitializationSettings(android: android);
-      await _flnp.initialize(init);
+      // iOS/macOS: no solicitamos permisos en init; se piden explícitamente
+      // cuando el usuario activa notificaciones (requestPermissions()).
+      const darwin = DarwinInitializationSettings(
+        requestAlertPermission: false,
+        requestBadgePermission: false,
+        requestSoundPermission: false,
+      );
+      const init = InitializationSettings(android: android, iOS: darwin, macOS: darwin);
+      await _flnp.initialize(
+        init,
+        onDidReceiveNotificationResponse: _handleNotificationTap,
+      );
+
+      // Cold-start: si la app fue abierta desde una notificación cuando
+      // estaba cerrada, recuperar el payload inicial.
+      try {
+        final launch = await _flnp.getNotificationAppLaunchDetails();
+        final payload = launch?.notificationResponse?.payload;
+        if (launch?.didNotificationLaunchApp == true && payload != null && payload.isNotEmpty) {
+          lastTapPayload.value = payload;
+        }
+      } catch (_) {}
+
       _notificationsInitialized = true;
     } catch (e) {
       debugPrint('⚠️ No se pudo inicializar notificaciones locales: $e');
       _notificationsInitialized = false;
     }
+  }
+
+  /// Handler global de taps en notificaciones (foreground/background).
+  /// Solo publica el payload; la navegación la resuelve un listener en
+  /// `main.dart` con acceso al `navigatorKey`.
+  static void _handleNotificationTap(NotificationResponse response) {
+    final payload = response.payload;
+    if (payload == null || payload.isEmpty) return;
+    debugPrint('🔔 Notification tap payload: $payload');
+    lastTapPayload.value = payload;
   }
 
   /// Guardar configuración
@@ -106,8 +159,19 @@ class NotificationService {
   /// Solicitar permisos (Android 13+/iOS)
   Future<bool> requestPermissions() async {
     try {
-      final android = await _flnp.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.requestNotificationsPermission();
-      return android ?? true;
+      if (!_notificationsInitialized) await _initNotifications();
+      final androidImpl = _flnp.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final iosImpl = _flnp.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      final macosImpl = _flnp.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>();
+
+      final androidOk = await androidImpl?.requestNotificationsPermission();
+      final iosOk = await iosImpl?.requestPermissions(alert: true, badge: true, sound: true);
+      final macOk = await macosImpl?.requestPermissions(alert: true, badge: true, sound: true);
+
+      // Al menos una plataforma respondió true (o la actual no aplica y
+      // asumimos true). Si todas son null, no hay impl; damos true.
+      if (androidOk == null && iosOk == null && macOk == null) return true;
+      return (androidOk ?? false) || (iosOk ?? false) || (macOk ?? false);
     } catch (e) {
       debugPrint('⚠️ No se pudieron solicitar permisos de notificación: $e');
       return false;
@@ -195,6 +259,7 @@ class NotificationService {
           priority: Priority.high,
           playSound: true,
         ),
+        iOS: DarwinNotificationDetails(presentSound: true),
       );
       await _flnp.zonedSchedule(
         _morningNotificationId,
@@ -205,6 +270,7 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
+        payload: payloadMorning,
       );
       debugPrint('🔔 Notificación matutina programada: ${_morningTime.hour}:${_morningTime.minute.toString().padLeft(2, '0')}');
     } catch (e) {
@@ -227,6 +293,7 @@ class NotificationService {
           priority: Priority.high,
           playSound: true,
         ),
+        iOS: DarwinNotificationDetails(presentSound: true),
       );
       await _flnp.zonedSchedule(
         _nightNotificationId,
@@ -237,6 +304,7 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
+        payload: payloadNight,
       );
       debugPrint('🔔 Notificación nocturna programada: ${_nightTime.hour}:${_nightTime.minute.toString().padLeft(2, '0')}');
     } catch (e) {
@@ -313,6 +381,7 @@ class NotificationService {
           priority: Priority.high,
           playSound: true,
         ),
+        iOS: DarwinNotificationDetails(presentSound: true),
       );
 
       await _flnp.zonedSchedule(
@@ -324,6 +393,7 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
+        payload: '$payloadPlanPrefix$planId',
       );
       return true;
     } catch (e) {
@@ -397,6 +467,7 @@ class NotificationService {
           priority: Priority.high,
           playSound: true,
         ),
+        iOS: DarwinNotificationDetails(presentSound: true),
       );
       await _flnp.zonedSchedule(
         _victoryReminderId,
@@ -407,6 +478,7 @@ class NotificationService {
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
+        payload: payloadVictory,
       );
       debugPrint('🔔 Recordatorio de victoria programado: 20:00');
     } catch (e) {
@@ -466,6 +538,7 @@ class NotificationService {
           priority: Priority.defaultPriority,
           playSound: true,
         ),
+        iOS: DarwinNotificationDetails(presentSound: true),
       );
       await _flnp.zonedSchedule(
         _reengagementId,
@@ -475,10 +548,126 @@ class NotificationService {
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
         uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        payload: payloadReengagement,
       );
       debugPrint('🔔 Re-engagement programado para: $scheduled');
     } catch (e) {
       debugPrint('⚠️ Error programando re-engagement: $e');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // COMPAÑERO DE BATALLA — notificaciones event-driven (no programadas)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /// Notifica en el dispositivo una nueva solicitud de compañero de batalla.
+  /// Si el usuario está actualmente en `BattlePartnerScreen`, se omite para
+  /// evitar duplicar el feedback visual.
+  Future<void> showBattlePartnerInvite({
+    required int id,
+    required String fromName,
+  }) async {
+    if (isViewingBattlePartner.value) return;
+    if (!_notificationsInitialized) await _initNotifications();
+    if (!_notificationsInitialized) return;
+    try {
+      const details = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'battle_partner_invites',
+          'Solicitudes de compañero',
+          channelDescription:
+              'Avisa cuando alguien quiere ser tu compañero de batalla',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+          category: AndroidNotificationCategory.social,
+        ),
+        iOS: DarwinNotificationDetails(presentSound: true),
+      );
+      await _flnp.show(
+        id,
+        'Nueva solicitud de compañero 🤝',
+        '$fromName quiere acompañarte en la batalla',
+        details,
+        payload: payloadBattleInvite,
+      );
+    } catch (e) {
+      debugPrint('⚠️ No se pudo mostrar notificación de invitación: $e');
+    }
+  }
+
+  /// Notifica un nuevo mensaje/sticker de un compañero de batalla.
+  /// `text` es el texto legible del sticker (ya traducido, incluyendo emoji).
+  Future<void> showBattleMessage({
+    required int id,
+    required String fromName,
+    required String text,
+  }) async {
+    if (isViewingBattlePartner.value) return;
+    if (!_notificationsInitialized) await _initNotifications();
+    if (!_notificationsInitialized) return;
+    try {
+      const details = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'battle_partner_messages',
+          'Mensajes de compañeros',
+          channelDescription:
+              'Ánimos y oraciones de tus compañeros de batalla',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+          category: AndroidNotificationCategory.message,
+        ),
+        iOS: DarwinNotificationDetails(presentSound: true),
+      );
+      await _flnp.show(
+        id,
+        '$fromName te escribió 💬',
+        text,
+        details,
+        payload: payloadBattleMessage,
+      );
+    } catch (e) {
+      debugPrint('⚠️ No se pudo mostrar notificación de mensaje: $e');
+    }
+  }
+
+  /// Notificación urgente de SOS ("Oren por mí ahora") enviada por un
+  /// compañero. Se salta la supresión por foreground porque el usuario
+  /// DEBE ver este tipo de alerta aunque esté en la misma pantalla.
+  Future<void> showBattleSos({
+    required int id,
+    required String fromName,
+  }) async {
+    if (!_notificationsInitialized) await _initNotifications();
+    if (!_notificationsInitialized) return;
+    try {
+      const details = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'battle_partner_sos',
+          'SOS de oración',
+          channelDescription:
+              'Alerta cuando un compañero pide oración urgente',
+          importance: Importance.max,
+          priority: Priority.max,
+          playSound: true,
+          fullScreenIntent: false,
+          category: AndroidNotificationCategory.alarm,
+        ),
+        iOS: DarwinNotificationDetails(
+          presentSound: true,
+          interruptionLevel: InterruptionLevel.timeSensitive,
+        ),
+      );
+      await _flnp.show(
+        id,
+        '$fromName necesita oración ahora 🆘',
+        'Detente un momento y ora por tu compañero',
+        details,
+        payload: payloadBattleSos,
+      );
+    } catch (e) {
+      debugPrint('⚠️ No se pudo mostrar notificación SOS: $e');
     }
   }
 }

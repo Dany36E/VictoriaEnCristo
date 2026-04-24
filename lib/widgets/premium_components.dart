@@ -561,7 +561,7 @@ class FloatingActionSection extends StatelessWidget {
     
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+        filter: ImageFilter.blur(sigmaX: 6, sigmaY: 6),
         child: Container(
           height: height,
           padding: const EdgeInsets.all(AppDesignSystem.spacingM),

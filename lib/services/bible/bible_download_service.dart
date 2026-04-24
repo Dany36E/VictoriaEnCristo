@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_version.dart';
@@ -36,6 +38,15 @@ class BibleDownloadService {
   /// Versión actualmente descargándose (para progress UI)
   final ValueNotifier<BibleVersion?> downloadingNotifier = ValueNotifier(null);
 
+  /// Progreso 0.0–1.0 de la descarga actual (solo útil si la fuente reporta
+  /// `Content-Length`; caso contrario se queda en `null`).
+  final ValueNotifier<double?> progressNotifier = ValueNotifier(null);
+
+  /// Caché en memoria de URLs remotas por versión, pobladas en init().
+  /// Si la versión no tiene URL, se usa el asset bundle (comportamiento
+  /// legacy). Esto permite ir migrando versiones a CDN sin romper la app.
+  final Map<String, String> _remoteUrls = {};
+
   static const _prefsKeyPrefix = 'bible_downloaded_';
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -57,6 +68,10 @@ class BibleDownloadService {
     // Cargar estado de descargas desde SharedPreferences
     await _loadStates();
 
+    // Cargar URLs remotas opcionales desde Firestore /config/bibleDownloads.
+    // Si falla (offline, sin permiso, etc.) caemos al asset bundle.
+    await _loadRemoteUrls();
+
     // Auto-descargar RVR1960 si no está descargada
     final states = stateNotifier.value;
     if (states[BibleVersion.rvr1960] != DownloadState.downloaded) {
@@ -65,6 +80,30 @@ class BibleDownloadService {
 
     _initialized = true;
     debugPrint('📥 [BIBLE-DL] BibleDownloadService initialized');
+  }
+
+  Future<void> _loadRemoteUrls() async {
+    try {
+      final snap = await FirebaseFirestore.instance
+          .collection('config')
+          .doc('bibleDownloads')
+          .get();
+      final data = snap.data();
+      if (data == null) return;
+      final urls = data['urls'];
+      if (urls is Map) {
+        for (final e in urls.entries) {
+          final k = e.key?.toString();
+          final v = e.value?.toString();
+          if (k != null && v != null && v.startsWith('http')) {
+            _remoteUrls[k] = v;
+          }
+        }
+      }
+      debugPrint('📥 [BIBLE-DL] Remote URLs loaded: ${_remoteUrls.length}');
+    } catch (e) {
+      debugPrint('📥 [BIBLE-DL] No remote URLs (fallback to assets): $e');
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -102,33 +141,66 @@ class BibleDownloadService {
     return total;
   }
 
-  /// Descargar (extraer de assets a almacenamiento local)
+  /// Descargar versión: intenta HTTP (si hay URL remota configurada)
+  /// y cae a leer del asset bundle como fallback. El archivo queda en
+  /// el directorio local del app para lectura rápida posterior.
   Future<bool> downloadVersion(BibleVersion version) async {
     if (isDownloaded(version)) return true;
 
     try {
       downloadingNotifier.value = version;
+      progressNotifier.value = null;
       _updateState(version, DownloadState.downloading);
 
-      // Leer XML del asset bundle
-      final xmlString = await rootBundle.loadString(
-        'assets/bible/${version.fileName}',
-      );
-
-      // Escribir al almacenamiento local
       final file = File('$_bibleDirPath/${version.fileName}');
-      await file.writeAsString(xmlString);
+      final remoteUrl = _remoteUrls[version.id];
+      var sourceLabel = 'asset';
+      var byteLength = 0;
 
-      // Marcar como descargada
+      if (remoteUrl != null) {
+        // Descarga HTTP con progreso si el servidor expone Content-Length.
+        final req = http.Request('GET', Uri.parse(remoteUrl));
+        final resp = await http.Client().send(req).timeout(const Duration(seconds: 60));
+        if (resp.statusCode != 200) {
+          throw HttpException('HTTP ${resp.statusCode} al descargar ${version.id}');
+        }
+        final total = resp.contentLength ?? 0;
+        final sink = file.openWrite();
+        var received = 0;
+        await resp.stream.listen((chunk) {
+          received += chunk.length;
+          sink.add(chunk);
+          if (total > 0) progressNotifier.value = received / total;
+        }).asFuture<void>();
+        await sink.flush();
+        await sink.close();
+        byteLength = received;
+        sourceLabel = 'remote';
+      } else {
+        // Fallback: leer desde assets bundled.
+        final xmlString = await rootBundle.loadString(
+          'assets/bible/${version.fileName}',
+        );
+        await file.writeAsString(xmlString);
+        byteLength = xmlString.length;
+      }
+
+      // Validación mínima: archivo escrito y no vacío.
+      if (!await file.exists() || await file.length() == 0) {
+        throw const FileSystemException('Archivo bíblico vacío tras descarga');
+      }
+
       _updateState(version, DownloadState.downloaded);
       await _saveState(version, true);
 
       downloadingNotifier.value = null;
-      debugPrint('📥 [BIBLE-DL] ${version.id} downloaded (${xmlString.length} chars)');
+      progressNotifier.value = null;
+      debugPrint('📥 [BIBLE-DL] ${version.id} downloaded from $sourceLabel ($byteLength bytes)');
       return true;
     } catch (e) {
       _updateState(version, DownloadState.notDownloaded);
       downloadingNotifier.value = null;
+      progressNotifier.value = null;
       debugPrint('📥 [BIBLE-DL] Error downloading ${version.id}: $e');
       return false;
     }

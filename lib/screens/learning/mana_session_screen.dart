@@ -11,6 +11,7 @@ import '../../models/learning/learning_models.dart';
 import '../../services/daily_practice_service.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/learning_progress_service.dart';
+import '../../services/learning/mana_session_persistence.dart';
 import '../../services/learning/question_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
@@ -28,6 +29,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
   int _idx = 0;
   int _correct = 0;
   int _wrong = 0;
+  bool _usedHonesty = false; // D3 — marcó alguna vez "no la sé"
 
   int? _selected; // índice seleccionado (MC/WhoSaid/TF/chooseReference/situational)
   final TextEditingController _textCtrl = TextEditingController();
@@ -55,6 +57,39 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
     super.initState();
     _questions = QuestionRepository.I.pickSession(count: 7);
     _prepareQuestionState();
+    _tryRestoreSession();
+  }
+
+  /// D2 — Restaurar sesión previa si los IDs coinciden con la actual.
+  /// (Las preguntas se eligen aleatoriamente, así que rara vez coincidirán.
+  /// En el caso común vale más simplemente honrar el cursor: posicionar al
+  /// usuario en la pregunta donde lo dejó y conservar correct/wrong.)
+  Future<void> _tryRestoreSession() async {
+    final snap = await ManaSessionPersistence.I.load();
+    if (snap == null || !mounted) return;
+    final maxIdx = _questions.length - 1;
+    final restoredIdx = snap.idx.clamp(0, maxIdx);
+    if (restoredIdx == 0 && snap.correct == 0 && snap.wrong == 0) return;
+    setState(() {
+      _idx = restoredIdx;
+      _correct = snap.correct.clamp(0, _questions.length);
+      _wrong = snap.wrong.clamp(0, _questions.length);
+      _usedHonesty = snap.usedHonesty;
+      _answered = false;
+      _selected = null;
+    });
+    _prepareQuestionState();
+  }
+
+  Future<void> _persistSession() async {
+    await ManaSessionPersistence.I.save(ManaSessionSnapshot(
+      questionIds: _questions.map((q) => q.id).toList(),
+      idx: _idx,
+      correct: _correct,
+      wrong: _wrong,
+      usedHonesty: _usedHonesty,
+      savedAtMs: DateTime.now().millisecondsSinceEpoch,
+    ));
   }
 
   void _prepareQuestionState() {
@@ -129,8 +164,25 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
       FeedbackEngine.I.confirm();
     } else {
       FeedbackEngine.I.tap();
+      // C2 — los hearts ya no bloquean: gastamos uno como amortiguador,
+      // pero la sesión continúa aunque no quedaran. Sin spendHeart si fue
+      // por honestidad.
       await LearningProgressService.I.spendHeart();
     }
+    await _persistSession();
+  }
+
+  /// D3 — "No la sé": marca como incorrecta sin gastar heart, suma honestidad.
+  Future<void> _markAsUnknown() async {
+    if (_answered) return;
+    setState(() {
+      _answered = true;
+      _lastWasCorrect = false;
+      _wrong++;
+      _usedHonesty = true;
+    });
+    FeedbackEngine.I.tap();
+    await _persistSession();
   }
 
   bool _listEq(List<int> a, List<int> b) {
@@ -170,12 +222,15 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
   }
 
   Future<void> _finishSession() async {
-    final xpEarned = await LearningProgressService.I.recordSessionCompleted(
+    final reward = await LearningProgressService.I.recordSessionCompleted(
       correctAnswers: _correct,
       totalAnswers: _questions.length,
+      usedHonestyOption: _usedHonesty,
     );
     // Marcar práctica del día
     await DailyPracticeService.I.mark(DailyPractice.study);
+    // Limpiar sesión guardada (D2)
+    await ManaSessionPersistence.I.clear();
 
     if (!mounted) return;
     await Navigator.pushReplacement(
@@ -185,7 +240,8 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
           total: _questions.length,
           correct: _correct,
           wrong: _wrong,
-          xpEarned: xpEarned,
+          xpEarned: reward.total,
+          reward: reward,
         ),
       ),
     );
@@ -247,6 +303,19 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
               const SizedBox(height: AppDesignSystem.spacingL),
               Expanded(child: _buildAnswerArea(context, t)),
               if (_answered) _buildFeedback(context, t),
+              if (!_answered)
+                Padding(
+                  padding: const EdgeInsets.only(
+                      top: AppDesignSystem.spacingS),
+                  child: TextButton.icon(
+                    onPressed: _markAsUnknown,
+                    icon: const Icon(Icons.help_outline_rounded, size: 18),
+                    label: const Text('No la sé'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.textSecondary,
+                    ),
+                  ),
+                ),
               const SizedBox(height: AppDesignSystem.spacingM),
               _buildPrimaryButton(context),
             ],
@@ -271,7 +340,6 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
           Row(
             children: [
               _TypeChip(type: _q.type),
-              const Spacer(),
               if (_q.ttsEnabled)
                 IconButton(
                   tooltip: 'Escuchar',
@@ -279,11 +347,21 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                       color: AppDesignSystem.gold),
                   onPressed: _speakPrompt,
                 ),
-              if (_q.reference != null)
-                Text(
-                  _q.reference!,
-                  style: AppDesignSystem.scriptureReference(context),
+              if (_q.reference != null &&
+                  _q.type != QuestionType.chooseReference &&
+                  _q.type != QuestionType.whoSaid) ...[
+                const SizedBox(width: AppDesignSystem.spacingS),
+                Expanded(
+                  child: Text(
+                    _q.reference!,
+                    textAlign: TextAlign.right,
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 2,
+                    style: AppDesignSystem.scriptureReference(context),
+                  ),
                 ),
+              ] else
+                const Spacer(),
             ],
           ),
           const SizedBox(height: AppDesignSystem.spacingS),
@@ -580,6 +658,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                       ),
                       child: Text(
                         q.pairs[i].left,
+                        softWrap: true,
                         style: AppDesignSystem.bodyMedium(context,
                             color: t.textPrimary),
                       ),
@@ -644,6 +723,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                           ),
                           child: Text(
                             q.pairs[pairIdx].right,
+                            softWrap: true,
                             style: AppDesignSystem.bodyMedium(context,
                                 color: t.textPrimary),
                           ),

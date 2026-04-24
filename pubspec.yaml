@@ -35,6 +35,10 @@ dependencies:
   # Local Notifications
   flutter_local_notifications: ^17.2.4  # Push notifications
   timezone: ^0.9.4  # Timezone support for scheduled notifications
+  # Firebase Cloud Messaging (push cross-device para Compañero de Batalla)
+  firebase_messaging: ^15.1.5
+  # QR Codes (compartir código de invitación visualmente)
+  qr_flutter: ^4.1.0
   # Home Screen Widgets
   home_widget: ^0.7.0  # Android AppWidget + iOS WidgetKit integration
   # Bible Reader
@@ -78,6 +82,7 @@ flutter:
     - assets/content/
     - assets/images/
     - assets/images/plan_covers/
+    - assets/images/headbanz/
     - assets/bible/
     - assets/bible/interlinear/greek/
     - assets/bible/interlinear/hebrew/
@@ -102,6 +107,44 @@ flutter:
     - assets/widget/jesus/
     - assets/widget/backgrounds/
     - assets/config.json
+    # Fuentes bundled (descubiertas por google_fonts y disponibles como
+    # fontFamily nativo para fallback offline sin descargas en runtime).
+    - google_fonts/
+  #   - images/a_dot_burr.jpeg
+  #   - images/a_dot_ham.jpeg
+
+  # An image asset can refer to one or more resolution-specific "variants", see
+  # https://flutter.dev/to/resolution-aware-images
+
+  # For details regarding adding assets from package dependencies, see
+  # https://flutter.dev/to/asset-from-package
+
+  # Fuentes nativas (fallback offline cuando google_fonts no pueda resolver la
+  # variable y runtime fetching está desactivado).
+  fonts:
+    - family: Manrope
+      fonts:
+        - asset: google_fonts/Manrope-VariableFont_wght.ttf
+    - family: Cinzel
+      fonts:
+        - asset: google_fonts/Cinzel-VariableFont_wght.ttf
+    - family: Lora
+      fonts:
+        - asset: google_fonts/Lora-VariableFont_wght.ttf
+        - asset: google_fonts/Lora-Italic-VariableFont_wght.ttf
+          style: italic
+    - family: CrimsonPro
+      fonts:
+        - asset: google_fonts/CrimsonPro-VariableFont_wght.ttf
+        - asset: google_fonts/CrimsonPro-Italic-VariableFont_wght.ttf
+          style: italic
+    - family: Lato
+      fonts:
+        - asset: google_fonts/Lato-Regular.ttf
+        - asset: google_fonts/Lato-Bold.ttf
+          weight: 700
+        - asset: google_fonts/Lato-Italic.ttf
+          style: italic
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

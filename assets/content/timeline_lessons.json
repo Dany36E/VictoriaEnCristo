@@ -1,0 +1,74 @@
+[
+  {
+    "id": "patriarchs_kings",
+    "order": 1,
+    "title": "Patriarcas, Éxodo y Reyes",
+    "subtitle": "Coloca a cada personaje en su era",
+    "xpReward": 30,
+    "eras": [
+      {"id": "patriarchs", "label": "Patriarcas", "range": "~2000-1800 aC", "description": "Abraham, Isaac, Jacob, José"},
+      {"id": "exodus", "label": "Éxodo y Conquista", "range": "~1446-1400 aC", "description": "Moisés, Josué, Jueces"},
+      {"id": "kings", "label": "Reyes de Israel", "range": "~1050-586 aC", "description": "Saúl, David, Salomón, reino dividido"},
+      {"id": "prophets", "label": "Profetas y Exilio", "range": "~850-430 aC", "description": "Elías, Isaías, Daniel, Esdras"}
+    ],
+    "items": [
+      {"id": "abraham", "name": "Abraham", "eraId": "patriarchs", "hint": "Padre de la fe, llamado de Ur"},
+      {"id": "joseph", "name": "José", "eraId": "patriarchs", "hint": "Vendido por sus hermanos, en Egipto"},
+      {"id": "moses", "name": "Moisés", "eraId": "exodus", "hint": "Sacó al pueblo de Egipto"},
+      {"id": "joshua", "name": "Josué", "eraId": "exodus", "hint": "Conquistó Jericó"},
+      {"id": "david", "name": "David", "eraId": "kings", "hint": "Rey pastor, autor de salmos"},
+      {"id": "solomon", "name": "Salomón", "eraId": "kings", "hint": "Construyó el templo"},
+      {"id": "isaiah", "name": "Isaías", "eraId": "prophets", "hint": "Profeta del Mesías sufriente"},
+      {"id": "daniel", "name": "Daniel", "eraId": "prophets", "hint": "Foso de los leones, Babilonia"}
+    ]
+  },
+  {
+    "id": "new_testament",
+    "order": 2,
+    "title": "Del Mesías a la Iglesia",
+    "subtitle": "Eventos y personajes del Nuevo Testamento",
+    "xpReward": 30,
+    "eras": [
+      {"id": "ministry", "label": "Ministerio de Jesús", "range": "~27-30 dC", "description": "Bautismo, milagros, parábolas"},
+      {"id": "passion", "label": "Pasión y Resurrección", "range": "~30 dC", "description": "Cruz, tumba vacía, apariciones"},
+      {"id": "earlychurch", "label": "Iglesia primitiva", "range": "~30-50 dC", "description": "Pentecostés, Jerusalén, Antioquía"},
+      {"id": "missions", "label": "Misiones y Epístolas", "range": "~50-95 dC", "description": "Viajes de Pablo, cartas, Apocalipsis"}
+    ],
+    "items": [
+      {"id": "baptism", "name": "Bautismo de Jesús", "eraId": "ministry", "hint": "Juan el Bautista, Jordán"},
+      {"id": "sermon_mount", "name": "Sermón del Monte", "eraId": "ministry", "hint": "Bienaventuranzas"},
+      {"id": "crucifixion", "name": "Crucifixión", "eraId": "passion", "hint": "Gólgota, tres días"},
+      {"id": "resurrection", "name": "Resurrección", "eraId": "passion", "hint": "Tumba vacía, tercer día"},
+      {"id": "pentecost", "name": "Pentecostés", "eraId": "earlychurch", "hint": "Descenso del Espíritu, 3000 conversos"},
+      {"id": "stephen", "name": "Martirio de Esteban", "eraId": "earlychurch", "hint": "Primer mártir"},
+      {"id": "paul_missions", "name": "Viajes de Pablo", "eraId": "missions", "hint": "Tres viajes por Asia Menor y Grecia"},
+      {"id": "revelation", "name": "Apocalipsis", "eraId": "missions", "hint": "Juan en Patmos, visiones"}
+    ]
+  },
+  {
+    "id": "redemption_arc",
+    "order": 3,
+    "title": "El gran arco de redención",
+    "subtitle": "Del Génesis al Apocalipsis",
+    "xpReward": 35,
+    "eras": [
+      {"id": "creation", "label": "Creación y Caída", "range": "Principio", "description": "Edén, Adán, Eva, serpiente"},
+      {"id": "flood", "label": "Diluvio y Naciones", "range": "~post-Caída", "description": "Noé, Babel"},
+      {"id": "covenant", "label": "Pactos y Pueblo", "range": "~2000-500 aC", "description": "Abraham, Moisés, David"},
+      {"id": "christ", "label": "Cristo", "range": "~4 aC - 30 dC", "description": "Encarnación, cruz, resurrección"},
+      {"id": "consummation", "label": "Consumación", "range": "Por venir", "description": "Nueva creación, cielos nuevos"}
+    ],
+    "items": [
+      {"id": "eden", "name": "Jardín del Edén", "eraId": "creation", "hint": "Árbol del conocimiento"},
+      {"id": "fall", "name": "Caída del hombre", "eraId": "creation", "hint": "Serpiente y desobediencia"},
+      {"id": "noah", "name": "Noé y el arca", "eraId": "flood", "hint": "40 días de lluvia"},
+      {"id": "babel", "name": "Torre de Babel", "eraId": "flood", "hint": "Confusión de lenguas"},
+      {"id": "abraham_c", "name": "Pacto con Abraham", "eraId": "covenant", "hint": "Todas las naciones benditas"},
+      {"id": "sinai", "name": "Ley en Sinaí", "eraId": "covenant", "hint": "Moisés recibe las tablas"},
+      {"id": "incarnation", "name": "Nacimiento de Cristo", "eraId": "christ", "hint": "Belén, Emanuel"},
+      {"id": "cross", "name": "La cruz", "eraId": "christ", "hint": "Consumado es"},
+      {"id": "new_earth", "name": "Nueva Jerusalén", "eraId": "consummation", "hint": "Apocalipsis 21"},
+      {"id": "second_coming", "name": "Segunda venida", "eraId": "consummation", "hint": "Maranatha"}
+    ]
+  }
+]

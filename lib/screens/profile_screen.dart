@@ -195,6 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: ClipOval(
         child: photoUrl != null
             ? Image.network(photoUrl, fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
                 errorBuilder: (c, e, s) => _buildDefaultAvatar())
             : _buildDefaultAvatar(),
       ),

@@ -1,0 +1,744 @@
+/// ═══════════════════════════════════════════════════════════════════════════
+/// GameRaceScreen — La Carrera de la Fe (1 vs 1 local)
+///
+/// Dos jugadores alternan turnos respondiendo preguntas bíblicas.
+/// Cada respuesta correcta avanza casillas en su pista. Primero en llegar gana.
+/// Inspirado en Hebreos 12:1 — "Corramos con paciencia la carrera".
+/// ═══════════════════════════════════════════════════════════════════════════
+library;
+
+import 'dart:async';
+import 'dart:math';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../models/learning/learning_models.dart';
+import '../../services/feedback_engine.dart';
+import '../../services/learning/question_repository.dart';
+import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
+
+class GameRaceScreen extends StatefulWidget {
+  const GameRaceScreen({super.key});
+
+  @override
+  State<GameRaceScreen> createState() => _GameRaceScreenState();
+}
+
+enum _Phase { setup, turnIntro, question, turnResult, finished }
+
+const int _finishLine = 20;
+const int _timePerQuestion = 15;
+
+class _GameRaceScreenState extends State<GameRaceScreen> {
+  final _nameCtrl1 = TextEditingController(text: 'Jugador 1');
+  final _nameCtrl2 = TextEditingController(text: 'Jugador 2');
+
+  _Phase _phase = _Phase.setup;
+  List<String> _names = [];
+  final List<int> _positions = [0, 0];
+  int _turn = 0; // 0 or 1
+  LearningQuestion? _q;
+  int? _selected;
+  bool _answered = false;
+  bool _wasCorrect = false;
+  int _advance = 0;
+  int _winnerIdx = -1;
+
+  Timer? _ticker;
+  int _remaining = _timePerQuestion;
+  DateTime? _qStart;
+  List<LearningQuestion> _pool = [];
+  int _poolIdx = 0;
+
+  @override
+  void dispose() {
+    _ticker?.cancel();
+    _nameCtrl1.dispose();
+    _nameCtrl2.dispose();
+    super.dispose();
+  }
+
+  void _startGame() {
+    final n1 = _nameCtrl1.text.trim().isEmpty ? 'Jugador 1' : _nameCtrl1.text.trim();
+    final n2 = _nameCtrl2.text.trim().isEmpty ? 'Jugador 2' : _nameCtrl2.text.trim();
+    _names = [n1, n2];
+    _pool = _buildPool();
+    _poolIdx = 0;
+    _positions[0] = 0;
+    _positions[1] = 0;
+    _turn = Random().nextInt(2);
+    _winnerIdx = -1;
+    FeedbackEngine.I.tap();
+    setState(() => _phase = _Phase.turnIntro);
+  }
+
+  List<LearningQuestion> _buildPool() {
+    final all = QuestionRepository.I.all.where((q) {
+      // Solo preguntas rápidas de opciones
+      return q.type == QuestionType.multipleChoice ||
+          q.type == QuestionType.whoSaid ||
+          q.type == QuestionType.trueFalse ||
+          q.type == QuestionType.chooseReference ||
+          q.type == QuestionType.situational;
+    }).toList();
+    all.shuffle(Random());
+    return all;
+  }
+
+  LearningQuestion _nextQuestion() {
+    if (_pool.isEmpty) {
+      // Fallback if no questions available
+      return const LearningQuestion(
+        id: 'fallback',
+        type: QuestionType.trueFalse,
+        prompt: '¿La Biblia tiene 66 libros?',
+        options: ['Verdadero', 'Falso'],
+        correctIndex: 0,
+        explanation: '',
+        answerText: '',
+      );
+    }
+    final q = _pool[_poolIdx % _pool.length];
+    _poolIdx++;
+    return q;
+  }
+
+  void _beginQuestion() {
+    _q = _nextQuestion();
+    _selected = null;
+    _answered = false;
+    _wasCorrect = false;
+    _advance = 0;
+    _remaining = _timePerQuestion;
+    _qStart = DateTime.now();
+    _ticker?.cancel();
+    _ticker = Timer.periodic(const Duration(seconds: 1), (t) {
+      if (!mounted) return;
+      setState(() {
+        _remaining--;
+        if (_remaining <= 0) {
+          _ticker?.cancel();
+          _lockAnswer(null);
+        }
+      });
+    });
+    setState(() => _phase = _Phase.question);
+  }
+
+  void _lockAnswer(int? idx) {
+    _ticker?.cancel();
+    final q = _q!;
+    final correct = idx != null && idx == q.correctIndex;
+    final elapsed = _qStart == null
+        ? _timePerQuestion.toDouble()
+        : DateTime.now().difference(_qStart!).inMilliseconds / 1000.0;
+    int advance = 0;
+    if (correct) {
+      advance = 2;
+      if (elapsed < 5.0) advance = 3;
+    }
+    _positions[_turn] = min(_finishLine, _positions[_turn] + advance);
+    setState(() {
+      _selected = idx;
+      _answered = true;
+      _wasCorrect = correct;
+      _advance = advance;
+    });
+    if (correct) {
+      FeedbackEngine.I.confirm();
+    } else {
+      FeedbackEngine.I.tap();
+    }
+
+    if (_positions[_turn] >= _finishLine) {
+      _winnerIdx = _turn;
+      Future.delayed(const Duration(milliseconds: 1400), () {
+        if (!mounted) return;
+        setState(() => _phase = _Phase.finished);
+      });
+    } else {
+      Future.delayed(const Duration(milliseconds: 1400), () {
+        if (!mounted) return;
+        setState(() {
+          _phase = _Phase.turnResult;
+        });
+      });
+    }
+  }
+
+  void _nextTurn() {
+    _turn = 1 - _turn;
+    FeedbackEngine.I.tap();
+    setState(() => _phase = _Phase.turnIntro);
+  }
+
+  void _resetAll() {
+    FeedbackEngine.I.tap();
+    setState(() {
+      _phase = _Phase.setup;
+      _positions[0] = 0;
+      _positions[1] = 0;
+      _turn = 0;
+      _winnerIdx = -1;
+      _q = null;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    return Scaffold(
+      backgroundColor: t.scaffoldBg,
+      appBar: AppBar(
+        backgroundColor: t.surface,
+        elevation: 0,
+        iconTheme: IconThemeData(color: t.textPrimary),
+        title: Text(
+          'Carrera de la Fe',
+          style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
+        ),
+      ),
+      body: SafeArea(child: _body(t)),
+    );
+  }
+
+  Widget _body(AppThemeData t) {
+    switch (_phase) {
+      case _Phase.setup:
+        return _buildSetup(t);
+      case _Phase.turnIntro:
+        return _buildTurnIntro(t);
+      case _Phase.question:
+        return _buildQuestion(t);
+      case _Phase.turnResult:
+        return _buildTurnResult(t);
+      case _Phase.finished:
+        return _buildFinished(t);
+    }
+  }
+
+  Widget _buildSetup(AppThemeData t) {
+    return ListView(
+      padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+      children: [
+        Container(
+          padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppDesignSystem.gold.withOpacity(0.15),
+                AppDesignSystem.gold.withOpacity(0.03),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+            border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.directions_run_rounded,
+                      color: AppDesignSystem.gold, size: 28),
+                  const SizedBox(width: 8),
+                  Text('La Carrera de la Fe',
+                      style: AppDesignSystem.headlineSmall(context,
+                          color: t.textPrimary)),
+                ],
+              ),
+              const SizedBox(height: AppDesignSystem.spacingS),
+              Text(
+                '"Corramos con paciencia la carrera que tenemos por delante." — Hebreos 12:1',
+                style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+              ),
+              const SizedBox(height: AppDesignSystem.spacingM),
+              _rule(t, '🎯', 'Correcto = avanzas 2 casillas'),
+              _rule(t, '⚡', 'Respuesta rápida (<5s) = +3 casillas'),
+              _rule(t, '❌', 'Incorrecto o tiempo agotado = no avanzas'),
+              _rule(t, '🏆', 'Primero en llegar a $_finishLine gana'),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppDesignSystem.spacingL),
+        _nameField(t, _nameCtrl1, 'Jugador 1', const Color(0xFF6BC5A0)),
+        const SizedBox(height: AppDesignSystem.spacingM),
+        _nameField(t, _nameCtrl2, 'Jugador 2', const Color(0xFF7CB8E8)),
+        const SizedBox(height: AppDesignSystem.spacingL),
+        SizedBox(
+          height: 56,
+          child: ElevatedButton.icon(
+            onPressed: _startGame,
+            icon: const Icon(Icons.flag_rounded),
+            label: const Text('¡A correr!'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppDesignSystem.gold,
+              foregroundColor: Colors.black,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+              ),
+              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _rule(AppThemeData t, String icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Row(
+        children: [
+          Text(icon, style: const TextStyle(fontSize: 16)),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(text,
+                style: AppDesignSystem.bodyMedium(context, color: t.textPrimary)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _nameField(
+      AppThemeData t, TextEditingController c, String hint, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: t.cardBg,
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+        border: Border.all(color: color.withOpacity(0.4), width: 1.5),
+      ),
+      child: TextField(
+        controller: c,
+        textAlign: TextAlign.center,
+        style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+        decoration: InputDecoration(
+          hintText: hint,
+          prefixIcon: Icon(Icons.person_rounded, color: color),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.symmetric(vertical: 14),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTurnIntro(AppThemeData t) {
+    final color = _turn == 0 ? const Color(0xFF6BC5A0) : const Color(0xFF7CB8E8);
+    return Padding(
+      padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+      child: Column(
+        children: [
+          _raceTrack(t),
+          const Spacer(),
+          Container(
+            width: 120,
+            height: 120,
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: color, width: 3),
+            ),
+            child: Icon(Icons.directions_run_rounded, color: color, size: 64),
+          ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
+          const SizedBox(height: AppDesignSystem.spacingL),
+          Text('Turno de', style: AppDesignSystem.bodyLarge(context, color: t.textSecondary)),
+          Text(
+            _names[_turn],
+            style: AppDesignSystem.displayMedium(context, color: color),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Pasa el celular · ${_positions[_turn]}/$_finishLine casillas',
+            style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton.icon(
+              onPressed: _beginQuestion,
+              icon: const Icon(Icons.play_arrow_rounded),
+              label: const Text('Ver pregunta'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+                ),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildQuestion(AppThemeData t) {
+    final q = _q!;
+    final color = _turn == 0 ? const Color(0xFF6BC5A0) : const Color(0xFF7CB8E8);
+    return Padding(
+      padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          _raceTrack(t),
+          const SizedBox(height: AppDesignSystem.spacingM),
+          // Timer bar
+          Row(
+            children: [
+              Icon(Icons.timer_outlined, size: 18, color: _remaining <= 5 ? AppDesignSystem.struggle : t.textSecondary),
+              const SizedBox(width: 6),
+              Text('$_remaining s',
+                  style: AppDesignSystem.labelLarge(context,
+                      color: _remaining <= 5 ? AppDesignSystem.struggle : t.textPrimary)),
+              const SizedBox(width: 12),
+              Expanded(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
+                  child: LinearProgressIndicator(
+                    value: _remaining / _timePerQuestion,
+                    minHeight: 6,
+                    backgroundColor: t.cardBg,
+                    valueColor: AlwaysStoppedAnimation(
+                        _remaining <= 5 ? AppDesignSystem.struggle : color),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppDesignSystem.spacingM),
+          Container(
+            padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+            decoration: BoxDecoration(
+              color: t.cardBg,
+              borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+              border: Border.all(color: color.withOpacity(0.3)),
+            ),
+            child: Text(
+              q.prompt,
+              style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+            ),
+          ),
+          const SizedBox(height: AppDesignSystem.spacingS),
+          Expanded(
+            child: ListView.builder(
+              itemCount: q.options.length,
+              itemBuilder: (context, i) {
+                Color border = t.divider;
+                Color bg = t.cardBg;
+                if (_answered) {
+                  if (i == q.correctIndex) {
+                    border = AppDesignSystem.victory;
+                    bg = AppDesignSystem.victory.withOpacity(0.10);
+                  } else if (i == _selected) {
+                    border = AppDesignSystem.struggle;
+                    bg = AppDesignSystem.struggle.withOpacity(0.10);
+                  }
+                } else if (i == _selected) {
+                  border = color;
+                  bg = color.withOpacity(0.10);
+                }
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                    onTap: _answered ? null : () => _lockAnswer(i),
+                    child: Container(
+                      padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+                      decoration: BoxDecoration(
+                        color: bg,
+                        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                        border: Border.all(color: border, width: 1.5),
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(q.options[i],
+                                style: AppDesignSystem.bodyLarge(context,
+                                    color: t.textPrimary)),
+                          ),
+                          if (_answered && i == q.correctIndex)
+                            const Icon(Icons.check_circle_rounded,
+                                color: AppDesignSystem.victory),
+                          if (_answered &&
+                              i == _selected &&
+                              i != q.correctIndex)
+                            const Icon(Icons.cancel_rounded,
+                                color: AppDesignSystem.struggle),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTurnResult(AppThemeData t) {
+    final color = _turn == 0 ? const Color(0xFF6BC5A0) : const Color(0xFF7CB8E8);
+    return Padding(
+      padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+      child: Column(
+        children: [
+          _raceTrack(t),
+          const Spacer(),
+          Icon(
+            _wasCorrect ? Icons.check_circle_rounded : Icons.cancel_rounded,
+            size: 80,
+            color: _wasCorrect ? AppDesignSystem.victory : AppDesignSystem.struggle,
+          ).animate().scale(duration: 350.ms, curve: Curves.elasticOut),
+          const SizedBox(height: AppDesignSystem.spacingM),
+          Text(
+            _wasCorrect ? '¡Bien, ${_names[_turn]}!' : 'Fallaste, ${_names[_turn]}',
+            style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            _wasCorrect
+                ? '+$_advance casillas'
+                : 'Sigues en casilla ${_positions[_turn]}',
+            style: AppDesignSystem.bodyLarge(
+              context,
+              color: _wasCorrect ? AppDesignSystem.gold : t.textSecondary,
+            ),
+          ),
+          const Spacer(),
+          SizedBox(
+            width: double.infinity,
+            height: 56,
+            child: ElevatedButton.icon(
+              onPressed: _nextTurn,
+              icon: const Icon(Icons.swap_horiz_rounded),
+              label: Text('Turno de ${_names[1 - _turn]}'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: color,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+                ),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFinished(AppThemeData t) {
+    final winnerColor = _winnerIdx == 0
+        ? const Color(0xFF6BC5A0)
+        : const Color(0xFF7CB8E8);
+    return Padding(
+      padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+      child: Column(
+        children: [
+          _raceTrack(t),
+          const Spacer(),
+          const Icon(Icons.emoji_events_rounded,
+                  size: 100, color: AppDesignSystem.gold)
+              .animate()
+              .scale(duration: 500.ms, curve: Curves.elasticOut)
+              .then()
+              .shake(hz: 2, duration: 600.ms),
+          const SizedBox(height: AppDesignSystem.spacingM),
+          Text(
+            '¡${_names[_winnerIdx]} gana!',
+            style: AppDesignSystem.displaySmall(context, color: winnerColor),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Resultado:  ${_names[0]} ${_positions[0]}  —  ${_positions[1]} ${_names[1]}',
+            style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
+          ),
+          const Spacer(),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(color: t.cardBorder),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppDesignSystem.radiusFull),
+                    ),
+                  ),
+                  child: Text('Salir',
+                      style: TextStyle(color: t.textSecondary)),
+                ),
+              ),
+              const SizedBox(width: AppDesignSystem.spacingM),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: _resetAll,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppDesignSystem.gold,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius:
+                          BorderRadius.circular(AppDesignSystem.radiusFull),
+                    ),
+                  ),
+                  child: const Text('Revancha'),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Visualiza las dos pistas paralelas.
+  Widget _raceTrack(AppThemeData t) {
+    return Container(
+      padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [t.surface, t.cardBg],
+        ),
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+        border: Border.all(color: t.cardBorder),
+      ),
+      child: Column(
+        children: [
+          _trackFor(t, 0, const Color(0xFF6BC5A0)),
+          const SizedBox(height: 10),
+          _trackFor(t, 1, const Color(0xFF7CB8E8)),
+        ],
+      ),
+    );
+  }
+
+  Widget _trackFor(AppThemeData t, int idx, Color color) {
+    final pos = _positions[idx];
+    final pct = pos / _finishLine;
+    final isCurrent = _phase != _Phase.setup && _phase != _Phase.finished && idx == _turn;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Icon(Icons.circle, size: 10, color: color),
+            const SizedBox(width: 6),
+            Text(
+              _names.length > idx ? _names[idx] : 'Jugador ${idx + 1}',
+              style: AppDesignSystem.labelMedium(
+                context,
+                color: isCurrent ? color : t.textPrimary,
+              ),
+            ),
+            const Spacer(),
+            Text('$pos/$_finishLine',
+                style:
+                    AppDesignSystem.labelSmall(context, color: t.textSecondary)),
+          ],
+        ),
+        const SizedBox(height: 4),
+        // Track: stack of line + tile markers + runner
+        LayoutBuilder(
+          builder: (context, box) {
+            final w = box.maxWidth;
+            const runnerSize = 28.0;
+            final runnerX =
+                (w - runnerSize) * pct.clamp(0.0, 1.0);
+            return SizedBox(
+              height: 36,
+              child: Stack(
+                children: [
+                  // Base line
+                  Positioned.fill(
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: t.cardBorder,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // Progress line
+                  Positioned(
+                    left: 0,
+                    top: 16,
+                    child: Container(
+                      height: 4,
+                      width: w * pct.clamp(0.0, 1.0),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [color.withOpacity(0.5), color],
+                        ),
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  // Tile dots
+                  for (int i = 1; i < _finishLine; i++)
+                    Positioned(
+                      left: (w - 6) * (i / _finishLine),
+                      top: 15,
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: i <= pos
+                              ? color
+                              : t.cardBorder,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                  // Finish flag
+                  const Positioned(
+                    right: 0,
+                    top: 2,
+                    child: Icon(Icons.flag_rounded,
+                        size: 32, color: AppDesignSystem.gold),
+                  ),
+                  // Runner
+                  AnimatedPositioned(
+                    duration: const Duration(milliseconds: 500),
+                    curve: Curves.easeOutCubic,
+                    left: runnerX,
+                    top: 4,
+                    child: Container(
+                      width: runnerSize,
+                      height: runnerSize,
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: Colors.white, width: 2),
+                        boxShadow: [
+                          BoxShadow(
+                            color: color.withOpacity(0.5),
+                            blurRadius: isCurrent ? 12 : 4,
+                          ),
+                        ],
+                      ),
+                      child: const Icon(Icons.directions_run_rounded,
+                          color: Colors.white, size: 16),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      ],
+    );
+  }
+}

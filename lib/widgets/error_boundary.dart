@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 /// Widget que captura errores de build en sus hijos y muestra un fallback.
@@ -5,7 +7,16 @@ class ErrorBoundary extends StatefulWidget {
   final Widget child;
   final Widget Function(FlutterErrorDetails error, VoidCallback retry)? onError;
 
-  const ErrorBoundary({super.key, required this.child, this.onError});
+  /// Tiempo tras el cual el fallback se auto-dismissa intentando rehacer build.
+  /// Si el error vuelve, el boundary lo volverá a mostrar.
+  final Duration autoDismissAfter;
+
+  const ErrorBoundary({
+    super.key,
+    required this.child,
+    this.onError,
+    this.autoDismissAfter = const Duration(seconds: 10),
+  });
 
   @override
   State<ErrorBoundary> createState() => _ErrorBoundaryState();
@@ -13,14 +24,30 @@ class ErrorBoundary extends StatefulWidget {
 
 class _ErrorBoundaryState extends State<ErrorBoundary> {
   FlutterErrorDetails? _error;
+  Timer? _autoDismissTimer;
 
   @override
   void initState() {
     super.initState();
   }
 
+  @override
+  void dispose() {
+    _autoDismissTimer?.cancel();
+    super.dispose();
+  }
+
   void _retry() {
+    _autoDismissTimer?.cancel();
     setState(() => _error = null);
+  }
+
+  void _scheduleAutoDismiss() {
+    _autoDismissTimer?.cancel();
+    _autoDismissTimer = Timer(widget.autoDismissAfter, () {
+      if (!mounted) return;
+      setState(() => _error = null);
+    });
   }
 
   @override
@@ -35,7 +62,14 @@ class _ErrorBoundaryState extends State<ErrorBoundary> {
     ErrorWidget.builder = (details) {
       debugPrint('⚠️ [ErrorBoundary] ${details.exception}');
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) setState(() => _error = details);
+        if (!mounted) return;
+        // Solo activar el fallback si ESTA ruta es la visible actualmente.
+        // Evita que un error en una pantalla pusheada encima (p.ej.
+        // DevotionalScreen) deje al Home en estado de error tras pop().
+        final route = ModalRoute.of(context);
+        if (route != null && !route.isCurrent) return;
+        setState(() => _error = details);
+        _scheduleAutoDismiss();
       });
       return const SizedBox.shrink();
     };

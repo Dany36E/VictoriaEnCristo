@@ -8,6 +8,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'onboarding_service.dart';
+import 'daily_practice_service.dart';
 import '../utils/time_utils.dart';
 
 class VictoryScoringService {
@@ -28,6 +29,15 @@ class VictoryScoringService {
   static const String _keyVictoryByGiant = 'victory_by_giant_v1';
   static const String _keyMigrated = 'migrated_victory_to_by_giant';
   static const String _keyThreshold = 'victory_threshold';
+
+  // Recaída y tokens de gracia
+  static const String _keyLastBrokenStreak = 'last_broken_streak_v1';
+  static const String _keyLastBreakDateISO = 'last_break_date_iso_v1';
+  static const String _keyRelapseAckDateISO = 'relapse_ack_date_iso_v1';
+  static const String _keyGraceTokens = 'grace_tokens_v1';
+  static const String _keyGraceTokensMonthISO = 'grace_tokens_month_v1'; // YYYY-MM
+  static const String _keyGraceDaysUsed = 'grace_days_used_v1'; // set<ISO>
+  static const String _keyJourneyStartISO = 'journey_start_iso_v1';
   
   // ═══════════════════════════════════════════════════════════════════════════
   // CONFIGURACIÓN
@@ -51,6 +61,14 @@ class VictoryScoringService {
   
   /// Umbral configurable
   double _threshold = defaultThreshold;
+
+  // Estado de recaída / gracia
+  int _lastBrokenStreak = 0;
+  String? _lastBreakDateISO;
+  String? _relapseAckDateISO; // última fecha donde el usuario cerró el flujo
+  int _graceTokens = 0;
+  Set<String> _graceDaysUsed = {};
+  String? _journeyStartISO;
   
   // ═══════════════════════════════════════════════════════════════════════════
   // NOTIFICADORES
@@ -60,6 +78,13 @@ class VictoryScoringService {
   final ValueNotifier<bool> loggedTodayNotifier = ValueNotifier(false);
   final ValueNotifier<int> totalYearNotifier = ValueNotifier(0);
   final ValueNotifier<int> bestStreakNotifier = ValueNotifier(0);
+
+  /// Se dispara cuando se detecta una recaída (streak >=3 cayó a 0).
+  /// El valor es el streak que se perdió. `null` significa ya reconocido.
+  final ValueNotifier<int?> relapseEventNotifier = ValueNotifier(null);
+
+  /// Tokens de gracia disponibles este mes (se recargan a 1 cada mes).
+  final ValueNotifier<int> graceTokensNotifier = ValueNotifier(0);
   
   /// Callback para write-through a cloud (lo configura ProgressSyncAdapter)
   /// Evita import circular: VictoryScoringService no importa el adapter.
@@ -96,7 +121,10 @@ class VictoryScoringService {
       
       // Cargar umbral
       _threshold = _prefs?.getDouble(_keyThreshold) ?? defaultThreshold;
-      
+
+      // Cargar estado de recaída / gracia
+      _loadRelapseAndGraceState();
+
       // Cargar datos (SIEMPRE recargar de disco)
       await _loadVictoryByGiant();
       
@@ -313,6 +341,12 @@ class VictoryScoringService {
   Future<bool> logVictoryForToday() async {
     if (!canLogVictoryNow()) return false;
     await setDayAllGiants(DateTime.now(), 1);
+    // Marca la práctica "victoria" del día.
+    try {
+      // Lazy import para evitar ciclo.
+      // ignore: avoid_dynamic_calls
+      DailyPracticeService.I.mark(DailyPractice.victory);
+    } catch (_) {}
     return true;
   }
   
@@ -428,14 +462,147 @@ class VictoryScoringService {
   }
   
   // ═══════════════════════════════════════════════════════════════════════════
+  // RECAÍDA Y TOKENS DE GRACIA
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  int get lastBrokenStreak => _lastBrokenStreak;
+  String? get lastBreakDateISO => _lastBreakDateISO;
+  String? get journeyStartISO => _journeyStartISO;
+  int get graceTokens => _graceTokens;
+  Set<String> get graceDaysUsed => Set.from(_graceDaysUsed);
+
+  /// Porcentaje de días libres desde el inicio del camino [0.0 – 1.0].
+  double getFreedomPercentage() {
+    final startIso = _journeyStartISO;
+    if (startIso == null) return 0.0;
+    final start = _isoToDate(startIso);
+    if (start == null) return 0.0;
+    final today = DateTime.now();
+    final totalDays = today
+            .difference(DateTime(start.year, start.month, start.day))
+            .inDays +
+        1;
+    if (totalDays <= 0) return 0.0;
+    final victoryDays = _victoryByGiant.keys.where((iso) {
+      final d = _isoToDate(iso);
+      return d != null && !d.isBefore(start) && isVictoryDay(d);
+    }).length;
+    return (victoryDays / totalDays).clamp(0.0, 1.0);
+  }
+
+  /// Total de días desde que empezó el camino (para mostrar en UI).
+  int getJourneyDayCount() {
+    final startIso = _journeyStartISO;
+    if (startIso == null) return 0;
+    final start = _isoToDate(startIso);
+    if (start == null) return 0;
+    final today = DateTime.now();
+    return today
+            .difference(DateTime(start.year, start.month, start.day))
+            .inDays +
+        1;
+  }
+
+  /// ¿Hay una recaída aún no reconocida por el usuario?
+  bool get hasPendingRelapseAck {
+    if (_lastBrokenStreak < 3) return false;
+    if (_lastBreakDateISO == null) return false;
+    return _relapseAckDateISO != _lastBreakDateISO;
+  }
+
+  /// Usuario confirmó que vio la pantalla de gracia.
+  Future<void> acknowledgeRelapse() async {
+    _relapseAckDateISO = _lastBreakDateISO;
+    await _prefs?.setString(
+        _keyRelapseAckDateISO, _relapseAckDateISO ?? '');
+    relapseEventNotifier.value = null;
+    debugPrint('📊 [RELAPSE] Acknowledged break on $_relapseAckDateISO');
+  }
+
+  /// Usa 1 token de gracia para marcar [date] como día libre.
+  Future<bool> useGraceToken(DateTime date) async {
+    if (!_isInitialized) await init();
+    _refreshGraceTokensForCurrentMonth();
+    if (_graceTokens <= 0) return false;
+    if (_isFuture(date)) return false;
+
+    final iso = _dateToISO(date);
+    _victoryByGiant[iso] = {
+      for (final g in _selectedGiants) g: 1,
+    };
+    _graceDaysUsed.add(iso);
+    _graceTokens -= 1;
+
+    await _saveVictoryByGiant();
+    await _prefs?.setInt(_keyGraceTokens, _graceTokens);
+    await _prefs?.setStringList(_keyGraceDaysUsed, _graceDaysUsed.toList());
+
+    graceTokensNotifier.value = _graceTokens;
+    _updateAllNotifiers();
+    debugPrint('📊 [GRACE] Used token on $iso. Remaining: $_graceTokens');
+    onDayChanged?.call(date);
+    return true;
+  }
+
+  void _loadRelapseAndGraceState() {
+    _lastBrokenStreak = _prefs?.getInt(_keyLastBrokenStreak) ?? 0;
+    _lastBreakDateISO = _prefs?.getString(_keyLastBreakDateISO);
+    _relapseAckDateISO = _prefs?.getString(_keyRelapseAckDateISO);
+    _graceDaysUsed =
+        (_prefs?.getStringList(_keyGraceDaysUsed) ?? const []).toSet();
+    _journeyStartISO = _prefs?.getString(_keyJourneyStartISO);
+    if (_journeyStartISO == null) {
+      _journeyStartISO = _dateToISO(DateTime.now());
+      _prefs?.setString(_keyJourneyStartISO, _journeyStartISO!);
+    }
+    _refreshGraceTokensForCurrentMonth();
+  }
+
+  void _refreshGraceTokensForCurrentMonth() {
+    final now = DateTime.now();
+    final currentMonth =
+        '${now.year}-${now.month.toString().padLeft(2, '0')}';
+    final savedMonth = _prefs?.getString(_keyGraceTokensMonthISO);
+    if (savedMonth != currentMonth) {
+      _graceTokens = 1;
+      _prefs?.setInt(_keyGraceTokens, _graceTokens);
+      _prefs?.setString(_keyGraceTokensMonthISO, currentMonth);
+      debugPrint('📊 [GRACE] New month $currentMonth: granted 1 token');
+    } else {
+      _graceTokens = _prefs?.getInt(_keyGraceTokens) ?? 0;
+    }
+    graceTokensNotifier.value = _graceTokens;
+  }
+
+  /// Detecta si la racha previa era >=3 y cayó a 0.
+  void _detectRelapseIfAny(int previousStreak, int newStreak) {
+    if (previousStreak >= 3 && newStreak == 0) {
+      _lastBrokenStreak = previousStreak;
+      _lastBreakDateISO = _dateToISO(DateTime.now());
+      _prefs?.setInt(_keyLastBrokenStreak, _lastBrokenStreak);
+      _prefs?.setString(_keyLastBreakDateISO, _lastBreakDateISO!);
+      _relapseAckDateISO = null;
+      _prefs?.setString(_keyRelapseAckDateISO, '');
+      relapseEventNotifier.value = _lastBrokenStreak;
+      debugPrint(
+          '📊 [RELAPSE] Detected break: $previousStreak → 0 on $_lastBreakDateISO');
+    } else if (hasPendingRelapseAck) {
+      relapseEventNotifier.value = _lastBrokenStreak;
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // NOTIFICADORES
   // ═══════════════════════════════════════════════════════════════════════════
   
   void _updateAllNotifiers() {
-    currentStreakNotifier.value = getCurrentStreak();
+    final prev = currentStreakNotifier.value;
+    final newStreak = getCurrentStreak();
+    currentStreakNotifier.value = newStreak;
     loggedTodayNotifier.value = isLoggedToday();
     totalYearNotifier.value = getTotalVictoriesForYear(DateTime.now().year);
     bestStreakNotifier.value = getBestStreakAllTime();
+    _detectRelapseIfAny(prev, newStreak);
   }
   
   /// Forzar refresh de notificadores (útil para UI)

@@ -172,6 +172,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                       Image.asset(
                         tmpl.backgroundAsset!,
                         fit: BoxFit.cover,
+                        filterQuality: FilterQuality.high,
                         errorBuilder: (_, _, _) => Container(
                           color: tmpl.isDark
                               ? const Color(0xFF1A1A2E)

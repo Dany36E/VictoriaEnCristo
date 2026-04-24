@@ -6,9 +6,9 @@ import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
 import '../services/content_repository.dart';
 import '../services/audio_engine.dart';
+import '../services/daily_practice_service.dart';
 import '../models/content_item.dart';
 import '../models/content_enums.dart';
-
 /// ═══════════════════════════════════════════════════════════════════════════
 /// PRAYERS SCREEN — diseño premium adaptativo
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -52,6 +52,8 @@ class _PrayersScreenState extends State<PrayersScreen> {
     // Música tranquila de oración (assigned via music strategy)
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AudioEngine.I.switchBgmContext(BgmContext.prayer);
+      // Abrir la pantalla de oraciones marca la práctica "oración" del día.
+      DailyPracticeService.I.mark(DailyPractice.prayer);
     });
   }
 
@@ -379,6 +381,8 @@ class _CategoryBlock extends StatelessWidget {
                   children: [
                     Text(
                       category.title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -388,6 +392,8 @@ class _CategoryBlock extends StatelessWidget {
                     ),
                     Text(
                       category.subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 13,
                         color: themeData.textSecondary,
@@ -517,6 +523,8 @@ class _PrayerCard extends StatelessWidget {
                       ),
                     Text(
                       title,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -668,6 +676,8 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                             const SizedBox(height: 12),
                             Text(
                               widget.prayer.title,
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.w800,

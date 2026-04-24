@@ -1,0 +1,202 @@
+[
+  {
+    "id": "jn_3_16",
+    "bookNumber": 43,
+    "chapter": 3,
+    "verse": 16,
+    "verseEnd": 16,
+    "reference": "Juan 3:16",
+    "topic": "El amor de Dios",
+    "situations": ["identidad", "fe"]
+  },
+  {
+    "id": "fil_4_13",
+    "bookNumber": 50,
+    "chapter": 4,
+    "verse": 13,
+    "verseEnd": 13,
+    "reference": "Filipenses 4:13",
+    "topic": "Fuerza en Cristo",
+    "situations": ["tentacion", "proposito"]
+  },
+  {
+    "id": "fil_4_6_7",
+    "bookNumber": 50,
+    "chapter": 4,
+    "verse": 6,
+    "verseEnd": 7,
+    "reference": "Filipenses 4:6-7",
+    "topic": "Paz que sobrepasa",
+    "situations": ["ansiedad"]
+  },
+  {
+    "id": "sal_23_1",
+    "bookNumber": 19,
+    "chapter": 23,
+    "verse": 1,
+    "verseEnd": 1,
+    "reference": "Salmos 23:1",
+    "topic": "El Señor es mi pastor",
+    "situations": ["ansiedad", "soledad"]
+  },
+  {
+    "id": "sal_46_1",
+    "bookNumber": 19,
+    "chapter": 46,
+    "verse": 1,
+    "verseEnd": 1,
+    "reference": "Salmos 46:1",
+    "topic": "Refugio y fortaleza",
+    "situations": ["ansiedad", "tentacion"]
+  },
+  {
+    "id": "prov_3_5_6",
+    "bookNumber": 20,
+    "chapter": 3,
+    "verse": 5,
+    "verseEnd": 6,
+    "reference": "Proverbios 3:5-6",
+    "topic": "Confía en Jehová",
+    "situations": ["decisiones", "fe"]
+  },
+  {
+    "id": "is_41_10",
+    "bookNumber": 23,
+    "chapter": 41,
+    "verse": 10,
+    "verseEnd": 10,
+    "reference": "Isaías 41:10",
+    "topic": "No temas, yo soy contigo",
+    "situations": ["ansiedad", "soledad"]
+  },
+  {
+    "id": "is_40_31",
+    "bookNumber": 23,
+    "chapter": 40,
+    "verse": 31,
+    "verseEnd": 31,
+    "reference": "Isaías 40:31",
+    "topic": "Nuevas fuerzas",
+    "situations": ["agotamiento", "fe"]
+  },
+  {
+    "id": "rom_8_28",
+    "bookNumber": 45,
+    "chapter": 8,
+    "verse": 28,
+    "verseEnd": 28,
+    "reference": "Romanos 8:28",
+    "topic": "Todo ayuda a bien",
+    "situations": ["sufrimiento", "proposito"]
+  },
+  {
+    "id": "rom_12_2",
+    "bookNumber": 45,
+    "chapter": 12,
+    "verse": 2,
+    "verseEnd": 2,
+    "reference": "Romanos 12:2",
+    "topic": "Renovación de la mente",
+    "situations": ["tentacion", "identidad"]
+  },
+  {
+    "id": "2cor_5_17",
+    "bookNumber": 47,
+    "chapter": 5,
+    "verse": 17,
+    "verseEnd": 17,
+    "reference": "2 Corintios 5:17",
+    "topic": "Nueva criatura",
+    "situations": ["identidad"]
+  },
+  {
+    "id": "ef_6_11",
+    "bookNumber": 49,
+    "chapter": 6,
+    "verse": 11,
+    "verseEnd": 11,
+    "reference": "Efesios 6:11",
+    "topic": "Armadura de Dios",
+    "situations": ["tentacion"]
+  },
+  {
+    "id": "sant_4_7",
+    "bookNumber": 59,
+    "chapter": 4,
+    "verse": 7,
+    "verseEnd": 7,
+    "reference": "Santiago 4:7",
+    "topic": "Resistid al diablo",
+    "situations": ["tentacion"]
+  },
+  {
+    "id": "1cor_10_13",
+    "bookNumber": 46,
+    "chapter": 10,
+    "verse": 13,
+    "verseEnd": 13,
+    "reference": "1 Corintios 10:13",
+    "topic": "Salida en la tentación",
+    "situations": ["tentacion"]
+  },
+  {
+    "id": "sal_51_10",
+    "bookNumber": 19,
+    "chapter": 51,
+    "verse": 10,
+    "verseEnd": 10,
+    "reference": "Salmos 51:10",
+    "topic": "Crea en mí un corazón limpio",
+    "situations": ["arrepentimiento", "perdon"]
+  },
+  {
+    "id": "1jn_1_9",
+    "bookNumber": 62,
+    "chapter": 1,
+    "verse": 9,
+    "verseEnd": 9,
+    "reference": "1 Juan 1:9",
+    "topic": "Perdón al confesar",
+    "situations": ["perdon", "arrepentimiento"]
+  },
+  {
+    "id": "mt_11_28",
+    "bookNumber": 40,
+    "chapter": 11,
+    "verse": 28,
+    "verseEnd": 28,
+    "reference": "Mateo 11:28",
+    "topic": "Descanso en Jesús",
+    "situations": ["agotamiento", "ansiedad"]
+  },
+  {
+    "id": "mt_6_33",
+    "bookNumber": 40,
+    "chapter": 6,
+    "verse": 33,
+    "verseEnd": 33,
+    "reference": "Mateo 6:33",
+    "topic": "Buscad primero el reino",
+    "situations": ["proposito", "decisiones"]
+  },
+  {
+    "id": "jos_1_9",
+    "bookNumber": 6,
+    "chapter": 1,
+    "verse": 9,
+    "verseEnd": 9,
+    "reference": "Josué 1:9",
+    "topic": "Esfuérzate y sé valiente",
+    "situations": ["temor", "proposito"]
+  },
+  {
+    "id": "heb_4_16",
+    "bookNumber": 58,
+    "chapter": 4,
+    "verse": 16,
+    "verseEnd": 16,
+    "reference": "Hebreos 4:16",
+    "topic": "Trono de la gracia",
+    "situations": ["oracion", "ansiedad"]
+  }
+]

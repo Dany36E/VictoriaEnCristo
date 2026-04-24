@@ -135,7 +135,15 @@ class BattleMessageData {
 }
 
 /// Resultado de una operación de invitación
-enum InviteResultType { success, selfInvite, alreadyLinked, limitReached, notFound, error }
+enum InviteResultType {
+  success,
+  selfInvite,
+  alreadyLinked,
+  limitReached,
+  notFound,
+  targetPaused,
+  error,
+}
 
 class InviteResult {
   final InviteResultType type;

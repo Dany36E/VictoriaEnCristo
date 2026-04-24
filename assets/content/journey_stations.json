@@ -1,0 +1,416 @@
+[
+  {
+    "id": "creacion",
+    "order": 1,
+    "era": "old",
+    "title": "La Creación",
+    "subtitle": "En el principio...",
+    "icon": "brightness_5",
+    "narrative": "Antes de que existiera el tiempo, Dios era. En seis días ordenó el caos: separó la luz de las tinieblas, formó los mares y la tierra, sembró plantas, lanzó estrellas al cielo, llenó las aguas de peces y los campos de criaturas. El sexto día, Dios hizo algo único: formó al ser humano a su propia imagen, varón y mujer, y les dio autoridad sobre todo lo creado. Vio todo lo que había hecho y dijo: «es muy bueno». Al séptimo día descansó.",
+    "keyVerseReference": "Génesis 1:27",
+    "keyVerseText": "Y creó Dios al hombre a su imagen, a imagen de Dios lo creó; varón y hembra los creó.",
+    "questions": [
+      {
+        "prompt": "¿En cuántos días creó Dios el mundo según Génesis?",
+        "options": ["3 días", "6 días", "7 días", "40 días"],
+        "correctIndex": 1,
+        "explanation": "Dios creó en 6 días y descansó el séptimo."
+      },
+      {
+        "prompt": "¿Qué hizo Dios diferente al crear al ser humano?",
+        "options": [
+          "Lo hizo del agua",
+          "Lo creó el día siete",
+          "Lo formó a su imagen",
+          "No intervino directamente"
+        ],
+        "correctIndex": 2,
+        "explanation": "El ser humano fue creado a imagen de Dios, lo que le da dignidad única."
+      },
+      {
+        "prompt": "Al terminar la creación, Dios la llamó…",
+        "options": ["neutral", "incompleta", "muy buena", "peligrosa"],
+        "correctIndex": 2
+      }
+    ],
+    "reflectionPrompt": "Eres portador de la imagen de Dios. ¿Qué significa eso para cómo te ves hoy a ti mismo?",
+    "xpReward": 20
+  },
+  {
+    "id": "caida",
+    "order": 2,
+    "era": "old",
+    "title": "La Caída",
+    "subtitle": "El primer quiebre",
+    "icon": "heart_broken",
+    "narrative": "Dios puso a Adán y Eva en un huerto llamado Edén. Les dio libertad total, salvo un árbol: el del conocimiento del bien y el mal. La serpiente engañó a Eva: «¿Es verdad que Dios les dijo…?» Eva comió, Adán comió. Sus ojos se abrieron, se escondieron avergonzados. Dios los buscó. Hubo consecuencias: dolor, sudor, muerte, expulsión del huerto. Pero en medio del juicio, una promesa: la descendencia de la mujer aplastaría la cabeza de la serpiente.",
+    "keyVerseReference": "Génesis 3:15",
+    "keyVerseText": "Y pondré enemistad entre ti y la mujer, y entre tu simiente y la simiente suya; ésta te herirá en la cabeza, y tú le herirás en el calcañar.",
+    "questions": [
+      {
+        "prompt": "¿Qué árbol les prohibió Dios?",
+        "options": [
+          "El árbol de la vida",
+          "El árbol del conocimiento del bien y del mal",
+          "El árbol del fruto dulce",
+          "El árbol del Edén"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Quién tentó primero a Eva?",
+        "options": ["Un ángel", "La serpiente", "Adán", "Nadie"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "A pesar del juicio, Dios dio una…",
+        "options": ["maldición eterna", "segunda oportunidad inmediata", "promesa de un libertador", "nueva lista de reglas"],
+        "correctIndex": 2,
+        "explanation": "Génesis 3:15 es la primera promesa del Mesías."
+      }
+    ],
+    "reflectionPrompt": "¿Qué «voz de serpiente» (mentira pequeña) te ha estado susurrando esta semana?",
+    "xpReward": 20
+  },
+  {
+    "id": "diluvio",
+    "order": 3,
+    "era": "old",
+    "title": "El Arca de Noé",
+    "subtitle": "Gracia en medio del juicio",
+    "icon": "sailing",
+    "narrative": "Generaciones después, la maldad había llenado la tierra. Dios decidió reiniciar. Pero encontró a un hombre justo: Noé. Le ordenó construir un arca enorme mientras todos se burlaban. 120 años de martillazos y advertencias ignoradas. Luego llovió 40 días y 40 noches. La tierra fue limpiada. Cuando las aguas bajaron, Dios hizo un pacto con Noé y toda la humanidad: nunca más destruiría la tierra así. La señal: un arcoíris.",
+    "keyVerseReference": "Génesis 6:8",
+    "keyVerseText": "Pero Noé halló gracia ante los ojos de Jehová.",
+    "questions": [
+      {
+        "prompt": "¿Cuánto tiempo llovió durante el diluvio?",
+        "options": ["7 días", "40 días y 40 noches", "1 año", "100 días"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Cuál fue la señal del pacto de Dios con Noé?",
+        "options": ["Una paloma", "Un arcoíris", "Una estrella", "Una espada"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Qué halló Noé ante los ojos de Dios?",
+        "options": ["perfección", "riqueza", "gracia", "sabiduría"],
+        "correctIndex": 2
+      }
+    ],
+    "reflectionPrompt": "Noé trabajó 120 años sin ver resultados visibles. ¿Qué «arca» estás construyendo hoy por obediencia?",
+    "xpReward": 25
+  },
+  {
+    "id": "abraham",
+    "order": 4,
+    "era": "old",
+    "title": "Abraham",
+    "subtitle": "Padre de la fe",
+    "icon": "public",
+    "narrative": "Dios eligió a un hombre de 75 años llamado Abram y le pidió algo absurdo: deja tu tierra, tu familia, todo lo conocido, y ve a un lugar que te mostraré. Y Abram fue. Dios le prometió una descendencia tan numerosa como las estrellas, aunque su esposa Sara era estéril. Años después nació Isaac, el hijo de la promesa. Entonces Dios probó a Abraham: «Ofrece a tu hijo.» Abraham obedeció, pero en el último momento Dios detuvo su mano y proveyó un carnero. Abraham creyó a Dios, y le fue contado por justicia.",
+    "keyVerseReference": "Génesis 15:6",
+    "keyVerseText": "Y creyó a Jehová, y le fue contado por justicia.",
+    "questions": [
+      {
+        "prompt": "¿Qué le pidió Dios a Abram al llamarlo?",
+        "options": [
+          "Que escribiera un libro",
+          "Que construyera un templo",
+          "Que dejara su tierra y su familia",
+          "Que conquistara naciones"
+        ],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿A qué comparó Dios la descendencia de Abraham?",
+        "options": ["A los granos de trigo", "A las estrellas del cielo", "A las gotas de lluvia", "A los árboles del bosque"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Qué proveyó Dios en lugar de Isaac en el sacrificio?",
+        "options": ["Un cordero", "Un carnero", "Una paloma", "Nada"],
+        "correctIndex": 1
+      }
+    ],
+    "reflectionPrompt": "¿Qué cosa conocida y cómoda te está pidiendo Dios soltar para seguirlo?",
+    "xpReward": 25
+  },
+  {
+    "id": "exodo",
+    "order": 5,
+    "era": "old",
+    "title": "Moisés y el Éxodo",
+    "subtitle": "De la esclavitud a la libertad",
+    "icon": "directions_walk",
+    "narrative": "400 años después, los descendientes de Abraham eran esclavos en Egipto. Dios escuchó sus gemidos y llamó a Moisés desde una zarza ardiente. «Te envío a Faraón.» Diez plagas sacudieron Egipto. En la última noche, cada familia israelita sacrificó un cordero y pintó la sangre en los dinteles; el ángel de la muerte pasó de largo. Es la Pascua. Al huir, quedaron atrapados ante el Mar Rojo, pero Dios lo abrió. En el monte Sinaí recibieron los Diez Mandamientos.",
+    "keyVerseReference": "Éxodo 3:14",
+    "keyVerseText": "Y respondió Dios a Moisés: YO SOY EL QUE SOY. Y dijo: Así dirás a los hijos de Israel: YO SOY me envió a vosotros.",
+    "questions": [
+      {
+        "prompt": "¿Desde dónde habló Dios a Moisés por primera vez?",
+        "options": ["Una nube", "Una zarza ardiente", "El templo", "Un sueño"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Cuántas plagas cayeron sobre Egipto?",
+        "options": ["7", "9", "10", "12"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Qué milagro hizo Dios al huir los israelitas de Egipto?",
+        "options": [
+          "Envió fuego del cielo",
+          "Abrió el Mar Rojo",
+          "Multiplicó los panes",
+          "Los hizo invisibles"
+        ],
+        "correctIndex": 1
+      }
+    ],
+    "reflectionPrompt": "YO SOY. Dios se define en presente. ¿En qué área de tu vida necesitas recordar que Él ES hoy, no solo ayer?",
+    "xpReward": 30
+  },
+  {
+    "id": "david",
+    "order": 6,
+    "era": "old",
+    "title": "David, el rey según el corazón de Dios",
+    "subtitle": "De pastor a rey",
+    "icon": "star",
+    "narrative": "Israel quería un rey como las demás naciones. Saúl falló. Dios envió a Samuel a Belén, a casa de Isaí. Pasaron siete hijos delante, todos fuertes. «Ninguno.» Trajeron al pequeño, David, un pastor. «Este es.» Años después, un gigante filisteo llamado Goliat desafió al ejército de Israel. Nadie se atrevió. El joven David, con una honda y cinco piedras, dijo: «Vengo en el nombre de Jehová.» Una piedra voló, el gigante cayó. David escribió muchos de los Salmos, cantos del alma humana ante Dios.",
+    "keyVerseReference": "1 Samuel 16:7",
+    "keyVerseText": "Porque Jehová no mira lo que mira el hombre; pues el hombre mira lo que está delante de sus ojos, pero Jehová mira el corazón.",
+    "questions": [
+      {
+        "prompt": "¿Cuál era el oficio de David antes de ser rey?",
+        "options": ["Carpintero", "Pastor de ovejas", "Soldado", "Pescador"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Con qué venció David a Goliat?",
+        "options": ["Una espada", "Una honda y una piedra", "Un arco", "Sus manos"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Qué libro poético escribió principalmente David?",
+        "options": ["Proverbios", "Eclesiastés", "Salmos", "Cantares"],
+        "correctIndex": 2
+      }
+    ],
+    "reflectionPrompt": "Dios no mira tu apariencia ni tu currículum, mira tu corazón. ¿Qué encontraría hoy al mirarte?",
+    "xpReward": 30
+  },
+  {
+    "id": "profetas",
+    "order": 7,
+    "era": "old",
+    "title": "Los Profetas",
+    "subtitle": "Voces en la oscuridad",
+    "icon": "campaign",
+    "narrative": "Después de David, Israel se dividió y cayó en idolatría. Dios envió profetas: Isaías predijo un Mesías sufriente que cargaría los pecados del pueblo. Jeremías lloró por Jerusalén mientras anunciaba su caída. Daniel sirvió en Babilonia, salió ileso del foso de los leones, vio visiones del fin. Jonás huyó de Dios en un barco, fue tragado por un gran pez, finalmente predicó a Nínive y la ciudad se arrepintió. Durante 400 años después de Malaquías, Dios guardó silencio. El pueblo esperaba.",
+    "keyVerseReference": "Isaías 53:5",
+    "keyVerseText": "Mas él herido fue por nuestras rebeliones, molido por nuestros pecados; el castigo de nuestra paz fue sobre él, y por su llaga fuimos nosotros curados.",
+    "questions": [
+      {
+        "prompt": "¿Qué profeta predijo un Mesías sufriente?",
+        "options": ["Jonás", "Daniel", "Isaías", "Jeremías"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Qué le pasó a Jonás por huir de Dios?",
+        "options": [
+          "Se quedó ciego",
+          "Fue tragado por un gran pez",
+          "Se perdió en el desierto",
+          "Fue apedreado"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Cuántos años aproximadamente hubo entre Malaquías y Jesús?",
+        "options": ["40", "100", "400", "1000"],
+        "correctIndex": 2
+      }
+    ],
+    "reflectionPrompt": "Jesús fue herido por tus rebeliones. ¿Qué carga le estás dando hoy para que la lleve?",
+    "xpReward": 30
+  },
+  {
+    "id": "nacimiento",
+    "order": 8,
+    "era": "gospels",
+    "title": "El Nacimiento de Jesús",
+    "subtitle": "El Verbo hecho carne",
+    "icon": "star_border",
+    "narrative": "En un pequeño pueblo llamado Nazaret, el ángel Gabriel visitó a una joven virgen llamada María. «Concebirás por el Espíritu Santo y darás a luz al Hijo de Dios.» Meses después, un decreto imperial los llevó a Belén, la ciudad de David. No había lugar en el mesón. Jesús nació en un pesebre. Ángeles anunciaron la noticia a pastores en el campo; magos del oriente siguieron una estrella y trajeron oro, incienso y mirra. El Rey del universo entró al mundo como un bebé indefenso.",
+    "keyVerseReference": "Juan 1:14",
+    "keyVerseText": "Y aquel Verbo fue hecho carne, y habitó entre nosotros (y vimos su gloria, gloria como del unigénito del Padre), lleno de gracia y de verdad.",
+    "questions": [
+      {
+        "prompt": "¿En qué pueblo nació Jesús?",
+        "options": ["Nazaret", "Belén", "Jerusalén", "Galilea"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Quién anunció a María que sería madre de Jesús?",
+        "options": ["Gabriel", "Miguel", "Juan", "Elías"],
+        "correctIndex": 0
+      },
+      {
+        "prompt": "¿Qué regalos trajeron los magos?",
+        "options": [
+          "Pan, vino y aceite",
+          "Oro, incienso y mirra",
+          "Oro, plata y seda",
+          "Libros, túnicas y sandalias"
+        ],
+        "correctIndex": 1
+      }
+    ],
+    "reflectionPrompt": "Dios entró al mundo como un bebé indefenso. ¿Qué te enseña esto sobre cómo Dios quiere acercarse a ti?",
+    "xpReward": 30
+  },
+  {
+    "id": "ministerio",
+    "order": 9,
+    "era": "gospels",
+    "title": "El Ministerio de Jesús",
+    "subtitle": "Reino, milagros, parábolas",
+    "icon": "auto_awesome",
+    "narrative": "A los 30 años, Jesús fue bautizado por Juan en el Jordán. El Espíritu descendió como paloma. Cuarenta días en el desierto resistiendo tentaciones. Luego comenzó a enseñar: «El reino de Dios se ha acercado.» Llamó a doce discípulos ordinarios: pescadores, un recaudador de impuestos, un zelote. Sanó ciegos, cojos, leprosos. Multiplicó panes y peces. Caminó sobre el mar. Resucitó a Lázaro. Habló en parábolas: el hijo pródigo, el buen samaritano, el sembrador. Lo amaron los pobres y los pecadores; lo odiaron los religiosos.",
+    "keyVerseReference": "Marcos 1:15",
+    "keyVerseText": "Diciendo: El tiempo se ha cumplido, y el reino de Dios se ha acercado; arrepentíos, y creed en el evangelio.",
+    "questions": [
+      {
+        "prompt": "¿A qué edad comenzó Jesús su ministerio público?",
+        "options": ["Alrededor de los 12", "Alrededor de los 30", "Alrededor de los 40", "Alrededor de los 50"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Cuántos discípulos cercanos escogió Jesús?",
+        "options": ["3", "7", "12", "70"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Qué tema central predicaba Jesús?",
+        "options": [
+          "El fin del mundo",
+          "La reforma política",
+          "El reino de Dios",
+          "La prosperidad material"
+        ],
+        "correctIndex": 2
+      }
+    ],
+    "reflectionPrompt": "Jesús llamó a personas comunes y las transformó. ¿Qué parte de tu vida ordinaria puede Dios usar hoy?",
+    "xpReward": 30
+  },
+  {
+    "id": "cruz",
+    "order": 10,
+    "era": "gospels",
+    "title": "La Cruz",
+    "subtitle": "Consumado es",
+    "icon": "add",
+    "narrative": "Judas lo traicionó por treinta piezas de plata. En el huerto de Getsemaní, Jesús sudó gotas de sangre. «Padre, si es posible, pase de mí esta copa; pero no se haga mi voluntad, sino la tuya.» Lo arrestaron. Lo juzgaron injustamente. Pedro lo negó tres veces. Pilato se lavó las manos. La multitud gritó «¡Crucifícalo!». Lo azotaron, le pusieron corona de espinas, lo clavaron en una cruz. Tres horas de oscuridad cubrieron la tierra. «Padre, en tus manos encomiendo mi espíritu.» El velo del templo se rasgó de arriba abajo. Jesús murió. Por ti.",
+    "keyVerseReference": "Juan 19:30",
+    "keyVerseText": "Cuando Jesús hubo tomado el vinagre, dijo: Consumado es. Y habiendo inclinado la cabeza, entregó el espíritu.",
+    "questions": [
+      {
+        "prompt": "¿Por cuánto traicionó Judas a Jesús?",
+        "options": ["10 piezas de plata", "30 piezas de plata", "100 denarios", "Un talento de oro"],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Cuántas veces negó Pedro a Jesús?",
+        "options": ["Una", "Dos", "Tres", "Siete"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Qué ocurrió en el templo al morir Jesús?",
+        "options": [
+          "Se derrumbó",
+          "Se llenó de luz",
+          "Se rasgó el velo de arriba abajo",
+          "Se incendió"
+        ],
+        "correctIndex": 2,
+        "explanation": "El velo rasgado simbolizaba que el camino a Dios quedaba abierto para todos."
+      }
+    ],
+    "reflectionPrompt": "«Consumado es.» No hay nada que añadir. ¿Qué pecado o vergüenza sigues tratando de pagar tú mismo?",
+    "xpReward": 40
+  },
+  {
+    "id": "resurreccion",
+    "order": 11,
+    "era": "gospels",
+    "title": "La Resurrección",
+    "subtitle": "¡Ha resucitado!",
+    "icon": "brightness_high",
+    "narrative": "El domingo muy temprano, María Magdalena y otras mujeres fueron al sepulcro. La piedra estaba rodada. Un ángel dijo: «No está aquí, ha resucitado, como dijo.» Corrieron. Jesús se apareció a María. Luego a los discípulos en una habitación cerrada. A Tomás, que dudó hasta meter el dedo en las heridas. A más de 500 personas. Cuarenta días enseñando. Luego, en el monte de los Olivos, dio la Gran Comisión: «Id, haced discípulos de todas las naciones.» Ascendió al cielo. Dos ángeles dijeron: «Así vendrá como le habéis visto ir.»",
+    "keyVerseReference": "Mateo 28:6",
+    "keyVerseText": "No está aquí, pues ha resucitado, como dijo. Venid, ved el lugar donde fue puesto el Señor.",
+    "questions": [
+      {
+        "prompt": "¿Qué día de la semana resucitó Jesús?",
+        "options": ["Viernes", "Sábado", "Domingo", "Lunes"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Quién vio primero al Jesús resucitado?",
+        "options": ["Pedro", "Juan", "María Magdalena", "Tomás"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Qué encomienda dejó Jesús antes de ascender?",
+        "options": [
+          "Construir templos",
+          "Hacer discípulos de todas las naciones",
+          "Escribir la Biblia",
+          "Esperar en silencio"
+        ],
+        "correctIndex": 1
+      }
+    ],
+    "reflectionPrompt": "Jesús está vivo. Eso cambia todo. ¿Qué situación de tu vida necesita hoy esta verdad?",
+    "xpReward": 40
+  },
+  {
+    "id": "pentecostes",
+    "order": 12,
+    "era": "church",
+    "title": "Pentecostés",
+    "subtitle": "El Espíritu derramado",
+    "icon": "local_fire_department",
+    "narrative": "Diez días después de la ascensión, 120 discípulos estaban reunidos en Jerusalén orando. De repente, un estruendo como viento recio llenó la casa. Lenguas como de fuego se posaron sobre cada uno. Fueron llenos del Espíritu Santo y empezaron a hablar en idiomas que no habían aprendido. Peregrinos de toda la región escucharon el evangelio en su lengua materna. Pedro predicó; tres mil personas se convirtieron ese día. Así nació la Iglesia. De ahí, Pablo, Pedro, Juan y muchos otros llevaron el evangelio desde Jerusalén hasta los confines de la tierra. La travesía continúa contigo.",
+    "keyVerseReference": "Hechos 1:8",
+    "keyVerseText": "Pero recibiréis poder, cuando haya venido sobre vosotros el Espíritu Santo, y me seréis testigos en Jerusalén, en toda Judea, en Samaria, y hasta lo último de la tierra.",
+    "questions": [
+      {
+        "prompt": "¿Qué ocurrió en Pentecostés?",
+        "options": [
+          "Jesús volvió a la tierra",
+          "Se derramó el Espíritu Santo",
+          "Se construyó el primer templo cristiano",
+          "Se escribió el Nuevo Testamento"
+        ],
+        "correctIndex": 1
+      },
+      {
+        "prompt": "¿Cuántas personas se convirtieron tras la predicación de Pedro?",
+        "options": ["120", "500", "3000", "10000"],
+        "correctIndex": 2
+      },
+      {
+        "prompt": "¿Qué recibirían los discípulos al venir el Espíritu?",
+        "options": ["Riquezas", "Poder", "Fama", "Descanso"],
+        "correctIndex": 1
+      }
+    ],
+    "reflectionPrompt": "La travesía bíblica termina contigo siendo parte de la historia. ¿A quién podría Dios enviarte esta semana con una palabra de esperanza?",
+    "xpReward": 50
+  }
+]

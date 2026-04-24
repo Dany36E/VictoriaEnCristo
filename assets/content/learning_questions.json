@@ -221,7 +221,7 @@
     "options": ["Isaías", "Jeremías", "Ezequiel", "Daniel"],
     "correctIndex": 2,
     "explanation": "Ezequiel 37 — visión de restauración del pueblo en el exilio.",
-    "reference": "Ezequiel 37",
+    "reference": "Profeta del exilio",
     "tags": ["profetas", "restauracion"],
     "difficulty": 2
   },
@@ -455,7 +455,7 @@
     "prompt": "Estás bajo una fuerte tentación antes de dormir. ¿Cuál es la respuesta bíblica más sabia?",
     "options": [
       "Ignorarla con fuerza de voluntad",
-      "Huir de la situación y orar (2 Timoteo 2:22)",
+      "Huir de la situación y orar",
       "Negociar con ella",
       "Esperar a que pase sola"
     ],
@@ -472,7 +472,7 @@
     "options": [
       "Publicarlo para que todos sepan",
       "Guardar silencio y alejarte",
-      "Hablar con él a solas (Mateo 18:15)",
+      "Hablar con él a solas",
       "Devolver la ofensa"
     ],
     "correctIndex": 2,

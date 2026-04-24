@@ -1,3 +1,7 @@
+import 'dart:convert';
+
+import 'package:flutter/services.dart';
+
 class Devotional {
   final int day;
   final String title;
@@ -16,10 +20,23 @@ class Devotional {
     required this.challenge,
     required this.prayer,
   });
+
+  factory Devotional.fromJson(Map<String, dynamic> json) => Devotional(
+        day: json['day'] as int,
+        title: json['title'] as String,
+        verse: json['verse'] as String,
+        verseReference: json['verseReference'] as String,
+        reflection: json['reflection'] as String,
+        challenge: json['challenge'] as String,
+        prayer: json['prayer'] as String,
+      );
 }
 
 class Devotionals {
-  static const List<Devotional> allDevotionals = [
+  /// Devocionales por defecto (fallback hardcodeado). Se pueden actualizar
+  /// en tiempo de arranque desde `assets/content/devotionals.json` via
+  /// [init], sin necesidad de recompilar el c\u00f3digo.
+  static const List<Devotional> _fallbackDevotionals = [
     // SEMANA 1: FUNDAMENTOS
     Devotional(
       day: 1,
@@ -49,16 +66,16 @@ No se trata solo de leer la Biblia, sino de guardarla en nuestro corazón, medit
     ),
     Devotional(
       day: 3,
-      title: "Huir, No Negociar",
+      title: "Correr Hacia la Libertad",
       verse: "Huid de la fornicación. Cualquier otro pecado que el hombre cometa, está fuera del cuerpo; mas el que fornica, contra su propio cuerpo peca.",
       verseReference: "1 Corintios 6:18",
-      reflection: '''La Biblia no dice "resiste" la inmoralidad sexual, dice "HUYE". Hay una diferencia importante.
+      reflection: '''La Biblia no dice "resiste" la inmoralidad sexual, dice "huye". Pero huir no significa huir con miedo, sino correr hacia algo mejor: la libertad que Cristo ya compró para ti.
 
-Cuando intentamos negociar con la tentación, cuando decimos "solo un poco" o "solo esta vez", ya hemos perdido la batalla.
+Negociar con la tentación suele desgastarnos. No tienes que pelear en su terreno. Puedes simplemente alejarte con paz, sabiendo que no estás escapando de un enemigo más fuerte que tú, sino moviéndote hacia el lugar donde Dios ya ganó la batalla.
 
-José, cuando fue tentado por la esposa de Potifar, no se quedó a discutir. Huyó, dejando incluso su manto atrás. Esa es la actitud que debemos tener.''',
-      challenge: "Identifica las situaciones o lugares que te llevan a la tentación. Hoy, establece límites claros. Si es necesario, elimina aplicaciones, bloquea sitios web, o evita ciertos lugares.",
-      prayer: "Señor, dame la sabiduría para reconocer las situaciones de peligro y el valor para huir. No quiero negociar con el pecado, quiero correr hacia Ti. Amén.",
+José, cuando fue tentado por la esposa de Potifar, no se quedó a discutir ni se castigó por sentir la tentación: se movió. Dejó el manto, siguió caminando. La huida fue un acto de sabiduría, no de cobardía.''',
+      challenge: "Con mansedumbre, identifica 1 o 2 situaciones que te exponen innecesariamente. Sin culparte, pon un pequeño límite hoy: eliminar una app, bloquear un sitio, cambiar una rutina. Un paso pequeño es suficiente.",
+      prayer: "Padre, gracias porque Tu gracia va delante de mí. Dame ojos para reconocer los terrenos difíciles y pies libres para alejarme sin pelear. No quiero negociar con lo que me aleja de Ti; quiero correr hacia Ti. Amén.",
     ),
     Devotional(
       day: 4,
@@ -415,6 +432,31 @@ Esto no termina aquí. Cada día es una nueva oportunidad de victoria.''',
       prayer: "Gracias Señor por este mes. La victoria es posible en Ti. Continúo adelante. Amén.",
     ),
   ];
+
+  /// Lista viva: inicia con el fallback y se reemplaza tras [init].
+  static List<Devotional> _cache = List<Devotional>.unmodifiable(_fallbackDevotionals);
+  static bool _initialized = false;
+
+  /// Carga los devocionales desde el asset JSON. Si falla, se conserva el
+  /// fallback hardcodeado. Seguro de llamar m\u00e1s de una vez.
+  static Future<void> init() async {
+    if (_initialized) return;
+    _initialized = true;
+    try {
+      final raw = await rootBundle.loadString('assets/content/devotionals.json');
+      final data = jsonDecode(raw) as List<dynamic>;
+      final parsed = data
+          .map((e) => Devotional.fromJson(e as Map<String, dynamic>))
+          .toList(growable: false);
+      if (parsed.isNotEmpty) {
+        _cache = List<Devotional>.unmodifiable(parsed);
+      }
+    } catch (_) {
+      // Mantener fallback silenciosamente; el app debe seguir funcionando.
+    }
+  }
+
+  static List<Devotional> get allDevotionals => _cache;
 
   static List<Devotional> get weeklyDevotionals => allDevotionals.take(7).toList();
   

@@ -15,6 +15,8 @@ import 'plan_progress_service.dart';
 import 'plan_repository.dart';
 import 'bible/bible_reading_stats_service.dart';
 import 'bible/bible_user_data_service.dart';
+import 'learning/learning_progress_service.dart';
+import 'learning/verse_memory_service.dart';
 
 class BadgeService {
   // ── Singleton ──
@@ -77,6 +79,10 @@ class BadgeService {
         return BibleUserDataService.I.highlightsNotifier.value.length;
       case BadgeCategory.favorites:
         return FavoritesService().count;
+      case BadgeCategory.quiz:
+        return LearningProgressService.I.progressNotifier.value.sessionsCompleted;
+      case BadgeCategory.memory:
+        return VerseMemoryService.I.masteredCount;
     }
   }
 

@@ -74,10 +74,11 @@ class JournalEntryCloud {
     List<String> triggers = const [],
     bool hadVictory = true,
     String? verseOfDay,
+    String? id,
   }) {
     final now = DateTime.now();
     return JournalEntryCloud(
-      id: '${now.millisecondsSinceEpoch}',
+      id: id ?? '${now.millisecondsSinceEpoch}',
       dateISO: _dateToISO(now),
       timestamp: now,
       content: content,
