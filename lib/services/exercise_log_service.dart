@@ -104,6 +104,76 @@ class ExerciseLogService extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Descarga el log del usuario desde Firestore al iniciar sesión.
+  /// Se invoca desde `AccountSessionManager._bootstrapNewUser` después
+  /// de la conexión de los repositorios principales.
+  ///
+  /// Estrategia: union last-write-wins por `id` (millis). La nube es
+  /// autoritativa para entradas que sólo existen allí; entradas locales
+  /// que no están en cloud se suben en background.
+  Future<void> hydrateFromCloud() async {
+    if (!_initialized) await init();
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final snap = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('exerciseLogs')
+          .orderBy('completedAt', descending: true)
+          .limit(_kMaxLocal)
+          .get();
+      if (snap.docs.isEmpty) {
+        // Si hay data local y no hay cloud, sube el local.
+        unawaited(_backfillRemote());
+        return;
+      }
+      // Merge: byId, prefer cloud.
+      final byId = <String, ExerciseCompletion>{
+        for (final e in _entries) e.id: e,
+      };
+      for (final doc in snap.docs) {
+        try {
+          final c = ExerciseCompletion.fromJson(doc.data());
+          byId[c.id] = c;
+        } catch (_) {}
+      }
+      final merged = byId.values.toList()
+        ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+      _entries
+        ..clear()
+        ..addAll(merged.take(_kMaxLocal));
+      notifyListeners();
+      unawaited(_persistLocal());
+      // Subir locales que no estén en cloud (idempotente por id).
+      unawaited(_backfillRemote());
+      debugPrint('🏋️ [ExerciseLog] Hydrated ${_entries.length} entries from cloud');
+    } catch (e) {
+      debugPrint('⚠️ [ExerciseLog] hydrateFromCloud error: $e');
+    }
+  }
+
+  /// Sube las entradas locales que aún no existen en Firestore (best-effort).
+  Future<void> _backfillRemote() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null || _entries.isEmpty) return;
+    try {
+      final col = FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('exerciseLogs');
+      // Batch de hasta 50 writes (Firestore admite 500 por batch).
+      final batch = FirebaseFirestore.instance.batch();
+      final slice = _entries.take(50).toList(growable: false);
+      for (final e in slice) {
+        batch.set(col.doc(e.id), e.toJson(), SetOptions(merge: true));
+      }
+      await batch.commit();
+    } catch (e) {
+      debugPrint('⚠️ [ExerciseLog] backfill skipped: $e');
+    }
+  }
+
   // ──────────────────────────── Lectura ────────────────────────────
 
   List<ExerciseCompletion> get all => List.unmodifiable(_entries);

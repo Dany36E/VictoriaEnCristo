@@ -106,6 +106,41 @@ class FcmService {
     }
   }
 
+  /// Re-registra el token bajo el usuario actualmente autenticado. Útil
+  /// cuando cambia la cuenta y el token ya existía pero estaba vinculado
+  /// al uid anterior.
+  Future<void> registerTokenForCurrentUser() async {
+    if (_token == null) {
+      try {
+        _token = await FirebaseMessaging.instance.getToken();
+      } catch (_) {}
+    }
+    await _persistToken();
+  }
+
+  /// Elimina el documento del token FCM del dispositivo para el usuario
+  /// actualmente autenticado. Importante al cerrar sesión o al cambiar de
+  /// cuenta, para que las Cloud Functions no envíen notificaciones al
+  /// dispositivo equivocado.
+  Future<void> clearTokenForUser() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user == null) return;
+      final prefs = await SharedPreferences.getInstance();
+      final deviceId = prefs.getString(_kDeviceIdKey);
+      if (deviceId == null) return;
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .collection('fcmTokens')
+          .doc(deviceId)
+          .delete();
+      debugPrint('🔔 [FCM] Token doc deleted for user ${user.uid}');
+    } catch (e) {
+      debugPrint('⚠️ [FCM] clearTokenForUser error: $e');
+    }
+  }
+
   Future<void> dispose() async {
     await _refreshSub?.cancel();
     await _authSub?.cancel();

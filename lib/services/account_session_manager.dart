@@ -39,6 +39,8 @@ import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 import 'notification_service.dart';
+import 'exercise_log_service.dart';
+import 'fcm_service.dart';
 import 'learning/learning_cloud_sync.dart';
 import 'learning/talents_service.dart';
 
@@ -184,6 +186,11 @@ class AccountSessionManager {
     ChapterNoteService.I.stop();
     CollectionService.I.stop();
     BibleReadingStatsService.I.stop();
+
+    // 1b. Eliminar el token FCM de este dispositivo del user doc de Firestore
+    // para que la Cloud Function deje de enviar push a este device para un
+    // usuario que ya no está autenticado. Best-effort (no bloquea logout).
+    unawaited(FcmService.I.clearTokenForUser());
     
     // 2. Reset estado en memoria
     _resetInMemoryState();
@@ -308,7 +315,11 @@ class AccountSessionManager {
       
       // Keys de JournalService
       await prefs.remove('journal_entries');
-      
+
+      // Keys del ExerciseLog (v1) — si no se purga, el nuevo usuario hereda
+      // el historial del anterior hasta la próxima hidratación.
+      await prefs.remove('exercise_log_v1');
+
       // Keys de otros servicios
       await prefs.remove('cloud_migration_done');
       
@@ -398,6 +409,14 @@ class AccountSessionManager {
       // 9. Inicializar CollectionService y BibleReadingStatsService
       await CollectionService.I.init(uid);
       await BibleReadingStatsService.I.init(uid);
+
+      // 9b. Hidratar el log de ejercicios desde la nube (cross-device).
+      await ExerciseLogService.I.hydrateFromCloud();
+
+      // 9c. Re-registrar el token FCM bajo el nuevo uid. Esto es idempotente
+      // (set merge) y corrige el caso en que el token ya estaba obtenido
+      // pero no se había escrito bajo este uid.
+      unawaited(FcmService.I.registerTokenForCurrentUser());
 
       // 10. Inicializar BlbApiService (no depende de uid)
       await BlbApiService.instance.init();
