@@ -55,6 +55,10 @@ class BattlePartnerService {
   final ValueNotifier<List<BattlePartnerData>> partnersNotifier =
       ValueNotifier([]);
 
+  /// `true` mientras se espera la primera respuesta de Firestore.
+  /// Permite a la UI distinguir entre "cargando" y "genuinamente vacío".
+  final ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
+
   /// Invitaciones pendientes
   final ValueNotifier<List<PartnerInvite>> pendingInvitesNotifier =
       ValueNotifier([]);
@@ -127,6 +131,7 @@ class BattlePartnerService {
     partnersNotifier.value = [];
     pendingInvitesNotifier.value = [];
     unreadMessagesNotifier.value = [];
+    isLoadingNotifier.value = false;
     _progressCache.clear();
 
     _uid = null;
@@ -140,6 +145,9 @@ class BattlePartnerService {
   void _startListening() {
     final uid = _uid;
     if (uid == null) return;
+
+    // Indicar carga mientras llega la primera respuesta del servidor.
+    isLoadingNotifier.value = true;
 
     // Partners activos
     _partnersSubscription?.cancel();
@@ -255,11 +263,20 @@ class BattlePartnerService {
       });
 
       partnersNotifier.value = partners;
+      isLoadingNotifier.value = false;
       debugPrint('🤝 [BATTLE] ${partners.length} compañeros activos '
           '(refetched ${toRefetch.length})');
     } catch (e) {
+      isLoadingNotifier.value = false;
       debugPrint('🤝 [BATTLE] Error procesando partners: $e');
     }
+  }
+
+  /// Fuerza una recarga de los listeners (útil para pull-to-refresh).
+  Future<void> forceRefresh() async {
+    if (_uid == null) return;
+    debugPrint('🤝 [BATTLE] forceRefresh()');
+    _startListening();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

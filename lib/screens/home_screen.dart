@@ -394,7 +394,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                     child: HomeHeader(
                       onThemeChanged: () {
                         widget.onThemeChanged?.call();
-                        setState(() {});
+                        // FIX (crash: setState() called after dispose):
+                        // El callback puede disparar desde SettingsScreen
+                        // tras un pop rápido, cuando este State ya no está
+                        // en el árbol. Verificamos `mounted` antes de
+                        // invocar setState para evitar el FlutterError.
+                        if (mounted) setState(() {});
                       },
                     ),
                   ),

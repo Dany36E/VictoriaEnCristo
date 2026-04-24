@@ -63,8 +63,23 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
-  // Crashlytics: capturar errores no manejados
-  FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+  // Crashlytics: capturar errores no manejados.
+  // NOTA: los errores de layout (RenderFlex overflow por N píxeles) no
+  // deberían reportarse como FATAL — no crashean la app, sólo pintan una
+  // franja rayada en debug. Los degradamos a non-fatal para que no ensucien
+  // el dashboard de estabilidad. El resto de errores siguen siendo fatal.
+  FlutterError.onError = (FlutterErrorDetails details) {
+    final msg = details.exceptionAsString();
+    final isLayoutOverflow = msg.contains('RenderFlex overflowed') ||
+        msg.contains('overflowed by') ||
+        msg.contains('A RenderFlex overflowed');
+    if (isLayoutOverflow) {
+      // No fatal, pero sí queda registrado.
+      FirebaseCrashlytics.instance.recordFlutterError(details);
+      return;
+    }
+    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+  };
   PlatformDispatcher.instance.onError = (error, stack) {
     FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
     return true;

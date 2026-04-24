@@ -359,7 +359,14 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           ).createShader(bounds),
           child: Text(
             '${_numberAnimation.value}',
-            style: GoogleFonts.cinzel(
+            // NOTA: evitamos GoogleFonts.cinzel + w900 (Cinzel-Black) porque
+            // sólo bundleamos Cinzel-VariableFont_wght.ttf, no el archivo
+            // estático Cinzel-Black.ttf que busca google_fonts. Al estar
+            // `allowRuntimeFetching=false`, lanzaba FlutterError en prod.
+            // Usamos el family declarado en pubspec, que sí sirve weight 900
+            // desde la variable font. (fix #crash Cinzel-Black)
+            style: TextStyle(
+              fontFamily: 'Cinzel',
               fontSize: _streak >= 100 ? 72 : 88,
               fontWeight: FontWeight.w900,
               color: Colors.white,

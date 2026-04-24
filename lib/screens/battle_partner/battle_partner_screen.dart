@@ -97,9 +97,13 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
         ],
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          children: [
+        child: RefreshIndicator(
+          onRefresh: () => _service.forceRefresh(),
+          color: AppDesignSystem.gold,
+          backgroundColor: AppTheme.darkBackground,
+          child: ListView(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            children: [
             // Banner de pausa (#12)
             _buildPauseBanner(),
             // ═════════════════════════════════════
@@ -131,6 +135,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
 
             const SizedBox(height: 24),
           ],
+          ),
         ),
       ),
     );
@@ -351,33 +356,63 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPartnersSection() {
-    return ValueListenableBuilder<List<BattlePartnerData>>(
-      valueListenable: _service.partnersNotifier,
-      builder: (_, partners, _) {
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _sectionHeader(
-              '⚔️ Compañeros de batalla',
-              trailing: Text(
-                '${partners.length}/$kMaxBattlePartners',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: Colors.white.withOpacity(0.4),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _service.isLoadingNotifier,
+      builder: (_, isLoading, _) {
+        return ValueListenableBuilder<List<BattlePartnerData>>(
+          valueListenable: _service.partnersNotifier,
+          builder: (_, partners, _) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _sectionHeader(
+                  '⚔️ Compañeros de batalla',
+                  trailing: Text(
+                    '${partners.length}/$kMaxBattlePartners',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withOpacity(0.4),
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            const SizedBox(height: 8),
-            if (partners.isEmpty)
-              _buildEmptyPartnersState()
-            else
-              ...partners.map((p) => BattlePartnerCard(
-                partner: p,
-                onRemove: () => _confirmRemovePartner(p),
-              )),
-          ],
+                const SizedBox(height: 8),
+                if (isLoading && partners.isEmpty)
+                  _buildLoadingPartnersState()
+                else if (partners.isEmpty)
+                  _buildEmptyPartnersState()
+                else
+                  ...partners.map((p) => BattlePartnerCard(
+                    partner: p,
+                    onRemove: () => _confirmRemovePartner(p),
+                  )),
+              ],
+            );
+          },
         );
       },
+    );
+  }
+
+  Widget _buildLoadingPartnersState() {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 32),
+      alignment: Alignment.center,
+      child: Column(
+        children: [
+          const CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(AppDesignSystem.gold),
+            strokeWidth: 2,
+          ),
+          const SizedBox(height: 14),
+          Text(
+            'Cargando compañeros…',
+            style: TextStyle(
+              fontSize: 13,
+              color: Colors.white.withOpacity(0.5),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -223,20 +223,28 @@ class AudioEngine {
   // ═══════════════════════════════════════════════════════════════════════════
   
   Future<T> _runBgmOp<T>(String opName, Future<T> Function() operation) async {
-    if (_bgmOpLock != null && !_bgmOpLock!.isCompleted) {
+    // FIX (crash "Bad state: Future already completed"):
+    // El impl anterior capturaba _bgmOpLock por campo y en `finally` llamaba
+    // `_bgmOpLock!.complete()` — pero si OTRA op entraba en paralelo tras el
+    // await del primer wait, sobrescribía el campo y el finally completaba
+    // un Completer que ya había sido completado por el op ganador (race).
+    // Ahora cada op guarda SU PROPIO Completer local + un while para
+    // encadenar cualquier cantidad de waiters.
+    while (_bgmOpLock != null && !_bgmOpLock!.isCompleted) {
       _log('MUTEX', '⏳ Waiting: $opName');
       await _bgmOpLock!.future;
     }
-    
-    _bgmOpLock = Completer<void>();
+
+    final myLock = Completer<void>();
+    _bgmOpLock = myLock;
     _log('MUTEX', '🔒 Acquired: $opName');
-    
+
     try {
       final result = await operation();
       return result;
     } finally {
       _log('MUTEX', '🔓 Released: $opName');
-      _bgmOpLock!.complete();
+      if (!myLock.isCompleted) myLock.complete();
     }
   }
 
