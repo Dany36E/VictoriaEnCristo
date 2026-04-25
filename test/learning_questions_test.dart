@@ -8,6 +8,8 @@ List<Map<String, dynamic>> _loadQuestions() {
   return (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
 }
 
+String _normalizedText(String value) => value.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
+
 void main() {
   group('Escuela del Reino question bank', () {
     test('incluye las 100 preguntas agregadas', () {
@@ -21,6 +23,17 @@ void main() {
     test('todas las preguntas tienen forma válida', () {
       final questions = _loadQuestions();
       final ids = <String>{};
+      final prompts = <String>{};
+      const validTypes = {
+        'choose_reference',
+        'complete_verse',
+        'match_pairs',
+        'multiple_choice',
+        'order_events',
+        'situational',
+        'true_false',
+        'who_said',
+      };
       const choiceTypes = {
         'who_said',
         'true_false',
@@ -36,11 +49,29 @@ void main() {
 
         final type = q['type'] as String?;
         expect(type, isNotNull, reason: '$id no tiene type');
+        expect(validTypes.contains(type), isTrue, reason: '$id tiene type inválido: $type');
+
+        final prompt = (q['prompt'] as String?)?.trim();
+        expect(prompt, isNotEmpty, reason: '$id no tiene prompt');
+        expect(prompts.add(_normalizedText(prompt!)), isTrue, reason: '$id repite prompt: $prompt');
+
+        final explanation = (q['explanation'] as String?)?.trim();
+        expect(explanation, isNotEmpty, reason: '$id no tiene explicación');
 
         if (choiceTypes.contains(type)) {
           final options = (q['options'] as List).cast<String>();
           final correctIndex = q['correctIndex'] as int;
           expect(options.length, greaterThanOrEqualTo(2), reason: '$id sin opciones');
+          expect(
+            options.every((option) => option.trim().isNotEmpty),
+            isTrue,
+            reason: '$id tiene opciones vacías',
+          );
+          expect(
+            options.map(_normalizedText).toSet().length,
+            options.length,
+            reason: '$id tiene opciones repetidas',
+          );
           expect(
             correctIndex,
             inInclusiveRange(0, options.length - 1),
