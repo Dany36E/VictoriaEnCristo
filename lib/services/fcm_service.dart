@@ -8,8 +8,8 @@
 /// - `FcmService.I.init()` se llama en phase 3 post-runApp.
 /// - Solicita permiso, obtiene token, upsert a Firestore.
 /// - Escucha `onTokenRefresh` para mantener el token actualizado.
-/// - Escucha `onMessage` en foreground (no-op: las notifs locales son
-///   generadas por los listeners de Firestore de BattlePartnerService).
+/// - Escucha `onMessage` en foreground y muestra la misma notificación local
+///   que llegaría por sistema en background/terminated.
 /// - Tolera ausencia de usuario: si no hay auth, no hace nada.
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
@@ -22,6 +22,8 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'notification_service.dart';
+
 class FcmService {
   FcmService._();
   static final FcmService I = FcmService._();
@@ -32,6 +34,7 @@ class FcmService {
   String? _token;
   StreamSubscription<String>? _refreshSub;
   StreamSubscription<User?>? _authSub;
+  StreamSubscription<RemoteMessage>? _foregroundSub;
 
   String? get token => _token;
 
@@ -41,11 +44,7 @@ class FcmService {
     try {
       final messaging = FirebaseMessaging.instance;
       // Permisos (en iOS/Web es obligatorio; en Android 13+ también).
-      await messaging.requestPermission(
-        alert: true,
-        badge: true,
-        sound: true,
-      );
+      await messaging.requestPermission(alert: true, badge: true, sound: true);
 
       // iOS necesita APNS token antes del FCM token.
       if (!kIsWeb && Platform.isIOS) {
@@ -67,10 +66,56 @@ class FcmService {
         }
       });
 
+      _foregroundSub = FirebaseMessaging.onMessage.listen(
+        _handleForegroundMessage,
+        onError: (e) => debugPrint('⚠️ [FCM] foreground message error: $e'),
+      );
+
       debugPrint('🔔 [FCM] token=${_token?.substring(0, 12) ?? 'null'}…');
     } catch (e) {
       debugPrint('⚠️ [FCM] init error: $e');
     }
+  }
+
+  Future<void> _handleForegroundMessage(RemoteMessage message) async {
+    final data = message.data;
+    final type = data['type'] ?? '';
+    if (!type.startsWith('battle_')) return;
+
+    final fromName = _clean(data['fromName']) ?? 'Tu compañero';
+    final rawId =
+        _clean(data['messageId']) ??
+        _clean(data['inviteId']) ??
+        message.messageId ??
+        DateTime.now().microsecondsSinceEpoch.toString();
+    final id = _notifIdFor(type, rawId);
+
+    switch (type) {
+      case 'battle_invite':
+        await NotificationService().showBattlePartnerInvite(
+          id: id,
+          fromName: fromName == 'Tu compañero' ? 'Alguien' : fromName,
+        );
+        break;
+      case 'battle_sos':
+        await NotificationService().showBattleSos(id: id, fromName: fromName);
+        break;
+      case 'battle_message':
+        final text =
+            _clean(data['text']) ?? message.notification?.body ?? 'Te envió un mensaje de aliento';
+        await NotificationService().showBattleMessage(id: id, fromName: fromName, text: text);
+        break;
+    }
+  }
+
+  String? _clean(String? value) {
+    final trimmed = value?.trim();
+    return trimmed == null || trimmed.isEmpty ? null : trimmed;
+  }
+
+  int _notifIdFor(String type, String docId) {
+    final hash = docId.hashCode & 0x3FFFFFFF;
+    return type == 'battle_invite' ? (0x20000000 | hash) : (0x40000000 | hash);
   }
 
   Future<void> _persistToken() async {
@@ -87,20 +132,20 @@ class FcmService {
       final platform = kIsWeb
           ? 'web'
           : Platform.isIOS
-              ? 'ios'
-              : Platform.isAndroid
-                  ? 'android'
-                  : 'other';
+          ? 'ios'
+          : Platform.isAndroid
+          ? 'android'
+          : 'other';
       await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
           .collection('fcmTokens')
           .doc(deviceId)
           .set({
-        'token': token,
-        'platform': platform,
-        'updatedAt': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+            'token': token,
+            'platform': platform,
+            'updatedAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
     } catch (e) {
       debugPrint('⚠️ [FCM] persist error: $e');
     }
@@ -144,8 +189,10 @@ class FcmService {
   Future<void> dispose() async {
     await _refreshSub?.cancel();
     await _authSub?.cancel();
+    await _foregroundSub?.cancel();
     _refreshSub = null;
     _authSub = null;
+    _foregroundSub = null;
     _initialized = false;
   }
 }

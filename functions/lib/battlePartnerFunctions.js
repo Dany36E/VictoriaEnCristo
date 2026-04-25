@@ -110,6 +110,7 @@ exports.onPartnerInviteCreated = functions
     var _a, _b, _c;
     const data = (_a = snap.data()) !== null && _a !== void 0 ? _a : {};
     const uid = context.params.uid;
+    const inviteId = context.params.inviteId;
     const status = (_b = data.status) !== null && _b !== void 0 ? _b : "pending";
     if (status !== "pending")
         return;
@@ -119,6 +120,7 @@ exports.onPartnerInviteCreated = functions
         body: `${fromName} quiere acompañarte en la batalla.`,
     }, {
         type: "battle_invite",
+        inviteId,
         fromName,
     }, { priority: "normal" });
 });
@@ -129,29 +131,38 @@ exports.onBattleMessageCreated = functions
     .region("us-central1")
     .firestore.document("users/{uid}/battleMessages/{messageId}")
     .onCreate(async (snap, context) => {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     const data = (_a = snap.data()) !== null && _a !== void 0 ? _a : {};
     const uid = context.params.uid;
+    const messageId = context.params.messageId;
     const messageKey = (_b = data.messageKey) !== null && _b !== void 0 ? _b : "";
     const priority = (_c = data.priority) !== null && _c !== void 0 ? _c : "normal";
     const fromName = (_d = data.fromName) !== null && _d !== void 0 ? _d : "Tu compañero";
     const isSos = messageKey === "sos_prayer" || priority === "sos";
+    const text = (_e = data.text) !== null && _e !== void 0 ? _e : (isSos ? "Necesito oración ahora" : "Te envió un mensaje de aliento");
     if (isSos) {
         await pushToUser(uid, {
             title: "🆘 Tu compañero necesita oración",
             body: `${fromName} está pidiendo oración AHORA. Ora con él.`,
         }, {
             type: "battle_sos",
+            messageId,
+            messageKey,
+            priority: "sos",
             fromName,
+            text,
         }, { priority: "high" });
     }
     else {
         await pushToUser(uid, {
             title: `💬 ${fromName}`,
-            body: "Te envió un mensaje de aliento",
+            body: text,
         }, {
             type: "battle_message",
+            messageId,
+            messageKey,
             fromName,
+            text,
         }, { priority: "normal" });
     }
 });

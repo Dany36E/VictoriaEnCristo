@@ -53,8 +53,7 @@ class NotificationService {
   /// Compañero de Batalla. Si es `true`, suprimimos notificaciones locales
   /// de invitaciones / mensajes porque la UI ya los muestra reactivamente
   /// (evita ruido duplicado). Lo controla el propio `BattlePartnerScreen`.
-  static final ValueNotifier<bool> isViewingBattlePartner =
-      ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> isViewingBattlePartner = ValueNotifier<bool>(false);
 
   // Getters
   TimeOfDay get morningTime => _morningTime;
@@ -74,27 +73,21 @@ class NotificationService {
   /// Cargar configuración guardada
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     _morningEnabled = prefs.getBool(_morningEnabledKey) ?? true;
     _nightEnabled = prefs.getBool(_nightEnabledKey) ?? true;
     _emergencyReminderEnabled = prefs.getBool(_emergencyReminderKey) ?? true;
     _victoryReminderEnabled = prefs.getBool(_victoryReminderKey) ?? true;
     _reengagementEnabled = prefs.getBool(_reengagementKey) ?? true;
-    
+
     final morningMinutes = prefs.getInt(_morningTimeKey);
     if (morningMinutes != null) {
-      _morningTime = TimeOfDay(
-        hour: morningMinutes ~/ 60,
-        minute: morningMinutes % 60,
-      );
+      _morningTime = TimeOfDay(hour: morningMinutes ~/ 60, minute: morningMinutes % 60);
     }
-    
+
     final nightMinutes = prefs.getInt(_nightTimeKey);
     if (nightMinutes != null) {
-      _nightTime = TimeOfDay(
-        hour: nightMinutes ~/ 60,
-        minute: nightMinutes % 60,
-      );
+      _nightTime = TimeOfDay(hour: nightMinutes ~/ 60, minute: nightMinutes % 60);
     }
   }
 
@@ -111,10 +104,8 @@ class NotificationService {
         requestSoundPermission: false,
       );
       const init = InitializationSettings(android: android, iOS: darwin, macOS: darwin);
-      await _flnp.initialize(
-        init,
-        onDidReceiveNotificationResponse: _handleNotificationTap,
-      );
+      await _flnp.initialize(init, onDidReceiveNotificationResponse: _handleNotificationTap);
+      await _createAndroidChannels();
 
       // Cold-start: si la app fue abierta desde una notificación cuando
       // estaba cerrada, recuperar el payload inicial.
@@ -133,6 +124,37 @@ class NotificationService {
     }
   }
 
+  Future<void> _createAndroidChannels() async {
+    final androidImpl = _flnp
+        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+    if (androidImpl == null) return;
+
+    const channels = [
+      AndroidNotificationChannel(
+        'battle_partner_invites',
+        'Solicitudes de compañero',
+        description: 'Avisa cuando alguien quiere ser tu compañero de batalla',
+        importance: Importance.high,
+      ),
+      AndroidNotificationChannel(
+        'battle_partner_messages',
+        'Mensajes de compañeros',
+        description: 'Ánimos y oraciones de tus compañeros de batalla',
+        importance: Importance.high,
+      ),
+      AndroidNotificationChannel(
+        'battle_partner_sos',
+        'SOS de oración',
+        description: 'Alerta cuando un compañero pide oración urgente',
+        importance: Importance.max,
+      ),
+    ];
+
+    for (final channel in channels) {
+      await androidImpl.createNotificationChannel(channel);
+    }
+  }
+
   /// Handler global de taps en notificaciones (foreground/background).
   /// Solo publica el payload; la navegación la resuelve un listener en
   /// `main.dart` con acceso al `navigatorKey`.
@@ -146,7 +168,7 @@ class NotificationService {
   /// Guardar configuración
   Future<void> _saveSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    
+
     await prefs.setBool(_morningEnabledKey, _morningEnabled);
     await prefs.setBool(_nightEnabledKey, _nightEnabled);
     await prefs.setBool(_emergencyReminderKey, _emergencyReminderEnabled);
@@ -160,9 +182,12 @@ class NotificationService {
   Future<bool> requestPermissions() async {
     try {
       if (!_notificationsInitialized) await _initNotifications();
-      final androidImpl = _flnp.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
-      final iosImpl = _flnp.resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
-      final macosImpl = _flnp.resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>();
+      final androidImpl = _flnp
+          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+      final iosImpl = _flnp
+          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+      final macosImpl = _flnp
+          .resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>();
 
       final androidOk = await androidImpl?.requestNotificationsPermission();
       final iosOk = await iosImpl?.requestPermissions(alert: true, badge: true, sound: true);
@@ -233,9 +258,7 @@ class NotificationService {
   /// Calcular próxima hora de disparo
   tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(
-      tz.local, now.year, now.month, now.day, time.hour, time.minute,
-    );
+    var scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, time.hour, time.minute);
     if (scheduled.isBefore(now)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
@@ -249,7 +272,8 @@ class NotificationService {
     try {
       await _flnp.cancel(_morningNotificationId);
       final verse = BibleVerses.getRandomVerse();
-      final body = '🌅 "${verse.verse.substring(0, verse.verse.length > 80 ? 80 : verse.verse.length)}..." — ${verse.reference}';
+      final body =
+          '🌅 "${verse.verse.substring(0, verse.verse.length > 80 ? 80 : verse.verse.length)}..." — ${verse.reference}';
       const details = NotificationDetails(
         android: AndroidNotificationDetails(
           'morning_reminders',
@@ -272,7 +296,9 @@ class NotificationService {
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payloadMorning,
       );
-      debugPrint('🔔 Notificación matutina programada: ${_morningTime.hour}:${_morningTime.minute.toString().padLeft(2, '0')}');
+      debugPrint(
+        '🔔 Notificación matutina programada: ${_morningTime.hour}:${_morningTime.minute.toString().padLeft(2, '0')}',
+      );
     } catch (e) {
       debugPrint('⚠️ Error programando notificación matutina: $e');
     }
@@ -306,7 +332,9 @@ class NotificationService {
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payloadNight,
       );
-      debugPrint('🔔 Notificación nocturna programada: ${_nightTime.hour}:${_nightTime.minute.toString().padLeft(2, '0')}');
+      debugPrint(
+        '🔔 Notificación nocturna programada: ${_nightTime.hour}:${_nightTime.minute.toString().padLeft(2, '0')}',
+      );
     } catch (e) {
       debugPrint('⚠️ Error programando notificación nocturna: $e');
     }
@@ -563,10 +591,7 @@ class NotificationService {
   /// Notifica en el dispositivo una nueva solicitud de compañero de batalla.
   /// Si el usuario está actualmente en `BattlePartnerScreen`, se omite para
   /// evitar duplicar el feedback visual.
-  Future<void> showBattlePartnerInvite({
-    required int id,
-    required String fromName,
-  }) async {
+  Future<void> showBattlePartnerInvite({required int id, required String fromName}) async {
     if (isViewingBattlePartner.value) return;
     if (!_notificationsInitialized) await _initNotifications();
     if (!_notificationsInitialized) return;
@@ -575,8 +600,7 @@ class NotificationService {
         android: AndroidNotificationDetails(
           'battle_partner_invites',
           'Solicitudes de compañero',
-          channelDescription:
-              'Avisa cuando alguien quiere ser tu compañero de batalla',
+          channelDescription: 'Avisa cuando alguien quiere ser tu compañero de batalla',
           importance: Importance.high,
           priority: Priority.high,
           playSound: true,
@@ -611,8 +635,7 @@ class NotificationService {
         android: AndroidNotificationDetails(
           'battle_partner_messages',
           'Mensajes de compañeros',
-          channelDescription:
-              'Ánimos y oraciones de tus compañeros de batalla',
+          channelDescription: 'Ánimos y oraciones de tus compañeros de batalla',
           importance: Importance.high,
           priority: Priority.high,
           playSound: true,
@@ -635,10 +658,7 @@ class NotificationService {
   /// Notificación urgente de SOS ("Oren por mí ahora") enviada por un
   /// compañero. Se salta la supresión por foreground porque el usuario
   /// DEBE ver este tipo de alerta aunque esté en la misma pantalla.
-  Future<void> showBattleSos({
-    required int id,
-    required String fromName,
-  }) async {
+  Future<void> showBattleSos({required int id, required String fromName}) async {
     if (!_notificationsInitialized) await _initNotifications();
     if (!_notificationsInitialized) return;
     try {
@@ -646,8 +666,7 @@ class NotificationService {
         android: AndroidNotificationDetails(
           'battle_partner_sos',
           'SOS de oración',
-          channelDescription:
-              'Alerta cuando un compañero pide oración urgente',
+          channelDescription: 'Alerta cuando un compañero pide oración urgente',
           importance: Importance.max,
           priority: Priority.max,
           playSound: true,

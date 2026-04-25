@@ -52,20 +52,17 @@ class BattlePartnerService {
   StreamSubscription? _messagesSubscription;
 
   /// Lista reactiva de compañeros activos
-  final ValueNotifier<List<BattlePartnerData>> partnersNotifier =
-      ValueNotifier([]);
+  final ValueNotifier<List<BattlePartnerData>> partnersNotifier = ValueNotifier([]);
 
   /// `true` mientras se espera la primera respuesta de Firestore.
   /// Permite a la UI distinguir entre "cargando" y "genuinamente vacío".
   final ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
 
   /// Invitaciones pendientes
-  final ValueNotifier<List<PartnerInvite>> pendingInvitesNotifier =
-      ValueNotifier([]);
+  final ValueNotifier<List<PartnerInvite>> pendingInvitesNotifier = ValueNotifier([]);
 
   /// Mensajes no leídos
-  final ValueNotifier<List<BattleMessageData>> unreadMessagesNotifier =
-      ValueNotifier([]);
+  final ValueNotifier<List<BattleMessageData>> unreadMessagesNotifier = ValueNotifier([]);
 
   /// ¿El usuario acepta nuevas invitaciones? (modo pausa)
   /// Se persiste localmente y se replica al doc del usuario.
@@ -81,6 +78,7 @@ class BattlePartnerService {
 
   /// Debounce del auto-sync de publicProgress al cambiar la racha.
   Timer? _publicProgressDebounce;
+
   /// Listener a VictoryScoringService para mantener publicProgress fresco
   /// sin escribir en cada evento (debounce 5 min).
   VoidCallback? _streakListener;
@@ -105,10 +103,8 @@ class BattlePartnerService {
     _prefs ??= await SharedPreferences.getInstance();
 
     // Cargar flags persistentes (pausa, trusted partner) antes de exponerlos.
-    acceptingInvitesNotifier.value =
-        _prefs?.getBool(_kAcceptingInvitesKey) ?? true;
-    trustedPartnerUidNotifier.value =
-        _prefs?.getString(_kTrustedPartnerKey);
+    acceptingInvitesNotifier.value = _prefs?.getBool(_kAcceptingInvitesKey) ?? true;
+    trustedPartnerUidNotifier.value = _prefs?.getString(_kTrustedPartnerKey);
 
     _startListening();
     _attachStreakListener();
@@ -158,9 +154,9 @@ class BattlePartnerService {
         .where('status', isEqualTo: 'active')
         .snapshots()
         .listen(
-      (snapshot) => _onPartnersChanged(snapshot),
-      onError: (e) => debugPrint('🤝 [BATTLE] Partners stream error: $e'),
-    );    // Invitaciones pendientes
+          (snapshot) => _onPartnersChanged(snapshot),
+          onError: (e) => debugPrint('🤝 [BATTLE] Partners stream error: $e'),
+        ); // Invitaciones pendientes
     _invitesSubscription?.cancel();
     _invitesSubscription = _db
         .collection('users')
@@ -168,17 +164,14 @@ class BattlePartnerService {
         .collection('partnerInvites')
         .where('status', isEqualTo: 'pending')
         .snapshots()
-        .listen(
-      (snapshot) {
-        final invites = snapshot.docs
-            .map((doc) => PartnerInvite.fromFirestore(doc.id, doc.data()))
-            .toList();
-        pendingInvitesNotifier.value = invites;
-        debugPrint('🤝 [BATTLE] ${invites.length} invitaciones pendientes');
-        _maybeNotifyNewInvites(snapshot);
-      },
-      onError: (e) => debugPrint('🤝 [BATTLE] Invites stream error: $e'),
-    );
+        .listen((snapshot) {
+          final invites = snapshot.docs
+              .map((doc) => PartnerInvite.fromFirestore(doc.id, doc.data()))
+              .toList();
+          pendingInvitesNotifier.value = invites;
+          debugPrint('🤝 [BATTLE] ${invites.length} invitaciones pendientes');
+          _maybeNotifyNewInvites(snapshot);
+        }, onError: (e) => debugPrint('🤝 [BATTLE] Invites stream error: $e'));
 
     // Mensajes no leídos
     _messagesSubscription?.cancel();
@@ -190,16 +183,13 @@ class BattlePartnerService {
         .orderBy('sentAt', descending: true)
         .limit(20)
         .snapshots()
-        .listen(
-      (snapshot) {
-        final msgs = snapshot.docs
-            .map((doc) => BattleMessageData.fromFirestore(doc.id, doc.data()))
-            .toList();
-        unreadMessagesNotifier.value = msgs;
-        _maybeNotifyNewMessages(snapshot);
-      },
-      onError: (e) => debugPrint('🤝 [BATTLE] Messages stream error: $e'),
-    );
+        .listen((snapshot) {
+          final msgs = snapshot.docs
+              .map((doc) => BattleMessageData.fromFirestore(doc.id, doc.data()))
+              .toList();
+          unreadMessagesNotifier.value = msgs;
+          _maybeNotifyNewMessages(snapshot);
+        }, onError: (e) => debugPrint('🤝 [BATTLE] Messages stream error: $e'));
   }
 
   /// Cuando cambian los partners, fetch su publicProgress SOLO si es doc
@@ -224,20 +214,22 @@ class BattlePartnerService {
 
       // Releer sólo los cambiados (paralelo).
       if (toRefetch.isNotEmpty) {
-        await Future.wait(toRefetch.map((pUid) async {
-          try {
-            final doc = await _db
-                .collection('users')
-                .doc(pUid)
-                .collection('publicProgress')
-                .doc('latest')
-                .get();
-            _progressCache[pUid] = doc.exists ? doc.data() : null;
-          } catch (e) {
-            debugPrint('🤝 [BATTLE] Error reading progress for $pUid: $e');
-            _progressCache.putIfAbsent(pUid, () => null);
-          }
-        }));
+        await Future.wait(
+          toRefetch.map((pUid) async {
+            try {
+              final doc = await _db
+                  .collection('users')
+                  .doc(pUid)
+                  .collection('publicProgress')
+                  .doc('latest')
+                  .get();
+              _progressCache[pUid] = doc.exists ? doc.data() : null;
+            } catch (e) {
+              debugPrint('🤝 [BATTLE] Error reading progress for $pUid: $e');
+              _progressCache.putIfAbsent(pUid, () => null);
+            }
+          }),
+        );
       }
 
       final List<BattlePartnerData> partners = [];
@@ -245,10 +237,9 @@ class BattlePartnerService {
         final data = doc.data() as Map<String, dynamic>;
         final partnerUid = data['partnerUid'] as String? ?? '';
         if (partnerUid.isEmpty) continue;
-        partners.add(BattlePartnerData.fromFirestore(
-          data,
-          progressDoc: _progressCache[partnerUid],
-        ));
+        partners.add(
+          BattlePartnerData.fromFirestore(data, progressDoc: _progressCache[partnerUid]),
+        );
       }
 
       // Purgar cache de uids ya no presentes.
@@ -264,8 +255,10 @@ class BattlePartnerService {
 
       partnersNotifier.value = partners;
       isLoadingNotifier.value = false;
-      debugPrint('🤝 [BATTLE] ${partners.length} compañeros activos '
-          '(refetched ${toRefetch.length})');
+      debugPrint(
+        '🤝 [BATTLE] ${partners.length} compañeros activos '
+        '(refetched ${toRefetch.length})',
+      );
     } catch (e) {
       isLoadingNotifier.value = false;
       debugPrint('🤝 [BATTLE] Error procesando partners: $e');
@@ -319,12 +312,12 @@ class BattlePartnerService {
       final ms = _tsToMs(ts);
       if (ms == 0 || ms <= lastMs) continue;
       final fromName = (data['fromName'] as String?)?.trim();
-      unawaited(NotificationService().showBattlePartnerInvite(
-        id: _notifIdFor('invite', change.doc.id),
-        fromName: (fromName == null || fromName.isEmpty)
-            ? 'Alguien'
-            : fromName,
-      ));
+      unawaited(
+        NotificationService().showBattlePartnerInvite(
+          id: _notifIdFor('invite', change.doc.id),
+          fromName: (fromName == null || fromName.isEmpty) ? 'Alguien' : fromName,
+        ),
+      );
       if (ms > maxSeen) maxSeen = ms;
     }
     if (maxSeen > lastMs) unawaited(_saveLastMs(_kLastInviteMs, maxSeen));
@@ -344,19 +337,24 @@ class BattlePartnerService {
       final fromUid = data['fromUid'] as String? ?? '';
       final key = data['messageKey'] as String? ?? '';
       final isSos = key == kBattleSosKey;
-      final text = kBattleMessageMap[key]?.text ?? 'Te envió un mensaje';
+      final text = (data['text'] as String?)?.trim().isNotEmpty == true
+          ? (data['text'] as String).trim()
+          : kBattleMessageMap[key]?.text ?? 'Te envió un mensaje';
+      final senderName = (data['fromName'] as String?)?.trim();
       // Resolver nombre desde el notifier de partners (cache local, 0 lecturas).
-      final fromName = partnersNotifier.value
-          .firstWhere(
-            (p) => p.uid == fromUid,
-            orElse: () => BattlePartnerData(
-              uid: fromUid,
-              name: 'Un compañero',
-              addedAt: DateTime.now(),
-              status: PartnerStatus.active,
-            ),
-          )
-          .name;
+      final fromName = senderName != null && senderName.isNotEmpty
+          ? senderName
+          : partnersNotifier.value
+                .firstWhere(
+                  (p) => p.uid == fromUid,
+                  orElse: () => BattlePartnerData(
+                    uid: fromUid,
+                    name: 'Un compañero',
+                    addedAt: DateTime.now(),
+                    status: PartnerStatus.active,
+                  ),
+                )
+                .name;
 
       // Haptic + sonido suave si la app está en foreground (#10).
       // El SOS siempre vibra aunque la pantalla esté abierta.
@@ -365,16 +363,20 @@ class BattlePartnerService {
       }
 
       if (isSos) {
-        unawaited(NotificationService().showBattleSos(
-          id: _notifIdFor('message', change.doc.id),
-          fromName: fromName,
-        ));
+        unawaited(
+          NotificationService().showBattleSos(
+            id: _notifIdFor('message', change.doc.id),
+            fromName: fromName,
+          ),
+        );
       } else {
-        unawaited(NotificationService().showBattleMessage(
-          id: _notifIdFor('message', change.doc.id),
-          fromName: fromName,
-          text: text,
-        ));
+        unawaited(
+          NotificationService().showBattleMessage(
+            id: _notifIdFor('message', change.doc.id),
+            fromName: fromName,
+            text: text,
+          ),
+        );
       }
       if (ms > maxSeen) maxSeen = ms;
     }
@@ -398,10 +400,7 @@ class BattlePartnerService {
   /// Genera un código de invitación de 8 chars (VKJM4XR2)
   String _generateCode() {
     final random = Random.secure();
-    return List.generate(
-      8,
-      (_) => _codeChars[random.nextInt(_codeChars.length)],
-    ).join();
+    return List.generate(8, (_) => _codeChars[random.nextInt(_codeChars.length)]).join();
   }
 
   /// Asegura que el usuario actual tiene un inviteCode generado
@@ -563,22 +562,20 @@ class BattlePartnerService {
     try {
       // Obtener mi nombre público
       final myDoc = await _db.collection('users').doc(uid).get();
-      final myName = myDoc.data()?['publicName'] as String? ??
+      final myName =
+          myDoc.data()?['publicName'] as String? ??
           myDoc.data()?['displayName'] as String? ??
           'Un compañero';
 
       final batch = _db.batch();
 
       // Crear en mi lista con status=pending
-      batch.set(
-        _db.collection('users').doc(uid).collection('battlePartners').doc(targetUid),
-        {
-          'partnerUid': targetUid,
-          'partnerName': targetName,
-          'status': 'pending',
-          'addedAt': FieldValue.serverTimestamp(),
-        },
-      );
+      batch.set(_db.collection('users').doc(uid).collection('battlePartners').doc(targetUid), {
+        'partnerUid': targetUid,
+        'partnerName': targetName,
+        'status': 'pending',
+        'addedAt': FieldValue.serverTimestamp(),
+      });
 
       // Crear invitación en la bandeja del destinatario
       final inviteRef = _db.collection('users').doc(targetUid).collection('partnerInvites').doc();
@@ -630,7 +627,8 @@ class BattlePartnerService {
 
       // Obtener mi nombre público
       final myDoc = await _db.collection('users').doc(uid).get();
-      final myName = myDoc.data()?['publicName'] as String? ??
+      final myName =
+          myDoc.data()?['publicName'] as String? ??
           myDoc.data()?['displayName'] as String? ??
           'Compañero';
 
@@ -659,11 +657,9 @@ class BattlePartnerService {
 
       // Borrar mi invitación entrante (en lugar de actualizar status) para
       // no acumular docs en el tiempo (fix #4).
-      batch.delete(_db
-          .collection('users')
-          .doc(uid)
-          .collection('partnerInvites')
-          .doc(invite.inviteId));
+      batch.delete(
+        _db.collection('users').doc(uid).collection('partnerInvites').doc(invite.inviteId),
+      );
 
       // Crear/mergear partner en MI lista (status=active)
       batch.set(
@@ -693,9 +689,9 @@ class BattlePartnerService {
       await batch.commit();
 
       // Analytics (#24)
-      unawaited(_logEvent('battle_invite_accepted', {
-        'from_uid_hash': invite.fromUid.hashCode.abs(),
-      }));
+      unawaited(
+        _logEvent('battle_invite_accepted', {'from_uid_hash': invite.fromUid.hashCode.abs()}),
+      );
 
       // Sincronizar mi progreso público para que el nuevo compañero lo vea
       await syncPublicProgress();
@@ -725,12 +721,10 @@ class BattlePartnerService {
       // Actualizar el partner doc del otro lado si existe (best-effort,
       // merge para tolerar que ya no exista — fix #3).
       try {
-        await _db
-            .collection('users')
-            .doc(invite.fromUid)
-            .collection('battlePartners')
-            .doc(uid)
-            .set({'status': 'rejected'}, SetOptions(merge: true));
+        await _db.collection('users').doc(invite.fromUid).collection('battlePartners').doc(uid).set(
+          {'status': 'rejected'},
+          SetOptions(merge: true),
+        );
       } catch (e) {
         debugPrint('🤝 [BATTLE] Error updating other side rejection: $e');
       }
@@ -822,8 +816,10 @@ class BattlePartnerService {
           .doc('latest')
           .set(payload, SetOptions(merge: true));
 
-      debugPrint('🤝 [BATTLE] Public progress synced: '
-          'streak=$streak, today=$victoryToday, accepting=${acceptingInvitesNotifier.value}');
+      debugPrint(
+        '🤝 [BATTLE] Public progress synced: '
+        'streak=$streak, today=$victoryToday, accepting=${acceptingInvitesNotifier.value}',
+      );
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error syncing public progress: $e');
     }
@@ -857,28 +853,22 @@ class BattlePartnerService {
     }
 
     try {
-      await _db
-          .collection('users')
-          .doc(toUid)
-          .collection('battleMessages')
-          .add({
+      final fromName = await _myPublicName(fallback: 'Tu compañero');
+      final text = kBattleMessageMap[messageKey]?.text ?? 'Te envió un mensaje';
+      await _db.collection('users').doc(toUid).collection('battleMessages').add({
         'fromUid': uid,
+        'fromName': fromName,
         'messageKey': messageKey,
+        'text': text,
         'sentAt': FieldValue.serverTimestamp(),
         'read': false,
       });
 
       // Actualizar lastMessageSentAt (best-effort, merge para tolerar doc ausente)
       try {
-        await _db
-            .collection('users')
-            .doc(uid)
-            .collection('battlePartners')
-            .doc(toUid)
-            .set(
-              {'lastMessageSentAt': FieldValue.serverTimestamp()},
-              SetOptions(merge: true),
-            );
+        await _db.collection('users').doc(uid).collection('battlePartners').doc(toUid).set({
+          'lastMessageSentAt': FieldValue.serverTimestamp(),
+        }, SetOptions(merge: true));
       } catch (e) {
         debugPrint('🤝 [BATTLE] Error updating lastMessageSentAt: $e');
       }
@@ -903,12 +893,9 @@ class BattlePartnerService {
     if (uid == null) return;
 
     try {
-      await _db
-          .collection('users')
-          .doc(uid)
-          .collection('battleMessages')
-          .doc(messageId)
-          .update({'read': true});
+      await _db.collection('users').doc(uid).collection('battleMessages').doc(messageId).update({
+        'read': true,
+      });
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error marking message read: $e');
     }
@@ -1049,8 +1036,7 @@ class BattlePartnerService {
     } else {
       await _prefs?.setString(_kTrustedPartnerKey, partnerUid);
     }
-    unawaited(_logEvent('battle_trusted_partner_changed',
-        {'has_trusted': partnerUid != null}));
+    unawaited(_logEvent('battle_trusted_partner_changed', {'has_trusted': partnerUid != null}));
     unawaited(syncPublicProgress()); // limpia sharedGiantId si ya no hay trusted
   }
 
@@ -1081,22 +1067,20 @@ class BattlePartnerService {
       debugPrint('🤝 [BATTLE] SOS rate-limited (1/día)');
       return 0;
     }
-    final partners = partnersNotifier.value
-        .where((p) => p.status == PartnerStatus.active)
-        .toList();
+    final partners = partnersNotifier.value.where((p) => p.status == PartnerStatus.active).toList();
     if (partners.isEmpty) return 0;
 
+    final fromName = await _myPublicName(fallback: 'Tu compañero');
+    final text = kBattleMessageMap[kBattleSosKey]?.text ?? 'Necesito oración ahora';
     int sent = 0;
     final batch = _db.batch();
     for (final p in partners) {
-      final ref = _db
-          .collection('users')
-          .doc(p.uid)
-          .collection('battleMessages')
-          .doc();
+      final ref = _db.collection('users').doc(p.uid).collection('battleMessages').doc();
       batch.set(ref, {
         'fromUid': uid,
+        'fromName': fromName,
         'messageKey': kBattleSosKey,
+        'text': text,
         'sentAt': FieldValue.serverTimestamp(),
         'read': false,
         'priority': 'sos',
@@ -1122,8 +1106,7 @@ class BattlePartnerService {
   void _attachStreakListener() {
     _detachStreakListener();
     _streakListener = _onStreakChanged;
-    VictoryScoringService.I.currentStreakNotifier
-        .addListener(_streakListener!);
+    VictoryScoringService.I.currentStreakNotifier.addListener(_streakListener!);
     VictoryScoringService.I.loggedTodayNotifier.addListener(_streakListener!);
   }
 
@@ -1134,6 +1117,22 @@ class BattlePartnerService {
       VictoryScoringService.I.loggedTodayNotifier.removeListener(l);
       _streakListener = null;
     }
+  }
+
+  Future<String> _myPublicName({required String fallback}) async {
+    final uid = _uid;
+    if (uid == null) return fallback;
+    try {
+      final doc = await _db.collection('users').doc(uid).get();
+      final data = doc.data();
+      final publicName = (data?['publicName'] as String?)?.trim();
+      if (publicName != null && publicName.isNotEmpty) return publicName;
+      final displayName = (data?['displayName'] as String?)?.trim();
+      if (displayName != null && displayName.isNotEmpty) return displayName;
+    } catch (e) {
+      debugPrint('🤝 [BATTLE] Error leyendo nombre público: $e');
+    }
+    return fallback;
   }
 
   void _onStreakChanged() {
@@ -1157,8 +1156,7 @@ class BattlePartnerService {
           clean[k] = v as Object;
         }
       });
-      await FirebaseAnalytics.instance
-          .logEvent(name: name, parameters: clean);
+      await FirebaseAnalytics.instance.logEvent(name: name, parameters: clean);
     } catch (e) {
       debugPrint('🤝 [BATTLE] Analytics error ($name): $e');
     }

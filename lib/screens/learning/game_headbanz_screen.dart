@@ -9,6 +9,7 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
+import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -36,14 +37,11 @@ const List<_HeadbanzCard> _deck = [
   _HeadbanzCard('Jesús', 'assets/images/headbanz/Headbanz_Jesus.png'),
   _HeadbanzCard('Jonás', 'assets/images/headbanz/Headbanz_Jonas.png'),
   _HeadbanzCard('José', 'assets/images/headbanz/Headbanz_Jose.png'),
-  _HeadbanzCard('José el Soñador',
-      'assets/images/headbanz/Headbanz_JoseElSoñador.png'),
+  _HeadbanzCard('José el Soñador', 'assets/images/headbanz/Headbanz_JoseElSoñador.png'),
   _HeadbanzCard('Josué', 'assets/images/headbanz/Headbanz_Josue.png'),
   _HeadbanzCard('Juan', 'assets/images/headbanz/Headbanz_Juan.png'),
-  _HeadbanzCard('Juan el Bautista',
-      'assets/images/headbanz/Headbanz_JuanElBautista.png'),
-  _HeadbanzCard('Judas Iscariote',
-      'assets/images/headbanz/Headbanz_JudasIscariote.png'),
+  _HeadbanzCard('Juan el Bautista', 'assets/images/headbanz/Headbanz_JuanElBautista.png'),
+  _HeadbanzCard('Judas Iscariote', 'assets/images/headbanz/Headbanz_JudasIscariote.png'),
   _HeadbanzCard('Lea', 'assets/images/headbanz/Headbanz_Lea.png'),
   _HeadbanzCard('Marta', 'assets/images/headbanz/Headbanz_Marta.png'),
   _HeadbanzCard('Rebeca', 'assets/images/headbanz/Headbanz_Rebeca.png'),
@@ -65,11 +63,17 @@ class GameHeadbanzScreen extends StatefulWidget {
 }
 
 class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
+  static const int _secondsPerCard = 60;
+
   _Phase _phase = _Phase.intro;
   late List<_HeadbanzCard> _shuffled;
   int _index = 0;
   int _seenCount = 0;
   int _countdown = 0; // 0 = carta visible, >0 = cuenta regresiva
+  int _cardSecondsLeft = _secondsPerCard;
+  bool _cardTimedOut = false;
+  Timer? _countdownTimer;
+  Timer? _cardTimer;
 
   @override
   void initState() {
@@ -79,6 +83,8 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
 
   @override
   void dispose() {
+    _countdownTimer?.cancel();
+    _cardTimer?.cancel();
     super.dispose();
   }
 
@@ -89,16 +95,22 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
       _index = 0;
       _seenCount = 1;
       _countdown = 3;
+      _cardSecondsLeft = _secondsPerCard;
+      _cardTimedOut = false;
     });
     _startCountdown();
   }
 
   void _next() {
     FeedbackEngine.I.tap();
+    _countdownTimer?.cancel();
+    _cardTimer?.cancel();
     setState(() {
       _index = (_index + 1) % _shuffled.length;
       _seenCount += 1;
       _countdown = 3;
+      _cardSecondsLeft = _secondsPerCard;
+      _cardTimedOut = false;
       // Re-shuffle cuando se agota la baraja para variedad.
       if (_seenCount % _shuffled.length == 0) {
         _shuffled.shuffle(Random());
@@ -108,10 +120,40 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
   }
 
   void _startCountdown() {
-    Future.delayed(const Duration(seconds: 1), () {
-      if (!mounted || _countdown <= 0) return;
+    _countdownTimer?.cancel();
+    _cardTimer?.cancel();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_countdown <= 1) {
+        timer.cancel();
+        setState(() => _countdown = 0);
+        _startCardTimer();
+        return;
+      }
       setState(() => _countdown -= 1);
-      if (_countdown > 0) _startCountdown();
+    });
+  }
+
+  void _startCardTimer() {
+    _cardTimer?.cancel();
+    _cardTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (_cardSecondsLeft <= 1) {
+        timer.cancel();
+        FeedbackEngine.I.tap();
+        setState(() {
+          _cardSecondsLeft = 0;
+          _cardTimedOut = true;
+        });
+        return;
+      }
+      setState(() => _cardSecondsLeft -= 1);
     });
   }
 
@@ -158,15 +200,13 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                 Text(
                   '¿QUIÉN SOY?',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.displaySmall(context,
-                      color: AppDesignSystem.gold),
+                  style: AppDesignSystem.displaySmall(context, color: AppDesignSystem.gold),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Personajes bíblicos · Modo fiesta',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.bodyMedium(context,
-                      color: Colors.white70),
+                  style: AppDesignSystem.bodyMedium(context, color: Colors.white70),
                 ),
               ],
             ),
@@ -181,8 +221,7 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
               icon: const Icon(Icons.play_arrow_rounded, size: 28),
               label: Text(
                 '¡Empezar a jugar!',
-                style: AppDesignSystem.labelLarge(context,
-                    color: Colors.white),
+                style: AppDesignSystem.labelLarge(context, color: Colors.white),
               ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppDesignSystem.gold,
@@ -217,8 +256,7 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
         children: [
           Text(
             '📜 Cómo se juega',
-            style: AppDesignSystem.headlineSmall(context,
-                color: t.textPrimary),
+            style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           _rule(t, '1', 'Un jugador sostiene el celular en su frente sin mirar la pantalla.'),
@@ -256,11 +294,7 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              txt,
-              style: AppDesignSystem.bodyMedium(context,
-                  color: t.textSecondary),
-            ),
+            child: Text(txt, style: AppDesignSystem.bodyMedium(context, color: t.textSecondary)),
           ),
         ],
       ),
@@ -277,23 +311,24 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
         child: Column(
           children: [
             // Contador superior.
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
-              decoration: BoxDecoration(
-                color: AppDesignSystem.gold.withOpacity(0.15),
-                borderRadius:
-                    BorderRadius.circular(AppDesignSystem.radiusFull),
-                border:
-                    Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
-              ),
-              child: Text(
-                'Carta $_seenCount',
-                style: const TextStyle(
+            Wrap(
+              alignment: WrapAlignment.center,
+              runAlignment: WrapAlignment.center,
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _statusPill(
+                  label: 'Carta $_seenCount',
+                  icon: Icons.style_rounded,
                   color: AppDesignSystem.gold,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
                 ),
-              ),
+                if (_countdown == 0)
+                  _statusPill(
+                    label: _formatTime(_cardSecondsLeft),
+                    icon: Icons.timer_rounded,
+                    color: _cardTimedOut ? AppDesignSystem.struggle : AppDesignSystem.gold,
+                  ),
+              ],
             ),
             const SizedBox(height: AppDesignSystem.spacingM),
 
@@ -304,21 +339,19 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const Text(
-                            '🙈',
-                            style: TextStyle(fontSize: 64),
-                          ),
+                          const Text('🙈', style: TextStyle(fontSize: 64)),
                           const SizedBox(height: 16),
                           Text(
                             '¡No mires!',
-                            style: AppDesignSystem.headlineMedium(context,
-                                color: AppDesignSystem.gold),
+                            style: AppDesignSystem.headlineMedium(
+                              context,
+                              color: AppDesignSystem.gold,
+                            ),
                           ),
                           const SizedBox(height: 8),
                           Text(
                             'Pon el celular en tu frente',
-                            style: AppDesignSystem.bodyMedium(context,
-                                color: t.textSecondary),
+                            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                           ),
                           const SizedBox(height: 24),
                           Text(
@@ -333,41 +366,54 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                       ),
                     )
                   : Center(
-                      child: AnimatedContainer(
-                        duration: 250.ms,
-                        padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              BorderRadius.circular(AppDesignSystem.radiusL),
-                          border: Border.all(
-                            color: AppDesignSystem.gold.withOpacity(0.6),
-                            width: 2,
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: AppDesignSystem.gold.withOpacity(0.25),
-                              blurRadius: 24,
-                              spreadRadius: 2,
+                          child: AnimatedContainer(
+                            duration: 250.ms,
+                            padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+                              border: Border.all(
+                                color: AppDesignSystem.gold.withOpacity(0.6),
+                                width: 2,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppDesignSystem.gold.withOpacity(0.25),
+                                  blurRadius: 24,
+                                  spreadRadius: 2,
+                                ),
+                              ],
+                              color: t.cardBg,
                             ),
-                          ],
-                          color: t.cardBg,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(
-                              AppDesignSystem.radiusM),
-                          child: Image.asset(
-                            card.asset,
-                            fit: BoxFit.contain,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                              child: Image.asset(card.asset, fit: BoxFit.contain),
+                            ),
                           ),
-                        ),
-                      ),
-                    )
-                      .animate(key: ValueKey(_index))
-                      .fadeIn(duration: 300.ms)
-                      .slideX(begin: 0.1, end: 0),
+                        )
+                        .animate(key: ValueKey(_index))
+                        .fadeIn(duration: 300.ms)
+                        .slideX(begin: 0.1, end: 0),
             ),
 
             const SizedBox(height: AppDesignSystem.spacingM),
+
+            AnimatedSwitcher(
+              duration: 180.ms,
+              child: _cardTimedOut
+                  ? Padding(
+                      key: const ValueKey('timeout'),
+                      padding: const EdgeInsets.only(bottom: AppDesignSystem.spacingS),
+                      child: Text(
+                        'Tiempo agotado para esta carta',
+                        textAlign: TextAlign.center,
+                        style: AppDesignSystem.labelMedium(
+                          context,
+                          color: AppDesignSystem.struggle,
+                        ),
+                      ),
+                    )
+                  : const SizedBox.shrink(key: ValueKey('no-timeout')),
+            ),
 
             // Botón siguiente.
             SizedBox(
@@ -378,21 +424,47 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                 icon: const Icon(Icons.skip_next_rounded, size: 28),
                 label: Text(
                   'Siguiente carta',
-                  style: AppDesignSystem.labelLarge(context,
-                      color: Colors.white),
+                  style: AppDesignSystem.labelLarge(context, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppDesignSystem.gold,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppDesignSystem.radiusL),
+                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
                   ),
                 ),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  String _formatTime(int seconds) {
+    final min = seconds ~/ 60;
+    final sec = seconds % 60;
+    return '$min:${sec.toString().padLeft(2, '0')}';
+  }
+
+  Widget _statusPill({required String label, required IconData icon, required Color color}) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+        border: Border.all(color: color.withOpacity(0.5)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 15, color: color),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13),
+          ),
+        ],
       ),
     );
   }

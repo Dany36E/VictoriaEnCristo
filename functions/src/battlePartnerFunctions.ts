@@ -129,6 +129,7 @@ export const onPartnerInviteCreated = functions
   .onCreate(async (snap, context) => {
     const data = snap.data() ?? {};
     const uid = context.params.uid as string;
+    const inviteId = context.params.inviteId as string;
     const status = (data.status as string) ?? "pending";
     if (status !== "pending") return;
     const fromName = (data.fromName as string) ?? "Alguien";
@@ -140,6 +141,7 @@ export const onPartnerInviteCreated = functions
       },
       {
         type: "battle_invite",
+        inviteId,
         fromName,
       },
       {priority: "normal"}
@@ -155,10 +157,13 @@ export const onBattleMessageCreated = functions
   .onCreate(async (snap, context) => {
     const data = snap.data() ?? {};
     const uid = context.params.uid as string;
+    const messageId = context.params.messageId as string;
     const messageKey = (data.messageKey as string) ?? "";
     const priority = (data.priority as string) ?? "normal";
     const fromName = (data.fromName as string) ?? "Tu compañero";
     const isSos = messageKey === "sos_prayer" || priority === "sos";
+    const text = (data.text as string) ??
+      (isSos ? "Necesito oración ahora" : "Te envió un mensaje de aliento");
 
     if (isSos) {
       await pushToUser(
@@ -169,7 +174,11 @@ export const onBattleMessageCreated = functions
         },
         {
           type: "battle_sos",
+          messageId,
+          messageKey,
+          priority: "sos",
           fromName,
+          text,
         },
         {priority: "high"}
       );
@@ -178,11 +187,14 @@ export const onBattleMessageCreated = functions
         uid,
         {
           title: `💬 ${fromName}`,
-          body: "Te envió un mensaje de aliento",
+          body: text,
         },
         {
           type: "battle_message",
+          messageId,
+          messageKey,
           fromName,
+          text,
         },
         {priority: "normal"}
       );
