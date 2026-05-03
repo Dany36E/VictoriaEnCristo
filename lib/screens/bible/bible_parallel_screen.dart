@@ -9,6 +9,7 @@ import '../../models/bible/highlight.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/recent_colors_service.dart';
+import '../../services/user_pref_cloud_sync_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../widgets/bible/full_color_picker_sheet.dart';
 
@@ -69,10 +70,14 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     );
     _leftScroll.addListener(_onLeftScroll);
     _rightScroll.addListener(_onRightScroll);
-    SharedPreferences.getInstance().then((prefs) {
-      final saved = prefs.getDouble('parallel_font_size');
-      if (saved != null && mounted) setState(() => _parallelFontSize = saved);
-    }).catchError((e) { debugPrint('⚠️ [Parallel] Error cargando font size: $e'); });
+    SharedPreferences.getInstance()
+        .then((prefs) {
+          final saved = prefs.getDouble('parallel_font_size');
+          if (saved != null && mounted) setState(() => _parallelFontSize = saved);
+        })
+        .catchError((e) {
+          debugPrint('⚠️ [Parallel] Error cargando font size: $e');
+        });
     _loadAll();
   }
 
@@ -114,9 +119,15 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
 
       final results = await Future.wait([
         BibleParserService.I.getChapter(
-          version: _leftVersion, bookNumber: _bookNumber, chapter: _currentChapter),
+          version: _leftVersion,
+          bookNumber: _bookNumber,
+          chapter: _currentChapter,
+        ),
         BibleParserService.I.getChapter(
-          version: _rightVersion, bookNumber: _bookNumber, chapter: _currentChapter),
+          version: _rightVersion,
+          bookNumber: _bookNumber,
+          chapter: _currentChapter,
+        ),
       ]);
       _leftVerses = results[0];
       _rightVerses = results[1];
@@ -153,8 +164,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     final current = isLeft ? _leftVersion : _rightVersion;
     final other = isLeft ? _rightVersion : _leftVersion;
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
 
     showModalBottomSheet(
@@ -185,7 +195,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               return ListTile(
                 leading: Icon(
                   isCurrent ? Icons.check_circle : Icons.menu_book_outlined,
-                  color: isCurrent ? t.accent : (isOtherSide ? t.textSecondary.withOpacity(0.3) : t.textSecondary),
+                  color: isCurrent
+                      ? t.accent
+                      : (isOtherSide ? t.textSecondary.withOpacity(0.3) : t.textSecondary),
                   size: 20,
                 ),
                 title: Text(
@@ -196,21 +208,24 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
                   ),
                 ),
-                subtitle: Text(v.shortName,
-                    style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5), fontSize: 12)),
+                subtitle: Text(
+                  v.shortName,
+                  style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 12),
+                ),
                 enabled: !isOtherSide,
-                onTap: isOtherSide ? null : () {
-                  Navigator.pop(ctx);
-                  setState(() {
-                    if (isLeft) {
-                      _leftVersion = v;
-                    } else {
-                      _rightVersion = v;
-                    }
-                  });
-                  _loadAll();
-                },
+                onTap: isOtherSide
+                    ? null
+                    : () {
+                        Navigator.pop(ctx);
+                        setState(() {
+                          if (isLeft) {
+                            _leftVersion = v;
+                          } else {
+                            _rightVersion = v;
+                          }
+                        });
+                        _loadAll();
+                      },
               );
             }),
             const SizedBox(height: 8),
@@ -223,8 +238,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
   void _openBookPicker() async {
     if (_allBooks.isEmpty) return;
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
 
     // Step 1: pick book
@@ -244,10 +258,15 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.all(16),
-              child: Text('SELECCIONAR LIBRO',
+              child: Text(
+                'SELECCIONAR LIBRO',
                 style: GoogleFonts.cinzel(
-                  color: t.accent, fontSize: 12,
-                  fontWeight: FontWeight.w700, letterSpacing: 1.5)),
+                  color: t.accent,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.5,
+                ),
+              ),
             ),
             Expanded(
               child: ListView.builder(
@@ -258,16 +277,26 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   final isCurrent = book.number == _bookNumber;
                   return ListTile(
                     dense: true,
-                    leading: Icon(Icons.menu_book_outlined,
-                        color: isCurrent ? t.accent : t.textSecondary, size: 18),
-                    title: Text(book.name,
+                    leading: Icon(
+                      Icons.menu_book_outlined,
+                      color: isCurrent ? t.accent : t.textSecondary,
+                      size: 18,
+                    ),
+                    title: Text(
+                      book.name,
                       style: GoogleFonts.manrope(
                         color: isCurrent ? t.accent : t.textPrimary,
                         fontSize: 14,
-                        fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400)),
-                    trailing: Text('${book.totalChapters} cap.',
+                        fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
+                      ),
+                    ),
+                    trailing: Text(
+                      '${book.totalChapters} cap.',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5), fontSize: 11)),
+                        color: t.textSecondary.withOpacity(0.5),
+                        fontSize: 11,
+                      ),
+                    ),
                     onTap: () => Navigator.pop(ctx, book),
                   );
                 },
@@ -292,16 +321,24 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text('${selectedBook.name.toUpperCase()} — CAPÍTULO',
+            Text(
+              '${selectedBook.name.toUpperCase()} — CAPÍTULO',
               style: GoogleFonts.cinzel(
-                color: t.accent, fontSize: 12,
-                fontWeight: FontWeight.w700, letterSpacing: 1)),
+                color: t.accent,
+                fontSize: 12,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 1,
+              ),
+            ),
             const SizedBox(height: 16),
             SizedBox(
               height: 300,
               child: GridView.builder(
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 7, mainAxisSpacing: 8, crossAxisSpacing: 8),
+                  crossAxisCount: 7,
+                  mainAxisSpacing: 8,
+                  crossAxisSpacing: 8,
+                ),
                 itemCount: selectedBook.totalChapters,
                 itemBuilder: (ctx, i) {
                   final ch = i + 1;
@@ -316,10 +353,14 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                           borderRadius: BorderRadius.circular(8),
                           color: t.textSecondary.withOpacity(0.06),
                         ),
-                        child: Text('$ch',
+                        child: Text(
+                          '$ch',
                           style: GoogleFonts.manrope(
-                            color: t.textPrimary, fontSize: 14,
-                            fontWeight: FontWeight.w500)),
+                            color: t.textPrimary,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                       ),
                     ),
                   );
@@ -354,8 +395,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
 
     return Scaffold(
@@ -408,28 +448,53 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           GestureDetector(
             onTap: () {
               setState(() => _parallelFontSize = (_parallelFontSize - 1).clamp(10.0, 24.0));
-              SharedPreferences.getInstance().then((p) => p.setDouble('parallel_font_size', _parallelFontSize))
-                  .catchError((e) { debugPrint('⚠️ [Parallel] Error guardando font size: $e'); return false; });
+              SharedPreferences.getInstance()
+                  .then((p) async {
+                    await p.setDouble('parallel_font_size', _parallelFontSize);
+                    UserPrefCloudSyncService.I.markDirty();
+                  })
+                  .catchError((e) {
+                    debugPrint('⚠️ [Parallel] Error guardando font size: $e');
+                  });
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: Text('A\u2212', style: GoogleFonts.manrope(
-                color: t.textSecondary, fontSize: 13, fontWeight: FontWeight.w600)),
+              child: Text(
+                'A\u2212',
+                style: GoogleFonts.manrope(
+                  color: t.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
-          Text('${_parallelFontSize.toInt()}',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.6), fontSize: 11)),
+          Text(
+            '${_parallelFontSize.toInt()}',
+            style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.6), fontSize: 11),
+          ),
           GestureDetector(
             onTap: () {
               setState(() => _parallelFontSize = (_parallelFontSize + 1).clamp(10.0, 24.0));
-              SharedPreferences.getInstance().then((p) => p.setDouble('parallel_font_size', _parallelFontSize))
-                  .catchError((e) { debugPrint('⚠️ [Parallel] Error guardando font size: $e'); return false; });
+              SharedPreferences.getInstance()
+                  .then((p) async {
+                    await p.setDouble('parallel_font_size', _parallelFontSize);
+                    UserPrefCloudSyncService.I.markDirty();
+                  })
+                  .catchError((e) {
+                    debugPrint('⚠️ [Parallel] Error guardando font size: $e');
+                  });
             },
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-              child: Text('A+', style: GoogleFonts.manrope(
-                color: t.textSecondary, fontSize: 15, fontWeight: FontWeight.w600)),
+              child: Text(
+                'A+',
+                style: GoogleFonts.manrope(
+                  color: t.textSecondary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
           const SizedBox(width: 4),
@@ -447,9 +512,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     return Container(
       height: 34,
       decoration: BoxDecoration(
-        border: Border(
-          bottom: BorderSide(color: t.textSecondary.withOpacity(0.1)),
-        ),
+        border: Border(bottom: BorderSide(color: t.textSecondary.withOpacity(0.1))),
       ),
       child: Row(
         children: [
@@ -483,9 +546,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: t.accent.withOpacity(0.06),
-                  border: Border(
-                    bottom: BorderSide(color: t.accent, width: 2),
-                  ),
+                  border: Border(bottom: BorderSide(color: t.accent, width: 2)),
                 ),
                 child: Text(
                   _rightVersion.shortName,
@@ -505,17 +566,14 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
 
   Widget _buildSplitContent(BibleReaderThemeData t) {
     if (_loading) {
-      return Center(
-        child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5),
-      );
+      return Center(child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5));
     }
 
     if (_leftVerses.isEmpty && _rightVerses.isEmpty) {
       return Center(
         child: Text(
           'No se pudieron cargar los versículos',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.5), fontSize: 14),
+          style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
         ),
       );
     }
@@ -547,19 +605,14 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
             final isSelected = _selectedVerse == verse.verse;
             final hlKey = '$_bookNumber:$_currentChapter:${verse.verse}';
             final highlight = highlights[hlKey];
-            final highlightBg = highlight != null
-                ? t.highlightOverlay(highlight.color)
-                : null;
+            final highlightBg = highlight != null ? t.highlightOverlay(highlight.color) : null;
             return GestureDetector(
               onLongPress: () {
                 HapticFeedback.mediumImpact();
-                setState(() =>
-                    _selectedVerse = isSelected ? null : verse.verse);
+                setState(() => _selectedVerse = isSelected ? null : verse.verse);
                 if (!isSelected) _showVerseActions(t, verse);
               },
-              onTap: _selectedVerse != null
-                  ? () => setState(() => _selectedVerse = null)
-                  : null,
+              onTap: _selectedVerse != null ? () => setState(() => _selectedVerse = null) : null,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                 decoration: isSelected
@@ -605,87 +658,93 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     final rightVerse = _rightVerses.where((v) => v.verse == verse.verse).firstOrNull;
 
     showModalBottomSheet(
-      context: context,
-      backgroundColor: t.surface,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 36,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 14),
-                decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            Text(
-              '$_bookName $_currentChapter:${verse.verse}',
-              style: GoogleFonts.cinzel(
-                color: t.accent,
-                fontSize: 13,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 14),
-            Wrap(
-              spacing: 10,
-              runSpacing: 10,
+          context: context,
+          backgroundColor: t.surface,
+          shape: const RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          builder: (ctx) => Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _actionChip(t, Icons.format_paint_outlined, 'Subrayar', () {
-                  Navigator.pop(ctx);
-                  _showHighlightPicker(t, verse.verse);
-                }),
-                _actionChip(t, Icons.copy_outlined, 'Copiar ambas', () {
-                  Navigator.pop(ctx);
-                  _copyBothVersions(leftVerse, rightVerse);
-                }),
-                _actionChip(t, Icons.copy, _leftVersion.shortName, () {
-                  Navigator.pop(ctx);
-                  if (leftVerse != null) {
-                    Clipboard.setData(ClipboardData(
-                      text:
-                          '$_bookName $_currentChapter:${leftVerse.verse} (${_leftVersion.shortName})\n${leftVerse.text}',
-                    ));
-                    _showSnack('Versículo copiado');
-                  }
-                }),
-                _actionChip(t, Icons.copy, _rightVersion.shortName, () {
-                  Navigator.pop(ctx);
-                  if (rightVerse != null) {
-                    Clipboard.setData(ClipboardData(
-                      text:
-                          '$_bookName $_currentChapter:${rightVerse.verse} (${_rightVersion.shortName})\n${rightVerse.text}',
-                    ));
-                    _showSnack('Versículo copiado');
-                  }
-                }),
-                _actionChip(t, Icons.share_outlined, 'Compartir', () {
-                  Navigator.pop(ctx);
-                  _copyBothVersions(leftVerse, rightVerse);
-                }),
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 14),
+                    decoration: BoxDecoration(
+                      color: t.textSecondary.withOpacity(0.2),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Text(
+                  '$_bookName $_currentChapter:${verse.verse}',
+                  style: GoogleFonts.cinzel(
+                    color: t.accent,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 14),
+                Wrap(
+                  spacing: 10,
+                  runSpacing: 10,
+                  children: [
+                    _actionChip(t, Icons.format_paint_outlined, 'Subrayar', () {
+                      Navigator.pop(ctx);
+                      _showHighlightPicker(t, verse.verse);
+                    }),
+                    _actionChip(t, Icons.copy_outlined, 'Copiar ambas', () {
+                      Navigator.pop(ctx);
+                      _copyBothVersions(leftVerse, rightVerse);
+                    }),
+                    _actionChip(t, Icons.copy, _leftVersion.shortName, () {
+                      Navigator.pop(ctx);
+                      if (leftVerse != null) {
+                        Clipboard.setData(
+                          ClipboardData(
+                            text:
+                                '$_bookName $_currentChapter:${leftVerse.verse} (${_leftVersion.shortName})\n${leftVerse.text}',
+                          ),
+                        );
+                        _showSnack('Versículo copiado');
+                      }
+                    }),
+                    _actionChip(t, Icons.copy, _rightVersion.shortName, () {
+                      Navigator.pop(ctx);
+                      if (rightVerse != null) {
+                        Clipboard.setData(
+                          ClipboardData(
+                            text:
+                                '$_bookName $_currentChapter:${rightVerse.verse} (${_rightVersion.shortName})\n${rightVerse.text}',
+                          ),
+                        );
+                        _showSnack('Versículo copiado');
+                      }
+                    }),
+                    _actionChip(t, Icons.share_outlined, 'Compartir', () {
+                      Navigator.pop(ctx);
+                      _copyBothVersions(leftVerse, rightVerse);
+                    }),
+                  ],
+                ),
+                const SizedBox(height: 16),
               ],
             ),
-            const SizedBox(height: 16),
-          ],
-        ),
-      ),
-    ).then((_) {
-      if (mounted) setState(() => _selectedVerse = null);
-    }).catchError((e) { debugPrint('⚠️ [Parallel] Nav error: $e'); });
+          ),
+        )
+        .then((_) {
+          if (mounted) setState(() => _selectedVerse = null);
+        })
+        .catchError((e) {
+          debugPrint('⚠️ [Parallel] Nav error: $e');
+        });
   }
 
-  Widget _actionChip(
-    BibleReaderThemeData t, IconData icon, String label, VoidCallback onTap,
-  ) {
+  Widget _actionChip(BibleReaderThemeData t, IconData icon, String label, VoidCallback onTap) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -700,11 +759,14 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           children: [
             Icon(icon, size: 16, color: t.accent),
             const SizedBox(width: 6),
-            Text(label,
-                style: GoogleFonts.manrope(
-                    color: t.textPrimary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500)),
+            Text(
+              label,
+              style: GoogleFonts.manrope(
+                color: t.textPrimary,
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
           ],
         ),
       ),
@@ -739,7 +801,8 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           children: [
             Center(
               child: Container(
-                width: 36, height: 4,
+                width: 36,
+                height: 4,
                 margin: const EdgeInsets.only(bottom: 14),
                 decoration: BoxDecoration(
                   color: t.textSecondary.withOpacity(0.2),
@@ -747,9 +810,14 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 ),
               ),
             ),
-            Text('Subrayar versículo $verseNumber',
+            Text(
+              'Subrayar versículo $verseNumber',
               style: GoogleFonts.manrope(
-                color: t.textPrimary, fontSize: 14, fontWeight: FontWeight.w600)),
+                color: t.textPrimary,
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -761,11 +829,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       _highlightVerse(verseNumber, HighlightColors.toHex(color));
                     },
                     child: Container(
-                      width: 36, height: 36,
-                      decoration: BoxDecoration(
-                        color: color,
-                        shape: BoxShape.circle,
-                      ),
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
                     ),
                   );
                 }),
@@ -782,14 +848,18 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     }
                   },
                   child: Container(
-                    width: 36, height: 36,
+                    width: 36,
+                    height: 36,
                     decoration: const BoxDecoration(
                       shape: BoxShape.circle,
                       gradient: SweepGradient(
                         colors: [
-                          Color(0xFFFF0000), Color(0xFFFFFF00),
-                          Color(0xFF00FF00), Color(0xFF00FFFF),
-                          Color(0xFF0000FF), Color(0xFFFF00FF),
+                          Color(0xFFFF0000),
+                          Color(0xFFFFFF00),
+                          Color(0xFF00FF00),
+                          Color(0xFF00FFFF),
+                          Color(0xFF0000FF),
+                          Color(0xFFFF00FF),
                           Color(0xFFFF0000),
                         ],
                       ),
@@ -818,9 +888,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(msg), duration: const Duration(seconds: 2)));
   }
 
   Widget _buildBottomNav(BibleReaderThemeData t) {
@@ -828,9 +898,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(color: t.textSecondary.withOpacity(0.1)),
-        ),
+        border: Border(top: BorderSide(color: t.textSecondary.withOpacity(0.1))),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -842,17 +910,21 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.chevron_left, size: 18, color: t.accent),
-                      Text('Cap. ${_currentChapter - 1}',
-                          style: GoogleFonts.manrope(
-                              color: t.accent, fontSize: 13, fontWeight: FontWeight.w500)),
+                      Text(
+                        'Cap. ${_currentChapter - 1}',
+                        style: GoogleFonts.manrope(
+                          color: t.accent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                     ],
                   ),
                 )
               : const SizedBox.shrink(),
           Text(
             '$_bookName $_currentChapter',
-            style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.5), fontSize: 12),
+            style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 12),
           ),
           _currentChapter < _maxChapters
               ? GestureDetector(
@@ -860,9 +932,14 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Cap. ${_currentChapter + 1}',
-                          style: GoogleFonts.manrope(
-                              color: t.accent, fontSize: 13, fontWeight: FontWeight.w500)),
+                      Text(
+                        'Cap. ${_currentChapter + 1}',
+                        style: GoogleFonts.manrope(
+                          color: t.accent,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
                       Icon(Icons.chevron_right, size: 18, color: t.accent),
                     ],
                   ),

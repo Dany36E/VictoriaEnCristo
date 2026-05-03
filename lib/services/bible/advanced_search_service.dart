@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_version.dart';
+import '../user_pref_cloud_sync_service.dart';
 import 'bible_parser_service.dart';
 import 'interlinear_service.dart';
 import 'bible_timeline_service.dart';
@@ -54,8 +55,7 @@ class AdvancedSearchVerse {
 /// Búsqueda por números Strong, personajes y temas.
 /// ═══════════════════════════════════════════════════════════════════════════
 class AdvancedSearchService {
-  static final AdvancedSearchService _instance =
-      AdvancedSearchService._internal();
+  static final AdvancedSearchService _instance = AdvancedSearchService._internal();
   factory AdvancedSearchService() => _instance;
   static AdvancedSearchService get I => _instance;
   AdvancedSearchService._internal();
@@ -76,6 +76,7 @@ class AdvancedSearchService {
     list.insert(0, query);
     if (list.length > _maxHistory) list.removeLast();
     await prefs.setStringList(_historyKey, list);
+    UserPrefCloudSyncService.I.markDirty();
   }
 
   Future<void> removeFromHistory(String query) async {
@@ -83,11 +84,13 @@ class AdvancedSearchService {
     final list = prefs.getStringList(_historyKey) ?? [];
     list.remove(query);
     await prefs.setStringList(_historyKey, list);
+    UserPrefCloudSyncService.I.markDirty();
   }
 
   Future<void> clearHistory() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove(_historyKey);
+    UserPrefCloudSyncService.I.markDirty();
   }
 
   // Temas predefinidos con palabras clave en español
@@ -118,10 +121,7 @@ class AdvancedSearchService {
   List<String> get availableThemes => _themes.keys.toList();
 
   /// Buscar por número Strong
-  Future<AdvancedSearchResult> searchByStrong(
-    String strongNumber,
-    BibleVersion version,
-  ) async {
+  Future<AdvancedSearchResult> searchByStrong(String strongNumber, BibleVersion version) async {
     final isHebrew = strongNumber.startsWith('H');
     final results = <AdvancedSearchVerse>[];
 
@@ -137,23 +137,25 @@ class AdvancedSearchService {
         if (bookInfo == null) continue;
 
         for (int ch = 1; ch <= bookInfo.totalChapters; ch++) {
-          final interlinearVerses =
-              await InterlinearService.instance.getChapter(book, ch);
+          final interlinearVerses = await InterlinearService.instance.getChapter(book, ch);
           for (final iv in interlinearVerses) {
-            final hasStrong = iv.words.any((w) =>
-                w.strongNumber != null &&
-                (w.strongNumber == strongNumber ||
-                    w.strongNumber!.contains(strongNumber)));
+            final hasStrong = iv.words.any(
+              (w) =>
+                  w.strongNumber != null &&
+                  (w.strongNumber == strongNumber || w.strongNumber!.contains(strongNumber)),
+            );
 
             if (hasStrong) {
-              results.add(AdvancedSearchVerse(
-                bookNumber: book,
-                bookName: bookInfo.name,
-                chapter: ch,
-                verse: iv.verse,
-                text: '',
-                highlight: strongNumber,
-              ));
+              results.add(
+                AdvancedSearchVerse(
+                  bookNumber: book,
+                  bookName: bookInfo.name,
+                  chapter: ch,
+                  verse: iv.verse,
+                  text: '',
+                  highlight: strongNumber,
+                ),
+              );
             }
           }
         }
@@ -173,10 +175,7 @@ class AdvancedSearchService {
   }
 
   /// Buscar versículos relacionados con un personaje
-  Future<AdvancedSearchResult> searchByCharacter(
-    String characterName,
-    BibleVersion version,
-  ) async {
+  Future<AdvancedSearchResult> searchByCharacter(String characterName, BibleVersion version) async {
     await BibleTimelineService.I.init();
     final results = <AdvancedSearchVerse>[];
 
@@ -192,14 +191,16 @@ class AdvancedSearchService {
         );
         for (final v in verses) {
           if (v.text.toLowerCase().contains(q)) {
-            results.add(AdvancedSearchVerse(
-              bookNumber: v.bookNumber,
-              bookName: v.bookName,
-              chapter: v.chapter,
-              verse: v.verse,
-              text: v.text,
-              highlight: characterName,
-            ));
+            results.add(
+              AdvancedSearchVerse(
+                bookNumber: v.bookNumber,
+                bookName: v.bookName,
+                chapter: v.chapter,
+                verse: v.verse,
+                text: v.text,
+                highlight: characterName,
+              ),
+            );
           }
         }
         if (results.length >= 200) break;
@@ -253,17 +254,18 @@ class AdvancedSearchService {
         );
         for (final v in verses) {
           final lower = v.text.toLowerCase();
-          final matchedKeyword =
-              keywords.where((k) => lower.contains(k)).firstOrNull;
+          final matchedKeyword = keywords.where((k) => lower.contains(k)).firstOrNull;
           if (matchedKeyword != null) {
-            results.add(AdvancedSearchVerse(
-              bookNumber: v.bookNumber,
-              bookName: v.bookName,
-              chapter: v.chapter,
-              verse: v.verse,
-              text: v.text,
-              highlight: matchedKeyword,
-            ));
+            results.add(
+              AdvancedSearchVerse(
+                bookNumber: v.bookNumber,
+                bookName: v.bookName,
+                chapter: v.chapter,
+                verse: v.verse,
+                text: v.text,
+                highlight: matchedKeyword,
+              ),
+            );
           }
         }
         if (results.length >= 300) break;

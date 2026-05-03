@@ -34,9 +34,9 @@ class WallService {
   CollectionReference get _postsRef => _db.collection('wallPosts');
 
   HttpsCallable _callable(String name) => _functions.httpsCallable(
-        name,
-        options: HttpsCallableOptions(timeout: const Duration(seconds: 30)),
-      );
+    name,
+    options: HttpsCallableOptions(timeout: const Duration(seconds: 30)),
+  );
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CREAR POST (vía Cloud Function)
@@ -44,15 +44,11 @@ class WallService {
 
   /// Envía un nuevo post al muro. Retorna resultado con mensaje.
   /// El CF genera alias, abuseHash, y lo marca como pendiente.
-  Future<WallPostResult> submitPost({
-    required String giantId,
-    required String body,
-  }) async {
+  Future<WallPostResult> submitPost({required String giantId, required String body}) async {
     try {
-      final result = await _callable('createWallPost').call<Map<String, dynamic>>({
-        'giantId': giantId,
-        'body': body.trim(),
-      });
+      final result = await _callable(
+        'createWallPost',
+      ).call<Map<String, dynamic>>({'giantId': giantId, 'body': body.trim()});
       final data = result.data;
       return WallPostResult(
         success: data['success'] == true,
@@ -61,16 +57,10 @@ class WallService {
       );
     } on FirebaseFunctionsException catch (e) {
       debugPrint('❌ [WALL] submitPost error: ${e.code} - ${e.message}');
-      return WallPostResult(
-        success: false,
-        message: _mapFunctionError(e),
-      );
+      return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
       debugPrint('❌ [WALL] submitPost unexpected: $e');
-      return const WallPostResult(
-        success: false,
-        message: 'Error inesperado. Intenta de nuevo.',
-      );
+      return const WallPostResult(success: false, message: 'Error inesperado. Intenta de nuevo.');
     }
   }
 
@@ -79,15 +69,11 @@ class WallService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Envía un comentario a un post aprobado.
-  Future<WallPostResult> submitComment({
-    required String postId,
-    required String body,
-  }) async {
+  Future<WallPostResult> submitComment({required String postId, required String body}) async {
     try {
-      final result = await _callable('createWallComment').call<Map<String, dynamic>>({
-        'postId': postId,
-        'body': body.trim(),
-      });
+      final result = await _callable(
+        'createWallComment',
+      ).call<Map<String, dynamic>>({'postId': postId, 'body': body.trim()});
       final data = result.data;
       return WallPostResult(
         success: data['success'] == true,
@@ -96,15 +82,9 @@ class WallService {
       );
     } on FirebaseFunctionsException catch (e) {
       debugPrint('❌ [WALL] submitComment error: ${e.code} - ${e.message}');
-      return WallPostResult(
-        success: false,
-        message: _mapFunctionError(e),
-      );
+      return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
-      return const WallPostResult(
-        success: false,
-        message: 'Error inesperado. Intenta de nuevo.',
-      );
+      return const WallPostResult(success: false, message: 'Error inesperado. Intenta de nuevo.');
     }
   }
 
@@ -133,8 +113,9 @@ class WallService {
 
     query = query.limit(limit);
 
-    return query.snapshots().map((snap) =>
-        snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+    return query.snapshots().map(
+      (snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList(),
+    );
   }
 
   /// Fetch una sola página (para paginación manual / refresh).
@@ -174,8 +155,7 @@ class WallService {
         .orderBy('approvedAt', descending: false)
         .limit(50)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
+        .map((snap) => snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
   }
 
   /// Obtiene un post individual por ID.
@@ -197,11 +177,7 @@ class WallService {
     required String reason,
   }) async {
     try {
-      final payload = <String, dynamic>{
-        'type': contentType,
-        'postId': postId,
-        'reason': reason,
-      };
+      final payload = <String, dynamic>{'type': contentType, 'postId': postId, 'reason': reason};
       if (commentId != null) payload['commentId'] = commentId;
 
       final result = await _callable('reportContent').call<Map<String, dynamic>>(payload);
@@ -229,8 +205,7 @@ class WallService {
         .orderBy('createdAt', descending: false) // FIFO
         .limit(100)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
   }
 
   /// Stream de posts reportados (admin).
@@ -241,8 +216,7 @@ class WallService {
         .orderBy('reportCount', descending: true)
         .limit(100)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
   }
 
   /// Stream de todos los posts aprobados (admin).
@@ -252,8 +226,7 @@ class WallService {
         .orderBy('approvedAt', descending: true)
         .limit(100)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
   }
 
   /// Stream de posts rechazados (admin).
@@ -263,8 +236,7 @@ class WallService {
         .orderBy('createdAt', descending: true)
         .limit(100)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
   }
 
   /// Stream de comentarios pendientes de un post (admin, límite 100).
@@ -276,8 +248,7 @@ class WallService {
         .orderBy('createdAt', descending: false)
         .limit(100)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
+        .map((snap) => snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
   }
 
   /// Stream de todos los comentarios de un post (admin, límite 200).
@@ -288,8 +259,7 @@ class WallService {
         .orderBy('createdAt', descending: false)
         .limit(200)
         .snapshots()
-        .map((snap) =>
-            snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
+        .map((snap) => snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
   }
 
   /// Moderar contenido (aprobar/rechazar). Solo admin.
@@ -301,19 +271,18 @@ class WallService {
     String? rejectionReason,
   }) async {
     try {
-      final payload = <String, dynamic>{
-        'type': contentType,
-        'postId': postId,
-        'action': action,
-      };
+      final payload = <String, dynamic>{'type': contentType, 'postId': postId, 'action': action};
       if (commentId != null) payload['commentId'] = commentId;
       if (rejectionReason != null) payload['rejectionReason'] = rejectionReason;
 
       final result = await _callable('moderateContent').call<Map<String, dynamic>>(payload);
       final data = result.data;
+      final success = data['success'] == true;
       return WallPostResult(
-        success: data['success'] == true,
-        message: data['message'] as String? ?? '',
+        success: success,
+        message:
+            data['message'] as String? ??
+            (success ? _moderationSuccessMessage(contentType, action) : ''),
       );
     } on FirebaseFunctionsException catch (e) {
       return WallPostResult(success: false, message: _mapFunctionError(e));
@@ -324,21 +293,17 @@ class WallService {
   }
 
   /// Banear un abuseHash. Solo admin.
-  Future<WallPostResult> banUser({
-    required String abuseHash,
-    String? reason,
-  }) async {
+  Future<WallPostResult> banUser({required String abuseHash, String? reason}) async {
     try {
-      final payload = <String, dynamic>{
-        'abuseHash': abuseHash,
-      };
+      final payload = <String, dynamic>{'abuseHash': abuseHash};
       if (reason != null) payload['reason'] = reason;
 
       final result = await _callable('banAbuseHash').call<Map<String, dynamic>>(payload);
       final data = result.data;
+      final success = data['success'] == true;
       return WallPostResult(
-        success: data['success'] == true,
-        message: data['message'] as String? ?? '',
+        success: success,
+        message: data['message'] as String? ?? (success ? 'Usuario baneado.' : ''),
       );
     } on FirebaseFunctionsException catch (e) {
       return WallPostResult(success: false, message: _mapFunctionError(e));
@@ -364,8 +329,27 @@ class WallService {
         return e.message ?? 'Datos inválidos.';
       case 'not-found':
         return 'El contenido no existe o fue eliminado.';
+      case 'internal':
+        return 'No se pudo completar la acción en el servidor. Intenta de nuevo.';
+      case 'deadline-exceeded':
+      case 'unavailable':
+        return 'El servidor no respondió. Revisa tu conexión e intenta de nuevo.';
       default:
-        return e.message ?? 'Error del servidor.';
+        return _cleanFunctionMessage(e.message) ?? 'Error del servidor.';
     }
+  }
+
+  String _moderationSuccessMessage(String contentType, String action) {
+    if (contentType == 'comment') {
+      return action == 'approve' ? 'Comentario aprobado.' : 'Comentario rechazado.';
+    }
+    return action == 'approve' ? 'Publicación aprobada.' : 'Publicación rechazada.';
+  }
+
+  String? _cleanFunctionMessage(String? message) {
+    final value = message?.trim();
+    if (value == null || value.isEmpty) return null;
+    if (value.toUpperCase() == 'INTERNAL') return null;
+    return value;
   }
 }

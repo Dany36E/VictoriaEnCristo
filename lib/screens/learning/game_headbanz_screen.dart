@@ -15,42 +15,116 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
 
 class _HeadbanzCard {
-  const _HeadbanzCard(this.name, this.asset);
+  const _HeadbanzCard(this.name, this.asset, this.difficulty);
   final String name;
   final String asset;
+  final _HeadbanzDifficulty difficulty;
+}
+
+enum _HeadbanzDifficulty { easy, medium, hard }
+
+extension _HeadbanzDifficultyInfo on _HeadbanzDifficulty {
+  String get label {
+    switch (this) {
+      case _HeadbanzDifficulty.easy:
+        return 'Fácil';
+      case _HeadbanzDifficulty.medium:
+        return 'Medio';
+      case _HeadbanzDifficulty.hard:
+        return 'Difícil';
+    }
+  }
+
+  String get description {
+    switch (this) {
+      case _HeadbanzDifficulty.easy:
+        return 'Más conocidos';
+      case _HeadbanzDifficulty.medium:
+        return 'Familiares';
+      case _HeadbanzDifficulty.hard:
+        return 'Más específicos';
+    }
+  }
+
+  IconData get icon {
+    switch (this) {
+      case _HeadbanzDifficulty.easy:
+        return Icons.sentiment_satisfied_alt_rounded;
+      case _HeadbanzDifficulty.medium:
+        return Icons.psychology_alt_rounded;
+      case _HeadbanzDifficulty.hard:
+        return Icons.local_fire_department_rounded;
+    }
+  }
+
+  Color get color {
+    switch (this) {
+      case _HeadbanzDifficulty.easy:
+        return AppDesignSystem.victory;
+      case _HeadbanzDifficulty.medium:
+        return AppDesignSystem.gold;
+      case _HeadbanzDifficulty.hard:
+        return AppDesignSystem.struggle;
+    }
+  }
 }
 
 /// Baraja de 24 personajes bíblicos.
 const List<_HeadbanzCard> _deck = [
-  _HeadbanzCard('Aarón', 'assets/images/headbanz/Headbanz_Aaron.png'),
-  _HeadbanzCard('Abraham', 'assets/images/headbanz/Headbanz_Abraham.png'),
-  _HeadbanzCard('Benjamín', 'assets/images/headbanz/Headbanz_Benjamin.png'),
-  _HeadbanzCard('Dalila', 'assets/images/headbanz/Headbanz_Dalila.png'),
-  _HeadbanzCard('Elías', 'assets/images/headbanz/Headbanz_Elias.png'),
-  _HeadbanzCard('Goliat', 'assets/images/headbanz/Headbanz_Goliat.png'),
-  _HeadbanzCard('Jacob', 'assets/images/headbanz/Headbanz_Jacob.png'),
-  _HeadbanzCard('Jesús', 'assets/images/headbanz/Headbanz_Jesus.png'),
-  _HeadbanzCard('Jonás', 'assets/images/headbanz/Headbanz_Jonas.png'),
-  _HeadbanzCard('José', 'assets/images/headbanz/Headbanz_Jose.png'),
-  _HeadbanzCard('José el Soñador', 'assets/images/headbanz/Headbanz_JoseElSoñador.png'),
-  _HeadbanzCard('Josué', 'assets/images/headbanz/Headbanz_Josue.png'),
-  _HeadbanzCard('Juan', 'assets/images/headbanz/Headbanz_Juan.png'),
-  _HeadbanzCard('Juan el Bautista', 'assets/images/headbanz/Headbanz_JuanElBautista.png'),
-  _HeadbanzCard('Judas Iscariote', 'assets/images/headbanz/Headbanz_JudasIscariote.png'),
-  _HeadbanzCard('Lea', 'assets/images/headbanz/Headbanz_Lea.png'),
-  _HeadbanzCard('Marta', 'assets/images/headbanz/Headbanz_Marta.png'),
-  _HeadbanzCard('Rebeca', 'assets/images/headbanz/Headbanz_Rebeca.png'),
-  _HeadbanzCard('Salomón', 'assets/images/headbanz/Headbanz_Salomon.png'),
-  _HeadbanzCard('Sansón', 'assets/images/headbanz/Headbanz_Sanson.png'),
-  _HeadbanzCard('Santiago', 'assets/images/headbanz/Headbanz_Santiago.png'),
-  _HeadbanzCard('Saúl', 'assets/images/headbanz/Headbanz_Saul.png'),
-  _HeadbanzCard('Tomás', 'assets/images/headbanz/Headbanz_Tomás.png'),
-  _HeadbanzCard('Zaqueo', 'assets/images/headbanz/Headbanz_Zaqueo.png'),
+  _HeadbanzCard('Aarón', 'assets/images/headbanz/Headbanz_Aaron.png', _HeadbanzDifficulty.medium),
+  _HeadbanzCard('Abraham', 'assets/images/headbanz/Headbanz_Abraham.png', _HeadbanzDifficulty.easy),
+  _HeadbanzCard(
+    'Benjamín',
+    'assets/images/headbanz/Headbanz_Benjamin.png',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard('Dalila', 'assets/images/headbanz/Headbanz_Dalila.png', _HeadbanzDifficulty.medium),
+  _HeadbanzCard('Elías', 'assets/images/headbanz/Headbanz_Elias.png', _HeadbanzDifficulty.medium),
+  _HeadbanzCard('Goliat', 'assets/images/headbanz/Headbanz_Goliat.png', _HeadbanzDifficulty.easy),
+  _HeadbanzCard('Jacob', 'assets/images/headbanz/Headbanz_Jacob.png', _HeadbanzDifficulty.medium),
+  _HeadbanzCard('Jesús', 'assets/images/headbanz/Headbanz_Jesus.png', _HeadbanzDifficulty.easy),
+  _HeadbanzCard('Jonás', 'assets/images/headbanz/Headbanz_Jonas.png', _HeadbanzDifficulty.easy),
+  _HeadbanzCard('José', 'assets/images/headbanz/Headbanz_Jose.png', _HeadbanzDifficulty.hard),
+  _HeadbanzCard(
+    'José el Soñador',
+    'assets/images/headbanz/Headbanz_JoseElSoñador.png',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard('Josué', 'assets/images/headbanz/Headbanz_Josue.png', _HeadbanzDifficulty.medium),
+  _HeadbanzCard('Juan', 'assets/images/headbanz/Headbanz_Juan.png', _HeadbanzDifficulty.hard),
+  _HeadbanzCard(
+    'Juan el Bautista',
+    'assets/images/headbanz/Headbanz_JuanElBautista.png',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Judas Iscariote',
+    'assets/images/headbanz/Headbanz_JudasIscariote.png',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard('Lea', 'assets/images/headbanz/Headbanz_Lea.png', _HeadbanzDifficulty.hard),
+  _HeadbanzCard('Marta', 'assets/images/headbanz/Headbanz_Marta.png', _HeadbanzDifficulty.hard),
+  _HeadbanzCard('Rebeca', 'assets/images/headbanz/Headbanz_Rebeca.png', _HeadbanzDifficulty.hard),
+  _HeadbanzCard(
+    'Salomón',
+    'assets/images/headbanz/Headbanz_Salomon.png',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard('Sansón', 'assets/images/headbanz/Headbanz_Sanson.png', _HeadbanzDifficulty.easy),
+  _HeadbanzCard(
+    'Santiago',
+    'assets/images/headbanz/Headbanz_Santiago.png',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard('Saúl', 'assets/images/headbanz/Headbanz_Saul.png', _HeadbanzDifficulty.medium),
+  _HeadbanzCard('Tomás', 'assets/images/headbanz/Headbanz_Tomás.png', _HeadbanzDifficulty.hard),
+  _HeadbanzCard('Zaqueo', 'assets/images/headbanz/Headbanz_Zaqueo.png', _HeadbanzDifficulty.easy),
 ];
 
 enum _Phase { intro, playing }
@@ -66,6 +140,7 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
   static const int _secondsPerCard = 60;
 
   _Phase _phase = _Phase.intro;
+  _HeadbanzDifficulty _difficulty = _HeadbanzDifficulty.easy;
   late List<_HeadbanzCard> _shuffled;
   int _index = 0;
   int _seenCount = 0;
@@ -78,19 +153,42 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
   @override
   void initState() {
     super.initState();
-    _shuffled = List.of(_deck)..shuffle(Random());
+    _prepareDeck();
+    // Música de tensión para adivina quién
+    AudioEngine.I.switchBgmContext(BgmContext.learningHeadbanz);
   }
 
   @override
   void dispose() {
     _countdownTimer?.cancel();
     _cardTimer?.cancel();
+    // Restaurar música al salir
+    AudioEngine.I.switchBgmContext(BgmContext.learningHeadbanz);
     super.dispose();
+  }
+
+  List<_HeadbanzCard> get _currentDeck =>
+      _deck.where((card) => card.difficulty == _difficulty).toList(growable: false);
+
+  void _prepareDeck() {
+    _shuffled = List.of(_currentDeck)..shuffle(Random());
+  }
+
+  void _selectDifficulty(_HeadbanzDifficulty difficulty) {
+    if (_difficulty == difficulty) return;
+    FeedbackEngine.I.select();
+    setState(() {
+      _difficulty = difficulty;
+      _prepareDeck();
+      _index = 0;
+      _seenCount = 0;
+    });
   }
 
   void _start() {
     FeedbackEngine.I.select();
     setState(() {
+      _prepareDeck();
       _phase = _Phase.playing;
       _index = 0;
       _seenCount = 1;
@@ -106,15 +204,17 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
     _countdownTimer?.cancel();
     _cardTimer?.cancel();
     setState(() {
-      _index = (_index + 1) % _shuffled.length;
+      final nextIndex = _index + 1;
+      if (nextIndex >= _shuffled.length) {
+        _prepareDeck();
+        _index = 0;
+      } else {
+        _index = nextIndex;
+      }
       _seenCount += 1;
       _countdown = 3;
       _cardSecondsLeft = _secondsPerCard;
       _cardTimedOut = false;
-      // Re-shuffle cuando se agota la baraja para variedad.
-      if (_seenCount % _shuffled.length == 0) {
-        _shuffled.shuffle(Random());
-      }
     });
     _startCountdown();
   }
@@ -214,6 +314,8 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
           const SizedBox(height: AppDesignSystem.spacingL),
           _rulesCard(t),
           const SizedBox(height: AppDesignSystem.spacingL),
+          _difficultySelector(t),
+          const SizedBox(height: AppDesignSystem.spacingL),
           SizedBox(
             height: 60,
             child: ElevatedButton.icon(
@@ -234,11 +336,80 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Text(
-            'Sin ganador · Para pasar el rato · ${_deck.length} cartas',
+            'Sin ganador · Para pasar el rato · ${_currentDeck.length} cartas',
             textAlign: TextAlign.center,
             style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _difficultySelector(AppThemeData t) {
+    return Container(
+      padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+      decoration: BoxDecoration(
+        color: t.cardBg,
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+        border: Border.all(color: t.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Dificultad', style: AppDesignSystem.headlineSmall(context, color: t.textPrimary)),
+          const SizedBox(height: AppDesignSystem.spacingM),
+          for (final difficulty in _HeadbanzDifficulty.values) ...[
+            _difficultyOption(t, difficulty),
+            if (difficulty != _HeadbanzDifficulty.values.last)
+              const SizedBox(height: AppDesignSystem.spacingS),
+          ],
+        ],
+      ),
+    );
+  }
+
+  Widget _difficultyOption(AppThemeData t, _HeadbanzDifficulty difficulty) {
+    final selected = _difficulty == difficulty;
+    final count = _deck.where((card) => card.difficulty == difficulty).length;
+    return InkWell(
+      onTap: () => _selectDifficulty(difficulty),
+      borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+      child: AnimatedContainer(
+        duration: 180.ms,
+        padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+        decoration: BoxDecoration(
+          color: selected ? difficulty.color.withOpacity(0.14) : t.inputBg,
+          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+          border: Border.all(
+            color: selected ? difficulty.color.withOpacity(0.72) : t.cardBorder,
+            width: selected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(difficulty.icon, color: difficulty.color),
+            const SizedBox(width: AppDesignSystem.spacingS),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    difficulty.label,
+                    style: AppDesignSystem.labelLarge(context, color: t.textPrimary),
+                  ),
+                  Text(
+                    '${difficulty.description} · $count cartas',
+                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+              color: selected ? difficulty.color : t.textSecondary,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -321,6 +492,11 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                   label: 'Carta $_seenCount',
                   icon: Icons.style_rounded,
                   color: AppDesignSystem.gold,
+                ),
+                _statusPill(
+                  label: _difficulty.label,
+                  icon: _difficulty.icon,
+                  color: _difficulty.color,
                 ),
                 if (_countdown == 0)
                   _statusPill(

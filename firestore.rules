@@ -34,71 +34,65 @@ service cloud.firestore {
 
       /* ───────── Subcolecciones del usuario ───────── */
 
-      // publicProgress: legible por cualquier usuario autenticado
-      // (privacidad manejada por el servicio: solo streak, victoria, lastOpened,
-      //  acceptingInvites, sharedGiantId cuando hay trusted partner).
+      // publicProgress: legible solo por el owner o por partners ACTIVOS
+      // (H10). Antes era legible por cualquier autenticado que conociera
+      // el uid, lo que filtraba racha/sharedGiantId/lastOpened a terceros.
       match /publicProgress/{docId} {
-        allow read: if isSignedIn();
+        allow read: if isSignedIn() && (
+          isOwner(userId) ||
+          (
+            exists(/databases/$(database)/documents/users/$(userId)/battlePartners/$(request.auth.uid)) &&
+            get(/databases/$(database)/documents/users/$(userId)/battlePartners/$(request.auth.uid)).data.status == 'active'
+          )
+        );
         allow write: if isSignedIn() && isOwner(userId);
       }
 
-      // battlePartners: solo el owner lee/escribe sus propios partners,
-      // PERO un partner puede escribir en la lista del otro al enviar invite / aceptar.
-      // Se valida el límite de kMaxBattlePartners en create (#6).
+      // battlePartners: solo el owner lee/escribe sus propios partners.
+      // El compañero (uid==partnerId) puede UPDATE únicamente para cambiar
+      // su `status` (p.ej. pausar/activar) o los timestamps relacionados;
+      // no puede tocar `partnerUid`, `partnerName`, `addedAt` ni inyectar
+      // campos arbitrarios (H5).
       match /battlePartners/{partnerId} {
         allow read: if isSignedIn() && isOwner(userId);
-        allow create: if isSignedIn()
-          && request.resource.data.partnerUid == partnerId
-          && (
-            // Límite duro de 5 partners (#6). Nota: Firestore no permite
-            // agregaciones server-side baratas; aceptamos que el check
-            // definitivo es cliente + un monitor periódico por CF.
-            true
-          );
+        // Creates are only allowed through Cloud Functions so partner limits
+        // and reciprocal state cannot be skipped by modified clients.
+        allow create: if false;
         allow update: if isSignedIn() && (
-          isOwner(userId) || request.auth.uid == partnerId
+          isOwner(userId) ||
+          (
+            request.auth.uid == partnerId &&
+            request.resource.data.diff(resource.data)
+              .affectedKeys()
+              .hasOnly(['status', 'updatedAt', 'pausedAt']) &&
+            (
+              !('status' in request.resource.data.diff(resource.data).affectedKeys()) ||
+              request.resource.data.status in ['active', 'paused', 'inactive']
+            )
+          )
         );
         allow delete: if isSignedIn() && isOwner(userId);
       }
 
-      // partnerInvites: el owner lee; cualquier autenticado puede crear
-      // (enviar invite) — SIEMPRE que el target NO tenga acceptingInvites=false.
+      // partnerInvites: el owner lee y administra su bandeja; crear invitaciones
+      // ocurre solo vía Cloud Function para aplicar límites y validaciones.
       match /partnerInvites/{inviteId} {
         allow read: if isSignedIn() && isOwner(userId);
-        allow create: if isSignedIn()
-          && request.resource.data.fromUid == request.auth.uid
-          && request.resource.data.keys().hasOnly([
-            'fromUid', 'fromName', 'inviteCode', 'status', 'createdAt'
-          ])
-          // Validar el código: 8 chars en [A-Z2-9] sin O/0/I/1 (#7).
-          && request.resource.data.inviteCode is string
-          && request.resource.data.inviteCode.matches('^[A-HJ-NP-Z2-9]{8}$')
-          // Respetar el flag de pausa publicado en publicProgress.
-          && (
-            !exists(/databases/$(database)/documents/users/$(userId)/publicProgress/latest) ||
-            get(/databases/$(database)/documents/users/$(userId)/publicProgress/latest).data.get('acceptingInvites', true) == true
-          );
+        // Creates are only allowed through Cloud Functions. The callable
+        // verifies invite code format, paused invites, duplicate links, and
+        // max partner limits transactionally.
+        allow create: if false;
         allow update: if isSignedIn() && isOwner(userId);
         allow delete: if isSignedIn() && isOwner(userId);
       }
 
-      // battleMessages: el owner lee/actualiza; SOLO el propio owner o un
-      // partner activo (existe en /users/{userId}/battlePartners/{sender})
-      // puede crear. Además el senderId debe coincidir con request.auth.uid.
-      // Rate-limit server-side (#8): máximo kMaxMessagesPerDay al día desde
-      // un mismo fromUid al mismo destinatario se gestiona por client +
-      // Cloud Function de purga (no hay count() eficiente en reglas).
+      // battleMessages: el owner lee/actualiza; los creates pasan por Cloud
+      // Functions para validar compañero activo mutuo y rate-limit diario.
+      // Creates are only allowed through Cloud Functions to enforce daily
+      // message/SOS limits and mutual active partner checks server-side.
       match /battleMessages/{messageId} {
         allow read: if isSignedIn() && isOwner(userId);
-        allow create: if isSignedIn()
-          && request.resource.data.fromUid == request.auth.uid
-          && request.resource.data.read == false
-          && request.resource.data.messageKey is string
-          && request.resource.data.messageKey.size() <= 32
-          && (
-            isOwner(userId) ||
-            exists(/databases/$(database)/documents/users/$(userId)/battlePartners/$(request.auth.uid))
-          );
+        allow create: if false;
         allow update: if isSignedIn() && isOwner(userId);
         allow delete: if false;
       }
@@ -145,8 +139,15 @@ service cloud.firestore {
       allow create: if isSignedIn()
                     && code.matches('^[A-HJ-NP-Z2-9]{8}$')
                     && request.resource.data.uid == request.auth.uid;
+      // H6: uid es inmutable. Sólo permitimos cambiar el publicName y
+      // marcas de tiempo. Así un cliente modificado no puede secuestrar
+      // el código apuntándolo a otro uid.
       allow update: if isSignedIn()
-                    && resource.data.uid == request.auth.uid;
+                    && resource.data.uid == request.auth.uid
+                    && request.resource.data.uid == resource.data.uid
+                    && request.resource.data.diff(resource.data)
+                         .affectedKeys()
+                         .hasOnly(['publicName', 'updatedAt']);
       allow delete: if false;
     }
 
@@ -210,6 +211,21 @@ service cloud.firestore {
     match /abuseHashes/{hash} {
       allow read: if isSignedIn() && isAdmin();
       allow write: if false;
+    }
+
+    /* ─────────────────────────────────────────────
+       9. STUDY ROOMS (Modo Estudio Colaborativo)
+       /studyRooms/{code}
+       Lectura: solo miembros (uid en members) o admin.
+       Escritura: SOLO Cloud Functions (createStudyRoom,
+       joinStudyRoom, leaveStudyRoom, rotateStudyVersions).
+       ───────────────────────────────────────────── */
+    match /studyRooms/{code} {
+      allow read: if isSignedIn() && (
+        isAdmin() ||
+        (resource.data.members[request.auth.uid] != null)
+      );
+      allow write: if false; // Solo Cloud Functions
     }
 
     /* ─────────────────────────────────────────────

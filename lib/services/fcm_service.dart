@@ -23,12 +23,15 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'notification_service.dart';
+import '../utils/platform_capabilities.dart';
 
 class FcmService {
   FcmService._();
   static final FcmService I = FcmService._();
 
   static const _kDeviceIdKey = 'fcm_device_id';
+  static const _kLastTokenKey = 'fcm_last_token';
+  static const _kLastTokenUidKey = 'fcm_last_token_uid';
 
   bool _initialized = false;
   String? _token;
@@ -41,6 +44,10 @@ class FcmService {
   Future<void> init() async {
     if (_initialized) return;
     _initialized = true;
+    if (!PlatformCapabilities.supportsFcm) {
+      debugPrint('🔔 [FCM] skipped on ${PlatformCapabilities.currentLabel}');
+      return;
+    }
     try {
       final messaging = FirebaseMessaging.instance;
       // Permisos (en iOS/Web es obligatorio; en Android 13+ también).
@@ -129,6 +136,21 @@ class FcmService {
         deviceId = DateTime.now().microsecondsSinceEpoch.toRadixString(36);
         await prefs.setString(_kDeviceIdKey, deviceId);
       }
+
+      // OPTIMIZACIÓN: si el token y el uid no cambiaron desde la última
+      // persistencia, evitamos un write innecesario a Firestore en cada
+      // arranque/refresh. Re-escribimos al menos una vez cada 7 días para
+      // mantener `updatedAt` razonablemente fresco (sirve para purgar
+      // tokens muertos en backend).
+      final lastToken = prefs.getString(_kLastTokenKey);
+      final lastUid = prefs.getString(_kLastTokenUidKey);
+      final lastWriteMs = prefs.getInt('${_kLastTokenKey}_ts') ?? 0;
+      final ageMs = DateTime.now().millisecondsSinceEpoch - lastWriteMs;
+      const refreshIntervalMs = 7 * 24 * 60 * 60 * 1000; // 7 días
+      if (lastToken == token && lastUid == user.uid && ageMs < refreshIntervalMs) {
+        return;
+      }
+
       final platform = kIsWeb
           ? 'web'
           : Platform.isIOS
@@ -146,6 +168,9 @@ class FcmService {
             'platform': platform,
             'updatedAt': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
+      await prefs.setString(_kLastTokenKey, token);
+      await prefs.setString(_kLastTokenUidKey, user.uid);
+      await prefs.setInt('${_kLastTokenKey}_ts', DateTime.now().millisecondsSinceEpoch);
     } catch (e) {
       debugPrint('⚠️ [FCM] persist error: $e');
     }
@@ -155,6 +180,7 @@ class FcmService {
   /// cuando cambia la cuenta y el token ya existía pero estaba vinculado
   /// al uid anterior.
   Future<void> registerTokenForCurrentUser() async {
+    if (!PlatformCapabilities.supportsFcm) return;
     if (_token == null) {
       try {
         _token = await FirebaseMessaging.instance.getToken();
@@ -168,6 +194,7 @@ class FcmService {
   /// cuenta, para que las Cloud Functions no envíen notificaciones al
   /// dispositivo equivocado.
   Future<void> clearTokenForUser() async {
+    if (!PlatformCapabilities.supportsFcm) return;
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;

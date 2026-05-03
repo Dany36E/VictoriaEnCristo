@@ -18,14 +18,12 @@ import '../data/bible_verses.dart';
 import '../services/daily_verse_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
-import '../services/widget_sync_service.dart';
 import '../services/content_repository.dart';
 import '../widgets/jesus_streak_widget.dart';
 import 'verses_screen.dart';
 import 'prayers_screen.dart';
 import 'plan_library_screen.dart';
 import 'progress_screen.dart';
-import 'victory_celebration_screen.dart';
 import 'journal_screen.dart';
 import 'devotional_screen.dart';
 
@@ -44,19 +42,20 @@ import '../repositories/profile_repository.dart';
 import '../widgets/morning_checkin_sheet.dart';
 import '../widgets/offline_banner.dart';
 import '../main.dart' show routeObserver;
+import '../utils/daily_outcome_registration.dart';
 
 // Enum para tipos de animación de iconos
 enum IconAnimationType {
-  shimmer,    // Versículos - destello
-  heartbeat,  // Oraciones - latido
-  rotate,     // Devocional - rotación
-  drawUp,     // Progreso - dibujado
-  pulse,      // Diario - pulso suave
+  shimmer, // Versículos - destello
+  heartbeat, // Oraciones - latido
+  rotate, // Devocional - rotación
+  drawUp, // Progreso - dibujado
+  pulse, // Diario - pulso suave
 }
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onThemeChanged;
-  
+
   const HomeScreen({super.key, this.onThemeChanged});
 
   @override
@@ -65,7 +64,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, RouteAware {
   late BibleVerse dailyVerse;
-  
+
   // Victoria del día
   int _currentStreak = 0;
   bool _loggedToday = false;
@@ -78,13 +77,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
     super.initState();
     // Versículo del día determinístico (no aleatorio)
     dailyVerse = DailyVerseService.I.getForTodaySync();
-    
+
     // Cargar contenido personalizado
     _loadPersonalizedContent();
-    
+
     // Cargar datos de victoria
     _loadVictoryData();
-    
+
     // Escuchar cambios en VictoryScoringService (se actualiza cuando
     // DataBootstrapper/AccountSessionManager hidratan desde cloud)
     VictoryScoringService.I.currentStreakNotifier.addListener(_onScoringChanged);
@@ -107,14 +106,14 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
     final broken = scoring.lastBrokenStreak;
     Navigator.of(context)
         .push(
-      MaterialPageRoute(
-        builder: (_) => RelapseRecoveryScreen(brokenStreak: broken),
-        fullscreenDialog: true,
-      ),
-    )
+          MaterialPageRoute(
+            builder: (_) => RelapseRecoveryScreen(brokenStreak: broken),
+            fullscreenDialog: true,
+          ),
+        )
         .then((_) {
-      _relapseScreenShown = false;
-    });
+          _relapseScreenShown = false;
+        });
   }
 
   void _onScoringChanged() {
@@ -124,15 +123,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       _loggedToday = VictoryScoringService.I.isLoggedToday();
     });
   }
-  
+
   Future<void> _loadVictoryData() async {
     try {
       await VictoryScoringService.I.init();
-      
+
       // También inicializar DailyVerseService async
       await DailyVerseService.I.init();
       final verse = await DailyVerseService.I.getForToday();
-      
+
       if (mounted) {
         setState(() {
           dailyVerse = verse;
@@ -148,10 +147,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
         });
       }
     }
-    
+
     // Verificar insignias después de cargar datos
     _checkBadgesAndNotify();
-    
+
     // Mostrar check-in matutino (una vez al día)
     _showMorningCheckinIfNeeded();
   }
@@ -183,87 +182,61 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       debugPrint('[HOME] Error showing morning check-in: $e');
     }
   }
-  
+
   Future<void> _registerVictory() async {
-    debugPrint('🎉 _registerVictory called: _loggedToday=$_loggedToday, isTodayVictory=${VictoryScoringService.I.isTodayVictory()}, _celebrationShown=$_celebrationShownToday');
-    
-    // Si ya tiene victoria completa hoy
-    if (_loggedToday && VictoryScoringService.I.isTodayVictory()) {
-      // Mostrar celebración una vez por sesión si aún no se ha visto
-      if (!_celebrationShownToday) {
-        debugPrint('🎉 Showing celebration (already logged today, first time this session)');
-        _showCelebration(VictoryScoringService.I.getCurrentStreak());
-        return;
-      }
-      debugPrint('🎉 Going to progress (already shown celebration)');
-      _navigateToProgress();
-      return;
-    }
-    
-    // Verificar que sean las 6pm o más tarde
-    if (!VictoryScoringService.I.canLogVictoryNow()) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Podrás registrar tu victoria después de las 6:00 PM'),
-            duration: Duration(seconds: 3),
-          ),
-        );
+    debugPrint(
+      '🎉 _registerVictory called: _loggedToday=$_loggedToday, isTodayVictory=${VictoryScoringService.I.isTodayVictory()}, _celebrationShown=$_celebrationShownToday',
+    );
+
+    final shouldShowAlreadyVictoryCelebration = !_celebrationShownToday;
+    final result = await promptAndRegisterDailyOutcome(
+      context,
+      showVictoryCelebration: true,
+      showAlreadyVictoryCelebration: shouldShowAlreadyVictoryCelebration,
+    );
+
+    if (!mounted) return;
+
+    if (result.status == DailyOutcomeStatus.alreadyVictory) {
+      if (shouldShowAlreadyVictoryCelebration) {
+        _celebrationShownToday = true;
+      } else {
         _navigateToProgress();
       }
       return;
     }
-    
-    // Registrar victoria en todos los gigantes
-    debugPrint('🎉 Logging victory for today...');
-    await VictoryScoringService.I.logVictoryForToday();
-    
-    if (mounted) {
-      final newStreak = VictoryScoringService.I.getCurrentStreak();
-      debugPrint('🎉 Victory logged! newStreak=$newStreak, showing celebration');
-      
+
+    if (result.status == DailyOutcomeStatus.tooEarly) {
+      _navigateToProgress();
+      return;
+    }
+
+    if (result.changed) {
       setState(() {
-        _currentStreak = newStreak;
-        _loggedToday = true;
+        _currentStreak = result.streak;
+        _loggedToday = VictoryScoringService.I.hasDataForToday();
       });
-      
-      // Sincronizar widget de inicio con nuevo streak
-      WidgetSyncService.I.syncWidget();
-      
-      _showCelebration(newStreak);
+
+      if (result.status == DailyOutcomeStatus.victoryLogged) {
+        _celebrationShownToday = true;
+      }
     }
   }
 
-  void _showCelebration(int streak) {
-    _celebrationShownToday = true;
-    Navigator.push(
-      context,
-      PageRouteBuilder(
-        pageBuilder: (context, animation, secondaryAnimation) => VictoryCelebrationScreen(
-          streakDays: streak,
-          isNewUser: streak <= 1,
-        ),
-        transitionsBuilder: (context, animation, secondaryAnimation, child) {
-          return FadeTransition(opacity: animation, child: child);
-        },
-        transitionDuration: const Duration(milliseconds: 400),
-      ),
-    );
-  }
-  
   void _navigateToProgress() {
     // Feedback táctil suave para navegación
     FeedbackEngine.I.tap();
-    
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const ProgressScreen()),
-    ).then((_) {
-      // Recargar datos de victoria al volver (por si editó días)
-      _refreshVictoryData();
-    }).catchError((e) { debugPrint('⚠️ [HOME] Nav progress error: $e'); });
+
+    Navigator.push(context, MaterialPageRoute(builder: (_) => const ProgressScreen()))
+        .then((_) {
+          // Recargar datos de victoria al volver (por si editó días)
+          _refreshVictoryData();
+        })
+        .catchError((e) {
+          debugPrint('⚠️ [HOME] Nav progress error: $e');
+        });
   }
-  
+
   /// Refresca los datos de victoria sin recargar todo
   void _refreshVictoryData() {
     if (!mounted) return;
@@ -272,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       _loggedToday = VictoryScoringService.I.hasDataForToday();
     });
   }
-  
+
   Future<void> _loadPersonalizedContent() async {
     try {
       await ContentRepository.I.init();
@@ -331,557 +304,538 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
         statusBarBrightness: Brightness.dark, // iOS
       ),
       child: Scaffold(
-      backgroundColor: t.scaffoldBg,
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: [
-          // CAPA 1: Imagen de fondo épica (cacheada)
-          Positioned.fill(
-            child: CachedNetworkImage(
-              imageUrl: ImageUrls.heroMountain,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
-              placeholder: (context, url) => Container(color: t.scaffoldBg),
-              errorWidget: (context, url, error) => Container(
+        backgroundColor: t.scaffoldBg,
+        extendBodyBehindAppBar: true,
+        body: Stack(
+          children: [
+            // CAPA 1: Imagen de fondo épica (cacheada)
+            Positioned.fill(
+              child: CachedNetworkImage(
+                imageUrl: ImageUrls.heroMountain,
+                fit: BoxFit.cover,
+                filterQuality: FilterQuality.high,
+                placeholder: (context, url) => Container(color: t.scaffoldBg),
+                errorWidget: (context, url, error) => Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [t.surface, t.scaffoldBg, t.scaffoldBg],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+            // CAPA 2: Overlay gradiente (adapta opacidad según tema)
+            Positioned.fill(
+              child: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
+                    begin: Alignment.bottomCenter,
+                    end: Alignment.topCenter,
                     colors: [
-                      t.surface,
-                      t.scaffoldBg,
-                      t.scaffoldBg,
+                      t.scaffoldBg.withOpacity(0.95),
+                      t.scaffoldBg.withOpacity(0.7),
+                      t.scaffoldBg.withOpacity(0.3),
+                      t.scaffoldBg.withOpacity(0.1),
+                      Colors.transparent,
                     ],
+                    stops: const [0.0, 0.15, 0.35, 0.55, 1.0],
                   ),
                 ),
               ),
             ),
-          ),
-          
-          // CAPA 2: Overlay gradiente (adapta opacidad según tema)
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.bottomCenter,
-                  end: Alignment.topCenter,
-                  colors: [
-                    t.scaffoldBg.withOpacity(0.95),
-                    t.scaffoldBg.withOpacity(0.7),
-                    t.scaffoldBg.withOpacity(0.3),
-                    t.scaffoldBg.withOpacity(0.1),
-                    Colors.transparent,
-                  ],
-                  stops: const [0.0, 0.15, 0.35, 0.55, 1.0],
-                ),
-              ),
-            ),
-          ),
-          
-          // CAPA 3: Contenido principal
-          SafeArea(
-            child: CustomScrollView(
-              physics: const BouncingScrollPhysics(),
-              slivers: [
-                // Banner de conectividad
-                const SliverToBoxAdapter(
-                  child: OfflineBanner(),
-                ),
-                // Header
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-                    child: HomeHeader(
-                      onThemeChanged: () {
-                        widget.onThemeChanged?.call();
-                        // FIX (crash: setState() called after dispose):
-                        // El callback puede disparar desde SettingsScreen
-                        // tras un pop rápido, cuando este State ya no está
-                        // en el árbol. Verificamos `mounted` antes de
-                        // invocar setState para evitar el FlutterError.
-                        if (mounted) setState(() {});
-                      },
-                    ),
-                  ),
-                ),
-                
-                // ═══════════════════════════════════════════════════════════════
-                // HERO: VICTORIAS (Primer elemento de impacto)
-                // ═══════════════════════════════════════════════════════════════
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
-                    child: JesusStreakWidget(
-                      streakDays: _currentStreak,
-                      completedToday: _loggedToday,
-                      isNewUser: _currentStreak == 0 && !_loggedToday && VictoryScoringService.I.getBestStreakAllTime() == 0,
-                      isLoading: _victoryLoading,
-                      checkinDone: _checkinDoneToday,
-                      onRegisterVictory: _registerVictory,
-                      onTapCard: _navigateToProgress,
-                    ),
-                  ),
-                ),
-                
-                // Daily Verse Section (después de Victorias)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingL,
-                      AppDesignSystem.spacingM,
-                      0,
-                    ),
-                    child: DailyVerseSection(
-                      dailyVerse: dailyVerse,
-                      onTapVerse: (ref) => BibleNavigationHelper.navigateToSpanishRef(context, ref),
-                    ),
-                  ),
-                ),
-                
-                // Bible Reading Streak (mini-card)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      0,
-                    ),
-                    child: BibleReadingStreak(
-                      onTap: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
-                      ),
-                    ),
-                  ),
-                ),
 
-                // Milestone Banner (hito alcanzado / progreso / normalización)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      0,
-                    ),
-                    child: ValueListenableBuilder<int>(
-                      valueListenable:
-                          VictoryScoringService.I.currentStreakNotifier,
-                      builder: (_, streak, _) =>
-                          MilestoneBanner(streak: streak),
+            // CAPA 3: Contenido principal
+            SafeArea(
+              child: CustomScrollView(
+                physics: const BouncingScrollPhysics(),
+                slivers: [
+                  // Banner de conectividad
+                  const SliverToBoxAdapter(child: OfflineBanner()),
+                  // Header
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+                      child: HomeHeader(
+                        onThemeChanged: () {
+                          widget.onThemeChanged?.call();
+                          // FIX (crash: setState() called after dispose):
+                          // El callback puede disparar desde SettingsScreen
+                          // tras un pop rápido, cuando este State ya no está
+                          // en el árbol. Verificamos `mounted` antes de
+                          // invocar setState para evitar el FlutterError.
+                          if (mounted) setState(() {});
+                        },
+                      ),
                     ),
                   ),
-                ),
 
-                // Daily Checklist (4/4 prácticas del día)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                      0,
+                  // ═══════════════════════════════════════════════════════════════
+                  // HERO: VICTORIAS (Primer elemento de impacto)
+                  // ═══════════════════════════════════════════════════════════════
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 0),
+                      child: JesusStreakWidget(
+                        streakDays: _currentStreak,
+                        completedToday: _loggedToday,
+                        victoryToday: VictoryScoringService.I.isTodayVictory(),
+                        isNewUser:
+                            _currentStreak == 0 &&
+                            !_loggedToday &&
+                            VictoryScoringService.I.getBestStreakAllTime() == 0,
+                        isLoading: _victoryLoading,
+                        checkinDone: _checkinDoneToday,
+                        onRegisterVictory: _registerVictory,
+                        onTapCard: _navigateToProgress,
+                      ),
                     ),
-                    child: DailyChecklistCard(
-                      onTapDevotional: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const DevotionalScreen(),
-                        ),
+                  ),
+
+                  // Daily Verse Section (después de Victorias)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingL,
+                        AppDesignSystem.spacingM,
+                        0,
                       ),
-                      onTapPrayer: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const PrayersScreen(),
-                        ),
+                      child: DailyVerseSection(
+                        dailyVerse: dailyVerse,
+                        onTapVerse: (ref) =>
+                            BibleNavigationHelper.navigateToSpanishRef(context, ref),
                       ),
-                      onTapJournal: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const JournalScreen(),
-                        ),
+                    ),
+                  ),
+
+                  // Bible Reading Streak (mini-card)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
+                        0,
                       ),
-                      onTapVictory: _registerVictory,
-                      onTapStudy: () => Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const LearningHomeScreen(),
+                      child: BibleReadingStreak(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                // ═══════════════════════════════════════════════════════════
-                // QUICK GLANCE - Compañero + Insignias + Etapa
-                // ═══════════════════════════════════════════════════════════
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingL,
-                      AppDesignSystem.spacingM,
-                      0,
-                    ),
-                    child: _buildQuickGlance(),
-                  ),
-                ),
-
-                // Tools Section Header — PRÁCTICA DIARIA
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingL,
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                    ),
-                    child: _buildSectionHeader(
-                      label: 'PRÁCTICA DIARIA',
-                      icon: Icons.wb_sunny_outlined,
-                      accent: const Color(0xFFFF80AB),
-                      animationDelayMs: 250,
-                    ),
-                  ),
-                ),
-
-                // Grid: Práctica diaria (Oraciones, Ejercicios, Mi Diario, Versículos)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDesignSystem.spacingM,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.favorite,
-                              title: 'Oraciones',
-                              subtitle: 'Conexión con Dios',
-                              accentColor: const Color(0xFFFF80AB),
-                              animationType: IconAnimationType.heartbeat,
-                              index: 0,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const PrayersScreen()),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.fitness_center,
-                              title: 'Ejercicios',
-                              subtitle: 'Respira y ancla',
-                              accentColor: const Color(0xFF80CBC4),
-                              animationType: IconAnimationType.pulse,
-                              index: 1,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const ExercisesScreen()),
-                              ),
-                            ),
-                          ),
-                        ],
+                  // Milestone Banner (hito alcanzado / progreso / normalización)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
+                        0,
                       ),
-                      const SizedBox(height: AppDesignSystem.spacingM),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.auto_stories,
-                              title: 'Mi Diario',
-                              subtitle: 'Reflexiones',
-                              accentColor: const Color(0xFFCE93D8),
-                              animationType: IconAnimationType.pulse,
-                              index: 2,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const JournalScreen()),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.menu_book_outlined,
-                              title: 'Versículos',
-                              subtitle: 'Armadura espiritual',
-                              accentColor: const Color(0xFF64B5F6),
-                              animationType: IconAnimationType.shimmer,
-                              index: 3,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const VersesScreen()),
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: ValueListenableBuilder<int>(
+                        valueListenable: VictoryScoringService.I.currentStreakNotifier,
+                        builder: (_, streak, _) => MilestoneBanner(streak: streak),
                       ),
-                      const SizedBox(height: AppDesignSystem.spacingM),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.school_rounded,
-                              title: 'Escuela del Reino',
-                              subtitle: 'Aprende y memoriza',
-                              accentColor: AppDesignSystem.gold,
-                              animationType: IconAnimationType.shimmer,
-                              index: 4,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => const LearningHomeScreen(),
+                    ),
+                  ),
+
+                  // Daily Checklist (4/4 prácticas del día)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
+                        0,
+                      ),
+                      child: DailyChecklistCard(
+                        onTapDevotional: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const DevotionalScreen()),
+                        ),
+                        onTapPrayer: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const PrayersScreen()),
+                        ),
+                        onTapJournal: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const JournalScreen()),
+                        ),
+                        onTapVictory: _registerVictory,
+                        onTapStudy: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const LearningHomeScreen()),
+                        ),
+                      ),
+                    ),
+                  ),
+
+                  // ═══════════════════════════════════════════════════════════
+                  // QUICK GLANCE - Compañero + Insignias + Etapa
+                  // ═══════════════════════════════════════════════════════════
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingL,
+                        AppDesignSystem.spacingM,
+                        0,
+                      ),
+                      child: _buildQuickGlance(),
+                    ),
+                  ),
+
+                  // Tools Section Header — PRÁCTICA DIARIA
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingL,
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
+                      ),
+                      child: _buildSectionHeader(
+                        label: 'PRÁCTICA DIARIA',
+                        icon: Icons.wb_sunny_outlined,
+                        accent: const Color(0xFFFF80AB),
+                        animationDelayMs: 250,
+                      ),
+                    ),
+                  ),
+
+                  // Grid: Práctica diaria (Oraciones, Ejercicios, Mi Diario, Versículos)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.favorite,
+                                title: 'Oraciones',
+                                subtitle: 'Conexión con Dios',
+                                accentColor: const Color(0xFFFF80AB),
+                                animationType: IconAnimationType.heartbeat,
+                                index: 0,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const PrayersScreen()),
                                 ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
-                          const Expanded(child: SizedBox.shrink()),
-                        ],
+                            const SizedBox(width: AppDesignSystem.spacingM),
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.fitness_center,
+                                title: 'Ejercicios',
+                                subtitle: 'Respira y ancla',
+                                accentColor: const Color(0xFF80CBC4),
+                                animationType: IconAnimationType.pulse,
+                                index: 1,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const ExercisesScreen()),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppDesignSystem.spacingM),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.auto_stories,
+                                title: 'Mi Diario',
+                                subtitle: 'Reflexiones',
+                                accentColor: const Color(0xFFCE93D8),
+                                animationType: IconAnimationType.pulse,
+                                index: 2,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const JournalScreen()),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppDesignSystem.spacingM),
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.menu_book_outlined,
+                                title: 'Versículos',
+                                subtitle: 'Armadura espiritual',
+                                accentColor: const Color(0xFF64B5F6),
+                                animationType: IconAnimationType.shimmer,
+                                index: 3,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const VersesScreen()),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppDesignSystem.spacingM),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.school_rounded,
+                                title: 'Escuela del Reino',
+                                subtitle: 'Aprende y memoriza',
+                                accentColor: AppDesignSystem.gold,
+                                animationType: IconAnimationType.shimmer,
+                                index: 4,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const LearningHomeScreen()),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppDesignSystem.spacingM),
+                            const Expanded(child: SizedBox.shrink()),
+                          ],
+                        ),
+                      ]),
+                    ),
+                  ),
+
+                  // Tools Section Header — CRECIMIENTO
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingL,
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
                       ),
-                    ]),
-                  ),
-                ),
-
-                // Tools Section Header — CRECIMIENTO
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingL,
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                    ),
-                    child: _buildSectionHeader(
-                      label: 'CRECIMIENTO',
-                      icon: Icons.trending_up_rounded,
-                      accent: const Color(0xFFE8C97A),
-                      animationDelayMs: 300,
-                    ),
-                  ),
-                ),
-
-                // Grid: Crecimiento (Planes, La Biblia, Mi Progreso)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDesignSystem.spacingM,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.wb_sunny,
-                              title: 'Planes',
-                              subtitle: 'Crecimiento espiritual',
-                              accentColor: const Color(0xFFFFD740),
-                              animationType: IconAnimationType.rotate,
-                              index: 4,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const PlanLibraryScreen()),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.menu_book,
-                              title: 'La Biblia',
-                              subtitle: 'Palabra de Dios',
-                              accentColor: const Color(0xFFE8C97A),
-                              animationType: IconAnimationType.shimmer,
-                              index: 5,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
-                              ),
-                            ),
-                          ),
-                        ],
+                      child: _buildSectionHeader(
+                        label: 'CRECIMIENTO',
+                        icon: Icons.trending_up_rounded,
+                        accent: const Color(0xFFE8C97A),
+                        animationDelayMs: 300,
                       ),
-                      const SizedBox(height: AppDesignSystem.spacingM),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.show_chart,
-                              title: 'Mi Progreso',
-                              subtitle: 'Días de victoria',
-                              accentColor: const Color(0xFF69F0AE),
-                              animationType: IconAnimationType.drawUp,
-                              index: 6,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                    ),
+                  ),
+
+                  // Grid: Crecimiento (Planes, La Biblia, Mi Progreso)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.wb_sunny,
+                                title: 'Planes',
+                                subtitle: 'Crecimiento espiritual',
+                                accentColor: const Color(0xFFFFD740),
+                                animationType: IconAnimationType.rotate,
+                                index: 4,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const PlanLibraryScreen()),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.auto_stories_rounded,
-                              title: 'Devocional',
-                              subtitle: '30 días de fe',
-                              accentColor: const Color(0xFFCE93D8),
-                              animationType: IconAnimationType.pulse,
-                              index: 7,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const DevotionalScreen()),
+                            const SizedBox(width: AppDesignSystem.spacingM),
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.menu_book,
+                                title: 'La Biblia',
+                                subtitle: 'Palabra de Dios',
+                                accentColor: const Color(0xFFE8C97A),
+                                animationType: IconAnimationType.shimmer,
+                                index: 5,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
+                                ),
                               ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
+                        const SizedBox(height: AppDesignSystem.spacingM),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.show_chart,
+                                title: 'Mi Progreso',
+                                subtitle: 'Días de victoria',
+                                accentColor: const Color(0xFF69F0AE),
+                                animationType: IconAnimationType.drawUp,
+                                index: 6,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppDesignSystem.spacingM),
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.auto_stories_rounded,
+                                title: 'Devocional',
+                                subtitle: '30 días de fe',
+                                accentColor: const Color(0xFFCE93D8),
+                                animationType: IconAnimationType.pulse,
+                                index: 7,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const DevotionalScreen()),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ]),
+                    ),
+                  ),
+
+                  // Tools Section Header — COMUNIDAD
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingL,
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingM,
                       ),
-                    ]),
-                  ),
-                ),
-
-                // Tools Section Header — COMUNIDAD
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingL,
-                      AppDesignSystem.spacingM,
-                      AppDesignSystem.spacingM,
-                    ),
-                    child: _buildSectionHeader(
-                      label: 'COMUNIDAD',
-                      icon: Icons.groups_rounded,
-                      accent: const Color(0xFFFFAB40),
-                      animationDelayMs: 350,
+                      child: _buildSectionHeader(
+                        label: 'COMUNIDAD',
+                        icon: Icons.groups_rounded,
+                        accent: const Color(0xFFFFAB40),
+                        animationDelayMs: 350,
+                      ),
                     ),
                   ),
-                ),
 
-                // Grid: Comunidad (Compañero, Muro de Batalla)
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: AppDesignSystem.spacingM,
-                  ),
-                  sliver: SliverList(
-                    delegate: SliverChildListDelegate([
-                      Row(
-                        children: [
-                          Expanded(
-                            child: ValueListenableBuilder<List<dynamic>>(
-                              valueListenable: BattlePartnerService.I.pendingInvitesNotifier,
-                              builder: (context, invites, _) {
-                                return Stack(
-                                  clipBehavior: Clip.none,
-                                  children: [
-                                    _GlassmorphicMenuButton(
-                                      icon: Icons.shield,
-                                      title: 'Compañero',
-                                      subtitle: 'De Batalla',
-                                      accentColor: const Color(0xFFFFAB40),
-                                      animationType: IconAnimationType.pulse,
-                                      index: 7,
-                                      onTap: () => Navigator.push(
-                                        context,
-                                        MaterialPageRoute(builder: (_) => const BattlePartnerScreen()),
-                                      ),
-                                    ),
-                                    if (invites.isNotEmpty)
-                                      Positioned(
-                                        top: -4,
-                                        right: -4,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(5),
-                                          decoration: const BoxDecoration(
-                                            color: AppDesignSystem.struggle,
-                                            shape: BoxShape.circle,
-                                          ),
-                                          child: Text(
-                                            '${invites.length}',
-                                            style: const TextStyle(
-                                              fontSize: 10,
-                                              fontWeight: FontWeight.w700,
-                                              color: Colors.white,
-                                            ),
+                  // Grid: Comunidad (Compañero, Muro de Batalla)
+                  SliverPadding(
+                    padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
+                    sliver: SliverList(
+                      delegate: SliverChildListDelegate([
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ValueListenableBuilder<List<dynamic>>(
+                                valueListenable: BattlePartnerService.I.pendingInvitesNotifier,
+                                builder: (context, invites, _) {
+                                  return Stack(
+                                    clipBehavior: Clip.none,
+                                    children: [
+                                      _GlassmorphicMenuButton(
+                                        icon: Icons.shield,
+                                        title: 'Compañero',
+                                        subtitle: 'De Batalla',
+                                        accentColor: const Color(0xFFFFAB40),
+                                        animationType: IconAnimationType.pulse,
+                                        index: 7,
+                                        onTap: () => Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (_) => const BattlePartnerScreen(),
                                           ),
                                         ),
                                       ),
-                                  ],
-                                );
-                              },
-                            ),
-                          ),
-                          const SizedBox(width: AppDesignSystem.spacingM),
-                          Expanded(
-                            child: _GlassmorphicMenuButton(
-                              icon: Icons.forum_rounded,
-                              title: 'Muro de',
-                              subtitle: 'Batalla',
-                              accentColor: const Color(0xFF64B5F6),
-                              animationType: IconAnimationType.shimmer,
-                              index: 8,
-                              onTap: () => Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (_) => const WallScreen()),
+                                      if (invites.isNotEmpty)
+                                        Positioned(
+                                          top: -4,
+                                          right: -4,
+                                          child: Container(
+                                            padding: const EdgeInsets.all(5),
+                                            decoration: const BoxDecoration(
+                                              color: AppDesignSystem.struggle,
+                                              shape: BoxShape.circle,
+                                            ),
+                                            child: Text(
+                                              '${invites.length}',
+                                              style: const TextStyle(
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w700,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                      // ── Admin row (hidden, solo si isAdmin) ──
-                      if (ProfileRepository.I.currentProfile?.isAdmin == true)
-                        Padding(
-                          padding: const EdgeInsets.only(top: AppDesignSystem.spacingM),
-                          child: Row(
-                            children: [
-                              Expanded(
-                                child: _GlassmorphicMenuButton(
-                                  icon: Icons.admin_panel_settings_rounded,
-                                  title: 'Moderación',
-                                  subtitle: 'Admin',
-                                  accentColor: AppDesignSystem.struggle,
-                                  animationType: IconAnimationType.pulse,
-                                  index: 9,
-                                  onTap: () => Navigator.push(
-                                    context,
-                                    MaterialPageRoute(builder: (_) => const AdminWallScreen()),
-                                  ),
+                            const SizedBox(width: AppDesignSystem.spacingM),
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
+                                icon: Icons.forum_rounded,
+                                title: 'Muro de',
+                                subtitle: 'Batalla',
+                                accentColor: const Color(0xFF64B5F6),
+                                animationType: IconAnimationType.shimmer,
+                                index: 8,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (_) => const WallScreen()),
                                 ),
                               ),
-                              const SizedBox(width: AppDesignSystem.spacingM),
-                              const Expanded(child: SizedBox()),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                    ]),
+                        // ── Admin row (hidden, solo si isAdmin) ──
+                        if (ProfileRepository.I.currentProfile?.isAdmin == true)
+                          Padding(
+                            padding: const EdgeInsets.only(top: AppDesignSystem.spacingM),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _GlassmorphicMenuButton(
+                                    icon: Icons.admin_panel_settings_rounded,
+                                    title: 'Moderación',
+                                    subtitle: 'Admin',
+                                    accentColor: AppDesignSystem.struggle,
+                                    animationType: IconAnimationType.pulse,
+                                    index: 9,
+                                    onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(builder: (_) => const AdminWallScreen()),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: AppDesignSystem.spacingM),
+                                const Expanded(child: SizedBox()),
+                              ],
+                            ),
+                          ),
+                      ]),
+                    ),
                   ),
-                ),
-                
-                // Bottom spacing for FAB + Safe Area
-                SliverToBoxAdapter(
-                  child: SizedBox(height: MediaQuery.of(context).padding.bottom + 120),
-                ),
-              ],
+
+                  // Bottom spacing for FAB + Safe Area
+                  SliverToBoxAdapter(
+                    child: SizedBox(height: MediaQuery.of(context).padding.bottom + 120),
+                  ),
+                ],
+              ),
             ),
-          ),
-          
-          // Floating SOS Button with breathing glow
-          Positioned(
-            left: 0,
-            right: 0,
-            bottom: MediaQuery.of(context).padding.bottom + 24,
-            child: const Center(
-              child: BreathingSosButton(),
+
+            // Floating SOS Button with breathing glow
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: MediaQuery.of(context).padding.bottom + 24,
+              child: const Center(child: BreathingSosButton()),
             ),
-          ),
-        ],
-      ),
-    ),  // Scaffold
-    );  // AnnotatedRegion
+          ],
+        ),
+      ), // Scaffold
+    ); // AnnotatedRegion
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -921,47 +875,35 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   }) {
     final color = accent ?? Colors.white;
     return Row(
-      children: [
-        Container(
-          padding: const EdgeInsets.all(AppDesignSystem.spacingS),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-            border: Border.all(
-              color: color.withOpacity(0.25),
-              width: 0.5,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(AppDesignSystem.spacingS),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
+                border: Border.all(color: color.withOpacity(0.25), width: 0.5),
+              ),
+              child: Icon(icon, color: color, size: 20),
             ),
-          ),
-          child: Icon(
-            icon,
-            color: color,
-            size: 20,
-          ),
-        ),
-        const SizedBox(width: AppDesignSystem.spacingS),
-        Text(
-          label,
-          style: const TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.2,
-            color: Colors.white70,
-          ),
-        ),
-      ],
-    )
+            const SizedBox(width: AppDesignSystem.spacingS),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 1.2,
+                color: Colors.white70,
+              ),
+            ),
+          ],
+        )
         .animate()
-        .fadeIn(delay: Duration(milliseconds: animationDelayMs), duration: 400.ms)
+        .fadeIn(
+          delay: Duration(milliseconds: animationDelayMs),
+          duration: 400.ms,
+        )
         .slideX(begin: -0.1, end: 0);
   }
-
-
-
-
-
-
-
-
 }
 
 // ============================================================================
@@ -995,7 +937,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
     with TickerProviderStateMixin {
   bool _isHovered = false;
   bool _isPressed = false;
-  
+
   late AnimationController _iconAnimationController;
   late AnimationController _shimmerController;
   late Animation<double> _iconAnimation;
@@ -1033,59 +975,56 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         );
         _iconAnimation = Tween<double>(begin: 1.0, end: 1.0).animate(_iconAnimationController);
         break;
-        
+
       case IconAnimationType.heartbeat:
         _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 800),
         )..repeat(reverse: true);
-        _iconAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-          CurvedAnimation(
-            parent: _iconAnimationController,
-            curve: Curves.easeInOutSine,
-          ),
-        );
+        _iconAnimation = Tween<double>(
+          begin: 1.0,
+          end: 1.15,
+        ).animate(CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeInOutSine));
         break;
-        
+
       case IconAnimationType.rotate:
         _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(seconds: 10),
         )..repeat();
-        _iconAnimation = Tween<double>(begin: 0, end: 2 * math.pi).animate(_iconAnimationController);
+        _iconAnimation = Tween<double>(
+          begin: 0,
+          end: 2 * math.pi,
+        ).animate(_iconAnimationController);
         break;
-        
+
       case IconAnimationType.drawUp:
         _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 1200),
         );
-        _iconAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-          CurvedAnimation(
-            parent: _iconAnimationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
+        _iconAnimation = Tween<double>(
+          begin: 0.0,
+          end: 1.0,
+        ).animate(CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeOutCubic));
         Future.delayed(Duration(milliseconds: 400 + widget.index * 100), () {
           if (mounted) _iconAnimationController.forward();
         });
         break;
-        
+
       case IconAnimationType.pulse:
         _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 2000),
         )..repeat(reverse: true);
-        _iconAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
-          CurvedAnimation(
-            parent: _iconAnimationController,
-            curve: Curves.easeInOut,
-          ),
-        );
+        _iconAnimation = Tween<double>(
+          begin: 0.7,
+          end: 1.0,
+        ).animate(CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeInOut));
         break;
     }
   }
@@ -1100,103 +1039,100 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      onEnter: (_) => setState(() => _isHovered = true),
-      onExit: (_) => setState(() => _isHovered = false),
-      child: GestureDetector(
-        onTapDown: (_) => setState(() => _isPressed = true),
-        onTapUp: (_) => setState(() => _isPressed = false),
-        onTapCancel: () => setState(() => _isPressed = false),
-        onTap: () {
-          HapticFeedback.lightImpact();
-          widget.onTap();
-        },
-        child: AnimatedScale(
-          scale: _isPressed ? 0.97 : (_isHovered ? 1.02 : 1.0),
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutCubic,
-          child: Container(
-            height: 115,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(20),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  decoration: BoxDecoration(
-                    // Cristal puro - gradiente lineal sutil
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: _isPressed || _isHovered
-                          ? [
-                              widget.accentColor.withOpacity(0.15),
-                              widget.accentColor.withOpacity(0.05),
-                            ]
-                          : [
-                              Colors.white.withOpacity(0.10),
-                              Colors.white.withOpacity(0.02),
-                            ],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  // CustomPaint para borde gradiente mágico
-                  child: CustomPaint(
-                    painter: _NeonGradientBorderPainter(
-                      accentColor: widget.accentColor,
-                      isHovered: _isHovered,
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(18),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          // Icono con NEÓN y micro-glow
-                          _buildAnimatedIcon(),
-                          
-                          // Texto
-                          Column(
+          onEnter: (_) => setState(() => _isHovered = true),
+          onExit: (_) => setState(() => _isHovered = false),
+          child: GestureDetector(
+            onTapDown: (_) => setState(() => _isPressed = true),
+            onTapUp: (_) => setState(() => _isPressed = false),
+            onTapCancel: () => setState(() => _isPressed = false),
+            onTap: () {
+              HapticFeedback.lightImpact();
+              widget.onTap();
+            },
+            child: AnimatedScale(
+              scale: _isPressed ? 0.97 : (_isHovered ? 1.02 : 1.0),
+              duration: const Duration(milliseconds: 150),
+              curve: Curves.easeOutCubic,
+              child: Container(
+                height: 115,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: BackdropFilter(
+                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 200),
+                      decoration: BoxDecoration(
+                        // Cristal puro - gradiente lineal sutil
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: _isPressed || _isHovered
+                              ? [
+                                  widget.accentColor.withOpacity(0.15),
+                                  widget.accentColor.withOpacity(0.05),
+                                ]
+                              : [Colors.white.withOpacity(0.10), Colors.white.withOpacity(0.02)],
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      // CustomPaint para borde gradiente mágico
+                      child: CustomPaint(
+                        painter: _NeonGradientBorderPainter(
+                          accentColor: widget.accentColor,
+                          isHovered: _isHovered,
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.all(18),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                widget.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w700,
-                                  color: Colors.white,
-                                  letterSpacing: 0.3,
-                                ),
-                              ),
-                              const SizedBox(height: 3),
-                              Row(
+                              // Icono con NEÓN y micro-glow
+                              _buildAnimatedIcon(),
+
+                              // Texto
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  Expanded(
-                                    child: Text(
-                                      widget.subtitle,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        color: Colors.white.withOpacity(0.6),
-                                        fontWeight: FontWeight.w500,
-                                        letterSpacing: 0.2,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
+                                  Text(
+                                    widget.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
+                                      letterSpacing: 0.3,
                                     ),
                                   ),
-                                  Icon(
-                                    Icons.arrow_forward_ios_rounded,
-                                    size: 11,
-                                    color: Colors.white.withOpacity(0.5),
+                                  const SizedBox(height: 3),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          widget.subtitle,
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: Colors.white.withOpacity(0.6),
+                                            fontWeight: FontWeight.w500,
+                                            letterSpacing: 0.2,
+                                          ),
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                      Icon(
+                                        Icons.arrow_forward_ios_rounded,
+                                        size: 11,
+                                        color: Colors.white.withOpacity(0.5),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -1204,9 +1140,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
               ),
             ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(
           delay: Duration(milliseconds: 300 + (widget.index * 100)),
@@ -1223,29 +1157,17 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
   Widget _buildAnimatedIcon() {
     // Icono con color NEÓN pastel y micro-glow LED
     const double iconSize = 28;
-    
+
     // Widget base del icono con glow
     Widget iconWidget = Container(
       decoration: BoxDecoration(
         boxShadow: [
           // Micro-glow LED detrás del icono
-          BoxShadow(
-            color: widget.accentColor.withOpacity(0.6),
-            blurRadius: 12,
-            spreadRadius: 1,
-          ),
-          BoxShadow(
-            color: widget.accentColor.withOpacity(0.3),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
+          BoxShadow(color: widget.accentColor.withOpacity(0.6), blurRadius: 12, spreadRadius: 1),
+          BoxShadow(color: widget.accentColor.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
         ],
       ),
-      child: Icon(
-        widget.icon,
-        color: widget.accentColor,
-        size: iconSize,
-      ),
+      child: Icon(widget.icon, color: widget.accentColor, size: iconSize),
     );
 
     switch (widget.animationType) {
@@ -1273,11 +1195,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                   return LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [
-                      widget.accentColor,
-                      Colors.white,
-                      widget.accentColor,
-                    ],
+                    colors: [widget.accentColor, Colors.white, widget.accentColor],
                     stops: [
                       (_shimmerController.value - 0.3).clamp(0.0, 1.0),
                       _shimmerController.value,
@@ -1286,11 +1204,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                   ).createShader(bounds);
                 },
                 blendMode: BlendMode.srcIn,
-                child: Icon(
-                  widget.icon,
-                  color: Colors.white,
-                  size: iconSize,
-                ),
+                child: Icon(widget.icon, color: Colors.white, size: iconSize),
               ),
             );
           },
@@ -1300,10 +1214,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         return AnimatedBuilder(
           animation: _iconAnimation,
           builder: (context, child) {
-            return Transform.scale(
-              scale: _iconAnimation.value,
-              child: iconWidget,
-            );
+            return Transform.scale(scale: _iconAnimation.value, child: iconWidget);
           },
         );
 
@@ -1311,10 +1222,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         return AnimatedBuilder(
           animation: _iconAnimation,
           builder: (context, child) {
-            return Transform.rotate(
-              angle: _iconAnimation.value,
-              child: iconWidget,
-            );
+            return Transform.rotate(angle: _iconAnimation.value, child: iconWidget);
           },
         );
 
@@ -1336,10 +1244,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         return AnimatedBuilder(
           animation: _iconAnimation,
           builder: (context, child) {
-            return Opacity(
-              opacity: 0.7 + (_iconAnimation.value * 0.3),
-              child: iconWidget,
-            );
+            return Opacity(opacity: 0.7 + (_iconAnimation.value * 0.3), child: iconWidget);
           },
         );
     }
@@ -1354,16 +1259,13 @@ class _NeonGradientBorderPainter extends CustomPainter {
   final Color accentColor;
   final bool isHovered;
 
-  _NeonGradientBorderPainter({
-    required this.accentColor,
-    required this.isHovered,
-  });
+  _NeonGradientBorderPainter({required this.accentColor, required this.isHovered});
 
   @override
   void paint(Canvas canvas, Size size) {
     final rect = Rect.fromLTWH(0, 0, size.width, size.height);
     final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(20));
-    
+
     // Gradiente que va del color neón (esquina superior izquierda) a transparente,
     // usando SOLO el accentColor. Antes había paradas de blanco que hacían que
     // el borde inferior se viera «blancoso» sobre fondos claros.
@@ -1438,11 +1340,7 @@ class _QuickGlanceChip extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: TextStyle(
-                color: color,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
+              style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
             ),
           ],
         ),

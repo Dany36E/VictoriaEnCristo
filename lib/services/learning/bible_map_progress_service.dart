@@ -21,19 +21,13 @@ class BibleMapProgressState {
   const BibleMapProgressState({this.completedMaps = const {}});
 
   BibleMapProgressState copyWith({Map<String, int>? completedMaps}) =>
-      BibleMapProgressState(
-        completedMaps: completedMaps ?? this.completedMaps,
-      );
+      BibleMapProgressState(completedMaps: completedMaps ?? this.completedMaps);
 
-  Map<String, dynamic> toJson() => {
-        'completedMaps': completedMaps,
-      };
+  Map<String, dynamic> toJson() => {'completedMaps': completedMaps};
 
   factory BibleMapProgressState.fromJson(Map<String, dynamic> j) {
     final raw = j['completedMaps'] as Map<String, dynamic>? ?? {};
-    return BibleMapProgressState(
-      completedMaps: raw.map((k, v) => MapEntry(k, v as int)),
-    );
+    return BibleMapProgressState(completedMaps: raw.map((k, v) => MapEntry(k, v as int)));
   }
 }
 
@@ -46,24 +40,34 @@ class BibleMapProgressService {
   SharedPreferences? _prefs;
   bool _init = false;
 
-  final ValueNotifier<BibleMapProgressState> stateNotifier =
-      ValueNotifier(const BibleMapProgressState());
+  final ValueNotifier<BibleMapProgressState> stateNotifier = ValueNotifier(
+    const BibleMapProgressState(),
+  );
 
   Future<void> init() async {
-    if (_init) return;
+    if (_init) {
+      _refreshFromStorage();
+      return;
+    }
     _prefs = await SharedPreferences.getInstance();
     _init = true;
+    _refreshFromStorage();
+    debugPrint('🌍 [MAPS] Progress init completed=${stateNotifier.value.completedMaps.length}');
+  }
+
+  void _refreshFromStorage() {
     final raw = _prefs?.getString(_kKey);
     if (raw != null && raw.isNotEmpty) {
       try {
         stateNotifier.value = BibleMapProgressState.fromJson(
-            jsonDecode(raw) as Map<String, dynamic>);
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
       } catch (_) {
         stateNotifier.value = const BibleMapProgressState();
       }
+    } else {
+      stateNotifier.value = const BibleMapProgressState();
     }
-    debugPrint(
-        '🌍 [MAPS] Progress init completed=${stateNotifier.value.completedMaps.length}');
   }
 
   Future<void> _save(BibleMapProgressState s) async {
@@ -71,11 +75,9 @@ class BibleMapProgressService {
     stateNotifier.value = s;
   }
 
-  bool isCompleted(String mapId) =>
-      stateNotifier.value.completedMaps.containsKey(mapId);
+  bool isCompleted(String mapId) => stateNotifier.value.completedMaps.containsKey(mapId);
 
-  int starsFor(String mapId) =>
-      stateNotifier.value.completedMaps[mapId] ?? 0;
+  int starsFor(String mapId) => stateNotifier.value.completedMaps[mapId] ?? 0;
 
   /// ¿Está desbloqueado? El primer mapa siempre; los demás requieren
   /// que el anterior (por orden) esté completado.
@@ -93,9 +95,7 @@ class BibleMapProgressService {
     final s = stateNotifier.value;
     final prev = s.completedMaps[mapId] ?? 0;
     if (stars <= prev) return 0; // No mejoró
-    final updated = s.copyWith(
-      completedMaps: {...s.completedMaps, mapId: stars},
-    );
+    final updated = s.copyWith(completedMaps: {...s.completedMaps, mapId: stars});
     await _save(updated);
     await LearningProgressService.I.addXp(xpReward);
     await LearningProgressService.I.recordStudyActivity();
@@ -105,6 +105,5 @@ class BibleMapProgressService {
 
   int get completedCount => stateNotifier.value.completedMaps.length;
 
-  int get totalStars =>
-      stateNotifier.value.completedMaps.values.fold(0, (a, b) => a + b);
+  int get totalStars => stateNotifier.value.completedMaps.values.fold(0, (a, b) => a + b);
 }

@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/prophecy_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/prophecy_progress_service.dart';
 import '../../theme/app_theme.dart';
@@ -39,10 +40,17 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningProphecy);
     for (final p in r.pairs) {
       _placed[p.id] = null;
     }
     _bank = [...r.pairs]..shuffle();
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningProphecy);
+    super.dispose();
   }
 
   void _onAccept(String pairId, ProphecyPair dragged) {
@@ -93,10 +101,7 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
         backgroundColor: t.surface,
         elevation: 0,
         iconTheme: IconThemeData(color: t.textPrimary),
-        title: Text(
-          r.title,
-          style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
-        ),
+        title: Text(r.title, style: AppDesignSystem.headlineMedium(context, color: t.textPrimary)),
       ),
       body: _done ? _buildResult(t) : _buildGame(t),
     );
@@ -113,24 +118,22 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
             children: [
               Text(
                 r.description,
-                style: AppDesignSystem.bodyMedium(context,
-                    color: t.textSecondary),
+                style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
               ),
               const SizedBox(height: 6),
               Row(
                 children: [
                   Text(
                     'Errores: $_errors',
-                    style: AppDesignSystem.labelMedium(context,
-                        color: _errors == 0
-                            ? AppDesignSystem.gold
-                            : const Color(0xFFE58E73)),
+                    style: AppDesignSystem.labelMedium(
+                      context,
+                      color: _errors == 0 ? AppDesignSystem.gold : const Color(0xFFE58E73),
+                    ),
                   ),
                   const Spacer(),
                   Text(
                     'Colocados: ${r.pairs.length - _bank.length}/${r.pairs.length}',
-                    style: AppDesignSystem.labelMedium(context,
-                        color: AppDesignSystem.gold),
+                    style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
                   ),
                 ],
               ),
@@ -173,8 +176,7 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
     );
   }
 
-  Widget _prophecySlot(
-      AppThemeData t, ProphecyPair p, String? placedId) {
+  Widget _prophecySlot(AppThemeData t, ProphecyPair p, String? placedId) {
     final matched = placedId != null;
     return DragTarget<ProphecyPair>(
       onWillAcceptWithDetails: (d) => !matched,
@@ -188,15 +190,15 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
             color: matched
                 ? const Color(0xFF1F3A1F)
                 : highlight
-                    ? AppDesignSystem.gold.withOpacity(0.1)
-                    : t.cardBg,
+                ? AppDesignSystem.gold.withOpacity(0.1)
+                : t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
             border: Border.all(
               color: matched
                   ? const Color(0xFF4CAF50)
                   : highlight
-                      ? AppDesignSystem.gold
-                      : t.cardBorder,
+                  ? AppDesignSystem.gold
+                  : t.cardBorder,
               width: matched || highlight ? 2 : 1,
             ),
           ),
@@ -207,26 +209,22 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
                 children: [
                   Text(
                     p.topic,
-                    style: AppDesignSystem.labelSmall(context,
-                        color: AppDesignSystem.gold),
+                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
                   ),
                   const Spacer(),
                   if (matched)
-                    const Icon(Icons.check_circle_rounded,
-                        color: Color(0xFF4CAF50), size: 16),
+                    const Icon(Icons.check_circle_rounded, color: Color(0xFF4CAF50), size: 16),
                 ],
               ),
               const SizedBox(height: 2),
               Text(
                 p.prophecyRef,
-                style: AppDesignSystem.labelSmall(context,
-                    color: t.textSecondary),
+                style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
               ),
               const SizedBox(height: 4),
               Text(
                 '"${p.prophecyText}"',
-                style: AppDesignSystem.bodyMedium(context,
-                    color: t.textPrimary),
+                style: AppDesignSystem.bodyMedium(context, color: t.textPrimary),
                 maxLines: 3,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -236,21 +234,18 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     color: Colors.black.withOpacity(0.2),
-                    borderRadius:
-                        BorderRadius.circular(AppDesignSystem.radiusM),
+                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         p.fulfillmentRef,
-                        style: AppDesignSystem.labelSmall(context,
-                            color: const Color(0xFF8FD98F)),
+                        style: AppDesignSystem.labelSmall(context, color: const Color(0xFF8FD98F)),
                       ),
                       Text(
                         '"${p.fulfillmentText}"',
-                        style: AppDesignSystem.bodyMedium(context,
-                            color: t.textPrimary),
+                        style: AppDesignSystem.bodyMedium(context, color: t.textPrimary),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -279,14 +274,12 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
         children: [
           Text(
             p.fulfillmentRef,
-            style: AppDesignSystem.labelSmall(context,
-                color: AppDesignSystem.gold),
+            style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
           ),
           const SizedBox(height: 4),
           Text(
             '"${p.fulfillmentText}"',
-            style: AppDesignSystem.bodyMedium(context,
-                color: t.textPrimary),
+            style: AppDesignSystem.bodyMedium(context, color: t.textPrimary),
             maxLines: 4,
             overflow: TextOverflow.ellipsis,
           ),
@@ -315,18 +308,13 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.auto_awesome_rounded,
-                  color: AppDesignSystem.gold, size: 80)
+          const Icon(Icons.auto_awesome_rounded, color: AppDesignSystem.gold, size: 80)
               .animate()
-              .scale(
-                  begin: const Offset(0.3, 0.3),
-                  duration: 500.ms,
-                  curve: Curves.elasticOut),
+              .scale(begin: const Offset(0.3, 0.3), duration: 500.ms, curve: Curves.elasticOut),
           const SizedBox(height: AppDesignSystem.spacingM),
           Text(
             '¡Profecías conectadas!',
-            style: AppDesignSystem.headlineMedium(context,
-                color: t.textPrimary),
+            style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
           ),
           const SizedBox(height: 8),
           Row(
@@ -338,8 +326,7 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
                 child: Icon(
                   filled ? Icons.star_rounded : Icons.star_outline_rounded,
                   size: 40,
-                  color:
-                      filled ? AppDesignSystem.gold : t.textSecondary,
+                  color: filled ? AppDesignSystem.gold : t.textSecondary,
                 ),
               );
             }),
@@ -347,16 +334,14 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
           const SizedBox(height: AppDesignSystem.spacingM),
           Text(
             'Errores: $_errors',
-            style: AppDesignSystem.bodyMedium(context,
-                color: t.textSecondary),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
           ),
           if (_awardedXp > 0)
             Padding(
               padding: const EdgeInsets.only(top: 4),
               child: Text(
                 '+$_awardedXp XP',
-                style: AppDesignSystem.headlineSmall(context,
-                    color: AppDesignSystem.gold),
+                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.gold),
               ),
             ),
           const SizedBox(height: AppDesignSystem.spacingL),

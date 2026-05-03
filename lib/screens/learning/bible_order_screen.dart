@@ -11,11 +11,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/book_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/bible_order_progress_service.dart';
 import '../../services/learning/book_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import 'bible_order_learn_screen.dart';
 import 'bible_order_quiz_screen.dart';
 
 class BibleOrderScreen extends StatefulWidget {
@@ -25,19 +27,20 @@ class BibleOrderScreen extends StatefulWidget {
   State<BibleOrderScreen> createState() => _BibleOrderScreenState();
 }
 
-class _BibleOrderScreenState extends State<BibleOrderScreen>
-    with SingleTickerProviderStateMixin {
+class _BibleOrderScreenState extends State<BibleOrderScreen> with SingleTickerProviderStateMixin {
   late TabController _tabs;
 
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningBibleOrder);
     _tabs = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
     _tabs.dispose();
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
     super.dispose();
   }
 
@@ -106,16 +109,12 @@ class _BibleOrderScreenState extends State<BibleOrderScreen>
               Expanded(
                 child: Text(
                   '$done/$totalCats secciones · $stars ★',
-                  style:
-                      AppDesignSystem.bodyLarge(context, color: t.textPrimary),
+                  style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
                 ),
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: AppDesignSystem.labelMedium(
-                  context,
-                  color: AppDesignSystem.gold,
-                ),
+                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
               ),
             ],
           ),
@@ -135,8 +134,7 @@ class _BibleOrderScreenState extends State<BibleOrderScreen>
   }
 
   /// Construye la lista de categorías para un testamento.
-  Widget _buildTestamentView(
-      List<BibleBook> books, BibleOrderProgressState state, AppThemeData t) {
+  Widget _buildTestamentView(List<BibleBook> books, BibleOrderProgressState state, AppThemeData t) {
     final Map<String, List<BibleBook>> byCat = {};
     for (final b in books) {
       byCat.putIfAbsent(b.category, () => []).add(b);
@@ -153,20 +151,21 @@ class _BibleOrderScreenState extends State<BibleOrderScreen>
           final allKey = '${testament}_all';
           final bestStars = state.bestStars[allKey] ?? 0;
           return _CategoryCard(
-            title: testament == 'AT'
-                ? 'Todo el Antiguo Testamento'
-                : 'Todo el Nuevo Testamento',
-            bookNames:
-                books.map((b) => b.name).toList(),
+            title: testament == 'AT' ? 'Todo el Antiguo Testamento' : 'Todo el Nuevo Testamento',
+            bookNames: books.map((b) => b.name).toList(),
             bookCount: books.length,
             bestStars: bestStars,
             icon: Icons.auto_stories_rounded,
+            onLearn: () => _startLearn(
+              context,
+              key: allKey,
+              title: testament == 'AT' ? 'AT completo' : 'NT completo',
+              books: books,
+            ),
             onPractice: () => _startQuiz(
               context,
               key: allKey,
-              title: testament == 'AT'
-                  ? 'AT completo'
-                  : 'NT completo',
+              title: testament == 'AT' ? 'AT completo' : 'NT completo',
               books: books,
             ),
           ).animate().fadeIn(duration: 250.ms).slideY(begin: 0.05, end: 0);
@@ -184,21 +183,32 @@ class _BibleOrderScreenState extends State<BibleOrderScreen>
             bookCount: items.length,
             bestStars: bestStars,
             icon: Icons.library_books_rounded,
+            onLearn: items.length < 2
+                ? null
+                : () => _startLearn(context, key: catKey, title: cat, books: items),
             onPractice: items.length < 2
                 ? null
-                : () => _startQuiz(
-                      context,
-                      key: catKey,
-                      title: cat,
-                      books: items,
-                    ),
-          ).animate().fadeIn(duration: 250.ms, delay: (40 * i).ms).slideY(
-                begin: 0.05,
-                end: 0,
-              ),
+                : () => _startQuiz(context, key: catKey, title: cat, books: items),
+          ).animate().fadeIn(duration: 250.ms, delay: (40 * i).ms).slideY(begin: 0.05, end: 0),
         );
       },
     );
+  }
+
+  Future<void> _startLearn(
+    BuildContext context, {
+    required String key,
+    required String title,
+    required List<BibleBook> books,
+  }) async {
+    FeedbackEngine.I.tap();
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BibleOrderLearnScreen(categoryKey: key, title: title, books: books),
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   Future<void> _startQuiz(
@@ -211,11 +221,7 @@ class _BibleOrderScreenState extends State<BibleOrderScreen>
     await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => BibleOrderQuizScreen(
-          categoryKey: key,
-          title: title,
-          books: books,
-        ),
+        builder: (_) => BibleOrderQuizScreen(categoryKey: key, title: title, books: books),
       ),
     );
     if (mounted) setState(() {});
@@ -243,6 +249,7 @@ class _CategoryCard extends StatelessWidget {
   final int bookCount;
   final int bestStars;
   final IconData icon;
+  final VoidCallback? onLearn;
   final VoidCallback? onPractice;
 
   const _CategoryCard({
@@ -251,6 +258,7 @@ class _CategoryCard extends StatelessWidget {
     required this.bookCount,
     required this.bestStars,
     required this.icon,
+    this.onLearn,
     this.onPractice,
   });
 
@@ -290,13 +298,11 @@ class _CategoryCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: AppDesignSystem.headlineSmall(context,
-                          color: t.textPrimary),
+                      style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                     ),
                     Text(
                       '$bookCount libros',
-                      style: AppDesignSystem.labelMedium(context,
-                          color: t.textSecondary),
+                      style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
                     ),
                   ],
                 ),
@@ -314,36 +320,52 @@ class _CategoryCard extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                 decoration: BoxDecoration(
                   color: t.surface,
-                  borderRadius:
-                      BorderRadius.circular(AppDesignSystem.radiusFull),
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                   border: Border.all(color: t.divider),
                 ),
                 child: Text(
                   name,
-                  style: AppDesignSystem.labelSmall(context,
-                      color: t.textSecondary),
+                  style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
                 ),
               );
             }).toList(),
           ),
-          if (onPractice != null) ...[
+          if (onLearn != null || onPractice != null) ...[
             const SizedBox(height: AppDesignSystem.spacingM),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton.icon(
-                onPressed: onPractice,
-                icon: const Icon(Icons.play_arrow_rounded, size: 18),
-                label: Text(
-                    completed ? 'Practicar de nuevo' : 'Practicar orden'),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppDesignSystem.gold,
-                  foregroundColor: Colors.black,
-                  shape: RoundedRectangleBorder(
-                    borderRadius:
-                        BorderRadius.circular(AppDesignSystem.radiusFull),
+            Row(
+              children: [
+                if (onLearn != null)
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: onLearn,
+                      icon: const Icon(Icons.school_rounded, size: 16),
+                      label: const Text('Aprender'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: AppDesignSystem.gold,
+                        side: BorderSide(color: AppDesignSystem.gold.withOpacity(0.7)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
+                if (onLearn != null && onPractice != null) const SizedBox(width: 8),
+                if (onPractice != null)
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: onPractice,
+                      icon: const Icon(Icons.play_arrow_rounded, size: 16),
+                      label: Text(completed ? 'Practicar' : 'Practicar'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppDesignSystem.gold,
+                        foregroundColor: Colors.black,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ],
         ],

@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'user_pref_cloud_sync_service.dart';
 
 /// Estado del reproductor TTS
 enum TtsState { playing, stopped, paused }
@@ -17,7 +19,7 @@ class AudioService {
   // El valor 1.0 de flutter_tts es muy rápido. Mapeamos valores de UI
   // a valores reales más naturales para una lectura meditativa.
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   /// Convertir velocidad de UI a velocidad real del motor TTS
   /// UI: 0.75 → TTS: 0.35 (Muy pausado)
   /// UI: 1.0  → TTS: 0.45 (Conversación calmada)
@@ -34,7 +36,7 @@ class AudioService {
   // PRE-PROCESAMIENTO DE TEXTO BÍBLICO (NLP)
   // Sanitiza el texto para que el TTS lea correctamente las referencias
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   /// Mapa de libros numerados a su forma hablada
   static const Map<String, String> _numberedBooks = {
     '1 Corintios': 'Primera de Corintios',
@@ -60,12 +62,12 @@ class AudioService {
   /// Convierte "1 Corintios 10:13" → "Primera de Corintios, capítulo diez, versículo trece"
   String sanitizeTextForTts(String text) {
     String result = text;
-    
+
     // 1. Reemplazar libros numerados por su forma hablada
     _numberedBooks.forEach((numbered, spoken) {
       result = result.replaceAll(numbered, spoken);
     });
-    
+
     // 2. Detectar patrón de capítulo:versículo (ej. "10:13", "3:16")
     // Regex: uno o más dígitos, seguido de dos puntos, seguido de uno o más dígitos
     final versePattern = RegExp(r'(\d+):(\d+)');
@@ -74,20 +76,20 @@ class AudioService {
       final verse = match.group(2);
       return 'capítulo $chapter, versículo $verse';
     });
-    
+
     // 3. Limpiar caracteres problemáticos
     result = result
-        .replaceAll('—', ', ')  // Guión largo
-        .replaceAll('–', ', ')  // Guión medio
-        .replaceAll('"', '')    // Comillas dobles
-        .replaceAll('"', '')    // Comillas tipográficas
-        .replaceAll('"', '')    // Comillas tipográficas
-        .replaceAll('«', '')    // Comillas españolas
-        .replaceAll('»', '');   // Comillas españolas
-    
+        .replaceAll('—', ', ') // Guión largo
+        .replaceAll('–', ', ') // Guión medio
+        .replaceAll('"', '') // Comillas dobles
+        .replaceAll('"', '') // Comillas tipográficas
+        .replaceAll('"', '') // Comillas tipográficas
+        .replaceAll('«', '') // Comillas españolas
+        .replaceAll('»', ''); // Comillas españolas
+
     // 4. Añadir pausas naturales después de puntos
     result = result.replaceAll('. ', '... ');
-    
+
     return result;
   }
 
@@ -99,6 +101,7 @@ class AudioService {
   // Flutter TTS instance
   FlutterTts? _flutterTts;
   bool _ttsInitialized = false;
+  bool _ttsAvailable = true;
 
   // Estado
   TtsState _ttsState = TtsState.stopped;
@@ -118,6 +121,7 @@ class AudioService {
   bool get isStopped => _ttsState == TtsState.stopped;
   TtsState get state => _ttsState;
   bool get audioEnabled => _audioEnabled;
+  bool get ttsAvailable => _ttsAvailable;
   double get audioSpeed => _audioSpeed;
   double get audioPitch => _audioPitch;
   String? get currentlyPlaying => _currentlyPlaying;
@@ -125,15 +129,23 @@ class AudioService {
   /// Inicializar servicio TTS
   Future<void> initialize() async {
     await _loadSettings();
-    await _initTts();
+    try {
+      await _initTts();
+    } on MissingPluginException catch (e) {
+      _ttsAvailable = false;
+      debugPrint('TTS unavailable: $e');
+    } catch (e) {
+      _ttsAvailable = false;
+      debugPrint('TTS init error: $e');
+    }
   }
 
   /// Inicializar Flutter TTS
   Future<void> _initTts() async {
-    if (_ttsInitialized) return;
-    
+    if (_ttsInitialized || !_ttsAvailable) return;
+
     _flutterTts = FlutterTts();
-    
+
     // Configurar idioma español latinoamericano (México como predeterminado)
     // Intentar primero es-MX (México), luego es-US (Estados Unidos), fallback es-ES
     try {
@@ -149,7 +161,7 @@ class AudioService {
     await _flutterTts!.setSpeechRate(_mapSpeedToTts(_audioSpeed));
     await _flutterTts!.setPitch(_audioPitch);
     await _flutterTts!.setVolume(1.0);
-    
+
     // Listeners de estado
     _flutterTts!.setStartHandler(() {
       _ttsState = TtsState.playing;
@@ -201,6 +213,7 @@ class AudioService {
     await prefs.setBool(_audioEnabledKey, _audioEnabled);
     await prefs.setDouble(_audioSpeedKey, _audioSpeed);
     await prefs.setDouble(_audioPitchKey, _audioPitch);
+    UserPrefCloudSyncService.I.markDirty();
   }
 
   /// Habilitar/deshabilitar audio
@@ -233,20 +246,32 @@ class AudioService {
 
   /// Reproducir texto genérico (con sanitización automática)
   Future<void> speak(String text, {String? label}) async {
-    if (!_audioEnabled) return;
-    if (!_ttsInitialized) await _initTts();
-    
+    if (!_audioEnabled || !_ttsAvailable) return;
+    if (!_ttsInitialized) {
+      try {
+        await _initTts();
+      } on MissingPluginException catch (e) {
+        _ttsAvailable = false;
+        debugPrint('TTS unavailable: $e');
+        return;
+      } catch (e) {
+        _ttsAvailable = false;
+        debugPrint('TTS speak init error: $e');
+        return;
+      }
+    }
+
     // Detener cualquier reproducción actual
     await stop();
-    
+
     // Sanitizar texto para lectura natural de citas bíblicas
     final sanitizedText = sanitizeTextForTts(text);
-    
+
     _currentlyPlaying = label ?? 'Texto';
     _pendingText = sanitizedText;
     _ttsState = TtsState.playing;
     _stateController.add(_ttsState);
-    
+
     await _flutterTts!.speak(sanitizedText);
   }
 
@@ -258,9 +283,10 @@ class AudioService {
     required String prayer,
   }) async {
     if (!_audioEnabled) return;
-    
+
     // Construir texto completo con pausas naturales
-    final fullText = '''
+    final fullText =
+        '''
 $title.
 
 Versículo: $verse.
@@ -269,14 +295,14 @@ Reflexión: $reflection.
 
 Oración: $prayer.
 ''';
-    
+
     await speak(fullText, label: title);
   }
 
   /// Reproducir versículo individual
   Future<void> playVerse(String reference, String verseText) async {
     if (!_audioEnabled) return;
-    
+
     final text = '$verseText. $reference.';
     await speak(text, label: reference);
   }
@@ -284,7 +310,7 @@ Oración: $prayer.
   /// Reproducir oración
   Future<void> playPrayer(String prayerTitle, String prayerContent) async {
     if (!_audioEnabled) return;
-    
+
     final text = '$prayerTitle. $prayerContent';
     await speak(text, label: prayerTitle);
   }
@@ -300,7 +326,7 @@ Oración: $prayer.
   /// Reanudar reproducción (usa API nativa de Android/iOS)
   Future<void> resume() async {
     if (!_ttsInitialized || _ttsState != TtsState.paused) return;
-    
+
     // Intentar usar el resume nativo primero
     try {
       await _flutterTts!.speak(_pendingText ?? '');

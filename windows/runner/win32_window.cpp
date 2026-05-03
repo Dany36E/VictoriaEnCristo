@@ -29,6 +29,9 @@ constexpr const wchar_t kGetPreferredBrightnessRegValue[] = L"AppsUseLightTheme"
 // The number of Win32Window objects that currently exist.
 static int g_active_window_count = 0;
 
+constexpr int kFullscreenHotkeyId = 1;
+constexpr int kAltEnterFullscreenHotkeyId = 2;
+
 using EnableNonClientDpiScaling = BOOL __stdcall(HWND hwnd);
 
 // Scale helper to convert logical scaler values to physical using passed in
@@ -145,12 +148,47 @@ bool Win32Window::Create(const std::wstring& title,
   }
 
   UpdateTheme(window);
+  RegisterHotKey(window, kFullscreenHotkeyId, 0, VK_F11);
+  RegisterHotKey(window, kAltEnterFullscreenHotkeyId, MOD_ALT, VK_RETURN);
 
   return OnCreate();
 }
 
 bool Win32Window::Show() {
-  return ShowWindow(window_handle_, SW_SHOWNORMAL);
+  return ShowWindow(window_handle_, SW_SHOWMAXIMIZED);
+}
+
+void Win32Window::ToggleFullscreen() {
+  if (!window_handle_) {
+    return;
+  }
+
+  if (!is_fullscreen_) {
+    previous_style_ = GetWindowLong(window_handle_, GWL_STYLE);
+    previous_placement_.length = sizeof(WINDOWPLACEMENT);
+    GetWindowPlacement(window_handle_, &previous_placement_);
+
+    HMONITOR monitor = MonitorFromWindow(window_handle_, MONITOR_DEFAULTTONEAREST);
+    MONITORINFO monitor_info = {sizeof(MONITORINFO)};
+    if (GetMonitorInfo(monitor, &monitor_info)) {
+      SetWindowLong(window_handle_, GWL_STYLE,
+                    previous_style_ & ~WS_OVERLAPPEDWINDOW);
+      SetWindowPos(window_handle_, HWND_TOP, monitor_info.rcMonitor.left,
+                   monitor_info.rcMonitor.top,
+                   monitor_info.rcMonitor.right - monitor_info.rcMonitor.left,
+                   monitor_info.rcMonitor.bottom - monitor_info.rcMonitor.top,
+                   SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+      is_fullscreen_ = true;
+    }
+    return;
+  }
+
+  SetWindowLong(window_handle_, GWL_STYLE, previous_style_);
+  SetWindowPlacement(window_handle_, &previous_placement_);
+  SetWindowPos(window_handle_, nullptr, 0, 0, 0, 0,
+               SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER |
+                   SWP_NOOWNERZORDER | SWP_FRAMECHANGED);
+  is_fullscreen_ = false;
 }
 
 // static
@@ -179,7 +217,24 @@ Win32Window::MessageHandler(HWND hwnd,
                             WPARAM const wparam,
                             LPARAM const lparam) noexcept {
   switch (message) {
+    case WM_HOTKEY:
+      if (wparam == kFullscreenHotkeyId ||
+          wparam == kAltEnterFullscreenHotkeyId) {
+        ToggleFullscreen();
+        return 0;
+      }
+      break;
+
+    case WM_KEYDOWN:
+      if (wparam == VK_ESCAPE && is_fullscreen_) {
+        ToggleFullscreen();
+        return 0;
+      }
+      break;
+
     case WM_DESTROY:
+      UnregisterHotKey(hwnd, kFullscreenHotkeyId);
+      UnregisterHotKey(hwnd, kAltEnterFullscreenHotkeyId);
       window_handle_ = nullptr;
       Destroy();
       if (quit_on_close_) {

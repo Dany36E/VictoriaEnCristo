@@ -149,11 +149,7 @@ class JesusWidgetService {
   }
 
   /// Filtra mensajes por stage y/o giant del usuario
-  List<dynamic> _filterMessages(
-    List<dynamic> pool, {
-    ContentStage? stage,
-    List<String>? giants,
-  }) {
+  List<dynamic> _filterMessages(List<dynamic> pool, {ContentStage? stage, List<String>? giants}) {
     // Primero intentar match por stage + giant
     if (stage != null && giants != null && giants.isNotEmpty) {
       final stageName = stage.name;
@@ -199,8 +195,11 @@ class JesusWidgetService {
   String getMessage({
     required int streakDays,
     required bool completedToday,
+    bool? victoryToday,
     required bool isNewUser,
   }) {
+    final isVictoryToday = victoryToday ?? completedToday;
+
     // Versión síncrona usa el pool si ya está cargado, si no usa fallbacks
     final now = DateTime.now();
 
@@ -208,6 +207,7 @@ class JesusWidgetService {
       return _getPoolMessage(
         streakDays: streakDays,
         completedToday: completedToday,
+        victoryToday: isVictoryToday,
         isNewUser: isNewUser,
         now: now,
       );
@@ -217,6 +217,7 @@ class JesusWidgetService {
     return _getFallbackMessage(
       streakDays: streakDays,
       completedToday: completedToday,
+      victoryToday: isVictoryToday,
       isNewUser: isNewUser,
     );
   }
@@ -229,6 +230,7 @@ class JesusWidgetService {
   String _getPoolMessage({
     required int streakDays,
     required bool completedToday,
+    required bool victoryToday,
     required bool isNewUser,
     required DateTime now,
   }) {
@@ -236,8 +238,10 @@ class JesusWidgetService {
     String poolKey;
     if (isNewUser) {
       poolKey = 'newuser';
-    } else if (completedToday) {
+    } else if (completedToday && victoryToday) {
       poolKey = 'completed';
+    } else if (completedToday) {
+      poolKey = 'streakLost';
     } else if (streakDays == 0) {
       poolKey = 'streakLost';
     } else {
@@ -249,6 +253,7 @@ class JesusWidgetService {
       return _getFallbackMessage(
         streakDays: streakDays,
         completedToday: completedToday,
+        victoryToday: victoryToday,
         isNewUser: isNewUser,
       );
     }
@@ -272,9 +277,16 @@ class JesusWidgetService {
   String _getFallbackMessage({
     required int streakDays,
     required bool completedToday,
+    bool? victoryToday,
     required bool isNewUser,
   }) {
+    final isVictoryToday = victoryToday ?? completedToday;
+
     if (isNewUser) return 'Todo camino comienza\ncon un primer paso';
+
+    if (completedToday && !isVictoryToday) {
+      return 'Gracia registrada\n— Mañana hay misericordia nueva';
+    }
 
     if (completedToday) {
       if (streakDays >= 365) return 'Un año de fidelidad.\n— Dios se glorifica en ti';
@@ -287,7 +299,9 @@ class JesusWidgetService {
     if (streakDays == 0) return 'Su misericordia es nueva\ncada mañana';
     if (streakDays >= 30) return '$streakDays días de racha.\n— ¡No te detengas!';
     if (streakDays >= 7) return '$streakDays días firme.\n— Registra tu victoria hoy';
-    if (streakDays >= 1) return 'Llevas $streakDays día${streakDays > 1 ? 's' : ''}.\n— ¡Sigue adelante!';
+    if (streakDays >= 1) {
+      return 'Llevas $streakDays día${streakDays > 1 ? 's' : ''}.\n— ¡Sigue adelante!';
+    }
 
     return 'Hoy es un buen día\npara empezar';
   }
@@ -299,12 +313,17 @@ class JesusWidgetService {
   /// Texto del badge/botón del widget según franja horaria
   String getBadgeText({
     required bool completedToday,
+    bool? victoryToday,
     required bool isNewUser,
     bool checkinDone = false,
   }) {
-    if (completedToday) return '✓ Día de victoria';
+    final isVictoryToday = victoryToday ?? completedToday;
+    if (completedToday) {
+      return isVictoryToday ? '✓ Día de victoria' : 'Gracia registrada';
+    }
     if (isNewUser) return 'Empieza hoy';
     final hour = DateTime.now().hour;
+    if (VictoryScoringService.I.canLogVictoryNow()) return '⚔️ Registrar victoria';
     // Si hizo devocional matutino pero aún no registra victoria
     if (checkinDone && hour < 18) return '🙏 Devocional hecho';
     if (hour < 5) return '🌙 Descansa en paz';

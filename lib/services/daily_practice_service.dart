@@ -18,6 +18,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../utils/time_utils.dart';
+import 'user_pref_cloud_sync_service.dart';
 
 enum DailyPractice { devotional, prayer, journal, victory, study }
 
@@ -72,14 +73,15 @@ class DailyPracticeService {
   SharedPreferences? _prefs;
   bool _isInitialized = false;
 
-  final ValueNotifier<DailyPracticeSnapshot> snapshotNotifier =
-      ValueNotifier(const DailyPracticeSnapshot(
-    devotional: false,
-    prayer: false,
-    journal: false,
-    victory: false,
-    study: false,
-  ));
+  final ValueNotifier<DailyPracticeSnapshot> snapshotNotifier = ValueNotifier(
+    const DailyPracticeSnapshot(
+      devotional: false,
+      prayer: false,
+      journal: false,
+      victory: false,
+      study: false,
+    ),
+  );
 
   Future<void> init() async {
     if (_isInitialized) {
@@ -173,5 +175,6 @@ class DailyPracticeService {
 
   Future<void> _writeRaw(String iso, Map<String, dynamic> data) async {
     await _prefs?.setString(_prefix + iso, jsonEncode(data));
+    UserPrefCloudSyncService.I.markDirty();
   }
 }

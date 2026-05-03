@@ -17,34 +17,36 @@ import '../models/widget_config.dart';
 import '../data/bible_verses.dart';
 import 'daily_verse_service.dart';
 import 'jesus_widget_service.dart';
+import 'user_pref_cloud_sync_service.dart';
 import 'victory_scoring_service.dart';
+import '../utils/platform_capabilities.dart';
 
 class WidgetSyncService {
   // ═══════════════════════════════════════════════════════════════════════════
   // SINGLETON
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   static final WidgetSyncService _instance = WidgetSyncService._internal();
   factory WidgetSyncService() => _instance;
   WidgetSyncService._internal();
-  
+
   static WidgetSyncService get I => _instance;
 
   StreamSubscription<Uri?>? _widgetClickSub;
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // CONSTANTES (usando widget_constants.dart)
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   /// Nombre del widget Android (solo 2x2) - desde constantes centralizadas
   static String get androidWidgetName => kAndroidWidget2x2Provider;
-  
+
   /// Nombre del widget iOS - desde constantes centralizadas
   static String get iOSWidgetName => kIOSWidgetName;
-  
+
   /// App Group para iOS - desde constantes centralizadas
   static String get iOSAppGroup => kIOSAppGroup;
-  
+
   // Keys para datos del widget (deben coincidir con código nativo)
   static const String _keyWidgetConfig = 'widget_config_json';
   static const String _keyWidgetPayload = 'widget_payload_json';
@@ -54,7 +56,7 @@ class WidgetSyncService {
   static const String _keyWidgetIsLight = 'widget_is_light';
   static const String _keyWidgetIsDiscreet = 'widget_is_discreet';
   static const String _keyWidgetDate = 'widget_date';
-  
+
   // Keys para widget 4×2 de versículo (deben coincidir con VerseOfDayWidgetProvider)
   static const String _keyVerseText = 'verse_widget_text';
   static const String _keyVerseRef = 'verse_widget_reference';
@@ -63,6 +65,7 @@ class WidgetSyncService {
   // Keys para widget Jesús (deben coincidir con JesusWidgetProvider.kt)
   static const String _keyJesusStreak = 'jesus_streak_days';
   static const String _keyJesusCompleted = 'jesus_completed_today';
+  static const String _keyJesusVictoryToday = 'jesus_victory_today';
   static const String _keyJesusMessage = 'jesus_widget_message';
   static const String _keyJesusSpritePath = 'jesus_sprite_path';
   static const String _keyJesusBgPath = 'jesus_bg_path';
@@ -70,34 +73,41 @@ class WidgetSyncService {
   static const String _keyJesusBadgeColor = 'jesus_badge_color';
   static const String _keyJesusStreakColor = 'jesus_streak_color';
   static const String _keyJesusCheckinDone = 'jesus_checkin_done';
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   SharedPreferences? _prefs;
   WidgetConfig _config = WidgetConfig.defaultConfig();
   bool _isInitialized = false;
-  
+
   bool get isInitialized => _isInitialized;
   WidgetConfig get currentConfig => _config;
-  
+  bool get isSupported => PlatformCapabilities.supportsHomeWidgets;
+
   // ═══════════════════════════════════════════════════════════════════════════
   // INICIALIZACIÓN
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   Future<void> init() async {
     if (_isInitialized) return;
-    
+
     try {
       _prefs = await SharedPreferences.getInstance();
-      
-      // Configurar App Group para iOS
-      await HomeWidget.setAppGroupId(iOSAppGroup);
-      
+
       // Cargar configuración guardada
       await _loadConfig();
-      
+
+      if (!isSupported) {
+        _isInitialized = true;
+        debugPrint('📱 [WIDGET] Skipped on ${PlatformCapabilities.currentLabel}');
+        return;
+      }
+
+      // Configurar App Group para iOS
+      await HomeWidget.setAppGroupId(iOSAppGroup);
+
       _isInitialized = true;
       debugPrint('📱 [WIDGET] Service initialized');
     } catch (e) {
@@ -105,45 +115,48 @@ class WidgetSyncService {
       _isInitialized = true;
     }
   }
-  
+
   Future<void> _loadConfig() async {
     final jsonStr = _prefs?.getString(_keyWidgetConfig);
     if (jsonStr != null) {
       _config = WidgetConfig.fromJsonString(jsonStr);
     }
   }
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // CONFIGURACIÓN
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   /// Guarda la configuración y actualiza los widgets
   Future<void> saveConfig(WidgetConfig config) async {
     _config = config.copyWith(lastUpdated: DateTime.now());
-    
+
     // Guardar en SharedPreferences local
     await _prefs?.setString(_keyWidgetConfig, _config.toJsonString());
-    
+    UserPrefCloudSyncService.I.markDirty();
+
     // Sincronizar con widgets nativos
     await syncWidget();
-    
+
     debugPrint('📱 [WIDGET] Config saved: ${_config.template.name}');
   }
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // SINCRONIZACIÓN
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   /// Sincroniza datos con los widgets nativos
   Future<void> syncWidget() async {
     if (!_isInitialized) {
       await init();
     }
-    
+
+    if (!isSupported) return;
+
     try {
       // Construir payload
       final payload = await _buildPayload();
-      
+
       // Widget 2×2 (Recordatorio)
       await HomeWidget.saveWidgetData(_keyWidgetTitle, payload.title);
       await HomeWidget.saveWidgetData(_keyWidgetLine1, payload.line1);
@@ -151,14 +164,15 @@ class WidgetSyncService {
       await HomeWidget.saveWidgetData(_keyWidgetIsLight, payload.isLightTheme);
       await HomeWidget.saveWidgetData(_keyWidgetIsDiscreet, payload.isDiscreetMode);
       await HomeWidget.saveWidgetData(_keyWidgetDate, payload.dateISO);
-      
+
       // Widget 4×2 (Versículo del día)
       await HomeWidget.saveWidgetData(_keyVerseText, payload.verseText);
       await HomeWidget.saveWidgetData(_keyVerseRef, payload.verseReference);
       await HomeWidget.saveWidgetData(_keyVerseIsLight, payload.isLightTheme);
-      
+
       // Widget Jesús (racha con sprite)
       final completedToday = VictoryScoringService.I.isLoggedToday();
+      final victoryToday = VictoryScoringService.I.isTodayVictory();
       final isNewUser = payload.streakValue == 0 && !completedToday;
       // Detectar si hizo el devocional matutino hoy
       final checkinLast = _prefs?.getString('morning_checkin_last_shown') ?? '';
@@ -167,27 +181,31 @@ class WidgetSyncService {
       final jesusMessage = JesusWidgetService.I.getMessage(
         streakDays: payload.streakValue,
         completedToday: completedToday,
+        victoryToday: victoryToday,
         isNewUser: isNewUser,
       );
       await HomeWidget.saveWidgetData(_keyJesusStreak, payload.streakValue);
       await HomeWidget.saveWidgetData(_keyJesusCompleted, completedToday);
+      await HomeWidget.saveWidgetData(_keyJesusVictoryToday, victoryToday);
       await HomeWidget.saveWidgetData(_keyJesusMessage, jesusMessage);
       await HomeWidget.saveWidgetData(_keyJesusCheckinDone, checkinDone);
 
       // Badge text y color — sincronizado con _buildActionButton() del widget in-app
-      final hour = DateTime.now().hour;
-      final canRegister = !completedToday && hour >= 18;
+      final canRegister = !completedToday && VictoryScoringService.I.canLogVictoryNow();
       final badgeText = JesusWidgetService.I.getBadgeText(
         completedToday: completedToday,
+        victoryToday: victoryToday,
         isNewUser: isNewUser,
         checkinDone: checkinDone,
       );
       // Usar misma lógica que _buildActionButton del JesusStreakWidget
       final finalBadgeText = completedToday
-          ? '✨ Ver mi progreso'
+          ? victoryToday
+                ? '✨ Ver mi progreso'
+                : '🕊️ Gracia registrada'
           : canRegister
-              ? '⚔️ Registrar victoria'
-              : badgeText;
+          ? '⚔️ Registrar día'
+          : badgeText;
       // Botón siempre dorado (igual que in-app)
       const badgeColor = 0xFFD4AF37;
       final streakColor = JesusWidgetService.I.getStreakColor(payload.streakValue);
@@ -198,12 +216,10 @@ class WidgetSyncService {
       // Guardar imágenes de sprite y fondo para el widget nativo
       final spritePath = JesusWidgetService.I.getSprite(
         streakDays: payload.streakValue,
-        completedToday: completedToday,
+        completedToday: completedToday && victoryToday,
         isNewUser: isNewUser,
       );
-      final bgPath = JesusWidgetService.I.getBackground(
-        streakDays: payload.streakValue,
-      );
+      final bgPath = JesusWidgetService.I.getBackground(streakDays: payload.streakValue);
       final spriteFile = await _saveAssetToWidgetDir(spritePath, 'jesus_sprite.png');
       final bgFile = await _saveAssetToWidgetDir(bgPath, 'jesus_bg.png');
       if (spriteFile != null) {
@@ -212,36 +228,37 @@ class WidgetSyncService {
       if (bgFile != null) {
         await HomeWidget.saveWidgetData(_keyJesusBgPath, bgFile);
       }
-      
+
       // JSON completo como backup
       await HomeWidget.saveWidgetData(_keyWidgetPayload, payload.toJsonString());
-      
+
       // Forzar actualización de widgets
       await _updateWidgets();
-      
+
       debugPrint('📱 [WIDGET] Synced: "${payload.title}" streak=${payload.streakValue}');
     } catch (e) {
       debugPrint('📱 [WIDGET] Sync error: $e');
     }
   }
-  
+
   /// Construye el payload según la configuración actual
   Future<WidgetPayload> _buildPayload() async {
     if (!VictoryScoringService.I.isInitialized) {
       await VictoryScoringService.I.init();
     }
-    
+
     final streak = VictoryScoringService.I.getCurrentStreak();
     final verse = await _getVerseForWidget();
     final today = DateTime.now();
     final hour = today.hour;
-    final dateISO = '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
-    
+    final dateISO =
+        '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}';
+
     debugPrint('📱 [WIDGET] Building payload: streak=$streak, hour=$hour');
-    
+
     final isDiscreet = _config.privacyMode == WidgetPrivacyMode.discreet;
     final title = _config.effectiveTitle;
-    
+
     // Contenido de línea1 determinado por plantilla + hora del día
     String line1;
     switch (_config.template) {
@@ -260,7 +277,7 @@ class WidgetSyncService {
         line1 = '${_config.getStreakText(streak)}\n${_truncateVerse(verse.verse, 35)}';
         break;
     }
-    
+
     return WidgetPayload(
       title: title,
       line1: line1,
@@ -272,7 +289,7 @@ class WidgetSyncService {
       isDiscreetMode: isDiscreet,
     );
   }
-  
+
   /// Obtiene el versículo del día (con fallback neutral para modo discreto)
   Future<BibleVerse> _getVerseForWidget() async {
     try {
@@ -282,7 +299,7 @@ class WidgetSyncService {
     } catch (e) {
       debugPrint('📱 [WIDGET] _getVerseForWidget error: $e');
     }
-    
+
     // Fallback neutral
     return const BibleVerse(
       verse: 'Un nuevo día, una nueva oportunidad.',
@@ -290,15 +307,15 @@ class WidgetSyncService {
       category: 'general',
     );
   }
-  
+
   /// Trunca un versículo para que quepa en el widget
   String _truncateVerse(String verse, int maxLength) {
     if (verse.length <= maxLength) return verse;
-    
+
     // Intentar cortar en un espacio
     final truncated = verse.substring(0, maxLength);
     final lastSpace = truncated.lastIndexOf(' ');
-    
+
     if (lastSpace > maxLength * 0.7) {
       return '${truncated.substring(0, lastSpace)}...';
     }
@@ -310,27 +327,29 @@ class WidgetSyncService {
     final hasVictory = VictoryScoringService.I.isTodayVictory();
 
     if (discreet) {
-      if (hour < 6)  return 'Descansa bien.';
+      if (hour < 6) return 'Descansa bien.';
       if (hour < 12) return 'Nuevo día, nuevo inicio.';
       if (hour < 18) return 'Sigue firme.';
       if (hasVictory) return 'Buen cierre de día.';
       return 'Hora de cerrar el día.';
     }
 
-    if (hour < 6)  return 'Descansa en paz, Dios vela por ti.';
+    if (hour < 6) return 'Descansa en paz, Dios vela por ti.';
     if (hour < 12) return 'Buenos días. Hoy es un día de victoria.';
     if (hour < 18) return 'Sigue firme. Tu victoria se acerca.';
     if (hasVictory) return '¡Día de victoria registrado!';
     return 'Es hora de registrar tu victoria.';
   }
-  
+
   /// Actualiza ambos widgets en Android e iOS
   Future<void> _updateWidgets() async {
     if (!validateWidgetConstants()) {
       debugPrint('📱 [WIDGET] ⚠️ Invalid widget constants, skipping update');
       return;
     }
-    
+
+    if (!isSupported) return;
+
     try {
       // Widget 2×2 (Recordatorio)
       await HomeWidget.updateWidget(
@@ -338,7 +357,7 @@ class WidgetSyncService {
         qualifiedAndroidName: kAndroidWidget2x2QualifiedName,
         iOSName: kIOSWidgetName,
       );
-      
+
       // Widget 4×2 (Versículo del día)
       await HomeWidget.updateWidget(
         androidName: kAndroidVerseWidgetProvider,
@@ -355,7 +374,7 @@ class WidgetSyncService {
       debugPrint('📱 [WIDGET] Update error: $e');
     }
   }
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // UTILIDADES
   // ═══════════════════════════════════════════════════════════════════════════
@@ -381,14 +400,15 @@ class WidgetSyncService {
   /// Registra un callback para cuando el usuario interactúa con el widget.
   /// [navigatorKey] se usa para push de rutas según el URI del widget.
   Future<void> registerInteractionCallback({GlobalKey<NavigatorState>? navigatorKey}) async {
+    if (!isSupported) return;
     await _widgetClickSub?.cancel();
     _widgetClickSub = HomeWidget.widgetClicked.listen((uri) {
       debugPrint('📱 [WIDGET] Clicked: $uri');
       if (uri == null || navigatorKey?.currentState == null) return;
-      
+
       final uriStr = uri.toString();
       final nav = navigatorKey!.currentState!;
-      
+
       if (uriStr.contains('emergency')) {
         nav.pushNamed('/emergency');
       } else if (uriStr.contains('bible')) {
@@ -399,12 +419,13 @@ class WidgetSyncService {
       }
     });
   }
-  
+
   /// Limpiar widget a valores por defecto discretos (cambio de cuenta)
   /// Muestra un widget neutral sin datos del usuario anterior
   Future<void> clearToDefaults() async {
+    if (!isSupported) return;
     debugPrint('📱 [WIDGET] Clearing widget to defaults (account change)');
-    
+
     try {
       // Widget 2×2 neutral
       await HomeWidget.saveWidgetData(_keyWidgetTitle, '¡Hola!');
@@ -413,25 +434,26 @@ class WidgetSyncService {
       await HomeWidget.saveWidgetData(_keyWidgetIsLight, true);
       await HomeWidget.saveWidgetData(_keyWidgetIsDiscreet, true);
       await HomeWidget.saveWidgetData(_keyWidgetDate, '');
-      
+
       // Widget 4×2 Versículo defaults
       await HomeWidget.saveWidgetData(_keyVerseText, 'Todo lo puedo en Cristo que me fortalece.');
       await HomeWidget.saveWidgetData(_keyVerseRef, 'Filipenses 4:13');
       await HomeWidget.saveWidgetData(_keyVerseIsLight, false);
-      
+
       await HomeWidget.saveWidgetData(_keyWidgetPayload, '{}');
-      
+
       // Forzar actualización
       await _updateWidgets();
-      
+
       debugPrint('📱 [WIDGET] ✅ Widget cleared to defaults');
     } catch (e) {
       debugPrint('📱 [WIDGET] Clear defaults error: $e');
     }
   }
-  
+
   /// Verifica si los widgets están instalados (Android)
   Future<bool> isWidgetInstalled() async {
+    if (!isSupported) return false;
     try {
       final count = await HomeWidget.getInstalledWidgets();
       return count.isNotEmpty;
@@ -440,30 +462,31 @@ class WidgetSyncService {
       return false;
     }
   }
-  
+
   /// Solicita al usuario que añada el widget 2x2 (Android)
   /// Retorna true si la solicitud se realizó, false si hay error de configuración
   Future<bool> requestWidgetPin() async {
+    if (!isSupported) return false;
     // CRÍTICO: Validar constantes antes de intentar pin
     // Esto evita ClassNotFoundException: com.example.app_quitar.null
     if (!validateWidgetConstants()) {
       debugPrint('📱 [WIDGET] ❌ Cannot pin: invalid widget constants');
       return false;
     }
-    
+
     if (kAndroidWidget2x2Provider.isEmpty) {
       debugPrint('📱 [WIDGET] ❌ Cannot pin: provider name is empty');
       return false;
     }
-    
+
     try {
       debugPrint('📱 [WIDGET] Requesting pin for: $kAndroidWidget2x2QualifiedName');
-      
+
       await HomeWidget.requestPinWidget(
         androidName: kAndroidWidget2x2Provider,
         qualifiedAndroidName: kAndroidWidget2x2QualifiedName,
       );
-      
+
       debugPrint('📱 [WIDGET] ✅ Pin request sent');
       return true;
     } catch (e) {

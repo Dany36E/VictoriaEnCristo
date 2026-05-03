@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../data/bible_verses.dart';
+import 'user_pref_cloud_sync_service.dart';
 
 /// Servicio de notificaciones para recordatorios diarios.
 /// Usa flutter_local_notifications con timezone para scheduling recurrente.
@@ -69,6 +70,9 @@ class NotificationService {
     await _loadSettings();
     await _initNotifications();
   }
+
+  /// Recargar solo preferencias ya restauradas desde cloud.
+  Future<void> reloadSettings() => _loadSettings();
 
   /// Cargar configuración guardada
   Future<void> _loadSettings() async {
@@ -176,6 +180,7 @@ class NotificationService {
     await prefs.setBool(_reengagementKey, _reengagementEnabled);
     await prefs.setInt(_morningTimeKey, _morningTime.hour * 60 + _morningTime.minute);
     await prefs.setInt(_nightTimeKey, _nightTime.hour * 60 + _nightTime.minute);
+    UserPrefCloudSyncService.I.markDirty();
   }
 
   /// Solicitar permisos (Android 13+/iOS)

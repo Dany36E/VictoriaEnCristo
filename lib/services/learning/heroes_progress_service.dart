@@ -24,15 +24,11 @@ class HeroesProgressState {
   HeroesProgressState copyWith({Set<String>? unlockedIds}) =>
       HeroesProgressState(unlockedIds: unlockedIds ?? this.unlockedIds);
 
-  Map<String, dynamic> toJson() => {
-        'unlockedIds': unlockedIds.toList(),
-      };
+  Map<String, dynamic> toJson() => {'unlockedIds': unlockedIds.toList()};
 
-  factory HeroesProgressState.fromJson(Map<String, dynamic> j) =>
-      HeroesProgressState(
-        unlockedIds:
-            (j['unlockedIds'] as List? ?? const []).cast<String>().toSet(),
-      );
+  factory HeroesProgressState.fromJson(Map<String, dynamic> j) => HeroesProgressState(
+    unlockedIds: (j['unlockedIds'] as List? ?? const []).cast<String>().toSet(),
+  );
 }
 
 class HeroesProgressService {
@@ -44,24 +40,32 @@ class HeroesProgressService {
   SharedPreferences? _prefs;
   bool _init = false;
 
-  final ValueNotifier<HeroesProgressState> stateNotifier =
-      ValueNotifier(const HeroesProgressState());
+  final ValueNotifier<HeroesProgressState> stateNotifier = ValueNotifier(
+    const HeroesProgressState(),
+  );
 
   Future<void> init() async {
-    if (_init) return;
+    if (_init) {
+      _refreshFromStorage();
+      return;
+    }
     _prefs = await SharedPreferences.getInstance();
     _init = true;
+    _refreshFromStorage();
+    debugPrint('⚔️ [HEROES] Progress init unlocked=${stateNotifier.value.unlockedIds.length}');
+  }
+
+  void _refreshFromStorage() {
     final raw = _prefs?.getString(_kKey);
     if (raw != null && raw.isNotEmpty) {
       try {
-        stateNotifier.value = HeroesProgressState.fromJson(
-            jsonDecode(raw) as Map<String, dynamic>);
+        stateNotifier.value = HeroesProgressState.fromJson(jsonDecode(raw) as Map<String, dynamic>);
       } catch (_) {
         stateNotifier.value = const HeroesProgressState();
       }
+    } else {
+      stateNotifier.value = const HeroesProgressState();
     }
-    debugPrint(
-        '⚔️ [HEROES] Progress init unlocked=${stateNotifier.value.unlockedIds.length}');
   }
 
   Future<void> _save(HeroesProgressState s) async {

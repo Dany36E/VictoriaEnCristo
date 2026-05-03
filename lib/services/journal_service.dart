@@ -121,7 +121,7 @@ class JournalService {
   Future<void> _loadEntries() async {
     final prefs = await SharedPreferences.getInstance();
     final entriesJson = prefs.getString(_entriesKey);
-    
+
     if (entriesJson != null) {
       final List<dynamic> decoded = jsonDecode(entriesJson);
       final List<JournalEntry> loaded = [];
@@ -190,24 +190,23 @@ class JournalService {
   /// Restaurar entradas desde cloud (llamado después de que JournalRepository
   /// descarga datos de Firestore). Hidrata el servicio local sin upload.
   Future<void> restoreFromCloud(List<JournalEntry> cloudEntries) async {
-    if (cloudEntries.isEmpty) return;
-    
     _entries = List.from(cloudEntries);
     _entries.sort((a, b) => b.date.compareTo(a.date));
     await _saveEntries();
     _notifyChange();
-    
+
     debugPrint('📓 [JOURNAL_SVC] restoreFromCloud: ✅ hydrated ${cloudEntries.length} entries');
   }
 
   /// Obtener entradas de hoy
   List<JournalEntry> getTodayEntries() {
     final today = DateTime.now();
-    return _entries.where((e) => 
-      e.date.year == today.year && 
-      e.date.month == today.month && 
-      e.date.day == today.day
-    ).toList();
+    return _entries
+        .where(
+          (e) =>
+              e.date.year == today.year && e.date.month == today.month && e.date.day == today.day,
+        )
+        .toList();
   }
 
   /// Obtener entradas de los últimos N días
@@ -224,9 +223,7 @@ class JournalService {
         stats[trigger] = (stats[trigger] ?? 0) + 1;
       }
     }
-    return Map.fromEntries(
-      stats.entries.toList()..sort((a, b) => b.value.compareTo(a.value))
-    );
+    return Map.fromEntries(stats.entries.toList()..sort((a, b) => b.value.compareTo(a.value)));
   }
 
   /// Obtener estadísticas de ánimo
@@ -237,28 +234,26 @@ class JournalService {
     }
     return stats;
   }
-  
+
   /// Obtener entrada para una fecha específica
   /// Retorna la primera entrada del día o null si no hay
   JournalEntry? getEntryForDate(DateTime date) {
     try {
-      return _entries.firstWhere((e) => 
-        e.date.year == date.year && 
-        e.date.month == date.month && 
-        e.date.day == date.day
+      return _entries.firstWhere(
+        (e) => e.date.year == date.year && e.date.month == date.month && e.date.day == date.day,
       );
     } catch (e) {
       return null;
     }
   }
-  
+
   /// Obtener todas las entradas para una fecha específica
   List<JournalEntry> getEntriesForDate(DateTime date) {
-    return _entries.where((e) => 
-      e.date.year == date.year && 
-      e.date.month == date.month && 
-      e.date.day == date.day
-    ).toList();
+    return _entries
+        .where(
+          (e) => e.date.year == date.year && e.date.month == date.month && e.date.day == date.day,
+        )
+        .toList();
   }
 
   /// Obtener porcentaje de victorias

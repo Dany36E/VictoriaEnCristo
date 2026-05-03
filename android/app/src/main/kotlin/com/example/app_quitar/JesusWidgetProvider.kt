@@ -42,6 +42,7 @@ class JesusWidgetProvider : AppWidgetProvider() {
     companion object {
         private const val KEY_STREAK = "jesus_streak_days"
         private const val KEY_COMPLETED = "jesus_completed_today"
+        private const val KEY_VICTORY_TODAY = "jesus_victory_today"
         private const val KEY_MESSAGE = "jesus_widget_message"
         private const val KEY_SPRITE_PATH = "jesus_sprite_path"
         private const val KEY_BG_PATH = "jesus_bg_path"
@@ -74,6 +75,7 @@ class JesusWidgetProvider : AppWidgetProvider() {
 
                 val streakDays = prefs.getInt(KEY_STREAK, 0)
                 val completedToday = prefs.getBoolean(KEY_COMPLETED, false)
+                val victoryToday = prefs.getBoolean(KEY_VICTORY_TODAY, completedToday)
                 val message = prefs.getString(KEY_MESSAGE, "¡Empieza hoy!") ?: "¡Empieza hoy!"
 
                 // ─── Cargar sprite de Jesús ───
@@ -188,8 +190,9 @@ class JesusWidgetProvider : AppWidgetProvider() {
                     val hour = java.util.Calendar.getInstance()
                         .get(java.util.Calendar.HOUR_OF_DAY)
                     when {
-                        completedToday -> "✨ Ver mi progreso"
-                        !completedToday && hour >= 18 -> "⚔️ Registrar victoria"
+                        completedToday && victoryToday -> "✨ Ver mi progreso"
+                        completedToday -> "🕊️ Gracia registrada"
+                        hour >= 18 -> "⚔️ Registrar día"
                         checkinDone && hour < 18 -> "🙏 Devocional hecho"
                         hour >= 15 -> "⏰ Casi es hora"
                         hour >= 12 -> "🛡️ En batalla"
@@ -214,6 +217,7 @@ class JesusWidgetProvider : AppWidgetProvider() {
                 // ─── Tap → abre la app ───
                 val intent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+                    putExtra("initial_route", "/daily-outcome")
                 }
                 val pendingIntent = PendingIntent.getActivity(
                     context, 1, intent,

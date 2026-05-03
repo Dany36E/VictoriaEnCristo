@@ -9,7 +9,7 @@ import '../widgets/theme_selector.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onThemeChanged;
-  
+
   const SettingsScreen({super.key, required this.onThemeChanged});
 
   @override
@@ -39,11 +39,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     final isDark = t.isDark;
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Configuración'),
-      ),
+      appBar: AppBar(title: const Text('Configuración')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -71,17 +69,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Text(
                             'Tema de la App',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: t.textPrimary,
-                            ),
+                            style: TextStyle(fontWeight: FontWeight.w600, color: t.textPrimary),
                           ),
                           Text(
                             'Selecciona un estilo visual',
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: t.textSecondary,
-                            ),
+                            style: TextStyle(fontSize: 12, color: t.textSecondary),
                           ),
                         ],
                       ),
@@ -115,14 +107,35 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Sección de Notificaciones
           _buildSectionHeader('🔔 Notificaciones', isDark),
           _buildSettingCard(
             isDark: isDark,
             children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: t.accent.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.notifications_active, color: t.accent),
+                ),
+                title: Text(
+                  'Campanas Sagradas',
+                  style: TextStyle(fontWeight: FontWeight.w600, color: t.textPrimary),
+                ),
+                subtitle: Text(
+                  'Agenda momentos de oracion, adoracion y Palabra',
+                  style: TextStyle(color: t.textSecondary),
+                ),
+                trailing: Icon(Icons.chevron_right, color: t.textSecondary),
+                onTap: () => Navigator.pushNamed(context, '/sacred-alarms'),
+              ),
+              const Divider(height: 1),
               _buildSwitchTile(
                 title: 'Recordatorio Matutino',
                 subtitle: 'Versículo del día cada mañana',
@@ -168,9 +181,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
             ],
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Sección de Audio
           _buildSectionHeader('🎵 Audio', isDark),
           _buildSettingCard(
@@ -205,7 +218,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-              
+
               // ═══════════════════════════════════════════════════════════════
               // BOTÓN PAUSAR/CONTINUAR - REACTIVO AL ESTADO REAL
               // ═══════════════════════════════════════════════════════════════
@@ -215,7 +228,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   return _buildPlayPauseControl(state, isDark);
                 },
               ),
-              
+
               // ═══════════════════════════════════════════════════════════════
               // SLIDER VOLUMEN BGM
               // ═══════════════════════════════════════════════════════════════
@@ -230,9 +243,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-              
+
               const Divider(height: 1),
-              
+
               // ═══════════════════════════════════════════════════════════════
               // CONTROL DE VIBRACIÓN (Haptics) - FeedbackEngine
               // ═══════════════════════════════════════════════════════════════
@@ -254,9 +267,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-              
+
               const Divider(height: 1),
-              
+
               // ═══════════════════════════════════════════════════════════════
               // CONTROL DE SFX UI - FeedbackEngine
               // ═══════════════════════════════════════════════════════════════
@@ -278,7 +291,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-              
+
               // ═══════════════════════════════════════════════════════════════
               // SLIDER VOLUMEN SFX - FeedbackEngine
               // ═══════════════════════════════════════════════════════════════
@@ -293,7 +306,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                 },
               ),
-              
+
               const Divider(height: 1),
               _buildSwitchTile(
                 title: 'Lectura en Voz Alta',
@@ -312,15 +325,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
             ],
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Panel de Diagnóstico de Audio
           _buildSectionHeader('🔧 Diagnóstico de Audio', isDark),
           _buildAudioDiagnosticPanel(isDark),
-          
+
           const SizedBox(height: 24),
-          
+
           // Sección Widget de Inicio
           _buildSectionHeader('📱 Widget de Inicio', isDark),
           _buildSettingCard(
@@ -344,23 +357,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 subtitle: Text(
                   'Personaliza el widget de tu pantalla de inicio',
-                  style: TextStyle(
-                    color: AppThemeData.of(context).textSecondary,
-                  ),
+                  style: TextStyle(color: AppThemeData.of(context).textSecondary),
                 ),
-                trailing: Icon(
-                  Icons.chevron_right,
-                  color: AppThemeData.of(context).textSecondary,
-                ),
+                trailing: Icon(Icons.chevron_right, color: AppThemeData.of(context).textSecondary),
                 onTap: () {
                   Navigator.pushNamed(context, '/widget-settings');
                 },
               ),
             ],
           ),
-          
+
           const SizedBox(height: 24),
-          
+
           // Sección Acerca de
           _buildSectionHeader('ℹ️ Acerca de', isDark),
           _buildSettingCard(
@@ -384,9 +392,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 subtitle: Text(
                   'Versión 1.0.0',
-                  style: TextStyle(
-                    color: AppThemeData.of(context).textSecondary,
-                  ),
+                  style: TextStyle(color: AppThemeData.of(context).textSecondary),
                 ),
               ),
               const Divider(height: 1),
@@ -408,14 +414,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 subtitle: Text(
                   'Para la gloria de Dios',
-                  style: TextStyle(
-                    color: AppThemeData.of(context).textSecondary,
-                  ),
+                  style: TextStyle(color: AppThemeData.of(context).textSecondary),
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: 32),
         ],
       ),
@@ -428,11 +432,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w600,
-          color: t.textPrimary,
-        ),
+        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: t.textPrimary),
       ),
     );
   }
@@ -471,29 +471,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
           color: t.accent.withOpacity(0.1),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Icon(
-          icon,
-          color: t.accent,
-        ),
+        child: Icon(icon, color: t.accent),
       ),
       title: Text(
         title,
-        style: TextStyle(
-          fontWeight: FontWeight.w600,
-          color: t.textPrimary,
-        ),
+        style: TextStyle(fontWeight: FontWeight.w600, color: t.textPrimary),
       ),
-      subtitle: Text(
-        subtitle,
-        style: TextStyle(
-          color: t.textSecondary,
-        ),
-      ),
-      trailing: Switch(
-        value: value,
-        onChanged: onChanged,
-        activeThumbColor: t.accent,
-      ),
+      subtitle: Text(subtitle, style: TextStyle(color: t.textSecondary)),
+      trailing: Switch(value: value, onChanged: onChanged, activeThumbColor: t.accent),
     );
   }
 
@@ -510,29 +495,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           const SizedBox(width: 48),
           Expanded(
-            child: Text(
-              title,
-              style: TextStyle(
-                color: t.textSecondary,
-              ),
-            ),
+            child: Text(title, style: TextStyle(color: t.textSecondary)),
           ),
           TextButton(
             onPressed: () async {
-              final picked = await showTimePicker(
-                context: context,
-                initialTime: time,
-              );
+              final picked = await showTimePicker(context: context, initialTime: time);
               if (picked != null) {
                 onChanged(picked);
               }
             },
             child: Text(
               '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: t.accent,
-              ),
+              style: TextStyle(fontWeight: FontWeight.w600, color: t.accent),
             ),
           ),
         ],
@@ -549,10 +523,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           Text(
             'Velocidad de reproducción',
-            style: TextStyle(
-              fontWeight: FontWeight.w600,
-              color: t.textPrimary,
-            ),
+            style: TextStyle(fontWeight: FontWeight.w600, color: t.textPrimary),
           ),
           const SizedBox(height: 12),
           Row(
@@ -582,17 +553,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected
-              ? t.accent
-              : (isDark ? t.surface : Colors.grey.shade100),
+          color: isSelected ? t.accent : (isDark ? t.surface : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           '${speed}x',
           style: TextStyle(
-            color: isSelected
-                ? (isDark ? Colors.black87 : Colors.white)
-                : t.textSecondary,
+            color: isSelected ? (isDark ? Colors.black87 : Colors.white) : t.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -610,7 +577,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     IconData buttonIcon;
     VoidCallback? onPressed;
     Color buttonColor;
-    
+
     switch (state) {
       case BgmPlaybackState.playing:
         buttonText = 'Pausar';
@@ -643,7 +610,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         onPressed = () => AudioEngine.I.startBgm();
         break;
     }
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
       child: Row(
@@ -658,9 +625,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 backgroundColor: AudioEngine.I.bgmEnabled.value ? buttonColor : Colors.grey,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
               ),
             ),
           ),
@@ -703,13 +668,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           SizedBox(
             width: 80,
-            child: Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: t.textSecondary,
-              ),
-            ),
+            child: Text(label, style: TextStyle(fontSize: 12, color: t.textSecondary)),
           ),
           Expanded(
             child: SliderTheme(
@@ -718,24 +677,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 thumbColor: t.accent,
                 overlayColor: t.accent.withOpacity(0.2),
               ),
-              child: Slider(
-                value: value,
-                min: 0.0,
-                max: 1.0,
-                divisions: 10,
-                onChanged: onChanged,
-              ),
+              child: Slider(value: value, min: 0.0, max: 1.0, divisions: 10, onChanged: onChanged),
             ),
           ),
           SizedBox(
             width: 40,
             child: Text(
               '${(value * 100).toInt()}%',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w500,
-                color: t.textPrimary,
-              ),
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: t.textPrimary),
             ),
           ),
         ],
@@ -747,15 +696,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget _buildAudioDiagnosticPanel(bool isDark) {
     final audioEngine = AudioEngine.I;
     final t = AppThemeData.of(context);
-    
+
     return Container(
       decoration: BoxDecoration(
         color: t.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.orange.withOpacity(0.5),
-          width: 2,
-        ),
+        border: Border.all(color: Colors.orange.withOpacity(0.5), width: 2),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
@@ -775,48 +721,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SizedBox(width: 8),
               Text(
                 'DEBUG PANEL v2.0',
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: Colors.orange,
-                  fontSize: 14,
-                ),
+                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange, fontSize: 14),
               ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           // Estado - REACTIVO con ValueListenableBuilder
           ValueListenableBuilder<BgmPlaybackState>(
             valueListenable: audioEngine.bgmState,
             builder: (context, state, _) {
               return Column(
                 children: [
-                  _buildDiagnosticRow('Inicializado', audioEngine.isInitialized ? '✅ Sí' : '❌ No', isDark),
-                  _buildDiagnosticRow('BGM State', state.toString().split('.').last.toUpperCase(), isDark),
-                  _buildDiagnosticRow('BGM Enabled', audioEngine.bgmEnabled.value ? '✅ Sí' : '❌ No', isDark),
-                  _buildDiagnosticRow('BGM Muted', audioEngine.bgmMuted.value ? '🔇 Sí' : '🔊 No', isDark),
+                  _buildDiagnosticRow(
+                    'Inicializado',
+                    audioEngine.isInitialized ? '✅ Sí' : '❌ No',
+                    isDark,
+                  ),
+                  _buildDiagnosticRow(
+                    'BGM State',
+                    state.toString().split('.').last.toUpperCase(),
+                    isDark,
+                  ),
+                  _buildDiagnosticRow(
+                    'BGM Enabled',
+                    audioEngine.bgmEnabled.value ? '✅ Sí' : '❌ No',
+                    isDark,
+                  ),
+                  _buildDiagnosticRow(
+                    'BGM Muted',
+                    audioEngine.bgmMuted.value ? '🔇 Sí' : '🔊 No',
+                    isDark,
+                  ),
                   _buildDiagnosticRow('Position', '${audioEngine.bgmPosition.inSeconds}s', isDark),
                   _buildDiagnosticRow('Duration', '${audioEngine.bgmDuration.inSeconds}s', isDark),
-                  _buildDiagnosticRow('Volume', '${(audioEngine.bgmVolume.value * 100).toInt()}%', isDark),
-                  _buildDiagnosticRow('Current Asset', audioEngine.currentBgmAsset ?? 'ninguno', isDark),
+                  _buildDiagnosticRow(
+                    'Volume',
+                    '${(audioEngine.bgmVolume.value * 100).toInt()}%',
+                    isDark,
+                  ),
+                  _buildDiagnosticRow(
+                    'Current Asset',
+                    audioEngine.currentBgmAsset ?? 'ninguno',
+                    isDark,
+                  ),
                   _buildDiagnosticRow('BGM Player #', '${audioEngine.bgmPlayerHash}', isDark),
                   _buildDiagnosticRow('SFX Player #', '${audioEngine.sfxPlayerHash}', isDark),
                   if (audioEngine.lastError != null)
-                    _buildDiagnosticRow('Last Error', audioEngine.lastError!, isDark, isError: true),
+                    _buildDiagnosticRow(
+                      'Last Error',
+                      audioEngine.lastError!,
+                      isDark,
+                      isError: true,
+                    ),
                 ],
               );
             },
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Slider de volumen BGM - REACTIVO
           ValueListenableBuilder<double>(
             valueListenable: audioEngine.bgmVolume,
             builder: (context, volume, _) {
               return Row(
                 children: [
-                  Text('BGM Vol:', style: TextStyle(color: isDark ? Colors.white70 : Colors.black54)),
+                  Text(
+                    'BGM Vol:',
+                    style: TextStyle(color: isDark ? Colors.white70 : Colors.black54),
+                  ),
                   Expanded(
                     child: Slider(
                       value: volume,
@@ -833,9 +807,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               );
             },
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Botones de test
           Row(
             children: [
@@ -890,9 +864,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Botón para refrescar estado y mostrar reporte
           SizedBox(
             width: double.infinity,
@@ -909,9 +883,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Botón DUMP STATUS (imprime estado completo en consola)
           SizedBox(
             width: double.infinity,
@@ -933,9 +907,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // 🎯 BOTÓN TEST FEEDBACK ENGINE
           SizedBox(
             width: double.infinity,
@@ -962,9 +936,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // 🛑 BOTÓN KILL SWITCH
           SizedBox(
             width: double.infinity,
@@ -995,7 +969,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-  
+
   Widget _buildDiagnosticRow(String label, String value, bool isDark, {bool isError = false}) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
@@ -1019,9 +993,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontFamily: 'monospace',
-                color: isError 
-                    ? Colors.red 
-                    : (isDark ? Colors.white : Colors.black87),
+                color: isError ? Colors.red : (isDark ? Colors.white : Colors.black87),
               ),
             ),
           ),

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/parable_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/parable_progress_service.dart';
 import '../../services/learning/parable_repository.dart';
@@ -22,6 +23,18 @@ class ParablesGalleryScreen extends StatefulWidget {
 }
 
 class _ParablesGalleryScreenState extends State<ParablesGalleryScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningStory);
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
@@ -50,25 +63,23 @@ class _ParablesGalleryScreenState extends State<ParablesGalleryScreen> {
                 final p = e.value;
                 final done = state.completedIds.contains(p.id);
                 return Padding(
-                  padding: const EdgeInsets.only(
-                      bottom: AppDesignSystem.spacingM),
-                  child: _ParableCard(
-                    parable: p,
-                    completed: done,
-                    onTap: () async {
-                      FeedbackEngine.I.tap();
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ParableDetailScreen(parable: p),
-                        ),
-                      );
-                      if (mounted) setState(() {});
-                    },
-                  ).animate().fadeIn(
-                        duration: 300.ms,
-                        delay: (60 * idx).ms,
-                      ).slideY(begin: 0.05, end: 0),
+                  padding: const EdgeInsets.only(bottom: AppDesignSystem.spacingM),
+                  child:
+                      _ParableCard(
+                            parable: p,
+                            completed: done,
+                            onTap: () async {
+                              FeedbackEngine.I.tap();
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (_) => ParableDetailScreen(parable: p)),
+                              );
+                              if (mounted) setState(() {});
+                            },
+                          )
+                          .animate()
+                          .fadeIn(duration: 300.ms, delay: (60 * idx).ms)
+                          .slideY(begin: 0.05, end: 0),
                 );
               }),
             ],
@@ -78,8 +89,7 @@ class _ParablesGalleryScreenState extends State<ParablesGalleryScreen> {
     );
   }
 
-  Widget _buildHeader(BuildContext context, AppThemeData t,
-      ParableProgressState state, int total) {
+  Widget _buildHeader(BuildContext context, AppThemeData t, ParableProgressState state, int total) {
     final done = state.completedIds.length;
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
@@ -98,16 +108,12 @@ class _ParablesGalleryScreenState extends State<ParablesGalleryScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_stories_rounded,
-                  color: AppDesignSystem.gold, size: 28),
+              const Icon(Icons.auto_stories_rounded, color: AppDesignSystem.gold, size: 28),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Narraciones del Maestro',
-                  style: AppDesignSystem.headlineSmall(
-                    context,
-                    color: t.textPrimary,
-                  ),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -155,11 +161,7 @@ class _ParableCard extends StatelessWidget {
   final bool completed;
   final VoidCallback onTap;
 
-  const _ParableCard({
-    required this.parable,
-    required this.completed,
-    required this.onTap,
-  });
+  const _ParableCard({required this.parable, required this.completed, required this.onTap});
 
   IconData _icon() {
     switch (parable.icon) {
@@ -196,9 +198,7 @@ class _ParableCard extends StatelessWidget {
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
           border: Border.all(
-            color: completed
-                ? AppDesignSystem.gold.withOpacity(0.55)
-                : t.cardBorder,
+            color: completed ? AppDesignSystem.gold.withOpacity(0.55) : t.cardBorder,
           ),
           boxShadow: t.cardShadow,
         ),
@@ -220,39 +220,26 @@ class _ParableCard extends StatelessWidget {
                 children: [
                   Text(
                     parable.title,
-                    style: AppDesignSystem.headlineSmall(
-                      context,
-                      color: t.textPrimary,
-                    ),
+                    style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     parable.subtitle,
-                    style: AppDesignSystem.bodyMedium(
-                      context,
-                      color: t.textSecondary,
-                    ),
+                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
                   Text(
                     parable.reference,
-                    style: AppDesignSystem.labelSmall(
-                      context,
-                      color: AppDesignSystem.gold,
-                    ),
+                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
                   ),
                 ],
               ),
             ),
             Icon(
-              completed
-                  ? Icons.check_circle_rounded
-                  : Icons.chevron_right_rounded,
-              color: completed
-                  ? AppDesignSystem.gold
-                  : t.textSecondary,
+              completed ? Icons.check_circle_rounded : Icons.chevron_right_rounded,
+              color: completed ? AppDesignSystem.gold : t.textSecondary,
               size: 26,
             ),
           ],

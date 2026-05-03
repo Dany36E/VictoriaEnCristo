@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/learning_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/question_repository.dart';
 import '../../theme/app_theme.dart';
@@ -44,18 +45,13 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
   int? _selected;
   bool _locked = false;
 
+  /// Mostrar explicación brevemente tras respuesta incorrecta
+  bool _showExplanation = false;
+
   Timer? _clock;
   int _remaining = _matchSeconds;
   List<LearningQuestion> _pool = [];
   int _poolIdx = 0;
-
-  @override
-  void dispose() {
-    _clock?.cancel();
-    _nameCtrl1.dispose();
-    _nameCtrl2.dispose();
-    super.dispose();
-  }
 
   List<LearningQuestion> _buildPool() {
     final all = QuestionRepository.I.all.where((q) {
@@ -82,8 +78,25 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
     setState(() => _phase = _Phase.intro);
   }
 
+  @override
+  void initState() {
+    super.initState();
+    // Música tensa para el duelo (arranca cuando comienza el turno)
+  }
+
+  @override
+  void dispose() {
+    _clock?.cancel();
+    _nameCtrl1.dispose();
+    _nameCtrl2.dispose();
+    // Restaurar música al salir
+    AudioEngine.I.switchBgmContext(BgmContext.learningHeadbanz);
+    super.dispose();
+  }
+
   void _startTurn() {
     _remaining = _matchSeconds;
+    _showExplanation = false;
     _clock?.cancel();
     _clock = Timer.periodic(const Duration(seconds: 1), (t) {
       if (!mounted) return;
@@ -98,6 +111,8 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
     _pool = _buildPool();
     _poolIdx = 0;
     _nextQuestion();
+    // Activar música de tensión al empezar el turno
+    AudioEngine.I.switchBgmContext(BgmContext.learningDuel);
     setState(() => _phase = _Phase.playing);
   }
 
@@ -107,6 +122,7 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
     _poolIdx++;
     _selected = null;
     _locked = false;
+    _showExplanation = false;
     if (mounted) setState(() {});
   }
 
@@ -118,14 +134,15 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
     if (correct) {
       _scores[_turn]++;
       FeedbackEngine.I.confirm();
-      // Avanza rápido tras correcto
+      // Avanza rápido tras correcto (sin explicación para no romper el ritmo)
       Future.delayed(const Duration(milliseconds: 400), () {
         if (!mounted || _phase != _Phase.playing) return;
         _nextQuestion();
       });
     } else {
       FeedbackEngine.I.tap();
-      // Penalización: muestra la correcta ~1.5s, luego siguiente
+      // Muestra la correcta + explicación breve por 1.5s
+      setState(() => _showExplanation = true);
       Future.delayed(const Duration(milliseconds: _penaltyMs), () {
         if (!mounted || _phase != _Phase.playing) return;
         _nextQuestion();
@@ -134,13 +151,21 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
     if (mounted) setState(() {});
   }
 
+  void _skipExplanation() {
+    if (!_locked || _phase != _Phase.playing) return;
+    _nextQuestion();
+  }
+
   void _endTurn() {
     if (_turn == 0) {
+      // Pausa la música entre turnos
+      AudioEngine.I.switchBgmContext(BgmContext.home);
       setState(() {
         _phase = _Phase.between;
         _turn = 1;
       });
     } else {
+      AudioEngine.I.switchBgmContext(BgmContext.home);
       setState(() => _phase = _Phase.finished);
     }
   }
@@ -208,12 +233,12 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.bolt_rounded,
-                      color: AppDesignSystem.gold, size: 28),
+                  const Icon(Icons.bolt_rounded, color: AppDesignSystem.gold, size: 28),
                   const SizedBox(width: 8),
-                  Text('Duelo Relámpago',
-                      style: AppDesignSystem.headlineSmall(context,
-                          color: t.textPrimary)),
+                  Text(
+                    'Duelo Relámpago',
+                    style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+                  ),
                 ],
               ),
               const SizedBox(height: AppDesignSystem.spacingS),
@@ -262,16 +287,14 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
           Text(icon, style: const TextStyle(fontSize: 16)),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(text,
-                style: AppDesignSystem.bodyMedium(context, color: t.textPrimary)),
+            child: Text(text, style: AppDesignSystem.bodyMedium(context, color: t.textPrimary)),
           ),
         ],
       ),
     );
   }
 
-  Widget _nameField(
-      AppThemeData t, TextEditingController c, String hint, Color color) {
+  Widget _nameField(AppThemeData t, TextEditingController c, String hint, Color color) {
     return Container(
       decoration: BoxDecoration(
         color: t.cardBg,
@@ -308,8 +331,7 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
             const SizedBox(height: 6),
             Text(
               '${_names[0]}: ${_scores[0]} pts',
-              style: AppDesignSystem.headlineMedium(context,
-                  color: const Color(0xFFE89E5C)),
+              style: AppDesignSystem.headlineMedium(context, color: const Color(0xFFE89E5C)),
             ),
             const SizedBox(height: AppDesignSystem.spacingL),
             const Divider(),
@@ -326,15 +348,16 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
             child: Icon(Icons.bolt_rounded, color: color, size: 70),
           ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
           const SizedBox(height: AppDesignSystem.spacingL),
-          Text(isHandoff ? 'Pasa el celular a' : 'Empieza',
-              style: AppDesignSystem.bodyLarge(context, color: t.textSecondary)),
           Text(
-            _names[_turn],
-            style: AppDesignSystem.displayMedium(context, color: color),
+            isHandoff ? 'Pasa el celular a' : 'Empieza',
+            style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
           ),
+          Text(_names[_turn], style: AppDesignSystem.displayMedium(context, color: color)),
           const SizedBox(height: 8),
-          Text('60 segundos · responde rápido',
-              style: AppDesignSystem.labelMedium(context, color: t.textSecondary)),
+          Text(
+            '60 segundos · responde rápido',
+            style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
+          ),
           const SizedBox(height: AppDesignSystem.spacingXL),
           SizedBox(
             width: double.infinity,
@@ -381,33 +404,34 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
                   children: [
                     Icon(Icons.person_rounded, size: 16, color: color),
                     const SizedBox(width: 4),
-                    Text(
-                      _names[_turn],
-                      style: AppDesignSystem.labelLarge(context, color: color),
-                    ),
+                    Text(_names[_turn], style: AppDesignSystem.labelLarge(context, color: color)),
                   ],
                 ),
               ),
               const Spacer(),
-              Text('${_scores[_turn]} pts',
-                  style: AppDesignSystem.headlineMedium(context, color: AppDesignSystem.gold)),
+              Text(
+                '${_scores[_turn]} pts',
+                style: AppDesignSystem.headlineMedium(context, color: AppDesignSystem.gold),
+              ),
             ],
           ),
           const SizedBox(height: AppDesignSystem.spacingS),
           // Timer bar
           Row(
             children: [
-              Icon(Icons.timer_outlined,
-                  size: 18,
-                  color: _remaining <= 10
-                      ? AppDesignSystem.struggle
-                      : t.textSecondary),
+              Icon(
+                Icons.timer_outlined,
+                size: 18,
+                color: _remaining <= 10 ? AppDesignSystem.struggle : t.textSecondary,
+              ),
               const SizedBox(width: 6),
-              Text('$_remaining s',
-                  style: AppDesignSystem.labelLarge(context,
-                      color: _remaining <= 10
-                          ? AppDesignSystem.struggle
-                          : t.textPrimary)),
+              Text(
+                '$_remaining s',
+                style: AppDesignSystem.labelLarge(
+                  context,
+                  color: _remaining <= 10 ? AppDesignSystem.struggle : t.textPrimary,
+                ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: ClipRRect(
@@ -468,18 +492,15 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
                       child: Row(
                         children: [
                           Expanded(
-                            child: Text(q.options[i],
-                                style: AppDesignSystem.bodyLarge(context,
-                                    color: t.textPrimary)),
+                            child: Text(
+                              q.options[i],
+                              style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
+                            ),
                           ),
                           if (_locked && i == q.correctIndex)
-                            const Icon(Icons.check_circle_rounded,
-                                color: AppDesignSystem.victory),
-                          if (_locked &&
-                              i == _selected &&
-                              i != q.correctIndex)
-                            const Icon(Icons.cancel_rounded,
-                                color: AppDesignSystem.struggle),
+                            const Icon(Icons.check_circle_rounded, color: AppDesignSystem.victory),
+                          if (_locked && i == _selected && i != q.correctIndex)
+                            const Icon(Icons.cancel_rounded, color: AppDesignSystem.struggle),
                         ],
                       ),
                     ),
@@ -488,6 +509,46 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
               },
             ),
           ),
+          // Explicación breve tras error (skippable con tap)
+          if (_locked && _showExplanation && _q!.explanation.isNotEmpty)
+            GestureDetector(
+              onTap: _skipExplanation,
+              child: Container(
+                margin: const EdgeInsets.only(top: AppDesignSystem.spacingS),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppDesignSystem.spacingM,
+                  vertical: AppDesignSystem.spacingS,
+                ),
+                decoration: BoxDecoration(
+                  color: AppDesignSystem.struggle.withOpacity(0.10),
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                  border: Border.all(color: AppDesignSystem.struggle.withOpacity(0.4)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.info_outline_rounded,
+                      color: AppDesignSystem.struggle,
+                      size: 16,
+                    ),
+                    const SizedBox(width: 6),
+                    Expanded(
+                      child: Text(
+                        _q!.explanation,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppDesignSystem.labelSmall(context, color: t.textPrimary),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Saltar',
+                      style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.struggle),
+                    ),
+                  ],
+                ),
+              ).animate().fadeIn(duration: 150.ms),
+            ),
         ],
       ),
     );
@@ -496,19 +557,17 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
   Widget _buildFinished(AppThemeData t) {
     final tie = _scores[0] == _scores[1];
     final winnerIdx = _scores[0] > _scores[1] ? 0 : 1;
-    final winnerColor = winnerIdx == 0
-        ? const Color(0xFFE89E5C)
-        : const Color(0xFFB59FE3);
+    final winnerColor = winnerIdx == 0 ? const Color(0xFFE89E5C) : const Color(0xFFB59FE3);
     return Padding(
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
       child: Column(
         children: [
           const Spacer(),
           Icon(
-            tie ? Icons.handshake_rounded : Icons.emoji_events_rounded,
-            size: 100,
-            color: AppDesignSystem.gold,
-          )
+                tie ? Icons.handshake_rounded : Icons.emoji_events_rounded,
+                size: 100,
+                color: AppDesignSystem.gold,
+              )
               .animate()
               .scale(duration: 500.ms, curve: Curves.elasticOut)
               .then()
@@ -517,7 +576,9 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
           Text(
             tie ? '¡Empate!' : '¡${_names[winnerIdx]} gana!',
             style: AppDesignSystem.displaySmall(
-                context, color: tie ? AppDesignSystem.gold : winnerColor),
+              context,
+              color: tie ? AppDesignSystem.gold : winnerColor,
+            ),
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Container(
@@ -546,12 +607,10 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
                     side: BorderSide(color: t.cardBorder),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppDesignSystem.radiusFull),
+                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                     ),
                   ),
-                  child: Text('Salir',
-                      style: TextStyle(color: t.textSecondary)),
+                  child: Text('Salir', style: TextStyle(color: t.textSecondary)),
                 ),
               ),
               const SizedBox(width: AppDesignSystem.spacingM),
@@ -563,8 +622,7 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
                     foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius:
-                          BorderRadius.circular(AppDesignSystem.radiusFull),
+                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                     ),
                   ),
                   child: const Text('Revancha'),
@@ -580,14 +638,13 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
   Widget _scoreBlock(String name, int score, Color color) {
     return Column(
       children: [
-        Text(name,
-            style: AppDesignSystem.labelMedium(context, color: color)),
+        Text(name, style: AppDesignSystem.labelMedium(context, color: color)),
         const SizedBox(height: 4),
-        Text('$score',
-            style: AppDesignSystem.displaySmall(context, color: color)),
-        Text('pts',
-            style: AppDesignSystem.labelSmall(
-                context, color: AppThemeData.of(context).textSecondary)),
+        Text('$score', style: AppDesignSystem.displaySmall(context, color: color)),
+        Text(
+          'pts',
+          style: AppDesignSystem.labelSmall(context, color: AppThemeData.of(context).textSecondary),
+        ),
       ],
     );
   }

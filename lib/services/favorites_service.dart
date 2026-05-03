@@ -7,7 +7,7 @@ import '../utils/result.dart';
 /// ═══════════════════════════════════════════════════════════════════════════════
 /// FAVORITES SERVICE - Servicio de Versículos Favoritos
 /// ═══════════════════════════════════════════════════════════════════════════════
-/// 
+///
 /// Gestiona el almacenamiento local de versículos favoritos usando SharedPreferences.
 /// Patrón Singleton para acceso global desde cualquier parte de la app.
 /// ═══════════════════════════════════════════════════════════════════════════════
@@ -18,7 +18,7 @@ class FavoritesService extends ChangeNotifier {
   FavoritesService._internal();
 
   static const String _storageKey = 'favorite_verses';
-  
+
   List<BibleVerse> _favorites = [];
   bool _isInitialized = false;
 
@@ -37,11 +37,11 @@ class FavoritesService extends ChangeNotifier {
   /// Inicializa el servicio cargando los favoritos guardados
   Future<void> init() async {
     if (_isInitialized) return;
-    
+
     try {
       final prefs = await SharedPreferences.getInstance();
       final jsonString = prefs.getString(_storageKey);
-      
+
       if (jsonString != null && jsonString.isNotEmpty) {
         final List<dynamic> jsonList = json.decode(jsonString);
         final List<BibleVerse> loaded = [];
@@ -54,7 +54,7 @@ class FavoritesService extends ChangeNotifier {
         }
         _favorites = loaded;
       }
-      
+
       _isInitialized = true;
       notifyListeners();
     } catch (e) {
@@ -66,15 +66,13 @@ class FavoritesService extends ChangeNotifier {
 
   /// Verifica si un versículo está en favoritos
   bool isFavorite(BibleVerse verse) {
-    return _favorites.any((v) => 
-      v.reference == verse.reference && v.verse == verse.verse
-    );
+    return _favorites.any((v) => v.reference == verse.reference && v.verse == verse.verse);
   }
 
   /// Agrega un versículo a favoritos
   Future<Result<bool>> addFavorite(BibleVerse verse) async {
     if (isFavorite(verse)) return const Success(false);
-    
+
     _favorites.insert(0, verse);
     notifyListeners();
     final saveResult = await _saveToStorage();
@@ -84,9 +82,7 @@ class FavoritesService extends ChangeNotifier {
 
   /// Elimina un versículo de favoritos
   Future<Result<bool>> removeFavorite(BibleVerse verse) async {
-    _favorites.removeWhere((v) => 
-      v.reference == verse.reference && v.verse == verse.verse
-    );
+    _favorites.removeWhere((v) => v.reference == verse.reference && v.verse == verse.verse);
     notifyListeners();
     final saveResult = await _saveToStorage();
     onFavoritesChanged?.call(List.unmodifiable(_favorites));
@@ -117,8 +113,6 @@ class FavoritesService extends ChangeNotifier {
 
   /// Restaurar favoritos desde cloud (usado por DataBootstrapper)
   Future<void> restoreFromCloud(List<BibleVerse> cloudFavorites) async {
-    if (cloudFavorites.isEmpty) return;
-    
     _favorites = List.from(cloudFavorites);
     await _saveToStorage();
     notifyListeners();

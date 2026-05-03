@@ -16,6 +16,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/learning_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/question_repository.dart';
 import '../../theme/app_theme.dart';
@@ -137,8 +138,7 @@ enum _Phase { setup, turnIntro, question, turnResult, finished }
 const int _finishLine = 20;
 const int _timePerQuestion = 15;
 
-class _GameRaceScreenState extends State<GameRaceScreen>
-    with TickerProviderStateMixin {
+class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStateMixin {
   // ── Selección de personaje ──
   int _runner1Idx = 0;
   int _runner2Idx = 1;
@@ -176,10 +176,8 @@ class _GameRaceScreenState extends State<GameRaceScreen>
   @override
   void initState() {
     super.initState();
-    _confettiCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 4),
-    );
+    AudioEngine.I.switchBgmContext(BgmContext.learningHeadbanz);
+    _confettiCtrl = AnimationController(vsync: this, duration: const Duration(seconds: 4));
   }
 
   @override
@@ -188,6 +186,7 @@ class _GameRaceScreenState extends State<GameRaceScreen>
     _nameCtrl1.dispose();
     _nameCtrl2.dispose();
     _confettiCtrl.dispose();
+    AudioEngine.I.switchBgmContext(BgmContext.learningHeadbanz);
     super.dispose();
   }
 
@@ -198,10 +197,8 @@ class _GameRaceScreenState extends State<GameRaceScreen>
   void _startGame() {
     final r1 = _kRunners[_runner1Idx];
     final r2 = _kRunners[_runner2Idx];
-    final n1 =
-        _nameCtrl1.text.trim().isEmpty ? r1.name : _nameCtrl1.text.trim();
-    final n2 =
-        _nameCtrl2.text.trim().isEmpty ? r2.name : _nameCtrl2.text.trim();
+    final n1 = _nameCtrl1.text.trim().isEmpty ? r1.name : _nameCtrl1.text.trim();
+    final n2 = _nameCtrl2.text.trim().isEmpty ? r2.name : _nameCtrl2.text.trim();
     _names = [n1, n2];
     _pool = _buildPool();
     _poolIdx = 0;
@@ -342,20 +339,13 @@ class _GameRaceScreenState extends State<GameRaceScreen>
             const Text('⚔ ', style: TextStyle(fontSize: 20)),
             Text(
               'Carrera de la Fe',
-              style: AppDesignSystem.headlineMedium(
-                  context,
-                  color: t.textPrimary),
+              style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
             ),
           ],
         ),
       ),
       body: SafeArea(
-        child: Stack(
-          children: [
-            _body(t),
-            if (_phase == _Phase.finished) _confettiOverlay(),
-          ],
-        ),
+        child: Stack(children: [_body(t), if (_phase == _Phase.finished) _confettiOverlay()]),
       ),
     );
   }
@@ -396,24 +386,23 @@ class _GameRaceScreenState extends State<GameRaceScreen>
               ],
             ),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-            border:
-                Border.all(color: const Color(0xFFD4A574).withOpacity(0.3)),
+            border: Border.all(color: const Color(0xFFD4A574).withOpacity(0.3)),
           ),
           child: Column(
             children: [
-              const Text('🏛  →  🌊  →  🏜  →  ⚔  →  ✨',
-                  style: TextStyle(fontSize: 18, letterSpacing: 2)),
+              const Text(
+                '🏛  →  🌊  →  🏜  →  ⚔  →  ✨',
+                style: TextStyle(fontSize: 18, letterSpacing: 2),
+              ),
               const SizedBox(height: 8),
-              Text('De Egipto a Jerusalén',
-                  style: AppDesignSystem.headlineSmall(
-                      context,
-                      color: const Color(0xFFD4A574))),
+              Text(
+                'De Egipto a Jerusalén',
+                style: AppDesignSystem.headlineSmall(context, color: const Color(0xFFD4A574)),
+              ),
               const SizedBox(height: 4),
               Text(
                 '20 casillas · Hebreos 12:1',
-                style: AppDesignSystem.labelSmall(
-                    context,
-                    color: t.textSecondary),
+                style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
               ),
               const SizedBox(height: AppDesignSystem.spacingM),
               _rule(t, '⚡', 'Respuesta rápida (<5s) = +3 casillas'),
@@ -422,10 +411,7 @@ class _GameRaceScreenState extends State<GameRaceScreen>
               _rule(t, '✨', 'Primero en llegar a Jerusalén gana'),
             ],
           ),
-        )
-            .animate()
-            .fadeIn(duration: 400.ms)
-            .slideY(begin: -0.1, duration: 400.ms),
+        ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, duration: 400.ms),
 
         const SizedBox(height: AppDesignSystem.spacingL),
 
@@ -448,11 +434,9 @@ class _GameRaceScreenState extends State<GameRaceScreen>
               backgroundColor: const Color(0xFFD4A574),
               foregroundColor: Colors.black,
               shape: RoundedRectangleBorder(
-                borderRadius:
-                    BorderRadius.circular(AppDesignSystem.radiusFull),
+                borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
               ),
-              textStyle: const TextStyle(
-                  fontSize: 18, fontWeight: FontWeight.w800),
+              textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
             ),
             child: const Row(
               mainAxisSize: MainAxisSize.min,
@@ -475,9 +459,7 @@ class _GameRaceScreenState extends State<GameRaceScreen>
           Text(icon, style: const TextStyle(fontSize: 16)),
           const SizedBox(width: 8),
           Expanded(
-            child: Text(text,
-                style:
-                    AppDesignSystem.bodyMedium(context, color: t.textPrimary)),
+            child: Text(text, style: AppDesignSystem.bodyMedium(context, color: t.textPrimary)),
           ),
         ],
       ),
@@ -507,26 +489,28 @@ class _GameRaceScreenState extends State<GameRaceScreen>
               Container(
                 width: 28,
                 height: 28,
-                decoration: BoxDecoration(
-                  color: runner.color,
-                  shape: BoxShape.circle,
-                ),
+                decoration: BoxDecoration(color: runner.color, shape: BoxShape.circle),
                 child: Center(
-                  child: Text('$player',
-                      style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14)),
+                  child: Text(
+                    '$player',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(width: 10),
-              Text('Jugador $player',
-                  style: AppDesignSystem.labelLarge(
-                      context, color: runner.color)),
+              Text(
+                'Jugador $player',
+                style: AppDesignSystem.labelLarge(context, color: runner.color),
+              ),
               const Spacer(),
-              Text(runner.verse,
-                  style: AppDesignSystem.labelSmall(
-                      context, color: t.textSecondary)),
+              Text(
+                runner.verse,
+                style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
+              ),
             ],
           ),
 
@@ -565,49 +549,33 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                         width: 74,
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         decoration: BoxDecoration(
-                          color: isSelected
-                              ? r.color.withOpacity(0.15)
-                              : t.cardBg,
-                          borderRadius: BorderRadius.circular(
-                              AppDesignSystem.radiusM),
+                          color: isSelected ? r.color.withOpacity(0.15) : t.cardBg,
+                          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                           border: Border.all(
                             color: isSelected ? r.color : t.divider,
                             width: isSelected ? 2.5 : 1,
                           ),
                           boxShadow: isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: r.color.withOpacity(0.3),
-                                    blurRadius: 12,
-                                  ),
-                                ]
+                              ? [BoxShadow(color: r.color.withOpacity(0.3), blurRadius: 12)]
                               : null,
                         ),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Text(r.emoji,
-                                style: const TextStyle(fontSize: 28)),
+                            Text(r.emoji, style: const TextStyle(fontSize: 28)),
                             const SizedBox(height: 4),
                             Text(
                               r.name,
                               style: TextStyle(
                                 fontSize: 11,
-                                fontWeight: isSelected
-                                    ? FontWeight.w700
-                                    : FontWeight.w500,
-                                color: isSelected
-                                    ? r.color
-                                    : t.textSecondary,
+                                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                                color: isSelected ? r.color : t.textSecondary,
                               ),
                             ),
                             if (isSelected)
                               Text(
                                 r.title,
-                                style: TextStyle(
-                                  fontSize: 8,
-                                  color: r.color.withOpacity(0.7),
-                                ),
+                                style: TextStyle(fontSize: 8, color: r.color.withOpacity(0.7)),
                                 textAlign: TextAlign.center,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -634,19 +602,14 @@ class _GameRaceScreenState extends State<GameRaceScreen>
             child: TextField(
               controller: ctrl,
               textAlign: TextAlign.center,
-              style:
-                  AppDesignSystem.bodyLarge(context, color: t.textPrimary),
+              style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
               decoration: InputDecoration(
                 hintText: runner.name,
-                hintStyle:
-                    TextStyle(color: t.textSecondary.withOpacity(0.5)),
-                prefixIcon: Text(runner.emoji,
-                    style: const TextStyle(fontSize: 20)),
-                prefixIconConstraints:
-                    const BoxConstraints(minWidth: 48),
+                hintStyle: TextStyle(color: t.textSecondary.withOpacity(0.5)),
+                prefixIcon: Text(runner.emoji, style: const TextStyle(fontSize: 20)),
+                prefixIconConstraints: const BoxConstraints(minWidth: 48),
                 border: InputBorder.none,
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 12),
+                contentPadding: const EdgeInsets.symmetric(vertical: 12),
               ),
             ),
           ),
@@ -674,42 +637,27 @@ class _GameRaceScreenState extends State<GameRaceScreen>
 
           // ── Avatar del personaje ──
           Container(
-            width: 130,
-            height: 130,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  color.withOpacity(0.3),
-                  color.withOpacity(0.05),
-                ],
-              ),
-              border: Border.all(color: color, width: 3),
-              boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.4),
-                  blurRadius: 24,
-                  spreadRadius: 4,
+                width: 130,
+                height: 130,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: RadialGradient(
+                    colors: [color.withOpacity(0.3), color.withOpacity(0.05)],
+                  ),
+                  border: Border.all(color: color, width: 3),
+                  boxShadow: [
+                    BoxShadow(color: color.withOpacity(0.4), blurRadius: 24, spreadRadius: 4),
+                  ],
                 ),
-              ],
-            ),
-            child: Center(
-              child:
-                  Text(runner.emoji, style: const TextStyle(fontSize: 60)),
-            ),
-          )
+                child: Center(child: Text(runner.emoji, style: const TextStyle(fontSize: 60))),
+              )
               .animate()
-              .scale(
-                  begin: const Offset(0.5, 0.5),
-                  duration: 500.ms,
-                  curve: Curves.elasticOut)
+              .scale(begin: const Offset(0.5, 0.5), duration: 500.ms, curve: Curves.elasticOut)
               .fadeIn(duration: 300.ms),
 
           const SizedBox(height: AppDesignSystem.spacingM),
 
-          Text('Turno de',
-              style: AppDesignSystem.bodyLarge(
-                  context, color: t.textSecondary)),
+          Text('Turno de', style: AppDesignSystem.bodyLarge(context, color: t.textSecondary)),
           Text(
             _names[_turn],
             style: AppDesignSystem.displayMedium(context, color: color),
@@ -718,15 +666,12 @@ class _GameRaceScreenState extends State<GameRaceScreen>
           const SizedBox(height: 6),
           Text(
             '${runner.title} · $locEmoji $loc · ${_positions[_turn]}/$_finishLine',
-            style: AppDesignSystem.labelMedium(
-                context, color: t.textSecondary),
+            style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
           ).animate().fadeIn(delay: 300.ms, duration: 300.ms),
           const SizedBox(height: 4),
           Text(
             'Pasa el celular',
-            style: AppDesignSystem.labelSmall(
-                context,
-                color: t.textSecondary.withOpacity(0.5)),
+            style: AppDesignSystem.labelSmall(context, color: t.textSecondary.withOpacity(0.5)),
           ),
 
           const Spacer(),
@@ -740,11 +685,9 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                 backgroundColor: color,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppDesignSystem.radiusFull),
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                 ),
-                textStyle: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w700),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -755,10 +698,7 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                 ],
               ),
             ),
-          )
-              .animate()
-              .slideY(begin: 0.3, duration: 400.ms, delay: 200.ms)
-              .fadeIn(),
+          ).animate().slideY(begin: 0.3, duration: 400.ms, delay: 200.ms).fadeIn(),
         ],
       ),
     );
@@ -789,18 +729,14 @@ class _GameRaceScreenState extends State<GameRaceScreen>
               Icon(
                 Icons.timer_outlined,
                 size: 18,
-                color: _remaining <= 5
-                    ? AppDesignSystem.struggle
-                    : t.textSecondary,
+                color: _remaining <= 5 ? AppDesignSystem.struggle : t.textSecondary,
               ),
               const SizedBox(width: 4),
               Text(
                 '$_remaining s',
                 style: AppDesignSystem.labelLarge(
                   context,
-                  color: _remaining <= 5
-                      ? AppDesignSystem.struggle
-                      : t.textPrimary,
+                  color: _remaining <= 5 ? AppDesignSystem.struggle : t.textPrimary,
                 ),
               ),
               const SizedBox(width: 12),
@@ -812,9 +748,7 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                     minHeight: 6,
                     backgroundColor: t.cardBg,
                     valueColor: AlwaysStoppedAnimation(
-                      _remaining <= 5
-                          ? AppDesignSystem.struggle
-                          : color,
+                      _remaining <= 5 ? AppDesignSystem.struggle : color,
                     ),
                   ),
                 ),
@@ -829,14 +763,12 @@ class _GameRaceScreenState extends State<GameRaceScreen>
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
             decoration: BoxDecoration(
               color: t.cardBg,
-              borderRadius:
-                  BorderRadius.circular(AppDesignSystem.radiusL),
+              borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
               border: Border.all(color: color.withOpacity(0.3)),
             ),
             child: Text(
               q.prompt,
-              style: AppDesignSystem.headlineSmall(
-                  context, color: t.textPrimary),
+              style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
             ),
           ),
 
@@ -864,40 +796,27 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: InkWell(
-                    borderRadius: BorderRadius.circular(
-                        AppDesignSystem.radiusM),
-                    onTap:
-                        _answered ? null : () => _lockAnswer(i),
+                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                    onTap: _answered ? null : () => _lockAnswer(i),
                     child: Container(
-                      padding: const EdgeInsets.all(
-                          AppDesignSystem.spacingM),
+                      padding: const EdgeInsets.all(AppDesignSystem.spacingM),
                       decoration: BoxDecoration(
                         color: bg,
-                        borderRadius: BorderRadius.circular(
-                            AppDesignSystem.radiusM),
-                        border:
-                            Border.all(color: border, width: 1.5),
+                        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                        border: Border.all(color: border, width: 1.5),
                       ),
                       child: Row(
                         children: [
                           Expanded(
                             child: Text(
                               q.options[i],
-                              style: AppDesignSystem.bodyLarge(
-                                  context,
-                                  color: t.textPrimary),
+                              style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
                             ),
                           ),
-                          if (_answered &&
-                              i == q.correctIndex)
-                            const Icon(
-                                Icons.check_circle_rounded,
-                                color: AppDesignSystem.victory),
-                          if (_answered &&
-                              i == _selected &&
-                              i != q.correctIndex)
-                            const Icon(Icons.cancel_rounded,
-                                color: AppDesignSystem.struggle),
+                          if (_answered && i == q.correctIndex)
+                            const Icon(Icons.check_circle_rounded, color: AppDesignSystem.victory),
+                          if (_answered && i == _selected && i != q.correctIndex)
+                            const Icon(Icons.cancel_rounded, color: AppDesignSystem.struggle),
                         ],
                       ),
                     ),
@@ -942,24 +861,17 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                   ],
                 ),
               ),
-              child: Center(
-                child: Text(runner.emoji,
-                    style: const TextStyle(fontSize: 50)),
-              ),
-            )
-                .animate()
-                .scale(duration: 400.ms, curve: Curves.elasticOut),
+              child: Center(child: Text(runner.emoji, style: const TextStyle(fontSize: 50))),
+            ).animate().scale(duration: 400.ms, curve: Curves.elasticOut),
             const SizedBox(height: AppDesignSystem.spacingM),
             Text(
               _advance == 3 ? '🔥 ¡Velocista!' : '⚡ ¡Correcto!',
-              style: AppDesignSystem.headlineMedium(
-                  context, color: AppDesignSystem.gold),
+              style: AppDesignSystem.headlineMedium(context, color: AppDesignSystem.gold),
             ).animate().fadeIn(duration: 300.ms),
             const SizedBox(height: 6),
             Text(
               '+$_advance casillas → $locEmoji $loc (${_positions[_turn]}/$_finishLine)',
-              style: AppDesignSystem.bodyLarge(
-                  context, color: t.textSecondary),
+              style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
             ),
           ] else ...[
             // ── Incorrecto ──
@@ -970,25 +882,17 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                 shape: BoxShape.circle,
                 color: AppDesignSystem.struggle.withOpacity(0.1),
               ),
-              child: Center(
-                child: Text(runner.emoji,
-                    style: const TextStyle(fontSize: 50)),
-              ),
-            )
-                .animate()
-                .shake(hz: 3, duration: 500.ms)
-                .fadeIn(duration: 300.ms),
+              child: Center(child: Text(runner.emoji, style: const TextStyle(fontSize: 50))),
+            ).animate().shake(hz: 3, duration: 500.ms).fadeIn(duration: 300.ms),
             const SizedBox(height: AppDesignSystem.spacingM),
             Text(
               '❌ ${_names[_turn]} no avanza',
-              style: AppDesignSystem.headlineMedium(
-                  context, color: AppDesignSystem.struggle),
+              style: AppDesignSystem.headlineMedium(context, color: AppDesignSystem.struggle),
             ),
             const SizedBox(height: 6),
             Text(
               'Sigues en $locEmoji $loc (${_positions[_turn]}/$_finishLine)',
-              style: AppDesignSystem.bodyLarge(
-                  context, color: t.textSecondary),
+              style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
             ),
           ],
 
@@ -1005,11 +909,9 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                 backgroundColor: nextRunner.color,
                 foregroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius:
-                      BorderRadius.circular(AppDesignSystem.radiusFull),
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                 ),
-                textStyle: const TextStyle(
-                    fontSize: 16, fontWeight: FontWeight.w700),
+                textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
               ),
             ),
           ),
@@ -1034,44 +936,38 @@ class _GameRaceScreenState extends State<GameRaceScreen>
 
           // ── Trofeo + Personaje ──
           Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 160,
-                height: 160,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      AppDesignSystem.gold.withOpacity(0.3),
-                      AppDesignSystem.gold.withOpacity(0.0),
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 160,
+                    height: 160,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      gradient: RadialGradient(
+                        colors: [
+                          AppDesignSystem.gold.withOpacity(0.3),
+                          AppDesignSystem.gold.withOpacity(0.0),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Column(
+                    children: [
+                      Text(winner.emoji, style: const TextStyle(fontSize: 64)),
+                      const Text('🏆', style: TextStyle(fontSize: 48)),
                     ],
                   ),
-                ),
-              ),
-              Column(
-                children: [
-                  Text(winner.emoji,
-                      style: const TextStyle(fontSize: 64)),
-                  const Text('🏆',
-                      style: TextStyle(fontSize: 48)),
                 ],
-              ),
-            ],
-          )
+              )
               .animate()
-              .scale(
-                  begin: const Offset(0.3, 0.3),
-                  duration: 600.ms,
-                  curve: Curves.elasticOut)
+              .scale(begin: const Offset(0.3, 0.3), duration: 600.ms, curve: Curves.elasticOut)
               .fadeIn(duration: 300.ms),
 
           const SizedBox(height: AppDesignSystem.spacingM),
 
           Text(
             '¡${_names[_winnerIdx]} llega a Jerusalén!',
-            style: AppDesignSystem.displaySmall(
-                context, color: AppDesignSystem.gold),
+            style: AppDesignSystem.displaySmall(context, color: AppDesignSystem.gold),
             textAlign: TextAlign.center,
           ).animate().fadeIn(delay: 300.ms, duration: 400.ms),
 
@@ -1081,15 +977,11 @@ class _GameRaceScreenState extends State<GameRaceScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _scoreChip(
-                  _p1Runner, _names[0], _positions[0], _winnerIdx == 0),
+              _scoreChip(_p1Runner, _names[0], _positions[0], _winnerIdx == 0),
               const SizedBox(width: 16),
-              Text('vs',
-                  style: AppDesignSystem.bodyLarge(
-                      context, color: t.textSecondary)),
+              Text('vs', style: AppDesignSystem.bodyLarge(context, color: t.textSecondary)),
               const SizedBox(width: 16),
-              _scoreChip(
-                  _p2Runner, _names[1], _positions[1], _winnerIdx == 1),
+              _scoreChip(_p2Runner, _names[1], _positions[1], _winnerIdx == 1),
             ],
           ).animate().fadeIn(delay: 400.ms, duration: 400.ms),
 
@@ -1104,12 +996,10 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                     side: BorderSide(color: t.cardBorder),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          AppDesignSystem.radiusFull),
+                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                     ),
                   ),
-                  child: Text('Salir',
-                      style: TextStyle(color: t.textSecondary)),
+                  child: Text('Salir', style: TextStyle(color: t.textSecondary)),
                 ),
               ),
               const SizedBox(width: AppDesignSystem.spacingM),
@@ -1119,11 +1009,9 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppDesignSystem.gold,
                     foregroundColor: Colors.black,
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 14),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          AppDesignSystem.radiusFull),
+                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                     ),
                   ),
                   child: const Text('⚔ Revancha'),
@@ -1136,24 +1024,22 @@ class _GameRaceScreenState extends State<GameRaceScreen>
     );
   }
 
-  Widget _scoreChip(
-      _BiblicalRunner runner, String name, int pos, bool isWinner) {
+  Widget _scoreChip(_BiblicalRunner runner, String name, int pos, bool isWinner) {
     return Column(
       children: [
         Text(runner.emoji, style: const TextStyle(fontSize: 24)),
         const SizedBox(height: 4),
-        Text(name,
-            style: TextStyle(
-              fontWeight: FontWeight.w700,
-              color:
-                  isWinner ? AppDesignSystem.gold : Colors.white70,
-            )),
-        Text('$pos/$_finishLine',
-            style: TextStyle(
-              fontSize: 12,
-              color:
-                  isWinner ? AppDesignSystem.gold : Colors.white54,
-            )),
+        Text(
+          name,
+          style: TextStyle(
+            fontWeight: FontWeight.w700,
+            color: isWinner ? AppDesignSystem.gold : Colors.white70,
+          ),
+        ),
+        Text(
+          '$pos/$_finishLine',
+          style: TextStyle(fontSize: 12, color: isWinner ? AppDesignSystem.gold : Colors.white54),
+        ),
       ],
     );
   }
@@ -1213,12 +1099,8 @@ class _GameRaceScreenState extends State<GameRaceScreen>
     final runner = playerIdx == 0 ? _p1Runner : _p2Runner;
     final pos = _positions[playerIdx];
     final pct = pos / _finishLine;
-    final name = _names.length > playerIdx
-        ? _names[playerIdx]
-        : runner.name;
-    final isCurrent = _phase != _Phase.setup &&
-        _phase != _Phase.finished &&
-        playerIdx == _turn;
+    final name = _names.length > playerIdx ? _names[playerIdx] : runner.name;
+    final isCurrent = _phase != _Phase.setup && _phase != _Phase.finished && playerIdx == _turn;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1231,15 +1113,13 @@ class _GameRaceScreenState extends State<GameRaceScreen>
               name,
               style: TextStyle(
                 fontSize: 12,
-                fontWeight:
-                    isCurrent ? FontWeight.w700 : FontWeight.w500,
+                fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w500,
                 color: isCurrent ? runner.color : Colors.white70,
               ),
             ),
             const Spacer(),
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
                 color: runner.color.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(8),
@@ -1260,8 +1140,7 @@ class _GameRaceScreenState extends State<GameRaceScreen>
           builder: (context, box) {
             final w = box.maxWidth;
             const runnerSize = 34.0;
-            final runnerX =
-                (w - runnerSize) * pct.clamp(0.0, 1.0);
+            final runnerX = (w - runnerSize) * pct.clamp(0.0, 1.0);
 
             return SizedBox(
               height: 40,
@@ -1285,25 +1164,16 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                     left: 0,
                     top: 16,
                     child: AnimatedContainer(
-                      duration:
-                          const Duration(milliseconds: 600),
+                      duration: const Duration(milliseconds: 600),
                       curve: Curves.easeOutCubic,
                       height: 8,
                       width: w * pct.clamp(0.0, 1.0),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [
-                            runner.color.withOpacity(0.3),
-                            runner.color,
-                          ],
+                          colors: [runner.color.withOpacity(0.3), runner.color],
                         ),
                         borderRadius: BorderRadius.circular(4),
-                        boxShadow: [
-                          BoxShadow(
-                            color: runner.color.withOpacity(0.4),
-                            blurRadius: 8,
-                          ),
-                        ],
+                        boxShadow: [BoxShadow(color: runner.color.withOpacity(0.4), blurRadius: 8)],
                       ),
                     ),
                   ),
@@ -1312,21 +1182,15 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                   for (final m in _kMilestones)
                     if (m.position > 0 && m.position < _finishLine)
                       Positioned(
-                        left: (w - 8) *
-                            (m.position / _finishLine),
+                        left: (w - 8) * (m.position / _finishLine),
                         top: 16,
                         child: Container(
                           width: 8,
                           height: 8,
                           decoration: BoxDecoration(
-                            color: pos >= m.position
-                                ? runner.color
-                                : const Color(0xFF3A3A5E),
+                            color: pos >= m.position ? runner.color : const Color(0xFF3A3A5E),
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: const Color(0xFF4A4A7E),
-                              width: 1,
-                            ),
+                            border: Border.all(color: const Color(0xFF4A4A7E), width: 1),
                           ),
                         ),
                       ),
@@ -1335,14 +1199,12 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                   const Positioned(
                     right: 0,
                     top: 4,
-                    child: Text('✨',
-                        style: TextStyle(fontSize: 18)),
+                    child: Text('✨', style: TextStyle(fontSize: 18)),
                   ),
 
                   // ── Corredor ──
                   AnimatedPositioned(
-                    duration:
-                        const Duration(milliseconds: 600),
+                    duration: const Duration(milliseconds: 600),
                     curve: Curves.easeOutCubic,
                     left: runnerX,
                     top: 3,
@@ -1352,20 +1214,16 @@ class _GameRaceScreenState extends State<GameRaceScreen>
                       decoration: BoxDecoration(
                         color: runner.color.withOpacity(0.9),
                         shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Colors.white, width: 2),
+                        border: Border.all(color: Colors.white, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: runner.color.withOpacity(
-                                isCurrent ? 0.6 : 0.3),
+                            color: runner.color.withOpacity(isCurrent ? 0.6 : 0.3),
                             blurRadius: isCurrent ? 16 : 6,
                           ),
                         ],
                       ),
                       child: Center(
-                        child: Text(runner.emoji,
-                            style: const TextStyle(
-                                fontSize: 16)),
+                        child: Text(runner.emoji, style: const TextStyle(fontSize: 16)),
                       ),
                     ),
                   ),
@@ -1384,15 +1242,10 @@ class _GameRaceScreenState extends State<GameRaceScreen>
       children: _kMilestones.map((m) {
         return Column(
           children: [
-            Text(m.emoji,
-                style: const TextStyle(fontSize: 10)),
+            Text(m.emoji, style: const TextStyle(fontSize: 10)),
             Text(
               m.name,
-              style: TextStyle(
-                fontSize: 7,
-                color:
-                    const Color(0xFFD4A574).withOpacity(0.6),
-              ),
+              style: TextStyle(fontSize: 7, color: const Color(0xFFD4A574).withOpacity(0.6)),
             ),
           ],
         );
@@ -1410,10 +1263,7 @@ class _GameRaceScreenState extends State<GameRaceScreen>
         animation: _confettiCtrl,
         builder: (context, _) {
           final size = MediaQuery.of(context).size;
-          return CustomPaint(
-            size: size,
-            painter: _ConfettiPainter(_confettiCtrl.value),
-          );
+          return CustomPaint(size: size, painter: _ConfettiPainter(_confettiCtrl.value));
         },
       ),
     );
@@ -1456,8 +1306,7 @@ class _ConfettiPainter extends CustomPainter {
       final opacity = localT < 0.8 ? 1.0 : (1.0 - (localT - 0.8) / 0.2);
 
       final paint = Paint()
-        ..color = _colors[rng.nextInt(_colors.length)]
-            .withOpacity(opacity.clamp(0.0, 1.0));
+        ..color = _colors[rng.nextInt(_colors.length)].withOpacity(opacity.clamp(0.0, 1.0));
 
       final w = 4.0 + rng.nextDouble() * 8;
       final h = 2.0 + rng.nextDouble() * 6;
@@ -1465,10 +1314,7 @@ class _ConfettiPainter extends CustomPainter {
       canvas.save();
       canvas.translate(x0 + wobble, y);
       canvas.rotate(localT * (2 + rng.nextDouble() * 8));
-      canvas.drawRect(
-        Rect.fromCenter(center: Offset.zero, width: w, height: h),
-        paint,
-      );
+      canvas.drawRect(Rect.fromCenter(center: Offset.zero, width: w, height: h), paint);
       canvas.restore();
     }
   }

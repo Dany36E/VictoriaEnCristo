@@ -20,11 +20,9 @@ class ParableProgressState {
 
   Map<String, dynamic> toJson() => {'completedIds': completedIds.toList()};
 
-  factory ParableProgressState.fromJson(Map<String, dynamic> j) =>
-      ParableProgressState(
-        completedIds:
-            (j['completedIds'] as List? ?? const []).cast<String>().toSet(),
-      );
+  factory ParableProgressState.fromJson(Map<String, dynamic> j) => ParableProgressState(
+    completedIds: (j['completedIds'] as List? ?? const []).cast<String>().toSet(),
+  );
 }
 
 class ParableProgressService {
@@ -36,19 +34,32 @@ class ParableProgressService {
   SharedPreferences? _prefs;
   bool _init = false;
 
-  final ValueNotifier<ParableProgressState> stateNotifier =
-      ValueNotifier(const ParableProgressState());
+  final ValueNotifier<ParableProgressState> stateNotifier = ValueNotifier(
+    const ParableProgressState(),
+  );
 
   Future<void> init() async {
-    if (_init) return;
+    if (_init) {
+      _refreshFromStorage();
+      return;
+    }
     _prefs = await SharedPreferences.getInstance();
     _init = true;
+    _refreshFromStorage();
+  }
+
+  void _refreshFromStorage() {
     final raw = _prefs?.getString(_kKey);
     if (raw != null && raw.isNotEmpty) {
       try {
-        stateNotifier.value =
-            ParableProgressState.fromJson(jsonDecode(raw) as Map<String, dynamic>);
-      } catch (_) {}
+        stateNotifier.value = ParableProgressState.fromJson(
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
+      } catch (_) {
+        stateNotifier.value = const ParableProgressState();
+      }
+    } else {
+      stateNotifier.value = const ParableProgressState();
     }
   }
 

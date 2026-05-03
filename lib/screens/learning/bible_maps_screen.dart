@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/bible_map_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/bible_map_repository.dart';
 import '../../services/learning/bible_map_progress_service.dart';
@@ -24,6 +25,18 @@ class BibleMapsScreen extends StatefulWidget {
 }
 
 class _BibleMapsScreenState extends State<BibleMapsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningMap);
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
@@ -54,38 +67,35 @@ class _BibleMapsScreenState extends State<BibleMapsScreen> {
               ...maps.asMap().entries.map((entry) {
                 final index = entry.key;
                 final map = entry.value;
-                final unlocked =
-                    BibleMapProgressService.I.isUnlocked(map.id);
-                final stars =
-                    BibleMapProgressService.I.starsFor(map.id);
+                final unlocked = BibleMapProgressService.I.isUnlocked(map.id);
+                final stars = BibleMapProgressService.I.starsFor(map.id);
 
                 return Padding(
-                  padding:
-                      const EdgeInsets.only(bottom: AppDesignSystem.spacingM),
-                  child: _MapCard(
-                    bibleMap: map,
-                    unlocked: unlocked,
-                    stars: stars,
-                    onTap: unlocked
-                        ? () async {
-                            FeedbackEngine.I.tap();
-                            await Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BibleMapChallengeScreen(
-                                    bibleMap: map),
-                              ),
-                            );
-                            if (mounted) setState(() {});
-                          }
-                        : null,
-                  )
-                      .animate()
-                      .fadeIn(
-                        duration: 300.ms,
-                        delay: Duration(milliseconds: index * 60),
-                      )
-                      .slideY(begin: 0.05, end: 0),
+                  padding: const EdgeInsets.only(bottom: AppDesignSystem.spacingM),
+                  child:
+                      _MapCard(
+                            bibleMap: map,
+                            unlocked: unlocked,
+                            stars: stars,
+                            onTap: unlocked
+                                ? () async {
+                                    FeedbackEngine.I.tap();
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => BibleMapChallengeScreen(bibleMap: map),
+                                      ),
+                                    );
+                                    if (mounted) setState(() {});
+                                  }
+                                : null,
+                          )
+                          .animate()
+                          .fadeIn(
+                            duration: 300.ms,
+                            delay: Duration(milliseconds: index * 60),
+                          )
+                          .slideY(begin: 0.05, end: 0),
                 );
               }),
             ],
@@ -110,25 +120,19 @@ class _BibleMapsScreenState extends State<BibleMapsScreen> {
           end: Alignment.bottomRight,
           colors: [Color(0xFF0A1628), Color(0xFF122040)],
         ),
-        border: Border.all(
-          color: AppDesignSystem.gold.withOpacity(0.2),
-        ),
+        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.public_rounded,
-                  color: AppDesignSystem.gold, size: 28),
+              const Icon(Icons.public_rounded, color: AppDesignSystem.gold, size: 28),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'Explora las tierras bíblicas',
-                  style: AppDesignSystem.headlineSmall(
-                    context,
-                    color: t.textPrimary,
-                  ),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -136,10 +140,7 @@ class _BibleMapsScreenState extends State<BibleMapsScreen> {
           const SizedBox(height: AppDesignSystem.spacingS),
           Text(
             'Arrastra los nombres de los lugares a su posición correcta en cada mapa.',
-            style: AppDesignSystem.bodyMedium(
-              context,
-              color: t.textSecondary,
-            ),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Row(
@@ -173,12 +174,7 @@ class _MapCard extends StatelessWidget {
   final int stars;
   final VoidCallback? onTap;
 
-  const _MapCard({
-    required this.bibleMap,
-    required this.unlocked,
-    required this.stars,
-    this.onTap,
-  });
+  const _MapCard({required this.bibleMap, required this.unlocked, required this.stars, this.onTap});
 
   IconData _iconForName(String name) {
     switch (name) {
@@ -215,9 +211,7 @@ class _MapCard extends StatelessWidget {
             color: t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
-              color: completed
-                  ? AppDesignSystem.gold.withOpacity(0.3)
-                  : t.cardBorder,
+              color: completed ? AppDesignSystem.gold.withOpacity(0.3) : t.cardBorder,
             ),
             boxShadow: t.cardShadow,
           ),
@@ -230,19 +224,15 @@ class _MapCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: unlocked
                       ? (completed
-                          ? AppDesignSystem.gold.withOpacity(0.15)
-                          : const Color(0xFF1A2A3A))
+                            ? AppDesignSystem.gold.withOpacity(0.15)
+                            : const Color(0xFF1A2A3A))
                       : Colors.white.withOpacity(0.05),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  unlocked
-                      ? _iconForName(bibleMap.icon)
-                      : Icons.lock_rounded,
+                  unlocked ? _iconForName(bibleMap.icon) : Icons.lock_rounded,
                   color: unlocked
-                      ? (completed
-                          ? AppDesignSystem.gold
-                          : const Color(0xFF5A8ABB))
+                      ? (completed ? AppDesignSystem.gold : const Color(0xFF5A8ABB))
                       : Colors.white.withOpacity(0.3),
                   size: 26,
                 ),
@@ -256,27 +246,19 @@ class _MapCard extends StatelessWidget {
                   children: [
                     Text(
                       bibleMap.title,
-                      style: AppDesignSystem.headlineSmall(
-                        context,
-                        color: t.textPrimary,
-                      ),
+                      style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       bibleMap.subtitle,
-                      style: AppDesignSystem.bodyMedium(
-                        context,
-                        color: t.textSecondary,
-                      ),
+                      style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                     ),
                     if (completed) ...[
                       const SizedBox(height: 4),
                       Row(
                         children: List.generate(3, (i) {
                           return Icon(
-                            i < stars
-                                ? Icons.star_rounded
-                                : Icons.star_outline_rounded,
+                            i < stars ? Icons.star_rounded : Icons.star_outline_rounded,
                             size: 16,
                             color: i < stars
                                 ? AppDesignSystem.gold
@@ -290,9 +272,7 @@ class _MapCard extends StatelessWidget {
               ),
 
               // Arrow
-              if (unlocked)
-                Icon(Icons.arrow_forward_ios_rounded,
-                    size: 14, color: t.textSecondary),
+              if (unlocked) Icon(Icons.arrow_forward_ios_rounded, size: 14, color: t.textSecondary),
             ],
           ),
         ),
@@ -310,11 +290,7 @@ class _ProgressChip extends StatelessWidget {
   final String label;
   final Color color;
 
-  const _ProgressChip({
-    required this.icon,
-    required this.label,
-    required this.color,
-  });
+  const _ProgressChip({required this.icon, required this.label, required this.color});
 
   @override
   Widget build(BuildContext context) {
@@ -331,11 +307,7 @@ class _ProgressChip extends StatelessWidget {
           const SizedBox(width: 4),
           Text(
             label,
-            style: TextStyle(
-              color: color,
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-            ),
+            style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
           ),
         ],
       ),

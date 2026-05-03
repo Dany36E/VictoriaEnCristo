@@ -27,6 +27,7 @@ import 'bible_map_screen.dart';
 import 'gospel_harmony_screen.dart';
 import 'typology_screen.dart';
 import 'ot_quotes_screen.dart';
+import 'study_mode_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE HOME SCREEN — Edición editorial premium
@@ -733,6 +734,17 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           Navigator.push(
         context,
         MaterialPageRoute(builder: (_) => const OTQuotesScreen()),
+      )),
+      _ToolItem(Icons.menu_book, 'Modo Estudio', () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => StudyModeScreen(
+            bookNumber: _lastBookNumber ?? 1,
+            bookName: _lastBookName ?? 'Génesis',
+            chapter: _lastChapter ?? 1,
+            version: _version,
+          ),
+        ),
       )),
     ];
 

@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/prophecy_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/prophecy_progress_service.dart';
 import '../../services/learning/prophecy_repository.dart';
@@ -22,6 +23,18 @@ class PropheciesHomeScreen extends StatefulWidget {
 }
 
 class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningProphecy);
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
@@ -49,9 +62,10 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
                 final i = e.key;
                 final r = e.value;
                 final stars = state.bestStars[r.id] ?? 0;
-                return _roundCard(t, r, stars).animate().fadeIn(
-                    duration: 300.ms,
-                    delay: (100 * i).ms).slideY(begin: 0.05, end: 0);
+                return _roundCard(t, r, stars)
+                    .animate()
+                    .fadeIn(duration: 300.ms, delay: (100 * i).ms)
+                    .slideY(begin: 0.05, end: 0);
               }),
             ],
           );
@@ -77,14 +91,12 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.link_rounded,
-                  color: AppDesignSystem.gold, size: 24),
+              const Icon(Icons.link_rounded, color: AppDesignSystem.gold, size: 24),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'El AT anuncia a Cristo',
-                  style: AppDesignSystem.headlineSmall(context,
-                      color: t.textPrimary),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -92,14 +104,12 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
           const SizedBox(height: 8),
           Text(
             'Conecta cada profecía del Antiguo Testamento con su cumplimiento en el Nuevo. Toda la Escritura habla de Él.',
-            style: AppDesignSystem.bodyMedium(context,
-                color: t.textSecondary),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
           ),
           const SizedBox(height: 8),
           Text(
             '"Estas son las que dan testimonio de mí" — Juan 5:39',
-            style: AppDesignSystem.scripture(context,
-                color: AppDesignSystem.gold),
+            style: AppDesignSystem.scripture(context, color: AppDesignSystem.gold),
           ),
         ],
       ),
@@ -115,9 +125,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
           FeedbackEngine.I.tap();
           await Navigator.push(
             context,
-            MaterialPageRoute(
-              builder: (_) => ProphecyMatchScreen(round: r),
-            ),
+            MaterialPageRoute(builder: (_) => ProphecyMatchScreen(round: r)),
           );
           if (mounted) setState(() {});
         },
@@ -127,9 +135,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
             color: t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
-              color: stars > 0
-                  ? AppDesignSystem.gold.withOpacity(0.6)
-                  : t.cardBorder,
+              color: stars > 0 ? AppDesignSystem.gold.withOpacity(0.6) : t.cardBorder,
             ),
             boxShadow: t.cardShadow,
           ),
@@ -142,8 +148,11 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
                   color: AppDesignSystem.gold.withOpacity(0.15),
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(Icons.auto_awesome_rounded,
-                    color: AppDesignSystem.gold, size: 26),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppDesignSystem.gold,
+                  size: 26,
+                ),
               ),
               const SizedBox(width: AppDesignSystem.spacingM),
               Expanded(
@@ -152,14 +161,12 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
                   children: [
                     Text(
                       r.title,
-                      style: AppDesignSystem.headlineSmall(context,
-                          color: t.textPrimary),
+                      style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                     ),
                     const SizedBox(height: 4),
                     Text(
                       '${r.pairs.length} pares  ·  hasta ${r.xpReward} XP',
-                      style: AppDesignSystem.labelSmall(context,
-                          color: t.textSecondary),
+                      style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
                     ),
                     const SizedBox(height: 4),
                     Row(
@@ -168,9 +175,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
                         return Icon(
                           filled ? Icons.star_rounded : Icons.star_outline_rounded,
                           size: 18,
-                          color: filled
-                              ? AppDesignSystem.gold
-                              : t.textSecondary,
+                          color: filled ? AppDesignSystem.gold : t.textSecondary,
                         );
                       }),
                     ),

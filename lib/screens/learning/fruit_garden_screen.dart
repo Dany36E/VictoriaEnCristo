@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/fruit_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/fruit_progress_service.dart';
 import '../../services/learning/fruit_repository.dart';
@@ -24,6 +25,18 @@ class FruitGardenScreen extends StatefulWidget {
 }
 
 class _FruitGardenScreenState extends State<FruitGardenScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningQuiz);
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
+  }
+
   Color _parseHex(String hex) {
     final h = hex.replaceAll('#', '');
     return Color(int.parse('FF$h', radix: 16));
@@ -85,8 +98,7 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   itemCount: fruits.length,
-                  gridDelegate:
-                      const SliverGridDelegateWithFixedCrossAxisCount(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 3,
                     childAspectRatio: 0.78,
                     crossAxisSpacing: 10,
@@ -95,28 +107,25 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
                   itemBuilder: (context, i) {
                     final f = fruits[i];
                     final earned = state.badges.contains(f.id);
-                    final inProgress =
-                        (state.byFruit[f.id]?.doneActions.isNotEmpty ?? false);
+                    final inProgress = (state.byFruit[f.id]?.doneActions.isNotEmpty ?? false);
                     return _FruitTile(
-                      fruit: f,
-                      earned: earned,
-                      inProgress: inProgress,
-                      color: _parseHex(f.colorHex),
-                      icon: _iconFor(f.icon),
-                      onTap: () async {
-                        FeedbackEngine.I.tap();
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => FruitWeekScreen(fruit: f),
-                          ),
-                        );
-                        if (mounted) setState(() {});
-                      },
-                    ).animate().fadeIn(
-                        duration: 300.ms, delay: (60 * i).ms).scale(
-                        begin: const Offset(0.9, 0.9),
-                        duration: 300.ms);
+                          fruit: f,
+                          earned: earned,
+                          inProgress: inProgress,
+                          color: _parseHex(f.colorHex),
+                          icon: _iconFor(f.icon),
+                          onTap: () async {
+                            FeedbackEngine.I.tap();
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => FruitWeekScreen(fruit: f)),
+                            );
+                            if (mounted) setState(() {});
+                          },
+                        )
+                        .animate()
+                        .fadeIn(duration: 300.ms, delay: (60 * i).ms)
+                        .scale(begin: const Offset(0.9, 0.9), duration: 300.ms);
                   },
                 ),
                 if (crownComplete) ...[
@@ -149,16 +158,12 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.eco_rounded,
-                  color: AppDesignSystem.gold, size: 28),
+              const Icon(Icons.eco_rounded, color: AppDesignSystem.gold, size: 28),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'Gálatas 5:22-23',
-                  style: AppDesignSystem.headlineSmall(
-                    context,
-                    color: t.textPrimary,
-                  ),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -166,8 +171,7 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
           const SizedBox(height: AppDesignSystem.spacingS),
           Text(
             'Nueve frutos. Nueve semanas. El Espíritu los hace crecer; tú riegas con obediencia pequeña.',
-            style: AppDesignSystem.bodyMedium(
-                context, color: t.textSecondary),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Row(
@@ -203,45 +207,32 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
 
   Widget _buildCrown(AppThemeData t) {
     return Container(
-      padding: const EdgeInsets.all(AppDesignSystem.spacingL),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [
-            AppDesignSystem.gold,
-            Color(0xFFF0CC7A),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        boxShadow: [
-          BoxShadow(
-            color: AppDesignSystem.gold.withOpacity(0.5),
-            blurRadius: 20,
+          padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(colors: [AppDesignSystem.gold, Color(0xFFF0CC7A)]),
+            borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+            boxShadow: [BoxShadow(color: AppDesignSystem.gold.withOpacity(0.5), blurRadius: 20)],
           ),
-        ],
-      ),
-      child: Column(
-        children: [
-          const Icon(Icons.emoji_events_rounded,
-              color: Colors.black, size: 48),
-          const SizedBox(height: AppDesignSystem.spacingM),
-          Text(
-            'Corona de los 9 frutos',
-            style: AppDesignSystem.headlineSmall(context,
-                color: Colors.black),
+          child: Column(
+            children: [
+              const Icon(Icons.emoji_events_rounded, color: Colors.black, size: 48),
+              const SizedBox(height: AppDesignSystem.spacingM),
+              Text(
+                'Corona de los 9 frutos',
+                style: AppDesignSystem.headlineSmall(context, color: Colors.black),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                '"El fruto del Espíritu es amor, gozo, paz, paciencia,\nbenignidad, bondad, fe, mansedumbre, templanza".',
+                textAlign: TextAlign.center,
+                style: AppDesignSystem.bodyMedium(context, color: Colors.black87),
+              ),
+            ],
           ),
-          const SizedBox(height: 6),
-          Text(
-            '"El fruto del Espíritu es amor, gozo, paz, paciencia,\nbenignidad, bondad, fe, mansedumbre, templanza".',
-            textAlign: TextAlign.center,
-            style: AppDesignSystem.bodyMedium(context,
-                color: Colors.black87),
-          ),
-        ],
-      ),
-    ).animate().fadeIn(duration: 600.ms).scale(
-        begin: const Offset(0.9, 0.9),
-        duration: 600.ms,
-        curve: Curves.elasticOut);
+        )
+        .animate()
+        .fadeIn(duration: 600.ms)
+        .scale(begin: const Offset(0.9, 0.9), duration: 600.ms, curve: Curves.elasticOut);
   }
 }
 
@@ -272,12 +263,7 @@ class _FruitTile extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: earned
-              ? LinearGradient(
-                  colors: [
-                    color.withOpacity(0.35),
-                    color.withOpacity(0.15),
-                  ],
-                )
+              ? LinearGradient(colors: [color.withOpacity(0.35), color.withOpacity(0.15)])
               : null,
           color: earned ? null : t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
@@ -285,17 +271,12 @@ class _FruitTile extends StatelessWidget {
             color: earned
                 ? color
                 : inProgress
-                    ? color.withOpacity(0.5)
-                    : t.cardBorder,
+                ? color.withOpacity(0.5)
+                : t.cardBorder,
             width: earned ? 2 : 1,
           ),
           boxShadow: earned
-              ? [
-                  BoxShadow(
-                    color: color.withOpacity(0.4),
-                    blurRadius: 12,
-                  ),
-                ]
+              ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 12)]
               : t.cardShadow,
         ),
         child: Column(
@@ -307,10 +288,7 @@ class _FruitTile extends StatelessWidget {
                 Container(
                   width: 52,
                   height: 52,
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.18),
-                    shape: BoxShape.circle,
-                  ),
+                  decoration: BoxDecoration(color: color.withOpacity(0.18), shape: BoxShape.circle),
                   child: Icon(icon, color: color, size: 28),
                 ),
                 if (earned)
@@ -320,8 +298,7 @@ class _FruitTile extends StatelessWidget {
                     child: CircleAvatar(
                       radius: 10,
                       backgroundColor: AppDesignSystem.gold,
-                      child: Icon(Icons.check_rounded,
-                          color: Colors.black, size: 14),
+                      child: Icon(Icons.check_rounded, color: Colors.black, size: 14),
                     ),
                   ),
               ],
@@ -330,8 +307,7 @@ class _FruitTile extends StatelessWidget {
             Text(
               fruit.name,
               textAlign: TextAlign.center,
-              style: AppDesignSystem.headlineSmall(context,
-                  color: t.textPrimary),
+              style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

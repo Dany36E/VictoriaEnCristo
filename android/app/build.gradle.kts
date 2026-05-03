@@ -9,6 +9,21 @@ plugins {
     id("com.google.firebase.crashlytics")
 }
 
+import java.util.Properties
+import java.io.FileInputStream
+
+// Cargar credenciales del release keystore desde key.properties (gitignored).
+// Si el archivo no existe (entornos de CI sin secretos), el build release
+// caer\u00e1 al keystore debug, pero advertimos en consola.
+val keystoreProperties = Properties()
+val keystorePropertiesFile = rootProject.file("key.properties")
+val hasReleaseKeystore = keystorePropertiesFile.exists()
+if (hasReleaseKeystore) {
+    keystoreProperties.load(FileInputStream(keystorePropertiesFile))
+} else {
+    println("\u26a0\ufe0f  android/key.properties no encontrado: el build release usar\u00e1 la debug keystore.")
+}
+
 android {
     namespace = "com.example.app_quitar"
     compileSdk = flutter.compileSdkVersion
@@ -25,10 +40,14 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
+        // NOTA: applicationId sigue como placeholder de Flutter por
+        // compatibilidad con la app Android registrada en Firebase. Para
+        // publicar en Play Store hay que (1) registrar nuevo Android app
+        // en Firebase Console con el id final (p.ej. com.victoriaencristo.app),
+        // (2) descargar el nuevo google-services.json, (3) añadir SHA-1 del
+        // release.keystore en Firebase para Google Sign-In, y luego cambiar
+        // applicationId aquí.
         applicationId = "com.example.app_quitar"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
@@ -37,11 +56,33 @@ android {
         multiDexEnabled = true
     }
 
+    signingConfigs {
+        if (hasReleaseKeystore) {
+            create("release") {
+                storeFile = rootProject.file(keystoreProperties["storeFile"] as String)
+                storePassword = keystoreProperties["storePassword"] as String
+                keyAlias = keystoreProperties["keyAlias"] as String
+                keyPassword = keystoreProperties["keyPassword"] as String
+            }
+        }
+    }
+
     buildTypes {
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig = signingConfigs.getByName("debug")
+            // Firmar con keystore release real si existe, fallback a debug
+            // s\u00f3lo en entornos sin secretos (CI sin claves provisionadas).
+            signingConfig = if (hasReleaseKeystore) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
+            // R8 + shrinker para reducir reversibilidad y tama\u00f1o.
+            isMinifyEnabled = true
+            isShrinkResources = true
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
 }

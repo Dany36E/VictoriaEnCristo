@@ -79,23 +79,25 @@ class LearningCloudSync {
   SharedPreferences? _prefs;
   Timer? _timer;
   bool _dirty = false;
-  bool _bootstrapped = false;
+  String? _bootstrappedUid;
   bool _listenersAttached = false;
   final List<VoidCallback> _detachers = [];
 
   /// Ejecutar ANTES de inicializar los *ProgressService para que éstos carguen
   /// de SharedPreferences ya hidratadas con los datos más recientes del cloud.
   /// Es idempotente por usuario.
-  Future<void> bootstrap() async {
-    if (_bootstrapped) return;
+  Future<void> bootstrap({bool force = false}) async {
     _prefs = await SharedPreferences.getInstance();
-    _bootstrapped = true;
 
-    final ref = _docRef();
-    if (ref == null) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || uid.isEmpty) {
       debugPrint('☁️ [LEARN_SYNC] Sin usuario, skip bootstrap');
       return;
     }
+    if (!force && _bootstrappedUid == uid) return;
+    _bootstrappedUid = uid;
+
+    final ref = _docRef(uid);
 
     try {
       final snap = await ref.get();
@@ -126,11 +128,11 @@ class LearningCloudSync {
         }
         await _prefs?.setInt(_kLocalUpdatedAtMs, remoteMs);
         debugPrint(
-            '☁️ [LEARN_SYNC] Hidratado desde cloud: $restored keys (remote=$remoteMs > local=$localMs)');
+          '☁️ [LEARN_SYNC] Hidratado desde cloud: $restored keys (remote=$remoteMs > local=$localMs)',
+        );
       } else if (localMs > remoteMs && _hasLocalData()) {
         // Local gana: programar push.
-        debugPrint(
-            '☁️ [LEARN_SYNC] Local es más reciente ($localMs > $remoteMs), push programado');
+        debugPrint('☁️ [LEARN_SYNC] Local es más reciente ($localMs > $remoteMs), push programado');
         _schedulePush();
       } else {
         debugPrint('☁️ [LEARN_SYNC] Sincronizado (both=$localMs)');
@@ -156,7 +158,7 @@ class LearningCloudSync {
 
   /// Marca que hay cambios locales pendientes. Debouncea el push 30 s.
   void markDirty() {
-    if (!_bootstrapped) return;
+    if (_bootstrappedUid == null) return;
     _dirty = true;
     _prefs?.setInt(_kLocalUpdatedAtMs, DateTime.now().millisecondsSinceEpoch);
     _schedulePush();
@@ -173,6 +175,21 @@ class LearningCloudSync {
     if (_dirty) await _push();
   }
 
+  void resetForSignOut() {
+    _timer?.cancel();
+    _dirty = false;
+    _bootstrappedUid = null;
+  }
+
+  Future<void> clearLocalCache() async {
+    _prefs ??= await SharedPreferences.getInstance();
+    for (final key in _syncedKeys) {
+      await _prefs?.remove(key);
+    }
+    await _prefs?.remove(_kLocalUpdatedAtMs);
+    resetForSignOut();
+  }
+
   /// Desengancha listeners (útil en tests o sign-out con reset completo).
   void detachAll() {
     for (final d in _detachers) {
@@ -186,9 +203,7 @@ class LearningCloudSync {
   // Implementación interna
   // ══════════════════════════════════════════════════════════════════════════
 
-  DocumentReference<Map<String, dynamic>>? _docRef() {
-    final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null || uid.isEmpty) return null;
+  DocumentReference<Map<String, dynamic>> _docRef(String uid) {
     return FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
@@ -227,11 +242,12 @@ class LearningCloudSync {
   }
 
   Future<void> _push() async {
-    final ref = _docRef();
-    if (ref == null) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || uid.isEmpty) {
       _dirty = false;
       return;
     }
+    final ref = _docRef(uid);
     final prefsMap = _collectPrefs();
     if (prefsMap.isEmpty) {
       _dirty = false;
@@ -239,15 +255,19 @@ class LearningCloudSync {
     }
     final updatedAtMs = DateTime.now().millisecondsSinceEpoch;
     try {
+      final snap = await ref.get();
+      final remotePrefs = Map<String, dynamic>.from(
+        (snap.data()?['prefs'] as Map?) ?? const <String, dynamic>{},
+      );
+      final mergedPrefs = <String, dynamic>{...remotePrefs, ...prefsMap};
       await ref.set({
-        'prefs': prefsMap,
+        'prefs': mergedPrefs,
         'updatedAtMs': updatedAtMs,
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
       await _prefs?.setInt(_kLocalUpdatedAtMs, updatedAtMs);
       _dirty = false;
-      debugPrint(
-          '☁️ [LEARN_SYNC] Push OK (${prefsMap.length} keys, ms=$updatedAtMs)');
+      debugPrint('☁️ [LEARN_SYNC] Push OK (${prefsMap.length} keys, ms=$updatedAtMs)');
     } catch (e) {
       // No reintentamos explícitamente; el próximo `markDirty` reprograma.
       debugPrint('☁️ [LEARN_SYNC] Push falló: $e');
@@ -258,7 +278,7 @@ class LearningCloudSync {
   Future<void> resetForTesting() async {
     _timer?.cancel();
     detachAll();
-    _bootstrapped = false;
+    _bootstrappedUid = null;
     _dirty = false;
     await _prefs?.remove(_kLocalUpdatedAtMs);
   }

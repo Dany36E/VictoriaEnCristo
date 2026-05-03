@@ -20,14 +20,12 @@ class TimelineProgressState {
 
   Map<String, dynamic> toJson() => {'completed': completed};
 
-  factory TimelineProgressState.fromJson(Map<String, dynamic> j) =>
-      TimelineProgressState(
-        completed: Map<String, int>.from(
-            (j['completed'] as Map?)?.map(
-                  (k, v) => MapEntry(k.toString(), (v as num).toInt()),
-                ) ??
-                const {}),
-      );
+  factory TimelineProgressState.fromJson(Map<String, dynamic> j) => TimelineProgressState(
+    completed: Map<String, int>.from(
+      (j['completed'] as Map?)?.map((k, v) => MapEntry(k.toString(), (v as num).toInt())) ??
+          const {},
+    ),
+  );
 }
 
 class TimelineProgressService {
@@ -39,19 +37,32 @@ class TimelineProgressService {
   SharedPreferences? _prefs;
   bool _init = false;
 
-  final ValueNotifier<TimelineProgressState> stateNotifier =
-      ValueNotifier(const TimelineProgressState());
+  final ValueNotifier<TimelineProgressState> stateNotifier = ValueNotifier(
+    const TimelineProgressState(),
+  );
 
   Future<void> init() async {
-    if (_init) return;
+    if (_init) {
+      _refreshFromStorage();
+      return;
+    }
     _prefs = await SharedPreferences.getInstance();
     _init = true;
+    _refreshFromStorage();
+  }
+
+  void _refreshFromStorage() {
     final raw = _prefs?.getString(_kKey);
     if (raw != null && raw.isNotEmpty) {
       try {
         stateNotifier.value = TimelineProgressState.fromJson(
-            jsonDecode(raw) as Map<String, dynamic>);
-      } catch (_) {}
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
+      } catch (_) {
+        stateNotifier.value = const TimelineProgressState();
+      }
+    } else {
+      stateNotifier.value = const TimelineProgressState();
     }
   }
 
@@ -75,6 +86,5 @@ class TimelineProgressService {
     return xpReward;
   }
 
-  int get totalStars =>
-      stateNotifier.value.completed.values.fold(0, (a, b) => a + b);
+  int get totalStars => stateNotifier.value.completed.values.fold(0, (a, b) => a + b);
 }

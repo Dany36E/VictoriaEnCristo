@@ -22,19 +22,13 @@ class JourneyProgressState {
   const JourneyProgressState({this.completedIds = const {}});
 
   JourneyProgressState copyWith({Set<String>? completedIds}) =>
-      JourneyProgressState(
-        completedIds: completedIds ?? this.completedIds,
-      );
+      JourneyProgressState(completedIds: completedIds ?? this.completedIds);
 
-  Map<String, dynamic> toJson() => {
-        'completedIds': completedIds.toList(),
-      };
+  Map<String, dynamic> toJson() => {'completedIds': completedIds.toList()};
 
-  factory JourneyProgressState.fromJson(Map<String, dynamic> j) =>
-      JourneyProgressState(
-        completedIds:
-            (j['completedIds'] as List? ?? const []).cast<String>().toSet(),
-      );
+  factory JourneyProgressState.fromJson(Map<String, dynamic> j) => JourneyProgressState(
+    completedIds: (j['completedIds'] as List? ?? const []).cast<String>().toSet(),
+  );
 }
 
 class JourneyProgressService {
@@ -46,24 +40,34 @@ class JourneyProgressService {
   SharedPreferences? _prefs;
   bool _init = false;
 
-  final ValueNotifier<JourneyProgressState> stateNotifier =
-      ValueNotifier(const JourneyProgressState());
+  final ValueNotifier<JourneyProgressState> stateNotifier = ValueNotifier(
+    const JourneyProgressState(),
+  );
 
   Future<void> init() async {
-    if (_init) return;
+    if (_init) {
+      _refreshFromStorage();
+      return;
+    }
     _prefs = await SharedPreferences.getInstance();
     _init = true;
+    _refreshFromStorage();
+    debugPrint('🗺️ [JOURNEY] Progress init completed=${stateNotifier.value.completedIds.length}');
+  }
+
+  void _refreshFromStorage() {
     final raw = _prefs?.getString(_kKey);
     if (raw != null && raw.isNotEmpty) {
       try {
-        stateNotifier.value =
-            JourneyProgressState.fromJson(jsonDecode(raw) as Map<String, dynamic>);
+        stateNotifier.value = JourneyProgressState.fromJson(
+          jsonDecode(raw) as Map<String, dynamic>,
+        );
       } catch (_) {
         stateNotifier.value = const JourneyProgressState();
       }
+    } else {
+      stateNotifier.value = const JourneyProgressState();
     }
-    debugPrint(
-        '🗺️ [JOURNEY] Progress init completed=${stateNotifier.value.completedIds.length}');
   }
 
   Future<void> _save(JourneyProgressState s) async {
@@ -97,9 +101,7 @@ class JourneyProgressService {
     await init();
     final s = stateNotifier.value;
     if (s.completedIds.contains(station.id)) return 0;
-    final updated = s.copyWith(
-      completedIds: {...s.completedIds, station.id},
-    );
+    final updated = s.copyWith(completedIds: {...s.completedIds, station.id});
     await _save(updated);
     // Otorgar XP y registrar actividad de estudio.
     await LearningProgressService.I.addXp(station.xpReward);

@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import '../constants/image_urls.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
+import '../utils/platform_capabilities.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onThemeChanged;
@@ -16,18 +17,36 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  static const bool _autoLaunchGoogleSignIn = bool.fromEnvironment(
+    'WINDOWS_AUTOLAUNCH_GOOGLE_SIGNIN',
+  );
+
   final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
-  
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
-  
+
   bool _isLogin = true;
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _acceptedTerms = false;
   String? _errorMessage;
+
+  bool get _supportsGoogleSignIn => PlatformCapabilities.supportsGoogleSignIn;
+
+  @override
+  void initState() {
+    super.initState();
+
+    if (_autoLaunchGoogleSignIn && PlatformCapabilities.supportsFirebaseAuthProviderSignIn) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || _isLoading || !_supportsGoogleSignIn) return;
+        _handleGoogleSignIn();
+      });
+    }
+  }
 
   @override
   void dispose() {
@@ -61,7 +80,7 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          
+
           // CAPA 2: Overlay gradiente oscuro
           Positioned.fill(
             child: Container(
@@ -79,45 +98,65 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           ),
-          
+
           // CAPA 3: Contenido principal (NUEVO ORDEN JERÁRQUICO)
           SafeArea(
-            child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                children: [
-                  const SizedBox(height: 50),
-                  
-                  // 1. ENCABEZADO: Logo + Título + Subtítulo
-                  _buildHeroLogo(),
-                  const SizedBox(height: 40),
-                  
-                  // 2. ACCIÓN PRINCIPAL: Botón Google (estilo dorado principal)
-                  _buildGooglePrimaryButton(),
-                  const SizedBox(height: 24),
-                  
-                  // 3. SEPARADOR MEJORADO: "— o usa tu correo —"
-                  _buildEnhancedDivider(),
-                  const SizedBox(height: 24),
-                  
-                  // 4. FORMULARIO SECUNDARIO: Email + Password
-                  _buildSecondaryForm(),
-                  const SizedBox(height: 20),
-                  
-                  // 5. ACCIÓN SECUNDARIA: Botón Login (estilo borde dorado)
-                  _buildOutlineGoldButton(),
-                  const SizedBox(height: 28),
-                  
-                  // 6. PIE DE PÁGINA: Toggle Login/Register (más visible)
-                  _buildEnhancedToggle(),
-                  const SizedBox(height: 16),
-                  
-                  // 7. ACCIÓN INVITADO: Botón con borde sutil
-                  _buildGuestOutlineButton(),
-                  const SizedBox(height: 40),
-                ],
-              ),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final isDesktop = PlatformCapabilities.isDesktop;
+                final isCompactDesktop = isDesktop && constraints.maxHeight < 760;
+                final topSpacing = isCompactDesktop ? 22.0 : 50.0;
+                final heroSpacing = isCompactDesktop ? 24.0 : 40.0;
+                final bottomSpacing = isCompactDesktop ? 24.0 : 40.0;
+
+                return SingleChildScrollView(
+                  physics: isDesktop
+                      ? const ClampingScrollPhysics()
+                      : const BouncingScrollPhysics(),
+                  padding: EdgeInsets.symmetric(horizontal: isDesktop ? 32 : 24),
+                  child: Center(
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(maxWidth: isDesktop ? 440 : double.infinity),
+                      child: Column(
+                        children: [
+                          SizedBox(height: topSpacing),
+
+                          // 1. ENCABEZADO: Logo + Título + Subtítulo
+                          _buildHeroLogo(compact: isCompactDesktop),
+                          SizedBox(height: heroSpacing),
+
+                          // 2. ACCIÓN PRINCIPAL: Google solo donde el plugin existe.
+                          if (_supportsGoogleSignIn) ...[
+                            _buildGooglePrimaryButton(),
+                            const SizedBox(height: 24),
+
+                            // 3. SEPARADOR MEJORADO: "— o usa tu correo —"
+                            _buildEnhancedDivider(),
+                            const SizedBox(height: 24),
+                          ] else
+                            const SizedBox(height: 8),
+
+                          // 4. FORMULARIO SECUNDARIO: Email + Password
+                          _buildSecondaryForm(),
+                          const SizedBox(height: 20),
+
+                          // 5. ACCIÓN SECUNDARIA: Botón Login (estilo borde dorado)
+                          _buildOutlineGoldButton(),
+                          const SizedBox(height: 28),
+
+                          // 6. PIE DE PÁGINA: Toggle Login/Register (más visible)
+                          _buildEnhancedToggle(),
+                          const SizedBox(height: 16),
+
+                          // 7. ACCIÓN INVITADO: Botón con borde sutil
+                          _buildGuestOutlineButton(),
+                          SizedBox(height: bottomSpacing),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
             ),
           ),
         ],
@@ -128,118 +167,112 @@ class _LoginScreenState extends State<LoginScreen> {
   // ============================================================
   // LOGO HEROICO CON GLOW DIVINO
   // ============================================================
-  Widget _buildHeroLogo() {
+  Widget _buildHeroLogo({bool compact = false}) {
+    final outerPadding = compact ? 3.0 : 5.0;
+    final innerPadding = compact ? 20.0 : 28.0;
+    final iconSize = compact ? 48.0 : 64.0;
+    final glowBlur = compact ? 26.0 : 40.0;
+    final titleFontSize = compact ? 22.0 : 26.0;
+    final titleLetterSpacing = compact ? 2.5 : 4.0;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Escudo con glow dorado divino
         Container(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            boxShadow: [
-              // Glow dorado exterior difuso
-              BoxShadow(
-                color: const Color(0xFFFFD700).withOpacity(0.4),
-                blurRadius: 40,
-                spreadRadius: 10,
-              ),
-              // Glow dorado medio
-              BoxShadow(
-                color: const Color(0xFFFFD700).withOpacity(0.3),
-                blurRadius: 25,
-                spreadRadius: 5,
-              ),
-              // Glow interno intenso
-              BoxShadow(
-                color: const Color(0xFFFFA500).withOpacity(0.2),
-                blurRadius: 15,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-          child: Container(
-            padding: const EdgeInsets.all(5),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  const Color(0xFFFFD700).withOpacity(0.8),
-                  const Color(0xFFFFA500).withOpacity(0.6),
-                ],
-              ),
-            ),
-            child: Container(
-              padding: const EdgeInsets.all(28),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: Colors.black.withOpacity(0.6),
-                border: Border.all(
-                  color: Colors.white.withOpacity(0.2),
-                  width: 1,
+                boxShadow: [
+                  // Glow dorado exterior difuso
+                  BoxShadow(
+                    color: const Color(0xFFFFD700).withOpacity(0.4),
+                    blurRadius: glowBlur,
+                    spreadRadius: compact ? 6 : 10,
+                  ),
+                  // Glow dorado medio
+                  BoxShadow(
+                    color: const Color(0xFFFFD700).withOpacity(0.3),
+                    blurRadius: 25,
+                    spreadRadius: 5,
+                  ),
+                  // Glow interno intenso
+                  BoxShadow(
+                    color: const Color(0xFFFFA500).withOpacity(0.2),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: Container(
+                padding: EdgeInsets.all(outerPadding),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      const Color(0xFFFFD700).withOpacity(0.8),
+                      const Color(0xFFFFA500).withOpacity(0.6),
+                    ],
+                  ),
+                ),
+                child: Container(
+                  padding: EdgeInsets.all(innerPadding),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: Colors.black.withOpacity(0.6),
+                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                  ),
+                  child: Icon(Icons.shield_outlined, size: iconSize, color: Colors.white),
                 ),
               ),
-              child: const Icon(
-                Icons.shield_outlined,
-                size: 64,
-                color: Colors.white,
-              ),
-            ),
-          ),
-        )
+            )
             .animate()
             .fadeIn(duration: 800.ms, curve: Curves.easeOut)
             .slideY(begin: -0.5, end: 0, duration: 800.ms, curve: Curves.easeOutBack)
             .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 600.ms),
-        
-        const SizedBox(height: 28),
-        
+
+        SizedBox(height: compact ? 18 : 28),
+
         // Título "VICTORIA EN CRISTO" - Blanco con GLOW DORADO
         SizedBox(
-          width: double.infinity,
-          child: Text(
-            'VICTORIA EN CRISTO',
-            textAlign: TextAlign.center,
-            style: GoogleFonts.cinzel(
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              letterSpacing: 4,
-              color: Colors.white,
-              shadows: [
-                // Sombra base para legibilidad
-                Shadow(
-                  color: Colors.black.withOpacity(0.6),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+              width: double.infinity,
+              child: Text(
+                'VICTORIA EN CRISTO',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cinzel(
+                  fontSize: titleFontSize,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: titleLetterSpacing,
+                  color: Colors.white,
+                  shadows: [
+                    // Sombra base para legibilidad
+                    Shadow(
+                      color: Colors.black.withOpacity(0.6),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                    // GLOW DORADO principal
+                    const Shadow(color: Color(0xFFFFD700), blurRadius: 15, offset: Offset(0, 0)),
+                    // Glow dorado secundario más difuso
+                    Shadow(
+                      color: const Color(0xFFFFD700).withOpacity(0.5),
+                      blurRadius: 30,
+                      offset: const Offset(0, 0),
+                    ),
+                  ],
                 ),
-                // GLOW DORADO principal
-                const Shadow(
-                  color: Color(0xFFFFD700),
-                  blurRadius: 15,
-                  offset: Offset(0, 0),
-                ),
-                // Glow dorado secundario más difuso
-                Shadow(
-                  color: const Color(0xFFFFD700).withOpacity(0.5),
-                  blurRadius: 30,
-                  offset: const Offset(0, 0),
-                ),
-              ],
-            ),
-          ),
-        )
+              ),
+            )
             .animate()
             .fadeIn(delay: 300.ms, duration: 600.ms)
             .slideY(begin: -0.3, end: 0, curve: Curves.easeOut),
-        
+
         const SizedBox(height: 12),
-        
+
         // Subtítulo
         Text(
-          _isLogin 
-              ? 'Entra al santuario de tu victoria' 
-              : 'Comienza tu camino hacia la libertad',
+          _isLogin ? 'Entra al santuario de tu victoria' : 'Comienza tu camino hacia la libertad',
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w400,
@@ -247,9 +280,7 @@ class _LoginScreenState extends State<LoginScreen> {
             letterSpacing: 0.5,
           ),
           textAlign: TextAlign.center,
-        )
-            .animate()
-            .fadeIn(delay: 500.ms, duration: 500.ms),
+        ).animate().fadeIn(delay: 500.ms, duration: 500.ms),
       ],
     );
   }
@@ -259,81 +290,72 @@ class _LoginScreenState extends State<LoginScreen> {
   // ============================================================
   Widget _buildGooglePrimaryButton() {
     return Container(
-      width: double.infinity,
-      height: 56,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        // Gradiente dorado metálico (estilo principal)
-        gradient: const LinearGradient(
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
-          colors: [
-            Color(0xFFB8860B),
-            Color(0xFFFFD700),
-            Color(0xFFDAA520),
-            Color(0xFFB8860B),
-          ],
-          stops: [0.0, 0.4, 0.6, 1.0],
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFD700).withOpacity(0.35),
-            blurRadius: 20,
-            spreadRadius: 0,
-            offset: const Offset(0, 6),
+          width: double.infinity,
+          height: 56,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            // Gradiente dorado metálico (estilo principal)
+            gradient: const LinearGradient(
+              begin: Alignment.centerLeft,
+              end: Alignment.centerRight,
+              colors: [Color(0xFFB8860B), Color(0xFFFFD700), Color(0xFFDAA520), Color(0xFFB8860B)],
+              stops: [0.0, 0.4, 0.6, 1.0],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFFD700).withOpacity(0.35),
+                blurRadius: 20,
+                spreadRadius: 0,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _isLoading ? null : _handleGoogleSignIn,
-          borderRadius: BorderRadius.circular(16),
-          splashColor: Colors.white24,
-          highlightColor: Colors.white10,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Icono de Google en contenedor blanco
-                Container(
-                  width: 26,
-                  height: 26,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(6),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _isLoading ? null : _handleGoogleSignIn,
+              borderRadius: BorderRadius.circular(16),
+              splashColor: Colors.white24,
+              highlightColor: Colors.white10,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    // Icono de Google en contenedor blanco
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(6),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
                       ),
-                    ],
-                  ),
-                  padding: const EdgeInsets.all(4),
-                  child: const Icon(
-                    Icons.g_mobiledata,
-                    size: 18,
-                    color: Colors.black87,
-                  ),
+                      padding: const EdgeInsets.all(4),
+                      child: const Icon(Icons.g_mobiledata, size: 18, color: Colors.black87),
+                    ),
+                    const SizedBox(width: 14),
+                    Text(
+                      'Continuar con Google',
+                      style: GoogleFonts.lato(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 14),
-                Text(
-                  'Continuar con Google',
-                  style: GoogleFonts.lato(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0.5,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(delay: 600.ms, duration: 500.ms)
         .slideY(begin: 0.3, end: 0, curve: Curves.easeOut);
@@ -349,12 +371,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             height: 1,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.transparent,
-                  Colors.white.withOpacity(0.4),
-                ],
-              ),
+              gradient: LinearGradient(colors: [Colors.transparent, Colors.white.withOpacity(0.4)]),
             ),
           ),
         ),
@@ -374,19 +391,12 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             height: 1,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  Colors.white.withOpacity(0.4),
-                  Colors.transparent,
-                ],
-              ),
+              gradient: LinearGradient(colors: [Colors.white.withOpacity(0.4), Colors.transparent]),
             ),
           ),
         ),
       ],
-    )
-        .animate()
-        .fadeIn(delay: 700.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 700.ms, duration: 400.ms);
   }
 
   // ============================================================
@@ -406,10 +416,7 @@ class _LoginScreenState extends State<LoginScreen> {
               decoration: BoxDecoration(
                 color: Colors.red.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: Colors.redAccent.withOpacity(0.5),
-                  width: 1,
-                ),
+                border: Border.all(color: Colors.redAccent.withOpacity(0.5), width: 1),
               ),
               child: Row(
                 children: [
@@ -427,78 +434,75 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ],
               ),
-            )
-                .animate()
-                .fadeIn()
-                .shake(duration: 400.ms),
-          
+            ).animate().fadeIn().shake(duration: 400.ms),
+
           // ============================================================
           // CAMPO NOMBRE (SOLO EN REGISTRO)
           // ============================================================
           if (!_isLogin) ...[
             _buildGlassTextField(
-              controller: _nameController,
-              hintText: 'Nombre completo',
-              icon: Icons.person_outlined,
-              keyboardType: TextInputType.name,
-              validator: (value) {
-                if (value == null || value.isEmpty) return 'Ingresa tu nombre';
-                if (value.length < 2) return 'Nombre muy corto';
-                return null;
-              },
-            )
+                  controller: _nameController,
+                  hintText: 'Nombre completo',
+                  icon: Icons.person_outlined,
+                  keyboardType: TextInputType.name,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) return 'Ingresa tu nombre';
+                    if (value.length < 2) return 'Nombre muy corto';
+                    return null;
+                  },
+                )
                 .animate()
                 .fadeIn(delay: 700.ms, duration: 500.ms)
                 .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-            
+
             const SizedBox(height: 16),
           ],
-          
+
           // Campo Email
           _buildGlassTextField(
-            controller: _emailController,
-            hintText: 'Correo electrónico',
-            icon: Icons.email_outlined,
-            keyboardType: TextInputType.emailAddress,
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Ingresa tu correo';
-              if (!value.contains('@')) return 'Correo inválido';
-              return null;
-            },
-          )
+                controller: _emailController,
+                hintText: 'Correo electrónico',
+                icon: Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Ingresa tu correo';
+                  if (!value.contains('@')) return 'Correo inválido';
+                  return null;
+                },
+              )
               .animate()
               .fadeIn(delay: _isLogin ? 750.ms : 800.ms, duration: 500.ms)
               .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-          
+
           const SizedBox(height: 16),
-          
+
           // Campo Password
           _buildGlassTextField(
-            controller: _passwordController,
-            hintText: 'Contraseña',
-            icon: Icons.lock_outlined,
-            obscureText: _obscurePassword,
-            suffixIcon: IconButton(
-              icon: Icon(
-                _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
-                color: Colors.white70,
-                size: 22,
-              ),
-              onPressed: () {
-                HapticFeedback.selectionClick();
-                setState(() => _obscurePassword = !_obscurePassword);
-              },
-            ),
-            validator: (value) {
-              if (value == null || value.isEmpty) return 'Ingresa tu contraseña';
-              if (!_isLogin && value.length < 6) return 'Mínimo 6 caracteres';
-              return null;
-            },
-          )
+                controller: _passwordController,
+                hintText: 'Contraseña',
+                icon: Icons.lock_outlined,
+                obscureText: _obscurePassword,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                    color: Colors.white70,
+                    size: 22,
+                  ),
+                  onPressed: () {
+                    HapticFeedback.selectionClick();
+                    setState(() => _obscurePassword = !_obscurePassword);
+                  },
+                ),
+                validator: (value) {
+                  if (value == null || value.isEmpty) return 'Ingresa tu contraseña';
+                  if (!_isLogin && value.length < 6) return 'Mínimo 6 caracteres';
+                  return null;
+                },
+              )
               .animate()
               .fadeIn(delay: _isLogin ? 800.ms : 850.ms, duration: 500.ms)
               .slideY(begin: 0.2, end: 0, curve: Curves.easeOut),
-          
+
           // ============================================================
           // CHECKBOX TÉRMINOS Y CONDICIONES (SOLO EN REGISTRO)
           // ============================================================
@@ -506,10 +510,8 @@ class _LoginScreenState extends State<LoginScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 16),
               child: _buildTermsCheckbox(),
-            )
-                .animate()
-                .fadeIn(delay: 900.ms, duration: 400.ms),
-          
+            ).animate().fadeIn(delay: 900.ms, duration: 400.ms),
+
           // ENLACE "¿Olvidaste tu contraseña?" - SOLO EN LOGIN
           if (_isLogin)
             Align(
@@ -532,9 +534,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-            )
-                .animate()
-                .fadeIn(delay: 850.ms, duration: 400.ms),
+            ).animate().fadeIn(delay: 850.ms, duration: 400.ms),
         ],
       ),
     );
@@ -560,14 +560,10 @@ class _LoginScreenState extends State<LoginScreen> {
             activeColor: const Color(0xFFD4AF37),
             checkColor: Colors.black,
             side: BorderSide(
-              color: _acceptedTerms 
-                  ? const Color(0xFFD4AF37) 
-                  : Colors.white.withOpacity(0.5),
+              color: _acceptedTerms ? const Color(0xFFD4AF37) : Colors.white.withOpacity(0.5),
               width: 1.5,
             ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
           ),
         ),
         const SizedBox(width: 12),
@@ -624,18 +620,14 @@ class _LoginScreenState extends State<LoginScreen> {
       keyboardType: keyboardType,
       obscureText: obscureText,
       // Texto del usuario: BLANCO PURO con Google Fonts
-      style: GoogleFonts.lato(
-        color: Colors.white,
-        fontSize: 16,
-        fontWeight: FontWeight.w500,
-      ),
+      style: GoogleFonts.lato(color: Colors.white, fontSize: 16, fontWeight: FontWeight.w500),
       cursorColor: const Color(0xFFD4AF37), // Cursor dorado
       validator: validator,
       decoration: InputDecoration(
         // CRUCIAL: Relleno oscuro, NO blanco
         filled: true,
         fillColor: Colors.black.withOpacity(0.6),
-        
+
         // Label style: BLANCO 90% - MÁXIMA LEGIBILIDAD
         labelText: hintText,
         labelStyle: TextStyle(
@@ -648,24 +640,18 @@ class _LoginScreenState extends State<LoginScreen> {
           fontSize: 14,
           fontWeight: FontWeight.w500,
         ),
-        
+
         // Hint style: Blanco 50%
-        hintStyle: TextStyle(
-          color: Colors.white.withOpacity(0.5),
-          fontSize: 15,
-        ),
-        
+        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15),
+
         // Iconos BLANCOS 70%
         prefixIcon: Icon(icon, color: Colors.white70, size: 22),
         suffixIcon: suffixIcon,
-        
+
         // Bordes con OutlineInputBorder
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: Colors.white.withOpacity(0.2),
-            width: 1,
-          ),
+          borderSide: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -676,24 +662,15 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: Colors.redAccent.withOpacity(0.7),
-            width: 1,
-          ),
+          borderSide: BorderSide(color: Colors.redAccent.withOpacity(0.7), width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(
-            color: Colors.redAccent,
-            width: 1.5,
-          ),
+          borderSide: const BorderSide(color: Colors.redAccent, width: 1.5),
         ),
-        
+
         contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-        errorStyle: const TextStyle(
-          color: Colors.redAccent,
-          fontSize: 12,
-        ),
+        errorStyle: const TextStyle(color: Colors.redAccent, fontSize: 12),
       ),
     );
   }
@@ -703,57 +680,54 @@ class _LoginScreenState extends State<LoginScreen> {
   // ============================================================
   Widget _buildOutlineGoldButton() {
     return Container(
-      width: double.infinity,
-      height: 54,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        // Fondo oscuro semitransparente
-        color: Colors.black.withOpacity(0.3),
-        // Borde dorado visible
-        border: Border.all(
-          color: const Color(0xFFFFD700),
-          width: 1.5,
-        ),
-        // Sutil glow dorado
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xFFFFD700).withOpacity(0.15),
-            blurRadius: 15,
-            spreadRadius: 0,
-            offset: const Offset(0, 4),
+          width: double.infinity,
+          height: 54,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(16),
+            // Fondo oscuro semitransparente
+            color: Colors.black.withOpacity(0.3),
+            // Borde dorado visible
+            border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
+            // Sutil glow dorado
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFFFFD700).withOpacity(0.15),
+                blurRadius: 15,
+                spreadRadius: 0,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: _isLoading ? null : _handleSubmit,
-          borderRadius: BorderRadius.circular(16),
-          splashColor: const Color(0xFFFFD700).withOpacity(0.2),
-          highlightColor: const Color(0xFFFFD700).withOpacity(0.1),
-          child: Center(
-            child: _isLoading
-                ? const SizedBox(
-                    height: 22,
-                    width: 22,
-                    child: CircularProgressIndicator(
-                      color: Color(0xFFFFD700),
-                      strokeWidth: 2.5,
-                    ),
-                  )
-                : Text(
-                    _isLogin ? 'INICIAR SESIÓN' : 'CREAR CUENTA',
-                    style: GoogleFonts.lato(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.5,
-                      color: const Color(0xFFFFD700), // Texto dorado
-                    ),
-                  ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: _isLoading ? null : _handleSubmit,
+              borderRadius: BorderRadius.circular(16),
+              splashColor: const Color(0xFFFFD700).withOpacity(0.2),
+              highlightColor: const Color(0xFFFFD700).withOpacity(0.1),
+              child: Center(
+                child: _isLoading
+                    ? const SizedBox(
+                        height: 22,
+                        width: 22,
+                        child: CircularProgressIndicator(
+                          color: Color(0xFFFFD700),
+                          strokeWidth: 2.5,
+                        ),
+                      )
+                    : Text(
+                        _isLogin ? 'INICIAR SESIÓN' : 'CREAR CUENTA',
+                        style: GoogleFonts.lato(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.5,
+                          color: const Color(0xFFFFD700), // Texto dorado
+                        ),
+                      ),
+              ),
+            ),
           ),
-        ),
-      ),
-    )
+        )
         .animate()
         .fadeIn(delay: 900.ms, duration: 500.ms)
         .slideY(begin: 0.2, end: 0, curve: Curves.easeOut);
@@ -799,9 +773,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ],
-    )
-        .animate()
-        .fadeIn(delay: 950.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 950.ms, duration: 400.ms);
   }
 
   // ============================================================
@@ -814,10 +786,7 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: Colors.transparent,
-        border: Border.all(
-          color: Colors.white.withOpacity(0.35),
-          width: 1,
-        ),
+        border: Border.all(color: Colors.white.withOpacity(0.35), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -830,11 +799,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(
-                  Icons.person_outline,
-                  color: Colors.white.withOpacity(0.7),
-                  size: 20,
-                ),
+                Icon(Icons.person_outline, color: Colors.white.withOpacity(0.7), size: 20),
                 const SizedBox(width: 10),
                 Text(
                   'Continuar sin cuenta',
@@ -850,9 +815,7 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
-    )
-        .animate()
-        .fadeIn(delay: 1000.ms, duration: 400.ms);
+    ).animate().fadeIn(delay: 1000.ms, duration: 400.ms);
   }
 
   // ============================================================
@@ -860,7 +823,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // ============================================================
   Future<void> _handleSubmit() async {
     if (!_formKey.currentState!.validate()) return;
-    
+
     // Validar términos solo en registro
     if (!_isLogin && !_acceptedTerms) {
       setState(() => _errorMessage = 'Debes aceptar los Términos y Condiciones');
@@ -875,10 +838,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     AuthResult result;
     if (_isLogin) {
-      result = await _authService.signInWithEmail(
-        _emailController.text,
-        _passwordController.text,
-      );
+      result = await _authService.signInWithEmail(_emailController.text, _passwordController.text);
     } else {
       // Usar el nombre ingresado en lugar de extraer del email
       result = await _authService.registerWithEmail(
@@ -902,6 +862,14 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _handleGoogleSignIn() async {
+    if (!_supportsGoogleSignIn) {
+      setState(
+        () => _errorMessage =
+            'Google no está disponible en ${PlatformCapabilities.currentLabel}. Usa correo y contraseña.',
+      );
+      return;
+    }
+
     HapticFeedback.mediumImpact();
     setState(() {
       _isLoading = true;
@@ -966,7 +934,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     final result = await _authService.signInAnonymously();
-    
+
     // Verificar si el widget sigue montado después de la operación async
     if (!mounted) return;
 

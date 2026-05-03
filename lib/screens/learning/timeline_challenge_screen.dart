@@ -11,6 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/timeline_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/timeline_progress_service.dart';
 import '../../theme/app_theme.dart';
@@ -21,8 +22,7 @@ class TimelineChallengeScreen extends StatefulWidget {
   const TimelineChallengeScreen({super.key, required this.lesson});
 
   @override
-  State<TimelineChallengeScreen> createState() =>
-      _TimelineChallengeScreenState();
+  State<TimelineChallengeScreen> createState() => _TimelineChallengeScreenState();
 }
 
 class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
@@ -40,6 +40,18 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
 
   List<TimelineItem> _itemsInEra(String eraId) =>
       lesson.items.where((it) => _placed[it.id] == eraId).toList();
+
+  @override
+  void initState() {
+    super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningStory);
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningStory);
+    super.dispose();
+  }
 
   void _onDropped(TimelineItem item, String eraId) {
     if (_placed.containsKey(item.id)) return;
@@ -60,15 +72,14 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
       _stars = ratio <= 0.05
           ? 3
           : ratio <= 0.25
-              ? 2
-              : 1;
+          ? 2
+          : 1;
       _complete();
     }
   }
 
   Future<void> _complete() async {
-    final xp = await TimelineProgressService.I
-        .markCompleted(lesson.id, _stars, lesson.xpReward);
+    final xp = await TimelineProgressService.I.markCompleted(lesson.id, _stars, lesson.xpReward);
     if (!mounted) return;
     setState(() {
       _completed = true;
@@ -97,10 +108,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
               child: Center(
                 child: Text(
                   '${_placed.length}/${lesson.items.length}',
-                  style: AppDesignSystem.labelMedium(
-                    context,
-                    color: AppDesignSystem.gold,
-                  ),
+                  style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
                 ),
               ),
             ),
@@ -115,28 +123,25 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(
-              horizontal: AppDesignSystem.spacingM,
-              vertical: AppDesignSystem.spacingS),
+            horizontal: AppDesignSystem.spacingM,
+            vertical: AppDesignSystem.spacingS,
+          ),
           child: Row(
             children: [
-              const Icon(Icons.touch_app_rounded,
-                  color: AppDesignSystem.gold, size: 18),
+              const Icon(Icons.touch_app_rounded, color: AppDesignSystem.gold, size: 18),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
                   'Arrastra cada nombre a su era correcta',
-                  style: AppDesignSystem.bodyMedium(
-                      context, color: t.textSecondary),
+                  style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                 ),
               ),
               if (_errors > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 8, vertical: 3),
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
                     color: Colors.redAccent.withOpacity(0.15),
-                    borderRadius:
-                        BorderRadius.circular(AppDesignSystem.radiusFull),
+                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                   ),
                   child: Text(
                     '$_errors err',
@@ -154,8 +159,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
           flex: 3,
           child: SingleChildScrollView(
             scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(
-                horizontal: AppDesignSystem.spacingM),
+            padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -164,8 +168,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
                   if (i < lesson.eras.length - 1)
                     Container(
                       width: 2,
-                      margin: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 30),
+                      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 30),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
@@ -192,20 +195,14 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  'Banco',
-                  style: AppDesignSystem.labelMedium(
-                      context, color: t.textSecondary),
-                ),
+                Text('Banco', style: AppDesignSystem.labelMedium(context, color: t.textSecondary)),
                 const SizedBox(height: AppDesignSystem.spacingS),
                 Expanded(
                   child: SingleChildScrollView(
                     child: Wrap(
                       spacing: 10,
                       runSpacing: 10,
-                      children: _bankItems
-                          .map((it) => _buildDraggable(it, t))
-                          .toList(),
+                      children: _bankItems.map((it) => _buildDraggable(it, t)).toList(),
                     ),
                   ),
                 ),
@@ -229,15 +226,10 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: highlighted
-                ? AppDesignSystem.gold.withOpacity(0.12)
-                : t.cardBg,
-            borderRadius:
-                BorderRadius.circular(AppDesignSystem.radiusL),
+            color: highlighted ? AppDesignSystem.gold.withOpacity(0.12) : t.cardBg,
+            borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
-              color: highlighted
-                  ? AppDesignSystem.gold
-                  : t.cardBorder,
+              color: highlighted ? AppDesignSystem.gold : t.cardBorder,
               width: highlighted ? 2 : 1,
             ),
             boxShadow: t.cardShadow,
@@ -247,69 +239,68 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
             children: [
               Row(
                 children: [
-                  const Icon(Icons.history_rounded,
-                      size: 18, color: AppDesignSystem.gold),
+                  const Icon(Icons.history_rounded, size: 18, color: AppDesignSystem.gold),
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
                       era.label,
-                      style: AppDesignSystem.headlineSmall(
-                        context,
-                        color: t.textPrimary,
-                      ),
+                      style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                     ),
                   ),
                 ],
               ),
               Text(
                 era.range,
-                style: AppDesignSystem.labelSmall(
-                    context, color: AppDesignSystem.gold),
+                style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
               ),
               if (era.description.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 Text(
                   era.description,
-                  style: AppDesignSystem.bodyMedium(
-                      context, color: t.textSecondary),
+                  style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                 ),
               ],
               const SizedBox(height: 10),
               Expanded(
                 child: ListView(
                   children: placed
-                      .map((it) => Container(
-                            margin: const EdgeInsets.only(bottom: 6),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 8),
-                            decoration: BoxDecoration(
-                              color: AppDesignSystem.gold.withOpacity(0.18),
-                              borderRadius: BorderRadius.circular(
-                                  AppDesignSystem.radiusM),
-                              border: Border.all(
-                                color: AppDesignSystem.gold.withOpacity(0.5),
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(Icons.check_circle_rounded,
-                                    size: 16, color: AppDesignSystem.gold),
-                                const SizedBox(width: 6),
-                                Expanded(
-                                  child: Text(
-                                    it.name,
-                                    style: const TextStyle(
-                                      color: AppDesignSystem.gold,
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
+                      .map(
+                        (it) =>
+                            Container(
+                                  margin: const EdgeInsets.only(bottom: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: AppDesignSystem.gold.withOpacity(0.18),
+                                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                                    border: Border.all(
+                                      color: AppDesignSystem.gold.withOpacity(0.5),
                                     ),
                                   ),
-                                ),
-                              ],
-                            ),
-                          ).animate().fadeIn(duration: 250.ms).scale(
-                              begin: const Offset(0.8, 0.8),
-                              duration: 250.ms))
+                                  child: Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.check_circle_rounded,
+                                        size: 16,
+                                        color: AppDesignSystem.gold,
+                                      ),
+                                      const SizedBox(width: 6),
+                                      Expanded(
+                                        child: Text(
+                                          it.name,
+                                          style: const TextStyle(
+                                            color: AppDesignSystem.gold,
+                                            fontSize: 13,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                .animate()
+                                .fadeIn(duration: 250.ms)
+                                .scale(begin: const Offset(0.8, 0.8), duration: 250.ms),
+                      )
                       .toList(),
                 ),
               ),
@@ -340,21 +331,12 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
           ),
           child: Text(
             it.name,
-            style: const TextStyle(
-              color: Colors.black,
-              fontWeight: FontWeight.w700,
-            ),
+            style: const TextStyle(color: Colors.black, fontWeight: FontWeight.w700),
           ),
         ),
       ),
-      childWhenDragging: Opacity(
-        opacity: 0.3,
-        child: _pill(it.name, t, selected: false),
-      ),
-      child: Tooltip(
-        message: it.hint,
-        child: _pill(it.name, t, selected: false),
-      ),
+      childWhenDragging: Opacity(opacity: 0.3, child: _pill(it.name, t, selected: false)),
+      child: Tooltip(message: it.hint, child: _pill(it.name, t, selected: false)),
     );
   }
 
@@ -362,14 +344,10 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: selected
-            ? AppDesignSystem.gold
-            : t.cardBg,
+        color: selected ? AppDesignSystem.gold : t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
         border: Border.all(
-          color: selected
-              ? AppDesignSystem.gold
-              : AppDesignSystem.gold.withOpacity(0.4),
+          color: selected ? AppDesignSystem.gold : AppDesignSystem.gold.withOpacity(0.4),
         ),
       ),
       child: Text(
@@ -389,18 +367,13 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.emoji_events_rounded,
-                    color: AppDesignSystem.gold, size: 80)
+            const Icon(Icons.emoji_events_rounded, color: AppDesignSystem.gold, size: 80)
                 .animate()
-                .scale(
-                    begin: const Offset(0.3, 0.3),
-                    duration: 500.ms,
-                    curve: Curves.elasticOut),
+                .scale(begin: const Offset(0.3, 0.3), duration: 500.ms, curve: Curves.elasticOut),
             const SizedBox(height: AppDesignSystem.spacingL),
             Text(
               '¡Línea del tiempo armada!',
-              style: AppDesignSystem.headlineMedium(context,
-                  color: t.textPrimary),
+              style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
             ),
             const SizedBox(height: AppDesignSystem.spacingM),
             Row(
@@ -409,14 +382,16 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
                 final filled = i < _stars;
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Icon(
-                    filled ? Icons.star_rounded : Icons.star_border_rounded,
-                    color: AppDesignSystem.gold,
-                    size: 48,
-                  ).animate().scale(
-                      delay: (200 + 120 * i).ms,
-                      duration: 300.ms,
-                      curve: Curves.elasticOut),
+                  child:
+                      Icon(
+                        filled ? Icons.star_rounded : Icons.star_border_rounded,
+                        color: AppDesignSystem.gold,
+                        size: 48,
+                      ).animate().scale(
+                        delay: (200 + 120 * i).ms,
+                        duration: 300.ms,
+                        curve: Curves.elasticOut,
+                      ),
                 );
               }),
             ),
@@ -425,33 +400,29 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
               _errors == 0
                   ? '¡Sin errores! Memoria de maestro.'
                   : '$_errors intento${_errors == 1 ? '' : 's'} fallido${_errors == 1 ? '' : 's'}',
-              style: AppDesignSystem.bodyMedium(context,
-                  color: t.textSecondary),
+              style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
             ),
             if (_xpEarned > 0) ...[
               const SizedBox(height: AppDesignSystem.spacingL),
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.18),
-                  borderRadius:
-                      BorderRadius.circular(AppDesignSystem.radiusFull),
-                  border: Border.all(
-                      color: AppDesignSystem.gold.withOpacity(0.5)),
-                ),
-                child: Text(
-                  '+$_xpEarned XP',
-                  style: const TextStyle(
-                    color: AppDesignSystem.gold,
-                    fontWeight: FontWeight.w700,
-                    fontSize: 18,
-                  ),
-                ),
-              ).animate().fadeIn(delay: 600.ms).scale(
-                  begin: const Offset(0.5, 0.5),
-                  duration: 400.ms,
-                  curve: Curves.easeOut),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppDesignSystem.gold.withOpacity(0.18),
+                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+                      border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
+                    ),
+                    child: Text(
+                      '+$_xpEarned XP',
+                      style: const TextStyle(
+                        color: AppDesignSystem.gold,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                      ),
+                    ),
+                  )
+                  .animate()
+                  .fadeIn(delay: 600.ms)
+                  .scale(begin: const Offset(0.5, 0.5), duration: 400.ms, curve: Curves.easeOut),
             ],
             const SizedBox(height: AppDesignSystem.spacingXL),
             SizedBox(

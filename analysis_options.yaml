@@ -13,6 +13,8 @@ analyzer:
   errors:
     # Ignorar warnings de withOpacity deprecated (demasiados en el código)
     deprecated_member_use: ignore
+    # Comentarios técnicos con <tag> o rutas XML documentadas no deben romper CI
+    unintended_html_in_doc_comment: ignore
 
 linter:
   # The lint rules applied to this project can be customized in the

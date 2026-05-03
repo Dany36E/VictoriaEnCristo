@@ -63,6 +63,34 @@ class LearningRegistry {
     return _inflight!;
   }
 
+  /// Re-synchronizes learning state for the active Firebase user.
+  ///
+  /// This covers the case where the registry was initialized before auth was
+  /// ready, or the user switches accounts while learning services are already
+  /// alive in memory.
+  Future<void> syncForCurrentUser() async {
+    if (!readyNotifier.value) {
+      await initAll();
+    }
+
+    await LearningCloudSync.I.bootstrap(force: true);
+    await Future.wait<void>([
+      LearningProgressService.I.init(),
+      JourneyProgressService.I.init(),
+      HeroesProgressService.I.init(),
+      BibleMapProgressService.I.init(),
+      ParableProgressService.I.init(),
+      TimelineProgressService.I.init(),
+      FruitProgressService.I.init(),
+      BookProgressService.I.init(),
+      ProphecyProgressService.I.init(),
+      BibleOrderProgressService.I.init(),
+      VerseMemoryService.I.init(),
+      TalentsService.I.refreshFromCloud(),
+      CollectiblesService.I.init(),
+    ]);
+  }
+
   Future<void> _doInit() async {
     final sw = Stopwatch()..start();
     try {

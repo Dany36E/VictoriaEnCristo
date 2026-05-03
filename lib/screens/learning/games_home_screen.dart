@@ -8,6 +8,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/question_repository.dart';
 import '../../theme/app_theme.dart';
@@ -29,7 +30,14 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningHeadbanz);
     _bootstrap();
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
   }
 
   Future<void> _bootstrap() async {
@@ -85,7 +93,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
                   icon: Icons.theater_comedy_rounded,
                   color: const Color(0xFFB68EE8),
                   title: '¿Quién soy?',
-                  subtitle: 'Personajes bíblicos · Modo fiesta · Sin ganador',
+                  subtitle: 'Personajes bíblicos · Fácil, medio y difícil',
                   badge: 'GRUPO',
                   onTap: () => _open(const GameHeadbanzScreen()),
                   delay: 220,
@@ -116,8 +124,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
               color: AppDesignSystem.gold.withOpacity(0.15),
               shape: BoxShape.circle,
             ),
-            child: const Icon(Icons.sports_esports_rounded,
-                color: AppDesignSystem.gold, size: 30),
+            child: const Icon(Icons.sports_esports_rounded, color: AppDesignSystem.gold, size: 30),
           ),
           const SizedBox(width: AppDesignSystem.spacingM),
           Expanded(
@@ -126,14 +133,12 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
               children: [
                 Text(
                   'Reta a alguien',
-                  style: AppDesignSystem.headlineSmall(context,
-                      color: t.textPrimary),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
                 const SizedBox(height: 4),
                 Text(
                   'Pasen el celular y aprendan jugando. Partidas rápidas de 1-2 minutos.',
-                  style: AppDesignSystem.bodyMedium(context,
-                      color: t.textSecondary),
+                  style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                 ),
               ],
             ),
@@ -169,10 +174,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
             Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
-                shape: BoxShape.circle,
-              ),
+              decoration: BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 30),
             ),
             const SizedBox(width: AppDesignSystem.spacingM),
@@ -185,19 +187,15 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
                       Expanded(
                         child: Text(
                           title,
-                          style: AppDesignSystem.headlineSmall(context,
-                              color: t.textPrimary),
+                          style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppDesignSystem.gold.withOpacity(0.15),
-                          borderRadius: BorderRadius.circular(
-                              AppDesignSystem.radiusFull),
-                          border: Border.all(
-                              color: AppDesignSystem.gold.withOpacity(0.5)),
+                          borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+                          border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
                         ),
                         child: Text(
                           badge,
@@ -213,30 +211,22 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
                   const SizedBox(height: 4),
                   Text(
                     subtitle,
-                    style: AppDesignSystem.bodyMedium(context,
-                        color: t.textSecondary),
+                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                   ),
                 ],
               ),
             ),
             const SizedBox(width: 8),
-            Icon(Icons.arrow_forward_ios_rounded,
-                size: 14, color: t.textSecondary),
+            Icon(Icons.arrow_forward_ios_rounded, size: 14, color: t.textSecondary),
           ],
         ),
       ),
-    )
-        .animate()
-        .fadeIn(duration: 300.ms, delay: delay.ms)
-        .slideY(begin: 0.05, end: 0);
+    ).animate().fadeIn(duration: 300.ms, delay: delay.ms).slideY(begin: 0.05, end: 0);
   }
 
   Future<void> _open(Widget screen) async {
     FeedbackEngine.I.tap();
-    await Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => screen),
-    );
+    await Navigator.push(context, MaterialPageRoute(builder: (_) => screen));
     if (mounted) setState(() {});
   }
 }

@@ -5,6 +5,8 @@ import 'package:cloud_functions/cloud_functions.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
 import 'data_bootstrapper.dart';
 import 'account_session_manager.dart';
+import 'auth/windows_google_oauth.dart';
+import '../utils/platform_capabilities.dart';
 
 /// Región donde está desplegada la Cloud Function
 /// IMPORTANTE: Debe coincidir con firebase deploy --only functions
@@ -50,9 +52,7 @@ class AppUser {
       'photoUrl': photoUrl,
       'createdAt': Timestamp.fromDate(createdAt),
       'victoryDays': victoryDays,
-      'lastVictoryDate': lastVictoryDate != null 
-          ? Timestamp.fromDate(lastVictoryDate!) 
-          : null,
+      'lastVictoryDate': lastVictoryDate != null ? Timestamp.fromDate(lastVictoryDate!) : null,
     };
   }
 }
@@ -61,12 +61,19 @@ class AppUser {
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  
+
   // Lazy initialization para GoogleSignIn (evita error en web sin clientId)
   GoogleSignIn? _googleSignIn;
   GoogleSignIn get googleSignIn {
     _googleSignIn ??= GoogleSignIn();
     return _googleSignIn!;
+  }
+
+  GoogleAuthProvider _buildGoogleProvider() {
+    return GoogleAuthProvider()
+      ..addScope('email')
+      ..addScope('profile')
+      ..setCustomParameters({'prompt': 'select_account'});
   }
 
   // Usuario actual
@@ -116,12 +123,34 @@ class AuthService {
   /// Iniciar sesión con Google
   Future<AuthResult> signInWithGoogle() async {
     try {
+      if (!PlatformCapabilities.supportsGoogleSignIn) {
+        return AuthResult.error(
+          'Google no está disponible en ${PlatformCapabilities.currentLabel}. Usa correo y contraseña.',
+        );
+      }
+
       if (kIsWeb) {
         // Para web
-        GoogleAuthProvider googleProvider = GoogleAuthProvider();
+        final googleProvider = _buildGoogleProvider();
         final credential = await _auth.signInWithPopup(googleProvider);
         await _createUserDocumentIfNotExists(credential.user!);
         return AuthResult.success(credential.user!);
+      } else if (PlatformCapabilities.supportsFirebaseAuthProviderSignIn) {
+        // Windows: Firebase Auth C++ NO soporta signInWithProvider
+        // ("Operation is not supported on non-mobile systems"). Hacemos el
+        // flujo OAuth manual con loopback HTTP y luego signInWithCredential.
+        final tokens = await WindowsGoogleOAuth.obtainTokens();
+        final credential = GoogleAuthProvider.credential(
+          idToken: tokens.idToken,
+          accessToken: tokens.accessToken,
+        );
+        final userCredential = await _auth.signInWithCredential(credential);
+        final user = userCredential.user;
+        if (user == null) {
+          return AuthResult.error('Google no devolvió un usuario válido');
+        }
+        await _createUserDocumentIfNotExists(user);
+        return AuthResult.success(user);
       } else {
         // Para móvil
         final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
@@ -148,13 +177,10 @@ class AuthService {
   Future<AuthResult> signInAnonymously() async {
     try {
       final credential = await _auth.signInAnonymously();
-      
+
       // Crear documento básico en Firestore para usuario anónimo
-      await _createUserDocument(
-        credential.user!,
-        'Invitado',
-      );
-      
+      await _createUserDocument(credential.user!, 'Invitado');
+
       return AuthResult.success(credential.user!);
     } on FirebaseAuthException catch (e) {
       return AuthResult.error(_getErrorMessage(e.code));
@@ -168,20 +194,22 @@ class AuthService {
   /// Los datos se mantienen en la nube y en cache local
   Future<void> signOut() async {
     debugPrint('🔐 [AUTH] Signing out (data preserved)...');
-    
-    try {
-      await googleSignIn.signOut();
-    } catch (e) {
-      debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+
+    if (PlatformCapabilities.supportsGoogleSignInPlugin) {
+      try {
+        await googleSignIn.signOut();
+      } catch (e) {
+        debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+      }
     }
-    
+
     // El DataBootstrapper escucha authStateChanges y desconectará
     // los repositorios SIN borrar datos
     await _auth.signOut();
-    
+
     debugPrint('🔐 [AUTH] ✅ Signed out (data preserved for next login)');
   }
-  
+
   /// Borrar solo cache local del dispositivo
   /// Los datos en la nube se mantienen intactos
   Future<void> clearLocalCache() async {
@@ -189,10 +217,10 @@ class AuthService {
     await DataBootstrapper.I.clearLocalCacheOnly();
     debugPrint('🔐 [AUTH] ✅ Local cache cleared');
   }
-  
+
   /// Eliminar cuenta y TODOS los datos del usuario
   /// ⚠️ IRREVERSIBLE - Borra datos de nube y local usando Cloud Function
-  /// 
+  ///
   /// Flujo ESTRICTO (no se miente al usuario):
   /// 1. Re-autenticar si necesario (Firebase requiere recent login)
   /// 2. Detener TODOS los listeners de Firestore (evita spam de realtime updates)
@@ -211,11 +239,11 @@ class AuthService {
     if (user == null) {
       return DeleteAccountResult.error('No hay sesión activa');
     }
-    
+
     final uid = user.uid;
     debugPrint('🔐 [AUTH] ⚠️⚠️⚠️ DELETING ACCOUNT AND ALL DATA ⚠️⚠️⚠️');
     debugPrint('🔐 [AUTH] User: $uid');
-    
+
     try {
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 1: Re-autenticar si se proporcionaron credenciales
@@ -233,7 +261,7 @@ class AuthService {
           return DeleteAccountResult.error(_getErrorMessage(e.code));
         }
       }
-      
+
       if (forceGoogleReauth) {
         debugPrint('🔐 [AUTH] Re-authenticating with Google...');
         try {
@@ -248,14 +276,14 @@ class AuthService {
           return DeleteAccountResult.error('Error al re-autenticar con Google: $e');
         }
       }
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 2: Detener TODOS los listeners (evita spam de realtime updates)
       // ═══════════════════════════════════════════════════════════════════════
       debugPrint('🔐 [AUTH] Stopping all Firestore listeners...');
       await AccountSessionManager.I.stopAllSubscriptions();
       debugPrint('🔐 [AUTH] ✅ All listeners stopped');
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 3: Hard reset inmediato de UI/memoria/widget
       // Esto SIEMPRE se hace para que la UI no muestre datos del usuario
@@ -264,29 +292,28 @@ class AuthService {
       debugPrint('🔐 [AUTH] Hard resetting memory and widget...');
       await AccountSessionManager.I.hardResetForAccountDeletion();
       debugPrint('🔐 [AUTH] ✅ Memory and widget reset');
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 4: Llamar Cloud Function para borrar datos
       // CRÍTICO: Especificar región correcta para evitar NOT_FOUND
       // ═══════════════════════════════════════════════════════════════════════
-      debugPrint('🔐 [AUTH] Calling Cloud Function deleteUserData (region: $kCloudFunctionRegion)...');
-      
+      debugPrint(
+        '🔐 [AUTH] Calling Cloud Function deleteUserData (region: $kCloudFunctionRegion)...',
+      );
+
       bool cloudFunctionSuccess = false;
       String? cloudFunctionError;
-      
+
       try {
         // IMPORTANTE: Usar instanceFor con región explícita
-        final callable = FirebaseFunctions.instanceFor(region: kCloudFunctionRegion)
-            .httpsCallable(
-              'deleteUserData',
-              options: HttpsCallableOptions(
-                timeout: const Duration(seconds: 60),
-              ),
-            );
-        
+        final callable = FirebaseFunctions.instanceFor(region: kCloudFunctionRegion).httpsCallable(
+          'deleteUserData',
+          options: HttpsCallableOptions(timeout: const Duration(seconds: 60)),
+        );
+
         final result = await callable.call<Map<String, dynamic>>();
         final data = result.data;
-        
+
         if (data['success'] == true) {
           debugPrint('🔐 [AUTH] ✅ Cloud Function success: ${data['message']}');
           debugPrint('🔐 [AUTH] Deleted subcollections: ${data['deletedSubcollections']}');
@@ -297,10 +324,11 @@ class AuthService {
         }
       } on FirebaseFunctionsException catch (e) {
         debugPrint('🔐 [AUTH] ❌ Cloud Function error: ${e.code} - ${e.message}');
-        
+
         // NOT_FOUND significa que la función no existe o región incorrecta
         if (e.code == 'not-found') {
-          cloudFunctionError = 'Servicio de eliminación no disponible. '
+          cloudFunctionError =
+              'Servicio de eliminación no disponible. '
               'Contacta soporte o intenta más tarde.';
         }
         // UNAUTHENTICATED: necesita re-login reciente
@@ -323,42 +351,46 @@ class AuthService {
         debugPrint('🔐 [AUTH] ❌ Unexpected error calling Cloud Function: $e');
         cloudFunctionError = 'Error de conexión. Verifica tu internet.';
       }
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 5: Si Cloud Function falló, NO afirmar éxito
       // ═══════════════════════════════════════════════════════════════════════
       if (!cloudFunctionSuccess) {
         debugPrint('🔐 [AUTH] ❌ Cloud Function failed - NOT showing success');
-        
+
         // SignOut para dejar la app en estado limpio
         // pero el usuario sigue existiendo en Firebase Auth
-        try {
-          await googleSignIn.signOut();
-        } catch (e) {
-          debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+        if (PlatformCapabilities.supportsGoogleSignInPlugin) {
+          try {
+            await googleSignIn.signOut();
+          } catch (e) {
+            debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+          }
         }
         await _auth.signOut();
-        
+
         return DeleteAccountResult.cloudFunctionFailed(
           cloudFunctionError ?? 'No se pudo eliminar la cuenta en el servidor',
         );
       }
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 6: Cloud Function OK - limpiar cache local
       // ═══════════════════════════════════════════════════════════════════════
       debugPrint('🔐 [AUTH] Cloud Function succeeded, clearing local cache...');
       await DataBootstrapper.I.clearLocalCacheOnly();
-      
+
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 7: SignOut defensivo (usuario ya fue eliminado por Cloud Function)
       // ═══════════════════════════════════════════════════════════════════════
-      try {
-        await googleSignIn.signOut();
-      } catch (e) {
-        debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+      if (PlatformCapabilities.supportsGoogleSignInPlugin) {
+        try {
+          await googleSignIn.signOut();
+        } catch (e) {
+          debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+        }
       }
-      
+
       // El usuario ya no existe en Auth (eliminado por Cloud Function)
       // pero hacemos signOut por si acaso para forzar el authStateChange
       try {
@@ -366,10 +398,9 @@ class AuthService {
       } catch (e) {
         debugPrint('🔐 [AUTH] Sign-out error (user may not exist): $e');
       }
-      
+
       debugPrint('🔐 [AUTH] ✅ Account deletion TRULY complete');
       return DeleteAccountResult.success();
-      
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         final providers = user.providerData.map((p) => p.providerId).toList();
@@ -384,21 +415,32 @@ class AuthService {
       return DeleteAccountResult.error('Error al eliminar cuenta: $e');
     }
   }
-  
+
   /// Re-autenticar con Google (interno)
   Future<AuthResult> _reauthenticateWithGoogle() async {
     try {
+      if (!PlatformCapabilities.supportsGoogleSignIn) {
+        return AuthResult.error(
+          'Google no está disponible en ${PlatformCapabilities.currentLabel}.',
+        );
+      }
+
+      if (PlatformCapabilities.supportsFirebaseAuthProviderSignIn) {
+        await currentUser!.reauthenticateWithProvider(_buildGoogleProvider());
+        return AuthResult.success(currentUser);
+      }
+
       final GoogleSignInAccount? googleUser = await googleSignIn.signIn();
       if (googleUser == null) {
         return AuthResult.error('Re-autenticación cancelada');
       }
-      
+
       final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
-      
+
       await currentUser!.reauthenticateWithCredential(credential);
       return AuthResult.success(currentUser);
     } catch (e) {
@@ -421,7 +463,7 @@ class AuthService {
   /// Obtener datos del usuario desde Firestore
   Future<AppUser?> getUserData() async {
     if (currentUser == null) return null;
-    
+
     try {
       final doc = await _firestore.collection('users').doc(currentUser!.uid).get();
       if (doc.exists) {
@@ -434,17 +476,12 @@ class AuthService {
   }
 
   /// Actualizar progreso del usuario
-  Future<void> updateProgress({
-    required int victoryDays,
-    DateTime? lastVictoryDate,
-  }) async {
+  Future<void> updateProgress({required int victoryDays, DateTime? lastVictoryDate}) async {
     if (currentUser == null) return;
 
     await _firestore.collection('users').doc(currentUser!.uid).update({
       'victoryDays': victoryDays,
-      'lastVictoryDate': lastVictoryDate != null 
-          ? Timestamp.fromDate(lastVictoryDate) 
-          : null,
+      'lastVictoryDate': lastVictoryDate != null ? Timestamp.fromDate(lastVictoryDate) : null,
     });
   }
 
@@ -452,11 +489,7 @@ class AuthService {
   Future<void> saveJournalEntry(Map<String, dynamic> entry) async {
     if (currentUser == null) return;
 
-    await _firestore
-        .collection('users')
-        .doc(currentUser!.uid)
-        .collection('journal')
-        .add(entry);
+    await _firestore.collection('users').doc(currentUser!.uid).collection('journal').add(entry);
   }
 
   /// Obtener entradas de diario
@@ -533,10 +566,10 @@ class AuthResult {
   final bool isSuccess;
   final User? user;
   final String? errorMessage;
-  
+
   /// Indica si se necesita re-autenticación antes de continuar
   final bool requiresReauthentication;
-  
+
   /// Tipo de autenticación del usuario (para saber cómo re-autenticar)
   final bool isGoogleAuth;
   final bool isPasswordAuth;
@@ -557,12 +590,9 @@ class AuthResult {
   factory AuthResult.error(String message) {
     return AuthResult._(isSuccess: false, errorMessage: message);
   }
-  
+
   /// Indica que se necesita re-autenticación
-  factory AuthResult.requiresReauth({
-    required bool isGoogleAuth,
-    required bool isPasswordAuth,
-  }) {
+  factory AuthResult.requiresReauth({required bool isGoogleAuth, required bool isPasswordAuth}) {
     return AuthResult._(
       isSuccess: false,
       requiresReauthentication: true,
@@ -580,14 +610,14 @@ class AuthResult {
 enum DeleteAccountStatus {
   /// Cuenta eliminada exitosamente (Cloud Function OK, Auth eliminado)
   success,
-  
+
   /// Error genérico
   error,
-  
+
   /// Cloud Function falló (NOT_FOUND, INTERNAL, etc.)
   /// El usuario sigue existiendo en Firebase Auth
   cloudFunctionFailed,
-  
+
   /// Necesita re-autenticación antes de poder eliminar
   requiresReauth,
 }
@@ -597,27 +627,24 @@ class DeleteAccountResult {
   final String? errorMessage;
   final bool isGoogleAuth;
   final bool isPasswordAuth;
-  
+
   const DeleteAccountResult._({
     required this.status,
     this.errorMessage,
     this.isGoogleAuth = false,
     this.isPasswordAuth = false,
   });
-  
+
   /// ✅ Eliminación exitosa (Cloud Function OK + Auth eliminado)
   factory DeleteAccountResult.success() {
     return const DeleteAccountResult._(status: DeleteAccountStatus.success);
   }
-  
+
   /// ❌ Error genérico
   factory DeleteAccountResult.error(String message) {
-    return DeleteAccountResult._(
-      status: DeleteAccountStatus.error,
-      errorMessage: message,
-    );
+    return DeleteAccountResult._(status: DeleteAccountStatus.error, errorMessage: message);
   }
-  
+
   /// ❌ Cloud Function falló - NO mostrar "eliminado correctamente"
   /// El usuario puede seguir en Firebase Auth
   factory DeleteAccountResult.cloudFunctionFailed(String message) {
@@ -626,7 +653,7 @@ class DeleteAccountResult {
       errorMessage: message,
     );
   }
-  
+
   /// 🔐 Necesita re-autenticación
   factory DeleteAccountResult.requiresReauth({
     required bool isGoogleAuth,
@@ -639,7 +666,7 @@ class DeleteAccountResult {
       isPasswordAuth: isPasswordAuth,
     );
   }
-  
+
   // Helpers
   bool get isSuccess => status == DeleteAccountStatus.success;
   bool get isError => status == DeleteAccountStatus.error;

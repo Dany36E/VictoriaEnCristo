@@ -16,12 +16,24 @@ const db = admin.firestore();
 // CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════════════════════
 
-// Salt secreto para hashing — DEBE configurarse via environment variable
-// firebase functions:config:set wall.abuse_salt="TU_SALT_SECRETO"
-// O via Secret Manager / process.env.WALL_ABUSE_SALT
+// Salt secreto para hashing — DEBE configurarse via environment variable o
+// Secret Manager (`firebase functions:secrets:set WALL_ABUSE_SALT`).
+// Si está vacío, las funciones que lo usan deben abortar para no romper el
+// anonimato del Muro (un salt vacío produce hashes determinísticos
+// recomputables por cualquiera con el uid).
 const SERVER_SECRET_SALT = process.env.WALL_ABUSE_SALT;
 if (!SERVER_SECRET_SALT) {
-  console.error("WALL_ABUSE_SALT not configured. Set via environment variable.");
+  console.error("WALL_ABUSE_SALT not configured. Wall callables will reject.");
+}
+
+function requireAbuseSalt(): string {
+  if (!SERVER_SECRET_SALT || SERVER_SECRET_SALT.length < 16) {
+    throw new functions.https.HttpsError(
+      "failed-precondition",
+      "El servicio del Muro no está disponible temporalmente. Intenta más tarde.",
+    );
+  }
+  return SERVER_SECRET_SALT;
 }
 
 const VALID_GIANTS = [
@@ -35,6 +47,25 @@ const VALID_REPORT_REASONS = [
 const MAX_POST_LENGTH = 500;
 const MAX_COMMENT_LENGTH = 300;
 const MAX_POSTS_PER_DAY = 5;
+
+const HTTPS_ERROR_CODES = new Set([
+  "cancelled",
+  "unknown",
+  "invalid-argument",
+  "deadline-exceeded",
+  "not-found",
+  "already-exists",
+  "permission-denied",
+  "resource-exhausted",
+  "failed-precondition",
+  "aborted",
+  "out-of-range",
+  "unimplemented",
+  "internal",
+  "unavailable",
+  "data-loss",
+  "unauthenticated",
+]);
 
 // Palabras bloqueadas (contenido dañino, insultos graves, URLs)
 const BLOCKED_PATTERNS: RegExp[] = [
@@ -58,9 +89,10 @@ const BLOCKED_PATTERNS: RegExp[] = [
 // ═══════════════════════════════════════════════════════════════════════════
 
 function computeAbuseHash(uid: string): string {
+  const salt = requireAbuseSalt();
   return crypto
     .createHash("sha256")
-    .update(uid + SERVER_SECRET_SALT)
+    .update(uid + salt)
     .digest("hex")
     .substring(0, 16);
 }
@@ -108,11 +140,90 @@ async function countRecentPosts(
   return snap.size;
 }
 
+// Límites diarios para evitar abuso (H7).
+const MAX_COMMENTS_PER_DAY = 30;
+const MAX_REPORTS_PER_DAY = 20;
+
+async function countRecentCommentsByHash(
+  abuseHash: string,
+  hoursBack = 24
+): Promise<number> {
+  const cutoff = admin.firestore.Timestamp.fromDate(
+    new Date(Date.now() - hoursBack * 60 * 60 * 1000)
+  );
+  // collectionGroup sobre subcolección 'comments' (requiere índice).
+  const snap = await db
+    .collectionGroup("comments")
+    .where("abuseHash", "==", abuseHash)
+    .where("createdAt", ">=", cutoff)
+    .get();
+  return snap.size;
+}
+
+async function countRecentReportsByHash(
+  reporterHash: string,
+  hoursBack = 24
+): Promise<number> {
+  const cutoff = admin.firestore.Timestamp.fromDate(
+    new Date(Date.now() - hoursBack * 60 * 60 * 1000)
+  );
+  const snap = await db
+    .collection("wallReports")
+    .where("reporterHash", "==", reporterHash)
+    .where("createdAt", ">=", cutoff)
+    .get();
+  return snap.size;
+}
+
+function asPayload(data: unknown): Record<string, unknown> {
+  if (typeof data !== "object" || data === null || Array.isArray(data)) {
+    return {};
+  }
+  return data as Record<string, unknown>;
+}
+
+function stringField(
+  payload: Record<string, unknown>,
+  key: string
+): string | undefined {
+  const value = payload[key];
+  return typeof value === "string" ? value : undefined;
+}
+
+function rethrowHttpsError(err: unknown): void {
+  if (err instanceof functions.https.HttpsError) {
+    throw err;
+  }
+
+  if (typeof err === "object" && err !== null) {
+    const maybeError = err as {code?: unknown; message?: unknown; details?: unknown};
+    if (
+      typeof maybeError.code === "string" &&
+      HTTPS_ERROR_CODES.has(maybeError.code) &&
+      typeof maybeError.message === "string"
+    ) {
+      throw new functions.https.HttpsError(
+        maybeError.code as functions.https.FunctionsErrorCode,
+        maybeError.message,
+        maybeError.details
+      );
+    }
+  }
+}
+
+function moderationMessage(type: string, action: string): string {
+  if (type === "comment") {
+    return action === "approve" ? "Comentario aprobado." : "Comentario rechazado.";
+  }
+  return action === "approve" ? "Publicación aprobada." : "Publicación rechazada.";
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. CREATE WALL POST
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const createWallPost = functions
+  .runWith({ secrets: ["WALL_ABUSE_SALT"] })
   .region("us-central1")
   .https.onCall(async (data, context) => {
     // Auth check
@@ -125,7 +236,9 @@ export const createWallPost = functions
 
     try {
       const uid = context.auth.uid;
-      const {giantId, body} = data;
+      const payload = asPayload(data);
+      const giantId = stringField(payload, "giantId");
+      const body = stringField(payload, "body");
 
       // Validate giantId
       if (!giantId || !VALID_GIANTS.includes(giantId)) {
@@ -219,7 +332,7 @@ export const createWallPost = functions
         message: "Tu publicación está en revisión.",
       };
     } catch (err) {
-      if (err instanceof functions.https.HttpsError) throw err;
+      rethrowHttpsError(err);
       console.error("[WALL] createWallPost unexpected error:", err);
       throw new functions.https.HttpsError(
         "internal",
@@ -233,6 +346,7 @@ export const createWallPost = functions
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const createWallComment = functions
+  .runWith({ secrets: ["WALL_ABUSE_SALT"] })
   .region("us-central1")
   .https.onCall(async (data, context) => {
     if (!context.auth) {
@@ -244,7 +358,9 @@ export const createWallComment = functions
 
     try {
       const uid = context.auth.uid;
-      const {postId, body} = data;
+      const payload = asPayload(data);
+      const postId = stringField(payload, "postId");
+      const body = stringField(payload, "body");
 
       if (!postId || typeof postId !== "string") {
         throw new functions.https.HttpsError(
@@ -282,6 +398,15 @@ export const createWallComment = functions
         throw new functions.https.HttpsError(
           "permission-denied",
           "Tu cuenta no tiene permiso para comentar."
+        );
+      }
+
+      // Rate-limit: máximo N comentarios en 24h por abuseHash (H7).
+      const recentComments = await countRecentCommentsByHash(abuseHash);
+      if (recentComments >= MAX_COMMENTS_PER_DAY) {
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          `Máximo ${MAX_COMMENTS_PER_DAY} comentarios por día.`
         );
       }
 
@@ -335,7 +460,7 @@ export const createWallComment = functions
         message: "Tu comentario está en revisión.",
       };
     } catch (err) {
-      if (err instanceof functions.https.HttpsError) throw err;
+      rethrowHttpsError(err);
       console.error("[WALL] createWallComment unexpected error:", err);
       throw new functions.https.HttpsError(
         "internal",
@@ -367,18 +492,22 @@ export const moderateContent = functions
         );
       }
 
+      const payload = asPayload(data);
       // Accept both 'type' and 'contentType' for compatibility
-      const type = data.type || data.contentType;
-      const {postId, commentId, action, rejectionReason} = data;
+      const type = stringField(payload, "type") || stringField(payload, "contentType");
+      const postId = stringField(payload, "postId");
+      const commentId = stringField(payload, "commentId");
+      const action = stringField(payload, "action");
+      const rejectionReason = stringField(payload, "rejectionReason");
 
-      if (!["post", "comment"].includes(type)) {
+      if (type !== "post" && type !== "comment") {
         throw new functions.https.HttpsError(
           "invalid-argument",
           "Tipo inválido."
         );
       }
 
-      if (!["approve", "reject"].includes(action)) {
+      if (action !== "approve" && action !== "reject") {
         throw new functions.https.HttpsError(
           "invalid-argument",
           "Acción inválida."
@@ -401,17 +530,28 @@ export const moderateContent = functions
           throw new functions.https.HttpsError("not-found", "Post no encontrado.");
         }
 
+        const currentStatus = postDoc.data()?.status;
+        if (currentStatus === "approved" && action === "approve") {
+          return {success: true, message: moderationMessage(type, action)};
+        }
+        if (currentStatus === "rejected" && action === "reject") {
+          return {success: true, message: moderationMessage(type, action)};
+        }
+
         if (action === "approve") {
           await postRef.update({
             status: "approved",
             approvedAt: now,
             approvedBy: adminUid,
+            rejectionReason: null,
           });
           console.log(`[WALL] Post ${postId} approved by ${adminUid}`);
         } else {
           await postRef.update({
             status: "rejected",
             rejectionReason: rejectionReason || "Rechazado por moderador",
+            approvedAt: null,
+            approvedBy: null,
           });
           console.log(`[WALL] Post ${postId} rejected by ${adminUid}`);
         }
@@ -429,12 +569,29 @@ export const moderateContent = functions
           .doc(postId)
           .collection("comments")
           .doc(commentId);
+        const parentPostRef = db.collection("wallPosts").doc(postId);
+        const parentPostDoc = await parentPostRef.get();
+        if (!parentPostDoc.exists) {
+          throw new functions.https.HttpsError(
+            "not-found",
+            "Post padre no encontrado."
+          );
+        }
+
         const commentDoc = await commentRef.get();
         if (!commentDoc.exists) {
           throw new functions.https.HttpsError(
             "not-found",
             "Comentario no encontrado."
           );
+        }
+
+        const currentStatus = commentDoc.data()?.status;
+        if (currentStatus === "approved" && action === "approve") {
+          return {success: true, message: moderationMessage(type, action)};
+        }
+        if (currentStatus === "rejected" && action === "reject") {
+          return {success: true, message: moderationMessage(type, action)};
         }
 
         if (action === "approve") {
@@ -444,12 +601,9 @@ export const moderateContent = functions
           });
 
           // Increment commentCount on parent post
-          await db
-            .collection("wallPosts")
-            .doc(postId)
-            .update({
-              commentCount: admin.firestore.FieldValue.increment(1),
-            });
+          await parentPostRef.update({
+            commentCount: admin.firestore.FieldValue.increment(1),
+          });
 
           console.log(
             `[WALL] Comment ${commentId} on ${postId} approved`
@@ -457,16 +611,22 @@ export const moderateContent = functions
         } else {
           await commentRef.update({
             status: "rejected",
+            rejectionReason: rejectionReason || "Rechazado por moderador",
           });
+          if (currentStatus === "approved") {
+            await parentPostRef.update({
+              commentCount: admin.firestore.FieldValue.increment(-1),
+            });
+          }
           console.log(
             `[WALL] Comment ${commentId} on ${postId} rejected`
           );
         }
       }
 
-      return {success: true};
+      return {success: true, message: moderationMessage(type, action)};
     } catch (err) {
-      if (err instanceof functions.https.HttpsError) throw err;
+      rethrowHttpsError(err);
       console.error("[WALL] moderateContent unexpected error:", err);
       throw new functions.https.HttpsError(
         "internal",
@@ -480,6 +640,7 @@ export const moderateContent = functions
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const reportContent = functions
+  .runWith({ secrets: ["WALL_ABUSE_SALT"] })
   .region("us-central1")
   .https.onCall(async (data, context) => {
     if (!context.auth) {
@@ -491,7 +652,10 @@ export const reportContent = functions
 
     try {
       const uid = context.auth.uid;
-      const {postId, commentId, reason} = data;
+      const payload = asPayload(data);
+      const postId = stringField(payload, "postId");
+      const commentId = stringField(payload, "commentId");
+      const reason = stringField(payload, "reason");
 
       if (!postId || typeof postId !== "string") {
         throw new functions.https.HttpsError(
@@ -509,8 +673,38 @@ export const reportContent = functions
 
       const reporterHash = computeAbuseHash(uid);
 
+      // Rate-limit: m\u00e1ximo N reportes en 24h por reporterHash (H7).
+      const recentReports = await countRecentReportsByHash(reporterHash);
+      if (recentReports >= MAX_REPORTS_PER_DAY) {
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          `M\u00e1ximo ${MAX_REPORTS_PER_DAY} reportes por d\u00eda.`
+        );
+      }
+
+      const postRef = db.collection("wallPosts").doc(postId);
+      const postDoc = await postRef.get();
+      if (!postDoc.exists) {
+        throw new functions.https.HttpsError(
+          "not-found",
+          "Post no encontrado."
+        );
+      }
+
+      if (commentId) {
+        const commentDoc = await postRef.collection("comments").doc(commentId).get();
+        if (!commentDoc.exists) {
+          throw new functions.https.HttpsError(
+            "not-found",
+            "Comentario no encontrado."
+          );
+        }
+      }
+
       // Create report
-      await db.collection("wallReports").add({
+      const reportRef = db.collection("wallReports").doc();
+      const batch = db.batch();
+      batch.set(reportRef, {
         postId,
         commentId: commentId || null,
         reporterHash,
@@ -520,16 +714,16 @@ export const reportContent = functions
       });
 
       // Increment reportCount on the post
-      const postRef = db.collection("wallPosts").doc(postId);
-      await postRef.update({
+      batch.update(postRef, {
         reportCount: admin.firestore.FieldValue.increment(1),
       });
+      await batch.commit();
 
       console.log(`[WALL] Report on post ${postId} reason=${reason}`);
 
       return {success: true, message: "Reporte enviado. Gracias."};
     } catch (err) {
-      if (err instanceof functions.https.HttpsError) throw err;
+      rethrowHttpsError(err);
       console.error("[WALL] reportContent unexpected error:", err);
       throw new functions.https.HttpsError(
         "internal",
@@ -561,7 +755,9 @@ export const banAbuseHash = functions
         );
       }
 
-      const {abuseHash, reason} = data;
+      const payload = asPayload(data);
+      const abuseHash = stringField(payload, "abuseHash");
+      const reason = stringField(payload, "reason");
 
       if (!abuseHash || typeof abuseHash !== "string") {
         throw new functions.https.HttpsError(
@@ -599,10 +795,11 @@ export const banAbuseHash = functions
 
       return {
         success: true,
+        message: `Usuario baneado. ${pendingPosts.size} posts rechazados.`,
         rejectedCount: pendingPosts.size,
       };
     } catch (err) {
-      if (err instanceof functions.https.HttpsError) throw err;
+      rethrowHttpsError(err);
       console.error("[WALL] banAbuseHash unexpected error:", err);
       throw new functions.https.HttpsError(
         "internal",

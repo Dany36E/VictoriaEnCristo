@@ -51,13 +51,16 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   @override
   void initState() {
     super.initState();
+    debugPrint('🟢 [BibleReader] initState start');
     AudioEngine.I.switchBgmContext(BgmContext.bible);
+    debugPrint('🟢 [BibleReader] after switchBgmContext');
     _ctrl = BibleReaderController(
       bookNumber: widget.bookNumber,
       bookName: widget.bookName,
       chapter: widget.chapter,
       version: widget.version,
     );
+    debugPrint('🟢 [BibleReader] after controller create');
     _ctrl.addListener(_onControllerChanged);
     _scrollController.addListener(_onScroll);
     if (widget.initialVerse != null) {
@@ -68,6 +71,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       viewportFraction: 0.92,
     );
     BibleTtsService.I.currentVerseIndex.addListener(_onTtsVerseChanged);
+    debugPrint('🟢 [BibleReader] initState end');
   }
 
   void _onControllerChanged() {

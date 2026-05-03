@@ -24,7 +24,20 @@ export {
 
 // Compañero de Batalla - Push notifications y purga
 export {
+  acceptPartnerInvite,
   onPartnerInviteCreated,
   onBattleMessageCreated,
   purgeOldPartnerInvites,
+  sendBattleMessage,
+  sendBattleSos,
+  sendPartnerInvite,
 } from "./battlePartnerFunctions";
+
+// Modo Estudio Colaborativo - Salas con rotación de traducciones
+export {
+  createStudyRoom,
+  joinStudyRoom,
+  leaveStudyRoom,
+  rotateStudyVersions,
+  studyRoomAutoSwap,
+} from "./studyRoomFunctions";

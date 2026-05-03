@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../utils/platform_capabilities.dart';
 import 'talents_service.dart';
 
 class TalentsHooks {
@@ -24,6 +25,7 @@ class TalentsHooks {
   }
 
   static Future<void> _logAnalytics(int amount, String reason) async {
+    if (!PlatformCapabilities.supportsFirebaseAnalytics) return;
     try {
       await FirebaseAnalytics.instance.logEvent(
         name: 'talents_earned',

@@ -32,6 +32,7 @@ migrate_working_dir/
 .pub/
 /build/
 /coverage/
+/dist/
 
 # Symbolication related
 app.*.symbols
@@ -57,8 +58,16 @@ android/local.properties
 
 # Environment / secrets
 .env
+.env.*
+functions/.env
+functions/.env.*
 *.keystore
 *.jks
+key.properties
+android/key.properties
+android/app/key.properties
+service-account*.json
+**/google-services.json
 assets/config.json
 
 # Gradle caches (faith-victory-app companion project)
@@ -72,7 +81,9 @@ temp_bible_data/
 temp_data/
 test_screenshots/
 test_*.png
-scripts/
+.asset_backups/
+scripts/*
+!scripts/*.ps1
 
 # Integration tests (contain test credentials)
 integration_test/

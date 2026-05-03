@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/hero_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/heroes_progress_service.dart';
 import '../../services/learning/heroes_repository.dart';
@@ -32,7 +33,14 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningStory);
     _bootstrap();
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
   }
 
   Future<void> _bootstrap() async {
@@ -103,8 +111,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
     );
   }
 
-  Widget _buildHero(
-      BuildContext context, AppThemeData t, int unlocked, int total) {
+  Widget _buildHero(BuildContext context, AppThemeData t, int unlocked, int total) {
     final pct = total == 0 ? 0.0 : unlocked / total;
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
@@ -123,14 +130,12 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.workspace_premium_rounded,
-                  color: AppDesignSystem.gold, size: 28),
+              const Icon(Icons.workspace_premium_rounded, color: AppDesignSystem.gold, size: 28),
               const SizedBox(width: AppDesignSystem.spacingS),
               Expanded(
                 child: Text(
                   'Aprende de quienes vencieron',
-                  style: AppDesignSystem.headlineSmall(context,
-                      color: t.textPrimary),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -147,8 +152,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
               value: pct,
               minHeight: 8,
               backgroundColor: t.cardBorder,
-              valueColor:
-                  const AlwaysStoppedAnimation(AppDesignSystem.gold),
+              valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
             ),
           ),
           const SizedBox(height: AppDesignSystem.spacingXS),
@@ -177,16 +181,17 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
           const SizedBox(width: 8),
           Text(
             era.label.toUpperCase(),
-            style: AppDesignSystem.labelMedium(context, color: t.textSecondary)
-                .copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700),
+            style: AppDesignSystem.labelMedium(
+              context,
+              color: t.textSecondary,
+            ).copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700),
           ),
         ],
       ),
     );
   }
 
-  Widget _heroesGrid(
-      BuildContext context, AppThemeData t, List<HeroOfFaith> heroes) {
+  Widget _heroesGrid(BuildContext context, AppThemeData t, List<HeroOfFaith> heroes) {
     return GridView.builder(
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -221,9 +226,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
           border: Border.all(
-            color: unlocked
-                ? AppDesignSystem.gold.withOpacity(0.55)
-                : t.cardBorder,
+            color: unlocked ? AppDesignSystem.gold.withOpacity(0.55) : t.cardBorder,
             width: unlocked ? 1.4 : 1,
           ),
           boxShadow: t.cardShadow,
@@ -240,34 +243,32 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
                     color: AppDesignSystem.gold.withOpacity(0.18),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon,
-                      color: AppDesignSystem.gold, size: 22),
+                  child: Icon(icon, color: AppDesignSystem.gold, size: 22),
                 ),
                 const Spacer(),
                 if (unlocked)
-                  const Icon(Icons.verified_rounded,
-                      color: AppDesignSystem.gold, size: 20),
+                  const Icon(Icons.verified_rounded, color: AppDesignSystem.gold, size: 20),
               ],
             ),
             const SizedBox(height: AppDesignSystem.spacingS),
             Text(
               h.name,
-              style: AppDesignSystem.bodyLarge(context, color: t.textPrimary)
-                  .copyWith(fontWeight: FontWeight.w800),
+              style: AppDesignSystem.bodyLarge(
+                context,
+                color: t.textPrimary,
+              ).copyWith(fontWeight: FontWeight.w800),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             Text(
               h.epithet,
-              style: AppDesignSystem.labelSmall(context,
-                  color: AppDesignSystem.gold),
+              style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
             const Spacer(),
             Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 8, vertical: 4),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
                 color: t.scaffoldBg,
                 borderRadius: BorderRadius.circular(999),
@@ -276,14 +277,12 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(Icons.flash_on_rounded,
-                      size: 12, color: AppDesignSystem.gold),
+                  const Icon(Icons.flash_on_rounded, size: 12, color: AppDesignSystem.gold),
                   const SizedBox(width: 4),
                   Flexible(
                     child: Text(
                       'Vs. ${h.giantDefeated}',
-                      style: AppDesignSystem.labelSmall(context,
-                          color: t.textSecondary),
+                      style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
@@ -293,10 +292,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
             ),
           ],
         ),
-      )
-          .animate()
-          .fadeIn(duration: 260.ms, delay: (30 * h.order).ms)
-          .slideY(begin: 0.04, end: 0),
+      ).animate().fadeIn(duration: 260.ms, delay: (30 * h.order).ms).slideY(begin: 0.04, end: 0),
     );
   }
 

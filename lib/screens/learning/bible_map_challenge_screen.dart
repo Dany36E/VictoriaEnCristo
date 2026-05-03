@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/bible_map_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/bible_map_progress_service.dart';
 import '../../theme/app_theme.dart';
@@ -23,8 +24,7 @@ class BibleMapChallengeScreen extends StatefulWidget {
   const BibleMapChallengeScreen({super.key, required this.bibleMap});
 
   @override
-  State<BibleMapChallengeScreen> createState() =>
-      _BibleMapChallengeScreenState();
+  State<BibleMapChallengeScreen> createState() => _BibleMapChallengeScreenState();
 }
 
 class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
@@ -56,6 +56,7 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningMap);
     _pulseController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1500),
@@ -66,6 +67,7 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
   @override
   void dispose() {
     _pulseController.dispose();
+    AudioEngine.I.switchBgmContext(BgmContext.learningMap);
     super.dispose();
   }
 
@@ -91,15 +93,18 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
       _stars = _errors == 0
           ? 3
           : _errors <= 2
-              ? 2
-              : 1;
+          ? 2
+          : 1;
       _completeMap();
     }
   }
 
   Future<void> _completeMap() async {
-    final xp = await BibleMapProgressService.I
-        .markCompleted(widget.bibleMap.id, _stars, widget.bibleMap.xpReward);
+    final xp = await BibleMapProgressService.I.markCompleted(
+      widget.bibleMap.id,
+      _stars,
+      widget.bibleMap.xpReward,
+    );
     setState(() {
       _completed = true;
       _xpEarned = xp;
@@ -127,19 +132,16 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.close_rounded,
-                      size: 16, color: Colors.redAccent.shade100),
+                  Icon(Icons.close_rounded, size: 16, color: Colors.redAccent.shade100),
                   const SizedBox(width: 4),
                   Text(
                     '$_errors',
-                    style: AppDesignSystem.labelLarge(context,
-                        color: Colors.redAccent.shade100),
+                    style: AppDesignSystem.labelLarge(context, color: Colors.redAccent.shade100),
                   ),
                   const SizedBox(width: 16),
                   Text(
                     '${_placed.length}/${widget.bibleMap.places.length}',
-                    style: AppDesignSystem.labelLarge(context,
-                        color: AppDesignSystem.gold),
+                    style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.gold),
                   ),
                 ],
               ),
@@ -186,35 +188,25 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
         ),
 
         // Divider
-        Container(
-          height: 1,
-          color: t.cardBorder,
-        ),
+        Container(height: 1, color: t.cardBorder),
 
         // Banco de etiquetas arrastrables
         Expanded(
           flex: 1,
-          child: Container(
-            color: t.surface.withOpacity(0.5),
-            child: _buildLabelBank(t),
-          ),
+          child: Container(color: t.surface.withOpacity(0.5), child: _buildLabelBank(t)),
         ),
       ],
     );
   }
 
   Widget _buildLabelBank(AppThemeData t) {
-    final remainingPlaces =
-        _shuffledPlaces.where((p) => !_placed.containsKey(p.id)).toList();
+    final remainingPlaces = _shuffledPlaces.where((p) => !_placed.containsKey(p.id)).toList();
 
     if (remainingPlaces.isEmpty) {
       return Center(
         child: Text(
           '¡Todos colocados!',
-          style: AppDesignSystem.headlineSmall(
-            context,
-            color: AppDesignSystem.gold,
-          ),
+          style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.gold),
         ),
       );
     }
@@ -231,10 +223,7 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
             padding: const EdgeInsets.only(bottom: 8),
             child: Text(
               'Arrastra o toca un nombre y luego el mapa:',
-              style: AppDesignSystem.labelSmall(
-                context,
-                color: t.textSecondary,
-              ),
+              style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
             ),
           ),
           Expanded(
@@ -246,8 +235,7 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
                 return GestureDetector(
                   onTap: () {
                     setState(() {
-                      _selectedPlaceId =
-                          isSelected ? null : place.id;
+                      _selectedPlaceId = isSelected ? null : place.id;
                     });
                     FeedbackEngine.I.tap();
                   },
@@ -255,25 +243,13 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
                     data: place.id,
                     feedback: Material(
                       color: Colors.transparent,
-                      child: _PlaceLabel(
-                        name: place.name,
-                        isDragging: true,
-                        isSelected: false,
-                      ),
+                      child: _PlaceLabel(name: place.name, isDragging: true, isSelected: false),
                     ),
                     childWhenDragging: Opacity(
                       opacity: 0.3,
-                      child: _PlaceLabel(
-                        name: place.name,
-                        isDragging: false,
-                        isSelected: false,
-                      ),
+                      child: _PlaceLabel(name: place.name, isDragging: false, isSelected: false),
                     ),
-                    child: _PlaceLabel(
-                      name: place.name,
-                      isDragging: false,
-                      isSelected: isSelected,
-                    ),
+                    child: _PlaceLabel(name: place.name, isDragging: false, isSelected: isSelected),
                   ),
                 );
               }).toList(),
@@ -301,24 +277,16 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
                   child: Icon(
                     filled ? Icons.star_rounded : Icons.star_outline_rounded,
                     size: 52,
-                    color: filled
-                        ? AppDesignSystem.gold
-                        : t.textSecondary.withOpacity(0.3),
+                    color: filled ? AppDesignSystem.gold : t.textSecondary.withOpacity(0.3),
                   ),
                 );
               }),
-            )
-                .animate()
-                .fadeIn(duration: 500.ms)
-                .scale(begin: const Offset(0.5, 0.5)),
+            ).animate().fadeIn(duration: 500.ms).scale(begin: const Offset(0.5, 0.5)),
             const SizedBox(height: AppDesignSystem.spacingL),
 
             Text(
               '¡Mapa completado!',
-              style: AppDesignSystem.headlineLarge(
-                context,
-                color: t.textPrimary,
-              ),
+              style: AppDesignSystem.headlineLarge(context, color: t.textPrimary),
             ).animate().fadeIn(delay: 200.ms),
             const SizedBox(height: AppDesignSystem.spacingS),
 
@@ -326,42 +294,35 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
               _errors == 0
                   ? '¡Perfecto! Sin errores.'
                   : '$_errors error${_errors == 1 ? '' : 'es'}',
-              style: AppDesignSystem.bodyLarge(
-                context,
-                color: t.textSecondary,
-              ),
+              style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
             ).animate().fadeIn(delay: 400.ms),
             const SizedBox(height: AppDesignSystem.spacingL),
 
             if (_xpEarned > 0)
               Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 20, vertical: 10),
-                decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.15),
-                  borderRadius:
-                      BorderRadius.circular(AppDesignSystem.radiusFull),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.bolt_rounded,
-                        color: AppDesignSystem.gold, size: 24),
-                    const SizedBox(width: 8),
-                    Text(
-                      '+$_xpEarned XP',
-                      style: AppDesignSystem.headlineSmall(
-                        context,
-                        color: AppDesignSystem.gold,
-                      ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: AppDesignSystem.gold.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                     ),
-                  ],
-                ),
-              ).animate().fadeIn(delay: 600.ms).scale(
-                    begin: const Offset(0.8, 0.8),
-                    duration: 400.ms,
-                    curve: Curves.elasticOut,
-                  ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.bolt_rounded, color: AppDesignSystem.gold, size: 24),
+                        const SizedBox(width: 8),
+                        Text(
+                          '+$_xpEarned XP',
+                          style: AppDesignSystem.headlineSmall(
+                            context,
+                            color: AppDesignSystem.gold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                  .animate()
+                  .fadeIn(delay: 600.ms)
+                  .scale(begin: const Offset(0.8, 0.8), duration: 400.ms, curve: Curves.elasticOut),
 
             const SizedBox(height: AppDesignSystem.spacingXL),
 
@@ -430,14 +391,14 @@ class _MapArea extends StatelessWidget {
           ),
 
           // Zonas target (no colocados)
-          ...bibleMap.places.where((p) => !placed.containsKey(p.id)).map(
-                (place) => _buildTarget(context, t, place),
-              ),
+          ...bibleMap.places
+              .where((p) => !placed.containsKey(p.id))
+              .map((place) => _buildTarget(context, t, place)),
 
           // Etiquetas ya colocadas
-          ...bibleMap.places.where((p) => placed.containsKey(p.id)).map(
-                (place) => _buildPlaced(context, t, place),
-              ),
+          ...bibleMap.places
+              .where((p) => placed.containsKey(p.id))
+              .map((place) => _buildPlaced(context, t, place)),
         ],
       ),
     );
@@ -466,25 +427,20 @@ class _MapArea extends StatelessWidget {
             child: AnimatedBuilder(
               animation: pulseController,
               builder: (context, child) {
-                final scale =
-                    1.0 + (pulseController.value * 0.08);
-                return Transform.scale(
-                  scale: selectedPlaceId != null ? scale : 1.0,
-                  child: child,
-                );
+                final scale = 1.0 + (pulseController.value * 0.08);
+                return Transform.scale(scale: selectedPlaceId != null ? scale : 1.0, child: child);
               },
               child: Container(
                 width: 80,
                 height: 32,
                 decoration: BoxDecoration(
-                  borderRadius:
-                      BorderRadius.circular(AppDesignSystem.radiusS),
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
                   border: Border.all(
                     color: isHovering
                         ? AppDesignSystem.gold
                         : selectedPlaceId != null
-                            ? AppDesignSystem.gold.withOpacity(0.6)
-                            : Colors.white.withOpacity(0.35),
+                        ? AppDesignSystem.gold.withOpacity(0.6)
+                        : Colors.white.withOpacity(0.35),
                     width: isHovering ? 2.0 : 1.5,
                     strokeAlign: BorderSide.strokeAlignCenter,
                   ),
@@ -523,10 +479,7 @@ class _MapArea extends StatelessWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
           color: AppDesignSystem.gold.withOpacity(0.2),
-          border: Border.all(
-            color: AppDesignSystem.gold,
-            width: 1.5,
-          ),
+          border: Border.all(color: AppDesignSystem.gold, width: 1.5),
         ),
         child: Center(
           child: Text(
@@ -540,10 +493,7 @@ class _MapArea extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-      )
-          .animate()
-          .fadeIn(duration: 300.ms)
-          .scale(begin: const Offset(0.8, 0.8)),
+      ).animate().fadeIn(duration: 300.ms).scale(begin: const Offset(0.8, 0.8)),
     );
   }
 }
@@ -557,11 +507,7 @@ class _MapPainter extends CustomPainter {
   final double width;
   final double height;
 
-  _MapPainter({
-    required this.landmarks,
-    required this.width,
-    required this.height,
-  });
+  _MapPainter({required this.landmarks, required this.width, required this.height});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -596,18 +542,13 @@ class _MapPainter extends CustomPainter {
     final w = (lm.width ?? 0.15) * size.width;
     final h = (lm.height ?? 0.15) * size.height;
     final rect = RRect.fromRectAndRadius(
-      Rect.fromCenter(
-        center: Offset(lm.x * size.width, lm.y * size.height),
-        width: w,
-        height: h,
-      ),
+      Rect.fromCenter(center: Offset(lm.x * size.width, lm.y * size.height), width: w, height: h),
       const Radius.circular(20),
     );
     canvas.drawRRect(rect, seaPaint);
 
     // Label
-    _drawText(canvas, lm.label, lm.x * size.width, lm.y * size.height,
-        const Color(0xFF3A6B99), 9);
+    _drawText(canvas, lm.label, lm.x * size.width, lm.y * size.height, const Color(0xFF3A6B99), 9);
   }
 
   void _paintRiver(Canvas canvas, MapLandmark lm, Size size) {
@@ -635,8 +576,7 @@ class _MapPainter extends CustomPainter {
       );
     }
     canvas.drawPath(path, riverPaint);
-    _drawText(canvas, lm.label, startX + 12, startY + 10,
-        const Color(0xFF3A6B99), 8);
+    _drawText(canvas, lm.label, startX + 12, startY + 10, const Color(0xFF3A6B99), 8);
   }
 
   void _paintMountain(Canvas canvas, double cx, double cy) {
@@ -661,8 +601,7 @@ class _MapPainter extends CustomPainter {
     canvas.drawPath(snowPath, snowPaint);
   }
 
-  void _paintDesert(
-      Canvas canvas, double cx, double cy, String label, Size size) {
+  void _paintDesert(Canvas canvas, double cx, double cy, String label, Size size) {
     final paint = Paint()
       ..color = const Color(0xFF1A1A10).withOpacity(0.4)
       ..style = PaintingStyle.fill;
@@ -672,22 +611,16 @@ class _MapPainter extends CustomPainter {
       ..color = const Color(0xFF3A3020)
       ..style = PaintingStyle.fill;
     for (int i = 0; i < 5; i++) {
-      canvas.drawCircle(
-        Offset(cx - 8 + i * 4.0, cy + (i.isEven ? -3 : 3)),
-        1.5,
-        dotPaint,
-      );
+      canvas.drawCircle(Offset(cx - 8 + i * 4.0, cy + (i.isEven ? -3 : 3)), 1.5, dotPaint);
     }
     _drawText(canvas, label, cx, cy + 20, const Color(0xFF6A5A40), 8);
   }
 
-  void _paintLabel(
-      Canvas canvas, double cx, double cy, String label, Size size) {
+  void _paintLabel(Canvas canvas, double cx, double cy, String label, Size size) {
     _drawText(canvas, label, cx, cy, const Color(0xFF5A6A8A), 10);
   }
 
-  void _drawText(Canvas canvas, String text, double x, double y, Color color,
-      double fontSize) {
+  void _drawText(Canvas canvas, String text, double x, double y, Color color, double fontSize) {
     final textPainter = TextPainter(
       text: TextSpan(
         text: text,
@@ -701,10 +634,7 @@ class _MapPainter extends CustomPainter {
       textDirection: TextDirection.ltr,
     );
     textPainter.layout();
-    textPainter.paint(
-      canvas,
-      Offset(x - textPainter.width / 2, y - textPainter.height / 2),
-    );
+    textPainter.paint(canvas, Offset(x - textPainter.width / 2, y - textPainter.height / 2));
   }
 
   @override
@@ -720,11 +650,7 @@ class _PlaceLabel extends StatelessWidget {
   final bool isDragging;
   final bool isSelected;
 
-  const _PlaceLabel({
-    required this.name,
-    required this.isDragging,
-    required this.isSelected,
-  });
+  const _PlaceLabel({required this.name, required this.isDragging, required this.isSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -734,15 +660,15 @@ class _PlaceLabel extends StatelessWidget {
         color: isSelected
             ? AppDesignSystem.gold.withOpacity(0.25)
             : isDragging
-                ? AppDesignSystem.gold.withOpacity(0.3)
-                : const Color(0xFF1A2A3A),
+            ? AppDesignSystem.gold.withOpacity(0.3)
+            : const Color(0xFF1A2A3A),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
         border: Border.all(
           color: isSelected
               ? AppDesignSystem.gold
               : isDragging
-                  ? AppDesignSystem.gold
-                  : const Color(0xFF2A3A5A),
+              ? AppDesignSystem.gold
+              : const Color(0xFF2A3A5A),
           width: isSelected || isDragging ? 2 : 1,
         ),
         boxShadow: isDragging
@@ -751,16 +677,14 @@ class _PlaceLabel extends StatelessWidget {
                   color: AppDesignSystem.gold.withOpacity(0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
-                )
+                ),
               ]
             : null,
       ),
       child: Text(
         name,
         style: TextStyle(
-          color: isSelected || isDragging
-              ? AppDesignSystem.gold
-              : Colors.white.withOpacity(0.9),
+          color: isSelected || isDragging ? AppDesignSystem.gold : Colors.white.withOpacity(0.9),
           fontWeight: FontWeight.w600,
           fontSize: 13,
         ),

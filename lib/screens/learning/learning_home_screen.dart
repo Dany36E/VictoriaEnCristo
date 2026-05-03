@@ -6,7 +6,7 @@
 ///     desde main.dart FASE 3). Aquí solo esperamos a `readyNotifier`. Con eso
 ///     evitamos el doble Future.wait.
 ///   • El hero (XP / hearts / racha) está aislado en su propio
-///     ValueListenableBuilder<LearningProgress>: cambios en XP no rebuildean
+///     `ValueListenableBuilder<LearningProgress>`: cambios en XP no rebuildean
 ///     las 11 tarjetas.
 ///   • Cada tarjeta de módulo conserva su propio ValueListenableBuilder local
 ///     sobre su servicio, así que un avance en, p. ej., Travesía no toca la
@@ -25,8 +25,9 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/learning_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
-import '../../services/learning/bible_map_progress_service.dart';
+import '../../utils/platform_capabilities.dart';import '../../services/learning/bible_map_progress_service.dart';
 import '../../services/learning/bible_map_repository.dart';
 import '../../services/learning/bible_order_progress_service.dart';
 import '../../services/learning/book_progress_service.dart';
@@ -83,24 +84,33 @@ class _LearningHomeScreenState extends State<LearningHomeScreen> {
     super.initState();
     // Idempotente: si ya estaba listo, vuelve inmediato.
     LearningRegistry.I.initAll();
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
     _logEvent('learning_home_open');
   }
 
-  void _logEvent(String name, {Map<String, Object>? params}) {
-    try {
-      FirebaseAnalytics.instance
-          .logEvent(name: name, parameters: params);
-    } catch (_) {/* analytics no debería bloquear UX */}
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.home);
+    super.dispose();
   }
 
-  Future<void> _openModule(
-    String moduleKey,
-    Widget Function() build,
-  ) async {
+  void _logEvent(String name, {Map<String, Object>? params}) {
+    if (!PlatformCapabilities.supportsFirebaseAnalytics) return;
+    try {
+      FirebaseAnalytics.instance.logEvent(name: name, parameters: params);
+    } catch (_) {
+      /* analytics no debería bloquear UX */
+    }
+  }
+
+  Future<void> _openModule(String moduleKey, Widget Function() build, BgmContext bgmContext) async {
     FeedbackEngine.I.tap();
     _logEvent('learning_module_open', params: {'module': moduleKey});
+    AudioEngine.I.switchBgmContext(bgmContext);
     await Navigator.push(context, MaterialPageRoute(builder: (_) => build()));
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    setState(() {});
   }
 
   @override
@@ -124,10 +134,7 @@ class _LearningHomeScreenState extends State<LearningHomeScreen> {
             onPressed: () {
               FeedbackEngine.I.tap();
               _logEvent('learning_my_kingdom_open');
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const MyKingdomScreen()),
-              );
+              Navigator.push(context, MaterialPageRoute(builder: (_) => const MyKingdomScreen()));
             },
           ),
         ],
@@ -161,11 +168,18 @@ class _LearningHomeScreenState extends State<LearningHomeScreen> {
               ),
               if (_expDiario) ...[
                 const SizedBox(height: AppDesignSystem.spacingS),
-                _ManaCard(onOpen: () => _openModule(
-                    'mana', () => const ManaSessionScreen())),
+                _ManaCard(
+                  onOpen: () =>
+                      _openModule('mana', () => const ManaSessionScreen(), BgmContext.learningQuiz),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _ArmoryCard(onOpen: () => _openModule(
-                    'armory', () => const ArmoryDeckScreen())),
+                _ArmoryCard(
+                  onOpen: () => _openModule(
+                    'armory',
+                    () => const ArmoryDeckScreen(),
+                    BgmContext.learningQuiz,
+                  ),
+                ),
               ],
 
               const SizedBox(height: AppDesignSystem.spacingL),
@@ -174,25 +188,49 @@ class _LearningHomeScreenState extends State<LearningHomeScreen> {
                 title: 'Recorridos',
                 subtitle: 'Camina la historia paso a paso',
                 expanded: _expRecorridos,
-                onToggle: () =>
-                    setState(() => _expRecorridos = !_expRecorridos),
+                onToggle: () => setState(() => _expRecorridos = !_expRecorridos),
               ),
               if (_expRecorridos) ...[
                 const SizedBox(height: AppDesignSystem.spacingS),
-                _JourneyCard(onOpen: () => _openModule(
-                    'journey', () => const JourneyMapScreen())),
+                _JourneyCard(
+                  onOpen: () => _openModule(
+                    'journey',
+                    () => const JourneyMapScreen(),
+                    BgmContext.learningStory,
+                  ),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _HeroesCard(onOpen: () => _openModule(
-                    'heroes', () => const HeroesGalleryScreen())),
+                _HeroesCard(
+                  onOpen: () => _openModule(
+                    'heroes',
+                    () => const HeroesGalleryScreen(),
+                    BgmContext.learningStory,
+                  ),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _ParablesCard(onOpen: () => _openModule(
-                    'parables', () => const ParablesGalleryScreen())),
+                _ParablesCard(
+                  onOpen: () => _openModule(
+                    'parables',
+                    () => const ParablesGalleryScreen(),
+                    BgmContext.learningStory,
+                  ),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _TimelineCard(onOpen: () => _openModule(
-                    'timeline', () => const TimelineLessonsScreen())),
+                _TimelineCard(
+                  onOpen: () => _openModule(
+                    'timeline',
+                    () => const TimelineLessonsScreen(),
+                    BgmContext.learningStory,
+                  ),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _FruitCard(onOpen: () => _openModule(
-                    'fruit', () => const FruitGardenScreen())),
+                _FruitCard(
+                  onOpen: () => _openModule(
+                    'fruit',
+                    () => const FruitGardenScreen(),
+                    BgmContext.learningQuiz,
+                  ),
+                ),
               ],
 
               const SizedBox(height: AppDesignSystem.spacingL),
@@ -201,25 +239,43 @@ class _LearningHomeScreenState extends State<LearningHomeScreen> {
                 title: 'Biblioteca',
                 subtitle: 'Explora libros, mapas y profecías',
                 expanded: _expBiblioteca,
-                onToggle: () =>
-                    setState(() => _expBiblioteca = !_expBiblioteca),
+                onToggle: () => setState(() => _expBiblioteca = !_expBiblioteca),
               ),
               if (_expBiblioteca) ...[
                 const SizedBox(height: AppDesignSystem.spacingS),
-                _BooksCard(onOpen: () => _openModule(
-                    'books', () => const BookshelfScreen())),
+                _BooksCard(
+                  onOpen: () =>
+                      _openModule('books', () => const BookshelfScreen(), BgmContext.bible),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _BibleOrderCard(onOpen: () => _openModule(
-                    'bible_order', () => const BibleOrderScreen())),
+                _BibleOrderCard(
+                  onOpen: () => _openModule(
+                    'bible_order',
+                    () => const BibleOrderScreen(),
+                    BgmContext.learningBibleOrder,
+                  ),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _MapsCard(onOpen: () => _openModule(
-                    'maps', () => const BibleMapsScreen())),
+                _MapsCard(
+                  onOpen: () =>
+                      _openModule('maps', () => const BibleMapsScreen(), BgmContext.learningMap),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _ProphecyCard(onOpen: () => _openModule(
-                    'prophecy', () => const PropheciesHomeScreen())),
+                _ProphecyCard(
+                  onOpen: () => _openModule(
+                    'prophecy',
+                    () => const PropheciesHomeScreen(),
+                    BgmContext.learningProphecy,
+                  ),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
-                _GamesCard(onOpen: () => _openModule(
-                    'games', () => const GamesHomeScreen())),
+                _GamesCard(
+                  onOpen: () => _openModule(
+                    'games',
+                    () => const GamesHomeScreen(),
+                    BgmContext.learningHeadbanz,
+                  ),
+                ),
               ],
 
               const SizedBox(height: AppDesignSystem.spacingL),
@@ -267,10 +323,7 @@ class _Hero extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Crece cada día en la Palabra',
-                  style: AppDesignSystem.headlineSmall(
-                    context,
-                    color: t.textPrimary,
-                  ),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
               HeartsDisplay(hearts: progress.hearts),
@@ -281,22 +334,21 @@ class _Hero extends StatelessWidget {
           const SizedBox(height: AppDesignSystem.spacingS),
           Row(
             children: [
-              const Icon(Icons.local_fire_department_rounded,
-                  size: 16, color: AppDesignSystem.gold),
+              const Icon(
+                Icons.local_fire_department_rounded,
+                size: 16,
+                color: AppDesignSystem.gold,
+              ),
               const SizedBox(width: 4),
               Text(
                 '${progress.studyStreak} día${progress.studyStreak == 1 ? '' : 's'} estudiando',
-                style: AppDesignSystem.labelMedium(
-                  context,
-                  color: t.textSecondary,
-                ),
+                style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
               ),
               if (LearningProgressService.I.isGraceShieldAvailable) ...[
                 const SizedBox(width: AppDesignSystem.spacingS),
                 const Tooltip(
                   message: 'Escudo de gracia disponible esta semana',
-                  child: Icon(Icons.shield_outlined,
-                      size: 16, color: AppDesignSystem.gold),
+                  child: Icon(Icons.shield_outlined, size: 16, color: AppDesignSystem.gold),
                 ),
               ],
             ],
@@ -358,20 +410,11 @@ class _SectionHeader extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    title,
-                    style: AppDesignSystem.headlineSmall(
-                      context,
-                      color: t.textPrimary,
-                    ),
-                  ),
+                  Text(title, style: AppDesignSystem.headlineSmall(context, color: t.textPrimary)),
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: AppDesignSystem.bodyMedium(
-                      context,
-                      color: t.textSecondary,
-                    ),
+                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                   ),
                 ],
               ),
@@ -379,8 +422,7 @@ class _SectionHeader extends StatelessWidget {
             AnimatedRotation(
               turns: expanded ? 0 : -0.25,
               duration: const Duration(milliseconds: 200),
-              child: Icon(Icons.keyboard_arrow_down_rounded,
-                  color: t.textSecondary),
+              child: Icon(Icons.keyboard_arrow_down_rounded, color: t.textSecondary),
             ),
           ],
         ),
@@ -407,27 +449,28 @@ class _TodayRecommendationCard extends StatelessWidget {
     if (due > 0) {
       return _Recommendation(
         title: 'Repasa tus versículos',
-        subtitle:
-            '$due versículo${due == 1 ? '' : 's'} listo${due == 1 ? '' : 's'} hoy',
+        subtitle: '$due versículo${due == 1 ? '' : 's'} listo${due == 1 ? '' : 's'} hoy',
         cta: 'Empezar',
         icon: Icons.shield_moon_rounded,
-        onTap: (ctx) => Navigator.push(ctx,
-            MaterialPageRoute(builder: (_) => const ArmoryDeckScreen())),
+        onTap: (ctx) =>
+            Navigator.push(ctx, MaterialPageRoute(builder: (_) => const ArmoryDeckScreen())),
       );
     }
     final today = DateTime.now();
     final last = LearningProgressService.I.progressNotifier.value.lastStudyDate;
-    final lastIsToday = last.isNotEmpty &&
+    final lastIsToday =
+        last.isNotEmpty &&
         last.startsWith(
-            '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}');
+          '${today.year}-${today.month.toString().padLeft(2, '0')}-${today.day.toString().padLeft(2, '0')}',
+        );
     if (!lastIsToday && QuestionRepository.I.all.isNotEmpty) {
       return _Recommendation(
         title: 'Sesión de Maná',
         subtitle: '7 preguntas · ~5 min',
         cta: 'Jugar',
         icon: Icons.wb_sunny_rounded,
-        onTap: (ctx) => Navigator.push(
-            ctx, MaterialPageRoute(builder: (_) => const ManaSessionScreen())),
+        onTap: (ctx) =>
+            Navigator.push(ctx, MaterialPageRoute(builder: (_) => const ManaSessionScreen())),
       );
     }
     final nextStation = JourneyProgressService.I.currentStation();
@@ -437,8 +480,8 @@ class _TodayRecommendationCard extends StatelessWidget {
         subtitle: 'Siguiente: ${nextStation.title}',
         cta: 'Avanzar',
         icon: Icons.map_rounded,
-        onTap: (ctx) => Navigator.push(ctx,
-            MaterialPageRoute(builder: (_) => const JourneyMapScreen())),
+        onTap: (ctx) =>
+            Navigator.push(ctx, MaterialPageRoute(builder: (_) => const JourneyMapScreen())),
       );
     }
     return const _Recommendation(
@@ -481,9 +524,7 @@ class _TodayRecommendationCard extends StatelessWidget {
                 end: Alignment.bottomRight,
               ),
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-              border: Border.all(
-                color: AppDesignSystem.gold.withOpacity(0.4),
-              ),
+              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4)),
             ),
             child: Row(
               children: [
@@ -494,43 +535,37 @@ class _TodayRecommendationCard extends StatelessWidget {
                     color: AppDesignSystem.gold.withOpacity(0.2),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(r.icon,
-                      color: AppDesignSystem.gold, size: 24),
+                  child: Icon(r.icon, color: AppDesignSystem.gold, size: 24),
                 ),
                 const SizedBox(width: AppDesignSystem.spacingM),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('HOY TE TOCA',
-                          style: AppDesignSystem.labelSmall(
-                            context,
-                            color: AppDesignSystem.gold,
-                          ).copyWith(letterSpacing: 1.2)),
+                      Text(
+                        'HOY TE TOCA',
+                        style: AppDesignSystem.labelSmall(
+                          context,
+                          color: AppDesignSystem.gold,
+                        ).copyWith(letterSpacing: 1.2),
+                      ),
                       const SizedBox(height: 2),
                       Text(
                         r.title,
-                        style: AppDesignSystem.headlineSmall(
-                          context,
-                          color: t.textPrimary,
-                        ),
+                        style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                       ),
                       Text(
                         r.subtitle,
-                        style: AppDesignSystem.bodyMedium(
-                          context,
-                          color: t.textSecondary,
-                        ),
+                        style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                       ),
                     ],
                   ),
                 ),
                 if (r.cta.isNotEmpty)
-                  Text(r.cta,
-                      style: AppDesignSystem.labelLarge(
-                        context,
-                        color: AppDesignSystem.gold,
-                      )),
+                  Text(
+                    r.cta,
+                    style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.gold),
+                  ),
               ],
             ),
           ),
@@ -627,10 +662,10 @@ class _JourneyCard extends StatelessWidget {
         final subtitle = total == 0
             ? 'Preparando ruta…'
             : done >= total
-                ? 'Travesía completada. ¡Gloria a Dios!'
-                : current != null
-                    ? 'Siguiente: ${current.title}  ·  $done/$total'
-                    : '$done/$total estaciones';
+            ? 'Travesía completada. ¡Gloria a Dios!'
+            : current != null
+            ? 'Siguiente: ${current.title}  ·  $done/$total'
+            : '$done/$total estaciones';
         return _ActionCard(
           icon: Icons.map_rounded,
           iconColor: AppDesignSystem.gold,
@@ -659,8 +694,8 @@ class _HeroesCard extends StatelessWidget {
         final subtitle = total == 0
             ? 'Preparando galería…'
             : unlocked >= total
-                ? 'Conoces a todos los héroes. ¡Bien hecho!'
-                : '$unlocked/$total héroes  ·  Hebreos 11';
+            ? 'Conoces a todos los héroes. ¡Bien hecho!'
+            : '$unlocked/$total héroes  ·  Hebreos 11';
         return _ActionCard(
           icon: Icons.workspace_premium_rounded,
           iconColor: AppDesignSystem.gold,
@@ -689,8 +724,8 @@ class _ParablesCard extends StatelessWidget {
         final subtitle = total == 0
             ? 'Preparando parábolas…'
             : done >= total
-                ? '¡Todas las parábolas exploradas!'
-                : '$done/$total parábolas  ·  Maestro de Galilea';
+            ? '¡Todas las parábolas exploradas!'
+            : '$done/$total parábolas  ·  Maestro de Galilea';
         return _ActionCard(
           icon: Icons.record_voice_over_rounded,
           iconColor: const Color(0xFFF2B968),
@@ -720,8 +755,8 @@ class _TimelineCard extends StatelessWidget {
         final subtitle = total == 0
             ? 'Preparando línea del tiempo…'
             : done >= total
-                ? '¡Línea del tiempo dominada! $stars ★'
-                : '$done/$total lecciones · $stars ★';
+            ? '¡Línea del tiempo dominada! $stars ★'
+            : '$done/$total lecciones · $stars ★';
         return _ActionCard(
           icon: Icons.history_edu_rounded,
           iconColor: const Color(0xFF9FB8D8),
@@ -750,8 +785,8 @@ class _FruitCard extends StatelessWidget {
         final subtitle = total == 0
             ? 'Preparando huerto…'
             : badges >= total
-                ? '👑 Corona de los 9 frutos completa'
-                : '$badges/$total insignias  ·  Gálatas 5:22-23';
+            ? '👑 Corona de los 9 frutos completa'
+            : '$badges/$total insignias  ·  Gálatas 5:22-23';
         return _ActionCard(
           icon: Icons.eco_rounded,
           iconColor: const Color(0xFF7FC99A),
@@ -780,8 +815,8 @@ class _BooksCard extends StatelessWidget {
         final subtitle = total == 0
             ? 'Preparando biblioteca…'
             : done >= total
-                ? '¡66 libros estudiados!'
-                : '$done/$total libros  ·  AT + NT';
+            ? '¡66 libros estudiados!'
+            : '$done/$total libros  ·  AT + NT';
         return _ActionCard(
           icon: Icons.menu_book_rounded,
           iconColor: const Color(0xFFD4A853),
@@ -839,8 +874,8 @@ class _MapsCard extends StatelessWidget {
         final subtitle = total == 0
             ? 'Preparando mapas…'
             : done >= total
-                ? '¡Todas las tierras exploradas! $totalStars ★'
-                : '$done/$total mapas · $totalStars ★';
+            ? '¡Todas las tierras exploradas! $totalStars ★'
+            : '$done/$total mapas · $totalStars ★';
         return _ActionCard(
           icon: Icons.public_rounded,
           iconColor: const Color(0xFF6BC5A0),
@@ -866,9 +901,7 @@ class _ProphecyCard extends StatelessWidget {
       builder: (context, state, _) {
         final total = ProphecyRepository.I.all.length;
         final stars = state.bestStars.values.fold(0, (a, b) => a + b);
-        final subtitle = total == 0
-            ? 'Preparando profecías…'
-            : 'Profecías AT → NT  ·  $stars ★';
+        final subtitle = total == 0 ? 'Preparando profecías…' : 'Profecías AT → NT  ·  $stars ★';
         return _ActionCard(
           icon: Icons.auto_awesome_rounded,
           iconColor: const Color(0xFFB59FE3),
@@ -961,12 +994,10 @@ class _ActionCard extends StatelessWidget {
                       right: -4,
                       top: -4,
                       child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: AppDesignSystem.gold,
-                          borderRadius: BorderRadius.circular(
-                              AppDesignSystem.radiusFull),
+                          borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                         ),
                         child: Text(
                           badge!,
@@ -987,32 +1018,19 @@ class _ActionCard extends StatelessWidget {
                   children: [
                     Text(
                       title,
-                      style: AppDesignSystem.headlineSmall(
-                        context,
-                        color: t.textPrimary,
-                      ),
+                      style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       subtitle,
-                      style: AppDesignSystem.bodyMedium(
-                        context,
-                        color: t.textSecondary,
-                      ),
+                      style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: AppDesignSystem.spacingS),
-              Text(
-                cta,
-                style: AppDesignSystem.labelLarge(
-                  context,
-                  color: AppDesignSystem.gold,
-                ),
-              ),
-              Icon(Icons.arrow_forward_ios_rounded,
-                  size: 14, color: t.textSecondary),
+              Text(cta, style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.gold)),
+              Icon(Icons.arrow_forward_ios_rounded, size: 14, color: t.textSecondary),
             ],
           ),
         ),
@@ -1045,18 +1063,12 @@ class _Stat extends StatelessWidget {
           children: [
             Text(
               value,
-              style: AppDesignSystem.headlineMedium(
-                context,
-                color: AppDesignSystem.gold,
-              ),
+              style: AppDesignSystem.headlineMedium(context, color: AppDesignSystem.gold),
             ),
             const SizedBox(height: 2),
             Text(
               label,
-              style: AppDesignSystem.labelSmall(
-                context,
-                color: t.textSecondary,
-              ),
+              style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
               textAlign: TextAlign.center,
             ),
           ],

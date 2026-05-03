@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 import '../../config/api_config.dart';
+import '../../utils/platform_capabilities.dart';
 import '../connectivity_service.dart';
 
 /// Estado del audio bíblico real.
@@ -27,7 +28,9 @@ class BibleAudioService {
   static final BibleAudioService I = BibleAudioService._();
   BibleAudioService._();
 
-  final AudioPlayer _player = AudioPlayer();
+  late final AudioPlayer? _player = PlatformCapabilities.supportsAudioPlayback
+      ? AudioPlayer()
+      : null;
   bool _initialized = false;
 
   // ─── Stream subscriptions ───
@@ -37,8 +40,7 @@ class BibleAudioService {
   StreamSubscription? _playerStateSub;
 
   // ─── Estado público (reactivo) ───
-  final ValueNotifier<AudioBibleState> state =
-      ValueNotifier(AudioBibleState.idle);
+  final ValueNotifier<AudioBibleState> state = ValueNotifier(AudioBibleState.idle);
   final ValueNotifier<Duration> position = ValueNotifier(Duration.zero);
   final ValueNotifier<Duration> duration = ValueNotifier(Duration.zero);
   final ValueNotifier<double> bufferedProgress = ValueNotifier(0.0);
@@ -75,29 +77,40 @@ class BibleAudioService {
   Future<void> init() async {
     if (_initialized) return;
 
+    // Desktop guard: just_audio not available on Windows/Linux. Skip stream
+    // wiring entirely — callers will get false from playChapter().
+    if (!PlatformCapabilities.supportsAudioPlayback) {
+      _initialized = true;
+      return;
+    }
+    final player = _player;
+    if (player == null) {
+      _initialized = true;
+      return;
+    }
+
     // Cancelar subscripciones anteriores (guard contra doble-init)
     await _positionSub?.cancel();
     await _durationSub?.cancel();
     await _bufferedSub?.cancel();
     await _playerStateSub?.cancel();
 
-    _positionSub = _player.positionStream.listen((pos) {
+    _positionSub = player.positionStream.listen((pos) {
       position.value = pos;
       _updateActiveVerse(pos);
     });
 
-    _durationSub = _player.durationStream.listen((dur) {
+    _durationSub = player.durationStream.listen((dur) {
       if (dur != null) duration.value = dur;
     });
 
-    _bufferedSub = _player.bufferedPositionStream.listen((buffered) {
+    _bufferedSub = player.bufferedPositionStream.listen((buffered) {
       if (duration.value.inMilliseconds > 0) {
-        bufferedProgress.value =
-            buffered.inMilliseconds / duration.value.inMilliseconds;
+        bufferedProgress.value = buffered.inMilliseconds / duration.value.inMilliseconds;
       }
     });
 
-    _playerStateSub = _player.playerStateStream.listen((s) {
+    _playerStateSub = player.playerStateStream.listen((s) {
       switch (s.processingState) {
         case ProcessingState.idle:
         case ProcessingState.completed:
@@ -109,8 +122,7 @@ class BibleAudioService {
           state.value = AudioBibleState.buffering;
           break;
         case ProcessingState.ready:
-          state.value =
-              s.playing ? AudioBibleState.playing : AudioBibleState.paused;
+          state.value = s.playing ? AudioBibleState.playing : AudioBibleState.paused;
           break;
       }
     });
@@ -137,8 +149,9 @@ class BibleAudioService {
 
     try {
       final uri = Uri.parse(
-          '$_baseUrl/bibles/filesets/$filesetId/$bookCode/$chapter'
-          '?key=$apiKey&v=4');
+        '$_baseUrl/bibles/filesets/$filesetId/$bookCode/$chapter'
+        '?key=$apiKey&v=4',
+      );
 
       final response = await http
           .get(uri, headers: {'Accept': 'application/json'})
@@ -174,20 +187,22 @@ class BibleAudioService {
 
     try {
       final uri = Uri.parse(
-          '$_baseUrl/timestamps/$filesetId/$bookCode/$chapter'
-          '?key=$apiKey&v=4');
+        '$_baseUrl/timestamps/$filesetId/$bookCode/$chapter'
+        '?key=$apiKey&v=4',
+      );
 
-      final response =
-          await http.get(uri).timeout(const Duration(seconds: 8));
+      final response = await http.get(uri).timeout(const Duration(seconds: 8));
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final items = data['data'] as List? ?? [];
         return items
-            .map((item) => VerseTimestamp(
-                  verse: item['verse_start'] as int,
-                  startMs: ((item['timestamp'] as num) * 1000).toInt(),
-                ))
+            .map(
+              (item) => VerseTimestamp(
+                verse: item['verse_start'] as int,
+                startMs: ((item['timestamp'] as num) * 1000).toInt(),
+              ),
+            )
             .toList();
       }
     } catch (e) {
@@ -209,6 +224,17 @@ class BibleAudioService {
     double speed = 1.0,
   }) async {
     await init();
+
+    // Desktop guard: just_audio not available on Windows/Linux.
+    if (!PlatformCapabilities.supportsAudioPlayback) {
+      debugPrint('[BibleAudio] Audio playback unavailable on this platform');
+      return false;
+    }
+    final player = _player;
+    if (player == null) {
+      debugPrint('[BibleAudio] Audio player unavailable on this platform');
+      return false;
+    }
 
     if (ApiConfig.bibleBrainKey.isEmpty) {
       debugPrint('[BibleAudio] No API key configured');
@@ -248,19 +274,18 @@ class BibleAudioService {
 
     try {
       state.value = AudioBibleState.buffering;
-      await _player.setUrl(url);
-      await _player.setSpeed(speed.clamp(0.5, 2.0));
+      await player.setUrl(url);
+      await player.setSpeed(speed.clamp(0.5, 2.0));
 
       // Si startVerse > 1, saltar al timestamp correspondiente
       if (startVerse > 1 && _verseTimestamps.isNotEmpty) {
-        final timestamp =
-            _verseTimestamps.where((t) => t.verse == startVerse).firstOrNull;
+        final timestamp = _verseTimestamps.where((t) => t.verse == startVerse).firstOrNull;
         if (timestamp != null) {
-          await _player.seek(Duration(milliseconds: timestamp.startMs));
+          await player.seek(Duration(milliseconds: timestamp.startMs));
         }
       }
 
-      await _player.play();
+      await player.play();
       return true;
     } catch (e) {
       debugPrint('[BibleAudio] Playback error: $e');
@@ -273,11 +298,11 @@ class BibleAudioService {
   // CONTROLES
   // ═══════════════════════════════════════════════════════════════════════
 
-  Future<void> pause() async => await _player.pause();
-  Future<void> resume() async => await _player.play();
+  Future<void> pause() async => await _player?.pause();
+  Future<void> resume() async => await _player?.play();
 
   Future<void> stop() async {
-    await _player.stop();
+    await _player?.stop();
     _verseTimestamps.clear();
     currentVerse.value = null;
     position.value = Duration.zero;
@@ -286,7 +311,7 @@ class BibleAudioService {
   }
 
   Future<void> togglePlayPause() async {
-    if (_player.playing) {
+    if (_player?.playing ?? false) {
       await pause();
     } else {
       await resume();
@@ -294,19 +319,18 @@ class BibleAudioService {
   }
 
   Future<void> setSpeed(double speed) async {
-    await _player.setSpeed(speed.clamp(0.5, 2.0));
+    await _player?.setSpeed(speed.clamp(0.5, 2.0));
   }
 
   Future<void> seekToVerse(int verseNumber) async {
-    final timestamp =
-        _verseTimestamps.where((t) => t.verse == verseNumber).firstOrNull;
+    final timestamp = _verseTimestamps.where((t) => t.verse == verseNumber).firstOrNull;
     if (timestamp != null) {
-      await _player.seek(Duration(milliseconds: timestamp.startMs));
+      await _player?.seek(Duration(milliseconds: timestamp.startMs));
     }
   }
 
   Future<void> seek(Duration position) async {
-    await _player.seek(position);
+    await _player?.seek(position);
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -345,11 +369,7 @@ class BibleAudioService {
     // Si ya tenemos un fileset funcional, probar ese primero
     final cached = isNT ? _workingNtFileset : _workingOtFileset;
     if (cached != null && !_failedFilesets.contains(cached)) {
-      final url = await getChapterAudioUrl(
-        filesetId: cached,
-        bookCode: bookCode,
-        chapter: chapter,
-      );
+      final url = await getChapterAudioUrl(filesetId: cached, bookCode: bookCode, chapter: chapter);
       if (url != null) return (cached, url);
     }
 
@@ -387,7 +407,7 @@ class BibleAudioService {
     _durationSub?.cancel();
     _bufferedSub?.cancel();
     _playerStateSub?.cancel();
-    _player.dispose();
+    _player?.dispose();
   }
 }
 
@@ -396,18 +416,70 @@ class BibleAudioService {
 // ═══════════════════════════════════════════════════════════════════════════
 
 const _kBookNumberToCode = <int, String>{
-  1: 'GEN', 2: 'EXO', 3: 'LEV', 4: 'NUM', 5: 'DEU',
-  6: 'JOS', 7: 'JDG', 8: 'RUT', 9: '1SA', 10: '2SA',
-  11: '1KI', 12: '2KI', 13: '1CH', 14: '2CH', 15: 'EZR',
-  16: 'NEH', 17: 'EST', 18: 'JOB', 19: 'PSA', 20: 'PRO',
-  21: 'ECC', 22: 'SNG', 23: 'ISA', 24: 'JER', 25: 'LAM',
-  26: 'EZK', 27: 'DAN', 28: 'HOS', 29: 'JOL', 30: 'AMO',
-  31: 'OBA', 32: 'JON', 33: 'MIC', 34: 'NAM', 35: 'HAB',
-  36: 'ZEP', 37: 'HAG', 38: 'ZEC', 39: 'MAL',
-  40: 'MAT', 41: 'MRK', 42: 'LUK', 43: 'JHN', 44: 'ACT',
-  45: 'ROM', 46: '1CO', 47: '2CO', 48: 'GAL', 49: 'EPH',
-  50: 'PHP', 51: 'COL', 52: '1TH', 53: '2TH', 54: '1TI',
-  55: '2TI', 56: 'TIT', 57: 'PHM', 58: 'HEB', 59: 'JAS',
-  60: '1PE', 61: '2PE', 62: '1JN', 63: '2JN', 64: '3JN',
-  65: 'JUD', 66: 'REV',
+  1: 'GEN',
+  2: 'EXO',
+  3: 'LEV',
+  4: 'NUM',
+  5: 'DEU',
+  6: 'JOS',
+  7: 'JDG',
+  8: 'RUT',
+  9: '1SA',
+  10: '2SA',
+  11: '1KI',
+  12: '2KI',
+  13: '1CH',
+  14: '2CH',
+  15: 'EZR',
+  16: 'NEH',
+  17: 'EST',
+  18: 'JOB',
+  19: 'PSA',
+  20: 'PRO',
+  21: 'ECC',
+  22: 'SNG',
+  23: 'ISA',
+  24: 'JER',
+  25: 'LAM',
+  26: 'EZK',
+  27: 'DAN',
+  28: 'HOS',
+  29: 'JOL',
+  30: 'AMO',
+  31: 'OBA',
+  32: 'JON',
+  33: 'MIC',
+  34: 'NAM',
+  35: 'HAB',
+  36: 'ZEP',
+  37: 'HAG',
+  38: 'ZEC',
+  39: 'MAL',
+  40: 'MAT',
+  41: 'MRK',
+  42: 'LUK',
+  43: 'JHN',
+  44: 'ACT',
+  45: 'ROM',
+  46: '1CO',
+  47: '2CO',
+  48: 'GAL',
+  49: 'EPH',
+  50: 'PHP',
+  51: 'COL',
+  52: '1TH',
+  53: '2TH',
+  54: '1TI',
+  55: '2TI',
+  56: 'TIT',
+  57: 'PHM',
+  58: 'HEB',
+  59: 'JAS',
+  60: '1PE',
+  61: '2PE',
+  62: '1JN',
+  63: '2JN',
+  64: '3JN',
+  65: 'JUD',
+  66: 'REV',
 };

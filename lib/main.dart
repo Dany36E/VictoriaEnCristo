@@ -17,9 +17,9 @@ import 'screens/login_screen.dart';
 import 'screens/onboarding/onboarding_welcome_screen.dart';
 import 'screens/widget_settings_screen.dart';
 import 'screens/emergency_screen.dart';
-import 'screens/devotional_screen.dart';
-import 'screens/journal_screen.dart';
-import 'screens/battle_partner/battle_partner_screen.dart';
+import 'screens/sacred_alarm_active_screen.dart';
+import 'screens/sacred_alarms_screen.dart';
+import 'navigation/app_navigation.dart';
 import 'services/theme_service.dart';
 import 'services/favorites_service.dart';
 import 'services/onboarding_service.dart';
@@ -37,20 +37,37 @@ import 'services/daily_verse_service.dart';
 import 'repositories/profile_repository.dart';
 import 'models/user_profile.dart';
 import 'utils/time_utils.dart';
+import 'utils/platform_capabilities.dart';
+import 'utils/daily_outcome_registration.dart';
 import 'services/bible/bible_parser_service.dart';
 import 'services/bible/bible_download_service.dart';
 import 'services/notification_service.dart';
 import 'services/emergency_sos_service.dart';
 import 'services/fcm_service.dart';
 import 'services/daily_practice_service.dart';
+import 'services/sacred_alarm_service.dart';
 import 'services/learning/learning_registry.dart';
+import 'services/learning/learning_cloud_sync.dart';
+import 'services/learning/talents_service.dart';
+import 'services/user_pref_cloud_sync_service.dart';
 import 'data/devotionals.dart';
 
 /// RouteObserver global para detectar navegación (usado por HomeScreen)
-final RouteObserver<ModalRoute<void>> routeObserver =
-    RouteObserver<ModalRoute<void>>();
+final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
 
-void main() async {
+Future<T> _timedStartup<T>(String label, Future<T> Function() action) async {
+  final sw = Stopwatch()..start();
+  try {
+    final result = await action();
+    debugPrint('⏱️ [STARTUP] $label listo en ${sw.elapsedMilliseconds}ms');
+    return result;
+  } catch (e) {
+    debugPrint('⏱️ [STARTUP] $label falló tras ${sw.elapsedMilliseconds}ms: $e');
+    rethrow;
+  }
+}
+
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   // google_fonts: desactivar descargas en runtime. Las fuentes están
@@ -58,9 +75,21 @@ void main() async {
   // así evitamos tráfico de red y latencia al pintar texto.
   GoogleFonts.config.allowRuntimeFetching = false;
 
+  runApp(const StartupApp());
+}
+
+class StartupServices {
+  final ThemeService themeService;
+  final OnboardingService onboardingService;
+
+  const StartupServices({required this.themeService, required this.onboardingService});
+}
+
+Future<StartupServices> _initializeStartupServices() async {
   // Inicializar Firebase con opciones de plataforma
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
+  await _timedStartup(
+    'Firebase.initializeApp',
+    () => Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
   );
 
   // Crashlytics: capturar errores no manejados.
@@ -68,22 +97,27 @@ void main() async {
   // deberían reportarse como FATAL — no crashean la app, sólo pintan una
   // franja rayada en debug. Los degradamos a non-fatal para que no ensucien
   // el dashboard de estabilidad. El resto de errores siguen siendo fatal.
-  FlutterError.onError = (FlutterErrorDetails details) {
-    final msg = details.exceptionAsString();
-    final isLayoutOverflow = msg.contains('RenderFlex overflowed') ||
-        msg.contains('overflowed by') ||
-        msg.contains('A RenderFlex overflowed');
-    if (isLayoutOverflow) {
-      // No fatal, pero sí queda registrado.
-      FirebaseCrashlytics.instance.recordFlutterError(details);
-      return;
-    }
-    FirebaseCrashlytics.instance.recordFlutterFatalError(details);
-  };
-  PlatformDispatcher.instance.onError = (error, stack) {
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    return true;
-  };
+  if (PlatformCapabilities.supportsCrashlytics) {
+    FlutterError.onError = (FlutterErrorDetails details) {
+      final msg = details.exceptionAsString();
+      final isLayoutOverflow =
+          msg.contains('RenderFlex overflowed') ||
+          msg.contains('overflowed by') ||
+          msg.contains('A RenderFlex overflowed');
+      if (isLayoutOverflow) {
+        // No fatal, pero sí queda registrado.
+        FirebaseCrashlytics.instance.recordFlutterError(details);
+        return;
+      }
+      FirebaseCrashlytics.instance.recordFlutterFatalError(details);
+    };
+    PlatformDispatcher.instance.onError = (error, stack) {
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
+      return true;
+    };
+  } else {
+    FlutterError.onError = FlutterError.presentError;
+  }
 
   // Analytics: se usa en NavigatorObserver (ver MaterialApp)
 
@@ -92,7 +126,7 @@ void main() async {
     persistenceEnabled: true,
     cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
   );
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // FASE 1 — CRÍTICO pre-runApp (bloquea el primer frame)
   // Solo lo indispensable para renderizar Login/Home correctamente.
@@ -103,78 +137,207 @@ void main() async {
   final audioEngine = AudioEngine.I;
   final contentRepo = ContentRepository.I;
 
-  await Future.wait([
-    themeService.initialize(),
-    onboardingService.init(),
-    favoritesService.init(),
-    audioEngine.init(),
-    contentRepo.init(),
-    Devotionals.init(),
-  ]);
+  await _timedStartup('Fase 1 servicios críticos', () async {
+    await Future.wait([
+      themeService.initialize(),
+      onboardingService.init(),
+      favoritesService.init(),
+      audioEngine.init(),
+      contentRepo.init(),
+      Devotionals.init(),
+    ]);
+  });
 
   // ═══════════════════════════════════════════════════════════════════════════
   // FASE 2 — dependientes pre-runApp (Home necesita streak y bootstrap)
   // ═══════════════════════════════════════════════════════════════════════════
   final scoringService = VictoryScoringService.I;
-  await scoringService.init();
-  await DataBootstrapper.I.init();
-  await AccountSessionManager.I.init();
+  await _timedStartup('VictoryScoringService.init', scoringService.init);
+  await _timedStartup('DataBootstrapper.init', DataBootstrapper.I.init);
+  await _timedStartup('AccountSessionManager.init', AccountSessionManager.I.init);
 
   // Si el audio estaba habilitado, intentar reproducir (fire-and-forget)
   if (audioEngine.bgmEnabled.value) {
-    audioEngine.startBgm().then((success) {
-      if (!success) {
-        debugPrint('⚠️ [MAIN] BGM no pudo iniciarse al arrancar la app');
-      }
-    }).catchError((e) { debugPrint('❌ [MAIN] Error iniciando BGM: $e'); });
+    unawaited(
+      audioEngine
+          .startBgm()
+          .then((success) {
+            if (!success) {
+              debugPrint('⚠️ [MAIN] BGM no pudo iniciarse al arrancar la app');
+            }
+          })
+          .catchError((Object e, StackTrace st) {
+            AppErrorHandler.I.report(
+              e,
+              stack: st,
+              where: 'main.startBgm',
+              severity: ErrorSeverity.medium,
+            );
+          }),
+    );
   }
 
-  runApp(VictoriaEnCristoApp(
-    themeService: themeService,
-    onboardingService: onboardingService,
-  ));
+  return StartupServices(themeService: themeService, onboardingService: onboardingService);
+}
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // FASE 3 — NO CRÍTICO post-runApp (después del primer frame)
-  // Estos servicios no son necesarios para la primera pantalla y
-  // diferirlos acelera el tiempo de arranque percibido.
-  // ═══════════════════════════════════════════════════════════════════════════
-  WidgetsBinding.instance.addPostFrameCallback((_) async {
-    final sw = Stopwatch()..start();
-    try {
-      final notificationService = NotificationService();
-      await Future.wait([
-        FeedbackEngine.I.init(),
-        ExerciseLogService.I.init(),
-        WidgetSyncService.I.init(),
-        JesusWidgetService.I.init(),
-        notificationService.initialize(),
-        BibleDownloadService.I.init(),
-        EmergencySosService.I.init(),
-        DailyPracticeService.I.init(),
-        FcmService.I.init(),
-        // Escuela del Reino: un único entrypoint en lugar de 18 inits sueltos.
-        LearningRegistry.I.initAll(),
-      ]);
-      // Requieren que las anteriores estén listas
-      await Future.wait([
-        BibleParserService.I.init(),
-        notificationService.scheduleAllNotifications(),
-      ]);
+Future<void> _startDeferredServices() async {
+  final sw = Stopwatch()..start();
+  try {
+    final notificationService = NotificationService();
+    await Future.wait([
+      FeedbackEngine.I.init(),
+      ExerciseLogService.I.init(),
+      if (PlatformCapabilities.supportsHomeWidgets) WidgetSyncService.I.init(),
+      JesusWidgetService.I.init(),
+      notificationService.initialize(),
+      BibleDownloadService.I.init(),
+      EmergencySosService.I.init(),
+      DailyPracticeService.I.init(),
+      SacredAlarmService.I.init(),
+      if (PlatformCapabilities.supportsFcm) FcmService.I.init(),
+      // Escuela del Reino: un único entrypoint en lugar de 18 inits sueltos.
+      LearningRegistry.I.initAll(),
+    ]);
+    // Requieren que las anteriores estén listas
+    await Future.wait([
+      BibleParserService.I.init(),
+      notificationService.scheduleAllNotifications(),
+    ]);
+    if (PlatformCapabilities.supportsHomeWidgets) {
       WidgetSyncService.I.syncWidget();
-      debugPrint('🚀 [MAIN] Deferred services ready in ${sw.elapsedMilliseconds}ms');
-    } catch (e) {
-      debugPrint('⚠️ [MAIN] Deferred init error: $e');
     }
-  });
+    debugPrint('🚀 [MAIN] Deferred services ready in ${sw.elapsedMilliseconds}ms');
+  } catch (e, st) {
+    AppErrorHandler.I.report(
+      e,
+      stack: st,
+      where: 'main.deferredInit',
+      severity: ErrorSeverity.medium,
+    );
+  }
+}
+
+class StartupApp extends StatefulWidget {
+  const StartupApp({super.key});
+
+  @override
+  State<StartupApp> createState() => _StartupAppState();
+}
+
+class _StartupAppState extends State<StartupApp> {
+  late Future<StartupServices> _startup;
+  bool _deferredStarted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _startup = _initializeStartupServices();
+  }
+
+  void _retry() {
+    setState(() {
+      _deferredStarted = false;
+      _startup = _initializeStartupServices();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder<StartupServices>(
+      future: _startup,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          if (!_deferredStarted) {
+            _deferredStarted = true;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              unawaited(_startDeferredServices());
+            });
+          }
+          final services = snapshot.data!;
+          return VictoriaEnCristoApp(
+            themeService: services.themeService,
+            onboardingService: services.onboardingService,
+          );
+        }
+
+        if (snapshot.hasError) {
+          return _StartupShell(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, color: Colors.white70, size: 48),
+                const SizedBox(height: 16),
+                const Text(
+                  'No se pudo iniciar la app',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+                ),
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 32),
+                  child: Text(
+                    snapshot.error.toString(),
+                    textAlign: TextAlign.center,
+                    maxLines: 4,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(color: Colors.white70, fontSize: 13),
+                  ),
+                ),
+                const SizedBox(height: 18),
+                FilledButton(onPressed: _retry, child: const Text('Reintentar')),
+              ],
+            ),
+          );
+        }
+
+        return const _StartupShell(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 38,
+                height: 38,
+                child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+              ),
+              SizedBox(height: 18),
+              Text(
+                'Victoria en Cristo',
+                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+              ),
+              SizedBox(height: 8),
+              Text('Iniciando...', style: TextStyle(color: Colors.white70, fontSize: 14)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _StartupShell extends StatelessWidget {
+  final Widget child;
+
+  const _StartupShell({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Victoria en Cristo',
+      home: Scaffold(
+        backgroundColor: const Color(0xFF07111C),
+        body: SafeArea(child: Center(child: child)),
+      ),
+    );
+  }
 }
 
 class VictoriaEnCristoApp extends StatefulWidget {
   final ThemeService themeService;
   final OnboardingService onboardingService;
-  
+
   const VictoriaEnCristoApp({
-    super.key, 
+    super.key,
     required this.themeService,
     required this.onboardingService,
   });
@@ -183,15 +346,15 @@ class VictoriaEnCristoApp extends StatefulWidget {
   State<VictoriaEnCristoApp> createState() => _VictoriaEnCristoAppState();
 }
 
-class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
-    with WidgetsBindingObserver {
+class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsBindingObserver {
   late bool _isDarkMode;
   String? _pendingRoute;
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _navigationChannel = const MethodChannel('victoria/navigation');
+
   /// Fecha conocida para detectar cambio de día al volver del background
   String _lastKnownDate = TimeUtils.todayISO();
-  
+
   @override
   void initState() {
     super.initState();
@@ -199,8 +362,11 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     _isDarkMode = widget.themeService.isDarkMode;
     widget.themeService.addListener(_onThemeChanged);
     _updateSystemUI();
+    _navigationChannel.setMethodCallHandler(_handleNavigationCall);
     _checkInitialRoute();
-    WidgetSyncService.I.registerInteractionCallback(navigatorKey: _navigatorKey);
+    if (PlatformCapabilities.supportsHomeWidgets) {
+      WidgetSyncService.I.registerInteractionCallback(navigatorKey: _navigatorKey);
+    }
 
     // Deep-link desde notificaciones locales.
     // Ejecutamos tras el primer frame para asegurar que el Navigator exista.
@@ -208,6 +374,23 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       _consumeNotificationPayload(NotificationService.lastTapPayload.value);
       NotificationService.lastTapPayload.addListener(_onNotificationPayload);
     });
+  }
+
+  @override
+  void dispose() {
+    _navigationChannel.setMethodCallHandler(null);
+    NotificationService.lastTapPayload.removeListener(_onNotificationPayload);
+    widget.themeService.removeListener(_onThemeChanged);
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  Future<dynamic> _handleNavigationCall(MethodCall call) async {
+    if (call.method != 'routeChanged') return null;
+    final route = call.arguments as String?;
+    if (route == null || route.isEmpty || !mounted) return null;
+    setState(() => _pendingRoute = route);
+    return null;
   }
 
   void _onNotificationPayload() {
@@ -225,13 +408,13 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
 
     try {
       if (payload == NotificationService.payloadMorning) {
-        nav.push(MaterialPageRoute(builder: (_) => const DevotionalScreen()));
+        unawaited(AppNavigation.openDevotionalFromNavigator(nav));
       } else if (payload == NotificationService.payloadNight) {
-        nav.push(MaterialPageRoute(builder: (_) => const JournalScreen()));
+        unawaited(AppNavigation.openJournalFromNavigator(nav));
       } else if (payload == NotificationService.payloadBattleInvite ||
           payload == NotificationService.payloadBattleMessage ||
           payload == NotificationService.payloadBattleSos) {
-        nav.push(MaterialPageRoute(builder: (_) => const BattlePartnerScreen()));
+        unawaited(AppNavigation.openBattlePartnerFromNavigator(nav));
       } else if (payload == NotificationService.payloadVictory) {
         // Victoria se marca desde Home; llevamos a home sin push extra.
         nav.popUntil((r) => r.isFirst);
@@ -244,29 +427,32 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       } else {
         debugPrint('🔔 Payload de notificación desconocido: $payload');
       }
-    } catch (e) {
-      debugPrint('⚠️ Error navegando desde notificación: $e');
+    } catch (e, st) {
+      AppErrorHandler.I.report(
+        e,
+        stack: st,
+        where: 'VictoriaEnCristoApp.consumeNotificationPayload',
+        severity: ErrorSeverity.medium,
+      );
     }
   }
-  
+
   /// Lee la ruta inicial desde el widget (Android)
   Future<void> _checkInitialRoute() async {
     try {
+      if (!PlatformCapabilities.supportsHomeWidgets) return;
       final route = await _navigationChannel.invokeMethod<String>('getInitialRoute');
       if (route != null && route.isNotEmpty && mounted) {
         setState(() => _pendingRoute = route);
       }
-    } catch (e) {
-      debugPrint('⚠️ [NAVIGATION] Error leyendo initial route: $e');
+    } catch (e, st) {
+      AppErrorHandler.I.report(
+        e,
+        stack: st,
+        where: 'VictoriaEnCristoApp.checkInitialRoute',
+        severity: ErrorSeverity.low,
+      );
     }
-  }
-  
-  @override
-  void dispose() {
-    WidgetsBinding.instance.removeObserver(this);
-    widget.themeService.removeListener(_onThemeChanged);
-    NotificationService.lastTapPayload.removeListener(_onNotificationPayload);
-    super.dispose();
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -278,6 +464,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     switch (state) {
       case AppLifecycleState.paused:
       case AppLifecycleState.inactive:
+        _flushPendingCloudSync('background');
         // Pausar BGM al salir al fondo
         engine.pauseBgm();
         break;
@@ -287,7 +474,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
           engine.resumeBgm();
         }
         // Sincronizar widget al volver (actualiza saludo por hora del día)
-        WidgetSyncService.I.syncWidget();
+        if (PlatformCapabilities.supportsHomeWidgets) {
+          WidgetSyncService.I.syncWidget();
+        }
         // Detectar cambio de día
         final today = TimeUtils.todayISO();
         if (today != _lastKnownDate) {
@@ -301,17 +490,37 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         break;
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
+        _flushPendingCloudSync('exit');
         break;
     }
   }
-  
+
+  void _flushPendingCloudSync(String reason) {
+    unawaited(() async {
+      try {
+        await Future.wait<void>([
+          UserPrefCloudSyncService.I.flush(),
+          LearningCloudSync.I.flush(),
+          TalentsService.I.flushSync(),
+        ]);
+      } catch (e, st) {
+        AppErrorHandler.I.report(
+          e,
+          stack: st,
+          where: 'VictoriaEnCristoApp.flushPendingCloudSync.$reason',
+          severity: ErrorSeverity.low,
+        );
+      }
+    }());
+  }
+
   void _onThemeChanged() {
     setState(() {
       _isDarkMode = widget.themeService.isDarkMode;
     });
     _updateSystemUI();
   }
-  
+
   void _updateSystemUI() {
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
@@ -343,29 +552,26 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       navigatorObservers: [
         routeObserver,
-        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
+        if (PlatformCapabilities.supportsFirebaseAnalytics)
+          FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
       ],
       // Ruta inicial
       initialRoute: '/',
       routes: {
         '/widget-settings': (context) => const WidgetSettingsScreen(),
         '/emergency': (context) => const EmergencyScreen(),
+        '/sacred-alarms': (context) => const SacredAlarmsScreen(),
       },
       onGenerateRoute: (settings) {
-        return MaterialPageRoute(
-          builder: (context) => _buildHomeOrOnboarding(),
-        );
+        return MaterialPageRoute(builder: (context) => _buildHomeOrOnboarding());
       },
       builder: (context, child) {
-        return AppThemeData.provider(
-          theme: appTheme,
-          child: child ?? const SizedBox.shrink(),
-        );
+        return AppThemeData.provider(theme: appTheme, child: child ?? const SizedBox.shrink());
       },
       home: _buildHomeOrOnboarding(),
     );
   }
-  
+
   /// Widget que decide dinámicamente qué mostrar basándose en el estado actual
   /// CLOUD-DRIVEN: La decisión de Home vs Onboarding es 100% basada en Firestore
   Widget _buildHomeOrOnboarding() {
@@ -374,21 +580,17 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       builder: (context, snapshot) {
         // Mostrar pantalla de carga mientras se verifica auth
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(
-            body: Center(
-              child: CircularProgressIndicator(),
-            ),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        
+
         // Si NO está autenticado => Login
         if (!snapshot.hasData || snapshot.data == null) {
           return LoginScreen(onThemeChanged: _handleThemeChange);
         }
-        
+
         // Usuario autenticado => Verificar perfil en NUBE (no cache local)
         final user = snapshot.data!;
-        
+
         return _ProfileGate(
           user: user,
           onThemeChanged: _handleThemeChange,
@@ -409,7 +611,7 @@ class _ProfileGate extends StatefulWidget {
   final VoidCallback onThemeChanged;
   final String? pendingRoute;
   final VoidCallback onRouteConsumed;
-  
+
   const _ProfileGate({
     required this.user,
     required this.onThemeChanged,
@@ -426,7 +628,7 @@ enum _ProfileGateStatus { loading, needsOnboarding, ready, error }
 class _ProfileGateState extends State<_ProfileGate> {
   _ProfileGateStatus _status = _ProfileGateStatus.loading;
   String? _errorMessage;
-  
+
   @override
   void initState() {
     super.initState();
@@ -435,13 +637,13 @@ class _ProfileGateState extends State<_ProfileGate> {
     // para transicionar automáticamente de Onboarding → Home
     ProfileRepository.I.profileNotifier.addListener(_onProfileChanged);
   }
-  
+
   @override
   void dispose() {
     ProfileRepository.I.profileNotifier.removeListener(_onProfileChanged);
     super.dispose();
   }
-  
+
   @override
   void didUpdateWidget(covariant _ProfileGate oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -450,7 +652,7 @@ class _ProfileGateState extends State<_ProfileGate> {
       _checkProfileFromCloud();
     }
   }
-  
+
   /// Detectar cambios en el perfil (cloud sync / realtime updates)
   /// Esto permite que cuando el onboarding se completa y el perfil se actualiza
   /// en Firestore, el Gate transicione automáticamente a Home sin navegación manual
@@ -458,32 +660,32 @@ class _ProfileGateState extends State<_ProfileGate> {
     final profile = ProfileRepository.I.profileNotifier.value;
     if (profile == null) return;
     if (profile.uid != widget.user.uid) return;
-    
+
     // Si estamos en onboarding y el perfil ahora está completo → transicionar a Home
     if (_status == _ProfileGateStatus.needsOnboarding &&
         profile.onboardingCompleted &&
         profile.selectedGiants.isNotEmpty) {
-      debugPrint('🚪 [PROFILE_GATE] 🎉 Profile updated! Onboarding now complete, transitioning to Home');
+      debugPrint(
+        '🚪 [PROFILE_GATE] 🎉 Profile updated! Onboarding now complete, transitioning to Home',
+      );
       _bootstrapAndGoHome();
     }
   }
-  
+
   /// Verificación asíncrona de seguridad: consultar cloud directamente
   /// para detectar si el onboarding se completó pero el listener no disparó
   bool _isVerifying = false;
   Future<void> _verifyStillNeedsOnboarding() async {
     if (_isVerifying) return;
     _isVerifying = true;
-    
+
     try {
       final uid = widget.user.uid;
       final profile = await _fetchProfileFromCloud(uid);
-      
+
       if (!mounted || _status != _ProfileGateStatus.needsOnboarding) return;
-      
-      if (profile != null && 
-          profile.onboardingCompleted && 
-          profile.selectedGiants.isNotEmpty) {
+
+      if (profile != null && profile.onboardingCompleted && profile.selectedGiants.isNotEmpty) {
         debugPrint('🚪 [PROFILE_GATE] 🔍 Cloud verify found completed profile! Transitioning...');
         _bootstrapAndGoHome();
       }
@@ -493,12 +695,12 @@ class _ProfileGateState extends State<_ProfileGate> {
       _isVerifying = false;
     }
   }
-  
+
   /// Bootstrap repositorios y transicionar a Home
   Future<void> _bootstrapAndGoHome() async {
     if (!mounted) return;
     setState(() => _status = _ProfileGateStatus.loading);
-    
+
     try {
       await _bootstrapRepositories(widget.user.uid);
       if (mounted) {
@@ -512,27 +714,29 @@ class _ProfileGateState extends State<_ProfileGate> {
       }
     }
   }
-  
+
   /// Verificar perfil DIRECTAMENTE desde Firestore (no cache)
   /// Esta es la ÚNICA fuente de verdad para decidir navegación
   Future<void> _checkProfileFromCloud() async {
     if (!mounted) return;
-    
+
     setState(() {
       _status = _ProfileGateStatus.loading;
       _errorMessage = null;
     });
-    
+
     final uid = widget.user.uid;
     debugPrint('🚪 [PROFILE_GATE] Checking profile for UID: $uid');
-    
+
     // PRIMERO: Limpiar cache local si es de otro usuario
     final cachedProfile = ProfileRepository.I.currentProfile;
     if (cachedProfile != null && cachedProfile.uid != uid) {
-      debugPrint('🚪 [PROFILE_GATE] ⚠️ Cache is from different user (${cachedProfile.uid}), clearing...');
+      debugPrint(
+        '🚪 [PROFILE_GATE] ⚠️ Cache is from different user (${cachedProfile.uid}), clearing...',
+      );
       await ProfileRepository.I.clearLocalCache();
     }
-    
+
     try {
       // 1. FIX: Usuarios anónimos viejos sin onboarding => signOut
       if (widget.user.isAnonymous) {
@@ -550,12 +754,12 @@ class _ProfileGateState extends State<_ProfileGate> {
           }
         }
       }
-      
+
       // 2. Cargar perfil desde Firestore (NO cache)
       final profile = await _fetchProfileFromCloud(uid);
-      
+
       if (!mounted) return;
-      
+
       // 3. Decidir navegación basado en perfil cloud
       if (profile == null) {
         // NO existe documento => crear minimal y enviar a Onboarding
@@ -567,25 +771,26 @@ class _ProfileGateState extends State<_ProfileGate> {
         if (mounted) setState(() => _status = _ProfileGateStatus.needsOnboarding);
         return;
       }
-      
+
       // 4. Verificar si onboarding está completo
       if (!profile.onboardingCompleted || profile.selectedGiants.isEmpty) {
-        debugPrint('🚪 [PROFILE_GATE] Onboarding incomplete (completed=${profile.onboardingCompleted}, giants=${profile.selectedGiants.length})');
+        debugPrint(
+          '🚪 [PROFILE_GATE] Onboarding incomplete (completed=${profile.onboardingCompleted}, giants=${profile.selectedGiants.length})',
+        );
         // CRÍTICO: Conectar ProfileRepository para que el realtime listener
         // y profileNotifier funcionen cuando el onboarding se complete
         await _connectRepositoriesForOnboarding(uid);
         if (mounted) setState(() => _status = _ProfileGateStatus.needsOnboarding);
         return;
       }
-      
+
       // 5. Perfil válido => Home
       debugPrint('🚪 [PROFILE_GATE] Profile valid, going to Home');
-      
+
       // Conectar repositorios para sincronizar datos
       await _bootstrapRepositories(uid);
-      
+
       if (mounted) setState(() => _status = _ProfileGateStatus.ready);
-      
     } catch (e) {
       debugPrint('🚪 [PROFILE_GATE] ❌ Error checking profile: $e');
       if (mounted) {
@@ -596,12 +801,12 @@ class _ProfileGateState extends State<_ProfileGate> {
       }
     }
   }
-  
+
   /// Fetch perfil vía ProfileRepository (source of truth centralizado)
   Future<UserProfile?> _fetchProfileFromCloud(String uid) async {
     return ProfileRepository.I.fetchProfileFromServer(uid);
   }
-  
+
   /// Crear perfil minimal vía ProfileRepository
   Future<void> _createMinimalProfile(String uid) async {
     final user = widget.user;
@@ -612,10 +817,10 @@ class _ProfileGateState extends State<_ProfileGate> {
       photoURL: user.photoURL,
     );
   }
-  
+
   /// Conectar SOLO ProfileRepository para onboarding
   /// Esto inicia el realtime listener para que profileNotifier funcione
-  /// cuando el usuario complete el onboarding  
+  /// cuando el usuario complete el onboarding
   Future<void> _connectRepositoriesForOnboarding(String uid) async {
     try {
       debugPrint('🚪 [PROFILE_GATE] Connecting ProfileRepository for onboarding...');
@@ -625,11 +830,16 @@ class _ProfileGateState extends State<_ProfileGate> {
       await AccountSessionManager.I.reactivateAuthListener();
       await DataBootstrapper.I.reactivateAuthListener();
       debugPrint('🚪 [PROFILE_GATE] ✅ ProfileRepository connected for onboarding');
-    } catch (e) {
-      debugPrint('🚪 [PROFILE_GATE] ⚠️ Connect for onboarding warning: $e');
+    } catch (e, st) {
+      AppErrorHandler.I.report(
+        e,
+        stack: st,
+        where: 'ProfileGate.connectRepositoriesForOnboarding',
+        severity: ErrorSeverity.low,
+      );
     }
   }
-  
+
   /// Bootstrap TODOS los repositorios después de confirmar perfil válido
   Future<void> _bootstrapRepositories(String uid) async {
     try {
@@ -638,12 +848,17 @@ class _ProfileGateState extends State<_ProfileGate> {
       // Reactivar listeners que podrían haberse detenido por deleteAccount
       await AccountSessionManager.I.reactivateAuthListener();
       await DataBootstrapper.I.reactivateAuthListener();
-    } catch (e) {
-      debugPrint('🚪 [PROFILE_GATE] Bootstrap warning: $e');
+    } catch (e, st) {
+      AppErrorHandler.I.report(
+        e,
+        stack: st,
+        where: 'ProfileGate.bootstrapRepositories',
+        severity: ErrorSeverity.low,
+      );
       // No fallar, el perfil ya está validado
     }
   }
-  
+
   @override
   Widget build(BuildContext context) {
     switch (_status) {
@@ -671,7 +886,7 @@ class _ProfileGateState extends State<_ProfileGate> {
             ),
           ),
         );
-        
+
       case _ProfileGateStatus.error:
         return Scaffold(
           body: Center(
@@ -704,17 +919,14 @@ class _ProfileGateState extends State<_ProfileGate> {
                       await FirebaseAuth.instance.signOut();
                     },
                     icon: const Icon(Icons.logout, color: Colors.red),
-                    label: const Text(
-                      'Cerrar sesión',
-                      style: TextStyle(color: Colors.red),
-                    ),
+                    label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
                   ),
                 ],
               ),
             ),
           ),
         );
-        
+
       case _ProfileGateStatus.needsOnboarding:
         // Safety check: si el perfil ya se completó mientras estábamos en onboarding
         // (ej: routes popearon pero el listener no disparó a tiempo)
@@ -723,18 +935,18 @@ class _ProfileGateState extends State<_ProfileGate> {
             currentProfile.uid == widget.user.uid &&
             currentProfile.onboardingCompleted &&
             currentProfile.selectedGiants.isNotEmpty) {
-          debugPrint('🚪 [PROFILE_GATE] Safety: profile already complete during needsOnboarding build');
+          debugPrint(
+            '🚪 [PROFILE_GATE] Safety: profile already complete during needsOnboarding build',
+          );
           WidgetsBinding.instance.addPostFrameCallback((_) {
             if (mounted && _status == _ProfileGateStatus.needsOnboarding) {
               _bootstrapAndGoHome();
             }
           });
           // Mostrar loading mientras transicionamos (NO OnboardingWelcomeScreen)
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
-          );
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
         }
-        
+
         // Safety check 2: Verificar desde cloud en caso de que el cache esté desactualizado
         // Esto se ejecuta en background y si detecta que el onboarding está completo,
         // _onProfileChanged lo manejará automáticamente
@@ -743,16 +955,14 @@ class _ProfileGateState extends State<_ProfileGate> {
             _verifyStillNeedsOnboarding();
           }
         });
-        
+
         return const OnboardingWelcomeScreen();
-        
+
       case _ProfileGateStatus.ready:
         return _NavigationHandler(
           pendingRoute: widget.pendingRoute,
           onRouteConsumed: widget.onRouteConsumed,
-          child: ErrorBoundary(
-            child: HomeScreen(onThemeChanged: widget.onThemeChanged),
-          ),
+          child: ErrorBoundary(child: HomeScreen(onThemeChanged: widget.onThemeChanged)),
         );
     }
   }
@@ -766,7 +976,7 @@ class _NavigationHandler extends StatefulWidget {
   final String? pendingRoute;
   final VoidCallback onRouteConsumed;
   final Widget child;
-  
+
   const _NavigationHandler({
     required this.pendingRoute,
     required this.onRouteConsumed,
@@ -788,25 +998,75 @@ class _NavigationHandlerState extends State<_NavigationHandler> {
       });
     }
   }
-  
+
+  @override
+  void didUpdateWidget(covariant _NavigationHandler oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.pendingRoute != widget.pendingRoute && widget.pendingRoute != null) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _handlePendingRoute();
+      });
+    }
+  }
+
   void _handlePendingRoute() {
     if (!mounted || widget.pendingRoute == null) return;
-    
+
     final route = widget.pendingRoute!;
     debugPrint('🔗 [NAVIGATION] Navegando a: $route');
-    
+
+    if (route == '/daily-outcome') {
+      widget.onRouteConsumed();
+      unawaited(
+        promptAndRegisterDailyOutcome(
+          context,
+          showVictoryCelebration: true,
+          showAlreadyVictoryCelebration: true,
+        ),
+      );
+      return;
+    }
+
+    final sacredAlarmUri = Uri.tryParse(route);
+    if (sacredAlarmUri?.path == '/sacred-alarm') {
+      widget.onRouteConsumed();
+      final sessionId = sacredAlarmUri?.queryParameters['sessionId'];
+      Navigator.of(context).push(
+        MaterialPageRoute<void>(
+          builder: (_) => SacredAlarmActiveScreen(sessionId: sessionId),
+          fullscreenDialog: true,
+        ),
+      );
+      return;
+    }
+
     // Intentar navegar a la ruta
     try {
-      Navigator.of(context).pushNamed(route).then((_) {
-        // Marcar ruta como consumida después de navegar
-        widget.onRouteConsumed();
-      }).catchError((error) {
-        debugPrint('⚠️ [NAVIGATION] Error navegando a $route: $error');
-        // Marcar como consumida incluso si falla
-        widget.onRouteConsumed();
-      });
-    } catch (e) {
-      debugPrint('⚠️ [NAVIGATION] Excepción navegando: $e');
+      Navigator.of(context)
+          .pushNamed(route)
+          .then((_) {
+            // Marcar ruta como consumida después de navegar
+            widget.onRouteConsumed();
+          })
+          .catchError((Object error, StackTrace st) {
+            AppErrorHandler.I.report(
+              error,
+              stack: st,
+              where: 'NavigationHandler.handlePendingRoute.then',
+              severity: ErrorSeverity.medium,
+              extra: {'route': route},
+            );
+            // Marcar como consumida incluso si falla
+            widget.onRouteConsumed();
+          });
+    } catch (e, st) {
+      AppErrorHandler.I.report(
+        e,
+        stack: st,
+        where: 'NavigationHandler.handlePendingRoute',
+        severity: ErrorSeverity.medium,
+        extra: {'route': route},
+      );
       widget.onRouteConsumed();
     }
   }

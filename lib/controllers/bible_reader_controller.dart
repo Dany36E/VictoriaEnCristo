@@ -9,6 +9,7 @@ import '../services/bible/bible_user_data_service.dart';
 import '../services/bible/book_intro_service.dart';
 import '../services/bible/gospel_harmony_service.dart';
 import '../services/bible/ot_quotes_service.dart';
+import '../services/user_pref_cloud_sync_service.dart';
 
 // Re-export mixins & shared types for callers that import from here
 export 'bible_reader/reader_state.dart' show StudyItemType, StudyItem;
@@ -45,19 +46,23 @@ class BibleReaderController extends ReaderState
     required this.bookName,
     required int chapter,
     required BibleVersion version,
-  })  : currentChapter = chapter,
-        currentVersion = version {
+  }) : currentChapter = chapter,
+       currentVersion = version {
     redLettersEnabled = BibleUserDataService.I.redLettersEnabledNotifier.value;
     BibleUserDataService.I.redLettersEnabledNotifier.addListener(_onRedLetterChanged);
     loadChapter();
-    SharedPreferences.getInstance().then((prefs) {
-      final enabled = prefs.getBool('bible_study_mode_enabled') ?? false;
-      if (enabled) {
-        setStudyModeEnabled(true);
-        notifyListeners();
-        loadGuzikCommentary();
-      }
-    }).catchError((e) { debugPrint('⚠️ [BibleReader] Error cargando prefs: $e'); });
+    SharedPreferences.getInstance()
+        .then((prefs) {
+          final enabled = prefs.getBool('bible_study_mode_enabled') ?? false;
+          if (enabled) {
+            setStudyModeEnabled(true);
+            notifyListeners();
+            loadGuzikCommentary();
+          }
+        })
+        .catchError((e) {
+          debugPrint('⚠️ [BibleReader] Error cargando prefs: $e');
+        });
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -123,6 +128,7 @@ class BibleReaderController extends ReaderState
   // ═══════════════════════════════════════════════════════════════════════
 
   Future<void> loadChapter() async {
+    debugPrint('🟢 [BibleReader] loadChapter start: book=$bookNumber ch=$currentChapter');
     loading = true;
     selectedVerseIndex = null;
     isSelectionMode = false;
@@ -151,31 +157,39 @@ class BibleReaderController extends ReaderState
       loading = false;
       headerOpacity = 1.0;
       notifyListeners();
+      debugPrint('🟢 [BibleReader] verses loaded: ${verses.length}');
 
       // Load chapter intro
       BookIntroService.instance
           .getChapterIntro(bookNumber, currentChapter)
           .then((intro) {
-        chapterIntro = intro;
-        notifyListeners();
-      }).catchError((e) { debugPrint('⚠️ [BibleReader] Error cargando intro: $e'); });
+            chapterIntro = intro;
+            notifyListeners();
+          })
+          .catchError((e) {
+            debugPrint('⚠️ [BibleReader] Error cargando intro: $e');
+          });
 
       _loadConnectionIndicators();
 
       // Precache adjacent chapters
       if (currentChapter < totalChapters) {
-        unawaited(BibleParserService.I.getChapter(
-          version: currentVersion,
-          bookNumber: bookNumber,
-          chapter: currentChapter + 1,
-        ));
+        unawaited(
+          BibleParserService.I.getChapter(
+            version: currentVersion,
+            bookNumber: bookNumber,
+            chapter: currentChapter + 1,
+          ),
+        );
       }
       if (currentChapter > 1) {
-        unawaited(BibleParserService.I.getChapter(
-          version: currentVersion,
-          bookNumber: bookNumber,
-          chapter: currentChapter - 1,
-        ));
+        unawaited(
+          BibleParserService.I.getChapter(
+            version: currentVersion,
+            bookNumber: bookNumber,
+            chapter: currentChapter - 1,
+          ),
+        );
       }
 
       // Re-run search if active
@@ -184,17 +198,22 @@ class BibleReaderController extends ReaderState
       }
 
       // Log chapter read
-      BibleReadingStatsService.I.logChapterRead(
-        bookNumber: bookNumber,
-        chapter: currentChapter,
-      );
+      BibleReadingStatsService.I.logChapterRead(bookNumber: bookNumber, chapter: currentChapter);
+      debugPrint('🟢 [BibleReader] after logChapterRead');
 
       // Persist last-read position
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.setInt('lastReadBookNumber', bookNumber);
-        prefs.setString('lastReadBookName', bookName);
-        prefs.setInt('lastReadChapter', currentChapter);
-      }).catchError((e) { debugPrint('⚠️ [BibleReader] Error guardando posición: $e'); });
+      SharedPreferences.getInstance()
+          .then((prefs) async {
+            await Future.wait([
+              prefs.setInt('lastReadBookNumber', bookNumber),
+              prefs.setString('lastReadBookName', bookName),
+              prefs.setInt('lastReadChapter', currentChapter),
+            ]);
+            UserPrefCloudSyncService.I.markDirty();
+          })
+          .catchError((e) {
+            debugPrint('⚠️ [BibleReader] Error guardando posición: $e');
+          });
 
       // Reload commentary if study mode active
       if (studyModeEnabled) {
@@ -234,21 +253,18 @@ class BibleReaderController extends ReaderState
 
     try {
       if (book >= 40 && book <= 43) {
-        final sections = await GospelHarmonyService.instance
-            .getSectionsForReference(book, ch);
+        final sections = await GospelHarmonyService.instance.getSectionsForReference(book, ch);
         for (final _ in sections) {
           newHarmony.add(1);
         }
       }
 
-      final ntQuotes =
-          await OTQuotesService.instance.getForNTReference(book, ch);
+      final ntQuotes = await OTQuotesService.instance.getForNTReference(book, ch);
       for (final q in ntQuotes) {
         final v = _parseVerseFromOsis(q.ntReference);
         if (v != null) newQuotes.add(v);
       }
-      final otQuotes =
-          await OTQuotesService.instance.getForOTReference(book, ch);
+      final otQuotes = await OTQuotesService.instance.getForOTReference(book, ch);
       for (final q in otQuotes) {
         final v = _parseVerseFromOsis(q.otReference);
         if (v != null) newQuotes.add(v);

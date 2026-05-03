@@ -8,10 +8,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/jesus_widget_service.dart';
+import '../services/victory_scoring_service.dart';
 
 class JesusStreakWidget extends StatelessWidget {
   final int streakDays;
   final bool completedToday;
+  final bool victoryToday;
   final bool isNewUser;
   final bool isLoading;
   final bool checkinDone;
@@ -22,6 +24,7 @@ class JesusStreakWidget extends StatelessWidget {
     super.key,
     required this.streakDays,
     required this.completedToday,
+    required this.victoryToday,
     required this.isNewUser,
     this.isLoading = false,
     this.checkinDone = false,
@@ -34,7 +37,7 @@ class JesusStreakWidget extends StatelessWidget {
     final service = JesusWidgetService.I;
     final spritePath = service.getSprite(
       streakDays: streakDays,
-      completedToday: completedToday,
+      completedToday: completedToday && victoryToday,
       isNewUser: isNewUser,
     );
     final bgPath = service.getBackground(streakDays: streakDays);
@@ -42,14 +45,17 @@ class JesusStreakWidget extends StatelessWidget {
     final message = service.getMessage(
       streakDays: streakDays,
       completedToday: completedToday,
+      victoryToday: victoryToday,
       isNewUser: isNewUser,
     );
 
     return Semantics(
       button: true,
       label: completedToday
-          ? 'Racha actual: $streakDays días. Victoria de hoy ya registrada.'
-          : 'Registrar victoria de hoy. Racha actual: $streakDays días.',
+          ? victoryToday
+                ? 'Racha actual: $streakDays días. Victoria de hoy ya registrada.'
+                : 'Racha actual: $streakDays días. Gracia de hoy ya registrada.'
+          : 'Registrar cierre del día. Racha actual: $streakDays días.',
       child: GestureDetector(
         onTap: onRegisterVictory,
         child: Container(
@@ -63,133 +69,125 @@ class JesusStreakWidget extends StatelessWidget {
                 blurRadius: 20,
                 spreadRadius: 0,
                 offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              // ─── CAPA 1: Fondo dinámico ───
-              Image.asset(
-                bgPath,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        streakColor.withOpacity(0.3),
-                        const Color(0xFF0A0A12),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-
-              // ─── CAPA 2: Overlay oscuro degradado ───
-              Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      Colors.black.withOpacity(0.45),
-                      Colors.black.withOpacity(0.1),
-                      Colors.black.withOpacity(0.3),
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                ),
-              ),
-
-              // ─── CAPA 3: Contenido ───
-              Row(
-                children: [
-                  // ─── Sprite de Jesús (izquierda) ───
-                  SizedBox(
-                    width: 150,
-                    child: Transform.translate(
-                      offset: const Offset(0, -20),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 8),
-                        child: Image.asset(
-                          spritePath,
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.high,
-                          errorBuilder: (context, error, stackTrace) => const Icon(
-                            Icons.person,
-                            size: 80,
-                            color: Colors.white24,
-                          ),
-                        ),
-                      ),
-                    )
-                        .animate()
-                        .fadeIn(duration: 600.ms)
-                        .slideY(
-                          begin: 0.1,
-                          end: 0,
-                          duration: 500.ms,
-                          curve: Curves.easeOutBack,
-                        ),
-                  ),
-
-                  // ─── Info de racha (derecha) ───
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(4, 20, 16, 16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Streak counter
-                          _buildStreakCounter(streakColor),
-
-                          const SizedBox(height: 8),
-
-                          // Mensaje motivacional
-                          Text(
-                            message,
-                            style: GoogleFonts.manrope(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w500,
-                              color: Colors.white.withOpacity(0.9),
-                              height: 1.3,
-                            ),
-                            maxLines: 3,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-
-                          const Spacer(),
-
-                          // Botón de acción
-                          _buildActionButton(streakColor),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-
-              // ─── CAPA 4: Borde sutil ───
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                      color: streakColor.withOpacity(0.3),
-                      width: 1.5,
-                    ),
-                  ),
-                ),
               ),
             ],
           ),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                // ─── CAPA 1: Fondo dinámico ───
+                Image.asset(
+                  bgPath,
+                  fit: BoxFit.cover,
+                  filterQuality: FilterQuality.high,
+                  errorBuilder: (context, error, stackTrace) => Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [streakColor.withOpacity(0.3), const Color(0xFF0A0A12)],
+                      ),
+                    ),
+                  ),
+                ),
+
+                // ─── CAPA 2: Overlay oscuro degradado ───
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.centerLeft,
+                      end: Alignment.centerRight,
+                      colors: [
+                        Colors.black.withOpacity(0.45),
+                        Colors.black.withOpacity(0.1),
+                        Colors.black.withOpacity(0.3),
+                      ],
+                      stops: const [0.0, 0.5, 1.0],
+                    ),
+                  ),
+                ),
+
+                // ─── CAPA 3: Contenido ───
+                Row(
+                  children: [
+                    // ─── Sprite de Jesús (izquierda) ───
+                    SizedBox(
+                      width: 150,
+                      child:
+                          Transform.translate(
+                                offset: const Offset(0, -20),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 8),
+                                  child: Image.asset(
+                                    spritePath,
+                                    fit: BoxFit.contain,
+                                    filterQuality: FilterQuality.high,
+                                    errorBuilder: (context, error, stackTrace) =>
+                                        const Icon(Icons.person, size: 80, color: Colors.white24),
+                                  ),
+                                ),
+                              )
+                              .animate()
+                              .fadeIn(duration: 600.ms)
+                              .slideY(
+                                begin: 0.1,
+                                end: 0,
+                                duration: 500.ms,
+                                curve: Curves.easeOutBack,
+                              ),
+                    ),
+
+                    // ─── Info de racha (derecha) ───
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(4, 20, 16, 16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Streak counter
+                            _buildStreakCounter(streakColor),
+
+                            const SizedBox(height: 8),
+
+                            // Mensaje motivacional
+                            Text(
+                              message,
+                              style: GoogleFonts.manrope(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withOpacity(0.9),
+                                height: 1.3,
+                              ),
+                              maxLines: 3,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+
+                            const Spacer(),
+
+                            // Botón de acción
+                            _buildActionButton(streakColor),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                // ─── CAPA 4: Borde sutil ───
+                Positioned.fill(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: streakColor.withOpacity(0.3), width: 1.5),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
       ),
     );
   }
@@ -230,8 +228,8 @@ class JesusStreakWidget extends StatelessWidget {
                   fontSize: streakDays >= 1000
                       ? 30.0
                       : streakDays >= 100
-                          ? 36.0
-                          : (streakDays >= 10 ? 42.0 : 48.0),
+                      ? 36.0
+                      : (streakDays >= 10 ? 42.0 : 48.0),
                   fontWeight: FontWeight.w900,
                   color: Colors.white,
                   height: 1,
@@ -270,7 +268,7 @@ class JesusStreakWidget extends StatelessWidget {
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                  ),
+                    ),
                 ],
               ),
             ),
@@ -281,42 +279,33 @@ class JesusStreakWidget extends StatelessWidget {
         if (completedToday && !isLoading) ...[
           const SizedBox(width: 4),
           Container(
-            padding: EdgeInsets.symmetric(
-              horizontal: streakDays >= 100 ? 6 : 8,
-              vertical: 4,
-            ),
-            decoration: BoxDecoration(
-              color: const Color(0xFF4CAF50).withOpacity(0.25),
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(
-                color: const Color(0xFF4CAF50).withOpacity(0.5),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(Icons.check_circle, size: 12, color: Color(0xFF4CAF50)),
-                if (streakDays < 100) ...[
-                  const SizedBox(width: 3),
-                  const Text(
-                    'Hoy',
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      color: Color(0xFF4CAF50),
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          )
+                padding: EdgeInsets.symmetric(horizontal: streakDays >= 100 ? 6 : 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF4CAF50).withOpacity(0.25),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.5)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check_circle, size: 12, color: Color(0xFF4CAF50)),
+                    if (streakDays < 100) ...[
+                      const SizedBox(width: 3),
+                      const Text(
+                        'Hoy',
+                        style: TextStyle(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF4CAF50),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              )
               .animate()
               .fadeIn(duration: 300.ms)
-              .scale(
-                begin: const Offset(0.8, 0.8),
-                end: const Offset(1, 1),
-                duration: 300.ms,
-              ),
+              .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 300.ms),
         ],
       ],
     );
@@ -328,29 +317,34 @@ class JesusStreakWidget extends StatelessWidget {
 
   Widget _buildActionButton(Color streakColor) {
     final hour = DateTime.now().hour;
-    final canRegister = !completedToday && hour >= 18;
+    final canRegister = !completedToday && VictoryScoringService.I.canLogVictoryNow();
     final badgeText = JesusWidgetService.I.getBadgeText(
       completedToday: completedToday,
+      victoryToday: victoryToday,
       isNewUser: isNewUser,
       checkinDone: checkinDone,
     );
     // En ventana de registro usar CTA directa; completado → progreso
     final label = completedToday
-        ? 'Ver mi progreso'
+        ? victoryToday
+              ? 'Ver mi progreso'
+              : 'Gracia registrada'
         : canRegister
-            ? 'Registrar victoria'
-            : badgeText;
+        ? 'Registrar día'
+        : badgeText;
     final icon = completedToday
-        ? Icons.insights_rounded
+        ? victoryToday
+              ? Icons.insights_rounded
+              : Icons.spa_rounded
         : canRegister
-            ? Icons.shield_outlined
-            : hour < 5
-                ? Icons.nightlight_round
-                : hour < 12
-                    ? Icons.wb_sunny_outlined
-                    : hour < 18
-                        ? Icons.shield_outlined
-                        : Icons.shield_outlined;
+        ? Icons.shield_outlined
+        : hour < 5
+        ? Icons.nightlight_round
+        : hour < 12
+        ? Icons.wb_sunny_outlined
+        : hour < 18
+        ? Icons.shield_outlined
+        : Icons.shield_outlined;
 
     return GestureDetector(
       onTap: isLoading ? null : onRegisterVictory,
@@ -360,19 +354,12 @@ class JesusStreakWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFD4AF37).withOpacity(0.15),
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(
-            color: const Color(0xFFD4AF37).withOpacity(0.5),
-            width: 0.8,
-          ),
+          border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.5), width: 0.8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(
-              icon,
-              color: const Color(0xFFD4AF37),
-              size: 16,
-            ),
+            Icon(icon, color: const Color(0xFFD4AF37), size: 16),
             const SizedBox(width: 6),
             Flexible(
               child: Text(
@@ -391,6 +378,4 @@ class JesusStreakWidget extends StatelessWidget {
       ),
     );
   }
-
-
 }

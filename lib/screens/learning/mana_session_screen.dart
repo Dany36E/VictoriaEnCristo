@@ -9,6 +9,7 @@ import 'package:flutter_tts/flutter_tts.dart';
 
 import '../../models/learning/learning_models.dart';
 import '../../services/daily_practice_service.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/learning_progress_service.dart';
 import '../../services/learning/mana_session_persistence.dart';
@@ -58,6 +59,8 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
     _questions = QuestionRepository.I.pickSession(count: 7);
     _prepareQuestionState();
     _tryRestoreSession();
+    // Música suave para quiz de estudio
+    AudioEngine.I.switchBgmContext(BgmContext.learningQuiz);
   }
 
   /// D2 — Restaurar sesión previa si los IDs coinciden con la actual.
@@ -125,6 +128,8 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
   void dispose() {
     _textCtrl.dispose();
     _tts?.stop();
+    // Restaurar música al salir
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
     super.dispose();
   }
 

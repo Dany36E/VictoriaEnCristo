@@ -9,8 +9,12 @@ class ConnectivityService {
 
   final ValueNotifier<bool> isOnline = ValueNotifier(true);
   StreamSubscription<List<ConnectivityResult>>? _sub;
+  bool _initialized = false;
 
   Future<void> init() async {
+    if (_initialized) return;
+    _initialized = true;
+
     final results = await Connectivity().checkConnectivity();
     isOnline.value = !results.contains(ConnectivityResult.none);
 

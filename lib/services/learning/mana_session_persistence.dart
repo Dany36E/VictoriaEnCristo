@@ -16,6 +16,8 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../user_pref_cloud_sync_service.dart';
+
 class ManaSessionSnapshot {
   final List<String> questionIds;
   final int idx;
@@ -34,24 +36,22 @@ class ManaSessionSnapshot {
   });
 
   Map<String, dynamic> toJson() => {
-        'questionIds': questionIds,
-        'idx': idx,
-        'correct': correct,
-        'wrong': wrong,
-        'usedHonesty': usedHonesty,
-        'savedAtMs': savedAtMs,
-      };
+    'questionIds': questionIds,
+    'idx': idx,
+    'correct': correct,
+    'wrong': wrong,
+    'usedHonesty': usedHonesty,
+    'savedAtMs': savedAtMs,
+  };
 
-  factory ManaSessionSnapshot.fromJson(Map<String, dynamic> j) =>
-      ManaSessionSnapshot(
-        questionIds:
-            (j['questionIds'] as List?)?.map((e) => '$e').toList() ?? const [],
-        idx: (j['idx'] as num?)?.toInt() ?? 0,
-        correct: (j['correct'] as num?)?.toInt() ?? 0,
-        wrong: (j['wrong'] as num?)?.toInt() ?? 0,
-        usedHonesty: (j['usedHonesty'] as bool?) ?? false,
-        savedAtMs: (j['savedAtMs'] as num?)?.toInt() ?? 0,
-      );
+  factory ManaSessionSnapshot.fromJson(Map<String, dynamic> j) => ManaSessionSnapshot(
+    questionIds: (j['questionIds'] as List?)?.map((e) => '$e').toList() ?? const [],
+    idx: (j['idx'] as num?)?.toInt() ?? 0,
+    correct: (j['correct'] as num?)?.toInt() ?? 0,
+    wrong: (j['wrong'] as num?)?.toInt() ?? 0,
+    usedHonesty: (j['usedHonesty'] as bool?) ?? false,
+    savedAtMs: (j['savedAtMs'] as num?)?.toInt() ?? 0,
+  );
 }
 
 class ManaSessionPersistence {
@@ -88,6 +88,7 @@ class ManaSessionPersistence {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString(_kKey, jsonEncode(snap.toJson()));
+      UserPrefCloudSyncService.I.markDirty();
     } catch (e) {
       debugPrint('🎓 [MANA] Error guardando sesión: $e');
     }
@@ -96,7 +97,10 @@ class ManaSessionPersistence {
   Future<void> clear() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.remove(_kKey);
-    } catch (_) {/* swallow */}
+      await prefs.setString(_kKey, '');
+      UserPrefCloudSyncService.I.markDirty();
+    } catch (_) {
+      /* swallow */
+    }
   }
 }

@@ -6,6 +6,7 @@ import '../models/giant_frequency.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'content_repository.dart';
 import 'onboarding_service.dart';
+import 'user_pref_cloud_sync_service.dart';
 import 'victory_scoring_service.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -18,7 +19,7 @@ class PersonalizationEngine {
   static final PersonalizationEngine _instance = PersonalizationEngine._internal();
   factory PersonalizationEngine() => _instance;
   PersonalizationEngine._internal();
-  
+
   static PersonalizationEngine get I => _instance;
 
   // Dependencias
@@ -61,10 +62,11 @@ class PersonalizationEngine {
   Future<void> _saveHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString(_historyKey, jsonEncode({
-        'date': _historyDate,
-        'ids': _shownToday.toList(),
-      }));
+      await prefs.setString(
+        _historyKey,
+        jsonEncode({'date': _historyDate, 'ids': _shownToday.toList()}),
+      );
+      UserPrefCloudSyncService.I.markDirty();
     } catch (e) {
       debugPrint('⚠️ [PERSONALIZATION] _saveHistory error: $e');
     }
@@ -85,17 +87,14 @@ class PersonalizationEngine {
   /// Obtener gigantes seleccionados del usuario
   List<GiantId> get userGiants {
     final legacyIds = _onboarding.selectedGiants;
-    return legacyIds
-        .map((id) => GiantIdExtension.fromLegacyId(id))
-        .whereType<GiantId>()
-        .toList();
+    return legacyIds.map((id) => GiantIdExtension.fromLegacyId(id)).whereType<GiantId>().toList();
   }
 
   /// Obtener frecuencias por gigante
   Map<GiantId, BattleFrequency> get giantFrequencies {
     final raw = _onboarding.loadGiantFrequencies();
     final result = <GiantId, BattleFrequency>{};
-    
+
     for (final entry in raw.entries) {
       final giant = GiantIdExtension.fromLegacyId(entry.key);
       final freq = BattleFrequencyExtension.fromId(entry.value);
@@ -103,7 +102,7 @@ class PersonalizationEngine {
         result[giant] = freq;
       }
     }
-    
+
     return result;
   }
 
@@ -131,7 +130,7 @@ class PersonalizationEngine {
   ContentStage getUserStage({bool isCrisisMode = false, bool recentRelapse = false}) {
     if (isCrisisMode) return ContentStage.crisis;
     if (recentRelapse) return ContentStage.restoration;
-    
+
     final streak = VictoryScoringService.I.currentStreakNotifier.value;
     if (streak >= 66) return ContentStage.maintenance;
     return ContentStage.habit;
@@ -156,7 +155,7 @@ class PersonalizationEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // A) MATCH POR GIGANTE
     // ─────────────────────────────────────────────────────────────────────────
-    
+
     if (item.metadata.giants.isEmpty) {
       // Contenido general: score bajo pero no excluido
       score += 10;
@@ -167,15 +166,18 @@ class PersonalizationEngine {
     } else if (item.metadata.appliesToAnyGiant(userGiants)) {
       // Match con algún gigante seleccionado
       score += 50;
-      final matchedGiant = item.metadata.giants
-          .firstWhere((g) => userGiants.contains(g), orElse: () => item.metadata.giants.isNotEmpty ? item.metadata.giants.first : userGiants.first);
+      final matchedGiant = item.metadata.giants.firstWhere(
+        (g) => userGiants.contains(g),
+        orElse: () =>
+            item.metadata.giants.isNotEmpty ? item.metadata.giants.first : userGiants.first,
+      );
       reasons.add(matchedGiant.displayName);
     }
 
     // ─────────────────────────────────────────────────────────────────────────
     // B) MATCH POR ETAPA
     // ─────────────────────────────────────────────────────────────────────────
-    
+
     if (item.metadata.stage == stage) {
       score += 40;
       reasons.add('etapa de ${stage.displayName.toLowerCase()}');
@@ -188,7 +190,7 @@ class PersonalizationEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // C) CALIDAD EDITORIAL
     // ─────────────────────────────────────────────────────────────────────────
-    
+
     switch (item.metadata.reviewLevel) {
       case ReviewLevel.approved:
         score += 20;
@@ -205,7 +207,7 @@ class PersonalizationEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // D) DIVERSIDAD (PENALIZAR REPETICIÓN)
     // ─────────────────────────────────────────────────────────────────────────
-    
+
     if (recentlyShownIds != null && recentlyShownIds.contains(item.id)) {
       score -= 30;
     }
@@ -213,7 +215,7 @@ class PersonalizationEngine {
     // ─────────────────────────────────────────────────────────────────────────
     // E) MATCH POR INTENSIDAD
     // ─────────────────────────────────────────────────────────────────────────
-    
+
     final frequencies = giantFrequencies;
     if (item.metadata.intensityFit != null && primary != null) {
       final userFreq = frequencies[primary];
@@ -226,15 +228,11 @@ class PersonalizationEngine {
     }
 
     // Construir razón explicable
-    final reason = reasons.isNotEmpty 
+    final reason = reasons.isNotEmpty
         ? 'Recomendado por: ${reasons.join(' + ')}'
         : 'Contenido general';
 
-    return ScoredItem(
-      item: item,
-      score: score,
-      reason: reason,
-    );
+    return ScoredItem(item: item, score: score, reason: reason);
   }
 
   /// Convertir frecuencia a intensidad esperada
@@ -263,12 +261,14 @@ class PersonalizationEngine {
     bool isCrisisMode = false,
   }) {
     final scored = items
-        .map((item) => scoreItem(
-              item,
-              userStage: userStage,
-              recentlyShownIds: recentlyShownIds,
-              isCrisisMode: isCrisisMode,
-            ))
+        .map(
+          (item) => scoreItem(
+            item,
+            userStage: userStage,
+            recentlyShownIds: recentlyShownIds,
+            isCrisisMode: isCrisisMode,
+          ),
+        )
         .toList();
 
     // Filtrar drafts y ordenar por score
@@ -323,10 +323,7 @@ class PersonalizationEngine {
     int limit = 3,
     bool isCrisisMode = true,
   }) {
-    final ranked = rankItems(
-      _repo.exercises,
-      isCrisisMode: isCrisisMode,
-    );
+    final ranked = rankItems(_repo.exercises, isCrisisMode: isCrisisMode);
     return ranked.take(limit).toList();
   }
 
@@ -365,7 +362,7 @@ class PersonalizationEngine {
     final journalPrompt = getRecommendedJournalPrompt();
 
     // Ejercicios (solo si crisis)
-    final exercises = isCrisisMode 
+    final exercises = isCrisisMode
         ? getRecommendedExercises(limit: 2)
         : <ScoredItem<ExerciseItem>>[];
 
@@ -390,43 +387,49 @@ class PersonalizationEngine {
   /// Obtener categorías de versículos ordenadas (gigantes del usuario primero)
   List<VerseCategory> getOrderedVerseCategories() {
     final categories = <VerseCategory>[];
-    
+
     // Primero: categorías de los gigantes del usuario
     for (final giant in userGiants) {
       final verses = _repo.getVersesForGiants([giant]);
       if (verses.isNotEmpty) {
-        categories.add(VerseCategory(
-          id: giant.id,
-          name: giant.displayName,
-          emoji: giant.emoji,
-          verses: verses,
-          isUserGiant: true,
-        ));
+        categories.add(
+          VerseCategory(
+            id: giant.id,
+            name: giant.displayName,
+            emoji: giant.emoji,
+            verses: verses,
+            isUserGiant: true,
+          ),
+        );
       }
     }
 
     // Después: categorías generales
-    
+
     // Añadir categorías por etapa si hay contenido
     final crisisVerses = _repo.getCrisisVerses();
     if (crisisVerses.isNotEmpty) {
-      categories.add(VerseCategory(
-        id: 'crisis',
-        name: 'Emergencia',
-        emoji: '🆘',
-        verses: crisisVerses,
-        isUserGiant: false,
-      ));
+      categories.add(
+        VerseCategory(
+          id: 'crisis',
+          name: 'Emergencia',
+          emoji: '🆘',
+          verses: crisisVerses,
+          isUserGiant: false,
+        ),
+      );
     }
 
     // Añadir "Todos" al final
-    categories.add(VerseCategory(
-      id: 'all',
-      name: 'Todos',
-      emoji: '📚',
-      verses: _repo.verses,
-      isUserGiant: false,
-    ));
+    categories.add(
+      VerseCategory(
+        id: 'all',
+        name: 'Todos',
+        emoji: '📚',
+        verses: _repo.verses,
+        isUserGiant: false,
+      ),
+    );
 
     return categories;
   }
@@ -434,49 +437,45 @@ class PersonalizationEngine {
   /// Obtener categorías de oraciones ordenadas
   List<PrayerCategory> getOrderedPrayerCategories() {
     final categories = <PrayerCategory>[];
-    
+
     // Emergencia primero si el usuario lo necesita
     final emergencyPrayers = _repo.getEmergencyPrayers();
     if (emergencyPrayers.isNotEmpty) {
-      categories.add(PrayerCategory(
-        id: 'emergency',
-        name: 'Emergencia',
-        emoji: '🆘',
-        prayers: emergencyPrayers,
-      ));
+      categories.add(
+        PrayerCategory(id: 'emergency', name: 'Emergencia', emoji: '🆘', prayers: emergencyPrayers),
+      );
     }
 
     // Restauración
     final restorationPrayers = _repo.getRestorationPrayers();
     if (restorationPrayers.isNotEmpty) {
-      categories.add(PrayerCategory(
-        id: 'restoration',
-        name: 'Restauración',
-        emoji: '🩹',
-        prayers: restorationPrayers,
-      ));
+      categories.add(
+        PrayerCategory(
+          id: 'restoration',
+          name: 'Restauración',
+          emoji: '🩹',
+          prayers: restorationPrayers,
+        ),
+      );
     }
 
     // Por gigantes del usuario
     for (final giant in userGiants) {
       final prayers = _repo.getPrayersForGiants([giant]);
       if (prayers.isNotEmpty) {
-        categories.add(PrayerCategory(
-          id: giant.id,
-          name: giant.displayName,
-          emoji: giant.emoji,
-          prayers: prayers,
-        ));
+        categories.add(
+          PrayerCategory(
+            id: giant.id,
+            name: giant.displayName,
+            emoji: giant.emoji,
+            prayers: prayers,
+          ),
+        );
       }
     }
 
     // Todos
-    categories.add(PrayerCategory(
-      id: 'all',
-      name: 'Todas',
-      emoji: '🙏',
-      prayers: _repo.prayers,
-    ));
+    categories.add(PrayerCategory(id: 'all', name: 'Todas', emoji: '🙏', prayers: _repo.prayers));
 
     return categories;
   }
@@ -492,11 +491,7 @@ class ScoredItem<T> {
   final int score;
   final String reason;
 
-  const ScoredItem({
-    required this.item,
-    required this.score,
-    required this.reason,
-  });
+  const ScoredItem({required this.item, required this.score, required this.reason});
 
   @override
   String toString() => 'ScoredItem(score: $score, reason: $reason)';

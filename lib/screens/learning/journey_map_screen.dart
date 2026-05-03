@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/journey_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/journey_progress_service.dart';
 import '../../services/learning/journey_repository.dart';
@@ -32,7 +33,14 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningStory);
     _bootstrap();
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
   }
 
   Future<void> _bootstrap() async {
@@ -78,11 +86,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
     final total = JourneyRepository.I.all.length;
     final completed = JourneyProgressService.I.completedCount;
 
-    final eraOrder = [
-      JourneyEra.oldTestament,
-      JourneyEra.gospels,
-      JourneyEra.earlyChurch,
-    ];
+    final eraOrder = [JourneyEra.oldTestament, JourneyEra.gospels, JourneyEra.earlyChurch];
 
     return ListView(
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
@@ -103,8 +107,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
     );
   }
 
-  Widget _buildHero(
-      BuildContext context, AppThemeData t, int completed, int total) {
+  Widget _buildHero(BuildContext context, AppThemeData t, int completed, int total) {
     final pct = total == 0 ? 0.0 : completed / total;
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
@@ -123,14 +126,12 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.map_rounded,
-                  color: AppDesignSystem.gold, size: 28),
+              const Icon(Icons.map_rounded, color: AppDesignSystem.gold, size: 28),
               const SizedBox(width: AppDesignSystem.spacingS),
               Expanded(
                 child: Text(
                   'Camina la historia de Dios',
-                  style: AppDesignSystem.headlineSmall(context,
-                      color: t.textPrimary),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -147,8 +148,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
               value: pct,
               minHeight: 8,
               backgroundColor: t.cardBorder,
-              valueColor:
-                  const AlwaysStoppedAnimation(AppDesignSystem.gold),
+              valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
             ),
           ),
           const SizedBox(height: AppDesignSystem.spacingXS),
@@ -177,16 +177,17 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
           const SizedBox(width: 8),
           Text(
             era.label.toUpperCase(),
-            style: AppDesignSystem.labelMedium(context, color: t.textSecondary)
-                .copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700),
+            style: AppDesignSystem.labelMedium(
+              context,
+              color: t.textSecondary,
+            ).copyWith(letterSpacing: 1.2, fontWeight: FontWeight.w700),
           ),
         ],
       ),
     );
   }
 
-  Widget _stationTile(
-      BuildContext context, AppThemeData t, JourneyStation s) {
+  Widget _stationTile(BuildContext context, AppThemeData t, JourneyStation s) {
     final completed = JourneyProgressService.I.isCompleted(s.id);
     final unlocked = JourneyProgressService.I.isUnlocked(s);
     final isCurrent = !completed && unlocked;
@@ -194,8 +195,8 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
     final Color accent = completed
         ? AppDesignSystem.gold
         : isCurrent
-            ? AppDesignSystem.gold
-            : t.textSecondary;
+        ? AppDesignSystem.gold
+        : t.textSecondary;
 
     final icon = _iconFor(s.icon);
 
@@ -208,9 +209,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
                 FeedbackEngine.I.tap();
                 final result = await Navigator.push<bool>(
                   context,
-                  MaterialPageRoute(
-                    builder: (_) => JourneyStationScreen(station: s),
-                  ),
+                  MaterialPageRoute(builder: (_) => JourneyStationScreen(station: s)),
                 );
                 if (result == true && mounted) setState(() {});
               }
@@ -221,9 +220,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
             color: t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
-              color: isCurrent
-                  ? AppDesignSystem.gold.withOpacity(0.55)
-                  : t.cardBorder,
+              color: isCurrent ? AppDesignSystem.gold.withOpacity(0.55) : t.cardBorder,
               width: isCurrent ? 1.5 : 1,
             ),
             boxShadow: t.cardShadow,
@@ -233,14 +230,8 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
               Container(
                 width: 48,
                 height: 48,
-                decoration: BoxDecoration(
-                  color: accent.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  unlocked ? icon : Icons.lock_outline_rounded,
-                  color: accent,
-                ),
+                decoration: BoxDecoration(color: accent.withOpacity(0.15), shape: BoxShape.circle),
+                child: Icon(unlocked ? icon : Icons.lock_outline_rounded, color: accent),
               ),
               const SizedBox(width: AppDesignSystem.spacingM),
               Expanded(
@@ -251,16 +242,18 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
                       children: [
                         Text(
                           '${s.order}. ',
-                          style: AppDesignSystem.labelMedium(context,
-                                  color: t.textSecondary)
-                              .copyWith(fontWeight: FontWeight.w700),
+                          style: AppDesignSystem.labelMedium(
+                            context,
+                            color: t.textSecondary,
+                          ).copyWith(fontWeight: FontWeight.w700),
                         ),
                         Expanded(
                           child: Text(
                             s.title,
-                            style: AppDesignSystem.bodyLarge(context,
-                                    color: t.textPrimary)
-                                .copyWith(fontWeight: FontWeight.w700),
+                            style: AppDesignSystem.bodyLarge(
+                              context,
+                              color: t.textPrimary,
+                            ).copyWith(fontWeight: FontWeight.w700),
                           ),
                         ),
                       ],
@@ -268,20 +261,17 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
                     const SizedBox(height: 2),
                     Text(
                       s.subtitle,
-                      style: AppDesignSystem.bodyMedium(context,
-                          color: t.textSecondary),
+                      style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                     ),
                   ],
                 ),
               ),
               const SizedBox(width: AppDesignSystem.spacingS),
               if (completed)
-                const Icon(Icons.check_circle_rounded,
-                    color: AppDesignSystem.gold, size: 24)
+                const Icon(Icons.check_circle_rounded, color: AppDesignSystem.gold, size: 24)
               else if (isCurrent)
                 Container(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
                     color: AppDesignSystem.gold,
                     borderRadius: BorderRadius.circular(999),
@@ -298,10 +288,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
                 const Icon(Icons.lock_outline_rounded, size: 20),
             ],
           ),
-        )
-            .animate()
-            .fadeIn(duration: 280.ms, delay: (40 * s.order).ms)
-            .slideY(begin: 0.05, end: 0),
+        ).animate().fadeIn(duration: 280.ms, delay: (40 * s.order).ms).slideY(begin: 0.05, end: 0),
       ),
     );
   }

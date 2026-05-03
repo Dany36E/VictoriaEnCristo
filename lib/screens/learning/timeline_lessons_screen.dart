@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/timeline_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/timeline_progress_service.dart';
 import '../../services/learning/timeline_repository.dart';
@@ -22,6 +23,18 @@ class TimelineLessonsScreen extends StatefulWidget {
 }
 
 class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.learningStory);
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
@@ -50,25 +63,25 @@ class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
                 final l = e.value;
                 final stars = state.completed[l.id] ?? 0;
                 return Padding(
-                  padding: const EdgeInsets.only(
-                      bottom: AppDesignSystem.spacingM),
-                  child: _LessonCard(
-                    lesson: l,
-                    stars: stars,
-                    onTap: () async {
-                      FeedbackEngine.I.tap();
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) =>
-                              TimelineChallengeScreen(lesson: l),
-                        ),
-                      );
-                      if (mounted) setState(() {});
-                    },
-                  ).animate().fadeIn(
-                      duration: 300.ms, delay: (70 * idx).ms).slideY(
-                      begin: 0.05, end: 0),
+                  padding: const EdgeInsets.only(bottom: AppDesignSystem.spacingM),
+                  child:
+                      _LessonCard(
+                            lesson: l,
+                            stars: stars,
+                            onTap: () async {
+                              FeedbackEngine.I.tap();
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => TimelineChallengeScreen(lesson: l),
+                                ),
+                              );
+                              if (mounted) setState(() {});
+                            },
+                          )
+                          .animate()
+                          .fadeIn(duration: 300.ms, delay: (70 * idx).ms)
+                          .slideY(begin: 0.05, end: 0),
                 );
               }),
             ],
@@ -98,16 +111,12 @@ class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.timeline_rounded,
-                  color: AppDesignSystem.gold, size: 28),
+              const Icon(Icons.timeline_rounded, color: AppDesignSystem.gold, size: 28),
               const SizedBox(width: 10),
               Expanded(
                 child: Text(
                   'La historia bíblica en orden',
-                  style: AppDesignSystem.headlineSmall(
-                    context,
-                    color: t.textPrimary,
-                  ),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                 ),
               ),
             ],
@@ -115,8 +124,7 @@ class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
           const SizedBox(height: AppDesignSystem.spacingS),
           Text(
             'Arrastra personajes y eventos a su era correcta.',
-            style: AppDesignSystem.bodyMedium(
-                context, color: t.textSecondary),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Row(
@@ -156,11 +164,7 @@ class _LessonCard extends StatelessWidget {
   final int stars;
   final VoidCallback onTap;
 
-  const _LessonCard({
-    required this.lesson,
-    required this.stars,
-    required this.onTap,
-  });
+  const _LessonCard({required this.lesson, required this.stars, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -174,9 +178,7 @@ class _LessonCard extends StatelessWidget {
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
           border: Border.all(
-            color: stars > 0
-                ? AppDesignSystem.gold.withOpacity(0.5)
-                : t.cardBorder,
+            color: stars > 0 ? AppDesignSystem.gold.withOpacity(0.5) : t.cardBorder,
           ),
           boxShadow: t.cardShadow,
         ),
@@ -189,8 +191,7 @@ class _LessonCard extends StatelessWidget {
                 color: AppDesignSystem.gold.withOpacity(0.15),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.timeline_rounded,
-                  color: AppDesignSystem.gold, size: 28),
+              child: const Icon(Icons.timeline_rounded, color: AppDesignSystem.gold, size: 28),
             ),
             const SizedBox(width: AppDesignSystem.spacingM),
             Expanded(
@@ -199,18 +200,12 @@ class _LessonCard extends StatelessWidget {
                 children: [
                   Text(
                     lesson.title,
-                    style: AppDesignSystem.headlineSmall(
-                      context,
-                      color: t.textPrimary,
-                    ),
+                    style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     lesson.subtitle,
-                    style: AppDesignSystem.bodyMedium(
-                      context,
-                      color: t.textSecondary,
-                    ),
+                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                   ),
                   const SizedBox(height: 6),
                   Row(
@@ -219,9 +214,7 @@ class _LessonCard extends StatelessWidget {
                       return Padding(
                         padding: const EdgeInsets.only(right: 3),
                         child: Icon(
-                          filled
-                              ? Icons.star_rounded
-                              : Icons.star_border_rounded,
+                          filled ? Icons.star_rounded : Icons.star_border_rounded,
                           size: 16,
                           color: AppDesignSystem.gold,
                         ),

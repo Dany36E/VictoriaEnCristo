@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/book_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/book_progress_service.dart';
 import '../../services/learning/book_repository.dart';
@@ -22,19 +23,20 @@ class BookshelfScreen extends StatefulWidget {
   State<BookshelfScreen> createState() => _BookshelfScreenState();
 }
 
-class _BookshelfScreenState extends State<BookshelfScreen>
-    with SingleTickerProviderStateMixin {
+class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProviderStateMixin {
   late TabController _tabs;
 
   @override
   void initState() {
     super.initState();
+    AudioEngine.I.switchBgmContext(BgmContext.bible);
     _tabs = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
     _tabs.dispose();
+    AudioEngine.I.switchBgmContext(BgmContext.learningExplore);
     super.dispose();
   }
 
@@ -97,22 +99,17 @@ class _BookshelfScreenState extends State<BookshelfScreen>
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_stories_rounded,
-                  color: AppDesignSystem.gold),
+              const Icon(Icons.auto_stories_rounded, color: AppDesignSystem.gold),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
                   'Biblioteca estudiada: $done de $total libros',
-                  style: AppDesignSystem.bodyLarge(context,
-                      color: t.textPrimary),
+                  style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
                 ),
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: AppDesignSystem.labelMedium(
-                  context,
-                  color: AppDesignSystem.gold,
-                ),
+                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
               ),
             ],
           ),
@@ -123,8 +120,7 @@ class _BookshelfScreenState extends State<BookshelfScreen>
               value: pct,
               minHeight: 6,
               backgroundColor: t.cardBg,
-              valueColor:
-                  const AlwaysStoppedAnimation(AppDesignSystem.gold),
+              valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
             ),
           ),
         ],
@@ -132,8 +128,7 @@ class _BookshelfScreenState extends State<BookshelfScreen>
     );
   }
 
-  Widget _buildList(
-      List<BibleBook> books, BookProgressState state, AppThemeData t) {
+  Widget _buildList(List<BibleBook> books, BookProgressState state, AppThemeData t) {
     // Agrupar por categoría manteniendo orden canónico
     final Map<String, List<BibleBook>> byCat = {};
     for (final b in books) {
@@ -150,20 +145,17 @@ class _BookshelfScreenState extends State<BookshelfScreen>
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.only(
-                  left: 4, top: 8, bottom: 8),
+              padding: const EdgeInsets.only(left: 4, top: 8, bottom: 8),
               child: Text(
                 cat,
-                style: AppDesignSystem.headlineSmall(context,
-                    color: AppDesignSystem.gold),
+                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.gold),
               ),
             ),
             GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               itemCount: items.length,
-              gridDelegate:
-                  const SliverGridDelegateWithFixedCrossAxisCount(
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
@@ -181,14 +173,11 @@ class _BookshelfScreenState extends State<BookshelfScreen>
                     FeedbackEngine.I.tap();
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(
-                        builder: (_) => BookDetailScreen(book: b),
-                      ),
+                      MaterialPageRoute(builder: (_) => BookDetailScreen(book: b)),
                     );
                     if (mounted) setState(() {});
                   },
-                ).animate().fadeIn(
-                    duration: 250.ms, delay: (30 * j).ms);
+                ).animate().fadeIn(duration: 250.ms, delay: (30 * j).ms);
               },
             ),
             const SizedBox(height: AppDesignSystem.spacingM),
@@ -225,10 +214,7 @@ class _BookSpine extends StatelessWidget {
               ? const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Color(0xFF3A2A10),
-                    Color(0xFF6B4E20),
-                  ],
+                  colors: [Color(0xFF3A2A10), Color(0xFF6B4E20)],
                 )
               : null,
           color: studied ? null : t.cardBg,
@@ -238,12 +224,7 @@ class _BookSpine extends StatelessWidget {
             width: studied ? 1.5 : 1,
           ),
           boxShadow: studied
-              ? [
-                  BoxShadow(
-                    color: AppDesignSystem.gold.withOpacity(0.35),
-                    blurRadius: 8,
-                  ),
-                ]
+              ? [BoxShadow(color: AppDesignSystem.gold.withOpacity(0.35), blurRadius: 8)]
               : null,
         ),
         child: Column(
@@ -254,12 +235,10 @@ class _BookSpine extends StatelessWidget {
               children: [
                 Text(
                   '#${book.order}',
-                  style: AppDesignSystem.labelSmall(context,
-                      color: AppDesignSystem.gold),
+                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
                 ),
                 if (studied)
-                  const Icon(Icons.check_circle_rounded,
-                      color: AppDesignSystem.gold, size: 14),
+                  const Icon(Icons.check_circle_rounded, color: AppDesignSystem.gold, size: 14),
               ],
             ),
             const SizedBox(height: 6),
@@ -268,8 +247,7 @@ class _BookSpine extends StatelessWidget {
                 child: Text(
                   book.name,
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.headlineSmall(context,
-                      color: t.textPrimary),
+                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -278,8 +256,7 @@ class _BookSpine extends StatelessWidget {
             Text(
               '${book.chapters} cap.',
               textAlign: TextAlign.center,
-              style: AppDesignSystem.labelSmall(context,
-                  color: t.textSecondary),
+              style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
             ),
             if (studied && score > 0)
               Padding(
@@ -287,10 +264,7 @@ class _BookSpine extends StatelessWidget {
                 child: Text(
                   '$score/3 ✓',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.labelSmall(
-                    context,
-                    color: AppDesignSystem.gold,
-                  ),
+                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
                 ),
               ),
           ],

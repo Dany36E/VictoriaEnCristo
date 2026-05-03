@@ -10,8 +10,7 @@ import 'package:flutter/foundation.dart';
 /// Firestore: /users/{uid}/bibleSettings/readingStats → {streak, lastDate, chaptersRead}
 /// ═══════════════════════════════════════════════════════════════════════════
 class BibleReadingStatsService {
-  static final BibleReadingStatsService _instance =
-      BibleReadingStatsService._internal();
+  static final BibleReadingStatsService _instance = BibleReadingStatsService._internal();
   factory BibleReadingStatsService() => _instance;
   static BibleReadingStatsService get I => _instance;
   BibleReadingStatsService._internal();
@@ -71,13 +70,20 @@ class BibleReadingStatsService {
   }
 
   /// Log a chapter read. Called from BibleReaderScreen._loadChapter()
-  Future<void> logChapterRead({
-    required int bookNumber,
-    required int chapter,
-  }) async {
+  Future<void> logChapterRead({required int bookNumber, required int chapter}) async {
     if (_uid == null) return;
     final key = '$bookNumber:$chapter';
     final today = _todayStr();
+
+    // OPTIMIZACIÓN: si el capítulo ya está marcado como leído Y la racha
+    // ya fue actualizada hoy, no hay nada que escribir. Esto evita el
+    // patrón read+modify+write completo cuando el usuario navega por
+    // capítulos ya leídos (caso muy frecuente al abrir la Biblia).
+    final alreadyRead = readChaptersNotifier.value.contains(key);
+    final lastDateCached = statsNotifier.value['lastDate'] as String? ?? '';
+    if (alreadyRead && lastDateCached == today) {
+      return;
+    }
 
     // Update daily log (arrayUnion es idempotente, seguro sin transacción)
     await _logCol.doc(today).set({
@@ -85,16 +91,27 @@ class BibleReadingStatsService {
       'date': today,
     }, SetOptions(merge: true));
 
-    // Update aggregate stats con transacción para evitar race condition
-    await _firestore.runTransaction((tx) async {
-      final snap = await tx.get(_statsDoc);
+    // Update aggregate stats: read+modify+merge (sin runTransaction porque
+    // crashea en Windows con errores "non-platform thread"). Si el mismo
+    // usuario está leyendo en dos dispositivos a la vez, una de las dos
+    // escrituras puede perder un capítulo, pero arrayUnion del log diario
+    // recupera el dato. Aceptable.
+    try {
+      final snap = await _statsDoc.get();
       final data = (snap.data() as Map<String, dynamic>?) ?? {};
       final readList = List<String>.from(data['chaptersReadList'] as List? ?? []);
       final lastDate = data['lastDate'] as String? ?? '';
-      var streak = (data['streak'] as num?)?.toInt() ?? 0;
+      var streak = (data['streak' ] as num?)?.toInt() ?? 0;
 
-      if (!readList.contains(key)) {
+      final wasNew = !readList.contains(key);
+      if (wasNew) {
         readList.add(key);
+      }
+
+      // Si nada cambió (capítulo ya estaba y la fecha tampoco), saltamos
+      // el write para no consumir cuota.
+      if (!wasNew && lastDate == today) {
+        return;
       }
 
       // Update streak
@@ -108,13 +125,15 @@ class BibleReadingStatsService {
         streak = 1; // Reset streak
       }
 
-      tx.set(_statsDoc, {
+      await _statsDoc.set({
         'chaptersReadList': readList,
         'lastDate': today,
         'streak': streak,
         'totalChapters': readList.length,
-      });
-    });
+      }, SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('[BibleStats] logChapterRead aggregate update failed: $e');
+    }
   }
 
   String _todayStr() {

@@ -1,0 +1,797 @@
+{
+  "version": 1,
+  "reviewedAt": "2026-05-01",
+  "entries": [
+    {
+      "id": "dev_digital_crisis_apaga_ruido",
+      "planDay": {
+        "dayIndex": 1,
+        "title": "Apaga el ruido ahora",
+        "scripture": {
+          "ref": "Isaías 26:3",
+          "text": "El corazón que se apoya en Dios puede recibir paz firme aun cuando la mente está agitada."
+        },
+        "reflection": "La urgencia digital promete alivio rápido, pero muchas veces solo aumenta la ansiedad. En Cristo no necesitas obedecer cada notificación ni cada impulso de mirar una pantalla. Tu atención también puede ser entregada a Dios como un acto de adoración. Hoy la victoria empieza con un gesto pequeño y físico: detenerte, respirar y elegir presencia.",
+        "prayer": "Señor Jesús, recupera mi atención. No quiero vivir arrastrado por el ruido; quiero volver a Tu paz y responder desde libertad. Amén.",
+        "actionSteps": [
+          "Pon el teléfono boca abajo durante 10 minutos y respira lentamente antes de volver a tocarlo."
+        ],
+        "checkInQuestions": [
+          "¿Qué emoción estaba tratando de evitar con la pantalla?",
+          "¿Qué decisión pequeña puede proteger mi paz en la próxima hora?"
+        ],
+        "anchorVerse": "Tú guardarás en completa paz a quien confía en Ti."
+      },
+      "challenge": "Haz una pausa de 10 minutos sin pantalla antes de la próxima decisión digital.",
+      "metadata": {
+        "giants": ["digital"],
+        "stage": "crisis",
+        "planType": "giantFocused",
+        "difficulty": "easy",
+        "tags": ["pastoral_v1", "atencion", "crisis"],
+        "techniques": ["breathingExercise", "urgeDelay", "scriptureMeditation"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_digital_habit_primera_frontera",
+      "planDay": {
+        "dayIndex": 2,
+        "title": "La primera frontera del día",
+        "scripture": {
+          "ref": "Salmos 119:37",
+          "text": "Aparta mis ojos de lo que no da vida; avívame en Tu camino."
+        },
+        "reflection": "La primera pantalla del día suele marcar el tono interior. Si entregas tus ojos al algoritmo antes de entregarlos a Dios, tu mente empieza el día reaccionando. Un hábito nuevo no se forma por fuerza de voluntad solamente; se forma diseñando el entorno para que la obediencia sea más fácil. Dios no desprecia una frontera pequeña cuando nace de un corazón sincero.",
+        "prayer": "Padre, ordena mi mañana. Que mi primer deseo no sea distraerme, sino recibir dirección de Ti. Amén.",
+        "actionSteps": [
+          "Deja el teléfono fuera de la cama esta noche.",
+          "Mañana lee un versículo antes de abrir redes o mensajes."
+        ],
+        "checkInQuestions": [
+          "¿Cuál es mi gatillo digital más temprano?",
+          "¿Qué puedo mover físicamente para hacerlo menos automático?"
+        ],
+        "anchorVerse": "Aparta mis ojos de lo que no da vida."
+      },
+      "challenge": "Define una frontera física para tu teléfono antes de dormir.",
+      "metadata": {
+        "giants": ["digital"],
+        "stage": "habit",
+        "planType": "giantFocused",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "habitos", "mañana"],
+        "techniques": ["environmentDesign", "replacementHabit", "scriptureMeditation"],
+        "recommendedFor": {"newBeliever": true, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_digital_maintenance_atencion_consagrada",
+      "planDay": {
+        "dayIndex": 3,
+        "title": "Atención consagrada",
+        "scripture": {
+          "ref": "Colosenses 3:2",
+          "text": "Pongan la mente en lo de arriba, no como escape, sino como dirección para vivir en la tierra."
+        },
+        "reflection": "Mantener libertad digital no significa odiar la tecnología; significa que la tecnología vuelve a ser herramienta, no amo. La madurez aparece cuando puedes usar lo útil sin quedar capturado por lo interminable. El Espíritu Santo también forma criterio: saber cuándo entrar, cuándo salir y cuándo simplemente estar presente con Dios y con las personas.",
+        "prayer": "Señor, enséñame a usar lo creado sin perder de vista al Creador. Que mi atención tenga dueño: Tú. Amén.",
+        "actionSteps": [
+          "Elige una ventana concreta para redes hoy y respétala.",
+          "Cierra la app antes de que el cansancio decida por ti."
+        ],
+        "checkInQuestions": [
+          "¿Estoy usando la pantalla con propósito o por inercia?",
+          "¿Qué relación o responsabilidad necesita mi atención hoy?"
+        ],
+        "anchorVerse": "Pongan la mente en lo de arriba."
+      },
+      "challenge": "Usa redes solo dentro de una ventana definida hoy.",
+      "metadata": {
+        "giants": ["digital"],
+        "stage": "maintenance",
+        "planType": "giantFocused",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "mantenimiento", "presencia"],
+        "techniques": ["microCommitment", "triggerAwareness", "environmentDesign"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_digital_restoration_vuelve_presente",
+      "planDay": {
+        "dayIndex": 4,
+        "title": "Vuelve al presente",
+        "scripture": {
+          "ref": "Lamentaciones 3:22-23",
+          "text": "La misericordia de Dios no se agotó ayer; se renueva para levantarte hoy."
+        },
+        "reflection": "Después de una caída digital, la vergüenza suele empujar a más evasión. Pero Jesús no te llama a esconderte dentro de otra sesión interminable; te llama a volver al presente con honestidad. Restauración no es castigarte por fallar, sino aprender qué pasó y volver a caminar con una frontera más sabia. La misericordia no minimiza el problema: te da fuerza para enfrentarlo sin desesperarte.",
+        "prayer": "Cristo, no quiero tapar mi caída con más distracción. Recíbeme, límpiame y guíame al siguiente paso obediente. Amén.",
+        "actionSteps": [
+          "Escribe en una frase qué gatillo precedió la caída.",
+          "Elimina o bloquea una fuente concreta de tropiezo por 24 horas."
+        ],
+        "checkInQuestions": [
+          "¿Qué necesito reconocer sin excusas?",
+          "¿Qué frontera práctica haría más difícil repetir esto mañana?"
+        ],
+        "anchorVerse": "Sus misericordias son nuevas cada mañana."
+      },
+      "challenge": "Nombra el gatillo y bloquea una fuente concreta por 24 horas.",
+      "metadata": {
+        "giants": ["digital"],
+        "stage": "restoration",
+        "planType": "relapseRecovery",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "restauracion", "gatillos"],
+        "techniques": ["journaling", "triggerAwareness", "environmentDesign"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_sexual_crisis_corre_luz",
+      "planDay": {
+        "dayIndex": 5,
+        "title": "Corre hacia la luz",
+        "scripture": {
+          "ref": "1 Corintios 6:18",
+          "text": "Ante la inmoralidad sexual, la sabiduría no coquetea: huye hacia la vida."
+        },
+        "reflection": "En crisis sexual, discutir con el impulso casi siempre lo alimenta. La Biblia no presenta la huida como cobardía, sino como sabiduría urgente. Salir de la habitación, cambiar de postura, llamar a alguien o abrir una ventana puede ser profundamente espiritual cuando tu cuerpo necesita una salida inmediata. Dios no te pide demostrar fuerza quedándote cerca del fuego.",
+        "prayer": "Señor Jesús, dame una salida limpia ahora. Mis deseos no serán mi señor; Tú eres mi Señor. Amén.",
+        "actionSteps": [
+          "Levántate físicamente y cambia de lugar durante 10 minutos.",
+          "Envía un mensaje breve a alguien confiable: necesito oración ahora."
+        ],
+        "checkInQuestions": [
+          "¿Dónde debo mover mi cuerpo en este momento?",
+          "¿A quién puedo contactar sin explicar demasiado?"
+        ],
+        "anchorVerse": "Huye hacia la vida."
+      },
+      "challenge": "Cambia de lugar ahora mismo y retrasa el impulso 10 minutos.",
+      "metadata": {
+        "giants": ["sexual"],
+        "stage": "crisis",
+        "planType": "giantFocused",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "pureza", "crisis"],
+        "techniques": ["urgeDelay", "environmentDesign", "accountability"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_sexual_habit_rutas_limpias",
+      "planDay": {
+        "dayIndex": 6,
+        "title": "Rutas limpias",
+        "scripture": {
+          "ref": "Job 31:1",
+          "text": "La pureza empieza cuando los ojos hacen un pacto con el corazón."
+        },
+        "reflection": "La pureza no se construye solo en el momento de tentación; se prepara antes. Tus rutas, horarios, cansancio, soledad y acceso forman un mapa. Cambiar una ruta no es legalismo cuando protege un amor mayor. El Espíritu trabaja también mediante decisiones concretas: filtros, horarios, conversación honesta y descanso.",
+        "prayer": "Padre, forma en mí una pureza real, no solo una apariencia. Ayúdame a preparar caminos que honren Tu presencia. Amén.",
+        "actionSteps": [
+          "Identifica tu horario de mayor vulnerabilidad y prepara una alternativa concreta.",
+          "Activa una barrera técnica o relacional antes de la noche."
+        ],
+        "checkInQuestions": [
+          "¿Qué patrón se repite antes de caer?",
+          "¿Qué barrera sencilla puedo instalar hoy?"
+        ],
+        "anchorVerse": "Mis ojos pueden hacer pacto con mi corazón."
+      },
+      "challenge": "Prepara una barrera antes del horario donde sueles ser vulnerable.",
+      "metadata": {
+        "giants": ["sexual"],
+        "stage": "habit",
+        "planType": "giantFocused",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "pureza", "habitos"],
+        "techniques": ["triggerAwareness", "environmentDesign", "accountability"],
+        "recommendedFor": {"newBeliever": true, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_sexual_maintenance_guarda_templo",
+      "planDay": {
+        "dayIndex": 7,
+        "title": "Guarda el templo",
+        "scripture": {
+          "ref": "1 Tesalonicenses 4:3-4",
+          "text": "La voluntad de Dios incluye aprender a tratar el cuerpo con santidad y honra."
+        },
+        "reflection": "La victoria sostenida no es tensión permanente; es una vida reordenada. Aprendes a reconocer belleza sin poseerla, deseo sin obedecerlo, cercanía sin fantasía. La santidad no te deshumaniza: te devuelve la capacidad de amar sin consumir. Mantenerte firme hoy protege la ternura de tu futuro.",
+        "prayer": "Espíritu Santo, mantén mi amor limpio y mi mirada despierta. Que mi cuerpo exprese honra, no esclavitud. Amén.",
+        "actionSteps": [
+          "Revisa una relación, hábito o contenido que esté volviendo borrosa tu frontera.",
+          "Renueva tu compromiso con una frase breve de oración."
+        ],
+        "checkInQuestions": [
+          "¿Dónde se está debilitando mi frontera sin que lo note?",
+          "¿Qué forma de amor quiero practicar hoy?"
+        ],
+        "anchorVerse": "Santidad y honra para mi cuerpo."
+      },
+      "challenge": "Renueva una frontera antes de que se vuelva una grieta.",
+      "metadata": {
+        "giants": ["sexual"],
+        "stage": "maintenance",
+        "planType": "giantFocused",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "mantenimiento", "santidad"],
+        "techniques": ["microCommitment", "cbtReframe", "scriptureMeditation"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_sexual_restoration_sin_condenacion",
+      "planDay": {
+        "dayIndex": 8,
+        "title": "Sin condenación, con verdad",
+        "scripture": {
+          "ref": "Romanos 8:1",
+          "text": "En Cristo no hay sentencia final de condenación para quien vuelve a Él."
+        },
+        "reflection": "La vergüenza dice: eres tu caída. El evangelio dice: eres alguien que Cristo vino a rescatar. Restaurarte no significa fingir que nada ocurrió; significa traerlo a la luz sin dejar que defina tu identidad. La gracia te levanta para confesar, reparar fronteras y seguir caminando con sobriedad.",
+        "prayer": "Jesús, recibo Tu gracia sin usarla como excusa. Sáname, ordéname y llévame de vuelta a la luz. Amén.",
+        "actionSteps": [
+          "Confiesa la caída a Dios con palabras simples y sin rodeos.",
+          "Anota una frontera que vas a restaurar hoy."
+        ],
+        "checkInQuestions": [
+          "¿Qué mentira sobre mi identidad apareció después de caer?",
+          "¿Qué verdad bíblica la contradice?"
+        ],
+        "anchorVerse": "En Cristo no hay condenación final."
+      },
+      "challenge": "Escribe una mentira de vergüenza y responde con una verdad del evangelio.",
+      "metadata": {
+        "giants": ["sexual"],
+        "stage": "restoration",
+        "planType": "relapseRecovery",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "restauracion", "gracia"],
+        "techniques": ["cbtReframe", "declarativeprayer", "journaling"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_health_crisis_pausa_cuerpo",
+      "planDay": {
+        "dayIndex": 9,
+        "title": "Una pausa para el cuerpo",
+        "scripture": {
+          "ref": "1 Corintios 10:31",
+          "text": "Aun lo cotidiano, como comer o beber, puede hacerse para honrar a Dios."
+        },
+        "reflection": "Cuando el cuerpo pide alivio inmediato, no siempre está pidiendo comida, azúcar o abandono; a veces pide descanso, agua, compañía o consuelo. La disciplina cristiana no es desprecio del cuerpo, sino cuidado con propósito. Antes de actuar, escucha con honestidad: ¿hambre real, cansancio, ansiedad o escape? Dios puede encontrarte en esa pausa.",
+        "prayer": "Padre, ayúdame a cuidar mi cuerpo sin idolatrarlo ni castigarlo. Dame sobriedad y ternura. Amén.",
+        "actionSteps": [
+          "Bebe agua y espera 10 minutos antes de decidir.",
+          "Nombra en voz baja qué necesidad real hay debajo del impulso."
+        ],
+        "checkInQuestions": [
+          "¿Mi cuerpo necesita alimento, descanso o consuelo?",
+          "¿Qué elección honraría a Dios sin dureza?"
+        ],
+        "anchorVerse": "Mi cuerpo puede honrar a Dios."
+      },
+      "challenge": "Toma agua, espera 10 minutos y decide desde calma.",
+      "metadata": {
+        "giants": ["health"],
+        "stage": "crisis",
+        "planType": "giantFocused",
+        "difficulty": "easy",
+        "tags": ["pastoral_v1", "cuerpo", "crisis"],
+        "techniques": ["urgeDelay", "triggerAwareness", "grounding"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_health_habit_cuerpo_sirve",
+      "planDay": {
+        "dayIndex": 10,
+        "title": "Tu cuerpo sirve al amor",
+        "scripture": {
+          "ref": "1 Corintios 6:19-20",
+          "text": "Tu cuerpo pertenece a Dios; por eso puede ser cuidado con honra."
+        },
+        "reflection": "Los hábitos de salud se sostienen mejor cuando nacen de misión, no de vergüenza. No comes mejor ni te mueves para ganar valor; ya recibiste valor en Cristo. Cuidas el cuerpo para estar disponible: amar, servir, pensar con claridad, descansar con humildad. La meta no es perfección física, sino mayordomía fiel.",
+        "prayer": "Señor, sana mi relación con mi cuerpo. Que mis decisiones nazcan de gratitud, no de culpa. Amén.",
+        "actionSteps": [
+          "Elige una comida o caminata sencilla que puedas repetir mañana.",
+          "Evita promesas extremas; haz un compromiso pequeño y realista."
+        ],
+        "checkInQuestions": [
+          "¿Estoy actuando desde vergüenza o gratitud?",
+          "¿Qué hábito pequeño puedo repetir tres días?"
+        ],
+        "anchorVerse": "Fui comprado para honrar a Dios."
+      },
+      "challenge": "Haz una decisión saludable pequeña que puedas repetir mañana.",
+      "metadata": {
+        "giants": ["health"],
+        "stage": "habit",
+        "planType": "giantFocused",
+        "difficulty": "easy",
+        "tags": ["pastoral_v1", "habitos", "cuerpo"],
+        "techniques": ["microCommitment", "replacementHabit", "cbtReframe"],
+        "recommendedFor": {"newBeliever": true, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_health_maintenance_ritmo_sobrio",
+      "planDay": {
+        "dayIndex": 11,
+        "title": "Ritmo sobrio",
+        "scripture": {
+          "ref": "Proverbios 25:28",
+          "text": "Quien no gobierna sus impulsos queda expuesto como una ciudad sin murallas."
+        },
+        "reflection": "El mantenimiento no vive de entusiasmo, vive de ritmo. Dormir, comer, moverte y descansar con orden crea murallas de protección para otras áreas de tu vida. No necesitas controlar todo; necesitas practicar fidelidad ordinaria. La sobriedad corporal puede convertirse en una forma silenciosa de adoración diaria.",
+        "prayer": "Dios de paz, ordena mis ritmos. Que mi cuerpo no sea campo de abandono, sino lugar de obediencia tranquila. Amén.",
+        "actionSteps": [
+          "Revisa tu próxima comida, hora de sueño o movimiento y decide un ajuste concreto.",
+          "Celebra una obediencia pequeña sin convertirla en orgullo."
+        ],
+        "checkInQuestions": [
+          "¿Qué ritmo me está protegiendo?",
+          "¿Qué ritmo necesito recuperar esta semana?"
+        ],
+        "anchorVerse": "La sobriedad levanta murallas."
+      },
+      "challenge": "Protege hoy un ritmo: sueño, comida o movimiento.",
+      "metadata": {
+        "giants": ["health"],
+        "stage": "maintenance",
+        "planType": "giantFocused",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "mantenimiento", "sobriedad"],
+        "techniques": ["microCommitment", "environmentDesign", "replacementHabit"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_health_restoration_pequeno_comienzo",
+      "planDay": {
+        "dayIndex": 12,
+        "title": "No desprecies el pequeño comienzo",
+        "scripture": {
+          "ref": "Zacarías 4:10",
+          "text": "Dios no desprecia el día de los comienzos pequeños."
+        },
+        "reflection": "Después de abandonar un hábito de salud, la tentación es compensar con extremos. Pero la restauración cristiana suele empezar más humilde: una comida ordenada, una caminata corta, una noche de descanso, una confesión honesta. Dios no necesita que te castigues para volver; te invita a comenzar pequeño y constante.",
+        "prayer": "Padre, líbrame de los extremos. Dame humildad para volver con un paso pequeño y fiel. Amén.",
+        "actionSteps": [
+          "Elige una acción de menos de 10 minutos para volver al camino.",
+          "No intentes pagar la caída; simplemente obedece el siguiente paso."
+        ],
+        "checkInQuestions": [
+          "¿Qué extremo estoy tentado a prometer?",
+          "¿Cuál es el paso pequeño que sí puedo cumplir hoy?"
+        ],
+        "anchorVerse": "Dios honra los comienzos pequeños."
+      },
+      "challenge": "Haz una acción saludable de menos de 10 minutos.",
+      "metadata": {
+        "giants": ["health"],
+        "stage": "restoration",
+        "planType": "relapseRecovery",
+        "difficulty": "easy",
+        "tags": ["pastoral_v1", "restauracion", "cuerpo"],
+        "techniques": ["microCommitment", "cbtReframe", "declarativeprayer"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_substances_crisis_no_negocies",
+      "planDay": {
+        "dayIndex": 13,
+        "title": "No negocies con el impulso",
+        "scripture": {
+          "ref": "1 Corintios 10:13",
+          "text": "Dios es fiel y abre una salida cuando la tentación parece cerrarse alrededor."
+        },
+        "reflection": "En una crisis de sustancias, la conversación interna puede volverse peligrosa: solo una vez, solo hoy, yo controlo. La salida suele aparecer antes de la negociación, no después. Aléjate del acceso, busca una persona, cambia de lugar y deja que el minuto más difícil pase sin alimentarlo. Pedir ayuda no rebaja tu fe; puede ser la forma concreta en que Dios abre camino.",
+        "prayer": "Dios fiel, muéstrame la salida y dame humildad para tomarla ahora. No quiero negociar con lo que me destruye. Amén.",
+        "actionSteps": [
+          "Sal del lugar donde tienes acceso durante al menos 15 minutos.",
+          "Llama o escribe a una persona segura antes de decidir."
+        ],
+        "checkInQuestions": [
+          "¿Cuál es la salida más cercana físicamente?",
+          "¿A quién debo contactar antes de seguir pensando solo?"
+        ],
+        "anchorVerse": "Dios abre una salida."
+      },
+      "challenge": "Aléjate del acceso y contacta a una persona segura ahora.",
+      "metadata": {
+        "giants": ["substances"],
+        "stage": "crisis",
+        "planType": "giantFocused",
+        "difficulty": "hard",
+        "tags": ["pastoral_v1", "sustancias", "crisis"],
+        "techniques": ["urgeDelay", "environmentDesign", "accountability"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_substances_habit_camino_salida",
+      "planDay": {
+        "dayIndex": 14,
+        "title": "Camino de salida",
+        "scripture": {
+          "ref": "Gálatas 5:1",
+          "text": "Cristo nos hizo libres para vivir libres; no para volver a cargar cadenas."
+        },
+        "reflection": "La libertad se aprende caminando por rutas nuevas muchas veces. No basta con desear no consumir; necesitas horarios, compañía, lugares y respuestas preparadas. La gracia no elimina la responsabilidad, la hace posible. Cada día sin volver a la cadena fortalece una identidad: soy de Cristo, no de esta dependencia.",
+        "prayer": "Cristo, gracias por llamarme libre. Enséñame a caminar como alguien que ya no pertenece a la cadena. Amén.",
+        "actionSteps": [
+          "Escribe una respuesta preparada para cuando aparezca una invitación o gatillo.",
+          "Retira de tu entorno una cosa que facilite recaer."
+        ],
+        "checkInQuestions": [
+          "¿Qué ruta me lleva de vuelta a la cadena?",
+          "¿Qué ruta nueva debo practicar esta semana?"
+        ],
+        "anchorVerse": "Cristo me hizo libre para vivir libre."
+      },
+      "challenge": "Prepara una respuesta concreta para tu gatillo más común.",
+      "metadata": {
+        "giants": ["substances"],
+        "stage": "habit",
+        "planType": "giantFocused",
+        "difficulty": "hard",
+        "tags": ["pastoral_v1", "habitos", "libertad"],
+        "techniques": ["triggerAwareness", "environmentDesign", "replacementHabit"],
+        "recommendedFor": {"newBeliever": true, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_substances_maintenance_sobrios_despiertos",
+      "planDay": {
+        "dayIndex": 15,
+        "title": "Sobrios y despiertos",
+        "scripture": {
+          "ref": "1 Pedro 5:8",
+          "text": "La sobriedad mantiene el corazón despierto y atento a lo que puede dañarlo."
+        },
+        "reflection": "Cuando llevas tiempo firme, el peligro cambia de forma: ya no siempre grita, a veces susurra que no pasa nada. La sobriedad madura no vive paranoica, pero sí despierta. Agradece el avance, mantén las fronteras y no abandones la comunidad que te ayudó a levantarte. La vigilancia humilde protege lo que Dios ha reconstruido.",
+        "prayer": "Señor, guárdame de la confianza orgullosa. Gracias por lo avanzado; mantenme sobrio, despierto y acompañado. Amén.",
+        "actionSteps": [
+          "Revisa una frontera que ha funcionado y decide mantenerla esta semana.",
+          "Agradece a una persona que ha acompañado tu proceso."
+        ],
+        "checkInQuestions": [
+          "¿Qué frontera estoy tentado a relajar demasiado pronto?",
+          "¿Quién necesita saber cómo voy realmente?"
+        ],
+        "anchorVerse": "Sobrio y despierto en Cristo."
+      },
+      "challenge": "Mantén una frontera antigua aunque hoy te sientas fuerte.",
+      "metadata": {
+        "giants": ["substances"],
+        "stage": "maintenance",
+        "planType": "giantFocused",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "mantenimiento", "sobriedad"],
+        "techniques": ["accountability", "microCommitment", "triggerAwareness"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_substances_restoration_levantate_acompanado",
+      "planDay": {
+        "dayIndex": 16,
+        "title": "Levántate acompañado",
+        "scripture": {
+          "ref": "Eclesiastés 4:10",
+          "text": "Si uno cae, el compañero puede ayudarlo a levantarse."
+        },
+        "reflection": "Después de una recaída, el aislamiento parece más fácil que la verdad. Pero la recuperación no fue diseñada para vivirse escondido. Dios usa manos humanas para levantarte: una llamada, una reunión, una confesión, una decisión de volver al plan. No conviertas la vergüenza en una segunda cadena.",
+        "prayer": "Señor, dame valentía para no esconderme. Pon verdad en mi boca y personas correctas cerca de mí. Amén.",
+        "actionSteps": [
+          "Contacta a una persona segura hoy, aunque sea con una frase breve.",
+          "Retoma el plan desde el siguiente paso, no desde la culpa."
+        ],
+        "checkInQuestions": [
+          "¿A quién debo decirle la verdad hoy?",
+          "¿Qué apoyo profesional, pastoral o comunitario necesito activar?"
+        ],
+        "anchorVerse": "No me levanto solo."
+      },
+      "challenge": "Envía hoy un mensaje honesto a una persona segura.",
+      "metadata": {
+        "giants": ["substances"],
+        "stage": "restoration",
+        "planType": "relapseRecovery",
+        "difficulty": "hard",
+        "tags": ["pastoral_v1", "restauracion", "acompanamiento"],
+        "techniques": ["accountability", "journaling", "declarativeprayer"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_mental_crisis_respira_cuidado",
+      "planDay": {
+        "dayIndex": 17,
+        "title": "Respira bajo Su cuidado",
+        "scripture": {
+          "ref": "Salmos 56:3",
+          "text": "Cuando tengo miedo, puedo volver mi confianza hacia Dios."
+        },
+        "reflection": "La ansiedad quiere convencerte de que todo debe resolverse ahora. Pero tu cuerpo necesita una señal de seguridad antes de pensar con claridad. Respirar no reemplaza la fe; puede ayudarte a practicarla con el cuerpo. En este minuto, no necesitas resolver toda tu vida. Necesitas volver a Dios, al presente y al próximo paso.",
+        "prayer": "Padre, estoy asustado, pero no estoy solo. Recibe mi respiración como una oración de confianza. Amén.",
+        "actionSteps": [
+          "Inhala 4 segundos, exhala 6 segundos, repite 5 veces.",
+          "Nombra cinco cosas que ves y una verdad de Dios que permanece."
+        ],
+        "checkInQuestions": [
+          "¿Qué amenaza estoy imaginando como si ya fuera segura?",
+          "¿Cuál es el próximo paso, no los próximos cien?"
+        ],
+        "anchorVerse": "Cuando tengo miedo, confío en Dios."
+      },
+      "challenge": "Haz cinco respiraciones lentas y nombra una verdad firme.",
+      "metadata": {
+        "giants": ["mental"],
+        "stage": "crisis",
+        "planType": "emotionalRegulation",
+        "difficulty": "easy",
+        "tags": ["pastoral_v1", "ansiedad", "crisis"],
+        "techniques": ["breathingExercise", "grounding", "scriptureMeditation"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_mental_habit_pensamiento_cristo",
+      "planDay": {
+        "dayIndex": 18,
+        "title": "Pensamiento llevado a Cristo",
+        "scripture": {
+          "ref": "2 Corintios 10:5",
+          "text": "Los pensamientos pueden ser examinados y llevados a la obediencia de Cristo."
+        },
+        "reflection": "No todo pensamiento que aparece merece gobernarte. Algunos pensamientos son alarmas, heridas, hábitos antiguos o mentiras repetidas. Llevarlos a Cristo no significa negar lo difícil, sino preguntar: ¿esto es verdadero, completo y obediente al amor de Dios? La mente se renueva practicando una respuesta nueva, una vez más, hoy.",
+        "prayer": "Señor Jesús, entra en mis pensamientos. Enséñame a distinguir verdad de mentira y temor de dirección. Amén.",
+        "actionSteps": [
+          "Escribe un pensamiento dominante y respóndelo con una verdad bíblica o sabia.",
+          "Repite la respuesta en voz baja tres veces."
+        ],
+        "checkInQuestions": [
+          "¿Qué pensamiento estoy tratando como autoridad final?",
+          "¿Qué diría Cristo sobre mí en este momento?"
+        ],
+        "anchorVerse": "Mis pensamientos pueden rendirse a Cristo."
+      },
+      "challenge": "Escribe una mentira mental y contéstala con verdad.",
+      "metadata": {
+        "giants": ["mental"],
+        "stage": "habit",
+        "planType": "emotionalRegulation",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "mente", "habitos"],
+        "techniques": ["cbtReframe", "journaling", "scriptureMeditation"],
+        "recommendedFor": {"newBeliever": true, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_mental_maintenance_paz_practicada",
+      "planDay": {
+        "dayIndex": 19,
+        "title": "Paz practicada",
+        "scripture": {
+          "ref": "Filipenses 4:8-9",
+          "text": "La mente se entrena al volver a lo verdadero, justo, puro y digno de alabanza."
+        },
+        "reflection": "La paz no siempre llega como emoción repentina; muchas veces crece como práctica. Elegir qué rumiar, qué conversaciones alimentar y qué historias internas repetir importa. No se trata de pensamiento positivo superficial, sino de disciplina espiritual: volver una y otra vez a lo verdadero. La paz de Dios guarda lo que la repetición entrega a Su cuidado.",
+        "prayer": "Dios de paz, entrena mi mente en lo verdadero. Que mis pensamientos tengan el sabor de Tu reino. Amén.",
+        "actionSteps": [
+          "Elige una frase verdadera para repetir cuando tu mente se disperse.",
+          "Reduce una fuente de ruido mental durante el día."
+        ],
+        "checkInQuestions": [
+          "¿Qué he estado rumiando sin darme cuenta?",
+          "¿Qué pensamiento merece mi atención hoy?"
+        ],
+        "anchorVerse": "Vuelvo a lo verdadero."
+      },
+      "challenge": "Repite una verdad breve cada vez que notes rumia mental.",
+      "metadata": {
+        "giants": ["mental"],
+        "stage": "maintenance",
+        "planType": "emotionalRegulation",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "mantenimiento", "paz"],
+        "techniques": ["scriptureMeditation", "replacementHabit", "microCommitment"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_mental_restoration_mente_cansada",
+      "planDay": {
+        "dayIndex": 20,
+        "title": "Misericordia para la mente cansada",
+        "scripture": {
+          "ref": "Mateo 11:28",
+          "text": "Jesús llama a los cargados a venir a Él y recibir descanso."
+        },
+        "reflection": "Cuando tu mente cae otra vez en oscuridad, no necesitas fingir fortaleza espiritual. Jesús invita a los cansados, no solo a los exitosos. Restaurarte puede incluir oración, descanso, conversación segura y ayuda sabia. La fe no niega la fragilidad; la lleva al Cristo que sabe tratar con ternura a los quebrantados.",
+        "prayer": "Jesús, vengo cansado. No escondo mi mente de Ti. Dame descanso, guía y la ayuda que necesito recibir. Amén.",
+        "actionSteps": [
+          "Comparte con alguien confiable cómo está tu mente hoy.",
+          "Haz una acción de cuidado básico: agua, comida, luz o descanso."
+        ],
+        "checkInQuestions": [
+          "¿Estoy intentando sanar en secreto?",
+          "¿Qué ayuda concreta sería sabia buscar?"
+        ],
+        "anchorVerse": "Jesús recibe a los cansados."
+      },
+      "challenge": "Dile a una persona confiable cómo está tu mente hoy.",
+      "metadata": {
+        "giants": ["mental"],
+        "stage": "restoration",
+        "planType": "relapseRecovery",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "restauracion", "mente"],
+        "techniques": ["accountability", "grounding", "declarativeprayer"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_emotions_crisis_antes_responder",
+      "planDay": {
+        "dayIndex": 21,
+        "title": "Antes de responder",
+        "scripture": {
+          "ref": "Santiago 1:19",
+          "text": "Sé pronto para escuchar, lento para hablar y lento para la ira."
+        },
+        "reflection": "La emoción intensa exige salida inmediata, pero el Espíritu puede crear espacio entre sentir y responder. No eres culpable por sentir una ola; sí puedes elegir no convertirla en daño. Pausar no es perder la razón, es proteger el amor. Antes de escribir, gritar o decidir, deja que Dios gobierne el próximo minuto.",
+        "prayer": "Espíritu Santo, pon freno santo en mi lengua y claridad en mi corazón. Que mi respuesta no destruya lo que Tú quieres sanar. Amén.",
+        "actionSteps": [
+          "Espera 90 segundos antes de responder el mensaje o conversación.",
+          "Ora una frase: Señor, gobierna mi respuesta."
+        ],
+        "checkInQuestions": [
+          "¿Qué daño podría hacer si respondo desde esta ola?",
+          "¿Qué respuesta sería firme sin ser destructiva?"
+        ],
+        "anchorVerse": "Lento para la ira."
+      },
+      "challenge": "Espera 90 segundos antes de responder desde enojo.",
+      "metadata": {
+        "giants": ["emotions"],
+        "stage": "crisis",
+        "planType": "emotionalRegulation",
+        "difficulty": "easy",
+        "tags": ["pastoral_v1", "ira", "crisis"],
+        "techniques": ["urgeDelay", "breathingExercise", "declarativeprayer"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_emotions_habit_perdon_capas",
+      "planDay": {
+        "dayIndex": 22,
+        "title": "Perdón por capas",
+        "scripture": {
+          "ref": "Efesios 4:31-32",
+          "text": "La amargura puede ser quitada y reemplazada por bondad, compasión y perdón en Cristo."
+        },
+        "reflection": "Perdonar no siempre ocurre como un momento único; a veces se practica por capas. No significa negar daño ni quitar límites necesarios. Significa dejar de alimentar la deuda en el altar del resentimiento y entregarla al Juez justo. Cada vez que eliges no rumiar venganza, estás entrenando un corazón libre.",
+        "prayer": "Padre, no puedo sanar mi corazón con resentimiento. Enséñame a perdonar con verdad, límites y dependencia de Ti. Amén.",
+        "actionSteps": [
+          "Escribe una frase de entrega: Señor, te entrego esta deuda.",
+          "Elige un límite sano si la relación sigue siendo dañina."
+        ],
+        "checkInQuestions": [
+          "¿Qué recuerdo sigo usando para alimentar resentimiento?",
+          "¿Qué límite santo acompaña este proceso de perdón?"
+        ],
+        "anchorVerse": "La amargura puede ser reemplazada."
+      },
+      "challenge": "Entrega una deuda específica a Dios en una frase escrita.",
+      "metadata": {
+        "giants": ["emotions"],
+        "stage": "habit",
+        "planType": "emotionalRegulation",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "perdon", "habitos"],
+        "techniques": ["journaling", "cbtReframe", "declarativeprayer"],
+        "recommendedFor": {"newBeliever": true, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_emotions_maintenance_corazon_vigilado",
+      "planDay": {
+        "dayIndex": 23,
+        "title": "Corazón vigilado",
+        "scripture": {
+          "ref": "Proverbios 4:23",
+          "text": "Guarda tu corazón con diligencia, porque de él brotan direcciones de vida."
+        },
+        "reflection": "Mantener salud emocional requiere vigilancia tierna. No se trata de sospechar de todo, sino de notar temprano cuando la envidia, la comparación, la irritabilidad o el resentimiento empiezan a echar raíces. Un corazón guardado sigue siendo vulnerable, pero no queda abandonado. Dios te invita a revisar el interior antes de que la emoción gobierne el exterior.",
+        "prayer": "Señor, guarda mi corazón conmigo. Muéstrame lo que está creciendo dentro antes de que se convierta en fruto amargo. Amén.",
+        "actionSteps": [
+          "Haz un examen breve: enojo, tristeza, envidia, temor, gratitud.",
+          "Entrega a Dios la emoción que esté más alta hoy."
+        ],
+        "checkInQuestions": [
+          "¿Qué emoción está ganando espacio silenciosamente?",
+          "¿Qué práctica puede mantener mi corazón sensible a Dios?"
+        ],
+        "anchorVerse": "Guardo mi corazón con diligencia."
+      },
+      "challenge": "Haz un examen emocional de un minuto y entrega lo que encuentres.",
+      "metadata": {
+        "giants": ["emotions"],
+        "stage": "maintenance",
+        "planType": "emotionalRegulation",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "mantenimiento", "corazon"],
+        "techniques": ["journaling", "triggerAwareness", "scriptureMeditation"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": false},
+        "reviewLevel": "approved"
+      }
+    },
+    {
+      "id": "dev_emotions_restoration_repara_sin_verguenza",
+      "planDay": {
+        "dayIndex": 24,
+        "title": "Repara sin vergüenza",
+        "scripture": {
+          "ref": "Mateo 5:23-24",
+          "text": "Dios valora que busques reconciliación cuando sabes que una relación necesita reparación."
+        },
+        "reflection": "Si tu emoción hirió a alguien, la vergüenza puede llevarte a justificarte o desaparecer. El camino de Cristo es distinto: verdad, arrepentimiento y reparación proporcional. No puedes controlar la respuesta de la otra persona, pero sí puedes ofrecer una disculpa limpia, sin excusas y sin exigir perdón inmediato. Restaurar empieza con humildad, no con autoprotección.",
+        "prayer": "Jesús, dame valentía para reparar lo que dañé. Líbrame de excusas y de vergüenza paralizante. Amén.",
+        "actionSteps": [
+          "Escribe una disculpa breve que no incluya la palabra pero.",
+          "Si es seguro y sabio, envíala o agenda una conversación."
+        ],
+        "checkInQuestions": [
+          "¿Qué parte me corresponde reconocer?",
+          "¿Qué reparación concreta sería humilde y sana?"
+        ],
+        "anchorVerse": "La humildad abre camino a reparación."
+      },
+      "challenge": "Escribe una disculpa sin excusas por una reacción dañina.",
+      "metadata": {
+        "giants": ["emotions"],
+        "stage": "restoration",
+        "planType": "relapseRecovery",
+        "difficulty": "medium",
+        "tags": ["pastoral_v1", "restauracion", "reparacion"],
+        "techniques": ["journaling", "accountability", "microCommitment"],
+        "recommendedFor": {"newBeliever": false, "highFrequencyGiant": true, "crisis": true},
+        "reviewLevel": "approved"
+      }
+    }
+  ]
+}

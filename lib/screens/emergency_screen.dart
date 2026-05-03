@@ -6,6 +6,8 @@ import '../theme/app_theme_data.dart';
 import '../widgets/premium_components.dart';
 import '../services/feedback_engine.dart';
 import '../services/emergency_sos_service.dart';
+import 'battle_partner/battle_partner_screen.dart';
+import 'wall/wall_screen.dart';
 
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
@@ -14,8 +16,7 @@ class EmergencyScreen extends StatefulWidget {
   State<EmergencyScreen> createState() => _EmergencyScreenState();
 }
 
-class _EmergencyScreenState extends State<EmergencyScreen>
-    with TickerProviderStateMixin {
+class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderStateMixin {
   late AnimationController _pulseController;
   late AnimationController _breatheController;
   late Animation<double> _pulseAnimation;
@@ -27,11 +28,11 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   @override
   void initState() {
     super.initState();
-    
+
     final sos = EmergencySosService.I;
     _steps = sos.getPersonalizedSteps();
     _giantName = sos.getGiantDisplayName();
-    
+
     // Fallback por si el servicio no cargó
     if (_steps.isEmpty) {
       _steps = [
@@ -46,7 +47,8 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           title: 'ORA',
           instruction: 'Di en voz alta: "Señor, necesito Tu ayuda ahora mismo"',
           duration: 10,
-          prayer: 'Señor Jesús, en este momento de debilidad vengo a Ti. Dame la fuerza para resistir. En Tu nombre, Amén.',
+          prayer:
+              'Señor Jesús, en este momento de debilidad vengo a Ti. Dame la fuerza para resistir. En Tu nombre, Amén.',
         ),
         const PersonalizedStep(
           emoji: '📖',
@@ -69,20 +71,21 @@ class _EmergencyScreenState extends State<EmergencyScreen>
       ];
       _giantName = 'General';
     }
-    
+
     _pulseController = AnimationController(
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     )..repeat(reverse: true);
-    
+
     _breatheController = AnimationController(
       duration: const Duration(milliseconds: 4000),
       vsync: this,
     )..repeat(reverse: true);
-    
-    _pulseAnimation = Tween<double>(begin: 1.0, end: 1.05).animate(
-      CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut),
-    );
+
+    _pulseAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.05,
+    ).animate(CurvedAnimation(parent: _pulseController, curve: Curves.easeInOut));
   }
 
   @override
@@ -121,35 +124,23 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             decoration: BoxDecoration(
               color: t.surface,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-              border: Border.all(
-                color: AppDesignSystem.gold.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(
-                  Icons.favorite_border_rounded,
-                  size: 56,
-                  color: AppDesignSystem.gold,
-                ),
+                const Icon(Icons.favorite_border_rounded, size: 56, color: AppDesignSystem.gold),
                 const SizedBox(height: AppDesignSystem.spacingM),
                 Text(
                   '¿Cómo te sientes ahora?',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.displaySmall(
-                    context,
-                    color: t.textPrimary,
-                  ),
+                  style: AppDesignSystem.displaySmall(context, color: t.textPrimary),
                 ),
                 const SizedBox(height: AppDesignSystem.spacingS),
                 Text(
                   'No hay respuesta incorrecta. Solo queremos acompañarte.',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.bodyMedium(
-                    context,
-                    color: t.textSecondary,
-                  ),
+                  style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                 ),
                 const SizedBox(height: AppDesignSystem.spacingL),
                 SizedBox(
@@ -163,10 +154,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     shadow: AppDesignSystem.shadowVictory,
                     child: Text(
                       'Ya estoy bien',
-                      style: AppDesignSystem.labelLarge(
-                        context,
-                        color: Colors.white,
-                      ),
+                      style: AppDesignSystem.labelLarge(context, color: Colors.white),
                     ),
                   ),
                 ),
@@ -178,10 +166,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   },
                   child: Text(
                     'Sigo luchando',
-                    style: AppDesignSystem.labelLarge(
-                      context,
-                      color: AppDesignSystem.gold,
-                    ),
+                    style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.gold),
                   ),
                 ),
               ],
@@ -216,8 +201,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                 child: Container(
                   width: 40,
                   height: 4,
-                  margin: const EdgeInsets.only(
-                      bottom: AppDesignSystem.spacingM),
+                  margin: const EdgeInsets.only(bottom: AppDesignSystem.spacingM),
                   decoration: BoxDecoration(
                     color: t.textSecondary.withOpacity(0.3),
                     borderRadius: BorderRadius.circular(2),
@@ -227,19 +211,13 @@ class _EmergencyScreenState extends State<EmergencyScreen>
               Text(
                 'No estás solo en esto',
                 textAlign: TextAlign.center,
-                style: AppDesignSystem.headlineSmall(
-                  context,
-                  color: t.textPrimary,
-                ),
+                style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
               ),
               const SizedBox(height: AppDesignSystem.spacingS),
               Text(
                 'La valentía no es no caer — es pedir ayuda. Elige un paso:',
                 textAlign: TextAlign.center,
-                style: AppDesignSystem.bodyMedium(
-                  context,
-                  color: t.textSecondary,
-                ),
+                style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
               ),
               const SizedBox(height: AppDesignSystem.spacingL),
               _EscalationTile(
@@ -248,7 +226,9 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                 subtitle: 'Un mensaje corto basta.',
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  Navigator.of(context).pop(); // volver al home
+                  Navigator.of(
+                    context,
+                  ).pushReplacement(MaterialPageRoute(builder: (_) => const BattlePartnerScreen()));
                 },
               ),
               const SizedBox(height: AppDesignSystem.spacingS),
@@ -258,7 +238,9 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                 subtitle: 'Anónimo. Hay gente orando por ti ahora.',
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  Navigator.of(context).pop();
+                  Navigator.of(
+                    context,
+                  ).pushReplacement(MaterialPageRoute(builder: (_) => const WallScreen()));
                 },
               ),
               const SizedBox(height: AppDesignSystem.spacingS),
@@ -275,8 +257,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
               _EscalationTile(
                 icon: Icons.phone_rounded,
                 title: 'Línea de ayuda en crisis',
-                subtitle:
-                    'México 800 290 0024 · España 024 · USA 988',
+                subtitle: 'México 800 290 0024 · España 024 · USA 988',
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showCrisisLinesDialog();
@@ -298,10 +279,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         backgroundColor: t.surface,
         title: Text(
           'Líneas de ayuda',
-          style: AppDesignSystem.headlineSmall(
-            context,
-            color: t.textPrimary,
-          ),
+          style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -315,18 +293,12 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             const SizedBox(height: AppDesignSystem.spacingM),
             Text(
               'Si estás en peligro inmediato, llama al número de emergencias local.',
-              style: AppDesignSystem.bodyMedium(
-                context,
-                color: t.textSecondary,
-              ),
+              style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
             ),
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.of(ctx).pop(),
-            child: const Text('Cerrar'),
-          ),
+          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cerrar')),
         ],
       ),
     );
@@ -347,66 +319,54 @@ class _EmergencyScreenState extends State<EmergencyScreen>
             decoration: BoxDecoration(
               color: t.surface,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-              border: Border.all(
-                color: AppDesignSystem.victory.withOpacity(0.3),
-                width: 2,
-              ),
+              border: Border.all(color: AppDesignSystem.victory.withOpacity(0.3), width: 2),
               boxShadow: AppDesignSystem.shadowVictory,
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 Container(
-                  padding: const EdgeInsets.all(AppDesignSystem.spacingL),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppDesignSystem.victory.withOpacity(0.2),
-                        AppDesignSystem.victoryLight.withOpacity(0.1),
-                      ],
-                    ),
-                    shape: BoxShape.circle,
-                    boxShadow: AppDesignSystem.shadowVictory,
-                  ),
-                  child: const Icon(
-                    Icons.emoji_events,
-                    size: 64,
-                    color: AppDesignSystem.victory,
-                  ),
-                )
+                      padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppDesignSystem.victory.withOpacity(0.2),
+                            AppDesignSystem.victoryLight.withOpacity(0.1),
+                          ],
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: AppDesignSystem.shadowVictory,
+                      ),
+                      child: const Icon(
+                        Icons.emoji_events,
+                        size: 64,
+                        color: AppDesignSystem.victory,
+                      ),
+                    )
                     .animate(onPlay: (c) => c.repeat(reverse: true))
                     .scale(
                       begin: const Offset(1, 1),
                       end: const Offset(1.1, 1.1),
                       duration: 1000.ms,
                     ),
-                
+
                 const SizedBox(height: AppDesignSystem.spacingL),
-                
+
                 Text(
                   '¡VICTORIA!',
-                  style: AppDesignSystem.displaySmall(
-                    context,
-                    color: AppDesignSystem.victory,
-                  ),
-                )
-                    .animate()
-                    .fadeIn(delay: 200.ms)
-                    .scale(begin: const Offset(0.5, 0.5)),
-                
+                  style: AppDesignSystem.displaySmall(context, color: AppDesignSystem.victory),
+                ).animate().fadeIn(delay: 200.ms).scale(begin: const Offset(0.5, 0.5)),
+
                 const SizedBox(height: AppDesignSystem.spacingM),
-                
+
                 Text(
                   'Has resistido la tentación.\nCada victoria te hace más fuerte.',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.bodyLarge(
-                    context,
-                    color: t.textSecondary,
-                  ),
+                  style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
                 ),
-                
+
                 const SizedBox(height: AppDesignSystem.spacingM),
-                
+
                 Container(
                   padding: const EdgeInsets.all(AppDesignSystem.spacingM),
                   decoration: BoxDecoration(
@@ -418,22 +378,16 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                       Text(
                         '"Resistid al diablo, y huirá de vosotros"',
                         textAlign: TextAlign.center,
-                        style: AppDesignSystem.scripture(
-                          context,
-                          color: t.textPrimary,
-                        ),
+                        style: AppDesignSystem.scripture(context, color: t.textPrimary),
                       ),
                       const SizedBox(height: AppDesignSystem.spacingS),
-                      Text(
-                        'Santiago 4:7',
-                        style: AppDesignSystem.scriptureReference(context),
-                      ),
+                      Text('Santiago 4:7', style: AppDesignSystem.scriptureReference(context)),
                     ],
                   ),
                 ),
-                
+
                 const SizedBox(height: AppDesignSystem.spacingL),
-                
+
                 SizedBox(
                   width: double.infinity,
                   child: PremiumButton(
@@ -445,19 +399,13 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                     shadow: AppDesignSystem.shadowVictory,
                     child: Text(
                       'CONTINUAR EN VICTORIA',
-                      style: AppDesignSystem.labelLarge(
-                        context,
-                        color: Colors.white,
-                      ),
+                      style: AppDesignSystem.labelLarge(context, color: Colors.white),
                     ),
                   ),
                 ),
               ],
             ),
-          )
-              .animate()
-              .fadeIn()
-              .scale(begin: const Offset(0.9, 0.9)),
+          ).animate().fadeIn().scale(begin: const Offset(0.9, 0.9)),
         ),
       ),
     );
@@ -467,7 +415,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
   Widget build(BuildContext context) {
     final currentStepData = _steps[_currentStep];
     final t = AppThemeData.of(context);
-    
+
     return Scaffold(
       backgroundColor: t.scaffoldBg,
       extendBodyBehindAppBar: true,
@@ -483,10 +431,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         ),
         title: Text(
           'AYUDA DE EMERGENCIA',
-          style: AppDesignSystem.labelLarge(
-            context,
-            color: t.textPrimary,
-          ),
+          style: AppDesignSystem.labelLarge(context, color: t.textPrimary),
         ),
         centerTitle: true,
       ),
@@ -501,16 +446,13 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   gradient: RadialGradient(
                     center: Alignment.topCenter,
                     radius: 1.5 + (_breatheController.value * 0.2),
-                    colors: [
-                      AppDesignSystem.struggle.withOpacity(0.15),
-                      t.scaffoldBg,
-                    ],
+                    colors: [AppDesignSystem.struggle.withOpacity(0.15), t.scaffoldBg],
                   ),
                 ),
               );
             },
           ),
-          
+
           SafeArea(
             bottom: false,
             child: Padding(
@@ -520,19 +462,19 @@ class _EmergencyScreenState extends State<EmergencyScreen>
                   // Giant badge
                   _buildGiantBadge(),
                   const SizedBox(height: AppDesignSystem.spacingM),
-                  
+
                   // Progress indicator
                   _buildProgressIndicator(),
                   const SizedBox(height: AppDesignSystem.spacingXL),
-                  
+
                   // Step content
-                  Expanded(
-                    child: _buildStepContent(currentStepData),
-                  ),
-                  
+                  Expanded(child: _buildStepContent(currentStepData)),
+
                   // Next button
                   _buildNextButton(),
-                  SizedBox(height: MediaQuery.of(context).padding.bottom + AppDesignSystem.spacingM),
+                  SizedBox(
+                    height: MediaQuery.of(context).padding.bottom + AppDesignSystem.spacingM,
+                  ),
                 ],
               ),
             ),
@@ -552,20 +494,13 @@ class _EmergencyScreenState extends State<EmergencyScreen>
       decoration: BoxDecoration(
         color: AppDesignSystem.struggle.withOpacity(0.15),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(
-          color: AppDesignSystem.struggle.withOpacity(0.3),
-        ),
+        border: Border.all(color: AppDesignSystem.struggle.withOpacity(0.3)),
       ),
       child: Text(
         'Plan personalizado: $_giantName',
-        style: AppDesignSystem.labelSmall(
-          context,
-          color: t.textSecondary,
-        ),
+        style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
       ),
-    )
-        .animate()
-        .fadeIn(delay: 50.ms);
+    ).animate().fadeIn(delay: 50.ms);
   }
 
   Widget _buildProgressIndicator() {
@@ -575,7 +510,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
       children: List.generate(_steps.length, (index) {
         final isActive = index <= _currentStep;
         final isCurrent = index == _currentStep;
-        
+
         return AnimatedContainer(
           duration: AppDesignSystem.durationMedium,
           curve: AppDesignSystem.curveDefault,
@@ -590,9 +525,7 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           ),
         );
       }),
-    )
-        .animate()
-        .fadeIn(delay: 100.ms);
+    ).animate().fadeIn(delay: 100.ms);
   }
 
   Widget _buildStepContent(PersonalizedStep step) {
@@ -603,101 +536,83 @@ class _EmergencyScreenState extends State<EmergencyScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           const SizedBox(height: AppDesignSystem.spacingL),
-          
+
           // Emoji with pulse
           ScaleTransition(
             scale: _pulseAnimation,
-            child: Text(
-              step.emoji,
-              style: const TextStyle(fontSize: 64),
-            ),
+            child: Text(step.emoji, style: const TextStyle(fontSize: 64)),
           ),
-          
+
           const SizedBox(height: AppDesignSystem.spacingM),
-          
+
           // Step title
-          Text(
-            step.title,
-            style: AppDesignSystem.displayMedium(
-              context,
-              color: t.textPrimary,
-            ),
-          )
+          Text(step.title, style: AppDesignSystem.displayMedium(context, color: t.textPrimary))
               .animate(key: ValueKey('title-$_currentStep'))
               .fadeIn(duration: 300.ms)
               .slideY(begin: 0.2, end: 0),
-          
+
           const SizedBox(height: AppDesignSystem.spacingL),
-          
+
           // Instruction card
           GlassContainer(
-            backgroundColor: t.textPrimary.withOpacity(0.08),
-            padding: const EdgeInsets.all(AppDesignSystem.spacingL),
-            child: Column(
-              children: [
-                Text(
-                  step.instruction,
-                  textAlign: TextAlign.center,
-                  style: AppDesignSystem.bodyLarge(
-                    context,
-                    color: t.textPrimary,
-                  ),
+                backgroundColor: t.textPrimary.withOpacity(0.08),
+                padding: const EdgeInsets.all(AppDesignSystem.spacingL),
+                child: Column(
+                  children: [
+                    Text(
+                      step.instruction,
+                      textAlign: TextAlign.center,
+                      style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
+                    ),
+                    // Detalle psicológico
+                    if (step.detail != null) ...[
+                      const SizedBox(height: AppDesignSystem.spacingM),
+                      Text(
+                        step.detail!,
+                        textAlign: TextAlign.center,
+                        style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                      ),
+                    ],
+                    // Versículo personalizado
+                    if (step.verse != null) ...[
+                      const SizedBox(height: AppDesignSystem.spacingL),
+                      const GoldenDivider(),
+                      const SizedBox(height: AppDesignSystem.spacingL),
+                      Container(
+                        padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+                        decoration: BoxDecoration(
+                          color: AppDesignSystem.goldSubtle,
+                          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                        ),
+                        child: Column(
+                          children: [
+                            Text(
+                              '"${step.verse!.title}"',
+                              textAlign: TextAlign.center,
+                              style: AppDesignSystem.scripture(context, color: t.textPrimary),
+                            ),
+                            const SizedBox(height: AppDesignSystem.spacingM),
+                            Text(
+                              step.verse!.reference,
+                              style: AppDesignSystem.scriptureReference(context),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                // Detalle psicológico
-                if (step.detail != null) ...[
-                  const SizedBox(height: AppDesignSystem.spacingM),
-                  Text(
-                    step.detail!,
-                    textAlign: TextAlign.center,
-                    style: AppDesignSystem.bodyMedium(
-                      context,
-                      color: t.textSecondary,
-                    ),
-                  ),
-                ],
-                // Versículo personalizado
-                if (step.verse != null) ...[
-                  const SizedBox(height: AppDesignSystem.spacingL),
-                  const GoldenDivider(),
-                  const SizedBox(height: AppDesignSystem.spacingL),
-                  Container(
-                    padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-                    decoration: BoxDecoration(
-                      color: AppDesignSystem.goldSubtle,
-                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(
-                          '"${step.verse!.title}"',
-                          textAlign: TextAlign.center,
-                          style: AppDesignSystem.scripture(
-                            context,
-                            color: t.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: AppDesignSystem.spacingM),
-                        Text(
-                          step.verse!.reference,
-                          style: AppDesignSystem.scriptureReference(context),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          )
+              )
               .animate(key: ValueKey('card-$_currentStep'))
               .fadeIn(delay: 150.ms, duration: 400.ms)
               .slideY(begin: 0.1, end: 0),
-          
+
           // Oración personalizada
           if (step.prayer != null) ...[
             const SizedBox(height: AppDesignSystem.spacingL),
             _buildPrayerCard(step.prayer!),
           ],
-          
+
           const SizedBox(height: AppDesignSystem.spacingL),
         ],
       ),
@@ -714,71 +629,55 @@ class _EmergencyScreenState extends State<EmergencyScreen>
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.format_quote,
-                color: t.accent,
-                size: 20,
-              ),
+              Icon(Icons.format_quote, color: t.accent, size: 20),
               const SizedBox(width: AppDesignSystem.spacingS),
-              Text(
-                'ORACIÓN',
-                style: AppDesignSystem.labelMedium(
-                  context,
-                  color: t.accent,
-                ),
-              ),
+              Text('ORACIÓN', style: AppDesignSystem.labelMedium(context, color: t.accent)),
             ],
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Text(
             prayer,
             textAlign: TextAlign.center,
-            style: AppDesignSystem.bodyMedium(
-              context,
-              color: t.textSecondary,
-            ),
+            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
           ),
         ],
       ),
-    )
-        .animate(delay: 300.ms)
-        .fadeIn()
-        .slideY(begin: 0.2, end: 0);
+    ).animate(delay: 300.ms).fadeIn().slideY(begin: 0.2, end: 0);
   }
 
   Widget _buildNextButton() {
     final t = AppThemeData.of(context);
     final isLastStep = _currentStep == _steps.length - 1;
-    
+
     return SizedBox(
-      width: double.infinity,
-      child: PremiumButton(
-        onPressed: _nextStep,
-        backgroundColor: isLastStep ? AppDesignSystem.victory : t.accent,
-        shadow: isLastStep ? AppDesignSystem.shadowVictory : AppDesignSystem.shadowGold,
-        padding: const EdgeInsets.symmetric(
-          vertical: AppDesignSystem.spacingL,
-          horizontal: AppDesignSystem.spacingXL,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              isLastStep ? '¡LO LOGRÉ!' : 'SIGUIENTE PASO',
-              style: AppDesignSystem.labelLarge(
-                context,
-                color: isLastStep ? Colors.white : t.surface,
-              ),
+          width: double.infinity,
+          child: PremiumButton(
+            onPressed: _nextStep,
+            backgroundColor: isLastStep ? AppDesignSystem.victory : t.accent,
+            shadow: isLastStep ? AppDesignSystem.shadowVictory : AppDesignSystem.shadowGold,
+            padding: const EdgeInsets.symmetric(
+              vertical: AppDesignSystem.spacingL,
+              horizontal: AppDesignSystem.spacingXL,
             ),
-            const SizedBox(width: AppDesignSystem.spacingS),
-            Icon(
-              isLastStep ? Icons.celebration : Icons.arrow_forward,
-              color: isLastStep ? Colors.white : t.surface,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  isLastStep ? '¡LO LOGRÉ!' : 'SIGUIENTE PASO',
+                  style: AppDesignSystem.labelLarge(
+                    context,
+                    color: isLastStep ? Colors.white : t.surface,
+                  ),
+                ),
+                const SizedBox(width: AppDesignSystem.spacingS),
+                Icon(
+                  isLastStep ? Icons.celebration : Icons.arrow_forward,
+                  color: isLastStep ? Colors.white : t.surface,
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
-    )
+          ),
+        )
         .animate(key: ValueKey('button-$_currentStep'))
         .fadeIn(delay: 200.ms)
         .slideY(begin: 0.2, end: 0);
@@ -818,11 +717,8 @@ class _EscalationTile extends StatelessWidget {
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
             decoration: BoxDecoration(
               color: t.scaffoldBg,
-              borderRadius:
-                  BorderRadius.circular(AppDesignSystem.radiusM),
-              border: Border.all(
-                color: AppDesignSystem.gold.withOpacity(0.18),
-              ),
+              borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.18)),
             ),
             child: Row(
               children: [
@@ -832,28 +728,16 @@ class _EscalationTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        title,
-                        style: AppDesignSystem.bodyLarge(
-                          context,
-                          color: t.textPrimary,
-                        ),
-                      ),
+                      Text(title, style: AppDesignSystem.bodyLarge(context, color: t.textPrimary)),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: AppDesignSystem.bodyMedium(
-                          context,
-                          color: t.textSecondary,
-                        ),
+                        style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
                       ),
                     ],
                   ),
                 ),
-                Icon(
-                  Icons.chevron_right_rounded,
-                  color: t.textSecondary.withOpacity(0.6),
-                ),
+                Icon(Icons.chevron_right_rounded, color: t.textSecondary.withOpacity(0.6)),
               ],
             ),
           ),
@@ -878,19 +762,10 @@ class _CrisisLine extends StatelessWidget {
           Expanded(
             child: Text(
               country,
-              style: AppDesignSystem.bodyMedium(
-                context,
-                color: t.textSecondary,
-              ),
+              style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
             ),
           ),
-          Text(
-            number,
-            style: AppDesignSystem.bodyLarge(
-              context,
-              color: AppDesignSystem.gold,
-            ),
-          ),
+          Text(number, style: AppDesignSystem.bodyLarge(context, color: AppDesignSystem.gold)),
         ],
       ),
     );

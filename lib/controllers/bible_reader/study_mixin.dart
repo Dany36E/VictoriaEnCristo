@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../services/bible/enduring_word_service.dart';
+import '../../services/user_pref_cloud_sync_service.dart';
 import 'reader_state.dart';
 
 /// Modo de estudio Guzik (Enduring Word) con interleaving de anotaciones.
@@ -20,23 +21,35 @@ mixin StudyMixin on ReaderState {
     if (studyModeEnabled && guzikChapter == null) {
       loadGuzikCommentary();
     }
-    SharedPreferences.getInstance().then((prefs) {
-      prefs.setBool('bible_study_mode_enabled', studyModeEnabled);
-    }).catchError((e) { debugPrint('⚠️ [StudyMixin] Error guardando study mode: $e'); });
+    SharedPreferences.getInstance()
+        .then((prefs) async {
+          await prefs.setBool('bible_study_mode_enabled', studyModeEnabled);
+          UserPrefCloudSyncService.I.markDirty();
+        })
+        .catchError((e) {
+          debugPrint('⚠️ [StudyMixin] Error guardando study mode: $e');
+        });
   }
 
   @override
   Future<void> loadGuzikCommentary() async {
-    final commentary = await EnduringWordService.instance
-        .getChapterCommentary(bookNumber, currentChapter);
+    final commentary = await EnduringWordService.instance.getChapterCommentary(
+      bookNumber,
+      currentChapter,
+    );
     if (commentary == null || commentary.isEmpty) {
       guzikChapter = null;
       studyItems = [];
       setStudyModeEnabled(false);
       notifyListeners();
-      SharedPreferences.getInstance().then((prefs) {
-        prefs.setBool('bible_study_mode_enabled', false);
-      }).catchError((e) { debugPrint('⚠️ [StudyMixin] Error desactivando study mode: $e'); });
+      SharedPreferences.getInstance()
+          .then((prefs) async {
+            await prefs.setBool('bible_study_mode_enabled', false);
+            UserPrefCloudSyncService.I.markDirty();
+          })
+          .catchError((e) {
+            debugPrint('⚠️ [StudyMixin] Error desactivando study mode: $e');
+          });
       return;
     }
     guzikChapter = commentary;
@@ -46,13 +59,11 @@ mixin StudyMixin on ReaderState {
   }
 
   /// Returns true if no Guzik commentary was available.
-  bool get guzikUnavailable =>
-      !studyModeEnabled && guzikChapter == null && studyItems.isEmpty;
+  bool get guzikUnavailable => !studyModeEnabled && guzikChapter == null && studyItems.isEmpty;
 
   @override
   void buildStudyItems() {
-    if (!studyModeEnabled || guzikChapter == null ||
-        guzikChapter!.isEmpty || verses.isEmpty) {
+    if (!studyModeEnabled || guzikChapter == null || guzikChapter!.isEmpty || verses.isEmpty) {
       studyItems = [];
       return;
     }

@@ -1,22 +1,21 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 /// TalentsLibraryScreen — Biblioteca coleccionable de los 66 libros.
 ///
-/// Cuadrícula 3 columnas. Cada tarjeta muestra:
-///  · Nombre + número de orden
-///  · Progreso "X / 5" coleccionables
-///  · Marco dorado si el libro está completo
-///  · Silueta + candado si todavía no se ha desbloqueado nada
+/// Cada libro se muestra como un mural de 5 actos: sello, escena, camino,
+/// mesa y palabra. Las piezas se generan por código para mantener el APK liviano.
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
 import 'package:flutter/material.dart';
 
+import '../../data/collectibles_catalog.dart';
 import '../../models/learning/book_models.dart';
 import '../../services/learning/book_repository.dart';
 import '../../services/learning/collectibles_service.dart';
 import '../../services/learning/talents_service.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../widgets/learning/collectible_story_art.dart';
 import '../../widgets/learning/talents_badge.dart';
 import 'talents_book_detail_screen.dart';
 
@@ -28,22 +27,22 @@ class TalentsLibraryScreen extends StatefulWidget {
 }
 
 class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
-  String _filter = 'all'; // 'all' | 'AT' | 'NT' | 'complete'
+  String _filter = 'all';
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
+    final theme = AppThemeData.of(context);
     final allBooks = BookRepository.I.all;
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: theme.scaffoldBg,
       appBar: AppBar(
-        backgroundColor: t.surface,
+        backgroundColor: theme.surface,
         title: Text(
           'Biblioteca de Talentos',
-          style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+          style: AppDesignSystem.headlineSmall(context, color: theme.textPrimary),
         ),
-        iconTheme: IconThemeData(color: t.textPrimary),
+        iconTheme: IconThemeData(color: theme.textPrimary),
         actions: const [TalentsBadge()],
       ),
       body: AnimatedBuilder(
@@ -51,20 +50,30 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
           TalentsService.I.stateNotifier,
           CollectiblesService.I.unlockedNotifier,
         ]),
-        builder: (context, _) {
-          final filtered = _applyFilter(allBooks);
+        builder: (context, child) {
+          final filteredBooks = _applyFilter(allBooks);
           final totalUnlocked = CollectiblesService.I.totalUnlocked;
           final totalAvailable = CollectiblesService.I.totalAvailable;
-          final pct = totalAvailable == 0
+          final completeBooks = allBooks
+              .where((book) => CollectiblesService.I.isBookComplete(book.id))
+              .length;
+          final progress = totalAvailable == 0
               ? 0.0
-              : (totalUnlocked / totalAvailable).clamp(0.0, 1.0);
+              : (totalUnlocked / totalAvailable).clamp(0.0, 1.0).toDouble();
 
           return CustomScrollView(
             slivers: [
               SliverToBoxAdapter(
-                child: _buildHeader(context, t, totalUnlocked, totalAvailable, pct),
+                child: _buildHeader(
+                  context,
+                  theme,
+                  totalUnlocked,
+                  totalAvailable,
+                  completeBooks,
+                  progress,
+                ),
               ),
-              SliverToBoxAdapter(child: _buildFilters(context, t)),
+              SliverToBoxAdapter(child: _buildFilters(context, theme)),
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(
                   AppDesignSystem.spacingM,
@@ -73,15 +82,15 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
                   AppDesignSystem.spacingXL,
                 ),
                 sliver: SliverGrid(
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 3,
+                  gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                    maxCrossAxisExtent: 190,
+                    mainAxisExtent: 248,
                     mainAxisSpacing: AppDesignSystem.spacingM,
                     crossAxisSpacing: AppDesignSystem.spacingM,
-                    childAspectRatio: 0.7,
                   ),
                   delegate: SliverChildBuilderDelegate(
-                    (context, i) => _BookTile(book: filtered[i]),
-                    childCount: filtered.length,
+                    (context, index) => _BookTile(book: filteredBooks[index]),
+                    childCount: filteredBooks.length,
                   ),
                 ),
               ),
@@ -95,13 +104,11 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
   List<BibleBook> _applyFilter(List<BibleBook> books) {
     switch (_filter) {
       case 'AT':
-        return books.where((b) => b.testament == 'AT').toList();
+        return books.where((book) => book.testament == 'AT').toList();
       case 'NT':
-        return books.where((b) => b.testament == 'NT').toList();
+        return books.where((book) => book.testament == 'NT').toList();
       case 'complete':
-        return books
-            .where((b) => CollectiblesService.I.isBookComplete(b.id))
-            .toList();
+        return books.where((book) => CollectiblesService.I.isBookComplete(book.id)).toList();
       default:
         return books;
     }
@@ -109,10 +116,11 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
 
   Widget _buildHeader(
     BuildContext context,
-    AppThemeData t,
+    AppThemeData theme,
     int totalUnlocked,
     int totalAvailable,
-    double pct,
+    int completeBooks,
+    double progress,
   ) {
     return Container(
       margin: const EdgeInsets.all(AppDesignSystem.spacingM),
@@ -120,36 +128,53 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppDesignSystem.gold.withOpacity(0.2),
-            AppDesignSystem.goldDark.withOpacity(0.05),
+            AppDesignSystem.midnightLight,
+            AppDesignSystem.midnightDeep,
+            AppDesignSystem.goldDark.withOpacity(0.28),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
         border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: AppDesignSystem.gold.withOpacity(0.12),
+            blurRadius: 22,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              const Icon(Icons.auto_stories_rounded,
-                  color: AppDesignSystem.gold, size: 32),
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: AppDesignSystem.gold.withOpacity(0.18),
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                  border: Border.all(color: AppDesignSystem.gold.withOpacity(0.32)),
+                ),
+                child: const Icon(Icons.auto_awesome_mosaic_rounded, color: AppDesignSystem.gold),
+              ),
               const SizedBox(width: AppDesignSystem.spacingM),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Tu colección',
-                      style: AppDesignSystem.headlineSmall(context,
-                          color: t.textPrimary),
+                      'Mural de la Historia',
+                      style: AppDesignSystem.headlineSmall(
+                        context,
+                        color: AppDesignSystem.pureWhite,
+                      ),
                     ),
                     Text(
-                      '$totalUnlocked de $totalAvailable piezas desbloqueadas',
-                      style: AppDesignSystem.bodyMedium(context,
-                          color: t.textSecondary),
+                      '$totalUnlocked/$totalAvailable piezas · $completeBooks/66 libros completos',
+                      style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.coolGray),
                     ),
                   ],
                 ),
@@ -160,20 +185,35 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
           ClipRRect(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
             child: LinearProgressIndicator(
-              value: pct,
-              minHeight: 8,
-              backgroundColor: t.cardBg,
-              valueColor:
-                  const AlwaysStoppedAnimation(AppDesignSystem.gold),
+              value: progress,
+              minHeight: 9,
+              backgroundColor: Colors.white.withOpacity(0.12),
+              valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
             ),
+          ),
+          const SizedBox(height: AppDesignSystem.spacingM),
+          const Row(
+            children: [
+              Expanded(
+                child: _HeaderStat(
+                  icon: Icons.workspace_premium_rounded,
+                  value: '+10',
+                  label: 'mín. por libro',
+                ),
+              ),
+              SizedBox(width: AppDesignSystem.spacingS),
+              Expanded(
+                child: _HeaderStat(icon: Icons.route_rounded, value: '5', label: 'actos por mural'),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _buildFilters(BuildContext context, AppThemeData t) {
-    final chips = [
+  Widget _buildFilters(BuildContext context, AppThemeData theme) {
+    final filters = [
       ('all', 'Todos'),
       ('AT', 'Antiguo Testamento'),
       ('NT', 'Nuevo Testamento'),
@@ -181,26 +221,23 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
     ];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
-      padding: const EdgeInsets.symmetric(
-          horizontal: AppDesignSystem.spacingM, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM, vertical: 4),
       child: Row(
-        children: chips.map((c) {
-          final selected = _filter == c.$1;
+        children: filters.map((filter) {
+          final selected = _filter == filter.$1;
           return Padding(
             padding: const EdgeInsets.only(right: AppDesignSystem.spacingS),
             child: ChoiceChip(
-              label: Text(c.$2),
+              label: Text(filter.$2),
               selected: selected,
-              onSelected: (_) => setState(() => _filter = c.$1),
+              onSelected: (_) => setState(() => _filter = filter.$1),
               selectedColor: AppDesignSystem.gold,
-              backgroundColor: t.cardBg,
+              backgroundColor: theme.cardBg,
               labelStyle: AppDesignSystem.labelMedium(
                 context,
-                color: selected
-                    ? AppDesignSystem.midnightDeep
-                    : t.textPrimary,
+                color: selected ? AppDesignSystem.midnightDeep : theme.textPrimary,
               ),
-              side: BorderSide(color: t.cardBorder),
+              side: BorderSide(color: selected ? AppDesignSystem.gold : theme.cardBorder),
             ),
           );
         }).toList(),
@@ -209,88 +246,124 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
   }
 }
 
+class _HeaderStat extends StatelessWidget {
+  final IconData icon;
+  final String value;
+  final String label;
+
+  const _HeaderStat({required this.icon, required this.value, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+        border: Border.all(color: Colors.white.withOpacity(0.08)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: AppDesignSystem.goldLight, size: 18),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  value,
+                  style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.pureWhite),
+                ),
+                Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _BookTile extends StatelessWidget {
   final BibleBook book;
+
   const _BookTile({required this.book});
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
-    final unlocked = CollectiblesService.I.unlockedInBook(book.id);
-    final total = CollectiblesService.I.totalInBook(book.id);
-    final isComplete = unlocked >= total && total > 0;
-    final hasAny = unlocked > 0;
-
-    final accentColor = _colorForBook(book);
+    final theme = AppThemeData.of(context);
+    final unlockedCount = CollectiblesService.I.unlockedInBook(book.id);
+    final totalCount = CollectiblesService.I.totalInBook(book.id);
+    final isComplete = unlockedCount >= totalCount && totalCount > 0;
+    final hasAny = unlockedCount > 0;
+    final items = CollectiblesCatalog.I.itemsForBook(book.id);
+    final nextItem = items
+        .where((item) => !CollectiblesService.I.isUnlocked(item.id))
+        .cast<CollectibleItem?>()
+        .firstWhere((item) => item != null, orElse: () => null);
 
     return InkWell(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (_) => TalentsBookDetailScreen(bookId: book.id),
-        ),
+        MaterialPageRoute(builder: (_) => TalentsBookDetailScreen(bookId: book.id)),
       ),
       borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
       child: Container(
         decoration: BoxDecoration(
-          color: t.cardBg,
+          color: theme.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
             color: isComplete
                 ? AppDesignSystem.gold
-                : (hasAny ? accentColor.withOpacity(0.5) : t.cardBorder),
-            width: isComplete ? 2.5 : 1,
+                : (hasAny ? AppDesignSystem.gold.withOpacity(0.42) : theme.cardBorder),
+            width: isComplete ? 2 : 1,
           ),
           boxShadow: isComplete
               ? [
                   BoxShadow(
-                    color: AppDesignSystem.gold.withOpacity(0.4),
-                    blurRadius: 12,
+                    color: AppDesignSystem.gold.withOpacity(0.2),
+                    blurRadius: 14,
+                    offset: const Offset(0, 6),
                   ),
                 ]
-              : null,
+              : theme.cardShadow,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // "Cover" — color del libro + icono o silueta
             Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(AppDesignSystem.radiusM)),
-                  gradient: LinearGradient(
-                    colors: hasAny
-                        ? [accentColor.withOpacity(0.9), accentColor.withOpacity(0.4)]
-                        : [t.cardBorder.withOpacity(0.4), t.cardBorder.withOpacity(0.15)],
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Center(
-                      child: Icon(
-                        hasAny ? _iconForBook(book) : Icons.lock_rounded,
-                        size: 40,
-                        color: hasAny
-                            ? Colors.white.withOpacity(0.95)
-                            : t.textSecondary.withOpacity(0.6),
-                      ),
+              child: Stack(
+                children: [
+                  Positioned.fill(
+                    child: BookStoryMural(
+                      book: book,
+                      unlockedCount: unlockedCount,
+                      totalCount: totalCount,
+                      compact: true,
+                      borderRadius: AppDesignSystem.radiusM,
                     ),
-                    if (isComplete)
-                      const Positioned(
-                        top: 4,
-                        right: 4,
-                        child: Icon(Icons.verified_rounded,
-                            color: AppDesignSystem.gold, size: 18),
-                      ),
-                  ],
-                ),
+                  ),
+                  Positioned(
+                    top: 8,
+                    left: 8,
+                    child: _OrderPill(order: book.order, complete: isComplete),
+                  ),
+                  if (isComplete)
+                    const Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Icon(Icons.verified_rounded, color: AppDesignSystem.gold, size: 21),
+                    ),
+                ],
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppDesignSystem.spacingS),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -298,16 +371,48 @@ class _BookTile extends StatelessWidget {
                     book.name,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppDesignSystem.labelMedium(context,
-                            color: t.textPrimary)
-                        .copyWith(fontWeight: FontWeight.w700),
+                    style: AppDesignSystem.labelMedium(
+                      context,
+                      color: theme.textPrimary,
+                    ).copyWith(fontWeight: FontWeight.w800),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    '$unlocked/$total',
-                    style: AppDesignSystem.labelSmall(context,
-                        color: hasAny
-                            ? AppDesignSystem.gold
-                            : t.textSecondary),
+                    isComplete
+                        ? CollectiblesCatalog.I.completionRewardTitle(book)
+                        : nextItem?.kind.storyAct ?? book.category,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppDesignSystem.labelSmall(
+                      context,
+                      color: isComplete ? AppDesignSystem.gold : theme.textSecondary,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+                          child: LinearProgressIndicator(
+                            value: totalCount == 0 ? 0 : unlockedCount / totalCount,
+                            minHeight: 5,
+                            backgroundColor: theme.divider,
+                            valueColor: AlwaysStoppedAnimation(
+                              isComplete ? AppDesignSystem.gold : theme.accent,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        '$unlockedCount/$totalCount',
+                        style: AppDesignSystem.labelSmall(
+                          context,
+                          color: hasAny ? AppDesignSystem.gold : theme.textSecondary,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -317,42 +422,30 @@ class _BookTile extends StatelessWidget {
       ),
     );
   }
+}
 
-  /// Color asignado por categoría (estable y previsible).
-  Color _colorForBook(BibleBook b) {
-    switch (b.category.toLowerCase()) {
-      case 'pentateuco':
-        return const Color(0xFF8E5A3A); // tierra
-      case 'históricos':
-      case 'historicos':
-        return const Color(0xFF4A6FA5); // azul histórico
-      case 'poéticos':
-      case 'poeticos':
-        return const Color(0xFF9B5B9B); // violeta lírico
-      case 'profetas mayores':
-        return const Color(0xFFB8623A); // ámbar
-      case 'profetas menores':
-        return const Color(0xFFD4A853); // dorado suave
-      case 'evangelios':
-        return const Color(0xFF3F8F5B); // verde Reino
-      case 'historia':
-        return const Color(0xFF4A6FA5);
-      case 'epístolas paulinas':
-      case 'epistolas paulinas':
-        return const Color(0xFF6B5BB8);
-      case 'epístolas generales':
-      case 'epistolas generales':
-        return const Color(0xFF8B6B5B);
-      case 'profecía':
-      case 'profecia':
-        return const Color(0xFFB85B3A);
-      default:
-        return AppDesignSystem.gold;
-    }
-  }
+class _OrderPill extends StatelessWidget {
+  final int order;
+  final bool complete;
 
-  IconData _iconForBook(BibleBook b) {
-    if (b.testament == 'NT') return Icons.menu_book_rounded;
-    return Icons.book_rounded;
+  const _OrderPill({required this.order, required this.complete});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.34),
+        borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
+        border: Border.all(color: complete ? AppDesignSystem.gold : Colors.white.withOpacity(0.18)),
+      ),
+      child: Text(
+        order.toString().padLeft(2, '0'),
+        style: AppDesignSystem.labelSmall(
+          context,
+          color: complete ? AppDesignSystem.goldLight : AppDesignSystem.pureWhite,
+        ),
+      ),
+    );
   }
 }

@@ -9,6 +9,7 @@ import '../theme/app_theme_data.dart';
 import '../services/daily_verse_service.dart';
 import '../services/personalization_engine.dart';
 import '../services/feedback_engine.dart';
+import '../services/user_pref_cloud_sync_service.dart';
 import '../services/widget_sync_service.dart';
 import '../utils/time_utils.dart';
 
@@ -33,6 +34,7 @@ class MorningCheckinSheet extends StatefulWidget {
   static Future<void> markShown() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('morning_checkin_last_shown', TimeUtils.todayISO());
+    UserPrefCloudSyncService.I.markDirty();
     // Actualizar widget nativo para reflejar que hizo devocional
     WidgetSyncService.I.syncWidget();
   }
@@ -105,9 +107,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     final verse = DailyVerseService.I.getForTodaySync();
 
     return Container(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       decoration: BoxDecoration(
         color: td.cardBg,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
@@ -174,10 +174,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     return Column(
       key: const ValueKey('greeting'),
       children: [
-        Text(
-          _greetingEmoji,
-          style: const TextStyle(fontSize: 48),
-        ),
+        Text(_greetingEmoji, style: const TextStyle(fontSize: 48)),
         const SizedBox(height: 12),
         Text(
           '$_greeting, guerrero',
@@ -191,11 +188,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         Text(
           stageMsg,
           textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            color: td.textSecondary,
-            fontSize: 14,
-            height: 1.5,
-          ),
+          style: GoogleFonts.manrope(color: td.textSecondary, fontSize: 14, height: 1.5),
         ),
       ],
     );
@@ -205,11 +198,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     return Column(
       key: const ValueKey('verse'),
       children: [
-        const Icon(
-          Icons.menu_book_rounded,
-          color: AppDesignSystem.gold,
-          size: 32,
-        ),
+        const Icon(Icons.menu_book_rounded, color: AppDesignSystem.gold, size: 32),
         const SizedBox(height: 12),
         Text(
           'Versículo del día',
@@ -248,11 +237,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     return Column(
       key: const ValueKey('intention'),
       children: [
-        const Icon(
-          Icons.shield_rounded,
-          color: AppDesignSystem.victory,
-          size: 32,
-        ),
+        const Icon(Icons.shield_rounded, color: AppDesignSystem.victory, size: 32),
         const SizedBox(height: 12),
         Text(
           'Intención del día',
@@ -269,11 +254,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
               ? _todayIntention
               : 'Hoy elijo caminar en victoria.\nCon la ayuda de Dios, resistiré toda tentación.\nNo dependo de mis fuerzas, sino de Su poder.',
           textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
-            color: td.textPrimary,
-            fontSize: 15,
-            height: 1.6,
-          ),
+          style: GoogleFonts.manrope(color: td.textPrimary, fontSize: 15, height: 1.6),
         ),
       ],
     );
@@ -283,11 +264,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
     return Column(
       key: const ValueKey('prayer'),
       children: [
-        const Icon(
-          Icons.favorite_rounded,
-          color: Color(0xFFE8C97A),
-          size: 32,
-        ),
+        const Icon(Icons.favorite_rounded, color: Color(0xFFE8C97A), size: 32),
         const SizedBox(height: 12),
         Text(
           'Oración breve',
@@ -328,26 +305,24 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
           },
           child: Text(
             'Saltar',
-            style: GoogleFonts.manrope(
-              color: td.textSecondary.withOpacity(0.5),
-              fontSize: 13,
-            ),
+            style: GoogleFonts.manrope(color: td.textSecondary.withOpacity(0.5), fontSize: 13),
           ),
         ),
         const Spacer(),
         // Step indicator dots
         Row(
-          children: List.generate(4, (i) => Container(
-            width: 6,
-            height: 6,
-            margin: const EdgeInsets.symmetric(horizontal: 3),
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: i == _step
-                  ? AppDesignSystem.gold
-                  : td.textSecondary.withOpacity(0.15),
+          children: List.generate(
+            4,
+            (i) => Container(
+              width: 6,
+              height: 6,
+              margin: const EdgeInsets.symmetric(horizontal: 3),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: i == _step ? AppDesignSystem.gold : td.textSecondary.withOpacity(0.15),
+              ),
             ),
-          )),
+          ),
         ),
         const Spacer(),
         // Next/Done button
@@ -362,21 +337,14 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
             }
           },
           style: ElevatedButton.styleFrom(
-            backgroundColor: isLast
-                ? AppDesignSystem.victory
-                : AppDesignSystem.gold,
+            backgroundColor: isLast ? AppDesignSystem.victory : AppDesignSystem.gold,
             foregroundColor: Colors.white,
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
           child: Text(
             isLast ? 'Comenzar' : 'Siguiente',
-            style: GoogleFonts.manrope(
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
-            ),
+            style: GoogleFonts.manrope(fontWeight: FontWeight.w600, fontSize: 13),
           ),
         ),
       ],

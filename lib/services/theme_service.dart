@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme_data.dart';
+import 'user_pref_cloud_sync_service.dart';
 
 /// Servicio para manejar el tema seleccionable de la app (9 temas)
 class ThemeService extends ChangeNotifier {
@@ -36,6 +37,7 @@ class ThemeService extends ChangeNotifier {
     if (_autoTheme) {
       _applyAutoTheme();
     }
+    notifyListeners();
   }
 
   /// Cargar configuración guardada (con migración de legacy)
@@ -69,6 +71,7 @@ class ThemeService extends ChangeNotifier {
     await prefs.setBool(_autoThemeKey, _autoTheme);
     await prefs.setString(_lastDarkThemeKey, _lastDarkTheme);
     await prefs.setString(_lastLightThemeKey, _lastLightTheme);
+    UserPrefCloudSyncService.I.markDirty();
   }
 
   /// Cambiar tema por ID

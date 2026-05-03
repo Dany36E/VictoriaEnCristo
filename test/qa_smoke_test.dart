@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:app_quitar/theme/app_theme_data.dart';
+import 'package:app_quitar/utils/daily_outcome_registration.dart';
 import 'package:app_quitar/widgets/jesus_streak_widget.dart';
 import 'package:app_quitar/data/prayers.dart';
 
@@ -45,8 +46,11 @@ void main() {
         'family': Prayers.familyPrayers,
       };
       for (final entry in buckets.entries) {
-        expect(entry.value.length, greaterThanOrEqualTo(3),
-            reason: 'Categoría "${entry.key}" tiene pocas oraciones');
+        expect(
+          entry.value.length,
+          greaterThanOrEqualTo(3),
+          reason: 'Categoría "${entry.key}" tiene pocas oraciones',
+        );
       }
     });
 
@@ -63,15 +67,18 @@ void main() {
       ];
       for (final p in all) {
         expect(p.title.trim(), isNotEmpty, reason: 'Oración sin título');
-        expect(p.content.trim().length, greaterThan(40),
-            reason: 'Oración "${p.title}" muy corta');
-        expect(p.durationMinutes, inInclusiveRange(1, 15),
-            reason: 'Duración fuera de rango en "${p.title}"');
+        expect(p.content.trim().length, greaterThan(40), reason: 'Oración "${p.title}" muy corta');
+        expect(
+          p.durationMinutes,
+          inInclusiveRange(1, 15),
+          reason: 'Duración fuera de rango en "${p.title}"',
+        );
       }
     });
 
     test('suma total de oraciones ≥ 30', () {
-      final total = Prayers.emergencyPrayers.length +
+      final total =
+          Prayers.emergencyPrayers.length +
           Prayers.morningPrayers.length +
           Prayers.nightPrayers.length +
           Prayers.strengthPrayers.length +
@@ -88,21 +95,20 @@ void main() {
   // ─────────────────────────────────────────────────────────────────────────
   group('JesusStreakWidget rendering', () {
     final states = <({int streak, bool done, bool newUser})>[
-      (streak: 0, done: false, newUser: true),   // recién empieza
-      (streak: 1, done: true, newUser: false),   // primera victoria
-      (streak: 7, done: false, newUser: false),  // una semana
-      (streak: 30, done: true, newUser: false),  // un mes
+      (streak: 0, done: false, newUser: true), // recién empieza
+      (streak: 1, done: true, newUser: false), // primera victoria
+      (streak: 7, done: false, newUser: false), // una semana
+      (streak: 30, done: true, newUser: false), // un mes
       (streak: 100, done: true, newUser: false), // 3 dígitos
       (streak: 365, done: true, newUser: false), // un año
-      (streak: 1000, done: true, newUser: false),// 4 dígitos
+      (streak: 1000, done: true, newUser: false), // 4 dígitos
     ];
 
     for (final s in states) {
-      testWidgets(
-        'streak=${s.streak} completedToday=${s.done} isNew=${s.newUser}',
-        (tester) async {
-          await tester.binding.setSurfaceSize(const Size(411, 914)); // pixel 5
-          await tester.pumpWidget(_wrap(
+      testWidgets('streak=${s.streak} completedToday=${s.done} isNew=${s.newUser}', (tester) async {
+        await tester.binding.setSurfaceSize(const Size(411, 914)); // pixel 5
+        await tester.pumpWidget(
+          _wrap(
             theme: AppThemeData.nightPure,
             child: SizedBox(
               width: 380,
@@ -110,43 +116,122 @@ void main() {
               child: JesusStreakWidget(
                 streakDays: s.streak,
                 completedToday: s.done,
+                victoryToday: s.done,
                 isNewUser: s.newUser,
                 isLoading: false,
                 checkinDone: s.done,
                 onRegisterVictory: () {},
               ),
             ),
-          ));
-          // Permitir que animaciones de flutter_animate corran y se completen.
-          await tester.pump(const Duration(milliseconds: 100));
-          await tester.pump(const Duration(seconds: 2));
+          ),
+        );
+        // Permitir que animaciones de flutter_animate corran y se completen.
+        await tester.pump(const Duration(milliseconds: 100));
+        await tester.pump(const Duration(seconds: 2));
 
-          // No exceptions on build
-          expect(tester.takeException(), isNull);
-          // Widget monta
-          expect(find.byType(JesusStreakWidget), findsOneWidget);
-        },
-      );
+        // No exceptions on build
+        expect(tester.takeException(), isNull);
+        // Widget monta
+        expect(find.byType(JesusStreakWidget), findsOneWidget);
+      });
     }
 
     testWidgets('renderiza también en viewport estrecho (340px)', (tester) async {
       await tester.binding.setSurfaceSize(const Size(340, 780));
-      await tester.pumpWidget(_wrap(
-        theme: AppThemeData.nightPure,
-        child: SizedBox(
-          width: 320,
-          height: 240,
-          child: JesusStreakWidget(
-            streakDays: 999,
-            completedToday: true,
-            isNewUser: false,
-            checkinDone: true,
-            onRegisterVictory: () {},
+      await tester.pumpWidget(
+        _wrap(
+          theme: AppThemeData.nightPure,
+          child: SizedBox(
+            width: 320,
+            height: 240,
+            child: JesusStreakWidget(
+              streakDays: 999,
+              completedToday: true,
+              victoryToday: true,
+              isNewUser: false,
+              checkinDone: true,
+              onRegisterVictory: () {},
+            ),
           ),
         ),
-      ));
+      );
       await tester.pump(const Duration(milliseconds: 100));
       await tester.pump(const Duration(seconds: 2));
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('estado de gracia registrada muestra CTA y mensaje correctos', (tester) async {
+      await tester.binding.setSurfaceSize(const Size(411, 914));
+      await tester.pumpWidget(
+        _wrap(
+          theme: AppThemeData.nightPure,
+          child: SizedBox(
+            width: 380,
+            height: 240,
+            child: JesusStreakWidget(
+              streakDays: 0,
+              completedToday: true,
+              victoryToday: false,
+              isNewUser: false,
+              checkinDone: true,
+              onRegisterVictory: () {},
+            ),
+          ),
+        ),
+      );
+      await tester.pump(const Duration(milliseconds: 100));
+      await tester.pump(const Duration(seconds: 2));
+
+      expect(find.text('Gracia registrada'), findsWidgets);
+      expect(tester.takeException(), isNull);
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // DAILY OUTCOME — selector Victoria / Gracia
+  // ─────────────────────────────────────────────────────────────────────────
+  group('Daily outcome selector', () {
+    Future<DailyOutcomeChoice?> openAndPick(WidgetTester tester, String optionText) async {
+      DailyOutcomeChoice? selected;
+      await tester.pumpWidget(
+        _wrap(
+          theme: AppThemeData.nightPure,
+          child: Builder(
+            builder: (context) {
+              return Center(
+                child: ElevatedButton(
+                  onPressed: () async {
+                    selected = await showDailyOutcomeChoiceSheet(context);
+                  },
+                  child: const Text('Abrir selector'),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+
+      await tester.tap(find.text('Abrir selector'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Cierra tu día'), findsOneWidget);
+      expect(find.text('Victoria'), findsOneWidget);
+      expect(find.text('Gracia'), findsOneWidget);
+
+      await tester.tap(find.text(optionText));
+      await tester.pumpAndSettle();
+      return selected;
+    }
+
+    testWidgets('permite elegir Victoria', (tester) async {
+      final selected = await openAndPick(tester, 'Victoria');
+      expect(selected, DailyOutcomeChoice.victory);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('permite elegir Gracia', (tester) async {
+      final selected = await openAndPick(tester, 'Gracia');
+      expect(selected, DailyOutcomeChoice.grace);
       expect(tester.takeException(), isNull);
     });
   });
@@ -158,20 +243,21 @@ void main() {
     testWidgets('todos los 9 temas se resuelven vía AppThemeData.of', (tester) async {
       for (final theme in AppThemeData.all) {
         AppThemeData? resolved;
-        await tester.pumpWidget(_wrap(
-          theme: theme,
-          child: Builder(
-            builder: (ctx) {
-              resolved = AppThemeData.of(ctx);
-              return const SizedBox();
-            },
+        await tester.pumpWidget(
+          _wrap(
+            theme: theme,
+            child: Builder(
+              builder: (ctx) {
+                resolved = AppThemeData.of(ctx);
+                return const SizedBox();
+              },
+            ),
           ),
-        ));
+        );
         await tester.pump();
         expect(resolved, isNotNull, reason: 'Tema ${theme.id} no se resolvió');
         expect(resolved!.id, theme.id);
-        expect(tester.takeException(), isNull,
-            reason: 'Excepción al montar tema ${theme.id}');
+        expect(tester.takeException(), isNull, reason: 'Excepción al montar tema ${theme.id}');
       }
     });
 

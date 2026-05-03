@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/learning/book_models.dart';
+import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/bible_order_progress_service.dart';
 import '../../theme/app_theme.dart';
@@ -59,6 +60,14 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
     if (_canonical.length > 2 && _listEq(_shuffled, List.generate(_canonical.length, (i) => i))) {
       _shuffled = _shuffled.reversed.toList();
     }
+    // Música tranquila para estudio de orden bíblico
+    AudioEngine.I.switchBgmContext(BgmContext.learningBibleOrder);
+  }
+
+  @override
+  void dispose() {
+    AudioEngine.I.switchBgmContext(BgmContext.learningBibleOrder);
+    super.dispose();
   }
 
   bool _listEq(List<int> a, List<int> b) {
@@ -140,9 +149,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
               vertical: AppDesignSystem.spacingS,
             ),
             child: Text(
-              _done
-                  ? '¡Resultado!'
-                  : 'Toca los libros en su orden correcto:',
+              _done ? '¡Resultado!' : 'Toca los libros en su orden correcto:',
               style: AppDesignSystem.bodyLarge(context, color: t.textSecondary),
             ),
           ),
@@ -156,8 +163,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
   }
 
   Widget _progressBar(AppThemeData t) {
-    final pct =
-        _canonical.isEmpty ? 0.0 : _picked.length / _canonical.length;
+    final pct = _canonical.isEmpty ? 0.0 : _picked.length / _canonical.length;
     return LinearProgressIndicator(
       value: pct,
       minHeight: 4,
@@ -234,11 +240,8 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           style: TextStyle(
-                            color: isPicked
-                                ? textColor.withOpacity(0.85)
-                                : textColor,
-                            fontWeight:
-                                isPicked ? FontWeight.w500 : FontWeight.w600,
+                            color: isPicked ? textColor.withOpacity(0.85) : textColor,
+                            fontWeight: isPicked ? FontWeight.w500 : FontWeight.w600,
                             fontSize: isHuge ? 12 : 13,
                           ),
                         ),
@@ -255,9 +258,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                       width: 20,
                       height: 20,
                       decoration: BoxDecoration(
-                        color: isError
-                            ? AppDesignSystem.struggle
-                            : AppDesignSystem.gold,
+                        color: isError ? AppDesignSystem.struggle : AppDesignSystem.gold,
                         shape: BoxShape.circle,
                         border: Border.all(color: t.cardBg, width: 1.5),
                       ),
@@ -302,9 +303,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
       decoration: BoxDecoration(
         color: t.surface,
-        borderRadius: const BorderRadius.vertical(
-          top: Radius.circular(AppDesignSystem.radiusL),
-        ),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(AppDesignSystem.radiusL)),
       ),
       child: SafeArea(
         child: Column(
@@ -316,26 +315,20 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                 return Icon(
                   i < _stars ? Icons.star_rounded : Icons.star_border_rounded,
                   size: 32,
-                  color: i < _stars
-                      ? AppDesignSystem.gold
-                      : AppDesignSystem.gold.withOpacity(0.3),
+                  color: i < _stars ? AppDesignSystem.gold : AppDesignSystem.gold.withOpacity(0.3),
                 );
               }),
             ),
             const SizedBox(height: 8),
             Text(
-              perfect
-                  ? '¡Orden perfecto!'
-                  : '$correct/$total en orden correcto',
-              style:
-                  AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+              perfect ? '¡Orden perfecto!' : '$correct/$total en orden correcto',
+              style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
             ),
             if (_awardedXp > 0) ...[
               const SizedBox(height: 4),
               Text(
                 '+$_awardedXp XP',
-                style: AppDesignSystem.labelLarge(context,
-                    color: AppDesignSystem.gold),
+                style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.gold),
               ),
             ],
             const SizedBox(height: AppDesignSystem.spacingM),
@@ -347,12 +340,10 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                     style: OutlinedButton.styleFrom(
                       side: BorderSide(color: t.cardBorder),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            AppDesignSystem.radiusFull),
+                        borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                       ),
                     ),
-                    child: Text('Volver',
-                        style: TextStyle(color: t.textSecondary)),
+                    child: Text('Volver', style: TextStyle(color: t.textSecondary)),
                   ),
                 ),
                 const SizedBox(width: AppDesignSystem.spacingM),
@@ -368,8 +359,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                         _awardedXp = 0;
                         _shuffled.shuffle(Random());
                         if (_canonical.length > 2 &&
-                            _listEq(_shuffled,
-                                List.generate(_canonical.length, (i) => i))) {
+                            _listEq(_shuffled, List.generate(_canonical.length, (i) => i))) {
                           _shuffled = _shuffled.reversed.toList();
                         }
                       });
@@ -378,8 +368,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                       backgroundColor: AppDesignSystem.gold,
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(
-                            AppDesignSystem.radiusFull),
+                        borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                       ),
                     ),
                     child: const Text('Reintentar'),

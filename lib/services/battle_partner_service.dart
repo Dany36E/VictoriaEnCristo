@@ -9,13 +9,16 @@ library;
 import 'dart:async';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/battle_partner_data.dart';
 import '../constants/battle_messages.dart';
+import '../utils/platform_capabilities.dart';
 import 'notification_service.dart';
+import 'user_pref_cloud_sync_service.dart';
 import 'victory_scoring_service.dart';
 
 /// Máximo de compañeros por usuario
@@ -43,6 +46,7 @@ class BattlePartnerService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(region: 'us-central1');
   SharedPreferences? _prefs;
   String? _uid;
   bool _isInitialized = false;
@@ -490,22 +494,13 @@ class BattlePartnerService {
       }
 
       // Verificar si el destinatario pausó invitaciones (#12).
-      // El flag vive en publicProgress/latest (legible por cualquier auth).
-      try {
-        final pubDoc = await _db
-            .collection('users')
-            .doc(targetUid)
-            .collection('publicProgress')
-            .doc('latest')
-            .get();
-        final accepting = pubDoc.data()?['acceptingInvites'];
-        if (accepting is bool && accepting == false) {
-          return const InviteResult(type: InviteResultType.targetPaused);
-        }
-      } catch (_) {
-        // Si no hay doc o no podemos leer, asumimos que acepta. El write
-        // posterior será validado por reglas.
-      }
+      // NOTA: Antes leíamos `publicProgress/latest` del target para detectar
+      // `acceptingInvites: false`. Eso requería que `publicProgress` fuera
+      // legible por cualquier autenticado, lo cual filtraba racha y otros
+      // datos a terceros (auditoría H10). Ahora el chequeo lo hace el
+      // Cloud Function `sendPartnerInvite` con privilegios de admin y
+      // devuelve `targetPaused` vía HttpsError si aplica. Aquí ya no
+      // leemos el doc.
 
       // Verificar si ya están vinculados
       final existingDoc = await _db
@@ -560,34 +555,7 @@ class BattlePartnerService {
     final targetName = lookup.targetName!;
 
     try {
-      // Obtener mi nombre público
-      final myDoc = await _db.collection('users').doc(uid).get();
-      final myName =
-          myDoc.data()?['publicName'] as String? ??
-          myDoc.data()?['displayName'] as String? ??
-          'Un compañero';
-
-      final batch = _db.batch();
-
-      // Crear en mi lista con status=pending
-      batch.set(_db.collection('users').doc(uid).collection('battlePartners').doc(targetUid), {
-        'partnerUid': targetUid,
-        'partnerName': targetName,
-        'status': 'pending',
-        'addedAt': FieldValue.serverTimestamp(),
-      });
-
-      // Crear invitación en la bandeja del destinatario
-      final inviteRef = _db.collection('users').doc(targetUid).collection('partnerInvites').doc();
-      batch.set(inviteRef, {
-        'fromUid': uid,
-        'fromName': myName,
-        'inviteCode': code.toUpperCase(),
-        'status': 'pending',
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      await batch.commit();
+      await _functions.httpsCallable('sendPartnerInvite').call({'inviteCode': code.toUpperCase()});
       debugPrint('🤝 [BATTLE] Invitación enviada a $targetName');
 
       unawaited(_logEvent('battle_invite_sent', const {}));
@@ -597,6 +565,9 @@ class BattlePartnerService {
         targetUid: targetUid,
         targetName: targetName,
       );
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('🤝 [BATTLE] Error enviando invitación: ${e.code} ${e.message}');
+      return _inviteResultFromFunctionError(e);
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error enviando invitación: $e');
       return InviteResult(type: InviteResultType.error, errorMessage: e.toString());
@@ -612,81 +583,7 @@ class BattlePartnerService {
     if (uid == null) return false;
 
     try {
-      // Verificar límite antes de aceptar
-      final myPartners = await _db
-          .collection('users')
-          .doc(uid)
-          .collection('battlePartners')
-          .where('status', whereIn: ['active', 'pending'])
-          .get();
-
-      if (myPartners.docs.length >= kMaxBattlePartners) {
-        debugPrint('🤝 [BATTLE] Límite de compañeros alcanzado');
-        return false;
-      }
-
-      // Obtener mi nombre público
-      final myDoc = await _db.collection('users').doc(uid).get();
-      final myName =
-          myDoc.data()?['publicName'] as String? ??
-          myDoc.data()?['displayName'] as String? ??
-          'Compañero';
-
-      // Detectar invitación cruzada (ambos se invitaron a la vez) y
-      // auto-fusionar (#5): si yo ya envié invite al mismo `fromUid`,
-      // limpiamos la mía para no dejar docs fantasma.
-      try {
-        final mutual = await _db
-            .collection('users')
-            .doc(invite.fromUid)
-            .collection('partnerInvites')
-            .where('fromUid', isEqualTo: uid)
-            .where('status', isEqualTo: 'pending')
-            .limit(1)
-            .get();
-        if (mutual.docs.isNotEmpty) {
-          // Lo borramos (mejor que dejar accepted/rejected acumulado — fix #4).
-          await mutual.docs.first.reference.delete().catchError((_) {});
-          debugPrint('🤝 [BATTLE] Invitación cruzada detectada y fusionada');
-        }
-      } catch (e) {
-        debugPrint('🤝 [BATTLE] Error revisando invitación cruzada: $e');
-      }
-
-      final batch = _db.batch();
-
-      // Borrar mi invitación entrante (en lugar de actualizar status) para
-      // no acumular docs en el tiempo (fix #4).
-      batch.delete(
-        _db.collection('users').doc(uid).collection('partnerInvites').doc(invite.inviteId),
-      );
-
-      // Crear/mergear partner en MI lista (status=active)
-      batch.set(
-        _db.collection('users').doc(uid).collection('battlePartners').doc(invite.fromUid),
-        {
-          'partnerUid': invite.fromUid,
-          'partnerName': invite.fromName,
-          'status': 'active',
-          'addedAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
-
-      // Actualizar/crear partner doc en la lista del OTRO (idempotente).
-      // set(merge:true) evita fallos si el otro limpió su doc (fix #3).
-      batch.set(
-        _db.collection('users').doc(invite.fromUid).collection('battlePartners').doc(uid),
-        {
-          'partnerUid': uid,
-          'partnerName': myName,
-          'status': 'active',
-          'addedAt': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
-
-      await batch.commit();
+      await _functions.httpsCallable('acceptPartnerInvite').call({'inviteId': invite.inviteId});
 
       // Analytics (#24)
       unawaited(
@@ -698,6 +595,9 @@ class BattlePartnerService {
 
       debugPrint('🤝 [BATTLE] ✅ Invitación aceptada de ${invite.fromName}');
       return true;
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('🤝 [BATTLE] Error aceptando invitación: ${e.code} ${e.message}');
+      return false;
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error aceptando invitación: $e');
       return false;
@@ -719,12 +619,17 @@ class BattlePartnerService {
           .delete();
 
       // Actualizar el partner doc del otro lado si existe (best-effort,
-      // merge para tolerar que ya no exista — fix #3).
+      // sin crear documentos nuevos: los creates críticos pasan por Functions.
       try {
-        await _db.collection('users').doc(invite.fromUid).collection('battlePartners').doc(uid).set(
-          {'status': 'rejected'},
-          SetOptions(merge: true),
-        );
+        final otherRef = _db
+            .collection('users')
+            .doc(invite.fromUid)
+            .collection('battlePartners')
+            .doc(uid);
+        final otherDoc = await otherRef.get();
+        if (otherDoc.exists) {
+          await otherRef.update({'status': 'rejected'});
+        }
       } catch (e) {
         debugPrint('🤝 [BATTLE] Error updating other side rejection: $e');
       }
@@ -754,18 +659,27 @@ class BattlePartnerService {
         await setTrustedPartner(null);
       }
 
+      final myRef = _db.collection('users').doc(uid).collection('battlePartners').doc(partnerUid);
+      final otherRef = _db
+          .collection('users')
+          .doc(partnerUid)
+          .collection('battlePartners')
+          .doc(uid);
+      final snapshots = await Future.wait([myRef.get(), otherRef.get()]);
+
       final batch = _db.batch();
-      batch.set(
-        _db.collection('users').doc(uid).collection('battlePartners').doc(partnerUid),
-        {'status': 'removed'},
-        SetOptions(merge: true),
-      );
-      batch.set(
-        _db.collection('users').doc(partnerUid).collection('battlePartners').doc(uid),
-        {'status': 'removed'},
-        SetOptions(merge: true),
-      );
-      await batch.commit();
+      var hasWrites = false;
+      if (snapshots[0].exists) {
+        batch.update(myRef, {'status': 'removed'});
+        hasWrites = true;
+      }
+      if (snapshots[1].exists) {
+        batch.update(otherRef, {'status': 'removed'});
+        hasWrites = true;
+      }
+      if (hasWrites) {
+        await batch.commit();
+      }
 
       unawaited(_logEvent('battle_partner_removed', const {}));
       debugPrint('🤝 [BATTLE] Compañero $partnerUid removido');
@@ -853,25 +767,12 @@ class BattlePartnerService {
     }
 
     try {
-      final fromName = await _myPublicName(fallback: 'Tu compañero');
       final text = kBattleMessageMap[messageKey]?.text ?? 'Te envió un mensaje';
-      await _db.collection('users').doc(toUid).collection('battleMessages').add({
-        'fromUid': uid,
-        'fromName': fromName,
+      await _functions.httpsCallable('sendBattleMessage').call({
+        'toUid': toUid,
         'messageKey': messageKey,
         'text': text,
-        'sentAt': FieldValue.serverTimestamp(),
-        'read': false,
       });
-
-      // Actualizar lastMessageSentAt (best-effort, merge para tolerar doc ausente)
-      try {
-        await _db.collection('users').doc(uid).collection('battlePartners').doc(toUid).set({
-          'lastMessageSentAt': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
-      } catch (e) {
-        debugPrint('🤝 [BATTLE] Error updating lastMessageSentAt: $e');
-      }
 
       // Registrar rate-limit
       _recordMessageSent(toUid);
@@ -881,6 +782,9 @@ class BattlePartnerService {
 
       debugPrint('🤝 [BATTLE] Mensaje "$messageKey" enviado a $toUid');
       return true;
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('🤝 [BATTLE] Error enviando mensaje: ${e.code} ${e.message}');
+      return false;
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error enviando mensaje: $e');
       return false;
@@ -1014,6 +918,7 @@ class BattlePartnerService {
   Future<void> setAcceptingInvites(bool value) async {
     acceptingInvitesNotifier.value = value;
     await _prefs?.setBool(_kAcceptingInvitesKey, value);
+    UserPrefCloudSyncService.I.markDirty();
     unawaited(_logEvent('battle_pause_toggled', {'accepting': value}));
     // Refrescar el doc público (usa merge).
     unawaited(syncPublicProgress());
@@ -1036,6 +941,7 @@ class BattlePartnerService {
     } else {
       await _prefs?.setString(_kTrustedPartnerKey, partnerUid);
     }
+    UserPrefCloudSyncService.I.markDirty();
     unawaited(_logEvent('battle_trusted_partner_changed', {'has_trusted': partnerUid != null}));
     unawaited(syncPublicProgress()); // limpia sharedGiantId si ya no hay trusted
   }
@@ -1070,32 +976,48 @@ class BattlePartnerService {
     final partners = partnersNotifier.value.where((p) => p.status == PartnerStatus.active).toList();
     if (partners.isEmpty) return 0;
 
-    final fromName = await _myPublicName(fallback: 'Tu compañero');
     final text = kBattleMessageMap[kBattleSosKey]?.text ?? 'Necesito oración ahora';
-    int sent = 0;
-    final batch = _db.batch();
-    for (final p in partners) {
-      final ref = _db.collection('users').doc(p.uid).collection('battleMessages').doc();
-      batch.set(ref, {
-        'fromUid': uid,
-        'fromName': fromName,
-        'messageKey': kBattleSosKey,
-        'text': text,
-        'sentAt': FieldValue.serverTimestamp(),
-        'read': false,
-        'priority': 'sos',
-      });
-      sent++;
-    }
     try {
-      await batch.commit();
+      final result = await _functions.httpsCallable('sendBattleSos').call({'text': text});
+      final data = Map<String, dynamic>.from(result.data as Map);
+      final sent = (data['recipients'] as num?)?.toInt() ?? 0;
+      if (sent <= 0) return 0;
       await _prefs?.setString(_kLastSosIso, DateTime.now().toIso8601String());
       unawaited(_logEvent('battle_sos_sent', {'recipients': sent}));
       debugPrint('🤝 [BATTLE] 🆘 SOS enviado a $sent compañero(s)');
       return sent;
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('🤝 [BATTLE] Error enviando SOS: ${e.code} ${e.message}');
+      return 0;
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error enviando SOS: $e');
       return 0;
+    }
+  }
+
+  InviteResult _inviteResultFromFunctionError(FirebaseFunctionsException error) {
+    switch (error.code) {
+      case 'not-found':
+        return const InviteResult(type: InviteResultType.notFound);
+      case 'already-exists':
+        return const InviteResult(type: InviteResultType.alreadyLinked);
+      case 'resource-exhausted':
+        return const InviteResult(type: InviteResultType.limitReached);
+      case 'failed-precondition':
+        final message = error.message ?? '';
+        if (message.toLowerCase().contains('paus')) {
+          return const InviteResult(type: InviteResultType.targetPaused);
+        }
+        if (message.toLowerCase().contains('inválida') ||
+            message.toLowerCase().contains('invalida')) {
+          return const InviteResult(type: InviteResultType.selfInvite);
+        }
+        return InviteResult(type: InviteResultType.error, errorMessage: message);
+      default:
+        return InviteResult(
+          type: InviteResultType.error,
+          errorMessage: error.message ?? error.code,
+        );
     }
   }
 
@@ -1119,22 +1041,6 @@ class BattlePartnerService {
     }
   }
 
-  Future<String> _myPublicName({required String fallback}) async {
-    final uid = _uid;
-    if (uid == null) return fallback;
-    try {
-      final doc = await _db.collection('users').doc(uid).get();
-      final data = doc.data();
-      final publicName = (data?['publicName'] as String?)?.trim();
-      if (publicName != null && publicName.isNotEmpty) return publicName;
-      final displayName = (data?['displayName'] as String?)?.trim();
-      if (displayName != null && displayName.isNotEmpty) return displayName;
-    } catch (e) {
-      debugPrint('🤝 [BATTLE] Error leyendo nombre público: $e');
-    }
-    return fallback;
-  }
-
   void _onStreakChanged() {
     _publicProgressDebounce?.cancel();
     _publicProgressDebounce = Timer(const Duration(minutes: 5), () {
@@ -1149,6 +1055,7 @@ class BattlePartnerService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Future<void> _logEvent(String name, Map<String, Object?> params) async {
+    if (!PlatformCapabilities.supportsFirebaseAnalytics) return;
     try {
       final clean = <String, Object>{};
       params.forEach((k, v) {

@@ -29,6 +29,7 @@ class BadgeRepository {
   // ═══════════════════════════════════════════════════════════════════════════
 
   static const String _keyCacheV1 = 'badge_levels_cache_v1';
+  static const String _keyPendingCloudSave = 'badge_pending_cloud_save_v1';
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -40,10 +41,17 @@ class BadgeRepository {
 
   /// Cache local: {categoryName: levelIndex}
   Map<String, int> _cache = {};
+  bool _pendingCloudSave = false;
 
   /// Guard contra connectUser concurrente
   String? _connectingUid;
   Future<void>? _connectFuture;
+
+  /// Suscripción realtime al documento único de insignias.
+  StreamSubscription<DocumentSnapshot>? _realtimeSubscription;
+
+  /// Callback para hidratar servicios locales cuando Firestore trae cambios.
+  VoidCallback? onCloudCacheChanged;
 
   bool get isInitialized => _isInitialized;
   Map<String, int> get cachedLevels => Map.unmodifiable(_cache);
@@ -59,10 +67,10 @@ class BadgeRepository {
     try {
       _prefs = await SharedPreferences.getInstance();
       await _loadLocalCache();
+      _pendingCloudSave = _prefs?.getBool(_keyPendingCloudSave) ?? false;
       _isInitialized = true;
 
-      debugPrint(
-          '🏅 [BADGE_REPO] Initialized with ${_cache.length} cached levels');
+      debugPrint('🏅 [BADGE_REPO] Initialized with ${_cache.length} cached levels');
     } catch (e) {
       debugPrint('🏅 [BADGE_REPO] Init error: $e');
       _isInitialized = true;
@@ -72,8 +80,7 @@ class BadgeRepository {
   /// Conectar con usuario y sincronizar (CLOUD-FIRST con merge)
   Future<void> connectUser(String uid) async {
     if (_connectingUid == uid && _connectFuture != null) {
-      debugPrint(
-          '🏅 [BADGE_REPO] connectUser already in progress for $uid, awaiting...');
+      debugPrint('🏅 [BADGE_REPO] connectUser already in progress for $uid, awaiting...');
       await _connectFuture;
       return;
     }
@@ -88,9 +95,10 @@ class BadgeRepository {
 
     try {
       debugPrint('🏅 [BADGE_REPO] Connecting user: $uid');
+      await _realtimeSubscription?.cancel();
       await _syncFromCloud(uid);
-      debugPrint(
-          '🏅 [BADGE_REPO] ✅ Connected with ${_cache.length} badge levels');
+      _startRealtimeSync(uid);
+      debugPrint('🏅 [BADGE_REPO] ✅ Connected with ${_cache.length} badge levels');
     } catch (e) {
       debugPrint('🏅 [BADGE_REPO] Connect error: $e');
     } finally {
@@ -104,6 +112,8 @@ class BadgeRepository {
     debugPrint('🏅 [BADGE_REPO] Disconnecting (keeping data)');
     _connectingUid = null;
     _connectFuture = null;
+    await _realtimeSubscription?.cancel();
+    _realtimeSubscription = null;
   }
 
   /// Limpiar cache local
@@ -111,8 +121,12 @@ class BadgeRepository {
     debugPrint('🏅 [BADGE_REPO] Clearing local cache');
     _connectingUid = null;
     _connectFuture = null;
+    await _realtimeSubscription?.cancel();
+    _realtimeSubscription = null;
     _cache.clear();
     await _prefs?.remove(_keyCacheV1);
+    await _prefs?.remove(_keyPendingCloudSave);
+    _pendingCloudSave = false;
     debugPrint('🏅 [BADGE_REPO] ✅ Local cache cleared');
   }
 
@@ -121,38 +135,46 @@ class BadgeRepository {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Referencia al documento único de badges
-  DocumentReference _badgesDoc(String uid) => _firestore
-      .collection('users')
-      .doc(uid)
-      .collection('userSettings')
-      .doc('badges');
+  DocumentReference _badgesDoc(String uid) =>
+      _firestore.collection('users').doc(uid).collection('userSettings').doc('badges');
 
   /// Descargar badges desde cloud — MERGE: siempre tomar nivel más alto
   Future<void> _syncFromCloud(String uid) async {
     try {
+      final localHadPendingSave = _pendingCloudSave;
       final doc = await retryWithBackoff(
-        () => _badgesDoc(uid)
-          .get(const GetOptions(source: Source.server))
-          .timeout(const Duration(seconds: 15)),
+        () => _badgesDoc(
+          uid,
+        ).get(const GetOptions(source: Source.server)).timeout(const Duration(seconds: 15)),
       );
 
       if (doc.exists) {
         final data = doc.data() as Map<String, dynamic>? ?? {};
-        final cloudLevels = (data['levels'] as Map<String, dynamic>?)
-                ?.map((k, v) => MapEntry(k, v as int)) ??
-            {};
+        final cloudLevels =
+            (data['levels'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as int)) ?? {};
 
         // Merge: tomar el nivel más alto entre local y cloud
+        var changedByLocal = false;
         for (final entry in cloudLevels.entries) {
           final localLevel = _cache[entry.key] ?? -1;
           if (entry.value > localLevel) {
             _cache[entry.key] = entry.value;
+          } else if (localLevel > entry.value) {
+            changedByLocal = true;
+          }
+        }
+        for (final localEntry in _cache.entries) {
+          if (!cloudLevels.containsKey(localEntry.key)) {
+            changedByLocal = true;
           }
         }
         await _saveLocalCache();
 
-        debugPrint(
-            '🏅 [BADGE_REPO] Merged ${cloudLevels.length} badge levels from cloud');
+        if (localHadPendingSave || changedByLocal) {
+          await saveAllToCloud(_cache);
+        }
+
+        debugPrint('🏅 [BADGE_REPO] Merged ${cloudLevels.length} badge levels from cloud');
       } else {
         debugPrint('🏅 [BADGE_REPO] Cloud empty, keeping local cache');
         // Si hay datos locales, subirlos a cloud para inicializar
@@ -177,16 +199,69 @@ class BadgeRepository {
 
       await _badgesDoc(uid).set({
         'levels': levels,
-        'totalUnlocked':
-            levels.values.fold<int>(0, (acc, lvl) => acc + lvl + 1),
+        'totalUnlocked': levels.values.fold<int>(0, (acc, lvl) => acc + lvl + 1),
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
-      debugPrint(
-          '☁️ [BADGE_REPO] Saved ${levels.length} badge levels to cloud');
+      _pendingCloudSave = false;
+      await _prefs?.setBool(_keyPendingCloudSave, false);
+
+      debugPrint('☁️ [BADGE_REPO] Saved ${levels.length} badge levels to cloud');
     } catch (e) {
+      _pendingCloudSave = true;
+      await _prefs?.setBool(_keyPendingCloudSave, true);
       debugPrint('❌ [BADGE_REPO] Cloud save error: $e');
     }
+  }
+
+  Future<void> retryPendingCloudSave() async {
+    if (!_isInitialized) await init();
+    if (!_pendingCloudSave) return;
+
+    debugPrint('🏅 [BADGE_REPO] Retrying pending cloud save');
+    await saveAllToCloud(_cache);
+  }
+
+  void _startRealtimeSync(String uid) {
+    _realtimeSubscription = _badgesDoc(uid).snapshots().listen(
+      (doc) {
+        if (doc.metadata.hasPendingWrites || _pendingCloudSave) return;
+        if (!doc.exists) return;
+
+        final data = doc.data() as Map<String, dynamic>? ?? {};
+        final cloudLevels =
+            (data['levels'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as int)) ?? {};
+
+        var changedByCloud = false;
+        var changedByLocal = false;
+        for (final entry in cloudLevels.entries) {
+          final localLevel = _cache[entry.key] ?? -1;
+          if (entry.value > localLevel) {
+            _cache[entry.key] = entry.value;
+            changedByCloud = true;
+          } else if (localLevel > entry.value) {
+            changedByLocal = true;
+          }
+        }
+        for (final localEntry in _cache.entries) {
+          if (!cloudLevels.containsKey(localEntry.key)) {
+            changedByLocal = true;
+          }
+        }
+
+        if (changedByCloud) {
+          _saveLocalCache();
+          onCloudCacheChanged?.call();
+          debugPrint('🏅 [BADGE_REPO] Realtime update: ${_cache.length} badge levels');
+        }
+        if (changedByLocal) {
+          unawaited(saveAllToCloud(_cache));
+        }
+      },
+      onError: (e) {
+        debugPrint('🏅 [BADGE_REPO] Realtime sync error: $e');
+      },
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

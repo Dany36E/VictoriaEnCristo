@@ -13,26 +13,26 @@ class UserProfile {
   final String? photoUrl;
   final DateTime createdAt;
   final DateTime updatedAt;
-  
+
   // Onboarding
   final bool onboardingCompleted;
   final List<String> selectedGiants;
   final Map<String, String> giantFrequencies;
   final double victoryThreshold;
-  
+
   // Configuración
   final bool bgmEnabled;
   final bool sfxEnabled;
   final bool isDarkMode;
   final bool notificationsEnabled;
-  
+
   // Compañero de Batalla
   final String? inviteCode;
   final String? publicName;
-  
+
   // Admin (solo escritura desde admin SDK/Cloud Functions)
   final bool isAdmin;
-  
+
   const UserProfile({
     required this.uid,
     this.email,
@@ -52,11 +52,11 @@ class UserProfile {
     this.publicName,
     this.isAdmin = false,
   });
-  
+
   /// Crear desde documento Firestore
   factory UserProfile.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
-    
+
     return UserProfile(
       uid: doc.id,
       email: data['email'] as String?,
@@ -77,7 +77,7 @@ class UserProfile {
       isAdmin: data['isAdmin'] as bool? ?? false,
     );
   }
-  
+
   /// Crear desde Map local (SharedPreferences/Hive)
   factory UserProfile.fromLocal(Map<String, dynamic> data) {
     return UserProfile(
@@ -100,7 +100,7 @@ class UserProfile {
       isAdmin: data['isAdmin'] as bool? ?? false,
     );
   }
-  
+
   /// Crear perfil vacío/nuevo
   factory UserProfile.empty(String uid, {String? email, String? displayName}) {
     final now = DateTime.now();
@@ -112,10 +112,11 @@ class UserProfile {
       updatedAt: now,
     );
   }
-  
+
   /// Convertir a Map para Firestore
   Map<String, dynamic> toFirestore() {
     return {
+      'uid': uid,
       'email': email,
       'displayName': displayName,
       'photoUrl': photoUrl,
@@ -133,7 +134,7 @@ class UserProfile {
       'publicName': publicName,
     };
   }
-  
+
   /// Convertir a Map para almacenamiento local
   Map<String, dynamic> toLocal() {
     return {
@@ -156,7 +157,7 @@ class UserProfile {
       'isAdmin': isAdmin,
     };
   }
-  
+
   /// Crear copia con campos actualizados
   UserProfile copyWith({
     String? email,
@@ -195,32 +196,33 @@ class UserProfile {
       isAdmin: isAdmin ?? this.isAdmin,
     );
   }
-  
+
   // ═══════════════════════════════════════════════════════════════════════════
   // HELPERS
   // ═══════════════════════════════════════════════════════════════════════════
-  
+
   static DateTime? _timestampToDateTime(dynamic value) {
     if (value is Timestamp) return value.toDate();
     if (value is DateTime) return value;
     if (value is String) return DateTime.tryParse(value);
     return null;
   }
-  
+
   static List<String> _toStringList(dynamic value) {
     if (value is List) {
       return value.map((e) => e.toString()).toList();
     }
     return [];
   }
-  
+
   static Map<String, String> _toStringMap(dynamic value) {
     if (value is Map) {
       return value.map((k, v) => MapEntry(k.toString(), v.toString()));
     }
     return {};
   }
-  
+
   @override
-  String toString() => 'UserProfile(uid: $uid, name: $displayName, onboarding: $onboardingCompleted)';
+  String toString() =>
+      'UserProfile(uid: $uid, name: $displayName, onboarding: $onboardingCompleted)';
 }

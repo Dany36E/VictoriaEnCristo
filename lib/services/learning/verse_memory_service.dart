@@ -43,29 +43,33 @@ class VerseMemoryService {
   final Map<String, VerseMemoryState> _states = {};
 
   final ValueNotifier<int> changeTickNotifier = ValueNotifier(0);
-  final ValueNotifier<BibleVersion> preferredVersionNotifier =
-      ValueNotifier(BibleVersion.rvr1960);
+  final ValueNotifier<BibleVersion> preferredVersionNotifier = ValueNotifier(BibleVersion.rvr1960);
 
   // ══════════════════════════════════════════════════════════════════════════
   // INIT
   // ══════════════════════════════════════════════════════════════════════════
 
   Future<void> init() async {
-    if (_init) return;
+    if (_init) {
+      _loadStates();
+      _loadVersionPref();
+      changeTickNotifier.value = changeTickNotifier.value + 1;
+      return;
+    }
     _prefs = await SharedPreferences.getInstance();
     await _loadCatalog();
     _loadStates();
     _loadVersionPref();
     _init = true;
     debugPrint(
-        '🛡️ [ARMORY] Init catalog=${_catalog.length} states=${_states.length} '
-        'version=${preferredVersionNotifier.value.id}');
+      '🛡️ [ARMORY] Init catalog=${_catalog.length} states=${_states.length} '
+      'version=${preferredVersionNotifier.value.id}',
+    );
   }
 
   Future<void> _loadCatalog() async {
     try {
-      final raw =
-          await rootBundle.loadString('assets/content/learning_verses.json');
+      final raw = await rootBundle.loadString('assets/content/learning_verses.json');
       final list = (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
       _catalog = list.map(MemoryVerse.fromJson).toList();
     } catch (e) {
@@ -81,8 +85,7 @@ class VerseMemoryService {
     try {
       final j = jsonDecode(raw) as Map<String, dynamic>;
       for (final entry in j.entries) {
-        _states[entry.key] =
-            VerseMemoryState.fromJson(entry.value as Map<String, dynamic>);
+        _states[entry.key] = VerseMemoryState.fromJson(entry.value as Map<String, dynamic>);
       }
     } catch (e) {
       debugPrint('🛡️ [ARMORY] Error parsing states: $e');
@@ -90,9 +93,7 @@ class VerseMemoryService {
   }
 
   Future<void> _persistStates() async {
-    final j = <String, dynamic>{
-      for (final e in _states.entries) e.key: e.value.toJson(),
-    };
+    final j = <String, dynamic>{for (final e in _states.entries) e.key: e.value.toJson()};
     await _prefs?.setString(_kStates, jsonEncode(j));
     changeTickNotifier.value = changeTickNotifier.value + 1;
     // Actualizar contador de dominados en progreso
@@ -117,14 +118,11 @@ class VerseMemoryService {
 
   List<MemoryVerse> get catalog => _catalog;
 
-  VerseMemoryState stateFor(String verseId) =>
-      _states[verseId] ?? const VerseMemoryState.initial();
+  VerseMemoryState stateFor(String verseId) => _states[verseId] ?? const VerseMemoryState.initial();
 
-  int get masteredCount =>
-      _states.values.where((s) => s.level >= 5).length;
+  int get masteredCount => _states.values.where((s) => s.level >= 5).length;
 
-  int get inProgressCount =>
-      _states.values.where((s) => s.level > 0 && s.level < 5).length;
+  int get inProgressCount => _states.values.where((s) => s.level > 0 && s.level < 5).length;
 
   /// Los versículos que tocan repaso hoy (dueDate <= hoy y level>=1).
   List<MemoryVerse> dueToday() {
@@ -172,10 +170,7 @@ class VerseMemoryService {
   /// Registra el resultado de un repaso.
   /// quality: 0 = fallo, 1 = difícil, 2 = correcto.
   /// Devuelve el nuevo estado.
-  Future<VerseMemoryState> recordReview({
-    required String verseId,
-    required int quality,
-  }) async {
+  Future<VerseMemoryState> recordReview({required String verseId, required int quality}) async {
     await init();
     final prev = stateFor(verseId);
     final today = TimeUtils.dateToISO(DateTime.now());

@@ -79,18 +79,18 @@ class TalentEntry {
   });
 
   Map<String, dynamic> toJson() => {
-        'delta': delta,
-        'reason': reason,
-        'balanceAfter': balanceAfter,
-        'atMs': atMs,
-      };
+    'delta': delta,
+    'reason': reason,
+    'balanceAfter': balanceAfter,
+    'atMs': atMs,
+  };
 
   factory TalentEntry.fromJson(Map<String, dynamic> j) => TalentEntry(
-        delta: (j['delta'] as num?)?.toInt() ?? 0,
-        reason: (j['reason'] as String?) ?? '',
-        balanceAfter: (j['balanceAfter'] as num?)?.toInt() ?? 0,
-        atMs: (j['atMs'] as num?)?.toInt() ?? 0,
-      );
+    delta: (j['delta'] as num?)?.toInt() ?? 0,
+    reason: (j['reason'] as String?) ?? '',
+    balanceAfter: (j['balanceAfter'] as num?)?.toInt() ?? 0,
+    atMs: (j['atMs'] as num?)?.toInt() ?? 0,
+  );
 }
 
 @immutable
@@ -107,18 +107,9 @@ class TalentsState {
     required this.unlocked,
   });
 
-  const TalentsState.initial()
-      : balance = 0,
-        totalEarned = 0,
-        totalSpent = 0,
-        unlocked = const {};
+  const TalentsState.initial() : balance = 0, totalEarned = 0, totalSpent = 0, unlocked = const {};
 
-  TalentsState copyWith({
-    int? balance,
-    int? totalEarned,
-    int? totalSpent,
-    Set<String>? unlocked,
-  }) =>
+  TalentsState copyWith({int? balance, int? totalEarned, int? totalSpent, Set<String>? unlocked}) =>
       TalentsState(
         balance: balance ?? this.balance,
         totalEarned: totalEarned ?? this.totalEarned,
@@ -145,8 +136,7 @@ class TalentsService {
   bool _dirty = false;
 
   /// Notificador de balance. Las UIs pequeñas (badge, modales) escuchan esto.
-  final ValueNotifier<TalentsState> stateNotifier =
-      ValueNotifier(const TalentsState.initial());
+  final ValueNotifier<TalentsState> stateNotifier = ValueNotifier(const TalentsState.initial());
 
   /// Última recompensa otorgada (útil para mostrar toast/animación). Cambia
   /// en cada `earn()`. La UI puede escucharlo y limpiar tras mostrar.
@@ -167,8 +157,19 @@ class TalentsService {
     // Intento de merge con la nube — no bloquea el init.
     unawaited(_pullFromCloud());
     debugPrint(
-        '⭐ [TALENTS] Init balance=${stateNotifier.value.balance} '
-        'unlocks=${stateNotifier.value.unlocked.length}');
+      '⭐ [TALENTS] Init balance=${stateNotifier.value.balance} '
+      'unlocks=${stateNotifier.value.unlocked.length}',
+    );
+  }
+
+  Future<void> refreshFromCloud() async {
+    if (!_init) {
+      await init();
+      return;
+    }
+    _loadFromPrefs();
+    _loadLedger();
+    await _pullFromCloud();
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -177,19 +178,21 @@ class TalentsService {
 
   void _loadFromPrefs() {
     final raw = _prefs?.getString(_kStateV1);
-    if (raw == null || raw.isEmpty) return;
+    if (raw == null || raw.isEmpty) {
+      stateNotifier.value = const TalentsState.initial();
+      return;
+    }
     try {
       final j = jsonDecode(raw) as Map<String, dynamic>;
       stateNotifier.value = TalentsState(
         balance: (j['balance'] as num?)?.toInt() ?? 0,
         totalEarned: (j['totalEarned'] as num?)?.toInt() ?? 0,
         totalSpent: (j['totalSpent'] as num?)?.toInt() ?? 0,
-        unlocked: ((j['unlocked'] as List?)
-                ?.map((e) => '$e')
-                .toSet() ??
-            {}),
+        unlocked: ((j['unlocked'] as List?)?.map((e) => '$e').toSet() ?? {}),
       );
-    } catch (_) {/* estado inicial */}
+    } catch (_) {
+      stateNotifier.value = const TalentsState.initial();
+    }
   }
 
   Future<void> _saveToPrefs() async {
@@ -204,14 +207,15 @@ class TalentsService {
   }
 
   void _loadLedger() {
+    _ledger.clear();
     final raw = _prefs?.getString(_kLedgerV1);
     if (raw == null || raw.isEmpty) return;
     try {
       final list = (jsonDecode(raw) as List).cast<Map<String, dynamic>>();
-      _ledger
-        ..clear()
-        ..addAll(list.map(TalentEntry.fromJson));
-    } catch (_) {/* swallow */}
+      _ledger.addAll(list.map(TalentEntry.fromJson));
+    } catch (_) {
+      /* swallow */
+    }
   }
 
   Future<void> _saveLedger() async {
@@ -231,10 +235,7 @@ class TalentsService {
     final s = stateNotifier.value;
     final newBalance = (s.balance + amount).clamp(0, TalentRewards.maxBalance);
     final newTotal = s.totalEarned + amount;
-    stateNotifier.value = s.copyWith(
-      balance: newBalance,
-      totalEarned: newTotal,
-    );
+    stateNotifier.value = s.copyWith(balance: newBalance, totalEarned: newTotal);
     final entry = TalentEntry(
       delta: amount,
       reason: reason,
@@ -254,16 +255,15 @@ class TalentsService {
     final s = stateNotifier.value;
     if (s.balance < amount) return false;
     final newBalance = s.balance - amount;
-    stateNotifier.value = s.copyWith(
-      balance: newBalance,
-      totalSpent: s.totalSpent + amount,
+    stateNotifier.value = s.copyWith(balance: newBalance, totalSpent: s.totalSpent + amount);
+    _appendLedger(
+      TalentEntry(
+        delta: -amount,
+        reason: reason,
+        balanceAfter: newBalance,
+        atMs: DateTime.now().millisecondsSinceEpoch,
+      ),
     );
-    _appendLedger(TalentEntry(
-      delta: -amount,
-      reason: reason,
-      balanceAfter: newBalance,
-      atMs: DateTime.now().millisecondsSinceEpoch,
-    ));
     await _saveToPrefs();
     _scheduleSync();
     return true;
@@ -330,8 +330,7 @@ class TalentsService {
         'updatedAt': FieldValue.serverTimestamp(),
       }, SetOptions(merge: true));
       _dirty = false;
-      debugPrint(
-          '⭐ [TALENTS] Push OK balance=${s.balance} unlocks=${s.unlocked.length}');
+      debugPrint('⭐ [TALENTS] Push OK balance=${s.balance} unlocks=${s.unlocked.length}');
     } catch (e) {
       debugPrint('⭐ [TALENTS] Push falló (lo reintentaremos): $e');
       // No reintentamos: el próximo earn/spend volverá a programar el sync.
@@ -345,8 +344,7 @@ class TalentsService {
       final snap = await ref.get();
       if (!snap.exists) {
         // Primera vez: subimos el local (si tiene algo).
-        if (stateNotifier.value.balance > 0 ||
-            stateNotifier.value.unlocked.isNotEmpty) {
+        if (stateNotifier.value.balance > 0 || stateNotifier.value.unlocked.isNotEmpty) {
           _scheduleSync();
         }
         return;
@@ -355,21 +353,18 @@ class TalentsService {
       final remoteBalance = (j['balance'] as num?)?.toInt() ?? 0;
       final remoteEarned = (j['totalEarned'] as num?)?.toInt() ?? 0;
       final remoteSpent = (j['totalSpent'] as num?)?.toInt() ?? 0;
-      final remoteUnlocked = ((j['unlocked'] as List?)
-              ?.map((e) => '$e')
-              .toSet() ??
-          {});
+      final remoteUnlocked = ((j['unlocked'] as List?)?.map((e) => '$e').toSet() ?? {});
       final s = stateNotifier.value;
       // Resolución de conflicto: max balance/totales, unión de unlocks.
       final merged = TalentsState(
         balance: s.balance > remoteBalance ? s.balance : remoteBalance,
-        totalEarned:
-            s.totalEarned > remoteEarned ? s.totalEarned : remoteEarned,
+        totalEarned: s.totalEarned > remoteEarned ? s.totalEarned : remoteEarned,
         totalSpent: s.totalSpent > remoteSpent ? s.totalSpent : remoteSpent,
         unlocked: {...s.unlocked, ...remoteUnlocked},
       );
       // Solo persistimos y empujamos si hay cambios.
-      final changed = merged.balance != s.balance ||
+      final changed =
+          merged.balance != s.balance ||
           merged.totalEarned != s.totalEarned ||
           merged.totalSpent != s.totalSpent ||
           !setEquals(merged.unlocked, s.unlocked);
@@ -379,7 +374,8 @@ class TalentsService {
         _scheduleSync();
       }
       debugPrint(
-          '⭐ [TALENTS] Pull OK remoto=$remoteBalance local=${s.balance} merged=${merged.balance}');
+        '⭐ [TALENTS] Pull OK remoto=$remoteBalance local=${s.balance} merged=${merged.balance}',
+      );
     } catch (e) {
       debugPrint('⭐ [TALENTS] Pull falló: $e');
     }
