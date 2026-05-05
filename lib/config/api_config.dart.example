@@ -1,0 +1,8 @@
+/// Stub para CI / clones nuevos del repo. Reemplaza con el archivo real
+/// (gitignored) que contiene las API keys de servicios b\u00edblicos.
+class ApiConfig {
+  ApiConfig._();
+  static const String iqBibleKey = '';
+  static const String blbKey = '';
+  static const String bibleBrainKey = '';
+}

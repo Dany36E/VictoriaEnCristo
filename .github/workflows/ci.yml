@@ -27,6 +27,13 @@ jobs:
       - name: Install dependencies
         run: flutter pub get
 
+      - name: Generate stub config files (gitignored secrets)
+        shell: bash
+        run: |
+          cp lib/firebase_options.dart.example lib/firebase_options.dart
+          cp lib/config/api_config.dart.example lib/config/api_config.dart
+          cp assets/config.json.example assets/config.json
+
       - name: Asset audit
         shell: pwsh
         run: ./scripts/audit_assets.ps1 -Top 20

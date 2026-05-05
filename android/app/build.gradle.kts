@@ -40,14 +40,10 @@ android {
     }
 
     defaultConfig {
-        // NOTA: applicationId sigue como placeholder de Flutter por
-        // compatibilidad con la app Android registrada en Firebase. Para
-        // publicar en Play Store hay que (1) registrar nuevo Android app
-        // en Firebase Console con el id final (p.ej. com.victoriaencristo.app),
-        // (2) descargar el nuevo google-services.json, (3) añadir SHA-1 del
-        // release.keystore en Firebase para Google Sign-In, y luego cambiar
-        // applicationId aquí.
-        applicationId = "com.example.app_quitar"
+        // applicationId definitivo (Play Store + Firebase Android app dedicada).
+        // El namespace Kotlin sigue siendo com.example.app_quitar para
+        // evitar refactor masivo; eso es cosmético, Android usa applicationId.
+        applicationId = "com.victoriaencristo.app"
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode

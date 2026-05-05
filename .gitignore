@@ -33,6 +33,9 @@ migrate_working_dir/
 /build/
 /coverage/
 /dist/
+build_*.txt
+analyze_output.txt
+test_out.txt
 
 # Symbolication related
 app.*.symbols
@@ -47,6 +50,7 @@ app.*.map.json
 
 # Firebase sensitive files
 android/app/google-services.json
+android/app/google-services.json.bak*
 ios/Runner/GoogleService-Info.plist
 lib/firebase_options.dart
 
