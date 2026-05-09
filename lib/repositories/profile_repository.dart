@@ -215,12 +215,25 @@ class ProfileRepository {
   /// Retorna null si no existe. Si falla el server, intenta cache solo
   /// si el UID coincide con la sesión actual.
   Future<UserProfile?> fetchProfileFromServer(String uid) async {
+    if (!_isInitialized) await init();
     final cloudProfile = await _loadFromCloud(uid);
     if (cloudProfile != null) {
       _cachedProfile = cloudProfile;
+      await _saveLocalCache();
       profileNotifier.value = cloudProfile;
+      return cloudProfile;
     }
-    return cloudProfile;
+    // Cloud unreachable / sin internet: si tenemos cache local del MISMO
+    // uid, devolverla para permitir que la app entre en modo offline en vez
+    // de forzar onboarding. Si la cache es de otro uid o no existe, devolver
+    // null para que el caller maneje el caso (p.ej. mostrar mensaje de
+    // "sin conexión" en el primer login).
+    if (_lastCloudReadFailed && _cachedProfile != null && _cachedProfile!.uid == uid) {
+      debugPrint('👤 [PROFILE_REPO] Server unreachable, using local cache (offline mode)');
+      profileNotifier.value = _cachedProfile;
+      return _cachedProfile;
+    }
+    return null;
   }
 
   /// Crear/merge perfil minimal para un usuario nuevo (para ProfileGate).

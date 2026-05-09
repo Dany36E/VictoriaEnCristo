@@ -12,7 +12,9 @@ import android.media.AudioManager
 import android.media.MediaPlayer
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import android.os.PowerManager
 import android.provider.Settings
 
@@ -20,6 +22,31 @@ class SacredAlarmForegroundService : Service() {
     private var player: MediaPlayer? = null
     private var wakeLock: PowerManager.WakeLock? = null
     private var activeSessionId: String? = null
+
+    // Vigilante de volumen: mientras la campana este sonando, si el usuario
+    // baja el volumen del stream de alarma por debajo del minimo configurado,
+    // lo restauramos automaticamente.
+    private val volumeWatchHandler = Handler(Looper.getMainLooper())
+    private var minimumVolumeTarget: Int = 0
+    private var enforceMinimumVolumeActive: Boolean = false
+    private val volumeWatchRunnable = object : Runnable {
+        override fun run() {
+            if (!enforceMinimumVolumeActive) return
+            try {
+                val audioManager =
+                    getSystemService(Context.AUDIO_SERVICE) as AudioManager
+                val current = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
+                if (current < minimumVolumeTarget) {
+                    audioManager.setStreamVolume(
+                        AudioManager.STREAM_ALARM,
+                        minimumVolumeTarget,
+                        0
+                    )
+                }
+            } catch (_: Exception) {}
+            volumeWatchHandler.postDelayed(this, 400)
+        }
+    }
 
     override fun onCreate() {
         super.onCreate()
@@ -124,6 +151,8 @@ class SacredAlarmForegroundService : Service() {
     }
 
     private fun raiseAlarmVolumeIfNeeded(enabled: Boolean, minimumPercent: Int) {
+        // Detener cualquier vigilante previo (si la alarma se reinicio).
+        stopVolumeWatcher()
         if (!enabled) return
         try {
             val audioManager = getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -131,14 +160,25 @@ class SacredAlarmForegroundService : Service() {
             if (maxVolume <= 0) return
             val target = ((maxVolume * minimumPercent.coerceIn(30, 100)) / 100.0).toInt()
                 .coerceAtLeast(1)
+            minimumVolumeTarget = target
             val current = audioManager.getStreamVolume(AudioManager.STREAM_ALARM)
             if (current < target) {
                 audioManager.setStreamVolume(AudioManager.STREAM_ALARM, target, 0)
             }
+            // Iniciar vigilante para impedir que el usuario baje el volumen
+            // mientras la campana sigue sonando.
+            enforceMinimumVolumeActive = true
+            volumeWatchHandler.postDelayed(volumeWatchRunnable, 400)
         } catch (_: Exception) {}
     }
 
+    private fun stopVolumeWatcher() {
+        enforceMinimumVolumeActive = false
+        volumeWatchHandler.removeCallbacks(volumeWatchRunnable)
+    }
+
     private fun stopAlarm() {
+        stopVolumeWatcher()
         stopPlayerOnly()
         wakeLock?.let {
             if (it.isHeld) it.release()

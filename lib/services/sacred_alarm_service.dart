@@ -209,6 +209,22 @@ class SacredAlarmService {
       }
     } else {
       index = events.indexWhere((event) => event.id == sessionId);
+      if (index < 0) {
+        // El sessionId vino de una notificacion pero el evento ya no esta en
+        // scheduledEvents (p.ej. el schedule se regenero o se podo). Como la
+        // campana nativa SI puede seguir sonando, hacemos best-effort buscando
+        // un evento reciente cercano a "ahora" para activarlo y permitir que
+        // el usuario complete la pantalla normalmente.
+        final ringingWindowMs =
+            nowMs - const Duration(hours: 4).inMilliseconds;
+        index = events.indexWhere(
+          (event) =>
+              !_isTestEvent(event) &&
+              event.status != SacredAlarmEventStatus.completed &&
+              event.scheduledAtMs >= ringingWindowMs &&
+              event.scheduledAtMs <= nowMs + 60000,
+        );
+      }
     }
     if (index < 0) {
       activeEvent.value = null;
@@ -367,9 +383,10 @@ class SacredAlarmService {
     // pudo actualizar su estado en SharedPreferences. Cuando el usuario abre
     // la app (por ejemplo desde la notificacion), promovemos los eventos
     // pasados recientes a "ringing" para que la pantalla de Campana Sagrada
-    // los pueda recuperar y permitir apagarlos.
+    // los pueda recuperar y permitir apagarlos. Usamos una ventana amplia
+    // (24h) porque el usuario puede tardar en abrir la notificacion.
     final ringingWindowMs =
-        nowMs - const Duration(hours: 4).inMilliseconds;
+        nowMs - const Duration(hours: 24).inMilliseconds;
     final restored = events.where((event) => event.scheduledAtMs >= cutoff).map((event) {
       if (event.status == SacredAlarmEventStatus.scheduled &&
           event.scheduledAtMs < nowMs &&
