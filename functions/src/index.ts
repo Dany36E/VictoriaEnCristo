@@ -41,3 +41,9 @@ export {
   rotateStudyVersions,
   studyRoomAutoSwap,
 } from "./studyRoomFunctions";
+
+// Admin claims y limpieza FCM
+export {
+  setAdminClaim,
+  cleanStaleFcmTokens,
+} from "./adminFunctions";

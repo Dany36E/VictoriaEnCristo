@@ -100,6 +100,12 @@ class AuthService {
 
   /// Registrar nuevo usuario con email
   Future<AuthResult> registerWithEmail(String email, String password, String name) async {
+    // Política de contraseñas: mínimo 8 caracteres con al menos una letra y
+    // un número. Bloqueamos contraseñas comunes obviamente débiles.
+    final passwordError = _validatePassword(password);
+    if (passwordError != null) {
+      return AuthResult.error(passwordError);
+    }
     try {
       final credential = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -118,6 +124,24 @@ class AuthService {
     } catch (e) {
       return AuthResult.error('Error al registrarse: $e');
     }
+  }
+
+  /// Devuelve un mensaje si la contraseña no cumple la política, o null si es válida.
+  String? _validatePassword(String password) {
+    if (password.length < 8) {
+      return 'La contraseña debe tener al menos 8 caracteres.';
+    }
+    if (!RegExp(r'[A-Za-z]').hasMatch(password)) {
+      return 'La contraseña debe incluir al menos una letra.';
+    }
+    if (!RegExp(r'[0-9]').hasMatch(password)) {
+      return 'La contraseña debe incluir al menos un número.';
+    }
+    const weak = {'12345678', 'password', '123456789', 'qwerty12', 'abc12345'};
+    if (weak.contains(password.toLowerCase())) {
+      return 'Esa contraseña es demasiado común. Usa una más segura.';
+    }
+    return null;
   }
 
   /// Iniciar sesión con Google

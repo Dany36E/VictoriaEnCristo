@@ -23,6 +23,7 @@ const MAX_MEMBERS = ALLOWED_VERSIONS.length;
 const MIN_SWAP_MINUTES = 5;
 const MAX_SWAP_MINUTES = 180;
 const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // sin O,0,1,I
+const MAX_ROOMS_PER_DAY = 10;
 const HTTPS_ERROR_CODES = new Set([
     "cancelled", "unknown", "invalid-argument", "deadline-exceeded",
     "not-found", "already-exists", "permission-denied", "resource-exhausted",
@@ -49,6 +50,28 @@ function genCode() {
         out += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
     }
     return out;
+}
+/**
+ * Limita la creación de salas a MAX_ROOMS_PER_DAY por uid/día.
+ * Usa una colección `studyRoomRateLimits` con doc id `{uid}_{YYYYMMDD}`.
+ */
+async function consumeDailyCreateLimit(uid) {
+    const day = new Date().toISOString().substring(0, 10).replace(/-/g, "");
+    const ref = db.collection("studyRoomRateLimits").doc(`${uid}_${day}`);
+    await db.runTransaction(async (tx) => {
+        var _a, _b;
+        const snap = await tx.get(ref);
+        const current = snap.exists ? ((_b = (_a = snap.data()) === null || _a === void 0 ? void 0 : _a.count) !== null && _b !== void 0 ? _b : 0) : 0;
+        if (current >= MAX_ROOMS_PER_DAY) {
+            throw new functions.https.HttpsError("resource-exhausted", `Máximo ${MAX_ROOMS_PER_DAY} salas por día.`);
+        }
+        tx.set(ref, {
+            count: current + 1,
+            uid,
+            day,
+            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        }, { merge: true });
+    });
 }
 function computeNextSwapAt(lastSwapAt, swapIntervalMinutes) {
     return admin.firestore.Timestamp.fromMillis(lastSwapAt.toMillis() + swapIntervalMinutes * 60 * 1000);
@@ -90,7 +113,9 @@ exports.createStudyRoom = functions.https.onCall(async (data, context) => {
             swapMin < MIN_SWAP_MINUTES || swapMin > MAX_SWAP_MINUTES) {
             throw new functions.https.HttpsError("invalid-argument", `Intervalo de swap debe estar entre ${MIN_SWAP_MINUTES} y ${MAX_SWAP_MINUTES} minutos.`);
         }
-        // Buscar un código único (3 intentos)
+        // Rate limit diario
+        await consumeDailyCreateLimit(uid);
+        // Buscar un código único (5 intentos)
         const now = admin.firestore.Timestamp.now();
         for (let attempt = 0; attempt < 5; attempt++) {
             const code = genCode();

@@ -13,15 +13,31 @@ import java.util.Properties
 import java.io.FileInputStream
 
 // Cargar credenciales del release keystore desde key.properties (gitignored).
-// Si el archivo no existe (entornos de CI sin secretos), el build release
-// caer\u00e1 al keystore debug, pero advertimos en consola.
+// Si el archivo no existe Y se está construyendo un release (assembleRelease,
+// bundleRelease), abortamos: una APK release firmada con la debug key no
+// puede subirse a Play Store y se considera un downgrade de seguridad.
+// Para builds debug/CI sin keystore release, se permite el fallback.
 val keystoreProperties = Properties()
 val keystorePropertiesFile = rootProject.file("key.properties")
 val hasReleaseKeystore = keystorePropertiesFile.exists()
 if (hasReleaseKeystore) {
     keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 } else {
-    println("\u26a0\ufe0f  android/key.properties no encontrado: el build release usar\u00e1 la debug keystore.")
+    val isReleaseBuild = gradle.startParameter.taskNames.any {
+        it.contains("Release", ignoreCase = true) ||
+        it.contains("bundle", ignoreCase = true) && it.contains("release", ignoreCase = true)
+    }
+    val allowDebugSigningInRelease = (project.findProperty("ALLOW_DEBUG_SIGNING_IN_RELEASE") as String?) == "true"
+    if (isReleaseBuild && !allowDebugSigningInRelease) {
+        throw GradleException(
+            "android/key.properties no encontrado y se está construyendo un release.\n" +
+            "  - Para builds locales debug usa `flutter build apk --debug`.\n" +
+            "  - Para release real, copia la keystore a key.properties.\n" +
+            "  - Si realmente quieres firmar release con debug (NO recomendado), pasa\n" +
+            "    -PALLOW_DEBUG_SIGNING_IN_RELEASE=true en el comando gradle."
+        )
+    }
+    println("⚠️  android/key.properties no encontrado: build no-release usará debug keystore.")
 }
 
 android {

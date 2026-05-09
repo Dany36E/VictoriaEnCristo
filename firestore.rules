@@ -229,6 +229,18 @@ service cloud.firestore {
     }
 
     /* ─────────────────────────────────────────────
+       10. RATE LIMITS (server-only)
+       /studyRoomRateLimits/{id}, /battleRateLimits/{id}
+       Solo Cloud Functions con admin SDK pueden tocar estos contadores.
+       ───────────────────────────────────────────── */
+    match /studyRoomRateLimits/{id} {
+      allow read, write: if false;
+    }
+    match /battleRateLimits/{id} {
+      allow read, write: if false;
+    }
+
+    /* ─────────────────────────────────────────────
        HELPERS (dentro del scope de {database})
        ───────────────────────────────────────────── */
 
@@ -241,8 +253,15 @@ service cloud.firestore {
     }
 
     function isAdmin() {
-      return request.auth != null &&
-        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      // Preferimos custom claims (más rápido, sin lectura). Mantenemos el
+      // fallback a Firestore para usuarios migrados antes de setAdminClaim.
+      return request.auth != null && (
+        request.auth.token.admin == true ||
+        (
+          exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+          get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+        )
+      );
     }
 
     /* ─────────────────────────────────────────────

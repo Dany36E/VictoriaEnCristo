@@ -39,6 +39,8 @@ const VALID_REPORT_REASONS = [
 const MAX_POST_LENGTH = 500;
 const MAX_COMMENT_LENGTH = 300;
 const MAX_POSTS_PER_DAY = 5;
+const MAX_POSTS_PER_HOUR = 3;
+const MAX_COMMENTS_PER_HOUR = 10;
 const HTTPS_ERROR_CODES = new Set([
     "cancelled",
     "unknown",
@@ -173,6 +175,7 @@ function moderationMessage(type, action) {
 // 1. CREATE WALL POST
 // ═══════════════════════════════════════════════════════════════════════════
 exports.createWallPost = functions
+    .runWith({ secrets: ["WALL_ABUSE_SALT"] })
     .region("us-central1")
     .https.onCall(async (data, context) => {
     // Auth check
@@ -205,6 +208,10 @@ exports.createWallPost = functions
         const recentCount = await countRecentPosts(abuseHash);
         if (recentCount >= MAX_POSTS_PER_DAY) {
             throw new functions.https.HttpsError("resource-exhausted", "Límite de publicaciones alcanzado. Intenta mañana.");
+        }
+        const recentHourCount = await countRecentPosts(abuseHash, 1);
+        if (recentHourCount >= MAX_POSTS_PER_HOUR) {
+            throw new functions.https.HttpsError("resource-exhausted", "Demasiadas publicaciones en poco tiempo. Espera un momento.");
         }
         // Content filter
         const sanitized = sanitizeBody(body, MAX_POST_LENGTH);
@@ -261,6 +268,7 @@ exports.createWallPost = functions
 // 2. CREATE WALL COMMENT
 // ═══════════════════════════════════════════════════════════════════════════
 exports.createWallComment = functions
+    .runWith({ secrets: ["WALL_ABUSE_SALT"] })
     .region("us-central1")
     .https.onCall(async (data, context) => {
     var _a;
@@ -294,6 +302,10 @@ exports.createWallComment = functions
         const recentComments = await countRecentCommentsByHash(abuseHash);
         if (recentComments >= MAX_COMMENTS_PER_DAY) {
             throw new functions.https.HttpsError("resource-exhausted", `Máximo ${MAX_COMMENTS_PER_DAY} comentarios por día.`);
+        }
+        const recentCommentsHour = await countRecentCommentsByHash(abuseHash, 1);
+        if (recentCommentsHour >= MAX_COMMENTS_PER_HOUR) {
+            throw new functions.https.HttpsError("resource-exhausted", "Demasiados comentarios en poco tiempo. Espera un momento.");
         }
         const sanitized = sanitizeBody(body, MAX_COMMENT_LENGTH);
         // Content filter — auto-reject silently
@@ -469,6 +481,7 @@ exports.moderateContent = functions
 // 4. REPORT CONTENT
 // ═══════════════════════════════════════════════════════════════════════════
 exports.reportContent = functions
+    .runWith({ secrets: ["WALL_ABUSE_SALT"] })
     .region("us-central1")
     .https.onCall(async (data, context) => {
     if (!context.auth) {

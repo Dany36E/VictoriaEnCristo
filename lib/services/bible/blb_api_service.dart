@@ -40,12 +40,28 @@ class BlbApiService {
   /// Inicializa el servicio cargando la API key y preferencias.
   Future<void> init() async {
     _prefs = await SharedPreferences.getInstance();
-    // Migrar key de SharedPreferences a SecureStorage si existe
-    final legacyKey = _prefs?.getString(_apiKeyPrefKey);
-    if (legacyKey != null && legacyKey.isNotEmpty) {
-      await _secureStorage.write(key: _apiKeyPrefKey, value: legacyKey);
-      await _prefs?.remove(_apiKeyPrefKey);
-      debugPrint('📚 [BLB] Migrated API key to SecureStorage');
+    // Migrar key de SharedPreferences a SecureStorage si existe.
+    // Usamos una flag idempotente y try/finally para evitar dejar la key
+    // duplicada en ambos almacenes si la migración falla a la mitad.
+    const migratedFlag = 'blb_api_key_migrated_v1';
+    final alreadyMigrated = _prefs?.getBool(migratedFlag) ?? false;
+    if (!alreadyMigrated) {
+      final legacyKey = _prefs?.getString(_apiKeyPrefKey);
+      if (legacyKey != null && legacyKey.isNotEmpty) {
+        try {
+          await _secureStorage.write(key: _apiKeyPrefKey, value: legacyKey);
+          await _prefs?.remove(_apiKeyPrefKey);
+          debugPrint('📚 [BLB] Migrated API key to SecureStorage');
+        } catch (e) {
+          // Si SecureStorage falla, NO borramos la copia legacy para no
+          // perder la key del usuario.
+          debugPrint('⚠️ [BLB] migration failed, keeping legacy: $e');
+        } finally {
+          await _prefs?.setBool(migratedFlag, true);
+        }
+      } else {
+        await _prefs?.setBool(migratedFlag, true);
+      }
     }
     // Prioridad: key guardada por el usuario > key hardcodeada en ApiConfig
     final userKey = await _secureStorage.read(key: _apiKeyPrefKey);

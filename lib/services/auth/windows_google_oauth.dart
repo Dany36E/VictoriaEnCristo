@@ -1,9 +1,13 @@
 // Google OAuth loopback flow para Windows desktop.
 //
 // Firebase Auth en Windows no soporta `signInWithProvider`, por lo tanto
-// implementamos manualmente el flujo OAuth 2.0 (PKCE-less authorization code
-// + Desktop client) y luego pasamos el `id_token` resultante a
+// implementamos manualmente el flujo OAuth 2.0 (Authorization Code + PKCE
+// con cliente Desktop) y luego pasamos el `id_token` resultante a
 // `FirebaseAuth.signInWithCredential`.
+//
+// PKCE (RFC 7636) protege el código de autorización contra interceptación
+// local: aunque otro proceso lea el redirect en loopback, no podrá canjear
+// el code sin el code_verifier.
 //
 // Requisitos previos (1 vez por proyecto en Google Cloud Console):
 //   1. Credenciales → Crear credenciales → ID de cliente OAuth
@@ -18,6 +22,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:url_launcher/url_launcher.dart';
@@ -58,6 +63,8 @@ class WindowsGoogleOAuth {
     final port = server.port;
     final redirectUri = 'http://127.0.0.1:$port';
     final state = _randomString(24);
+    final codeVerifier = _randomUrlSafe(64);
+    final codeChallenge = _s256Challenge(codeVerifier);
 
     debugPrint('🪟 [WIN-OAUTH] Loopback listening on $redirectUri');
 
@@ -69,6 +76,8 @@ class WindowsGoogleOAuth {
       'state': state,
       'access_type': 'offline',
       'prompt': 'select_account',
+      'code_challenge': codeChallenge,
+      'code_challenge_method': 'S256',
     });
 
     debugPrint('🪟 [WIN-OAUTH] Opening browser...');
@@ -133,6 +142,7 @@ class WindowsGoogleOAuth {
         'client_secret': desktopClientSecret,
         'redirect_uri': redirectUri,
         'grant_type': 'authorization_code',
+        'code_verifier': codeVerifier,
       },
     );
 
@@ -160,6 +170,20 @@ class WindowsGoogleOAuth {
         'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     final r = Random.secure();
     return List.generate(len, (_) => chars[r.nextInt(chars.length)]).join();
+  }
+
+  /// PKCE code_verifier: alfabeto unreserved RFC 7636 (ALPHA/DIGIT/-._~).
+  static String _randomUrlSafe(int len) {
+    const chars =
+        'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~';
+    final r = Random.secure();
+    return List.generate(len, (_) => chars[r.nextInt(chars.length)]).join();
+  }
+
+  /// PKCE code_challenge S256 = base64url-no-padding(SHA-256(code_verifier)).
+  static String _s256Challenge(String verifier) {
+    final digest = sha256.convert(utf8.encode(verifier)).bytes;
+    return base64Url.encode(digest).replaceAll('=', '');
   }
 
   static String _callbackHtml(bool ok) {

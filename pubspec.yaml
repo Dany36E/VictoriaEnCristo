@@ -17,6 +17,7 @@ dependencies:
   cloud_functions: ^5.2.0  # For Callable Cloud Functions (deleteUserData)
   firebase_crashlytics: ^4.3.2  # Crash reporting
   firebase_analytics: ^11.4.2   # Usage analytics
+  firebase_app_check: ^0.3.1  # App attestation (Play Integrity / DeviceCheck)
   google_sign_in: ^6.2.2
   # Premium UI Dependencies
   flutter_animate: ^4.5.0
@@ -48,6 +49,7 @@ dependencies:
   # Blue Letter Bible API integration
   flutter_secure_storage: ^9.2.4  # Secure API key storage
   http: ^1.2.2  # HTTP client for BLB API
+  crypto: ^3.0.3  # SHA-256 PKCE challenge para Windows OAuth
   # Bible Maps (interactive ESRI topo tiles)
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
