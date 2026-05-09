@@ -26,6 +26,7 @@ dependencies:
   # Share as Image Dependencies
   share_plus: ^10.1.4  # Native share functionality
   path_provider: ^2.1.5 # File system access
+  pdf: ^3.11.3  # Exportar estudios bíblicos a PDF
   # Text-to-Speech
   flutter_tts: ^4.2.0   # Native TTS functionality
   # Image Caching

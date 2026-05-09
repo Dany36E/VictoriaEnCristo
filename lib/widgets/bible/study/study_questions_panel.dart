@@ -10,7 +10,10 @@ class StudyQuestionsPanel extends StatelessWidget {
   final Map<String, TextEditingController> controllers;
   final void Function(String questionId, String value) onChanged;
   final Future<void> Function() onManualSave;
+  final Future<void> Function() onExportPdf;
+  final VoidCallback onPickRange;
   final String reference;
+  final String rangeLabel;
 
   const StudyQuestionsPanel({
     super.key,
@@ -18,7 +21,10 @@ class StudyQuestionsPanel extends StatelessWidget {
     required this.controllers,
     required this.onChanged,
     required this.onManualSave,
+    required this.onExportPdf,
+    required this.onPickRange,
     required this.reference,
+    required this.rangeLabel,
   });
 
   @override
@@ -28,35 +34,60 @@ class StudyQuestionsPanel extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
-          child: Row(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                child: Text(
-                  'Tus respuestas · $reference',
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.7),
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    letterSpacing: 0.6,
-                  ),
+              Text(
+                'Tus respuestas · $reference',
+                style: GoogleFonts.manrope(
+                  color: t.textSecondary.withOpacity(0.7),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.6,
                 ),
               ),
-              IconButton(
-                tooltip: 'Guardar ahora',
-                icon: Icon(Icons.save_outlined,
-                    color: t.textSecondary, size: 18),
-                onPressed: () async {
-                  await onManualSave();
-                  if (context.mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Guardado'),
-                        duration: Duration(seconds: 1),
-                      ),
-                    );
-                  }
-                },
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  OutlinedButton.icon(
+                    onPressed: onPickRange,
+                    icon: const Icon(Icons.format_list_numbered, size: 17),
+                    label: Text('Rango: $rangeLabel'),
+                    style: OutlinedButton.styleFrom(
+                      foregroundColor: t.accent,
+                      side: BorderSide(color: t.accent.withOpacity(0.5)),
+                    ),
+                  ),
+                  OutlinedButton.icon(
+                    onPressed: () async {
+                      await onManualSave();
+                      if (context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Estudio guardado'),
+                            duration: Duration(seconds: 1),
+                          ),
+                        );
+                      }
+                    },
+                    icon: const Icon(Icons.save_outlined, size: 17),
+                    label: const Text('Guardar progreso'),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await onExportPdf();
+                    },
+                    icon: const Icon(Icons.picture_as_pdf_outlined, size: 17),
+                    label: const Text('Exportar PDF'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: t.accent,
+                      foregroundColor: t.background,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -108,10 +139,7 @@ class _QuestionCard extends StatelessWidget {
             ? Colors.white.withOpacity(0.04)
             : Colors.black.withOpacity(0.03),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(
-          color: t.textSecondary.withOpacity(0.08),
-          width: 1,
-        ),
+        border: Border.all(color: t.textSecondary.withOpacity(0.08), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,15 +210,11 @@ class _QuestionCard extends StatelessWidget {
               fillColor: t.background,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: t.textSecondary.withOpacity(0.1),
-                ),
+                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(
-                  color: t.textSecondary.withOpacity(0.1),
-                ),
+                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),

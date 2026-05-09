@@ -554,7 +554,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   // ─── Quick Study Tools Strip ────────────────────────────────────────
 
-  void _openStudyMode({bool openRoomDialogOnStart = false}) {
+  void _openStudyMode({
+    bool openRoomDialogOnStart = false,
+    bool openSetupOnStart = true,
+  }) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -564,6 +567,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           chapter: _lastChapter ?? 1,
           version: _version,
           openRoomDialogOnStart: openRoomDialogOnStart,
+          openSetupOnStart: openSetupOnStart,
         ),
       ),
     );

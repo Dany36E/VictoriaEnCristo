@@ -11,6 +11,7 @@ import '../../models/bible/study_chapter_answers.dart';
 import '../../models/bible/study_room.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
+import '../../services/bible/study_export_service.dart';
 import '../../services/bible/study_mode_service.dart';
 import '../../services/bible/study_room_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -38,6 +39,7 @@ class StudyModeScreen extends StatefulWidget {
   final int chapter;
   final BibleVersion? version;
   final bool openRoomDialogOnStart;
+  final bool openSetupOnStart;
 
   const StudyModeScreen({
     super.key,
@@ -46,6 +48,7 @@ class StudyModeScreen extends StatefulWidget {
     this.chapter = 1,
     this.version,
     this.openRoomDialogOnStart = false,
+    this.openSetupOnStart = false,
   });
 
   @override
@@ -98,6 +101,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           builder: (_) => const StudyOnboardingOverlay(),
         );
         await StudyModeService.I.markOnboardingSeen();
+      }
+      if (!mounted) return;
+      if (widget.openSetupOnStart) {
+        await _openPicker();
+        if (!mounted) return;
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+        if (mounted) await _openRangePicker();
       }
       if (!mounted || !widget.openRoomDialogOnStart) return;
       await Future<void>.delayed(const Duration(milliseconds: 150));
@@ -153,8 +163,30 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           chapter: _chapter,
           versionId: _version.id,
         );
-    final merged = <String, String>{...base.answers, ..._draftAnswers};
+    final merged = _answersFromControllers();
     await StudyModeService.I.saveAnswers(base.copyWith(answers: merged));
+  }
+
+  Map<String, String> _answersFromControllers() {
+    final out = <String, String>{};
+    for (final q in kStudyQuestions) {
+      final value = _controllers[q.id]?.text.trim() ?? '';
+      if (value.isNotEmpty) out[q.id] = value;
+    }
+    return out;
+  }
+
+  StudyChapterAnswers _currentStudySnapshot() {
+    final existing = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final base =
+        existing ??
+        StudyChapterAnswers.empty(
+          bookNumber: _bookNumber,
+          bookName: _bookName,
+          chapter: _chapter,
+          versionId: _version.id,
+        );
+    return base.copyWith(answers: _answersFromControllers());
   }
 
   Future<void> _changeChapter(
@@ -408,6 +440,42 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     if (mounted) setState(() {});
   }
 
+  String _rangeLabel() {
+    final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final s = current?.studyStartVerse;
+    final e = current?.studyEndVerse;
+    if (s == null || e == null) return 'Capítulo completo';
+    return s == e ? 'v. $s' : 'v. $s-$e';
+  }
+
+  List<BibleVerse> _visibleVerses() {
+    final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final s = current?.studyStartVerse;
+    final e = current?.studyEndVerse;
+    if (s == null || e == null) return _verses;
+    final lo = s < e ? s : e;
+    final hi = s < e ? e : s;
+    final filtered = _verses
+        .where((v) => v.verse >= lo && v.verse <= hi)
+        .toList(growable: false);
+    return filtered.isEmpty ? _verses : filtered;
+  }
+
+  Future<void> _exportPdf() async {
+    try {
+      await _flushAnswers();
+      final file = await StudyExportService.I.exportAndShareStudy(
+        study: _currentStudySnapshot(),
+        chapterVerses: _verses,
+      );
+      if (!mounted) return;
+      _showSnack('PDF guardado: ${file.path}');
+    } catch (e) {
+      if (!mounted) return;
+      _showSnack('No se pudo exportar el PDF: $e');
+    }
+  }
+
   Future<void> _openRoomDialog() async {
     final current = StudyRoomService.I.currentRoomNotifier.value;
     if (current != null) {
@@ -532,7 +600,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return StudyReadingPanel(
       key: ValueKey('reading_${_bookNumber}_$_chapter'),
       theme: t,
-      verses: _verses,
+      verses: _visibleVerses(),
       bookNumber: _bookNumber,
       chapter: _chapter,
     );
@@ -544,7 +612,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       controllers: _controllers,
       onChanged: _onAnswerChanged,
       onManualSave: _flushAnswers,
+      onExportPdf: _exportPdf,
+      onPickRange: _openRangePicker,
       reference: '$_bookName $_chapter',
+      rangeLabel: _rangeLabel(),
     );
   }
 }
