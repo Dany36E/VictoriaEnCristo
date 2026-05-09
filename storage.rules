@@ -1,0 +1,39 @@
+rules_version = '2';
+
+// Cloud Storage rules para Victoria en Cristo.
+// Default: deny-all. Sólo paths explícitos se permiten.
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // ============================================================
+    // Per-user storage
+    //   /users/{uid}/{...} — sólo el usuario dueño puede leer/escribir.
+    //   Validamos tipo (image/* | audio/*) y tamaño máximo (5MB).
+    // ============================================================
+    match /users/{uid}/{allPaths=**} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.size < 5 * 1024 * 1024
+                   && (request.resource.contentType.matches('image/.*')
+                       || request.resource.contentType.matches('audio/.*'));
+      allow delete: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // ============================================================
+    // Public assets — sólo lectura, escritura sólo admins.
+    // ============================================================
+    match /public/{allPaths=**} {
+      allow read: if true; // Recursos públicos (covers, audios)
+      allow write: if request.auth != null
+                   && request.auth.token.admin == true;
+    }
+
+    // ============================================================
+    // Default deny-all
+    // ============================================================
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -46,4 +46,5 @@ export {
 export {
   setAdminClaim,
   cleanStaleFcmTokens,
+  signOutAllDevices,
 } from "./adminFunctions";

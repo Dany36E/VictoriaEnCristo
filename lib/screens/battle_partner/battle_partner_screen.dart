@@ -5,11 +5,11 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../models/battle_partner_data.dart';
 import '../../services/battle_partner_service.dart';
 import '../../services/audio_engine.dart';
+import '../../utils/clipboard_utils.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/notification_service.dart';
 import '../../theme/app_theme.dart';
@@ -636,7 +636,10 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
 
   void _copyCode() {
     if (_myInviteCode == null) return;
-    Clipboard.setData(ClipboardData(text: _myInviteCode!));
+    // Auto-clear: el código de invitación es sensible. Lo borramos del
+    // portapapeles tras 60s para reducir la ventana de exposición ante
+    // apps maliciosas que monitorean el clipboard.
+    copyToClipboardWithAutoClear(_myInviteCode!);
     FeedbackEngine.I.confirm();
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

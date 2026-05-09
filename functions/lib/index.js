@@ -6,7 +6,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
+exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
 const admin = require("firebase-admin");
 // Inicializar Firebase Admin ANTES de importar otras funciones
 admin.initializeApp();
@@ -40,4 +40,5 @@ Object.defineProperty(exports, "studyRoomAutoSwap", { enumerable: true, get: fun
 var adminFunctions_1 = require("./adminFunctions");
 Object.defineProperty(exports, "setAdminClaim", { enumerable: true, get: function () { return adminFunctions_1.setAdminClaim; } });
 Object.defineProperty(exports, "cleanStaleFcmTokens", { enumerable: true, get: function () { return adminFunctions_1.cleanStaleFcmTokens; } });
+Object.defineProperty(exports, "signOutAllDevices", { enumerable: true, get: function () { return adminFunctions_1.signOutAllDevices; } });
 //# sourceMappingURL=index.js.map

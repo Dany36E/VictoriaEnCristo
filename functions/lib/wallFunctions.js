@@ -87,7 +87,7 @@ function computeAbuseHash(uid) {
         .substring(0, 16);
 }
 function generateAlias() {
-    const num = Math.floor(Math.random() * 9000) + 1000; // 1000-9999
+    const num = crypto.randomInt(1000, 10000); // 1000-9999, CSPRNG
     return `Guerrero #${num}`;
 }
 function sanitizeBody(text, maxLen) {

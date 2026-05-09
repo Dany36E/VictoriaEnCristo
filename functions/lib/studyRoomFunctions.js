@@ -17,6 +17,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = void 0;
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 const db = admin.firestore();
 const ALLOWED_VERSIONS = ["RVR1960", "NVI", "LBLA", "NTV", "TLA"];
 const MAX_MEMBERS = ALLOWED_VERSIONS.length;
@@ -47,7 +48,7 @@ function rethrow(err) {
 function genCode() {
     let out = "";
     for (let i = 0; i < 6; i++) {
-        out += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
+        out += CODE_ALPHABET[crypto.randomInt(0, CODE_ALPHABET.length)];
     }
     return out;
 }
@@ -115,14 +116,11 @@ exports.createStudyRoom = functions.https.onCall(async (data, context) => {
         }
         // Rate limit diario
         await consumeDailyCreateLimit(uid);
-        // Buscar un código único (5 intentos)
+        // Buscar un código único (5 intentos), con transacción para evitar race conditions.
         const now = admin.firestore.Timestamp.now();
         for (let attempt = 0; attempt < 5; attempt++) {
             const code = genCode();
             const ref = db.collection("studyRooms").doc(code);
-            const snap = await ref.get();
-            if (snap.exists)
-                continue;
             const member = {
                 uid,
                 displayName: displayName || "Hermano(a)",
@@ -146,8 +144,24 @@ exports.createStudyRoom = functions.https.onCall(async (data, context) => {
                 memberOrder: [uid],
                 members: { [uid]: member },
             };
-            await ref.set(room);
-            return { code, room: serializeRoom(room) };
+            // Transacción: si entre get() y set() otra invocación creó el mismo
+            // code, la transacción reintenta o aborta; nunca sobreescribimos.
+            try {
+                const created = await db.runTransaction(async (tx) => {
+                    const snap = await tx.get(ref);
+                    if (snap.exists)
+                        return false;
+                    tx.set(ref, room);
+                    return true;
+                });
+                if (!created)
+                    continue;
+                return { code, room: serializeRoom(room) };
+            }
+            catch (txErr) {
+                // Si la transacción falla por contención, probamos otro código.
+                continue;
+            }
         }
         throw new functions.https.HttpsError("resource-exhausted", "No se pudo generar un código único, intenta de nuevo.");
     }
