@@ -153,7 +153,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             child: _loading
                 ? Center(
                     child: CircularProgressIndicator(
-                        color: t.accent, strokeWidth: 1.5))
+                      color: t.accent,
+                      strokeWidth: 1.5,
+                    ),
+                  )
                 : Column(
                     children: [
                       _buildHeader(t),
@@ -186,8 +189,11 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             behavior: HitTestBehavior.opaque,
             child: Padding(
               padding: const EdgeInsets.all(8),
-              child: Icon(Icons.arrow_back_ios,
-                  color: t.textSecondary, size: 18),
+              child: Icon(
+                Icons.arrow_back_ios,
+                color: t.textSecondary,
+                size: 18,
+              ),
             ),
           ),
           Expanded(
@@ -201,18 +207,22 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.search,
-                color: t.textSecondary.withOpacity(0.6), size: 20),
+            icon: Icon(
+              Icons.search,
+              color: t.textSecondary.withOpacity(0.6),
+              size: 20,
+            ),
             onPressed: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const BibleSearchScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const BibleSearchScreen()),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.tune,
-                color: t.textSecondary.withOpacity(0.6), size: 20),
+            icon: Icon(
+              Icons.tune,
+              color: t.textSecondary.withOpacity(0.6),
+              size: 20,
+            ),
             onPressed: () => Navigator.push(
               context,
               PageRouteBuilder(
@@ -246,8 +256,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               child: TextField(
                 controller: _searchController,
                 focusNode: _searchFocus,
-                style: GoogleFonts.manrope(
-                    color: t.textPrimary, fontSize: 14),
+                style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Buscar en la Biblia...',
                   hintStyle: GoogleFonts.manrope(
@@ -255,22 +264,23 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     fontSize: 14,
                   ),
                   border: InputBorder.none,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
                 onChanged: (v) {
                   setState(() => _searchQuery = v);
                   _searchDebounce?.cancel();
-                  _searchDebounce = Timer(const Duration(milliseconds: 350), () {
-                    if (mounted) _performSearch(v);
-                  });
+                  _searchDebounce = Timer(
+                    const Duration(milliseconds: 350),
+                    () {
+                      if (mounted) _performSearch(v);
+                    },
+                  );
                 },
               ),
             ),
           ),
           IconButton(
-            icon: Icon(Icons.close,
-                color: t.textSecondary, size: 20),
+            icon: Icon(Icons.close, color: t.textSecondary, size: 20),
             onPressed: () {
               setState(() {
                 _searchMode = false;
@@ -346,21 +356,17 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
         // Book list with canonical section headers
         SliverList(
-          delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              if (index == 0) return const SizedBox(height: 8);
-              final itemIndex = index - 1;
-              if (itemIndex >= groupedItems.length) return null;
-              final item = groupedItems[itemIndex];
-              if (item == null) {
-                final section = headerAtIndex[itemIndex];
-                return section != null
-                    ? _buildSectionHeader(section, t) : null;
-              }
-              return _buildBookItem(item as BibleBook, t);
-            },
-            childCount: groupedItems.length + 1,
-          ),
+          delegate: SliverChildBuilderDelegate((context, index) {
+            if (index == 0) return const SizedBox(height: 8);
+            final itemIndex = index - 1;
+            if (itemIndex >= groupedItems.length) return null;
+            final item = groupedItems[itemIndex];
+            if (item == null) {
+              final section = headerAtIndex[itemIndex];
+              return section != null ? _buildSectionHeader(section, t) : null;
+            }
+            return _buildBookItem(item as BibleBook, t);
+          }, childCount: groupedItems.length + 1),
         ),
 
         // Study tools (expanded by default)
@@ -373,7 +379,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   // ─── Canonical Section Header ──────────────────────────────────────────
 
-  Widget _buildSectionHeader(BibleCanonSection section, BibleReaderThemeData t) {
+  Widget _buildSectionHeader(
+    BibleCanonSection section,
+    BibleReaderThemeData t,
+  ) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(32, 20, 32, 4),
       child: Column(
@@ -418,8 +427,9 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 version: _version,
               ),
             ),
-          ).then((_) => _loadLastRead())
-           .catchError((e) { debugPrint('⚠️ [BibleHome] Nav error: $e'); });
+          ).then((_) => _loadLastRead()).catchError((e) {
+            debugPrint('⚠️ [BibleHome] Nav error: $e');
+          });
         },
         child: Container(
           height: 72,
@@ -433,8 +443,11 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           ),
           child: Row(
             children: [
-              Icon(Icons.menu_book_rounded,
-                  color: t.accent.withOpacity(0.8), size: 28),
+              Icon(
+                Icons.menu_book_rounded,
+                color: t.accent.withOpacity(0.8),
+                size: 28,
+              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(
@@ -462,8 +475,11 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   ],
                 ),
               ),
-              Icon(Icons.arrow_forward_ios,
-                  color: t.textSecondary.withOpacity(0.3), size: 14),
+              Icon(
+                Icons.arrow_forward_ios,
+                color: t.textSecondary.withOpacity(0.3),
+                size: 14,
+              ),
             ],
           ),
         ),
@@ -485,15 +501,16 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           child: GestureDetector(
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const BibleStatsScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const BibleStatsScreen()),
             ),
             child: Row(
               children: [
                 if (streak > 0) ...[
-                  const Icon(Icons.local_fire_department,
-                      color: Color(0xFFFF6B35), size: 14),
+                  const Icon(
+                    Icons.local_fire_department,
+                    color: Color(0xFFFF6B35),
+                    size: 14,
+                  ),
                   const SizedBox(width: 3),
                   Text(
                     '$streak días',
@@ -537,48 +554,107 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   // ─── Quick Study Tools Strip ────────────────────────────────────────
 
+  void _openStudyMode({bool openRoomDialogOnStart = false}) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => StudyModeScreen(
+          bookNumber: _lastBookNumber ?? 1,
+          bookName: _lastBookName ?? 'Génesis',
+          chapter: _lastChapter ?? 1,
+          version: _version,
+          openRoomDialogOnStart: openRoomDialogOnStart,
+        ),
+      ),
+    );
+  }
+
+  void _openParallelReader() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BibleParallelScreen(
+          bookNumber: _lastBookNumber ?? 1,
+          bookName: _lastBookName ?? 'Génesis',
+          chapter: _lastChapter ?? 1,
+          primaryVersion: _version,
+        ),
+      ),
+    );
+  }
+
   Widget _buildQuickToolsStrip(BibleReaderThemeData t) {
     final quickTools = [
-      _ToolItem(Icons.bookmark_outline, 'Guardados', () => Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
-          transitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (ctx, a, sa, child) =>
-              FadeTransition(opacity: a, child: child),
+      _ToolItem(Icons.menu_book, 'Estudio', () => _openStudyMode()),
+      _ToolItem(Icons.view_column_outlined, '2 versiones', _openParallelReader),
+      _ToolItem(
+        Icons.groups_outlined,
+        'Con amigos',
+        () => _openStudyMode(openRoomDialogOnStart: true),
+      ),
+      _ToolItem(
+        Icons.bookmark_outline,
+        'Guardados',
+        () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
+            transitionDuration: const Duration(milliseconds: 150),
+            transitionsBuilder: (ctx, a, sa, child) =>
+                FadeTransition(opacity: a, child: child),
+          ),
         ),
-      )),
-      _ToolItem(Icons.sticky_note_2_outlined, 'Notas', () => Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => const AllNotesScreen(),
-          transitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (ctx, a, sa, child) =>
-              FadeTransition(opacity: a, child: child),
+      ),
+      _ToolItem(
+        Icons.sticky_note_2_outlined,
+        'Notas',
+        () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => const AllNotesScreen(),
+            transitionDuration: const Duration(milliseconds: 150),
+            transitionsBuilder: (ctx, a, sa, child) =>
+                FadeTransition(opacity: a, child: child),
+          ),
         ),
-      )),
-      _ToolItem(Icons.collections_bookmark_outlined, 'Colecciones', () =>
-          Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => const CollectionsScreen(),
-          transitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (ctx, a, sa, child) =>
-              FadeTransition(opacity: a, child: child),
+      ),
+      _ToolItem(
+        Icons.collections_bookmark_outlined,
+        'Colecciones',
+        () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => const CollectionsScreen(),
+            transitionDuration: const Duration(milliseconds: 150),
+            transitionsBuilder: (ctx, a, sa, child) =>
+                FadeTransition(opacity: a, child: child),
+          ),
         ),
-      )),
-      _ToolItem(Icons.timeline, 'Línea', () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
-      )),
-      _ToolItem(Icons.map_outlined, 'Mapas', () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const BibleMapScreen()),
-      )),
-      _ToolItem(Icons.grid_view_rounded, 'Armonía', () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const GospelHarmonyScreen()),
-      )),
+      ),
+      _ToolItem(
+        Icons.timeline,
+        'Línea',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
+        ),
+      ),
+      _ToolItem(
+        Icons.map_outlined,
+        'Mapas',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BibleMapScreen()),
+        ),
+      ),
+      _ToolItem(
+        Icons.grid_view_rounded,
+        'Armonía',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const GospelHarmonyScreen()),
+        ),
+      ),
     ];
 
     return Padding(
@@ -595,15 +671,16 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             return GestureDetector(
               onTap: tool.onTap,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 14,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: t.isDark
                       ? Colors.white.withOpacity(0.05)
                       : Colors.black.withOpacity(0.04),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: t.accent.withOpacity(0.12),
-                  ),
+                  border: Border.all(color: t.accent.withOpacity(0.12)),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -645,51 +722,72 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   Widget _buildToolsGrid(BibleReaderThemeData t) {
     final tools = [
-      _ToolItem(Icons.manage_search, 'Búsqueda', () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BibleSearchScreen(
-            version: _version,
-            initialAdvanced: true,
+      _ToolItem(
+        Icons.manage_search,
+        'Búsqueda',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                BibleSearchScreen(version: _version, initialAdvanced: true),
           ),
         ),
-      )),
-      _ToolItem(Icons.bookmark_outline, 'Guardados', () => Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
-          transitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (ctx, a, sa, child) =>
-              FadeTransition(opacity: a, child: child),
+      ),
+      _ToolItem(
+        Icons.bookmark_outline,
+        'Guardados',
+        () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
+            transitionDuration: const Duration(milliseconds: 150),
+            transitionsBuilder: (ctx, a, sa, child) =>
+                FadeTransition(opacity: a, child: child),
+          ),
         ),
-      )),
-      _ToolItem(Icons.sticky_note_2_outlined, 'Notas', () => Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => const AllNotesScreen(),
-          transitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (ctx, a, sa, child) =>
-              FadeTransition(opacity: a, child: child),
+      ),
+      _ToolItem(
+        Icons.sticky_note_2_outlined,
+        'Notas',
+        () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => const AllNotesScreen(),
+            transitionDuration: const Duration(milliseconds: 150),
+            transitionsBuilder: (ctx, a, sa, child) =>
+                FadeTransition(opacity: a, child: child),
+          ),
         ),
-      )),
-      _ToolItem(Icons.collections_bookmark_outlined, 'Colecciones', () =>
-          Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => const CollectionsScreen(),
-          transitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (ctx, a, sa, child) =>
-              FadeTransition(opacity: a, child: child),
+      ),
+      _ToolItem(
+        Icons.collections_bookmark_outlined,
+        'Colecciones',
+        () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => const CollectionsScreen(),
+            transitionDuration: const Duration(milliseconds: 150),
+            transitionsBuilder: (ctx, a, sa, child) =>
+                FadeTransition(opacity: a, child: child),
+          ),
         ),
-      )),
-      _ToolItem(Icons.timeline, 'Línea de Tiempo', () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
-      )),
-      _ToolItem(Icons.map_outlined, 'Mapas Bíblicos', () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const BibleMapScreen()),
-      )),
+      ),
+      _ToolItem(
+        Icons.timeline,
+        'Línea de Tiempo',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
+        ),
+      ),
+      _ToolItem(
+        Icons.map_outlined,
+        'Mapas Bíblicos',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const BibleMapScreen()),
+        ),
+      ),
       _ToolItem(Icons.account_tree_outlined, 'Concordancia', () {
         showModalBottomSheet(
           context: context,
@@ -698,54 +796,49 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           builder: (_) => ConcordanceSheet(version: _version, theme: t),
         );
       }),
-      _ToolItem(Icons.description_outlined, 'Estudio capítulos', () =>
-          Navigator.push(
-        context,
-        PageRouteBuilder(
-          pageBuilder: (c, a1, a2) => const AllChapterNotesScreen(),
-          transitionDuration: const Duration(milliseconds: 150),
-          transitionsBuilder: (ctx, a, sa, child) =>
-              FadeTransition(opacity: a, child: child),
-        ),
-      )),
-      _ToolItem(Icons.view_column_outlined, 'Vista Paralela', () =>
-          Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => BibleParallelScreen(
-            bookNumber: 1,
-            bookName: 'Génesis',
-            chapter: 1,
-            primaryVersion: _version,
+      _ToolItem(
+        Icons.description_outlined,
+        'Estudio capítulos',
+        () => Navigator.push(
+          context,
+          PageRouteBuilder(
+            pageBuilder: (c, a1, a2) => const AllChapterNotesScreen(),
+            transitionDuration: const Duration(milliseconds: 150),
+            transitionsBuilder: (ctx, a, sa, child) =>
+                FadeTransition(opacity: a, child: child),
           ),
         ),
-      )),
-      _ToolItem(Icons.grid_view_rounded, 'Armonía', () =>
-          Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const GospelHarmonyScreen()),
-      )),
-      _ToolItem(Icons.compare_arrows, 'Tipologías', () =>
-          Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const TypologyScreen()),
-      )),
-      _ToolItem(Icons.format_quote, 'Citas AT→NT', () =>
-          Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const OTQuotesScreen()),
-      )),
-      _ToolItem(Icons.menu_book, 'Modo Estudio', () => Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (_) => StudyModeScreen(
-            bookNumber: _lastBookNumber ?? 1,
-            bookName: _lastBookName ?? 'Génesis',
-            chapter: _lastChapter ?? 1,
-            version: _version,
-          ),
+      ),
+      _ToolItem(
+        Icons.view_column_outlined,
+        'Vista Paralela',
+        () => _openParallelReader(),
+      ),
+      _ToolItem(
+        Icons.grid_view_rounded,
+        'Armonía',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const GospelHarmonyScreen()),
         ),
-      )),
+      ),
+      _ToolItem(
+        Icons.compare_arrows,
+        'Tipologías',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const TypologyScreen()),
+        ),
+      ),
+      _ToolItem(
+        Icons.format_quote,
+        'Citas AT→NT',
+        () => Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const OTQuotesScreen()),
+        ),
+      ),
+      _ToolItem(Icons.menu_book, 'Modo Estudio', () => _openStudyMode()),
     ];
 
     return GridView.count(
@@ -794,62 +887,59 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       label: '${book.name}, ${book.totalChapters} capítulos',
       button: true,
       child: GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (c, a1, a2) => ChapterSelectorScreen(
-              book: book,
-              version: _version,
+        onTap: () {
+          Navigator.push(
+            context,
+            PageRouteBuilder(
+              pageBuilder: (c, a1, a2) =>
+                  ChapterSelectorScreen(book: book, version: _version),
+              transitionDuration: const Duration(milliseconds: 200),
+              transitionsBuilder: (ctx, a, sa, child) {
+                final slide = Tween(
+                  begin: const Offset(1.0, 0.0),
+                  end: Offset.zero,
+                ).animate(CurvedAnimation(parent: a, curve: Curves.easeOut));
+                return SlideTransition(position: slide, child: child);
+              },
             ),
-            transitionDuration: const Duration(milliseconds: 200),
-            transitionsBuilder: (ctx, a, sa, child) {
-              final slide = Tween(
-                begin: const Offset(1.0, 0.0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(parent: a, curve: Curves.easeOut));
-              return SlideTransition(position: slide, child: child);
-            },
-          ),
-        );
-      },
-      behavior: HitTestBehavior.opaque,
-      child: SizedBox(
-        height: 52,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 32),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  book.name,
-                  style: GoogleFonts.lora(
-                    color: t.textPrimary,
-                    fontSize: 16,
+          );
+        },
+        behavior: HitTestBehavior.opaque,
+        child: SizedBox(
+          height: 52,
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    book.name,
+                    style: GoogleFonts.lora(color: t.textPrimary, fontSize: 16),
                   ),
                 ),
-              ),
-              // Genre label
-              Text(
-                book.genre.label,
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.32),
-                  fontSize: 10,
-                  letterSpacing: 0.4,
+                // Genre label
+                Text(
+                  book.genre.label,
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.32),
+                    fontSize: 10,
+                    letterSpacing: 0.4,
+                  ),
                 ),
-              ),
-              const SizedBox(width: 10),
-              Text(
-                '${book.totalChapters}',
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5),
-                  fontSize: 13,
+                const SizedBox(width: 10),
+                Text(
+                  '${book.totalChapters}',
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.5),
+                    fontSize: 13,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
-      ),    ),    );
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -871,8 +961,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
     if (_searching) {
       return Center(
-        child: CircularProgressIndicator(
-            color: t.accent, strokeWidth: 1.5),
+        child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5),
       );
     }
 
@@ -910,8 +999,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   chapter: verse.chapter,
                   version: _version,
                 ),
-                transitionDuration:
-                    const Duration(milliseconds: 150),
+                transitionDuration: const Duration(milliseconds: 150),
                 transitionsBuilder: (ctx, a, sa, child) =>
                     FadeTransition(opacity: a, child: child),
               ),
@@ -933,8 +1021,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   ),
                 ),
                 const SizedBox(height: 4),
-                _buildHighlightedText(
-                    verse.text, _searchQuery, t),
+                _buildHighlightedText(verse.text, _searchQuery, t),
               ],
             ),
           ),
@@ -944,12 +1031,18 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   }
 
   Widget _buildHighlightedText(
-      String text, String query, BibleReaderThemeData t) {
+    String text,
+    String query,
+    BibleReaderThemeData t,
+  ) {
     if (query.isEmpty) {
       return Text(
         text,
         style: GoogleFonts.lora(
-            color: t.textPrimary, fontSize: 15, height: 1.5),
+          color: t.textPrimary,
+          fontSize: 15,
+          height: 1.5,
+        ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
@@ -963,7 +1056,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       return Text(
         text,
         style: GoogleFonts.lora(
-            color: t.textPrimary, fontSize: 15, height: 1.5),
+          color: t.textPrimary,
+          fontSize: 15,
+          height: 1.5,
+        ),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
@@ -981,11 +1077,13 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               fontWeight: FontWeight.w600,
             ),
           ),
-          TextSpan(
-              text: text.substring(matchIndex + query.length)),
+          TextSpan(text: text.substring(matchIndex + query.length)),
         ],
         style: GoogleFonts.lora(
-            color: t.textPrimary, fontSize: 15, height: 1.5),
+          color: t.textPrimary,
+          fontSize: 15,
+          height: 1.5,
+        ),
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,

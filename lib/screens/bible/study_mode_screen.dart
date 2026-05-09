@@ -37,6 +37,7 @@ class StudyModeScreen extends StatefulWidget {
   final String bookName;
   final int chapter;
   final BibleVersion? version;
+  final bool openRoomDialogOnStart;
 
   const StudyModeScreen({
     super.key,
@@ -44,6 +45,7 @@ class StudyModeScreen extends StatefulWidget {
     this.bookName = 'Génesis',
     this.chapter = 1,
     this.version,
+    this.openRoomDialogOnStart = false,
   });
 
   @override
@@ -72,8 +74,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     _bookNumber = widget.bookNumber;
     _bookName = widget.bookName;
     _chapter = widget.chapter;
-    _version = widget.version ??
-        BibleUserDataService.I.preferredVersionNotifier.value;
+    _version =
+        widget.version ?? BibleUserDataService.I.preferredVersionNotifier.value;
     _tabController = TabController(length: 2, vsync: this);
     for (final q in kStudyQuestions) {
       _controllers[q.id] = TextEditingController();
@@ -86,16 +88,21 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     _hydrateAnswers();
     // Onboarding (primer uso)
     final seen = await StudyModeService.I.hasSeenOnboarding();
-    if (!seen && mounted) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        showDialog(
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      if (!seen) {
+        await showDialog(
           context: context,
           barrierDismissible: false,
           builder: (_) => const StudyOnboardingOverlay(),
-        ).then((_) => StudyModeService.I.markOnboardingSeen());
-      });
-    }
+        );
+        await StudyModeService.I.markOnboardingSeen();
+      }
+      if (!mounted || !widget.openRoomDialogOnStart) return;
+      await Future<void>.delayed(const Duration(milliseconds: 150));
+      if (mounted) await _openRoomDialog();
+    });
   }
 
   Future<void> _loadChapter() async {
@@ -121,7 +128,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   void _hydrateAnswers() {
     final existing =
         StudyModeService.I.answersFor(_bookNumber, _chapter)?.answers ??
-            const <String, String>{};
+        const <String, String>{};
     _draftAnswers
       ..clear()
       ..addAll(existing);
@@ -138,7 +145,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   Future<void> _flushAnswers() async {
     final existing = StudyModeService.I.answersFor(_bookNumber, _chapter);
-    final base = existing ??
+    final base =
+        existing ??
         StudyChapterAnswers.empty(
           bookNumber: _bookNumber,
           bookName: _bookName,
@@ -149,7 +157,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     await StudyModeService.I.saveAnswers(base.copyWith(answers: merged));
   }
 
-  Future<void> _changeChapter(int bookNumber, String bookName, int chapter) async {
+  Future<void> _changeChapter(
+    int bookNumber,
+    String bookName,
+    int chapter,
+  ) async {
     await _flushAnswers();
     setState(() {
       _bookNumber = bookNumber;
@@ -204,7 +216,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             child: _loading
                 ? Center(
                     child: CircularProgressIndicator(
-                        color: t.accent, strokeWidth: 1.5))
+                      color: t.accent,
+                      strokeWidth: 1.5,
+                    ),
+                  )
                 : LayoutBuilder(
                     builder: (ctx, c) {
                       final isWide = c.maxWidth >= 900;
@@ -220,16 +235,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                                 room: room,
                                 theme: t,
                                 onLeave: _confirmLeaveRoom,
-                                onRotate: () =>
-                                    StudyRoomService.I.rotateNow(),
+                                onRotate: () => StudyRoomService.I.rotateNow(),
                                 onVersionAssigned: _onAssignedVersionChanged,
                               );
                             },
                           ),
                           Expanded(
-                            child: isWide
-                                ? _buildSplit(t)
-                                : _buildTabbed(t),
+                            child: isWide ? _buildSplit(t) : _buildTabbed(t),
                           ),
                         ],
                       );
@@ -247,8 +259,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios_new,
-                color: t.textSecondary, size: 18),
+            icon: Icon(
+              Icons.arrow_back_ios_new,
+              color: t.textSecondary,
+              size: 18,
+            ),
             onPressed: () => Navigator.maybePop(context),
           ),
           Expanded(
@@ -269,7 +284,9 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                   const SizedBox(width: 10),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: t.accent.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(20),
@@ -285,8 +302,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                           ),
                         ),
                         const SizedBox(width: 4),
-                        Icon(Icons.expand_more,
-                            color: t.accent, size: 16),
+                        Icon(Icons.expand_more, color: t.accent, size: 16),
                       ],
                     ),
                   ),
@@ -296,8 +312,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           ),
           IconButton(
             tooltip: 'Tutorial',
-            icon: Icon(Icons.help_outline,
-                color: t.textSecondary.withOpacity(0.6), size: 20),
+            icon: Icon(
+              Icons.help_outline,
+              color: t.textSecondary.withOpacity(0.6),
+              size: 20,
+            ),
             onPressed: () => showDialog(
               context: context,
               builder: (_) => const StudyOnboardingOverlay(),
@@ -329,8 +348,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           behavior: HitTestBehavior.opaque,
           child: Container(
             margin: const EdgeInsets.symmetric(horizontal: 8),
-            padding:
-                const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
               color: t.textSecondary.withOpacity(0.08),
               borderRadius: BorderRadius.circular(20),
@@ -343,8 +361,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.format_list_numbered,
-                    color: t.textSecondary, size: 14),
+                Icon(
+                  Icons.format_list_numbered,
+                  color: t.textSecondary,
+                  size: 14,
+                ),
                 const SizedBox(width: 6),
                 Text(
                   label,
@@ -393,10 +414,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       // Si ya está en una sala, ofrecer ver/salir.
       await showDialog(
         context: context,
-        builder: (_) => StudyRoomActiveDialog(
-          room: current,
-          onLeave: _confirmLeaveRoom,
-        ),
+        builder: (_) =>
+            StudyRoomActiveDialog(room: current, onLeave: _confirmLeaveRoom),
       );
       return;
     }
@@ -447,11 +466,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         ),
         actions: [
           TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Cancelar')),
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
           TextButton(
-              onPressed: () => Navigator.pop(ctx, true),
-              child: const Text('Salir')),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Salir'),
+          ),
         ],
       ),
     );
@@ -470,9 +491,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   void _showSnack(String msg) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(msg)),
-    );
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   Widget _buildSplit(BibleReaderThemeData t) {
@@ -480,10 +499,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(child: _buildReadingPanel(t)),
-        Container(
-          width: 1,
-          color: t.textSecondary.withOpacity(0.12),
-        ),
+        Container(width: 1, color: t.textSecondary.withOpacity(0.12)),
         Expanded(child: _buildQuestionsPanel(t)),
       ],
     );
@@ -505,10 +521,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         Expanded(
           child: TabBarView(
             controller: _tabController,
-            children: [
-              _buildReadingPanel(t),
-              _buildQuestionsPanel(t),
-            ],
+            children: [_buildReadingPanel(t), _buildQuestionsPanel(t)],
           ),
         ),
       ],
@@ -658,13 +671,9 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
               TextButton.icon(
                 icon: const Icon(Icons.clear, size: 16),
                 label: const Text('Capítulo completo'),
-                style: TextButton.styleFrom(
-                  foregroundColor: t.textSecondary,
-                ),
-                onPressed: () => Navigator.pop(
-                  context,
-                  const _RangeResult(null, null),
-                ),
+                style: TextButton.styleFrom(foregroundColor: t.textSecondary),
+                onPressed: () =>
+                    Navigator.pop(context, const _RangeResult(null, null)),
               ),
               const Spacer(),
               ElevatedButton(
@@ -672,13 +681,13 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                   backgroundColor: t.accent,
                   foregroundColor: t.background,
                 ),
-                onPressed: () => Navigator.pop(
-                  context,
-                  _RangeResult(_start, _end),
+                onPressed: () =>
+                    Navigator.pop(context, _RangeResult(_start, _end)),
+                child: Text(
+                  _start == _end
+                      ? 'Estudiar v. $_start'
+                      : 'Estudiar v. $_start–$_end',
                 ),
-                child: Text(_start == _end
-                    ? 'Estudiar v. $_start'
-                    : 'Estudiar v. $_start–$_end'),
               ),
             ],
           ),
@@ -710,12 +719,15 @@ class _NumberPicker extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,
-            style: GoogleFonts.manrope(
-                color: t.textSecondary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.6)),
+        Text(
+          label,
+          style: GoogleFonts.manrope(
+            color: t.textSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w600,
+            letterSpacing: 0.6,
+          ),
+        ),
         const SizedBox(height: 6),
         Container(
           padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
@@ -754,4 +766,3 @@ class _NumberPicker extends StatelessWidget {
     );
   }
 }
-
