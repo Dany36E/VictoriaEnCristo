@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:ui';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -7,6 +8,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
@@ -92,6 +94,29 @@ Future<StartupServices> _initializeStartupServices() async {
     () => Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
   );
 
+  // App Check: protege Firestore/Functions de clientes no autorizados.
+  // Modo "monitor" — NO bloquea aún en consola; permite verificar adopción.
+  // Para activar enforcement, ir a Firebase Console > App Check.
+  try {
+    await FirebaseAppCheck.instance.activate(
+      androidProvider: kReleaseMode
+          ? AndroidProvider.playIntegrity
+          : AndroidProvider.debug,
+      appleProvider: kReleaseMode
+          ? AppleProvider.deviceCheck
+          : AppleProvider.debug,
+      // Para Web es necesario un site key reCAPTCHA Enterprise; lo dejamos
+      // como cadena vacía para que solo aplique en plataformas móviles por
+      // ahora (en Web la activación se omite si la API key no está configurada).
+      webProvider: ReCaptchaEnterpriseProvider(
+        const String.fromEnvironment('APP_CHECK_RECAPTCHA_KEY', defaultValue: ''),
+      ),
+    );
+    debugPrint('✅ [STARTUP] App Check activado');
+  } catch (e) {
+    debugPrint('⚠️ [STARTUP] App Check no se activó: $e');
+  }
+
   // Crashlytics: capturar errores no manejados.
   // NOTA: los errores de layout (RenderFlex overflow por N píxeles) no
   // deberían reportarse como FATAL — no crashean la app, sólo pintan una
@@ -121,10 +146,10 @@ Future<StartupServices> _initializeStartupServices() async {
 
   // Analytics: se usa en NavigatorObserver (ver MaterialApp)
 
-  // Firestore: garantizar persistencia offline y cache generoso
+  // Firestore: persistencia offline + cache 50MB (evita crecimiento ilimitado).
   FirebaseFirestore.instance.settings = const Settings(
     persistenceEnabled: true,
-    cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    cacheSizeBytes: 50 * 1024 * 1024,
   );
 
   // ═══════════════════════════════════════════════════════════════════════════

@@ -47,6 +47,8 @@ const VALID_REPORT_REASONS = [
 const MAX_POST_LENGTH = 500;
 const MAX_COMMENT_LENGTH = 300;
 const MAX_POSTS_PER_DAY = 5;
+const MAX_POSTS_PER_HOUR = 3;
+const MAX_COMMENTS_PER_HOUR = 10;
 
 const HTTPS_ERROR_CODES = new Set([
   "cancelled",
@@ -282,6 +284,13 @@ export const createWallPost = functions
           "Límite de publicaciones alcanzado. Intenta mañana."
         );
       }
+      const recentHourCount = await countRecentPosts(abuseHash, 1);
+      if (recentHourCount >= MAX_POSTS_PER_HOUR) {
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          "Demasiadas publicaciones en poco tiempo. Espera un momento."
+        );
+      }
 
       // Content filter
       const sanitized = sanitizeBody(body, MAX_POST_LENGTH);
@@ -407,6 +416,13 @@ export const createWallComment = functions
         throw new functions.https.HttpsError(
           "resource-exhausted",
           `Máximo ${MAX_COMMENTS_PER_DAY} comentarios por día.`
+        );
+      }
+      const recentCommentsHour = await countRecentCommentsByHash(abuseHash, 1);
+      if (recentCommentsHour >= MAX_COMMENTS_PER_HOUR) {
+        throw new functions.https.HttpsError(
+          "resource-exhausted",
+          "Demasiados comentarios en poco tiempo. Espera un momento."
         );
       }
 

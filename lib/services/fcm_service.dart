@@ -78,7 +78,7 @@ class FcmService {
         onError: (e) => debugPrint('⚠️ [FCM] foreground message error: $e'),
       );
 
-      debugPrint('🔔 [FCM] token=${_token?.substring(0, 12) ?? 'null'}…');
+      debugPrint('🔔 [FCM] init OK (token len=${_token?.length ?? 0})');
     } catch (e) {
       debugPrint('⚠️ [FCM] init error: $e');
     }
@@ -207,7 +207,7 @@ class FcmService {
           .collection('fcmTokens')
           .doc(deviceId)
           .delete();
-      debugPrint('🔔 [FCM] Token doc deleted for user ${user.uid}');
+      debugPrint('🔔 [FCM] Token doc deleted (user=${user.uid.substring(0, 6)}…)');
     } catch (e) {
       debugPrint('⚠️ [FCM] clearTokenForUser error: $e');
     }

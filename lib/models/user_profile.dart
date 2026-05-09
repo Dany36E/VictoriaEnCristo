@@ -154,7 +154,9 @@ class UserProfile {
       'notificationsEnabled': notificationsEnabled,
       'inviteCode': inviteCode,
       'publicName': publicName,
-      'isAdmin': isAdmin,
+      // isAdmin se omite del cache local: el flag autoritativo es el custom
+      // claim del token Firebase. Evitamos persistirlo en SharedPreferences
+      // para que un atacante con acceso al device no pueda forzarlo a true.
     };
   }
 

@@ -206,8 +206,16 @@ class AccountSessionManager {
 
     // 1b. Eliminar el token FCM de este dispositivo del user doc de Firestore
     // para que la Cloud Function deje de enviar push a este device para un
-    // usuario que ya no está autenticado. Best-effort (no bloquea logout).
-    unawaited(FcmService.I.clearTokenForUser());
+    // usuario que ya no está autenticado. Esperamos hasta 5s para que se
+    // complete (best-effort): así evitamos que el siguiente usuario reciba
+    // notificaciones del anterior si Firebase batchea writes.
+    try {
+      await FcmService.I.clearTokenForUser().timeout(
+        const Duration(seconds: 5),
+      );
+    } catch (e) {
+      debugPrint('⚠️ [SESSION] clearTokenForUser falló o timeout: $e');
+    }
 
     // 2. Reset estado en memoria
     _resetInMemoryState();

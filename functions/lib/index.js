@@ -6,7 +6,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
+exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
 const admin = require("firebase-admin");
 // Inicializar Firebase Admin ANTES de importar otras funciones
 admin.initializeApp();
@@ -36,4 +36,8 @@ Object.defineProperty(exports, "joinStudyRoom", { enumerable: true, get: functio
 Object.defineProperty(exports, "leaveStudyRoom", { enumerable: true, get: function () { return studyRoomFunctions_1.leaveStudyRoom; } });
 Object.defineProperty(exports, "rotateStudyVersions", { enumerable: true, get: function () { return studyRoomFunctions_1.rotateStudyVersions; } });
 Object.defineProperty(exports, "studyRoomAutoSwap", { enumerable: true, get: function () { return studyRoomFunctions_1.studyRoomAutoSwap; } });
+// Admin claims y limpieza FCM
+var adminFunctions_1 = require("./adminFunctions");
+Object.defineProperty(exports, "setAdminClaim", { enumerable: true, get: function () { return adminFunctions_1.setAdminClaim; } });
+Object.defineProperty(exports, "cleanStaleFcmTokens", { enumerable: true, get: function () { return adminFunctions_1.cleanStaleFcmTokens; } });
 //# sourceMappingURL=index.js.map
