@@ -29,7 +29,7 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - [ ] **App Check Enforcement**: tras 1-2 semanas en monitor sin falsos positivos, activar enforcement en Firestore, Functions y Storage.
 - [ ] **Functions secrets**: verificar `WALL_ABUSE_SALT` (≥16 chars).
 - [ ] **Authentication**: configurar action URL personalizada para email verification.
-- [ ] Desplegar cambios:
+- [x] **Desplegado 2026-05-08**: Functions (19 actualizadas + `setAdminClaim` + `cleanStaleFcmTokens`) y Firestore rules.
   ```bash
   cd functions && npm run build && firebase deploy --only functions
   firebase deploy --only firestore:rules
