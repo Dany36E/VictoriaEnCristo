@@ -1,3 +1,8 @@
+---
+layout: default
+title: Eliminar cuenta y datos
+---
+
 # Eliminar tu cuenta y datos — Victoria en Cristo
 
 Cumple el requisito de Play Store: "Account Data Deletion".

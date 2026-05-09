@@ -1,3 +1,8 @@
+---
+layout: default
+title: Política de Privacidad
+---
+
 # Política de Privacidad — Victoria en Cristo
 
 **Última actualización:** mayo 2026
