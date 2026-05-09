@@ -324,9 +324,12 @@ export const sendBattleSos = functions
 
 /**
  * Lee todos los tokens FCM del usuario objetivo.
+ * Limit defensivo: max 50 dispositivos por usuario para evitar
+ * costos descontrolados de lectura si el atacante registra miles de tokens.
  */
 async function getUserTokens(uid: string): Promise<string[]> {
-  const snap = await db().collection("users").doc(uid).collection("fcmTokens").get();
+  const snap = await db().collection("users").doc(uid)
+    .collection("fcmTokens").limit(50).get();
   const tokens: string[] = [];
   snap.forEach((d) => {
     const data = d.data() as FcmTokenDoc;

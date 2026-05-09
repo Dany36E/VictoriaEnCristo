@@ -62,6 +62,12 @@ class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
+  // Rate limit local de password reset (5 minutos por email).
+  // Defensa en profundidad sobre el rate limit de Firebase backend
+  // para evitar que un atacante use al usuario para spamear emails.
+  static final Map<String, DateTime> _passwordResetThrottle = {};
+  static const Duration _passwordResetCooldown = Duration(minutes: 5);
+
   // Lazy initialization para GoogleSignIn (evita error en web sin clientId)
   GoogleSignIn? _googleSignIn;
   GoogleSignIn get googleSignIn {
@@ -232,6 +238,30 @@ class AuthService {
     await _auth.signOut();
 
     debugPrint('🔐 [AUTH] ✅ Signed out (data preserved for next login)');
+  }
+
+  /// Cerrar sesión en TODOS los dispositivos del usuario actual.
+  ///
+  /// Llama a la Cloud Function `signOutAllDevices` que:
+  ///  - Revoca todos los refresh tokens del uid (FirebaseAuth backend).
+  ///  - Borra los documentos en `users/{uid}/fcmTokens` (max 100).
+  ///
+  /// Después cierra sesión local. Útil para "Cerrar sesión en todos los
+  /// dispositivos" en el flujo de cuenta comprometida.
+  Future<bool> signOutAllDevices() async {
+    if (currentUser == null) return false;
+    try {
+      final callable = FirebaseFunctions.instanceFor(region: kCloudFunctionRegion)
+          .httpsCallable('signOutAllDevices');
+      await callable.call();
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('🔐 [AUTH] signOutAllDevices error: ${e.code} ${e.message}');
+      // Continuamos cerrando sesión local aunque la revocación remota falle.
+    } catch (e) {
+      debugPrint('🔐 [AUTH] signOutAllDevices exception: $e');
+    }
+    await signOut();
+    return true;
   }
 
   /// Borrar solo cache local del dispositivo
@@ -474,8 +504,25 @@ class AuthService {
 
   /// Restablecer contraseña
   Future<AuthResult> resetPassword(String email) async {
+    final normalized = email.trim().toLowerCase();
+    if (normalized.isEmpty) {
+      return AuthResult.error('Ingresa un email válido.');
+    }
+    final last = _passwordResetThrottle[normalized];
+    if (last != null) {
+      final elapsed = DateTime.now().difference(last);
+      if (elapsed < _passwordResetCooldown) {
+        final remaining = _passwordResetCooldown - elapsed;
+        final minutes = remaining.inMinutes + 1;
+        return AuthResult.error(
+          'Espera $minutes minuto${minutes == 1 ? '' : 's'} antes de '
+          'volver a solicitar un email de recuperación.',
+        );
+      }
+    }
     try {
-      await _auth.sendPasswordResetEmail(email: email.trim());
+      await _auth.sendPasswordResetEmail(email: normalized);
+      _passwordResetThrottle[normalized] = DateTime.now();
       return AuthResult.success(null);
     } on FirebaseAuthException catch (e) {
       return AuthResult.error(_getErrorMessage(e.code));

@@ -98,3 +98,48 @@ export const cleanStaleFcmTokens = functions
     console.log(`[FCM-CLEAN] Deleted ${stale.size} stale FCM tokens.`);
     return null;
   });
+
+/**
+ * Cierra sesión en TODOS los dispositivos del usuario actual.
+ *
+ * Uso típico: usuario sospecha que su cuenta fue comprometida.
+ * Acciones:
+ *  1. `auth.revokeRefreshTokens(uid)` invalida todos los refresh tokens
+ *     existentes (los ID tokens activos siguen siendo válidos hasta 1h
+ *     más, salvo que las reglas Firestore comprueben `auth.token.auth_time`).
+ *  2. Borra todos los documentos en `users/{uid}/fcmTokens` para detener
+ *     notificaciones a dispositivos viejos.
+ */
+export const signOutAllDevices = functions
+  .region("us-central1")
+  .https.onCall(async (_data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated", "Debes iniciar sesión.");
+    }
+    const uid = context.auth.uid;
+
+    try {
+      await auth.revokeRefreshTokens(uid);
+    } catch (err) {
+      console.error("[SIGNOUT-ALL] revoke error:", err);
+      throw new functions.https.HttpsError(
+        "internal", "No se pudieron invalidar los tokens.");
+    }
+
+    // Borrar todos los FCM tokens del usuario.
+    try {
+      const tokensSnap = await db.collection("users").doc(uid)
+        .collection("fcmTokens").limit(100).get();
+      if (!tokensSnap.empty) {
+        const writer = db.bulkWriter();
+        tokensSnap.forEach((d) => writer.delete(d.ref));
+        await writer.close();
+      }
+    } catch (err) {
+      console.error("[SIGNOUT-ALL] fcm cleanup error:", err);
+      // No bloqueamos: tokens viejos serán purgados por cleanStaleFcmTokens.
+    }
+
+    return {success: true};
+  });

@@ -15,6 +15,7 @@
 
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import * as crypto from "crypto";
 
 const db = admin.firestore();
 
@@ -52,7 +53,7 @@ function rethrow(err: unknown): never {
 function genCode(): string {
   let out = "";
   for (let i = 0; i < 6; i++) {
-    out += CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)];
+    out += CODE_ALPHABET[crypto.randomInt(0, CODE_ALPHABET.length)];
   }
   return out;
 }
@@ -170,13 +171,11 @@ export const createStudyRoom = functions.https.onCall(async (data, context) => {
     // Rate limit diario
     await consumeDailyCreateLimit(uid);
 
-    // Buscar un código único (5 intentos)
+    // Buscar un código único (5 intentos), con transacción para evitar race conditions.
     const now = admin.firestore.Timestamp.now();
     for (let attempt = 0; attempt < 5; attempt++) {
       const code = genCode();
       const ref = db.collection("studyRooms").doc(code);
-      const snap = await ref.get();
-      if (snap.exists) continue;
 
       const member: MemberDoc = {
         uid,
@@ -201,8 +200,22 @@ export const createStudyRoom = functions.https.onCall(async (data, context) => {
         memberOrder: [uid],
         members: {[uid]: member},
       };
-      await ref.set(room);
-      return {code, room: serializeRoom(room)};
+
+      // Transacción: si entre get() y set() otra invocación creó el mismo
+      // code, la transacción reintenta o aborta; nunca sobreescribimos.
+      try {
+        const created = await db.runTransaction(async (tx) => {
+          const snap = await tx.get(ref);
+          if (snap.exists) return false;
+          tx.set(ref, room);
+          return true;
+        });
+        if (!created) continue;
+        return {code, room: serializeRoom(room)};
+      } catch (txErr) {
+        // Si la transacción falla por contención, probamos otro código.
+        continue;
+      }
     }
 
     throw new functions.https.HttpsError(

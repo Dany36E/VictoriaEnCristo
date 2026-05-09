@@ -20,6 +20,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'notification_service.dart';
@@ -30,8 +31,18 @@ class FcmService {
   static final FcmService I = FcmService._();
 
   static const _kDeviceIdKey = 'fcm_device_id';
-  static const _kLastTokenKey = 'fcm_last_token';
-  static const _kLastTokenUidKey = 'fcm_last_token_uid';
+  // Token FCM se guarda en SecureStorage (cifrado por OS), NO en SharedPrefs.
+  static const _kSecureLastTokenKey = 'fcm_last_token_secure';
+  static const _kSecureLastTokenUidKey = 'fcm_last_token_uid_secure';
+  // Sólo metadata no sensible (timestamp) en SharedPreferences.
+  static const _kLastTokenTsKey = 'fcm_last_token_ts';
+  // Legacy keys (a purgar): compatibilidad con instalaciones existentes.
+  static const _kLegacyTokenKey = 'fcm_last_token';
+  static const _kLegacyTokenUidKey = 'fcm_last_token_uid';
+
+  static const FlutterSecureStorage _secure = FlutterSecureStorage(
+    aOptions: AndroidOptions(encryptedSharedPreferences: true),
+  );
 
   bool _initialized = false;
   String? _token;
@@ -142,9 +153,11 @@ class FcmService {
       // arranque/refresh. Re-escribimos al menos una vez cada 7 días para
       // mantener `updatedAt` razonablemente fresco (sirve para purgar
       // tokens muertos en backend).
-      final lastToken = prefs.getString(_kLastTokenKey);
-      final lastUid = prefs.getString(_kLastTokenUidKey);
-      final lastWriteMs = prefs.getInt('${_kLastTokenKey}_ts') ?? 0;
+      // SECURIDAD: el token (sensible) se lee/escribe en SecureStorage
+      // (cifrado por el OS), no en SharedPreferences (plaintext).
+      final lastToken = await _secure.read(key: _kSecureLastTokenKey);
+      final lastUid = await _secure.read(key: _kSecureLastTokenUidKey);
+      final lastWriteMs = prefs.getInt(_kLastTokenTsKey) ?? 0;
       final ageMs = DateTime.now().millisecondsSinceEpoch - lastWriteMs;
       const refreshIntervalMs = 7 * 24 * 60 * 60 * 1000; // 7 días
       if (lastToken == token && lastUid == user.uid && ageMs < refreshIntervalMs) {
@@ -168,9 +181,15 @@ class FcmService {
             'platform': platform,
             'updatedAt': FieldValue.serverTimestamp(),
           }, SetOptions(merge: true));
-      await prefs.setString(_kLastTokenKey, token);
-      await prefs.setString(_kLastTokenUidKey, user.uid);
-      await prefs.setInt('${_kLastTokenKey}_ts', DateTime.now().millisecondsSinceEpoch);
+      await _secure.write(key: _kSecureLastTokenKey, value: token);
+      await _secure.write(key: _kSecureLastTokenUidKey, value: user.uid);
+      await prefs.setInt(_kLastTokenTsKey, DateTime.now().millisecondsSinceEpoch);
+
+      // Purga legacy keys (token plaintext en SharedPreferences) si existen.
+      if (prefs.containsKey(_kLegacyTokenKey)) {
+        await prefs.remove(_kLegacyTokenKey);
+        await prefs.remove(_kLegacyTokenUidKey);
+      }
     } catch (e) {
       debugPrint('⚠️ [FCM] persist error: $e');
     }
