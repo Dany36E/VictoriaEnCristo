@@ -17,6 +17,7 @@ class StudyQuestionsPanel extends StatelessWidget {
   final VoidCallback onPickRange;
   final VoidCallback onPickVersions;
   final VoidCallback onSwapVersions;
+  final VoidCallback onOpenTextSettings;
   final String reference;
   final String rangeLabel;
   final String versionsLabel;
@@ -34,6 +35,7 @@ class StudyQuestionsPanel extends StatelessWidget {
     required this.onPickRange,
     required this.onPickVersions,
     required this.onSwapVersions,
+    required this.onOpenTextSettings,
     required this.reference,
     required this.rangeLabel,
     required this.versionsLabel,
@@ -42,120 +44,282 @@ class StudyQuestionsPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
+    return ListView.separated(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+      itemCount: kStudyQuestions.length + 2,
+      separatorBuilder: (_, _) => const SizedBox(height: 14),
+      itemBuilder: (_, i) {
+        if (i == 0) {
+          return _QuestionsToolbar(
+            theme: t,
+            reference: reference,
+            rangeLabel: rangeLabel,
+            versionsLabel: versionsLabel,
+            onPickSavedStudy: onPickSavedStudy,
+            onPickRange: onPickRange,
+            onPickVersions: onPickVersions,
+            onSwapVersions: onSwapVersions,
+            onOpenTextSettings: onOpenTextSettings,
+            onManualSave: onManualSave,
+            onExportPdf: onExportPdf,
+          );
+        }
+        if (i == 1) {
+          return _GeneralNotesCard(
+            controller: generalNotesController,
+            onChanged: onGeneralNotesChanged,
+            theme: t,
+          );
+        }
+        final q = kStudyQuestions[i - 2];
+        return _QuestionCard(
+          index: i - 1,
+          question: q,
+          controller: controllers[q.id]!,
+          onChanged: (v) => onChanged(q.id, v),
+          theme: t,
+        );
+      },
+    );
+  }
+}
+
+enum _StudyPanelAction { savedStudies, saveProgress, exportPdf }
+
+class _QuestionsToolbar extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String reference;
+  final String rangeLabel;
+  final String versionsLabel;
+  final VoidCallback onPickSavedStudy;
+  final VoidCallback onPickRange;
+  final VoidCallback onPickVersions;
+  final VoidCallback onSwapVersions;
+  final VoidCallback onOpenTextSettings;
+  final Future<void> Function() onManualSave;
+  final Future<void> Function() onExportPdf;
+
+  const _QuestionsToolbar({
+    required this.theme,
+    required this.reference,
+    required this.rangeLabel,
+    required this.versionsLabel,
+    required this.onPickSavedStudy,
+    required this.onPickRange,
+    required this.onPickVersions,
+    required this.onSwapVersions,
+    required this.onOpenTextSettings,
+    required this.onManualSave,
+    required this.onExportPdf,
+  });
+
+  Future<void> _handleMenuAction(
+    BuildContext context,
+    _StudyPanelAction action,
+  ) async {
+    switch (action) {
+      case _StudyPanelAction.savedStudies:
+        onPickSavedStudy();
+        break;
+      case _StudyPanelAction.saveProgress:
+        await onManualSave();
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Estudio guardado'),
+              duration: Duration(seconds: 1),
+            ),
+          );
+        }
+        break;
+      case _StudyPanelAction.exportPdf:
+        await onExportPdf();
+        break;
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 8, 12),
+      decoration: BoxDecoration(
+        color: t.isDark
+            ? Colors.white.withOpacity(0.025)
+            : Colors.black.withOpacity(0.02),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Text(
-                'Tus respuestas · $reference',
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.7),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 0.6,
+              Expanded(
+                child: Text(
+                  'Tus respuestas · $reference',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.75),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.3,
+                  ),
                 ),
               ),
-              const SizedBox(height: 10),
-              Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    onPressed: onPickSavedStudy,
-                    icon: const Icon(Icons.folder_open_outlined, size: 17),
-                    label: const Text('Estudios guardados'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.accent,
-                      side: BorderSide(color: t.accent.withOpacity(0.5)),
-                    ),
+              PopupMenuButton<_StudyPanelAction>(
+                tooltip: 'Más acciones',
+                color: t.surface,
+                icon: Icon(Icons.more_horiz, color: t.accent, size: 22),
+                onSelected: (action) async {
+                  await _handleMenuAction(context, action);
+                },
+                itemBuilder: (_) => [
+                  const PopupMenuItem(
+                    value: _StudyPanelAction.savedStudies,
+                    child: Text('Estudios guardados'),
                   ),
-                  OutlinedButton.icon(
-                    onPressed: onPickRange,
-                    icon: const Icon(Icons.format_list_numbered, size: 17),
-                    label: Text('Rango: $rangeLabel'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.accent,
-                      side: BorderSide(color: t.accent.withOpacity(0.5)),
-                    ),
+                  const PopupMenuItem(
+                    value: _StudyPanelAction.saveProgress,
+                    child: Text('Guardar progreso'),
                   ),
-                  OutlinedButton.icon(
-                    onPressed: onPickVersions,
-                    icon: const Icon(Icons.compare_arrows, size: 17),
-                    label: Text('Versiones: $versionsLabel'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: t.accent,
-                      side: BorderSide(color: t.accent.withOpacity(0.5)),
-                    ),
-                  ),
-                  IconButton.outlined(
-                    tooltip: 'Intercambiar versiones',
-                    onPressed: onSwapVersions,
-                    icon: const Icon(Icons.swap_vert, size: 18),
-                    color: t.accent,
-                    style: IconButton.styleFrom(
-                      side: BorderSide(color: t.accent.withOpacity(0.5)),
-                    ),
-                  ),
-                  OutlinedButton.icon(
-                    onPressed: () async {
-                      await onManualSave();
-                      if (context.mounted) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Estudio guardado'),
-                            duration: Duration(seconds: 1),
-                          ),
-                        );
-                      }
-                    },
-                    icon: const Icon(Icons.save_outlined, size: 17),
-                    label: const Text('Guardar progreso'),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await onExportPdf();
-                    },
-                    icon: const Icon(Icons.picture_as_pdf_outlined, size: 17),
-                    label: const Text('Exportar PDF'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: t.accent,
-                      foregroundColor: t.background,
-                    ),
+                  const PopupMenuItem(
+                    value: _StudyPanelAction.exportPdf,
+                    child: Text('Exportar PDF'),
                   ),
                 ],
               ),
             ],
           ),
-        ),
-        Expanded(
-          child: ListView.separated(
-            padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
-            itemCount: kStudyQuestions.length + 1,
-            separatorBuilder: (_, _) => const SizedBox(height: 14),
-            itemBuilder: (_, i) {
-              if (i == 0) {
-                return _GeneralNotesCard(
-                  controller: generalNotesController,
-                  onChanged: onGeneralNotesChanged,
-                  theme: t,
-                );
-              }
-              final q = kStudyQuestions[i - 1];
-              return _QuestionCard(
-                index: i,
-                question: q,
-                controller: controllers[q.id]!,
-                onChanged: (v) => onChanged(q.id, v),
+          const SizedBox(height: 8),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _QuestionToolChip(
                 theme: t,
-              );
-            },
+                icon: Icons.text_fields,
+                label: 'Texto y colores',
+                onTap: onOpenTextSettings,
+                emphasized: true,
+              ),
+              _QuestionToolChip(
+                theme: t,
+                icon: Icons.format_list_numbered,
+                label: 'Rango: $rangeLabel',
+                onTap: onPickRange,
+              ),
+              _QuestionToolChip(
+                theme: t,
+                icon: Icons.compare_arrows,
+                label: versionsLabel,
+                onTap: onPickVersions,
+              ),
+              _QuestionIconChip(
+                theme: t,
+                tooltip: 'Intercambiar versiones',
+                icon: Icons.swap_vert,
+                onTap: onSwapVersions,
+              ),
+            ],
           ),
+        ],
+      ),
+    );
+  }
+}
+
+class _QuestionToolChip extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool emphasized;
+
+  const _QuestionToolChip({
+    required this.theme,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.emphasized = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final foreground = emphasized ? t.background : t.accent;
+    final background = emphasized
+        ? t.accent
+        : t.accent.withOpacity(t.isDark ? 0.10 : 0.07);
+    return InkWell(
+      borderRadius: BorderRadius.circular(18),
+      onTap: onTap,
+      child: Container(
+        constraints: const BoxConstraints(maxWidth: 260),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
+        decoration: BoxDecoration(
+          color: background,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: t.accent.withOpacity(0.24)),
         ),
-      ],
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: foreground),
+            const SizedBox(width: 7),
+            Flexible(
+              child: Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: GoogleFonts.manrope(
+                  color: foreground,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _QuestionIconChip extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _QuestionIconChip({
+    required this.theme,
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: onTap,
+        child: Container(
+          width: 36,
+          height: 34,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: t.accent.withOpacity(t.isDark ? 0.10 : 0.07),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: t.accent.withOpacity(0.24)),
+          ),
+          child: Icon(icon, size: 17, color: t.accent),
+        ),
+      ),
     );
   }
 }
@@ -215,7 +379,7 @@ class _GeneralNotesCard extends StatelessWidget {
             controller: controller,
             onChanged: onChanged,
             maxLines: null,
-            minLines: 4,
+            minLines: 3,
             style: GoogleFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
@@ -330,7 +494,7 @@ class _QuestionCard extends StatelessWidget {
             controller: controller,
             onChanged: onChanged,
             maxLines: null,
-            minLines: 3,
+            minLines: 2,
             style: GoogleFonts.lora(
               color: t.textPrimary,
               fontSize: 14,

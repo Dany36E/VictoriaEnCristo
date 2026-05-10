@@ -151,16 +151,19 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
           builder: (_, fontSize, _) {
             return Stack(
               children: [
-                Positioned(
-                  top: 10,
-                  right: 12,
-                  child: _UndoRedoBar(theme: t, onUndo: _undo, onRedo: _redo),
-                ),
                 ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 56, 16, 120),
-                  itemCount: widget.verses.length,
+                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+                  itemCount: widget.verses.length + 1,
                   itemBuilder: (_, i) {
-                    final v = widget.verses[i];
+                    if (i == 0) {
+                      return _ReadingControlsRow(
+                        theme: t,
+                        onShowLegend: () => _openLegendSheet(t),
+                        onUndo: _undo,
+                        onRedo: _redo,
+                      );
+                    }
+                    final v = widget.verses[i - 1];
                     final secondary = _secondaryForVerse(v.verse);
                     final primaryHighlights = allHighlights
                         .where(
@@ -219,12 +222,6 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
                       onCancel: _clearSelection,
                     ),
                   ),
-                Positioned(
-                  top: 8,
-                  left: 12,
-                  right: 80,
-                  child: _LegendStrip(theme: t),
-                ),
               ],
             );
           },
@@ -238,6 +235,14 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
       if (verse.verse == verseNumber) return verse;
     }
     return null;
+  }
+
+  Future<void> _openLegendSheet(BibleReaderThemeData t) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _LegendSheet(theme: t),
+    );
   }
 }
 
@@ -604,6 +609,50 @@ class _ColorToolbar extends StatelessWidget {
   }
 }
 
+class _ReadingControlsRow extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final VoidCallback onShowLegend;
+  final VoidCallback onUndo;
+  final VoidCallback onRedo;
+
+  const _ReadingControlsRow({
+    required this.theme,
+    required this.onShowLegend,
+    required this.onUndo,
+    required this.onRedo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          TextButton.icon(
+            onPressed: onShowLegend,
+            icon: Icon(Icons.palette_outlined, size: 16, color: t.accent),
+            label: const Text('Leyenda'),
+            style: TextButton.styleFrom(
+              foregroundColor: t.textPrimary,
+              visualDensity: VisualDensity.compact,
+              minimumSize: const Size(0, 34),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+              ),
+            ),
+          ),
+          const Spacer(),
+          _UndoRedoBar(theme: t, onUndo: onUndo, onRedo: onRedo),
+        ],
+      ),
+    );
+  }
+}
+
 class _TransparentColorButton extends StatelessWidget {
   final VoidCallback onTap;
 
@@ -667,11 +716,11 @@ class _UndoRedoBar extends StatelessWidget {
     final t = theme;
     return Material(
       color: t.surface.withOpacity(0.92),
-      borderRadius: BorderRadius.circular(22),
-      elevation: 4,
+      borderRadius: BorderRadius.circular(18),
+      elevation: 0,
       child: Container(
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
+          borderRadius: BorderRadius.circular(18),
           border: Border.all(color: t.textSecondary.withOpacity(0.12)),
         ),
         child: Row(
@@ -682,6 +731,12 @@ class _UndoRedoBar extends StatelessWidget {
               builder: (_, canUndo, _) => IconButton(
                 tooltip: 'Deshacer',
                 icon: const Icon(Icons.undo, size: 18),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(
+                  width: 36,
+                  height: 34,
+                ),
                 color: canUndo ? t.accent : t.textSecondary.withOpacity(0.35),
                 onPressed: canUndo ? onUndo : null,
               ),
@@ -691,6 +746,12 @@ class _UndoRedoBar extends StatelessWidget {
               builder: (_, canRedo, _) => IconButton(
                 tooltip: 'Rehacer',
                 icon: const Icon(Icons.redo, size: 18),
+                visualDensity: VisualDensity.compact,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints.tightFor(
+                  width: 36,
+                  height: 34,
+                ),
                 color: canRedo ? t.accent : t.textSecondary.withOpacity(0.35),
                 onPressed: canRedo ? onRedo : null,
               ),
@@ -739,86 +800,44 @@ class _ColorButton extends StatelessWidget {
   }
 }
 
-/// Strip persistente con la leyenda de colores del Modo Estudio. Se muestra
-/// arriba del panel y puede colapsarse a un chip.
-class _LegendStrip extends StatefulWidget {
+class _LegendSheet extends StatelessWidget {
   final BibleReaderThemeData theme;
-  const _LegendStrip({required this.theme});
-
-  @override
-  State<_LegendStrip> createState() => _LegendStripState();
-}
-
-class _LegendStripState extends State<_LegendStrip> {
-  bool _expanded = true;
+  const _LegendSheet({required this.theme});
 
   @override
   Widget build(BuildContext context) {
-    final t = widget.theme;
-    return Material(
-      color: Colors.transparent,
-      child: AnimatedSize(
-        duration: const Duration(milliseconds: 180),
-        curve: Curves.easeOut,
-        alignment: Alignment.topLeft,
-        child: _expanded
-            ? Container(
-                padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
-                decoration: BoxDecoration(
-                  color: t.surface.withOpacity(0.92),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: t.textSecondary.withOpacity(0.12)),
-                ),
-                child: Row(
-                  children: [
-                    Expanded(child: StudyColorLegend(theme: t, compact: true)),
-                    InkWell(
-                      borderRadius: BorderRadius.circular(20),
-                      onTap: () => setState(() => _expanded = false),
-                      child: Padding(
-                        padding: const EdgeInsets.all(4),
-                        child: Icon(
-                          Icons.close,
-                          size: 14,
-                          color: t.textSecondary.withOpacity(0.7),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            : InkWell(
-                borderRadius: BorderRadius.circular(20),
-                onTap: () => setState(() => _expanded = true),
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: t.surface.withOpacity(0.85),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: t.textSecondary.withOpacity(0.12),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(Icons.palette_outlined, size: 14, color: t.accent),
-                      const SizedBox(width: 6),
-                      Text(
-                        'Leyenda',
-                        style: GoogleFonts.manrope(
-                          color: t.textPrimary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+    final t = theme;
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: t.textSecondary.withOpacity(0.1)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Icon(Icons.palette_outlined, color: t.accent, size: 18),
+                const SizedBox(width: 8),
+                Text(
+                  'Leyenda de colores',
+                  style: GoogleFonts.manrope(
+                    color: t.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            StudyColorLegend(theme: t),
+          ],
+        ),
       ),
     );
   }
