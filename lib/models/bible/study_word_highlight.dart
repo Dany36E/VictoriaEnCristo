@@ -13,7 +13,11 @@ enum StudyHighlightCode {
   final String key;
   final String label;
   final String colorHex;
-  const StudyHighlightCode({required this.key, required this.label, required this.colorHex});
+  const StudyHighlightCode({
+    required this.key,
+    required this.label,
+    required this.colorHex,
+  });
 
   Color get color {
     final hex = colorHex.replaceFirst('#', '');
@@ -35,6 +39,7 @@ enum StudyHighlightCode {
 /// completo, `startWord = 0` y `endWord = wordCount`.
 class StudyWordHighlight {
   final String id;
+  final String versionId;
   final int bookNumber;
   final int chapter;
   final int verse;
@@ -45,6 +50,7 @@ class StudyWordHighlight {
 
   const StudyWordHighlight({
     required this.id,
+    required this.versionId,
     required this.bookNumber,
     required this.chapter,
     required this.verse,
@@ -55,32 +61,48 @@ class StudyWordHighlight {
   });
 
   StudyHighlightCode get codeEnum => StudyHighlightCode.fromKey(code);
-  String get verseKey => '$bookNumber:$chapter:$verse';
-  String get chapterKey => '$bookNumber:$chapter';
+  String get verseKey => '$versionId:$bookNumber:$chapter:$verse';
+  String get chapterKey => '$versionId:$bookNumber:$chapter';
 
   bool overlapsWord(int wordIndex) =>
       wordIndex >= startWord && wordIndex < endWord;
 
+  bool overlapsRange(int start, int end) => startWord < end && start < endWord;
+
+  StudyWordHighlight copyWith({String? id, int? startWord, int? endWord}) =>
+      StudyWordHighlight(
+        id: id ?? this.id,
+        versionId: versionId,
+        bookNumber: bookNumber,
+        chapter: chapter,
+        verse: verse,
+        startWord: startWord ?? this.startWord,
+        endWord: endWord ?? this.endWord,
+        code: code,
+        createdAt: createdAt,
+      );
+
   Map<String, dynamic> toMap() => {
-        'bookNumber': bookNumber,
-        'chapter': chapter,
-        'verse': verse,
-        'startWord': startWord,
-        'endWord': endWord,
-        'code': code,
-        'createdAt': Timestamp.fromDate(createdAt),
-      };
+    'versionId': versionId,
+    'bookNumber': bookNumber,
+    'chapter': chapter,
+    'verse': verse,
+    'startWord': startWord,
+    'endWord': endWord,
+    'code': code,
+    'createdAt': Timestamp.fromDate(createdAt),
+  };
 
   factory StudyWordHighlight.fromMap(String id, Map<String, dynamic> map) =>
       StudyWordHighlight(
         id: id,
+        versionId: map['versionId'] as String? ?? 'RVR1960',
         bookNumber: map['bookNumber'] as int,
         chapter: map['chapter'] as int,
         verse: map['verse'] as int,
         startWord: map['startWord'] as int? ?? 0,
         endWord: map['endWord'] as int? ?? 0,
         code: map['code'] as String? ?? 'yellow',
-        createdAt:
-            (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+        createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       );
 }

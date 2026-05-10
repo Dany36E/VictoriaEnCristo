@@ -12,7 +12,14 @@ class HighlightColors {
   static const Color orange = Color(0xFFFFCC80);
   static const Color purple = Color(0xFFCE93D8);
 
-  static const List<Color> defaults = [yellow, green, blue, pink, orange, purple];
+  static const List<Color> defaults = [
+    yellow,
+    green,
+    blue,
+    pink,
+    orange,
+    purple,
+  ];
 
   /// Convertir color a hex string para Firestore
   static String toHex(Color c) =>
@@ -28,6 +35,7 @@ class HighlightColors {
 /// Resaltado de un versículo
 class Highlight {
   final String id; // Firestore doc ID
+  final String versionId;
   final int bookNumber;
   final int chapter;
   final int verse;
@@ -36,6 +44,7 @@ class Highlight {
 
   const Highlight({
     required this.id,
+    required this.versionId,
     required this.bookNumber,
     required this.chapter,
     required this.verse,
@@ -43,25 +52,34 @@ class Highlight {
     required this.createdAt,
   });
 
-  /// Clave del versículo para lookup rápido
-  String get verseKey => '$bookNumber:$chapter:$verse';
+  /// Clave del versículo para lookup rápido, separada por traducción.
+  String get verseKey => keyFor(versionId, bookNumber, chapter, verse);
+
+  static String keyFor(
+    String versionId,
+    int bookNumber,
+    int chapter,
+    int verse,
+  ) => '$versionId:$bookNumber:$chapter:$verse';
 
   Color get color => HighlightColors.fromHex(colorHex);
 
   Map<String, dynamic> toMap() => {
-        'bookNumber': bookNumber,
-        'chapter': chapter,
-        'verse': verse,
-        'colorHex': colorHex,
-        'createdAt': Timestamp.fromDate(createdAt),
-      };
+    'versionId': versionId,
+    'bookNumber': bookNumber,
+    'chapter': chapter,
+    'verse': verse,
+    'colorHex': colorHex,
+    'createdAt': Timestamp.fromDate(createdAt),
+  };
 
   factory Highlight.fromMap(String id, Map<String, dynamic> map) => Highlight(
-        id: id,
-        bookNumber: map['bookNumber'] as int,
-        chapter: map['chapter'] as int,
-        verse: map['verse'] as int,
-        colorHex: map['colorHex'] as String,
-        createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      );
+    id: id,
+    versionId: map['versionId'] as String? ?? 'RVR1960',
+    bookNumber: map['bookNumber'] as int,
+    chapter: map['chapter'] as int,
+    verse: map['verse'] as int,
+    colorHex: map['colorHex'] as String,
+    createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+  );
 }

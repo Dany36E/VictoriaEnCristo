@@ -12,6 +12,7 @@ import '../../services/bible/bible_reading_stats_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../widgets/bible/collapsible_section.dart';
 import '../../widgets/bible/concordance_sheet.dart';
+import '../../widgets/bible/bible_home_onboarding_overlay.dart';
 import 'bible_reader_screen.dart';
 import 'bible_search_screen.dart';
 import 'bible_settings_screen.dart';
@@ -69,6 +70,17 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     super.initState();
     _loadBooks();
     _loadLastRead();
+    WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowWelcome());
+  }
+
+  Future<void> _maybeShowWelcome() async {
+    final seen = await BibleHomeOnboardingOverlay.hasSeen();
+    if (!mounted || seen) return;
+    await showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const BibleHomeOnboardingOverlay(),
+    );
   }
 
   Future<void> _loadLastRead() async {
@@ -557,6 +569,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   void _openStudyMode({
     bool openRoomDialogOnStart = false,
     bool openSetupOnStart = true,
+    bool openSavedStudiesOnStart = false,
   }) {
     Navigator.push(
       context,
@@ -568,10 +581,34 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           version: _version,
           openRoomDialogOnStart: openRoomDialogOnStart,
           openSetupOnStart: openSetupOnStart,
+          openSavedStudiesOnStart: openSavedStudiesOnStart,
         ),
       ),
     );
   }
+
+  Future<void> _openStudyEntryOptions() async {
+    final action = await showModalBottomSheet<_StudyEntryAction>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _StudyEntrySheet(theme: _currentTheme()),
+    );
+    if (!mounted || action == null) return;
+    switch (action) {
+      case _StudyEntryAction.newStudy:
+        _openStudyMode(openSetupOnStart: true);
+        break;
+      case _StudyEntryAction.savedStudies:
+        _openStudyMode(openSetupOnStart: false, openSavedStudiesOnStart: true);
+        break;
+    }
+  }
+
+  BibleReaderThemeData _currentTheme() => BibleReaderThemeData.fromId(
+    BibleReaderThemeData.migrateId(
+      BibleUserDataService.I.readerThemeNotifier.value,
+    ),
+  );
 
   void _openParallelReader() {
     Navigator.push(
@@ -589,13 +626,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   Widget _buildQuickToolsStrip(BibleReaderThemeData t) {
     final quickTools = [
-      _ToolItem(Icons.menu_book, 'Estudio', () => _openStudyMode()),
+      _ToolItem(Icons.menu_book, 'Estudio', _openStudyEntryOptions),
       _ToolItem(Icons.view_column_outlined, '2 versiones', _openParallelReader),
-      _ToolItem(
-        Icons.groups_outlined,
-        'Con amigos',
-        () => _openStudyMode(openRoomDialogOnStart: true),
-      ),
       _ToolItem(
         Icons.bookmark_outline,
         'Guardados',
@@ -842,7 +874,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           MaterialPageRoute(builder: (_) => const OTQuotesScreen()),
         ),
       ),
-      _ToolItem(Icons.menu_book, 'Modo Estudio', () => _openStudyMode()),
+      _ToolItem(Icons.menu_book, 'Modo Estudio', _openStudyEntryOptions),
     ];
 
     return GridView.count(
@@ -1091,6 +1123,137 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
+    );
+  }
+}
+
+enum _StudyEntryAction { newStudy, savedStudies }
+
+class _StudyEntrySheet extends StatelessWidget {
+  final BibleReaderThemeData theme;
+
+  const _StudyEntrySheet({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Container(
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: t.textSecondary.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Modo Estudio',
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _StudyEntryTile(
+              icon: Icons.add_circle_outline,
+              title: 'Empezar nuevo estudio',
+              subtitle: 'Elegir pasaje, rango y versiones.',
+              theme: t,
+              onTap: () => Navigator.pop(context, _StudyEntryAction.newStudy),
+            ),
+            const SizedBox(height: 8),
+            _StudyEntryTile(
+              icon: Icons.folder_open_outlined,
+              title: 'Estudios guardados',
+              subtitle: 'Continuar respuestas y notas anteriores.',
+              theme: t,
+              onTap: () =>
+                  Navigator.pop(context, _StudyEntryAction.savedStudies),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StudyEntryTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final BibleReaderThemeData theme;
+  final VoidCallback onTap;
+
+  const _StudyEntryTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.theme,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: t.isDark
+              ? Colors.white.withOpacity(0.04)
+              : Colors.black.withOpacity(0.03),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: t.textSecondary.withOpacity(0.09)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: t.accent, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.manrope(
+                      color: t.textPrimary,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.manrope(
+                      color: t.textSecondary.withOpacity(0.7),
+                      fontSize: 11,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: t.textSecondary, size: 20),
+          ],
+        ),
+      ),
     );
   }
 }

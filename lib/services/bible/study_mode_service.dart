@@ -49,6 +49,11 @@ class StudyModeService {
   /// Lista plana de subrayados granulares
   final ValueNotifier<List<StudyWordHighlight>> highlightsNotifier =
       ValueNotifier(const []);
+  final ValueNotifier<bool> canUndoHighlightsNotifier = ValueNotifier(false);
+  final ValueNotifier<bool> canRedoHighlightsNotifier = ValueNotifier(false);
+
+  final List<List<StudyWordHighlight>> _undoHighlightStack = [];
+  final List<List<StudyWordHighlight>> _redoHighlightStack = [];
 
   // ──────────────────────────────────────────────────────────────────────
   // Lifecycle
@@ -66,6 +71,10 @@ class StudyModeService {
 
     _listenAnswers();
     _listenHighlights();
+
+    // Migración única: limpia highlights a nivel-versículo creados por la
+    // versión antigua del mirror (que pintaba el versículo completo).
+    unawaited(_purgeLegacyMirroredHighlights());
   }
 
   void stop() {
@@ -75,6 +84,9 @@ class StudyModeService {
     _highlightsSub = null;
     answersNotifier.value = const {};
     highlightsNotifier.value = const [];
+    _undoHighlightStack.clear();
+    _redoHighlightStack.clear();
+    _updateHighlightHistoryState();
     _uid = null;
   }
 
@@ -162,6 +174,7 @@ class StudyModeService {
       final t = v.trim();
       if (t.isNotEmpty) cleaned[k] = t;
     });
+    final generalNotes = answers.generalNotes.trim();
 
     final key = answers.chapterKey;
     final next = Map<String, StudyChapterAnswers>.from(answersNotifier.value);
@@ -170,7 +183,7 @@ class StudyModeService {
     final hasRange =
         answers.studyStartVerse != null && answers.studyEndVerse != null;
 
-    if (cleaned.isEmpty && !hasRange) {
+    if (cleaned.isEmpty && generalNotes.isEmpty && !hasRange) {
       next.remove(key);
       answersNotifier.value = Map.unmodifiable(next);
       await _saveAnswersCache(next);
@@ -184,6 +197,7 @@ class StudyModeService {
 
     final updated = answers.copyWith(
       answers: cleaned,
+      generalNotes: generalNotes,
       updatedAt: DateTime.now(),
     );
     next[key] = updated;
@@ -228,6 +242,7 @@ class StudyModeService {
         );
     final clear = startVerse == null || endVerse == null;
     final updated = base.copyWith(
+      versionId: versionId,
       studyStartVerse: clear ? null : startVerse,
       studyEndVerse: clear ? null : endVerse,
       clearRange: clear,
@@ -362,13 +377,23 @@ class StudyModeService {
   // Highlights API
   // ──────────────────────────────────────────────────────────────────────
 
-  List<StudyWordHighlight> highlightsForChapter(int bookNumber, int chapter) {
+  List<StudyWordHighlight> highlightsForChapter(
+    String versionId,
+    int bookNumber,
+    int chapter,
+  ) {
     return highlightsNotifier.value
-        .where((h) => h.bookNumber == bookNumber && h.chapter == chapter)
+        .where(
+          (h) =>
+              h.versionId == versionId &&
+              h.bookNumber == bookNumber &&
+              h.chapter == chapter,
+        )
         .toList(growable: false);
   }
 
   List<StudyWordHighlight> highlightsForVerse(
+    String versionId,
     int bookNumber,
     int chapter,
     int verse,
@@ -376,6 +401,7 @@ class StudyModeService {
     return highlightsNotifier.value
         .where(
           (h) =>
+              h.versionId == versionId &&
               h.bookNumber == bookNumber &&
               h.chapter == chapter &&
               h.verse == verse,
@@ -385,6 +411,7 @@ class StudyModeService {
 
   /// Añade un subrayado granular y refleja el versículo en la lectura normal.
   Future<StudyWordHighlight> addHighlight({
+    required String versionId,
     required int bookNumber,
     required int chapter,
     required int verse,
@@ -393,9 +420,11 @@ class StudyModeService {
     required StudyHighlightCode code,
   }) async {
     assert(endWord > startWord, 'endWord debe ser > startWord');
+    _rememberHighlightState();
     final doc = _highlightsCol.doc();
     final h = StudyWordHighlight(
       id: doc.id,
+      versionId: versionId,
       bookNumber: bookNumber,
       chapter: chapter,
       verse: verse,
@@ -416,13 +445,13 @@ class StudyModeService {
       debugPrint('[STUDY-MODE] addHighlight error: $e');
     }
 
-    // Mirror al verse-level highlight de la lectura normal.
     unawaited(
-      BibleUserDataService.I.addHighlight(
+      _syncMirroredVerseHighlight(
+        versionId: versionId,
         bookNumber: bookNumber,
         chapter: chapter,
         verse: verse,
-        colorHex: code.colorHex,
+        source: next,
       ),
     );
 
@@ -431,7 +460,7 @@ class StudyModeService {
 
   /// Elimina un subrayado por id. Si era el último del versículo, también
   /// retira el highlight a nivel versículo.
-  Future<void> removeHighlight(String id) async {
+  Future<void> removeHighlight(String id, {bool recordHistory = true}) async {
     final list = highlightsNotifier.value;
     StudyWordHighlight? target;
     for (final h in list) {
@@ -441,6 +470,10 @@ class StudyModeService {
       }
     }
     if (target == null) return;
+
+    if (recordHistory) {
+      _rememberHighlightState();
+    }
 
     final next = list.where((h) => h.id != id).toList(growable: false);
     highlightsNotifier.value = List.unmodifiable(next);
@@ -452,26 +485,89 @@ class StudyModeService {
       debugPrint('[STUDY-MODE] removeHighlight error: $e');
     }
 
-    final stillHasOnVerse = next.any(
-      (h) =>
-          h.bookNumber == target!.bookNumber &&
-          h.chapter == target.chapter &&
-          h.verse == target.verse,
+    unawaited(
+      _syncMirroredVerseHighlight(
+        versionId: target.versionId,
+        bookNumber: target.bookNumber,
+        chapter: target.chapter,
+        verse: target.verse,
+        source: next,
+      ),
     );
-    if (!stillHasOnVerse) {
-      unawaited(
-        BibleUserDataService.I.removeHighlight(
-          target.bookNumber,
-          target.chapter,
-          target.verse,
-        ),
-      );
+  }
+
+  Future<void> clearHighlightRange({
+    required String versionId,
+    required int bookNumber,
+    required int chapter,
+    required int verse,
+    required int startWord,
+    required int endWord,
+  }) async {
+    if (endWord <= startWord) return;
+    final current = highlightsNotifier.value;
+    final affected = current
+        .where(
+          (h) =>
+              h.versionId == versionId &&
+              h.bookNumber == bookNumber &&
+              h.chapter == chapter &&
+              h.verse == verse &&
+              h.overlapsRange(startWord, endWord),
+        )
+        .toList(growable: false);
+    if (affected.isEmpty) return;
+
+    _rememberHighlightState();
+    final replacements = <StudyWordHighlight>[];
+    for (final highlight in affected) {
+      if (highlight.startWord < startWord) {
+        replacements.add(
+          highlight.copyWith(id: _highlightsCol.doc().id, endWord: startWord),
+        );
+      }
+      if (endWord < highlight.endWord) {
+        replacements.add(
+          highlight.copyWith(id: _highlightsCol.doc().id, startWord: endWord),
+        );
+      }
     }
+
+    final affectedIds = affected.map((h) => h.id).toSet();
+    final next = [
+      for (final h in current)
+        if (!affectedIds.contains(h.id)) h,
+      ...replacements,
+    ];
+    highlightsNotifier.value = List.unmodifiable(next);
+    await _saveHighlightsCache(next);
+
+    try {
+      for (final highlight in affected) {
+        await _highlightsCol.doc(highlight.id).delete();
+      }
+      for (final replacement in replacements) {
+        await _highlightsCol.doc(replacement.id).set(replacement.toMap());
+      }
+    } catch (e) {
+      debugPrint('[STUDY-MODE] clearHighlightRange error: $e');
+    }
+
+    unawaited(
+      _syncMirroredVerseHighlight(
+        versionId: versionId,
+        bookNumber: bookNumber,
+        chapter: chapter,
+        verse: verse,
+        source: next,
+      ),
+    );
   }
 
   /// Limpia todos los subrayados Modo-Estudio del versículo (por ejemplo al
   /// pulsar "borrar" en la barra flotante).
   Future<void> clearVerseHighlights(
+    String versionId,
     int bookNumber,
     int chapter,
     int verse,
@@ -479,14 +575,155 @@ class StudyModeService {
     final ids = highlightsNotifier.value
         .where(
           (h) =>
+              h.versionId == versionId &&
               h.bookNumber == bookNumber &&
               h.chapter == chapter &&
               h.verse == verse,
         )
         .map((h) => h.id)
         .toList();
+    if (ids.isEmpty) return;
+    _rememberHighlightState();
     for (final id in ids) {
-      await removeHighlight(id);
+      await removeHighlight(id, recordHistory: false);
+    }
+  }
+
+  Future<void> undoHighlightChange() async {
+    if (_undoHighlightStack.isEmpty) return;
+    final current = List<StudyWordHighlight>.from(highlightsNotifier.value);
+    final previous = _undoHighlightStack.removeLast();
+    _redoHighlightStack.add(current);
+    await _replaceHighlightState(previous, current);
+    _updateHighlightHistoryState();
+  }
+
+  Future<void> redoHighlightChange() async {
+    if (_redoHighlightStack.isEmpty) return;
+    final current = List<StudyWordHighlight>.from(highlightsNotifier.value);
+    final next = _redoHighlightStack.removeLast();
+    _undoHighlightStack.add(current);
+    await _replaceHighlightState(next, current);
+    _updateHighlightHistoryState();
+  }
+
+  void _rememberHighlightState() {
+    _undoHighlightStack.add(
+      List<StudyWordHighlight>.from(highlightsNotifier.value),
+    );
+    if (_undoHighlightStack.length > 50) {
+      _undoHighlightStack.removeAt(0);
+    }
+    _redoHighlightStack.clear();
+    _updateHighlightHistoryState();
+  }
+
+  void _updateHighlightHistoryState() {
+    canUndoHighlightsNotifier.value = _undoHighlightStack.isNotEmpty;
+    canRedoHighlightsNotifier.value = _redoHighlightStack.isNotEmpty;
+  }
+
+  Future<void> _replaceHighlightState(
+    List<StudyWordHighlight> target,
+    List<StudyWordHighlight> previous,
+  ) async {
+    highlightsNotifier.value = List.unmodifiable(target);
+    await _saveHighlightsCache(target);
+
+    final previousById = {for (final h in previous) h.id: h};
+    final targetById = {for (final h in target) h.id: h};
+    final affectedVerseKeys = <String>{};
+    void mark(StudyWordHighlight h) => affectedVerseKeys.add(
+      '${h.versionId}|${h.bookNumber}|${h.chapter}|${h.verse}',
+    );
+    previous.forEach(mark);
+    target.forEach(mark);
+
+    try {
+      for (final id in previousById.keys) {
+        if (!targetById.containsKey(id)) {
+          await _highlightsCol.doc(id).delete();
+        }
+      }
+      for (final highlight in target) {
+        await _highlightsCol.doc(highlight.id).set(highlight.toMap());
+      }
+    } catch (e) {
+      debugPrint('[STUDY-MODE] replaceHighlightState error: $e');
+    }
+
+    for (final key in affectedVerseKeys) {
+      final parts = key.split('|');
+      if (parts.length != 4) continue;
+      unawaited(
+        _syncMirroredVerseHighlight(
+          versionId: parts[0],
+          bookNumber: int.tryParse(parts[1]) ?? 0,
+          chapter: int.tryParse(parts[2]) ?? 0,
+          verse: int.tryParse(parts[3]) ?? 0,
+          source: target,
+        ),
+      );
+    }
+  }
+
+  /// Limpia highlights legacy a nivel-versículo creados por la versión antigua
+  /// del Modo Estudio (que pintaba el versículo completo). Hoy los subrayados
+  /// granulares se renderizan palabra por palabra desde
+  /// [highlightsNotifier], así que el highlight a nivel verso ya no es
+  /// necesario y, si existe con un color de Modo Estudio, se elimina.
+  Future<void> _syncMirroredVerseHighlight({
+    required String versionId,
+    required int bookNumber,
+    required int chapter,
+    required int verse,
+    required List<StudyWordHighlight> source,
+  }) async {
+    if (bookNumber <= 0 || chapter <= 0 || verse <= 0) return;
+    final existing = BibleUserDataService
+        .I
+        .highlightsNotifier
+        .value['$versionId:$bookNumber:$chapter:$verse'];
+    if (existing == null) return;
+    final studyHexes = StudyHighlightCode.values
+        .map((c) => c.colorHex.toUpperCase())
+        .toSet();
+    if (studyHexes.contains(existing.colorHex.toUpperCase())) {
+      await BibleUserDataService.I.removeHighlight(
+        versionId,
+        bookNumber,
+        chapter,
+        verse,
+      );
+    }
+  }
+
+  /// Migración única: al iniciar el Modo Estudio, recorre los highlights
+  /// a nivel-versículo y elimina los que parecen creados por la versión
+  /// antigua del mirror (color coincide con un StudyHighlightCode y existe
+  /// un StudyWordHighlight para el mismo verso).
+  Future<void> _purgeLegacyMirroredHighlights() async {
+    final wordHighlights = highlightsNotifier.value;
+    if (wordHighlights.isEmpty) return;
+    final studyHexes = StudyHighlightCode.values
+        .map((c) => c.colorHex.toUpperCase())
+        .toSet();
+    final wordKeys = wordHighlights
+        .map((h) => '${h.versionId}:${h.bookNumber}:${h.chapter}:${h.verse}')
+        .toSet();
+    final verseHighlights = Map<String, dynamic>.from(
+      BibleUserDataService.I.highlightsNotifier.value,
+    );
+    for (final entry in verseHighlights.entries) {
+      final h = entry.value;
+      if (!wordKeys.contains(entry.key)) continue;
+      if (!studyHexes.contains(h.colorHex.toString().toUpperCase())) continue;
+      await BibleUserDataService.I.removeHighlight(
+        h.versionId as String,
+        h.bookNumber as int,
+        h.chapter as int,
+        h.verse as int,
+      );
     }
   }
 
@@ -549,6 +786,7 @@ class StudyModeService {
             'chapter': a.chapter,
             'versionId': a.versionId,
             'answers': a.answers,
+            'generalNotes': a.generalNotes,
             'studyStartVerse': a.studyStartVerse,
             'studyEndVerse': a.studyEndVerse,
             'createdAtMs': a.createdAt.millisecondsSinceEpoch,
@@ -588,6 +826,7 @@ class StudyModeService {
         .map(
           (h) => {
             'id': h.id,
+            'versionId': h.versionId,
             'bookNumber': h.bookNumber,
             'chapter': h.chapter,
             'verse': h.verse,

@@ -19,7 +19,8 @@ class ReaderContentView extends StatelessWidget {
   final ScrollController scrollController;
   final VoidCallback onGoToNextBook;
   final void Function(int bookNum, String bookName, int chapter) onGoToBook;
-  final void Function(int bookNum, String bookName, int chapter) onBottomNavBookTap;
+  final void Function(int bookNum, String bookName, int chapter)
+  onBottomNavBookTap;
 
   const ReaderContentView({
     super.key,
@@ -49,12 +50,16 @@ class ReaderContentView extends StatelessWidget {
                     return CustomScrollView(
                       controller: scrollController,
                       slivers: [
-                        const SliverToBoxAdapter(
-                            child: SizedBox(height: 56)),
+                        const SliverToBoxAdapter(child: SizedBox(height: 56)),
                         _buildOfflineBanner(t),
                         _buildChapterOrnament(t),
                         _buildVerseSliver(
-                            t, highlights, notes, fontSize, ttsVerseIdx),
+                          t,
+                          highlights,
+                          notes,
+                          fontSize,
+                          ttsVerseIdx,
+                        ),
                         if (controller.selectedVerseIndex != null &&
                             controller.selectedVerseIndex! <
                                 controller.verses.length &&
@@ -62,7 +67,8 @@ class ReaderContentView extends StatelessWidget {
                           SliverToBoxAdapter(
                             child: CrossRefsPanel(
                               key: ValueKey(
-                                  'xref_${controller.verses[controller.selectedVerseIndex!].uniqueKey}'),
+                                'xref_${controller.verses[controller.selectedVerseIndex!].uniqueKey}',
+                              ),
                               verse: controller
                                   .verses[controller.selectedVerseIndex!],
                               theme: t,
@@ -73,8 +79,11 @@ class ReaderContentView extends StatelessWidget {
                             ),
                           ),
                         SliverToBoxAdapter(
-                            child: ReaderChapterNoteIndicator(
-                                theme: t, controller: controller)),
+                          child: ReaderChapterNoteIndicator(
+                            theme: t,
+                            controller: controller,
+                          ),
+                        ),
                         SliverToBoxAdapter(
                           child: ChapterToolsSection(
                             bookNumber: controller.bookNumber,
@@ -91,8 +100,7 @@ class ReaderContentView extends StatelessWidget {
                             onGoToBook: onBottomNavBookTap,
                           ),
                         ),
-                        const SliverToBoxAdapter(
-                            child: SizedBox(height: 80)),
+                        const SliverToBoxAdapter(child: SizedBox(height: 80)),
                       ],
                     );
                   },
@@ -113,21 +121,25 @@ class ReaderContentView extends StatelessWidget {
           if (online) return const SizedBox.shrink();
           return Container(
             width: double.infinity,
-            padding:
-                const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 16),
             color: const Color(0xFF1A1A2E),
-            child: Row(children: [
-              Icon(Icons.wifi_off_outlined,
-                  size: 12, color: t.textSecondary.withOpacity(0.5)),
-              const SizedBox(width: 6),
-              Text(
-                'Sin conexión · Funciones online no disponibles',
-                style: GoogleFonts.manrope(
-                  fontSize: 10,
+            child: Row(
+              children: [
+                Icon(
+                  Icons.wifi_off_outlined,
+                  size: 12,
                   color: t.textSecondary.withOpacity(0.5),
                 ),
-              ),
-            ]),
+                const SizedBox(width: 6),
+                Text(
+                  'Sin conexión · Funciones online no disponibles',
+                  style: GoogleFonts.manrope(
+                    fontSize: 10,
+                    color: t.textSecondary.withOpacity(0.5),
+                  ),
+                ),
+              ],
+            ),
           );
         },
       ),
@@ -189,7 +201,13 @@ class ReaderContentView extends StatelessWidget {
                   return ReaderStudyBanner(theme: t);
                 case StudyItemType.verse:
                   return _buildVerse(
-                      item.index, t, highlights, notes, fontSize, ttsVerseIdx);
+                    item.index,
+                    t,
+                    highlights,
+                    notes,
+                    fontSize,
+                    ttsVerseIdx,
+                  );
                 case StudyItemType.annotation:
                   return ReaderAnnotationBlock(
                     sectionIndex: item.index,
@@ -202,10 +220,17 @@ class ReaderContentView extends StatelessWidget {
               }
             }
             return _buildVerse(
-                index, t, highlights, notes, fontSize, ttsVerseIdx);
+              index,
+              t,
+              highlights,
+              notes,
+              fontSize,
+              ttsVerseIdx,
+            );
           },
-          childCount:
-              useStudy ? controller.studyItems.length : controller.verses.length,
+          childCount: useStudy
+              ? controller.studyItems.length
+              : controller.verses.length,
         ),
       ),
     );
@@ -220,14 +245,16 @@ class ReaderContentView extends StatelessWidget {
     int ttsVerseIdx,
   ) {
     final verse = controller.verses[vi];
-    final key = verse.uniqueKey;
+    final highlightKey = verse.fullKey;
+    final noteKey = verse.uniqueKey;
     return ReaderVerseItem(
       verse: verse,
       index: vi,
-      highlight: highlights[key],
-      hasNote: notes.containsKey(key),
+      highlight: highlights[highlightKey],
+      hasNote: notes.containsKey(noteKey),
       isSelected: controller.selectedVerseIndex == vi,
-      isMultiSelected: controller.isSelectionMode &&
+      isMultiSelected:
+          controller.isSelectionMode &&
           controller.selectedVerseNumbers.contains(verse.verse),
       isTtsActive: ttsVerseIdx == vi,
       fontSize: fontSize,

@@ -24,6 +24,7 @@ void main() {
   group('StudyWordHighlight', () {
     final h = StudyWordHighlight(
       id: 'abc',
+      versionId: 'RVR1960',
       bookNumber: 1,
       chapter: 1,
       verse: 1,
@@ -41,8 +42,8 @@ void main() {
     });
 
     test('verseKey y chapterKey', () {
-      expect(h.verseKey, '1:1:1');
-      expect(h.chapterKey, '1:1');
+      expect(h.verseKey, 'RVR1960:1:1:1');
+      expect(h.chapterKey, 'RVR1960:1:1');
     });
 
     test('codeEnum mapea correctamente', () {
@@ -72,20 +73,25 @@ void main() {
     });
 
     test('toMarkdown omite respuestas vacías y respeta orden de preguntas', () {
-      final a = StudyChapterAnswers.empty(
-        bookNumber: 43,
-        bookName: 'Juan',
-        chapter: 1,
-        versionId: 'RVR1960',
-      ).copyWith(answers: {
-        'application': 'Confiar en la Palabra hoy.',
-        'about_god': 'El Verbo es Dios.',
-        '': 'ignorar',
-      });
+      final a =
+          StudyChapterAnswers.empty(
+            bookNumber: 43,
+            bookName: 'Juan',
+            chapter: 1,
+            versionId: 'RVR1960',
+          ).copyWith(
+            answers: {
+              'application': 'Confiar en la Palabra hoy.',
+              'about_god': 'El Verbo es Dios.',
+              '': 'ignorar',
+            },
+          );
       final md = a.toMarkdown();
       // about_god va primero según orden canónico
-      expect(md.indexOf('El Verbo es Dios.'),
-          lessThan(md.indexOf('Confiar en la Palabra hoy.')));
+      expect(
+        md.indexOf('El Verbo es Dios.'),
+        lessThan(md.indexOf('Confiar en la Palabra hoy.')),
+      );
       expect(md.contains('ignorar'), isFalse);
     });
 
@@ -120,11 +126,11 @@ void main() {
 
   group('StudyChapterAnswers - rango de versículos (Fase 2)', () {
     StudyChapterAnswers makeBase() => StudyChapterAnswers.empty(
-          bookNumber: 43,
-          bookName: 'Juan',
-          chapter: 4,
-          versionId: 'RVR1960',
-        );
+      bookNumber: 43,
+      bookName: 'Juan',
+      chapter: 4,
+      versionId: 'RVR1960',
+    );
 
     test('versesInRange devuelve [] cuando no hay rango', () {
       expect(makeBase().versesInRange(), isEmpty);
@@ -147,11 +153,13 @@ void main() {
     test('reference incluye rango cuando aplica', () {
       expect(makeBase().reference, 'Juan 4');
       expect(
-          makeBase().copyWith(studyStartVerse: 7, studyEndVerse: 7).reference,
-          'Juan 4:7');
+        makeBase().copyWith(studyStartVerse: 7, studyEndVerse: 7).reference,
+        'Juan 4:7',
+      );
       expect(
-          makeBase().copyWith(studyStartVerse: 44, studyEndVerse: 51).reference,
-          'Juan 4:44-51');
+        makeBase().copyWith(studyStartVerse: 44, studyEndVerse: 51).reference,
+        'Juan 4:44-51',
+      );
     });
 
     test('serialización roundtrip preserva el rango', () {

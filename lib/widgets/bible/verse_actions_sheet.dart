@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:share_plus/share_plus.dart';
@@ -89,53 +89,51 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
 
   // ── Handle ──
   Widget _buildHandle() => Center(
-        child: Container(
-          margin: const EdgeInsets.only(top: 10, bottom: 4),
-          width: 36,
-          height: 3.5,
-          decoration: BoxDecoration(
-            color: _t.textSecondary.withOpacity(0.25),
-            borderRadius: BorderRadius.circular(2),
-          ),
-        ),
-      );
+    child: Container(
+      margin: const EdgeInsets.only(top: 10, bottom: 4),
+      width: 36,
+      height: 3.5,
+      decoration: BoxDecoration(
+        color: _t.textSecondary.withOpacity(0.25),
+        borderRadius: BorderRadius.circular(2),
+      ),
+    ),
+  );
 
   // ── 1. Preview del versículo ──
   Widget _buildVersePreview() => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              '${widget.verse.reference} (${widget.verse.version})'
-                  .toUpperCase(),
-              style: GoogleFonts.manrope(
-                fontSize: 10,
-                color: _t.accent,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.5,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              widget.verse.text,
-              style: GoogleFonts.crimsonPro(
-                fontSize: 14,
-                color: _t.textPrimary.withOpacity(0.85),
-                fontStyle: FontStyle.italic,
-                height: 1.5,
-              ),
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+    padding: const EdgeInsets.fromLTRB(20, 4, 20, 14),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '${widget.verse.reference} (${widget.verse.version})'.toUpperCase(),
+          style: GoogleFonts.manrope(
+            fontSize: 10,
+            color: _t.accent,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+          ),
         ),
-      );
+        const SizedBox(height: 4),
+        Text(
+          widget.verse.text,
+          style: GoogleFonts.crimsonPro(
+            fontSize: 14,
+            color: _t.textPrimary.withOpacity(0.85),
+            fontStyle: FontStyle.italic,
+            height: 1.5,
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    ),
+  );
 
   // ── 2. Colores de subrayado ──
   Widget _buildHighlightColors() {
-    final highlight =
-        _data.highlightsNotifier.value[widget.verse.uniqueKey];
+    final highlight = _data.highlightsNotifier.value[widget.verse.fullKey];
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 0, 20, 14),
       child: Column(
@@ -148,12 +146,14 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
             onColorSelected: (colorHex) {
               if (colorHex == null) {
                 _data.removeHighlight(
+                  widget.verse.version,
                   widget.verse.bookNumber,
                   widget.verse.chapter,
                   widget.verse.verse,
                 );
               } else {
                 _data.addHighlight(
+                  versionId: widget.verse.version,
                   bookNumber: widget.verse.bookNumber,
                   chapter: widget.verse.chapter,
                   verse: widget.verse.verse,
@@ -170,58 +170,57 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
 
   // ── 3. Previews horizontales de plantillas ──
   Widget _buildImagePreviews() => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
-            child: Row(
-              children: [
-                _sectionLabel('COMPARTIR IMAGEN'),
-                const Spacer(),
-                GestureDetector(
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            TemplatePickerScreen(verse: widget.verse),
-                      ),
-                    );
-                  },
-                  child: Text(
-                    'Ver todas →',
-                    style: GoogleFonts.manrope(
-                      fontSize: 10,
-                      color: _t.accent,
-                      fontWeight: FontWeight.w600,
-                    ),
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+        child: Row(
+          children: [
+            _sectionLabel('COMPARTIR IMAGEN'),
+            const Spacer(),
+            GestureDetector(
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => TemplatePickerScreen(verse: widget.verse),
                   ),
+                );
+              },
+              child: Text(
+                'Ver todas →',
+                style: GoogleFonts.manrope(
+                  fontSize: 10,
+                  color: _t.accent,
+                  fontWeight: FontWeight.w600,
                 ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 110,
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              itemCount: kShareTemplates.length,
-              itemBuilder: (_, i) => _buildTemplateThumbnail(i),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
-            child: Text(
-              'Toca para compartir  ·  Mantén para editar',
-              style: GoogleFonts.manrope(
-                fontSize: 9,
-                color: _t.textSecondary.withOpacity(0.35),
               ),
             ),
+          ],
+        ),
+      ),
+      SizedBox(
+        height: 110,
+        child: ListView.builder(
+          scrollDirection: Axis.horizontal,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          itemCount: kShareTemplates.length,
+          itemBuilder: (_, i) => _buildTemplateThumbnail(i),
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
+        child: Text(
+          'Toca para compartir  ·  Mantén para editar',
+          style: GoogleFonts.manrope(
+            fontSize: 9,
+            color: _t.textSecondary.withOpacity(0.35),
           ),
-        ],
-      );
+        ),
+      ),
+    ],
+  );
 
   Widget _buildTemplateThumbnail(int index) {
     final template = kShareTemplates[index];
@@ -324,10 +323,9 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
 
       if (cached != null) {
         Navigator.pop(context);
-        await Share.shareXFiles(
-          [XFile(cached.path)],
-          text: 'Victoria en Cristo',
-        );
+        await Share.shareXFiles([
+          XFile(cached.path),
+        ], text: 'Victoria en Cristo');
         return;
       }
 
@@ -351,26 +349,26 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
 
   // ── 4. Estudio unificado ──
   Widget _buildStudyRow() => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _sectionLabel('ESTUDIO'),
+        const SizedBox(height: 8),
+        Row(
           children: [
-            _sectionLabel('ESTUDIO'),
-            const SizedBox(height: 8),
-            Row(
-              children: [
-                _studyBtn(Icons.translate, 'Interlineal', 0),
-                const SizedBox(width: 8),
-                _studyBtn(Icons.auto_stories_outlined, 'Comentario', 1),
-                const SizedBox(width: 8),
-                _studyBtn(Icons.link, 'Conexiones', 2),
-                const SizedBox(width: 8),
-                _studyBtn(Icons.school_outlined, 'Guzik', 3),
-              ],
-            ),
+            _studyBtn(Icons.translate, 'Interlineal', 0),
+            const SizedBox(width: 8),
+            _studyBtn(Icons.auto_stories_outlined, 'Comentario', 1),
+            const SizedBox(width: 8),
+            _studyBtn(Icons.link, 'Conexiones', 2),
+            const SizedBox(width: 8),
+            _studyBtn(Icons.school_outlined, 'Guzik', 3),
           ],
         ),
-      );
+      ],
+    ),
+  );
 
   Widget _studyBtn(IconData icon, String label, int tab) {
     return Expanded(
@@ -435,67 +433,96 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               Navigator.pop(context);
             },
           ),
-          _quickBtn(Icons.content_copy_outlined, 'Copiar', onTap: () {
-            Clipboard.setData(ClipboardData(
-              text:
-                  '${widget.verse.text}\n— ${widget.verse.reference} (${widget.verse.version})',
-            ));
-            Navigator.pop(context);
-          }),
-          _quickBtn(Icons.edit_note_outlined, 'Nota', onTap: () {
-            Navigator.pop(context);
-            showModalBottomSheet(
-              context: context,
-              backgroundColor: Colors.transparent,
-              isScrollControlled: true,
-              builder: (_) => NoteEditorSheet(verse: widget.verse),
-            );
-          }),
-          _quickBtn(Icons.share_outlined, 'Texto', onTap: () {
-            Navigator.pop(context);
-            BibleShareService.shareAsText(widget.verse);
-          }),
-          _quickBtn(Icons.volunteer_activism, 'Oración', onTap: () {
-            Navigator.pop(context);
-            showModalBottomSheet(
-              context: context,
-              backgroundColor: Colors.transparent,
-              isScrollControlled: true,
-              builder: (_) => PrayerSheet(verse: widget.verse),
-            );
-          }),
-          _quickBtn(Icons.compare_arrows, 'Comparar', onTap: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => VerseCompareScreen(
-                  bookNumber: widget.verse.bookNumber,
-                  bookName: widget.verse.bookName,
-                  chapter: widget.verse.chapter,
-                  verse: widget.verse.verse,
+          _quickBtn(
+            Icons.content_copy_outlined,
+            'Copiar',
+            onTap: () {
+              Clipboard.setData(
+                ClipboardData(
+                  text:
+                      '${widget.verse.text}\n— ${widget.verse.reference} (${widget.verse.version})',
                 ),
-              ),
-            );
-          }),
-          _quickBtn(Icons.campaign_outlined, 'Muro', onTap: () {
-            Navigator.pop(context);
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => WallComposerScreen(
-                  preloadedVerse: widget.verse,
+              );
+              Navigator.pop(context);
+            },
+          ),
+          _quickBtn(
+            Icons.edit_note_outlined,
+            'Nota',
+            onTap: () {
+              Navigator.pop(context);
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (_) => NoteEditorSheet(verse: widget.verse),
+              );
+            },
+          ),
+          _quickBtn(
+            Icons.share_outlined,
+            'Texto',
+            onTap: () {
+              Navigator.pop(context);
+              BibleShareService.shareAsText(widget.verse);
+            },
+          ),
+          _quickBtn(
+            Icons.volunteer_activism,
+            'Oración',
+            onTap: () {
+              Navigator.pop(context);
+              showModalBottomSheet(
+                context: context,
+                backgroundColor: Colors.transparent,
+                isScrollControlled: true,
+                builder: (_) => PrayerSheet(verse: widget.verse),
+              );
+            },
+          ),
+          _quickBtn(
+            Icons.compare_arrows,
+            'Comparar',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => VerseCompareScreen(
+                    bookNumber: widget.verse.bookNumber,
+                    bookName: widget.verse.bookName,
+                    chapter: widget.verse.chapter,
+                    verse: widget.verse.verse,
+                  ),
                 ),
-              ),
-            );
-          }),
+              );
+            },
+          ),
+          _quickBtn(
+            Icons.campaign_outlined,
+            'Muro',
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) =>
+                      WallComposerScreen(preloadedVerse: widget.verse),
+                ),
+              );
+            },
+          ),
         ],
       ),
     );
   }
 
-  Widget _quickBtn(IconData icon, String label,
-      {Color? color, VoidCallback? onTap}) {
+  Widget _quickBtn(
+    IconData icon,
+    String label, {
+    Color? color,
+    VoidCallback? onTap,
+  }) {
     final c = color ?? _t.textSecondary;
     return Expanded(
       child: GestureDetector(
@@ -522,12 +549,12 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
 
   // ── Helpers ──
   Widget _sectionLabel(String text) => Text(
-        text,
-        style: GoogleFonts.manrope(
-          fontSize: 9,
-          color: _t.textSecondary.withOpacity(0.5),
-          fontWeight: FontWeight.w700,
-          letterSpacing: 1.5,
-        ),
-      );
+    text,
+    style: GoogleFonts.manrope(
+      fontSize: 9,
+      color: _t.textSecondary.withOpacity(0.5),
+      fontWeight: FontWeight.w700,
+      letterSpacing: 1.5,
+    ),
+  );
 }

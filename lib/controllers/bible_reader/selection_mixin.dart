@@ -60,6 +60,7 @@ mixin SelectionMixin on ReaderState {
     final data = BibleUserDataService.I;
     for (final verseNum in selectedVerseNumbers) {
       data.addHighlight(
+        versionId: currentVersion.id,
         bookNumber: bookNumber,
         chapter: currentChapter,
         verse: verseNum,

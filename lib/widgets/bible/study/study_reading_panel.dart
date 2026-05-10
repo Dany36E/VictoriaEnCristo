@@ -3,10 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
+import '../../../models/bible/bible_version.dart';
 import '../../../models/bible/study_word_highlight.dart';
 import '../../../services/bible/bible_user_data_service.dart';
 import '../../../services/bible/study_mode_service.dart';
 import '../../../theme/bible_reader_theme.dart';
+import 'study_color_legend.dart';
 
 /// Panel izquierdo (split) o tab de lectura del Modo Estudio.
 ///
@@ -19,6 +21,9 @@ import '../../../theme/bible_reader_theme.dart';
 class StudyReadingPanel extends StatefulWidget {
   final BibleReaderThemeData theme;
   final List<BibleVerse> verses;
+  final List<BibleVerse> secondaryVerses;
+  final BibleVersion primaryVersion;
+  final BibleVersion secondaryVersion;
   final int bookNumber;
   final int chapter;
 
@@ -26,6 +31,9 @@ class StudyReadingPanel extends StatefulWidget {
     super.key,
     required this.theme,
     required this.verses,
+    required this.secondaryVerses,
+    required this.primaryVersion,
+    required this.secondaryVersion,
     required this.bookNumber,
     required this.chapter,
   });
@@ -37,15 +45,17 @@ class StudyReadingPanel extends StatefulWidget {
 class _StudyReadingPanelState extends State<StudyReadingPanel> {
   /// Versículo activo en selección (sólo se permite seleccionar dentro de un
   /// versículo a la vez para mantener la semántica de subrayado por verso).
+  String? _activeVersionId;
   int? _activeVerse;
 
   /// Índices [start, end) de palabras seleccionadas en `_activeVerse`.
   int? _startWord;
   int? _endWord; // exclusive
 
-  void _toggleWord(int verseNumber, int wordIndex) {
+  void _toggleWord(String versionId, int verseNumber, int wordIndex) {
     setState(() {
-      if (_activeVerse != verseNumber) {
+      if (_activeVersionId != versionId || _activeVerse != verseNumber) {
+        _activeVersionId = versionId;
         _activeVerse = verseNumber;
         _startWord = wordIndex;
         _endWord = wordIndex + 1;
@@ -77,6 +87,7 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
 
   void _clearSelection() {
     setState(() {
+      _activeVersionId = null;
       _activeVerse = null;
       _startWord = null;
       _endWord = null;
@@ -84,13 +95,20 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
   }
 
   Future<void> _applyColor(StudyHighlightCode code) async {
-    if (_activeVerse == null || _startWord == null || _endWord == null) return;
+    if (_activeVersionId == null ||
+        _activeVerse == null ||
+        _startWord == null ||
+        _endWord == null) {
+      return;
+    }
     HapticFeedback.selectionClick();
+    final versionId = _activeVersionId!;
     final verse = _activeVerse!;
     final s = _startWord!;
     final e = _endWord!;
     _clearSelection();
     await StudyModeService.I.addHighlight(
+      versionId: versionId,
       bookNumber: widget.bookNumber,
       chapter: widget.chapter,
       verse: verse,
@@ -100,13 +118,27 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     );
   }
 
-  Future<void> _clearVerse() async {
-    if (_activeVerse == null) return;
+  Future<void> _clearSelectedWords() async {
+    if (_activeVersionId == null || _activeVerse == null) return;
+    final versionId = _activeVersionId!;
     final verse = _activeVerse!;
+    final s = _startWord;
+    final e = _endWord;
+    if (s == null || e == null) return;
     _clearSelection();
-    await StudyModeService.I
-        .clearVerseHighlights(widget.bookNumber, widget.chapter, verse);
+    await StudyModeService.I.clearHighlightRange(
+      versionId: versionId,
+      bookNumber: widget.bookNumber,
+      chapter: widget.chapter,
+      verse: verse,
+      startWord: s,
+      endWord: e,
+    );
   }
+
+  Future<void> _undo() => StudyModeService.I.undoHighlightChange();
+
+  Future<void> _redo() => StudyModeService.I.redoHighlightChange();
 
   @override
   Widget build(BuildContext context) {
@@ -119,31 +151,63 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
           builder: (_, fontSize, _) {
             return Stack(
               children: [
+                Positioned(
+                  top: 10,
+                  right: 12,
+                  child: _UndoRedoBar(theme: t, onUndo: _undo, onRedo: _redo),
+                ),
                 ListView.builder(
-                  padding:
-                      const EdgeInsets.fromLTRB(16, 12, 16, 120),
+                  padding: const EdgeInsets.fromLTRB(16, 56, 16, 120),
                   itemCount: widget.verses.length,
                   itemBuilder: (_, i) {
                     final v = widget.verses[i];
-                    final highlights = allHighlights
-                        .where((h) =>
-                            h.bookNumber == widget.bookNumber &&
-                            h.chapter == widget.chapter &&
-                            h.verse == v.verse)
+                    final secondary = _secondaryForVerse(v.verse);
+                    final primaryHighlights = allHighlights
+                        .where(
+                          (h) =>
+                              h.versionId == widget.primaryVersion.id &&
+                              h.bookNumber == widget.bookNumber &&
+                              h.chapter == widget.chapter &&
+                              h.verse == v.verse,
+                        )
                         .toList();
-                    return _VerseRow(
-                      verse: v,
+                    final secondaryHighlights = allHighlights
+                        .where(
+                          (h) =>
+                              h.versionId == widget.secondaryVersion.id &&
+                              h.bookNumber == widget.bookNumber &&
+                              h.chapter == widget.chapter &&
+                              h.verse == v.verse,
+                        )
+                        .toList();
+                    return _VerseComparisonRow(
+                      primary: v,
+                      secondary: secondary,
+                      primaryVersion: widget.primaryVersion,
+                      secondaryVersion: widget.secondaryVersion,
                       theme: t,
                       fontSize: fontSize,
-                      highlights: highlights,
+                      primaryHighlights: primaryHighlights,
+                      secondaryHighlights: secondaryHighlights,
+                      activeVersionId: _activeVersionId,
                       activeVerse: _activeVerse,
                       startWord: _startWord,
                       endWord: _endWord,
-                      onTapWord: (idx) => _toggleWord(v.verse, idx),
+                      onTapPrimaryWord: (idx) =>
+                          _toggleWord(widget.primaryVersion.id, v.verse, idx),
+                      onTapSecondaryWord: secondary == null
+                          ? null
+                          : (idx) => _toggleWord(
+                              widget.secondaryVersion.id,
+                              secondary.verse,
+                              idx,
+                            ),
                     );
                   },
                 ),
-                if (_activeVerse != null && _startWord != null && _endWord != null)
+                if (_activeVerse != null &&
+                    _startWord != null &&
+                    _endWord != null)
                   Positioned(
                     left: 12,
                     right: 12,
@@ -151,15 +215,185 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
                     child: _ColorToolbar(
                       theme: t,
                       onPick: _applyColor,
-                      onClear: _clearVerse,
+                      onClear: _clearSelectedWords,
                       onCancel: _clearSelection,
                     ),
                   ),
+                Positioned(
+                  top: 8,
+                  left: 12,
+                  right: 80,
+                  child: _LegendStrip(theme: t),
+                ),
               ],
             );
           },
         );
       },
+    );
+  }
+
+  BibleVerse? _secondaryForVerse(int verseNumber) {
+    for (final verse in widget.secondaryVerses) {
+      if (verse.verse == verseNumber) return verse;
+    }
+    return null;
+  }
+}
+
+class _VerseComparisonRow extends StatelessWidget {
+  final BibleVerse primary;
+  final BibleVerse? secondary;
+  final BibleVersion primaryVersion;
+  final BibleVersion secondaryVersion;
+  final BibleReaderThemeData theme;
+  final double fontSize;
+  final List<StudyWordHighlight> primaryHighlights;
+  final List<StudyWordHighlight> secondaryHighlights;
+  final String? activeVersionId;
+  final int? activeVerse;
+  final int? startWord;
+  final int? endWord;
+  final ValueChanged<int> onTapPrimaryWord;
+  final ValueChanged<int>? onTapSecondaryWord;
+
+  const _VerseComparisonRow({
+    required this.primary,
+    required this.secondary,
+    required this.primaryVersion,
+    required this.secondaryVersion,
+    required this.theme,
+    required this.fontSize,
+    required this.primaryHighlights,
+    required this.secondaryHighlights,
+    required this.activeVersionId,
+    required this.activeVerse,
+    required this.startWord,
+    required this.endWord,
+    required this.onTapPrimaryWord,
+    required this.onTapSecondaryWord,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
+      decoration: BoxDecoration(
+        color: t.isDark
+            ? Colors.white.withOpacity(0.025)
+            : Colors.black.withOpacity(0.025),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _VersionLabel(version: primaryVersion, theme: t),
+          _VerseRow(
+            verse: primary,
+            theme: t,
+            fontSize: fontSize,
+            highlights: primaryHighlights,
+            activeVerse: activeVersionId == primaryVersion.id
+                ? activeVerse
+                : null,
+            startWord: startWord,
+            endWord: endWord,
+            onTapWord: onTapPrimaryWord,
+          ),
+          const SizedBox(height: 8),
+          _VersionLabel(version: secondaryVersion, theme: t, muted: true),
+          const SizedBox(height: 4),
+          if (secondary == null)
+            _SecondaryVerseText(
+              verseNumber: primary.verse,
+              text: 'Versículo no disponible en esta versión.',
+              theme: t,
+              fontSize: fontSize,
+            )
+          else
+            _VerseRow(
+              verse: secondary!,
+              theme: t,
+              fontSize: fontSize * 0.92,
+              highlights: secondaryHighlights,
+              activeVerse: activeVersionId == secondaryVersion.id
+                  ? activeVerse
+                  : null,
+              startWord: startWord,
+              endWord: endWord,
+              onTapWord: onTapSecondaryWord!,
+              muted: true,
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _VersionLabel extends StatelessWidget {
+  final BibleVersion version;
+  final BibleReaderThemeData theme;
+  final bool muted;
+
+  const _VersionLabel({
+    required this.version,
+    required this.theme,
+    this.muted = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Text(
+      version.shortName,
+      style: GoogleFonts.manrope(
+        color: muted ? t.textSecondary.withOpacity(0.55) : t.accent,
+        fontSize: 10,
+        fontWeight: FontWeight.w800,
+        letterSpacing: 1.0,
+      ),
+    );
+  }
+}
+
+class _SecondaryVerseText extends StatelessWidget {
+  final int verseNumber;
+  final String text;
+  final BibleReaderThemeData theme;
+  final double fontSize;
+
+  const _SecondaryVerseText({
+    required this.verseNumber,
+    required this.text,
+    required this.theme,
+    required this.fontSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return RichText(
+      text: TextSpan(
+        style: GoogleFonts.lora(
+          color: t.textPrimary.withOpacity(0.78),
+          fontSize: fontSize * 0.92,
+          height: 1.55,
+        ),
+        children: [
+          TextSpan(
+            text: '$verseNumber ',
+            style: GoogleFonts.cinzel(
+              color: t.textSecondary.withOpacity(0.7),
+              fontSize: fontSize * 0.62,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          TextSpan(text: text),
+        ],
+      ),
     );
   }
 }
@@ -173,6 +407,7 @@ class _VerseRow extends StatelessWidget {
   final int? startWord;
   final int? endWord;
   final ValueChanged<int> onTapWord;
+  final bool muted;
 
   const _VerseRow({
     required this.verse,
@@ -183,12 +418,14 @@ class _VerseRow extends StatelessWidget {
     required this.startWord,
     required this.endWord,
     required this.onTapWord,
+    this.muted = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final tokens = verse.text.split(RegExp(r'\s+'))
+    final tokens = verse.text
+        .split(RegExp(r'\s+'))
         .where((s) => s.isNotEmpty)
         .toList();
     final isSelectingHere = activeVerse == verse.verse;
@@ -203,7 +440,7 @@ class _VerseRow extends StatelessWidget {
             child: Text(
               '${verse.verse}',
               style: GoogleFonts.cinzel(
-                color: t.accent,
+                color: muted ? t.textSecondary.withOpacity(0.7) : t.accent,
                 fontSize: fontSize * 0.65,
                 fontWeight: FontWeight.w600,
               ),
@@ -214,8 +451,10 @@ class _VerseRow extends StatelessWidget {
               text: tokens[i],
               theme: t,
               fontSize: fontSize,
-              color: _colorForWord(i),
-              selected: isSelectingHere &&
+              colors: _colorsForWord(i),
+              muted: muted,
+              selected:
+                  isSelectingHere &&
                   startWord != null &&
                   endWord != null &&
                   i >= startWord! &&
@@ -227,16 +466,14 @@ class _VerseRow extends StatelessWidget {
     );
   }
 
-  Color? _colorForWord(int wordIndex) {
-    StudyWordHighlight? hit;
+  List<Color> _colorsForWord(int wordIndex) {
+    final colors = <Color>[];
     for (final h in highlights) {
       if (h.overlapsWord(wordIndex)) {
-        hit = h;
-        break; // primer match (en colisión, el más reciente queda al final;
-        // bastará para Fase 1)
+        colors.add(h.codeEnum.color);
       }
     }
-    return hit?.codeEnum.color;
+    return colors;
   }
 }
 
@@ -244,7 +481,8 @@ class _WordChip extends StatelessWidget {
   final String text;
   final BibleReaderThemeData theme;
   final double fontSize;
-  final Color? color;
+  final List<Color> colors;
+  final bool muted;
   final bool selected;
   final VoidCallback onTap;
 
@@ -252,7 +490,8 @@ class _WordChip extends StatelessWidget {
     required this.text,
     required this.theme,
     required this.fontSize,
-    required this.color,
+    required this.colors,
+    required this.muted,
     required this.selected,
     required this.onTap,
   });
@@ -262,10 +501,10 @@ class _WordChip extends StatelessWidget {
     final t = theme;
     final bg = selected
         ? t.accent.withOpacity(0.35)
-        : (color != null ? color!.withOpacity(0.35) : Colors.transparent);
-    final border = selected
-        ? Border.all(color: t.accent, width: 1)
-        : null;
+        : (colors.isNotEmpty
+              ? colors.last.withOpacity(0.20)
+              : Colors.transparent);
+    final border = selected ? Border.all(color: t.accent, width: 1) : null;
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
@@ -277,13 +516,34 @@ class _WordChip extends StatelessWidget {
           borderRadius: BorderRadius.circular(4),
           border: border,
         ),
-        child: Text(
-          '$text ',
-          style: GoogleFonts.lora(
-            color: t.textPrimary,
-            fontSize: fontSize,
-            height: 1.55,
-          ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              '$text ',
+              style: GoogleFonts.lora(
+                color: muted ? t.textPrimary.withOpacity(0.78) : t.textPrimary,
+                fontSize: fontSize,
+                height: 1.35,
+              ),
+            ),
+            if (colors.isNotEmpty)
+              SizedBox(
+                height: 3,
+                width: (text.length * fontSize * 0.48).clamp(12.0, 80.0),
+                child: Row(
+                  children: [
+                    for (final color in colors)
+                      Expanded(
+                        child: Container(
+                          height: 3,
+                          color: color.withOpacity(0.9),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          ],
         ),
       ),
     );
@@ -314,9 +574,7 @@ class _ColorToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(
-            color: t.textSecondary.withOpacity(0.12),
-          ),
+          border: Border.all(color: t.textSecondary.withOpacity(0.12)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -327,6 +585,7 @@ class _ColorToolbar extends StatelessWidget {
                 label: code.label,
                 onTap: () => onPick(code),
               ),
+            _TransparentColorButton(onTap: onClear),
             Container(
               width: 1,
               height: 24,
@@ -334,16 +593,107 @@ class _ColorToolbar extends StatelessWidget {
               margin: const EdgeInsets.symmetric(horizontal: 4),
             ),
             IconButton(
-              tooltip: 'Borrar marcas del versículo',
-              icon: Icon(Icons.clear_all,
-                  color: t.textSecondary, size: 22),
-              onPressed: onClear,
-            ),
-            IconButton(
               tooltip: 'Cancelar selección',
-              icon: Icon(Icons.close,
-                  color: t.textSecondary, size: 20),
+              icon: Icon(Icons.close, color: t.textSecondary, size: 20),
               onPressed: onCancel,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _TransparentColorButton extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _TransparentColorButton({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    return Tooltip(
+      message: 'Borrar color seleccionado',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(20),
+        onTap: onTap,
+        child: Padding(
+          padding: const EdgeInsets.all(6),
+          child: Container(
+            width: 26,
+            height: 26,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.white.withOpacity(0.55)),
+            ),
+            child: CustomPaint(painter: _TransparentSwatchPainter()),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _TransparentSwatchPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white.withOpacity(0.18)
+      ..strokeWidth = 2;
+    canvas.drawLine(
+      Offset(size.width * 0.2, size.height * 0.8),
+      Offset(size.width * 0.8, size.height * 0.2),
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+class _UndoRedoBar extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final VoidCallback onUndo;
+  final VoidCallback onRedo;
+
+  const _UndoRedoBar({
+    required this.theme,
+    required this.onUndo,
+    required this.onRedo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Material(
+      color: t.surface.withOpacity(0.92),
+      borderRadius: BorderRadius.circular(22),
+      elevation: 4,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: t.textSecondary.withOpacity(0.12)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ValueListenableBuilder<bool>(
+              valueListenable: StudyModeService.I.canUndoHighlightsNotifier,
+              builder: (_, canUndo, _) => IconButton(
+                tooltip: 'Deshacer',
+                icon: const Icon(Icons.undo, size: 18),
+                color: canUndo ? t.accent : t.textSecondary.withOpacity(0.35),
+                onPressed: canUndo ? onUndo : null,
+              ),
+            ),
+            ValueListenableBuilder<bool>(
+              valueListenable: StudyModeService.I.canRedoHighlightsNotifier,
+              builder: (_, canRedo, _) => IconButton(
+                tooltip: 'Rehacer',
+                icon: const Icon(Icons.redo, size: 18),
+                color: canRedo ? t.accent : t.textSecondary.withOpacity(0.35),
+                onPressed: canRedo ? onRedo : null,
+              ),
             ),
           ],
         ),
@@ -379,14 +729,96 @@ class _ColorButton extends StatelessWidget {
               color: color,
               shape: BoxShape.circle,
               boxShadow: [
-                BoxShadow(
-                  color: color.withOpacity(0.5),
-                  blurRadius: 8,
-                ),
+                BoxShadow(color: color.withOpacity(0.5), blurRadius: 8),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Strip persistente con la leyenda de colores del Modo Estudio. Se muestra
+/// arriba del panel y puede colapsarse a un chip.
+class _LegendStrip extends StatefulWidget {
+  final BibleReaderThemeData theme;
+  const _LegendStrip({required this.theme});
+
+  @override
+  State<_LegendStrip> createState() => _LegendStripState();
+}
+
+class _LegendStripState extends State<_LegendStrip> {
+  bool _expanded = true;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.theme;
+    return Material(
+      color: Colors.transparent,
+      child: AnimatedSize(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOut,
+        alignment: Alignment.topLeft,
+        child: _expanded
+            ? Container(
+                padding: const EdgeInsets.fromLTRB(8, 6, 6, 6),
+                decoration: BoxDecoration(
+                  color: t.surface.withOpacity(0.92),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(color: t.textSecondary.withOpacity(0.12)),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(child: StudyColorLegend(theme: t, compact: true)),
+                    InkWell(
+                      borderRadius: BorderRadius.circular(20),
+                      onTap: () => setState(() => _expanded = false),
+                      child: Padding(
+                        padding: const EdgeInsets.all(4),
+                        child: Icon(
+                          Icons.close,
+                          size: 14,
+                          color: t.textSecondary.withOpacity(0.7),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : InkWell(
+                borderRadius: BorderRadius.circular(20),
+                onTap: () => setState(() => _expanded = true),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: t.surface.withOpacity(0.85),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: t.textSecondary.withOpacity(0.12),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.palette_outlined, size: 14, color: t.accent),
+                      const SizedBox(width: 6),
+                      Text(
+                        'Leyenda',
+                        style: GoogleFonts.manrope(
+                          color: t.textPrimary,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
       ),
     );
   }

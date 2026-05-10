@@ -24,7 +24,8 @@ import '../theme_service.dart';
 /// ═══════════════════════════════════════════════════════════════════════════
 class BibleUserDataService {
   // ── Singleton ──
-  static final BibleUserDataService _instance = BibleUserDataService._internal();
+  static final BibleUserDataService _instance =
+      BibleUserDataService._internal();
   factory BibleUserDataService() => _instance;
   static BibleUserDataService get I => _instance;
   BibleUserDataService._internal();
@@ -37,13 +38,18 @@ class BibleUserDataService {
   static const String _cachePrefix = 'bible_user_data_cache_v1';
 
   // ── Notifiers reactivos ──
-  final ValueNotifier<Map<String, Highlight>> highlightsNotifier = ValueNotifier({});
+  final ValueNotifier<Map<String, Highlight>> highlightsNotifier =
+      ValueNotifier({});
   final ValueNotifier<Map<String, BibleNote>> notesNotifier = ValueNotifier({});
   final ValueNotifier<List<SavedVerse>> savedVersesNotifier = ValueNotifier([]);
-  final ValueNotifier<Map<String, VersePrayer>> prayersNotifier = ValueNotifier({});
+  final ValueNotifier<Map<String, VersePrayer>> prayersNotifier = ValueNotifier(
+    {},
+  );
 
   // ── Preferencias ──
-  final ValueNotifier<BibleVersion> preferredVersionNotifier = ValueNotifier(BibleVersion.rvr1960);
+  final ValueNotifier<BibleVersion> preferredVersionNotifier = ValueNotifier(
+    BibleVersion.rvr1960,
+  );
   final ValueNotifier<double> fontSizeNotifier = ValueNotifier(20.0);
   final ValueNotifier<String> readerThemeNotifier = ValueNotifier('dark');
   final ValueNotifier<bool> redLettersEnabledNotifier = ValueNotifier(true);
@@ -105,8 +111,11 @@ class BibleUserDataService {
   CollectionReference _col(String name) =>
       _firestore.collection('users').doc(_uid!).collection(name);
 
-  DocumentReference _settingsDoc() =>
-      _firestore.collection('users').doc(_uid!).collection('bibleSettings').doc('preferences');
+  DocumentReference _settingsDoc() => _firestore
+      .collection('users')
+      .doc(_uid!)
+      .collection('bibleSettings')
+      .doc('preferences');
 
   // ══════════════════════════════════════════════════════════════════════════
   // HIGHLIGHTS
@@ -121,38 +130,47 @@ class BibleUserDataService {
         .limit(2000)
         .snapshots()
         .listen((snap) {
-      if (snap.docs.isEmpty && snap.metadata.isFromCache && highlightsNotifier.value.isNotEmpty) {
-        debugPrint('📖 [BIBLE-DATA] Keeping cached highlights while offline');
-        return;
-      }
-      final map = <String, Highlight>{};
-      for (final doc in snap.docs) {
-        try {
-          final h = Highlight.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-          map[h.verseKey] = h;
-        } catch (e) {
-          debugPrint('[BIBLE-DATA] Highlight parse error: $e');
-        }
-      }
-      highlightsNotifier.value = Map.unmodifiable(map);
-      unawaited(_saveHighlightsCache(map));
-    });
+          if (snap.docs.isEmpty &&
+              snap.metadata.isFromCache &&
+              highlightsNotifier.value.isNotEmpty) {
+            debugPrint(
+              '📖 [BIBLE-DATA] Keeping cached highlights while offline',
+            );
+            return;
+          }
+          final map = <String, Highlight>{};
+          for (final doc in snap.docs) {
+            try {
+              final h = Highlight.fromMap(
+                doc.id,
+                doc.data() as Map<String, dynamic>,
+              );
+              map[h.verseKey] = h;
+            } catch (e) {
+              debugPrint('[BIBLE-DATA] Highlight parse error: $e');
+            }
+          }
+          highlightsNotifier.value = Map.unmodifiable(map);
+          unawaited(_saveHighlightsCache(map));
+        });
     _subscriptions.add(sub);
   }
 
   Future<void> addHighlight({
+    required String versionId,
     required int bookNumber,
     required int chapter,
     required int verse,
     required String colorHex,
   }) async {
     if (_uid == null) return;
-    final key = '$bookNumber:$chapter:$verse';
+    final key = Highlight.keyFor(versionId, bookNumber, chapter, verse);
 
     final existing = highlightsNotifier.value[key];
     final doc = _col('bibleHighlights').doc();
     final highlight = Highlight(
       id: doc.id,
+      versionId: versionId,
       bookNumber: bookNumber,
       chapter: chapter,
       verse: verse,
@@ -175,12 +193,18 @@ class BibleUserDataService {
     await doc.set(highlight.toMap());
   }
 
-  Future<void> removeHighlight(int bookNumber, int chapter, int verse) async {
+  Future<void> removeHighlight(
+    String versionId,
+    int bookNumber,
+    int chapter,
+    int verse,
+  ) async {
     if (_uid == null) return;
-    final key = '$bookNumber:$chapter:$verse';
+    final key = Highlight.keyFor(versionId, bookNumber, chapter, verse);
     final existing = highlightsNotifier.value[key];
     if (existing != null) {
-      final next = Map<String, Highlight>.from(highlightsNotifier.value)..remove(key);
+      final next = Map<String, Highlight>.from(highlightsNotifier.value)
+        ..remove(key);
       highlightsNotifier.value = Map.unmodifiable(next);
       await _saveHighlightsCache(next);
       await _col('bibleHighlights').doc(existing.id).delete();
@@ -197,22 +221,27 @@ class BibleUserDataService {
         .limit(500)
         .snapshots()
         .listen((snap) {
-      if (snap.docs.isEmpty && snap.metadata.isFromCache && notesNotifier.value.isNotEmpty) {
-        debugPrint('📖 [BIBLE-DATA] Keeping cached notes while offline');
-        return;
-      }
-      final map = <String, BibleNote>{};
-      for (final doc in snap.docs) {
-        try {
-          final n = BibleNote.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-          map[n.verseKey] = n;
-        } catch (e) {
-          debugPrint('[BIBLE-DATA] Note parse error: $e');
-        }
-      }
-      notesNotifier.value = Map.unmodifiable(map);
-      unawaited(_saveNotesCache(map));
-    });
+          if (snap.docs.isEmpty &&
+              snap.metadata.isFromCache &&
+              notesNotifier.value.isNotEmpty) {
+            debugPrint('📖 [BIBLE-DATA] Keeping cached notes while offline');
+            return;
+          }
+          final map = <String, BibleNote>{};
+          for (final doc in snap.docs) {
+            try {
+              final n = BibleNote.fromMap(
+                doc.id,
+                doc.data() as Map<String, dynamic>,
+              );
+              map[n.verseKey] = n;
+            } catch (e) {
+              debugPrint('[BIBLE-DATA] Note parse error: $e');
+            }
+          }
+          notesNotifier.value = Map.unmodifiable(map);
+          unawaited(_saveNotesCache(map));
+        });
     _subscriptions.add(sub);
   }
 
@@ -235,9 +264,10 @@ class BibleUserDataService {
       notesNotifier.value = Map.unmodifiable(next);
       await _saveNotesCache(next);
       // Update
-      await _col(
-        'bibleNotes',
-      ).doc(existing.id).update({'text': text, 'updatedAt': Timestamp.fromDate(now)});
+      await _col('bibleNotes').doc(existing.id).update({
+        'text': text,
+        'updatedAt': Timestamp.fromDate(now),
+      });
     } else {
       final doc = _col('bibleNotes').doc();
       final note = BibleNote(
@@ -263,7 +293,8 @@ class BibleUserDataService {
     final key = '$bookNumber:$chapter:$verse';
     final existing = notesNotifier.value[key];
     if (existing != null) {
-      final next = Map<String, BibleNote>.from(notesNotifier.value)..remove(key);
+      final next = Map<String, BibleNote>.from(notesNotifier.value)
+        ..remove(key);
       notesNotifier.value = Map.unmodifiable(next);
       await _saveNotesCache(next);
       await _col('bibleNotes').doc(existing.id).delete();
@@ -280,27 +311,36 @@ class BibleUserDataService {
         .limit(500)
         .snapshots()
         .listen((snap) {
-      if (snap.docs.isEmpty && snap.metadata.isFromCache && savedVersesNotifier.value.isNotEmpty) {
-        debugPrint('📖 [BIBLE-DATA] Keeping cached saved verses while offline');
-        return;
-      }
-      final list = <SavedVerse>[];
-      for (final doc in snap.docs) {
-        try {
-          list.add(SavedVerse.fromMap(doc.id, doc.data() as Map<String, dynamic>));
-        } catch (e) {
-          debugPrint('[BIBLE-DATA] SavedVerse parse error: $e');
-        }
-      }
-      savedVersesNotifier.value = List.unmodifiable(list);
-      unawaited(_saveSavedVersesCache(list));
-    });
+          if (snap.docs.isEmpty &&
+              snap.metadata.isFromCache &&
+              savedVersesNotifier.value.isNotEmpty) {
+            debugPrint(
+              '📖 [BIBLE-DATA] Keeping cached saved verses while offline',
+            );
+            return;
+          }
+          final list = <SavedVerse>[];
+          for (final doc in snap.docs) {
+            try {
+              list.add(
+                SavedVerse.fromMap(doc.id, doc.data() as Map<String, dynamic>),
+              );
+            } catch (e) {
+              debugPrint('[BIBLE-DATA] SavedVerse parse error: $e');
+            }
+          }
+          savedVersesNotifier.value = List.unmodifiable(list);
+          unawaited(_saveSavedVersesCache(list));
+        });
     _subscriptions.add(sub);
   }
 
   bool isVerseSaved(int bookNumber, int chapter, int verse) {
     return savedVersesNotifier.value.any(
-      (s) => s.bookNumber == bookNumber && s.chapter == chapter && s.verse == verse,
+      (s) =>
+          s.bookNumber == bookNumber &&
+          s.chapter == chapter &&
+          s.verse == verse,
     );
   }
 
@@ -314,7 +354,10 @@ class BibleUserDataService {
   }) async {
     if (_uid == null) return;
     final existing = savedVersesNotifier.value.where(
-      (s) => s.bookNumber == bookNumber && s.chapter == chapter && s.verse == verse,
+      (s) =>
+          s.bookNumber == bookNumber &&
+          s.chapter == chapter &&
+          s.verse == verse,
     );
 
     if (existing.isNotEmpty) {
@@ -355,22 +398,29 @@ class BibleUserDataService {
         .limit(500)
         .snapshots()
         .listen((snap) {
-      if (snap.docs.isEmpty && snap.metadata.isFromCache && prayersNotifier.value.isNotEmpty) {
-        debugPrint('📖 [BIBLE-DATA] Keeping cached verse prayers while offline');
-        return;
-      }
-      final map = <String, VersePrayer>{};
-      for (final doc in snap.docs) {
-        try {
-          final p = VersePrayer.fromMap(doc.id, doc.data() as Map<String, dynamic>);
-          map[p.verseKey] = p;
-        } catch (e) {
-          debugPrint('[BIBLE-DATA] Prayer parse error: $e');
-        }
-      }
-      prayersNotifier.value = Map.unmodifiable(map);
-      unawaited(_savePrayersCache(map));
-    });
+          if (snap.docs.isEmpty &&
+              snap.metadata.isFromCache &&
+              prayersNotifier.value.isNotEmpty) {
+            debugPrint(
+              '📖 [BIBLE-DATA] Keeping cached verse prayers while offline',
+            );
+            return;
+          }
+          final map = <String, VersePrayer>{};
+          for (final doc in snap.docs) {
+            try {
+              final p = VersePrayer.fromMap(
+                doc.id,
+                doc.data() as Map<String, dynamic>,
+              );
+              map[p.verseKey] = p;
+            } catch (e) {
+              debugPrint('[BIBLE-DATA] Prayer parse error: $e');
+            }
+          }
+          prayersNotifier.value = Map.unmodifiable(map);
+          unawaited(_savePrayersCache(map));
+        });
     _subscriptions.add(sub);
   }
 
@@ -399,7 +449,9 @@ class BibleUserDataService {
       next[key] = updated;
       prayersNotifier.value = Map.unmodifiable(next);
       await _savePrayersCache(next);
-      await _col('versePrayers').doc(existing.id).update({'prayerText': prayerText});
+      await _col(
+        'versePrayers',
+      ).doc(existing.id).update({'prayerText': prayerText});
     } else {
       final doc = _col('versePrayers').doc();
       final prayer = VersePrayer(
@@ -423,7 +475,8 @@ class BibleUserDataService {
     final key = '$bookNumber:$chapter:$verse';
     final existing = prayersNotifier.value[key];
     if (existing != null) {
-      final next = Map<String, VersePrayer>.from(prayersNotifier.value)..remove(key);
+      final next = Map<String, VersePrayer>.from(prayersNotifier.value)
+        ..remove(key);
       prayersNotifier.value = Map.unmodifiable(next);
       await _savePrayersCache(next);
       await _col('versePrayers').doc(existing.id).delete();
@@ -445,9 +498,11 @@ class BibleUserDataService {
           preferredVersionNotifier.value = BibleVersion.fromId(
             data['preferredVersion'] as String? ?? 'RVR1960',
           );
-          fontSizeNotifier.value = (data['fontSize'] as num?)?.toDouble() ?? 20.0;
+          fontSizeNotifier.value =
+              (data['fontSize'] as num?)?.toDouble() ?? 20.0;
           readerThemeNotifier.value = data['readerTheme'] as String? ?? 'dark';
-          redLettersEnabledNotifier.value = data['redLettersEnabled'] as bool? ?? true;
+          redLettersEnabledNotifier.value =
+              data['redLettersEnabled'] as bool? ?? true;
           useAppThemeNotifier.value = data['useAppTheme'] as bool? ?? true;
 
           // Restore recent colors from Firestore to SharedPreferences
@@ -549,7 +604,9 @@ class BibleUserDataService {
       final highlights = _decodeList(
         _cacheKey(uid, 'highlights'),
       ).map(_highlightFromLocal).whereType<Highlight>();
-      final notes = _decodeList(_cacheKey(uid, 'notes')).map(_noteFromLocal).whereType<BibleNote>();
+      final notes = _decodeList(
+        _cacheKey(uid, 'notes'),
+      ).map(_noteFromLocal).whereType<BibleNote>();
       final savedVerses =
           _decodeList(
               _cacheKey(uid, 'savedVerses'),
@@ -559,10 +616,16 @@ class BibleUserDataService {
         _cacheKey(uid, 'prayers'),
       ).map(_prayerFromLocal).whereType<VersePrayer>();
 
-      highlightsNotifier.value = Map.unmodifiable({for (final h in highlights) h.verseKey: h});
-      notesNotifier.value = Map.unmodifiable({for (final n in notes) n.verseKey: n});
+      highlightsNotifier.value = Map.unmodifiable({
+        for (final h in highlights) h.verseKey: h,
+      });
+      notesNotifier.value = Map.unmodifiable({
+        for (final n in notes) n.verseKey: n,
+      });
       savedVersesNotifier.value = List.unmodifiable(savedVerses);
-      prayersNotifier.value = Map.unmodifiable({for (final p in prayers) p.verseKey: p});
+      prayersNotifier.value = Map.unmodifiable({
+        for (final p in prayers) p.verseKey: p,
+      });
     } catch (e) {
       debugPrint('📖 [BIBLE-DATA] Local cache load error: $e');
     }
@@ -621,9 +684,12 @@ class BibleUserDataService {
       );
       fontSizeNotifier.value = (data['fontSize'] as num?)?.toDouble() ?? 20.0;
       readerThemeNotifier.value = data['readerTheme'] as String? ?? 'dark';
-      redLettersEnabledNotifier.value = data['redLettersEnabled'] as bool? ?? true;
+      redLettersEnabledNotifier.value =
+          data['redLettersEnabled'] as bool? ?? true;
       useAppThemeNotifier.value = data['useAppTheme'] as bool? ?? true;
-      final recentColors = (data['recentColors'] as List?)?.map((e) => e.toString()).toList();
+      final recentColors = (data['recentColors'] as List?)
+          ?.map((e) => e.toString())
+          .toList();
       if (recentColors != null && recentColors.isNotEmpty) {
         await _prefs?.setStringList('bible_recent_colors', recentColors);
       }
@@ -635,7 +701,10 @@ class BibleUserDataService {
   Future<void> _saveLocalPreferences({List<String>? recentColors}) async {
     final uid = _uid;
     if (uid == null) return;
-    final colors = recentColors ?? _prefs?.getStringList('bible_recent_colors') ?? const <String>[];
+    final colors =
+        recentColors ??
+        _prefs?.getStringList('bible_recent_colors') ??
+        const <String>[];
     await _prefs?.setString(
       _cacheKey(uid, 'preferences'),
       jsonEncode({
@@ -651,6 +720,7 @@ class BibleUserDataService {
 
   Map<String, dynamic> _highlightToLocal(Highlight h) => {
     'id': h.id,
+    'versionId': h.versionId,
     'bookNumber': h.bookNumber,
     'chapter': h.chapter,
     'verse': h.verse,
@@ -663,6 +733,7 @@ class BibleUserDataService {
       final data = Map<String, dynamic>.from(raw as Map);
       return Highlight(
         id: data['id'] as String? ?? '',
+        versionId: data['versionId'] as String? ?? 'RVR1960',
         bookNumber: _asInt(data['bookNumber']),
         chapter: _asInt(data['chapter']),
         verse: _asInt(data['verse']),
@@ -759,7 +830,8 @@ class BibleUserDataService {
     }
   }
 
-  int _asInt(dynamic value) => value is num ? value.toInt() : int.parse(value.toString());
+  int _asInt(dynamic value) =>
+      value is num ? value.toInt() : int.parse(value.toString());
 
   DateTime _dateFromMs(dynamic value) {
     if (value is num) return DateTime.fromMillisecondsSinceEpoch(value.toInt());

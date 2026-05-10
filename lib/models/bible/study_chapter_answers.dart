@@ -52,8 +52,11 @@ class StudyChapterAnswers {
   final int chapter;
   final String versionId;
   final Map<String, String> answers; // questionId -> texto
+  final String generalNotes;
+
   /// Versículo inicial del rango estudiado (1-based, inclusive). Null = capítulo completo.
   final int? studyStartVerse;
+
   /// Versículo final del rango estudiado (1-based, inclusive). Null = capítulo completo.
   final int? studyEndVerse;
   final DateTime createdAt;
@@ -65,6 +68,7 @@ class StudyChapterAnswers {
     required this.chapter,
     required this.versionId,
     required this.answers,
+    this.generalNotes = '',
     this.studyStartVerse,
     this.studyEndVerse,
     required this.createdAt,
@@ -93,29 +97,33 @@ class StudyChapterAnswers {
     return [for (var v = lo; v <= hi; v++) v];
   }
 
-  /// ¿Hay al menos una respuesta no vacía?
-  bool get hasContent => answers.values.any((v) => v.trim().isNotEmpty);
+  /// ¿Hay al menos una respuesta o nota no vacía?
+  bool get hasContent =>
+      answers.values.any((v) => v.trim().isNotEmpty) ||
+      generalNotes.trim().isNotEmpty;
 
   StudyChapterAnswers copyWith({
+    String? versionId,
     Map<String, String>? answers,
+    String? generalNotes,
     int? studyStartVerse,
     int? studyEndVerse,
     bool clearRange = false,
     DateTime? updatedAt,
-  }) =>
-      StudyChapterAnswers(
-        bookNumber: bookNumber,
-        bookName: bookName,
-        chapter: chapter,
-        versionId: versionId,
-        answers: answers ?? this.answers,
-        studyStartVerse:
-            clearRange ? null : (studyStartVerse ?? this.studyStartVerse),
-        studyEndVerse:
-            clearRange ? null : (studyEndVerse ?? this.studyEndVerse),
-        createdAt: createdAt,
-        updatedAt: updatedAt ?? DateTime.now(),
-      );
+  }) => StudyChapterAnswers(
+    bookNumber: bookNumber,
+    bookName: bookName,
+    chapter: chapter,
+    versionId: versionId ?? this.versionId,
+    answers: answers ?? this.answers,
+    generalNotes: generalNotes ?? this.generalNotes,
+    studyStartVerse: clearRange
+        ? null
+        : (studyStartVerse ?? this.studyStartVerse),
+    studyEndVerse: clearRange ? null : (studyEndVerse ?? this.studyEndVerse),
+    createdAt: createdAt,
+    updatedAt: updatedAt ?? DateTime.now(),
+  );
 
   /// Markdown consolidado para sincronizar a la sección "Notas".
   String toMarkdown() {
@@ -127,20 +135,27 @@ class StudyChapterAnswers {
       buf.writeln(a);
       buf.writeln();
     }
+    final notes = generalNotes.trim();
+    if (notes.isNotEmpty) {
+      buf.writeln('**Notas generales**');
+      buf.writeln(notes);
+      buf.writeln();
+    }
     return buf.toString().trimRight();
   }
 
   Map<String, dynamic> toMap() => {
-        'bookNumber': bookNumber,
-        'bookName': bookName,
-        'chapter': chapter,
-        'versionId': versionId,
-        'answers': answers,
-        if (studyStartVerse != null) 'studyStartVerse': studyStartVerse,
-        if (studyEndVerse != null) 'studyEndVerse': studyEndVerse,
-        'createdAt': Timestamp.fromDate(createdAt),
-        'updatedAt': Timestamp.fromDate(updatedAt),
-      };
+    'bookNumber': bookNumber,
+    'bookName': bookName,
+    'chapter': chapter,
+    'versionId': versionId,
+    'answers': answers,
+    'generalNotes': generalNotes,
+    if (studyStartVerse != null) 'studyStartVerse': studyStartVerse,
+    if (studyEndVerse != null) 'studyEndVerse': studyEndVerse,
+    'createdAt': Timestamp.fromDate(createdAt),
+    'updatedAt': Timestamp.fromDate(updatedAt),
+  };
 
   factory StudyChapterAnswers.fromMap(Map<String, dynamic> map) {
     final raw = map['answers'];
@@ -156,12 +171,11 @@ class StudyChapterAnswers {
       chapter: map['chapter'] as int,
       versionId: map['versionId'] as String? ?? 'RVR1960',
       answers: parsed,
+      generalNotes: map['generalNotes'] as String? ?? '',
       studyStartVerse: (map['studyStartVerse'] as num?)?.toInt(),
       studyEndVerse: (map['studyEndVerse'] as num?)?.toInt(),
-      createdAt:
-          (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      updatedAt:
-          (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
   }
 
@@ -178,6 +192,7 @@ class StudyChapterAnswers {
       chapter: chapter,
       versionId: versionId,
       answers: const {},
+      generalNotes: '',
       createdAt: now,
       updatedAt: now,
     );

@@ -7,16 +7,24 @@ import 'package:share_plus/share_plus.dart';
 
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/study_chapter_answers.dart';
+import '../../models/bible/study_word_highlight.dart';
 
 class StudyExportService {
   StudyExportService._();
   static final StudyExportService I = StudyExportService._();
 
+  bool get shouldSaveToDownloadsByDefault => Platform.isWindows;
+
   Future<File> exportStudyToPdf({
     required StudyChapterAnswers study,
     required List<BibleVerse> chapterVerses,
+    List<BibleVerse> secondaryChapterVerses = const [],
+    String? secondaryVersionId,
+    List<StudyWordHighlight> studyHighlights = const [],
+    bool saveToDownloads = false,
   }) async {
     final selectedVerses = _selectedVerses(study, chapterVerses);
+    final selectedSecondary = _selectedVerses(study, secondaryChapterVerses);
     final doc = pw.Document(
       title: 'Estudio ${study.reference}',
       author: 'Victoria en Cristo',
@@ -41,14 +49,25 @@ class StudyExportService {
           ),
         ),
         build: (context) => [
-          _header(study),
+          _header(study, secondaryVersionId: secondaryVersionId),
           pw.SizedBox(height: 18),
           _sectionTitle('Texto bíblico'),
           pw.SizedBox(height: 8),
           if (selectedVerses.isEmpty)
             pw.Text('No se encontraron versículos para este rango.')
           else
-            ...selectedVerses.map(_verseParagraph),
+            ...selectedVerses.map(
+              (verse) => _versePairParagraph(
+                primary: verse,
+                secondary: _secondaryForVerse(selectedSecondary, verse.verse),
+                secondaryVersionId: secondaryVersionId,
+                studyHighlights: studyHighlights,
+              ),
+            ),
+          pw.SizedBox(height: 20),
+          _sectionTitle('Notas generales'),
+          pw.SizedBox(height: 8),
+          _generalNotes(study),
           pw.SizedBox(height: 20),
           _sectionTitle('Preguntas y respuestas'),
           pw.SizedBox(height: 8),
@@ -57,25 +76,22 @@ class StudyExportService {
       ),
     );
 
-    final dir = await getApplicationDocumentsDirectory();
-    final exportDir = Directory('${dir.path}${Platform.pathSeparator}estudios');
-    if (!await exportDir.exists()) {
-      await exportDir.create(recursive: true);
-    }
-    final file = File(
-      '${exportDir.path}${Platform.pathSeparator}${_fileName(study)}.pdf',
-    );
-    await file.writeAsBytes(await doc.save(), flush: true);
-    return file;
+    return _writePdf(await doc.save(), study, saveToDownloads: saveToDownloads);
   }
 
   Future<File> exportAndShareStudy({
     required StudyChapterAnswers study,
     required List<BibleVerse> chapterVerses,
+    List<BibleVerse> secondaryChapterVerses = const [],
+    String? secondaryVersionId,
+    List<StudyWordHighlight> studyHighlights = const [],
   }) async {
     final file = await exportStudyToPdf(
       study: study,
       chapterVerses: chapterVerses,
+      secondaryChapterVerses: secondaryChapterVerses,
+      secondaryVersionId: secondaryVersionId,
+      studyHighlights: studyHighlights,
     );
     await Share.shareXFiles(
       [XFile(file.path, mimeType: 'application/pdf')],
@@ -99,7 +115,98 @@ class StudyExportService {
         .toList(growable: false);
   }
 
-  pw.Widget _header(StudyChapterAnswers study) {
+  BibleVerse? _secondaryForVerse(List<BibleVerse> verses, int verseNumber) {
+    for (final verse in verses) {
+      if (verse.verse == verseNumber) return verse;
+    }
+    return null;
+  }
+
+  Future<File> _writePdf(
+    List<int> bytes,
+    StudyChapterAnswers study, {
+    required bool saveToDownloads,
+  }) async {
+    final fileName = '${_fileName(study)}.pdf';
+    if (saveToDownloads) {
+      final downloads = await _downloadsDirectory();
+      if (downloads != null) {
+        try {
+          return await _writeInDirectory(downloads, fileName, bytes);
+        } catch (_) {
+          // En algunos celulares Android la carpeta pública existe pero el
+          // sistema bloquea la escritura directa; caemos al espacio de la app.
+        }
+      }
+    }
+    return _writeInDirectory(
+      await _appDocumentsExportDirectory(),
+      fileName,
+      bytes,
+    );
+  }
+
+  Future<File> _writeInDirectory(
+    Directory directory,
+    String fileName,
+    List<int> bytes,
+  ) async {
+    if (!await directory.exists()) {
+      await directory.create(recursive: true);
+    }
+    final file = File('${directory.path}${Platform.pathSeparator}$fileName');
+    await file.writeAsBytes(bytes, flush: true);
+    return file;
+  }
+
+  Future<Directory> _appDocumentsExportDirectory() async {
+    final dir = await getApplicationDocumentsDirectory();
+    return Directory('${dir.path}${Platform.pathSeparator}estudios');
+  }
+
+  Future<Directory?> _downloadsDirectory() async {
+    try {
+      final downloads = await getDownloadsDirectory();
+      if (downloads != null) return downloads;
+    } catch (_) {}
+
+    if (Platform.isWindows) {
+      final userProfile = Platform.environment['USERPROFILE'];
+      if (userProfile != null && userProfile.trim().isNotEmpty) {
+        return Directory('$userProfile${Platform.pathSeparator}Downloads');
+      }
+      final drive = Platform.environment['HOMEDRIVE'];
+      final path = Platform.environment['HOMEPATH'];
+      if (drive != null && path != null) {
+        return Directory('$drive$path${Platform.pathSeparator}Downloads');
+      }
+    }
+
+    if (Platform.isAndroid) {
+      final publicDownloads = Directory('/storage/emulated/0/Download');
+      if (await publicDownloads.exists()) return publicDownloads;
+      try {
+        final external = await getExternalStorageDirectory();
+        if (external != null) {
+          return Directory(
+            '${external.path}${Platform.pathSeparator}Descargas',
+          );
+        }
+      } catch (_) {}
+    }
+
+    if (Platform.isIOS) {
+      final documents = await getApplicationDocumentsDirectory();
+      return Directory('${documents.path}${Platform.pathSeparator}Descargas');
+    }
+
+    return null;
+  }
+
+  pw.Widget _header(StudyChapterAnswers study, {String? secondaryVersionId}) {
+    final versions = secondaryVersionId == null
+        ? study.versionId
+        : '${study.versionId} + $secondaryVersionId';
     return pw.Container(
       padding: const pw.EdgeInsets.only(bottom: 14),
       decoration: const pw.BoxDecoration(
@@ -129,7 +236,7 @@ class StudyExportService {
           ),
           pw.SizedBox(height: 3),
           pw.Text(
-            'Versión: ${study.versionId} · Actualizado: ${_date(study.updatedAt)}',
+            'Versiones: $versions · Actualizado: ${_date(study.updatedAt)}',
             style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
           ),
         ],
@@ -148,26 +255,201 @@ class StudyExportService {
     );
   }
 
-  pw.Widget _verseParagraph(BibleVerse verse) {
+  pw.Widget _versePairParagraph({
+    required BibleVerse primary,
+    required BibleVerse? secondary,
+    required String? secondaryVersionId,
+    required List<StudyWordHighlight> studyHighlights,
+  }) {
+    final primaryHighlights = _highlightsForVerse(studyHighlights, primary);
+    final secondaryHighlights = secondary == null
+        ? const <StudyWordHighlight>[]
+        : _highlightsForVerse(studyHighlights, secondary);
     return pw.Padding(
-      padding: const pw.EdgeInsets.only(bottom: 6),
-      child: pw.RichText(
-        text: pw.TextSpan(
-          children: [
-            pw.TextSpan(
-              text: '${verse.verse} ',
+      padding: const pw.EdgeInsets.only(bottom: 12),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            primary.version,
+            style: pw.TextStyle(
+              fontSize: 8.5,
+              fontWeight: pw.FontWeight.bold,
+              color: const PdfColor(0.72, 0.58, 0.20),
+            ),
+          ),
+          pw.SizedBox(height: 2),
+          _highlightedVerseText(
+            verse: primary,
+            highlights: primaryHighlights,
+            fontSize: 11.5,
+            numberColor: const PdfColor(0.72, 0.58, 0.20),
+            textColor: PdfColors.grey900,
+          ),
+          if (secondary != null && secondaryVersionId != null) ...[
+            pw.SizedBox(height: 5),
+            pw.Text(
+              secondaryVersionId,
               style: pw.TextStyle(
+                fontSize: 8.5,
                 fontWeight: pw.FontWeight.bold,
-                color: const PdfColor(0.72, 0.58, 0.20),
+                color: PdfColors.grey600,
               ),
             ),
-            pw.TextSpan(text: verse.text),
+            pw.SizedBox(height: 2),
+            _highlightedVerseText(
+              verse: secondary,
+              highlights: secondaryHighlights,
+              fontSize: 10.8,
+              numberColor: PdfColors.grey600,
+              textColor: PdfColors.grey800,
+            ),
           ],
-          style: const pw.TextStyle(
-            fontSize: 11.5,
-            lineSpacing: 2,
-            color: PdfColors.grey900,
+        ],
+      ),
+    );
+  }
+
+  List<StudyWordHighlight> _highlightsForVerse(
+    List<StudyWordHighlight> highlights,
+    BibleVerse verse,
+  ) {
+    return highlights
+        .where(
+          (h) =>
+              h.versionId == verse.version &&
+              h.bookNumber == verse.bookNumber &&
+              h.chapter == verse.chapter &&
+              h.verse == verse.verse,
+        )
+        .toList(growable: false);
+  }
+
+  pw.Widget _highlightedVerseText({
+    required BibleVerse verse,
+    required List<StudyWordHighlight> highlights,
+    required double fontSize,
+    required PdfColor numberColor,
+    required PdfColor textColor,
+  }) {
+    final tokens = verse.text
+        .split(RegExp(r'\s+'))
+        .where((token) => token.isNotEmpty)
+        .toList(growable: false);
+    return pw.Wrap(
+      runSpacing: 2,
+      children: [
+        pw.Padding(
+          padding: const pw.EdgeInsets.only(right: 3, bottom: 2),
+          child: pw.Text(
+            '${verse.verse}',
+            style: pw.TextStyle(
+              fontSize: fontSize * 0.78,
+              fontWeight: pw.FontWeight.bold,
+              color: numberColor,
+            ),
           ),
+        ),
+        for (var i = 0; i < tokens.length; i++)
+          _wordSpan(
+            text: tokens[i],
+            colors: _highlightColorsForWord(highlights, i),
+            fontSize: fontSize,
+            textColor: textColor,
+          ),
+      ],
+    );
+  }
+
+  pw.Widget _wordSpan({
+    required String text,
+    required List<PdfColor> colors,
+    required double fontSize,
+    required PdfColor textColor,
+  }) {
+    final style = pw.TextStyle(
+      fontSize: fontSize,
+      lineSpacing: 2,
+      color: textColor,
+    );
+    final child = pw.Column(
+      mainAxisSize: pw.MainAxisSize.min,
+      children: [
+        pw.Text('$text ', style: style),
+        if (colors.isNotEmpty)
+          pw.Container(
+            width: (text.length * fontSize * 0.42).clamp(10.0, 58.0),
+            height: 2,
+            child: pw.Row(
+              children: [
+                for (final color in colors)
+                  pw.Expanded(child: pw.Container(height: 2, color: color)),
+              ],
+            ),
+          ),
+      ],
+    );
+    if (colors.isEmpty) {
+      return pw.Padding(
+        padding: const pw.EdgeInsets.only(right: 1, bottom: 2),
+        child: child,
+      );
+    }
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(right: 1, bottom: 2),
+      padding: const pw.EdgeInsets.symmetric(horizontal: 1.5, vertical: 1),
+      decoration: pw.BoxDecoration(
+        color: colors.last,
+        borderRadius: pw.BorderRadius.circular(2),
+      ),
+      child: child,
+    );
+  }
+
+  List<PdfColor> _highlightColorsForWord(
+    List<StudyWordHighlight> highlights,
+    int wordIndex,
+  ) {
+    final colors = <PdfColor>[];
+    for (final highlight in highlights) {
+      if (highlight.overlapsWord(wordIndex)) {
+        colors.add(_softPdfColor(highlight.codeEnum.colorHex));
+      }
+    }
+    return colors;
+  }
+
+  PdfColor _softPdfColor(String hex) {
+    final clean = hex.replaceFirst('#', '');
+    final rgb = clean.length == 6 ? clean : 'FFEE58';
+    final red = int.parse(rgb.substring(0, 2), radix: 16) / 255;
+    final green = int.parse(rgb.substring(2, 4), radix: 16) / 255;
+    final blue = int.parse(rgb.substring(4, 6), radix: 16) / 255;
+    const alpha = 0.34;
+    double blend(double channel) => 1 - ((1 - channel) * alpha);
+    return PdfColor(blend(red), blend(green), blend(blue));
+  }
+
+  pw.Widget _generalNotes(StudyChapterAnswers study) {
+    final notes = study.generalNotes.trim();
+    return pw.Container(
+      width: double.infinity,
+      padding: const pw.EdgeInsets.all(10),
+      decoration: pw.BoxDecoration(
+        color: const PdfColor(0.98, 0.96, 0.90),
+        borderRadius: pw.BorderRadius.circular(6),
+        border: pw.Border.all(
+          color: const PdfColor(0.88, 0.78, 0.52),
+          width: 0.5,
+        ),
+      ),
+      child: pw.Text(
+        notes.isEmpty ? 'Sin notas generales todavía.' : notes,
+        style: pw.TextStyle(
+          fontSize: 11,
+          lineSpacing: 2,
+          color: notes.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+          fontStyle: notes.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
         ),
       ),
     );

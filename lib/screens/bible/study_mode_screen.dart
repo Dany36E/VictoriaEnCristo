@@ -40,6 +40,7 @@ class StudyModeScreen extends StatefulWidget {
   final BibleVersion? version;
   final bool openRoomDialogOnStart;
   final bool openSetupOnStart;
+  final bool openSavedStudiesOnStart;
 
   const StudyModeScreen({
     super.key,
@@ -49,6 +50,7 @@ class StudyModeScreen extends StatefulWidget {
     this.version,
     this.openRoomDialogOnStart = false,
     this.openSetupOnStart = false,
+    this.openSavedStudiesOnStart = false,
   });
 
   @override
@@ -61,15 +63,18 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   late String _bookName;
   late int _chapter;
   late BibleVersion _version;
+  late BibleVersion _secondaryVersion;
 
   List<BibleBook> _books = const [];
   List<BibleVerse> _verses = const [];
+  List<BibleVerse> _secondaryVerses = const [];
   bool _loading = true;
 
   late final TabController _tabController;
   Timer? _saveDebounce;
   final Map<String, String> _draftAnswers = {};
   final Map<String, TextEditingController> _controllers = {};
+  final TextEditingController _generalNotesController = TextEditingController();
 
   @override
   void initState() {
@@ -79,6 +84,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     _chapter = widget.chapter;
     _version =
         widget.version ?? BibleUserDataService.I.preferredVersionNotifier.value;
+    _secondaryVersion = _defaultSecondaryVersion(_version);
     _tabController = TabController(length: 2, vsync: this);
     for (final q in kStudyQuestions) {
       _controllers[q.id] = TextEditingController();
@@ -103,11 +109,18 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         await StudyModeService.I.markOnboardingSeen();
       }
       if (!mounted) return;
+      if (widget.openSavedStudiesOnStart) {
+        await _openSavedStudiesPicker();
+      }
+      if (!mounted) return;
       if (widget.openSetupOnStart) {
         await _openPicker();
         if (!mounted) return;
         await Future<void>.delayed(const Duration(milliseconds: 150));
         if (mounted) await _openRangePicker();
+        if (!mounted) return;
+        await Future<void>.delayed(const Duration(milliseconds: 150));
+        if (mounted) await _openVersionsPicker();
       }
       if (!mounted || !widget.openRoomDialogOnStart) return;
       await Future<void>.delayed(const Duration(milliseconds: 150));
@@ -124,9 +137,15 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         bookNumber: _bookNumber,
         chapter: _chapter,
       );
+      final secondaryVerses = await BibleParserService.I.getChapter(
+        version: _secondaryVersion,
+        bookNumber: _bookNumber,
+        chapter: _chapter,
+      );
       if (!mounted) return;
       setState(() {
         _verses = verses;
+        _secondaryVerses = secondaryVerses;
         _loading = false;
       });
     } catch (e) {
@@ -135,20 +154,30 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     }
   }
 
+  BibleVersion _defaultSecondaryVersion(BibleVersion primary) {
+    if (primary != BibleVersion.nvi) return BibleVersion.nvi;
+    return BibleVersion.rvr1960;
+  }
+
   void _hydrateAnswers() {
-    final existing =
-        StudyModeService.I.answersFor(_bookNumber, _chapter)?.answers ??
-        const <String, String>{};
+    final study = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final existing = study?.answers ?? const <String, String>{};
     _draftAnswers
       ..clear()
       ..addAll(existing);
     for (final q in kStudyQuestions) {
       _controllers[q.id]!.text = existing[q.id] ?? '';
     }
+    _generalNotesController.text = study?.generalNotes ?? '';
   }
 
   void _onAnswerChanged(String questionId, String value) {
     _draftAnswers[questionId] = value;
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 700), _flushAnswers);
+  }
+
+  void _onGeneralNotesChanged(String value) {
     _saveDebounce?.cancel();
     _saveDebounce = Timer(const Duration(milliseconds: 700), _flushAnswers);
   }
@@ -164,7 +193,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           versionId: _version.id,
         );
     final merged = _answersFromControllers();
-    await StudyModeService.I.saveAnswers(base.copyWith(answers: merged));
+    await StudyModeService.I.saveAnswers(
+      base.copyWith(
+        answers: merged,
+        generalNotes: _generalNotesController.text.trim(),
+        versionId: _version.id,
+      ),
+    );
   }
 
   Map<String, String> _answersFromControllers() {
@@ -186,7 +221,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           chapter: _chapter,
           versionId: _version.id,
         );
-    return base.copyWith(answers: _answersFromControllers());
+    return base.copyWith(
+      answers: _answersFromControllers(),
+      generalNotes: _generalNotesController.text.trim(),
+      versionId: _version.id,
+    );
   }
 
   Future<void> _changeChapter(
@@ -220,6 +259,72 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     }
   }
 
+  Future<void> _openVersionsPicker() async {
+    final result = await showModalBottomSheet<_VersionPairResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _VersionPairSheet(
+        initialPrimary: _version,
+        initialSecondary: _secondaryVersion,
+      ),
+    );
+    if (result == null) return;
+    await _changeVersions(result.primary, result.secondary);
+  }
+
+  Future<void> _openSavedStudiesPicker() async {
+    await _flushAnswers();
+    if (!mounted) return;
+    final studies = StudyModeService.I.answersNotifier.value.values.toList()
+      ..sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    final result = await showModalBottomSheet<StudyChapterAnswers>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _SavedStudiesSheet(studies: studies),
+    );
+    if (result == null) return;
+    await _openSavedStudy(result);
+  }
+
+  Future<void> _openSavedStudy(StudyChapterAnswers study) async {
+    await _flushAnswers();
+    final primary = BibleVersion.fromId(study.versionId);
+    final secondary = primary == _secondaryVersion
+        ? _defaultSecondaryVersion(primary)
+        : _secondaryVersion;
+    setState(() {
+      _bookNumber = study.bookNumber;
+      _bookName = study.bookName;
+      _chapter = study.chapter;
+      _version = primary;
+      _secondaryVersion = secondary;
+    });
+    await _loadChapter();
+    _hydrateAnswers();
+  }
+
+  Future<void> _changeVersions(
+    BibleVersion primary,
+    BibleVersion secondary,
+  ) async {
+    await _flushAnswers();
+    if (secondary == primary) {
+      secondary = _defaultSecondaryVersion(primary);
+    }
+    setState(() {
+      _version = primary;
+      _secondaryVersion = secondary;
+    });
+    await _loadChapter();
+    await _flushAnswers();
+  }
+
+  Future<void> _swapVersions() async {
+    await _changeVersions(_secondaryVersion, _version);
+  }
+
   @override
   void dispose() {
     _saveDebounce?.cancel();
@@ -227,6 +332,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     for (final c in _controllers.values) {
       c.dispose();
     }
+    _generalNotesController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -355,6 +461,15 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             ),
           ),
           IconButton(
+            tooltip: 'Tipografía y tema',
+            icon: Icon(
+              Icons.text_fields,
+              color: t.textSecondary.withOpacity(0.6),
+              size: 20,
+            ),
+            onPressed: () => _openTypographySheet(t),
+          ),
+          IconButton(
             tooltip: 'Estudiar con amigos',
             icon: Icon(Icons.groups_outlined, color: t.accent, size: 22),
             onPressed: _openRoomDialog,
@@ -415,6 +530,15 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     );
   }
 
+  Future<void> _openTypographySheet(BibleReaderThemeData t) async {
+    await showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => _TypographySheet(theme: t),
+    );
+  }
+
   Future<void> _openRangePicker() async {
     final maxVerse = _verses.isEmpty ? 1 : _verses.last.verse;
     final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
@@ -461,19 +585,66 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return filtered.isEmpty ? _verses : filtered;
   }
 
+  List<BibleVerse> _visibleSecondaryVerses() {
+    final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final s = current?.studyStartVerse;
+    final e = current?.studyEndVerse;
+    if (s == null || e == null) return _secondaryVerses;
+    final lo = s < e ? s : e;
+    final hi = s < e ? e : s;
+    final filtered = _secondaryVerses
+        .where((v) => v.verse >= lo && v.verse <= hi)
+        .toList(growable: false);
+    return filtered.isEmpty ? _secondaryVerses : filtered;
+  }
+
+  String _versionsLabel() {
+    return '${_version.shortName} + ${_secondaryVersion.shortName}';
+  }
+
   Future<void> _exportPdf() async {
     try {
       await _flushAnswers();
-      final file = await StudyExportService.I.exportAndShareStudy(
-        study: _currentStudySnapshot(),
-        chapterVerses: _verses,
-      );
+      final action = await _pickPdfExportAction();
+      if (action == null) return;
+      final study = _currentStudySnapshot();
+      final highlights = StudyModeService.I.highlightsNotifier.value;
+      final file = action == _PdfExportAction.share
+          ? await StudyExportService.I.exportAndShareStudy(
+              study: study,
+              chapterVerses: _verses,
+              secondaryChapterVerses: _secondaryVerses,
+              secondaryVersionId: _secondaryVersion.id,
+              studyHighlights: highlights,
+            )
+          : await StudyExportService.I.exportStudyToPdf(
+              study: study,
+              chapterVerses: _verses,
+              secondaryChapterVerses: _secondaryVerses,
+              secondaryVersionId: _secondaryVersion.id,
+              studyHighlights: highlights,
+              saveToDownloads: true,
+            );
       if (!mounted) return;
-      _showSnack('PDF guardado: ${file.path}');
+      final label = action == _PdfExportAction.share
+          ? 'PDF listo para compartir'
+          : 'PDF guardado en Descargas';
+      _showSnack('$label: ${file.path}');
     } catch (e) {
       if (!mounted) return;
       _showSnack('No se pudo exportar el PDF: $e');
     }
+  }
+
+  Future<_PdfExportAction?> _pickPdfExportAction() async {
+    if (StudyExportService.I.shouldSaveToDownloadsByDefault) {
+      return _PdfExportAction.downloads;
+    }
+    return showModalBottomSheet<_PdfExportAction>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const _PdfExportActionSheet(),
+    );
   }
 
   Future<void> _openRoomDialog() async {
@@ -553,8 +724,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   void _onAssignedVersionChanged(String versionId) {
     final v = BibleVersion.fromId(versionId);
     if (v == _version) return;
-    setState(() => _version = v);
-    _loadChapter();
+    final secondary = v == _secondaryVersion
+        ? _defaultSecondaryVersion(v)
+        : _secondaryVersion;
+    unawaited(_changeVersions(v, secondary));
   }
 
   void _showSnack(String msg) {
@@ -598,9 +771,14 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   Widget _buildReadingPanel(BibleReaderThemeData t) {
     return StudyReadingPanel(
-      key: ValueKey('reading_${_bookNumber}_$_chapter'),
+      key: ValueKey(
+        'reading_${_bookNumber}_${_chapter}_${_version.id}_${_secondaryVersion.id}',
+      ),
       theme: t,
       verses: _visibleVerses(),
+      secondaryVerses: _visibleSecondaryVerses(),
+      primaryVersion: _version,
+      secondaryVersion: _secondaryVersion,
       bookNumber: _bookNumber,
       chapter: _chapter,
     );
@@ -610,12 +788,18 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return StudyQuestionsPanel(
       theme: t,
       controllers: _controllers,
+      generalNotesController: _generalNotesController,
       onChanged: _onAnswerChanged,
+      onGeneralNotesChanged: _onGeneralNotesChanged,
       onManualSave: _flushAnswers,
       onExportPdf: _exportPdf,
+      onPickSavedStudy: _openSavedStudiesPicker,
       onPickRange: _openRangePicker,
+      onPickVersions: _openVersionsPicker,
+      onSwapVersions: _swapVersions,
       reference: '$_bookName $_chapter',
       rangeLabel: _rangeLabel(),
+      versionsLabel: _versionsLabel(),
     );
   }
 }
@@ -626,6 +810,531 @@ class StudyPickerResult {
   final String bookName;
   final int chapter;
   const StudyPickerResult(this.bookNumber, this.bookName, this.chapter);
+}
+
+class _SavedStudiesSheet extends StatelessWidget {
+  final List<StudyChapterAnswers> studies;
+
+  const _SavedStudiesSheet({required this.studies});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = BibleReaderThemeData.fromId(
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
+    );
+    return DraggableScrollableSheet(
+      initialChildSize: studies.isEmpty ? 0.34 : 0.72,
+      minChildSize: 0.28,
+      maxChildSize: 0.9,
+      builder: (context, scrollController) {
+        return Container(
+          decoration: BoxDecoration(
+            color: t.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const SizedBox(height: 12),
+                Center(
+                  child: Container(
+                    width: 40,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      color: t.textSecondary.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
+                  child: Row(
+                    children: [
+                      Icon(Icons.folder_open_outlined, color: t.accent),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Estudios guardados',
+                          style: GoogleFonts.cinzel(
+                            color: t.textPrimary,
+                            fontSize: 17,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  child: studies.isEmpty
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Text(
+                              'Todavía no hay estudios guardados.',
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.manrope(
+                                color: t.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ),
+                        )
+                      : ListView.separated(
+                          controller: scrollController,
+                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                          itemCount: studies.length,
+                          separatorBuilder: (_, _) =>
+                              const SizedBox(height: 10),
+                          itemBuilder: (_, i) =>
+                              _SavedStudyTile(study: studies[i], theme: t),
+                        ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _SavedStudyTile extends StatelessWidget {
+  final StudyChapterAnswers study;
+  final BibleReaderThemeData theme;
+
+  const _SavedStudyTile({required this.study, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final answeredCount = study.answers.values
+        .where((answer) => answer.trim().isNotEmpty)
+        .length;
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: () => Navigator.pop(context, study),
+      child: Container(
+        padding: const EdgeInsets.all(14),
+        decoration: BoxDecoration(
+          color: t.isDark
+              ? Colors.white.withOpacity(0.04)
+              : Colors.black.withOpacity(0.03),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: t.textSecondary.withOpacity(0.09)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    _referenceLabel(study),
+                    style: GoogleFonts.lora(
+                      color: t.textPrimary,
+                      fontSize: 15,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                Icon(Icons.chevron_right, color: t.textSecondary, size: 20),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Wrap(
+              spacing: 6,
+              runSpacing: 6,
+              children: [
+                _StudyMiniChip(label: study.versionId, theme: t),
+                _StudyMiniChip(label: '$answeredCount respuestas', theme: t),
+                if (study.generalNotes.trim().isNotEmpty)
+                  _StudyMiniChip(label: 'Notas', theme: t),
+                _StudyMiniChip(label: _date(study.updatedAt), theme: t),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _referenceLabel(StudyChapterAnswers study) {
+    final bookName = study.bookName.trim().isEmpty
+        ? 'Libro ${study.bookNumber}'
+        : study.bookName;
+    if (study.studyStartVerse != null && study.studyEndVerse != null) {
+      if (study.studyStartVerse == study.studyEndVerse) {
+        return '$bookName ${study.chapter}:${study.studyStartVerse}';
+      }
+      return '$bookName ${study.chapter}:${study.studyStartVerse}-${study.studyEndVerse}';
+    }
+    return '$bookName ${study.chapter}';
+  }
+
+  String _date(DateTime date) {
+    String two(int n) => n.toString().padLeft(2, '0');
+    return '${two(date.day)}/${two(date.month)}/${date.year}';
+  }
+}
+
+class _StudyMiniChip extends StatelessWidget {
+  final String label;
+  final BibleReaderThemeData theme;
+
+  const _StudyMiniChip({required this.label, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: t.textSecondary.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.manrope(
+          color: t.textSecondary,
+          fontSize: 11,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+}
+
+enum _PdfExportAction { share, downloads }
+
+class _PdfExportActionSheet extends StatelessWidget {
+  const _PdfExportActionSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final t = BibleReaderThemeData.fromId(
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
+    );
+    return Container(
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: t.textSecondary.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Exportar PDF',
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _PdfActionTile(
+              icon: Icons.ios_share_outlined,
+              title: 'Compartir',
+              subtitle: 'Enviar por WhatsApp, correo u otra app.',
+              theme: t,
+              onTap: () => Navigator.pop(context, _PdfExportAction.share),
+            ),
+            const SizedBox(height: 8),
+            _PdfActionTile(
+              icon: Icons.download_outlined,
+              title: 'Guardar en Descargas',
+              subtitle: 'Crear el archivo PDF en la carpeta de descargas.',
+              theme: t,
+              onTap: () => Navigator.pop(context, _PdfExportAction.downloads),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PdfActionTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final BibleReaderThemeData theme;
+  final VoidCallback onTap;
+
+  const _PdfActionTile({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.theme,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(10),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: t.isDark
+              ? Colors.white.withOpacity(0.04)
+              : Colors.black.withOpacity(0.03),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: t.textSecondary.withOpacity(0.09)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: t.accent, size: 22),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: GoogleFonts.manrope(
+                      color: t.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    style: GoogleFonts.manrope(
+                      color: t.textSecondary,
+                      fontSize: 12,
+                      height: 1.3,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VersionPairResult {
+  final BibleVersion primary;
+  final BibleVersion secondary;
+  const _VersionPairResult(this.primary, this.secondary);
+}
+
+class _VersionPairSheet extends StatefulWidget {
+  final BibleVersion initialPrimary;
+  final BibleVersion initialSecondary;
+
+  const _VersionPairSheet({
+    required this.initialPrimary,
+    required this.initialSecondary,
+  });
+
+  @override
+  State<_VersionPairSheet> createState() => _VersionPairSheetState();
+}
+
+class _VersionPairSheetState extends State<_VersionPairSheet> {
+  late BibleVersion _primary;
+  late BibleVersion _secondary;
+
+  @override
+  void initState() {
+    super.initState();
+    _primary = widget.initialPrimary;
+    _secondary = widget.initialSecondary == widget.initialPrimary
+        ? _fallbackSecondary(widget.initialPrimary)
+        : widget.initialSecondary;
+  }
+
+  BibleVersion _fallbackSecondary(BibleVersion primary) {
+    if (primary != BibleVersion.nvi) return BibleVersion.nvi;
+    return BibleVersion.rvr1960;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = BibleReaderThemeData.fromId(
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
+    );
+    return Container(
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: t.textSecondary.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Versiones para estudiar',
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Se recomienda leer el pasaje en dos traducciones. La primera '
+              'mantiene tus subrayados; la segunda sirve para comparar.',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary,
+                fontSize: 12,
+                height: 1.4,
+              ),
+            ),
+            const SizedBox(height: 18),
+            _VersionDropdown(
+              label: 'Versión 1',
+              value: _primary,
+              theme: t,
+              onChanged: (next) => setState(() {
+                _primary = next;
+                if (_secondary == next) {
+                  _secondary = _fallbackSecondary(next);
+                }
+              }),
+            ),
+            const SizedBox(height: 12),
+            _VersionDropdown(
+              label: 'Versión 2',
+              value: _secondary,
+              theme: t,
+              exclude: _primary,
+              onChanged: (next) => setState(() => _secondary = next),
+            ),
+            const SizedBox(height: 20),
+            Row(
+              children: [
+                TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Cancelar',
+                    style: TextStyle(color: t.textSecondary),
+                  ),
+                ),
+                const Spacer(),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: t.accent,
+                    foregroundColor: t.background,
+                  ),
+                  icon: const Icon(Icons.compare_arrows, size: 17),
+                  label: Text(
+                    '${_primary.shortName} + ${_secondary.shortName}',
+                  ),
+                  onPressed: () => Navigator.pop(
+                    context,
+                    _VersionPairResult(_primary, _secondary),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _VersionDropdown extends StatelessWidget {
+  final String label;
+  final BibleVersion value;
+  final BibleVersion? exclude;
+  final BibleReaderThemeData theme;
+  final ValueChanged<BibleVersion> onChanged;
+
+  const _VersionDropdown({
+    required this.label,
+    required this.value,
+    required this.theme,
+    required this.onChanged,
+    this.exclude,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final versions = BibleVersion.values
+        .where((version) => version != exclude)
+        .toList(growable: false);
+    final effectiveValue = versions.contains(value) ? value : versions.first;
+    return DropdownButtonFormField<BibleVersion>(
+      value: effectiveValue,
+      items: [
+        for (final version in versions)
+          DropdownMenuItem(
+            value: version,
+            child: Text('${version.shortName} · ${version.displayName}'),
+          ),
+      ],
+      onChanged: (version) {
+        if (version != null) onChanged(version);
+      },
+      dropdownColor: t.surface,
+      style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: GoogleFonts.manrope(color: t.textSecondary),
+        filled: true,
+        fillColor: t.background,
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: BorderSide(color: t.accent),
+        ),
+      ),
+    );
+  }
 }
 
 class _RangeResult {
@@ -834,6 +1543,128 @@ class _NumberPicker extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Bottom sheet con tamaño de letra y selector de tema, accesible desde el
+/// header del Modo Estudio.
+class _TypographySheet extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  const _TypographySheet({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.textSecondary.withOpacity(0.1)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'TIPOGRAFÍA',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary.withOpacity(0.6),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 14),
+            ValueListenableBuilder<double>(
+              valueListenable: BibleUserDataService.I.fontSizeNotifier,
+              builder: (_, size, _) {
+                return Row(
+                  children: [
+                    Text(
+                      'A',
+                      style: GoogleFonts.lora(
+                        color: t.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Expanded(
+                      child: Slider(
+                        value: size,
+                        min: 14,
+                        max: 28,
+                        divisions: 7,
+                        activeColor: t.accent,
+                        inactiveColor: t.textSecondary.withOpacity(0.2),
+                        onChanged: (v) => BibleUserDataService.I.setFontSize(v),
+                      ),
+                    ),
+                    Text(
+                      'A',
+                      style: GoogleFonts.lora(
+                        color: t.textSecondary,
+                        fontSize: 26,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'TEMA',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary.withOpacity(0.6),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ValueListenableBuilder<String>(
+              valueListenable: BibleUserDataService.I.readerThemeNotifier,
+              builder: (_, currentId, _) {
+                final migrated = BibleReaderThemeData.migrateId(currentId);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: BibleReaderThemeData.all.map((th) {
+                    final isActive = th.id == migrated;
+                    return GestureDetector(
+                      onTap: () => BibleUserDataService.I.setReaderTheme(th.id),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: th.swatchColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isActive
+                                ? t.accent
+                                : t.textSecondary.withOpacity(0.2),
+                            width: isActive ? 2.5 : 1,
+                          ),
+                        ),
+                        child: isActive
+                            ? Icon(
+                                Icons.check,
+                                color: th.isDark
+                                    ? Colors.white70
+                                    : Colors.black54,
+                                size: 16,
+                              )
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

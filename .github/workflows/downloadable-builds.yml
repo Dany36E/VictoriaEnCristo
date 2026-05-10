@@ -1,0 +1,125 @@
+name: Downloadable Builds
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  android:
+    name: Android APK artifacts
+    runs-on: ubuntu-latest
+    env:
+      ORG_GRADLE_PROJECT_ALLOW_DEBUG_SIGNING_IN_RELEASE: 'true'
+      GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate stub config files
+        shell: bash
+        run: |
+          cp lib/firebase_options.dart.example lib/firebase_options.dart
+          cp lib/config/api_config.dart.example lib/config/api_config.dart
+          cp assets/config.json.example assets/config.json
+
+      - name: Prepare Android Google Services config
+        shell: bash
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          else
+            cat > android/app/google-services.json <<'JSON'
+          {
+            "project_info": {
+              "project_number": "0",
+              "project_id": "victoria-en-cristo",
+              "storage_bucket": "victoria-en-cristo.appspot.com"
+            },
+            "client": [
+              {
+                "client_info": {
+                  "mobilesdk_app_id": "1:0:android:0000000000000000",
+                  "android_client_info": {
+                    "package_name": "com.victoriaencristo.app"
+                  }
+                },
+                "oauth_client": [],
+                "api_key": [
+                  {
+                    "current_key": "placeholder"
+                  }
+                ],
+                "services": {
+                  "appinvite_service": {
+                    "other_platform_oauth_client": []
+                  }
+                }
+              }
+            ],
+            "configuration_version": "1"
+          }
+          JSON
+          fi
+
+      - name: Build split release APKs
+        run: flutter build apk --release --split-per-abi
+
+      - name: Build debug APK
+        run: flutter build apk --debug
+
+      - name: Upload Android APKs
+        uses: actions/upload-artifact@v4
+        with:
+          name: victoria-en-cristo-android-apks
+          path: build/app/outputs/flutter-apk/*.apk
+          if-no-files-found: error
+          retention-days: 30
+
+  windows:
+    name: Windows ZIP artifact
+    runs-on: windows-latest
+    env:
+      GOOGLE_DESKTOP_CLIENT_ID: ${{ secrets.GOOGLE_DESKTOP_CLIENT_ID }}
+      GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.GOOGLE_DESKTOP_CLIENT_SECRET }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Generate stub config files
+        shell: pwsh
+        run: |
+          Copy-Item lib/firebase_options.dart.example lib/firebase_options.dart
+          Copy-Item lib/config/api_config.dart.example lib/config/api_config.dart
+          Copy-Item assets/config.json.example assets/config.json
+
+      - name: Build Windows ZIP
+        shell: pwsh
+        run: ./scripts/build_windows_release.ps1 -Zip
+
+      - name: Upload Windows ZIP
+        uses: actions/upload-artifact@v4
+        with:
+          name: victoria-en-cristo-windows
+          path: build/VictoriaEnCristo-Windows.zip
+          if-no-files-found: error
+          retention-days: 30

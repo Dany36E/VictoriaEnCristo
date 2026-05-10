@@ -73,7 +73,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     SharedPreferences.getInstance()
         .then((prefs) {
           final saved = prefs.getDouble('parallel_font_size');
-          if (saved != null && mounted) setState(() => _parallelFontSize = saved);
+          if (saved != null && mounted) {
+            setState(() => _parallelFontSize = saved);
+          }
         })
         .catchError((e) {
           debugPrint('⚠️ [Parallel] Error cargando font size: $e');
@@ -89,7 +91,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       if (max > 0) {
         final ratio = _leftScroll.offset / max;
         final target = ratio * _rightScroll.position.maxScrollExtent;
-        _rightScroll.jumpTo(target.clamp(0, _rightScroll.position.maxScrollExtent));
+        _rightScroll.jumpTo(
+          target.clamp(0, _rightScroll.position.maxScrollExtent),
+        );
       }
     }
     _syncing = false;
@@ -103,7 +107,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       if (max > 0) {
         final ratio = _rightScroll.offset / max;
         final target = ratio * _leftScroll.position.maxScrollExtent;
-        _leftScroll.jumpTo(target.clamp(0, _leftScroll.position.maxScrollExtent));
+        _leftScroll.jumpTo(
+          target.clamp(0, _leftScroll.position.maxScrollExtent),
+        );
       }
     }
     _syncing = false;
@@ -164,7 +170,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     final current = isLeft ? _leftVersion : _rightVersion;
     final other = isLeft ? _rightVersion : _leftVersion;
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
     );
 
     showModalBottomSheet(
@@ -197,20 +205,27 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   isCurrent ? Icons.check_circle : Icons.menu_book_outlined,
                   color: isCurrent
                       ? t.accent
-                      : (isOtherSide ? t.textSecondary.withOpacity(0.3) : t.textSecondary),
+                      : (isOtherSide
+                            ? t.textSecondary.withOpacity(0.3)
+                            : t.textSecondary),
                   size: 20,
                 ),
                 title: Text(
                   v.displayName,
                   style: GoogleFonts.manrope(
-                    color: isOtherSide ? t.textSecondary.withOpacity(0.3) : t.textPrimary,
+                    color: isOtherSide
+                        ? t.textSecondary.withOpacity(0.3)
+                        : t.textPrimary,
                     fontSize: 14,
                     fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
                   ),
                 ),
                 subtitle: Text(
                   v.shortName,
-                  style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 12),
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.5),
+                    fontSize: 12,
+                  ),
                 ),
                 enabled: !isOtherSide,
                 onTap: isOtherSide
@@ -238,7 +253,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
   void _openBookPicker() async {
     if (_allBooks.isEmpty) return;
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
     );
 
     // Step 1: pick book
@@ -287,7 +304,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       style: GoogleFonts.manrope(
                         color: isCurrent ? t.accent : t.textPrimary,
                         fontSize: 14,
-                        fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
+                        fontWeight: isCurrent
+                            ? FontWeight.w700
+                            : FontWeight.w400,
                       ),
                     ),
                     trailing: Text(
@@ -395,7 +414,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
     );
 
     return Scaffold(
@@ -439,7 +460,11 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     fontWeight: FontWeight.w600,
                   ),
                 ),
-                Icon(Icons.keyboard_arrow_down, color: t.textSecondary, size: 18),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  color: t.textSecondary,
+                  size: 18,
+                ),
               ],
             ),
           ),
@@ -447,7 +472,12 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           // Font size controls
           GestureDetector(
             onTap: () {
-              setState(() => _parallelFontSize = (_parallelFontSize - 1).clamp(10.0, 24.0));
+              setState(
+                () => _parallelFontSize = (_parallelFontSize - 1).clamp(
+                  10.0,
+                  24.0,
+                ),
+              );
               SharedPreferences.getInstance()
                   .then((p) async {
                     await p.setDouble('parallel_font_size', _parallelFontSize);
@@ -471,11 +501,19 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           ),
           Text(
             '${_parallelFontSize.toInt()}',
-            style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.6), fontSize: 11),
+            style: GoogleFonts.manrope(
+              color: t.textSecondary.withOpacity(0.6),
+              fontSize: 11,
+            ),
           ),
           GestureDetector(
             onTap: () {
-              setState(() => _parallelFontSize = (_parallelFontSize + 1).clamp(10.0, 24.0));
+              setState(
+                () => _parallelFontSize = (_parallelFontSize + 1).clamp(
+                  10.0,
+                  24.0,
+                ),
+              );
               SharedPreferences.getInstance()
                   .then((p) async {
                     await p.setDouble('parallel_font_size', _parallelFontSize);
@@ -512,7 +550,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     return Container(
       height: 34,
       decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: t.textSecondary.withOpacity(0.1))),
+        border: Border(
+          bottom: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+        ),
       ),
       child: Row(
         children: [
@@ -566,14 +606,19 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
 
   Widget _buildSplitContent(BibleReaderThemeData t) {
     if (_loading) {
-      return Center(child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5));
+      return Center(
+        child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5),
+      );
     }
 
     if (_leftVerses.isEmpty && _rightVerses.isEmpty) {
       return Center(
         child: Text(
           'No se pudieron cargar los versículos',
-          style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
+          style: GoogleFonts.manrope(
+            color: t.textSecondary.withOpacity(0.5),
+            fontSize: 14,
+          ),
         ),
       );
     }
@@ -603,16 +648,21 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           itemBuilder: (ctx, idx) {
             final verse = verses[idx];
             final isSelected = _selectedVerse == verse.verse;
-            final hlKey = '$_bookNumber:$_currentChapter:${verse.verse}';
-            final highlight = highlights[hlKey];
-            final highlightBg = highlight != null ? t.highlightOverlay(highlight.color) : null;
+            final highlight = highlights[verse.fullKey];
+            final highlightBg = highlight != null
+                ? t.highlightOverlay(highlight.color)
+                : null;
             return GestureDetector(
               onLongPress: () {
                 HapticFeedback.mediumImpact();
-                setState(() => _selectedVerse = isSelected ? null : verse.verse);
+                setState(
+                  () => _selectedVerse = isSelected ? null : verse.verse,
+                );
                 if (!isSelected) _showVerseActions(t, verse);
               },
-              onTap: _selectedVerse != null ? () => setState(() => _selectedVerse = null) : null,
+              onTap: _selectedVerse != null
+                  ? () => setState(() => _selectedVerse = null)
+                  : null,
               child: Container(
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                 decoration: isSelected
@@ -654,8 +704,12 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
 
   void _showVerseActions(BibleReaderThemeData t, BibleVerse verse) {
     // Find the matching verse from both sides
-    final leftVerse = _leftVerses.where((v) => v.verse == verse.verse).firstOrNull;
-    final rightVerse = _rightVerses.where((v) => v.verse == verse.verse).firstOrNull;
+    final leftVerse = _leftVerses
+        .where((v) => v.verse == verse.verse)
+        .firstOrNull;
+    final rightVerse = _rightVerses
+        .where((v) => v.verse == verse.verse)
+        .firstOrNull;
 
     showModalBottomSheet(
           context: context,
@@ -695,7 +749,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   children: [
                     _actionChip(t, Icons.format_paint_outlined, 'Subrayar', () {
                       Navigator.pop(ctx);
-                      _showHighlightPicker(t, verse.verse);
+                      _showHighlightPicker(t, verse.version, verse.verse);
                     }),
                     _actionChip(t, Icons.copy_outlined, 'Copiar ambas', () {
                       Navigator.pop(ctx);
@@ -744,7 +798,12 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
         });
   }
 
-  Widget _actionChip(BibleReaderThemeData t, IconData icon, String label, VoidCallback onTap) {
+  Widget _actionChip(
+    BibleReaderThemeData t,
+    IconData icon,
+    String label,
+    VoidCallback onTap,
+  ) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -786,7 +845,11 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     _showSnack('Ambas versiones copiadas');
   }
 
-  void _showHighlightPicker(BibleReaderThemeData t, int verseNumber) {
+  void _showHighlightPicker(
+    BibleReaderThemeData t,
+    String versionId,
+    int verseNumber,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: t.surface,
@@ -826,12 +889,19 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   return GestureDetector(
                     onTap: () {
                       Navigator.pop(ctx);
-                      _highlightVerse(verseNumber, HighlightColors.toHex(color));
+                      _highlightVerse(
+                        versionId,
+                        verseNumber,
+                        HighlightColors.toHex(color),
+                      );
                     },
                     child: Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: color,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   );
                 }),
@@ -844,7 +914,11 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       builder: (_) => FullColorPickerSheet(theme: t),
                     );
                     if (color != null) {
-                      _highlightVerse(verseNumber, HighlightColors.toHex(color));
+                      _highlightVerse(
+                        versionId,
+                        verseNumber,
+                        HighlightColors.toHex(color),
+                      );
                     }
                   },
                   child: Container(
@@ -875,9 +949,10 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     );
   }
 
-  void _highlightVerse(int verseNumber, String colorHex) {
+  void _highlightVerse(String versionId, int verseNumber, String colorHex) {
     RecentColorsService.I.addRecentColor(colorHex);
     BibleUserDataService.I.addHighlight(
+      versionId: versionId,
       bookNumber: _bookNumber,
       chapter: _currentChapter,
       verse: verseNumber,
@@ -888,9 +963,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
   }
 
   void _showSnack(String msg) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(msg), duration: const Duration(seconds: 2)));
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(msg), duration: const Duration(seconds: 2)),
+    );
   }
 
   Widget _buildBottomNav(BibleReaderThemeData t) {
@@ -898,7 +973,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       height: 44,
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: t.textSecondary.withOpacity(0.1))),
+        border: Border(
+          top: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -924,7 +1001,10 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               : const SizedBox.shrink(),
           Text(
             '$_bookName $_currentChapter',
-            style: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 12),
+            style: GoogleFonts.manrope(
+              color: t.textSecondary.withOpacity(0.5),
+              fontSize: 12,
+            ),
           ),
           _currentChapter < _maxChapters
               ? GestureDetector(
