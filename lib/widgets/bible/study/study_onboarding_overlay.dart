@@ -30,9 +30,9 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
     ),
     _Slide(
       icon: Icons.quiz_outlined,
-      title: 'Las 6 preguntas',
+      title: 'Preguntas y esperanza',
       body:
-          'En el panel derecho responde las 6 preguntas guiadas. Se autoguardan y aparecen también en tu sección de Notas, ligadas al capítulo.',
+          'En el panel derecho responde las 6 preguntas guiadas, escribe el mensaje de esperanza y marca el Verso Principal. Todo se autoguarda en tus Notas.',
     ),
   ];
 
@@ -40,9 +40,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
   Widget build(BuildContext context) {
     return Dialog(
       backgroundColor: const Color(0xFF161616),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(16),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       insetPadding: const EdgeInsets.all(24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 460, maxHeight: 520),
@@ -74,20 +72,14 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text(
-                      'Saltar',
-                      style: GoogleFonts.manrope(
-                          color: Colors.white54),
-                    ),
+                    child: Text('Saltar', style: GoogleFonts.manrope(color: Colors.white54)),
                   ),
                   const Spacer(),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD4A853),
                       foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                     ),
                     onPressed: () {
                       if (_index < _slides.length - 1) {
@@ -101,8 +93,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
                     },
                     child: Text(
                       _index < _slides.length - 1 ? 'Siguiente' : 'Empezar',
-                      style: GoogleFonts.manrope(
-                          fontWeight: FontWeight.w600),
+                      style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -135,11 +126,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
           Text(
             s.body,
             textAlign: TextAlign.center,
-            style: GoogleFonts.lora(
-              color: Colors.white70,
-              fontSize: 14,
-              height: 1.5,
-            ),
+            style: GoogleFonts.lora(color: Colors.white70, fontSize: 14, height: 1.5),
           ),
           const SizedBox(height: 14),
           if (s.title.contains('colores')) _buildColorRow(),
@@ -154,23 +141,24 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
       runSpacing: 8,
       alignment: WrapAlignment.center,
       children: StudyHighlightCode.values
-          .map((c) => Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 10, vertical: 6),
-                decoration: BoxDecoration(
-                  color: c.color.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: c.color, width: 1),
+          .map(
+            (c) => Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: c.color.withOpacity(0.25),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: c.color, width: 1),
+              ),
+              child: Text(
+                c.label,
+                style: GoogleFonts.manrope(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
                 ),
-                child: Text(
-                  c.label,
-                  style: GoogleFonts.manrope(
-                    color: Colors.white,
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ))
+              ),
+            ),
+          )
           .toList(),
     );
   }
@@ -186,9 +174,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
           width: active ? 18 : 6,
           height: 6,
           decoration: BoxDecoration(
-            color: active
-                ? const Color(0xFFD4A853)
-                : Colors.white24,
+            color: active ? const Color(0xFFD4A853) : Colors.white24,
             borderRadius: BorderRadius.circular(3),
           ),
         );

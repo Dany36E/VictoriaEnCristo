@@ -226,6 +226,22 @@ service cloud.firestore {
         (resource.data.members[request.auth.uid] != null)
       );
       allow write: if false; // Solo Cloud Functions
+
+      match /highlights/{highlightId} {
+        allow read: if isRoomMember(code);
+        allow create, update: if isRoomMember(code)
+          && request.resource.data.ownerUid == request.auth.uid;
+        allow delete: if isRoomMember(code)
+          && resource.data.ownerUid == request.auth.uid;
+      }
+
+      match /answerSnapshots/{uid} {
+        allow read: if isRoomMember(code);
+        allow create, update: if isRoomMember(code)
+          && uid == request.auth.uid
+          && request.resource.data.uid == request.auth.uid;
+        allow delete: if isRoomMember(code) && uid == request.auth.uid;
+      }
     }
 
     /* ─────────────────────────────────────────────
@@ -246,6 +262,13 @@ service cloud.firestore {
 
     function isSignedIn() {
       return request.auth != null;
+    }
+
+    function isRoomMember(code) {
+      return isSignedIn() && (
+        isAdmin() ||
+        get(/databases/$(database)/documents/studyRooms/$(code)).data.members[request.auth.uid] != null
+      );
     }
 
     function isOwner(userId) {

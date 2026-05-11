@@ -19,6 +19,7 @@ class StudyRoomBanner extends StatefulWidget {
   final BibleReaderThemeData theme;
   final VoidCallback onLeave;
   final VoidCallback onRotate;
+  final VoidCallback onStartTimer;
   final ValueChanged<String> onVersionAssigned;
 
   const StudyRoomBanner({
@@ -27,6 +28,7 @@ class StudyRoomBanner extends StatefulWidget {
     required this.theme,
     required this.onLeave,
     required this.onRotate,
+    required this.onStartTimer,
     required this.onVersionAssigned,
   });
 
@@ -78,8 +80,16 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
     final t = widget.theme;
     final r = widget.room;
     final secs = r.secondsUntilSwap(DateTime.now());
-    final mm = (secs ~/ 60).toString().padLeft(2, '0');
-    final ss = (secs % 60).toString().padLeft(2, '0');
+    final mm = secs == null ? '--' : (secs ~/ 60).toString().padLeft(2, '0');
+    final ss = secs == null ? '--' : (secs % 60).toString().padLeft(2, '0');
+    final myUid = _myUid();
+    final isHost = myUid != null && r.hostUid == myUid;
+    final canStartTimer = !r.swapTimerActive && r.memberOrder.length >= 2 && isHost;
+    final timerLabel = r.swapTimerActive
+        ? 'Swap en $mm:$ss'
+        : r.memberOrder.length >= 2
+        ? 'Timer pendiente'
+        : 'Esperando amigos';
 
     return Container(
       margin: const EdgeInsets.fromLTRB(8, 6, 8, 0),
@@ -106,17 +116,23 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
                 ),
               ),
               const Spacer(),
-              Icon(Icons.timer_outlined,
-                  size: 14, color: t.textSecondary),
+              Icon(Icons.timer_outlined, size: 14, color: t.textSecondary),
               const SizedBox(width: 4),
               Text(
-                'Swap en $mm:$ss',
+                timerLabel,
                 style: GoogleFonts.manrope(
                   color: t.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
               ),
+              if (canStartTimer)
+                IconButton(
+                  tooltip: 'Iniciar timer de swap',
+                  visualDensity: VisualDensity.compact,
+                  icon: Icon(Icons.play_arrow_rounded, color: t.accent, size: 20),
+                  onPressed: widget.onStartTimer,
+                ),
               IconButton(
                 tooltip: 'Rotar ahora',
                 visualDensity: VisualDensity.compact,
@@ -126,8 +142,7 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
               IconButton(
                 tooltip: 'Salir',
                 visualDensity: VisualDensity.compact,
-                icon: Icon(Icons.logout,
-                    color: t.textSecondary, size: 18),
+                icon: Icon(Icons.logout, color: t.textSecondary, size: 18),
                 onPressed: widget.onLeave,
               ),
             ],
@@ -140,13 +155,11 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
               final m = r.members[uid];
               if (m == null) return const SizedBox.shrink();
               return Container(
-                padding: const EdgeInsets.symmetric(
-                    horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: t.background,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                      color: t.textSecondary.withOpacity(0.15)),
+                  border: Border.all(color: t.textSecondary.withOpacity(0.15)),
                 ),
                 child: Text(
                   '${m.displayName} · ${m.versionId}',

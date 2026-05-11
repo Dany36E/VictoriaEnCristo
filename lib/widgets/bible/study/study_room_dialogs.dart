@@ -14,25 +14,19 @@ class StudyRoomChoiceDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Estudiar con amigos',
-          style: GoogleFonts.cinzel(fontWeight: FontWeight.w700)),
+      title: Text('Estudiar con amigos', style: GoogleFonts.cinzel(fontWeight: FontWeight.w700)),
       content: const Text(
         'Reúnete con hasta 4 amigos. Cada uno verá una traducción '
         'distinta y rotarán cada cierto tiempo para enriquecer la lectura.',
       ),
       actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
         TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
-        TextButton(
-          onPressed: () =>
-              Navigator.pop(context, StudyRoomDialogAction.join),
+          onPressed: () => Navigator.pop(context, StudyRoomDialogAction.join),
           child: const Text('Unirme con código'),
         ),
         ElevatedButton(
-          onPressed: () =>
-              Navigator.pop(context, StudyRoomDialogAction.create),
+          onPressed: () => Navigator.pop(context, StudyRoomDialogAction.create),
           child: const Text('Crear sala'),
         ),
       ],
@@ -96,33 +90,24 @@ class _JoinRoomDialogState extends State<JoinRoomDialog> {
             value: _versionId,
             decoration: const InputDecoration(labelText: 'Tu traducción'),
             items: BibleVersion.values
-                .map((v) => DropdownMenuItem(
-                      value: v.id,
-                      child: Text(v.displayName),
-                    ))
+                .map((v) => DropdownMenuItem(value: v.id, child: Text(v.displayName)))
                 .toList(),
             onChanged: (v) => setState(() => _versionId = v ?? _versionId),
           ),
           const SizedBox(height: 6),
           Text(
             'Recuerda: cada miembro debe usar una traducción distinta.',
-            style: TextStyle(
-                fontSize: 11,
-                color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
           ),
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
         ElevatedButton(
           onPressed: () {
             final code = _codeCtrl.text.trim().toUpperCase();
             if (code.length != 6) return;
-            Navigator.pop(
-                context, JoinRoomFormResult(code, _versionId));
+            Navigator.pop(context, JoinRoomFormResult(code, _versionId));
           },
           child: const Text('Unirme'),
         ),
@@ -136,11 +121,7 @@ class StudyRoomActiveDialog extends StatelessWidget {
   final StudyRoom room;
   final VoidCallback onLeave;
 
-  const StudyRoomActiveDialog({
-    super.key,
-    required this.room,
-    required this.onLeave,
-  });
+  const StudyRoomActiveDialog({super.key, required this.room, required this.onLeave});
 
   @override
   Widget build(BuildContext context) {
@@ -154,10 +135,7 @@ class StudyRoomActiveDialog extends StatelessWidget {
           const SizedBox(height: 8),
           SelectableText(
             room.code,
-            style: GoogleFonts.cinzel(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 6),
+            style: GoogleFonts.cinzel(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: 6),
           ),
           const SizedBox(height: 16),
           Text('Miembros (${room.memberOrder.length}/5):'),
@@ -172,7 +150,9 @@ class StudyRoomActiveDialog extends StatelessWidget {
           }),
           const SizedBox(height: 12),
           Text(
-            'Rotación cada ${room.swapIntervalMinutes} min.',
+            room.swapTimerActive
+                ? 'Rotación cada ${room.swapIntervalMinutes} min.'
+                : 'Timer de swap pendiente. El host lo iniciará cuando estén listos.',
             style: const TextStyle(fontSize: 12),
           ),
         ],
@@ -185,10 +165,7 @@ class StudyRoomActiveDialog extends StatelessWidget {
           },
           child: const Text('Salir de la sala'),
         ),
-        ElevatedButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cerrar'),
-        ),
+        ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
       ],
     );
   }

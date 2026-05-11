@@ -30,11 +30,7 @@ const List<StudyQuestion> kStudyQuestions = [
     '¿Quién lo escribió? ¿Quién está hablando?',
     'Autor humano, audiencia original, voz que habla.',
   ),
-  StudyQuestion(
-    'place',
-    '¿Dónde suceden los hechos?',
-    'Ciudad, región, geografía relevante.',
-  ),
+  StudyQuestion('place', '¿Dónde suceden los hechos?', 'Ciudad, región, geografía relevante.'),
   StudyQuestion(
     'context',
     '¿Qué estaba sucediendo? ¿Por qué?',
@@ -53,6 +49,8 @@ class StudyChapterAnswers {
   final String versionId;
   final Map<String, String> answers; // questionId -> texto
   final String generalNotes;
+  final String hopeMessage;
+  final List<int> mainVerses;
 
   /// Versículo inicial del rango estudiado (1-based, inclusive). Null = capítulo completo.
   final int? studyStartVerse;
@@ -69,6 +67,8 @@ class StudyChapterAnswers {
     required this.versionId,
     required this.answers,
     this.generalNotes = '',
+    this.hopeMessage = '',
+    this.mainVerses = const [],
     this.studyStartVerse,
     this.studyEndVerse,
     required this.createdAt,
@@ -97,15 +97,29 @@ class StudyChapterAnswers {
     return [for (var v = lo; v <= hi; v++) v];
   }
 
+  List<int> get sortedMainVerses => _normalizedVerseNumbers(mainVerses);
+
+  String get mainVerseReference {
+    final ranges = verseRangesLabel(mainVerses);
+    if (ranges.isEmpty) return '';
+    return '$bookName $chapter:$ranges';
+  }
+
+  static String verseRangesLabel(Iterable<int> verses) => _formatVerseRanges(verses);
+
   /// ¿Hay al menos una respuesta o nota no vacía?
   bool get hasContent =>
       answers.values.any((v) => v.trim().isNotEmpty) ||
-      generalNotes.trim().isNotEmpty;
+      generalNotes.trim().isNotEmpty ||
+      hopeMessage.trim().isNotEmpty ||
+      sortedMainVerses.isNotEmpty;
 
   StudyChapterAnswers copyWith({
     String? versionId,
     Map<String, String>? answers,
     String? generalNotes,
+    String? hopeMessage,
+    List<int>? mainVerses,
     int? studyStartVerse,
     int? studyEndVerse,
     bool clearRange = false,
@@ -117,9 +131,9 @@ class StudyChapterAnswers {
     versionId: versionId ?? this.versionId,
     answers: answers ?? this.answers,
     generalNotes: generalNotes ?? this.generalNotes,
-    studyStartVerse: clearRange
-        ? null
-        : (studyStartVerse ?? this.studyStartVerse),
+    hopeMessage: hopeMessage ?? this.hopeMessage,
+    mainVerses: mainVerses ?? this.mainVerses,
+    studyStartVerse: clearRange ? null : (studyStartVerse ?? this.studyStartVerse),
     studyEndVerse: clearRange ? null : (studyEndVerse ?? this.studyEndVerse),
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.now(),
@@ -133,6 +147,18 @@ class StudyChapterAnswers {
       if (a.isEmpty) continue;
       buf.writeln('**${q.prompt}**');
       buf.writeln(a);
+      buf.writeln();
+    }
+    final hope = hopeMessage.trim();
+    if (hope.isNotEmpty) {
+      buf.writeln('**Mensaje de esperanza**');
+      buf.writeln(hope);
+      buf.writeln();
+    }
+    final mainReference = mainVerseReference;
+    if (mainReference.isNotEmpty) {
+      buf.writeln('**Verso Principal**');
+      buf.writeln(mainReference);
       buf.writeln();
     }
     final notes = generalNotes.trim();
@@ -151,6 +177,8 @@ class StudyChapterAnswers {
     'versionId': versionId,
     'answers': answers,
     'generalNotes': generalNotes,
+    'hopeMessage': hopeMessage,
+    'mainVerses': sortedMainVerses,
     if (studyStartVerse != null) 'studyStartVerse': studyStartVerse,
     if (studyEndVerse != null) 'studyEndVerse': studyEndVerse,
     'createdAt': Timestamp.fromDate(createdAt),
@@ -172,6 +200,8 @@ class StudyChapterAnswers {
       versionId: map['versionId'] as String? ?? 'RVR1960',
       answers: parsed,
       generalNotes: map['generalNotes'] as String? ?? '',
+      hopeMessage: map['hopeMessage'] as String? ?? '',
+      mainVerses: _parseVerseNumbers(map['mainVerses']),
       studyStartVerse: (map['studyStartVerse'] as num?)?.toInt(),
       studyEndVerse: (map['studyEndVerse'] as num?)?.toInt(),
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
@@ -193,8 +223,50 @@ class StudyChapterAnswers {
       versionId: versionId,
       answers: const {},
       generalNotes: '',
+      hopeMessage: '',
+      mainVerses: const [],
       createdAt: now,
       updatedAt: now,
     );
   }
+}
+
+List<int> _parseVerseNumbers(Object? raw) {
+  if (raw is! Iterable) return const [];
+  final numbers = <int>[];
+  for (final value in raw) {
+    if (value is num) {
+      numbers.add(value.toInt());
+    }
+  }
+  return _normalizedVerseNumbers(numbers);
+}
+
+List<int> _normalizedVerseNumbers(Iterable<int> verses) {
+  final out = verses.where((v) => v > 0).toSet().toList()..sort();
+  return List.unmodifiable(out);
+}
+
+String _formatVerseRanges(Iterable<int> verses) {
+  final sorted = _normalizedVerseNumbers(verses);
+  if (sorted.isEmpty) return '';
+  final ranges = <String>[];
+  var start = sorted.first;
+  var previous = start;
+
+  void closeRange() {
+    ranges.add(start == previous ? '$start' : '$start-$previous');
+  }
+
+  for (final verse in sorted.skip(1)) {
+    if (verse == previous + 1) {
+      previous = verse;
+      continue;
+    }
+    closeRange();
+    start = verse;
+    previous = verse;
+  }
+  closeRange();
+  return ranges.join(', ');
 }

@@ -8,13 +8,15 @@
  * Reglas de negocio:
  *   - Cada miembro debe usar una traducción DIFERENTE.
  *   - El host elige el libro/capítulo/rango y el intervalo de swap.
+ *   - El timer de swap no inicia al crear la sala; el host lo activa cuando
+ *     el grupo está listo.
  *   - `rotateStudyVersions` rota cíclicamente las traducciones entre miembros
  *     usando `memberOrder` (host puede llamar manualmente; un scheduler hace
  *     auto-swap cada minuto si vence el intervalo).
  * ═══════════════════════════════════════════════════════════════════════════
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = void 0;
+exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.startStudyRoomSwapTimer = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = void 0;
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
 const crypto = require("crypto");
@@ -139,7 +141,9 @@ exports.createStudyRoom = functions.https.onCall(async (data, context) => {
                 swapIntervalMinutes: swapMin,
                 createdAt: now,
                 lastSwapAt: now,
-                nextSwapAt: computeNextSwapAt(now, swapMin),
+                swapTimerActive: false,
+                swapTimerStartedAt: null,
+                nextSwapAt: null,
                 memberCount: 1,
                 memberOrder: [uid],
                 members: { [uid]: member },
@@ -264,12 +268,18 @@ exports.leaveStudyRoom = functions.https.onCall(async (data, context) => {
                 return;
             }
             const newHost = room.hostUid === uid ? memberOrder[0] : room.hostUid;
-            tx.update(ref, {
+            const updates = {
                 [`members.${uid}`]: admin.firestore.FieldValue.delete(),
                 memberOrder,
                 memberCount: memberOrder.length,
                 hostUid: newHost,
-            });
+            };
+            if (memberOrder.length < 2) {
+                updates.swapTimerActive = false;
+                updates.swapTimerStartedAt = null;
+                updates.nextSwapAt = admin.firestore.FieldValue.delete();
+            }
+            tx.update(ref, updates);
         });
         return { ok: true };
     }
@@ -292,8 +302,9 @@ async function rotateRoomVersions(code, force) {
         if (memberOrder.length < 2)
             return room;
         if (!force) {
-            const last = room.lastSwapAt.toMillis();
-            const next = last + room.swapIntervalMinutes * 60 * 1000;
+            if (room.swapTimerActive !== true || !room.nextSwapAt)
+                return room;
+            const next = room.nextSwapAt.toMillis();
             if (Date.now() < next)
                 return room; // todavía no toca
         }
@@ -304,8 +315,13 @@ async function rotateRoomVersions(code, force) {
         const nowTs = admin.firestore.Timestamp.now();
         const updates = {
             lastSwapAt: nowTs,
-            nextSwapAt: computeNextSwapAt(nowTs, (_b = room.swapIntervalMinutes) !== null && _b !== void 0 ? _b : 15),
         };
+        if (room.swapTimerActive === true) {
+            updates.nextSwapAt = computeNextSwapAt(nowTs, (_b = room.swapIntervalMinutes) !== null && _b !== void 0 ? _b : 15);
+        }
+        else {
+            updates.nextSwapAt = admin.firestore.FieldValue.delete();
+        }
         memberOrder.forEach((u, i) => {
             updates[`members.${u}.versionId`] = rotated[i];
         });
@@ -313,6 +329,47 @@ async function rotateRoomVersions(code, force) {
         return Object.assign(Object.assign({}, room), { members: Object.fromEntries(memberOrder.map((u, i) => [u, Object.assign(Object.assign({}, room.members[u]), { versionId: rotated[i] })])) });
     });
 }
+exports.startStudyRoomSwapTimer = functions.https.onCall(async (data, context) => {
+    var _a;
+    try {
+        if (!context.auth) {
+            throw new functions.https.HttpsError("unauthenticated", "Inicia sesión.");
+        }
+        const uid = context.auth.uid;
+        const code = String((_a = data === null || data === void 0 ? void 0 : data.code) !== null && _a !== void 0 ? _a : "").trim().toUpperCase();
+        if (code.length !== 6) {
+            throw new functions.https.HttpsError("invalid-argument", "Código inválido.");
+        }
+        const ref = db.collection("studyRooms").doc(code);
+        const updated = await db.runTransaction(async (tx) => {
+            var _a, _b, _c;
+            const snap = await tx.get(ref);
+            if (!snap.exists) {
+                throw new functions.https.HttpsError("not-found", "Sala no encontrada.");
+            }
+            const room = snap.data();
+            if (!((_a = room.members) === null || _a === void 0 ? void 0 : _a[uid])) {
+                throw new functions.https.HttpsError("permission-denied", "No eres miembro de esta sala.");
+            }
+            if (((_b = room.memberOrder) !== null && _b !== void 0 ? _b : []).length < 2) {
+                throw new functions.https.HttpsError("failed-precondition", "Espera a que se una al menos otra persona.");
+            }
+            const nowTs = admin.firestore.Timestamp.now();
+            const nextSwapAt = computeNextSwapAt(nowTs, (_c = room.swapIntervalMinutes) !== null && _c !== void 0 ? _c : 15);
+            tx.update(ref, {
+                swapTimerActive: true,
+                swapTimerStartedAt: nowTs,
+                lastSwapAt: nowTs,
+                nextSwapAt,
+            });
+            return Object.assign(Object.assign({}, room), { swapTimerActive: true, swapTimerStartedAt: nowTs, lastSwapAt: nowTs, nextSwapAt });
+        });
+        return { room: serializeRoom(updated) };
+    }
+    catch (err) {
+        rethrow(err);
+    }
+});
 exports.rotateStudyVersions = functions.https.onCall(async (data, context) => {
     var _a, _b, _c;
     try {
@@ -379,7 +436,7 @@ exports.studyRoomAutoSwap = functions.pubsub
 // HELPERS
 // ═══════════════════════════════════════════════════════════════════════════
 function serializeRoom(room) {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e;
     // Convierte Timestamps a millisecond numbers para que el cliente Dart no
     // tenga que depender de Timestamp (callable serializa con JSON plano).
     const ts = (t) => t ? { seconds: t.seconds, nanoseconds: t.nanoseconds } : null;
@@ -394,8 +451,10 @@ function serializeRoom(room) {
         swapIntervalMinutes: room.swapIntervalMinutes,
         createdAt: ts(room.createdAt),
         lastSwapAt: ts(room.lastSwapAt),
-        memberOrder: (_c = room.memberOrder) !== null && _c !== void 0 ? _c : [],
-        members: (_d = room.members) !== null && _d !== void 0 ? _d : {},
+        swapTimerActive: room.swapTimerActive === true,
+        swapTimerStartedAt: ts((_c = room.swapTimerStartedAt) !== null && _c !== void 0 ? _c : undefined),
+        memberOrder: (_d = room.memberOrder) !== null && _d !== void 0 ? _d : [],
+        members: (_e = room.members) !== null && _e !== void 0 ? _e : {},
     };
 }
 //# sourceMappingURL=studyRoomFunctions.js.map

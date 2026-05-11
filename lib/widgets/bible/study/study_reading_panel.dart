@@ -1,12 +1,15 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/bible_version.dart';
+import '../../../models/bible/study_room.dart';
 import '../../../models/bible/study_word_highlight.dart';
 import '../../../services/bible/bible_user_data_service.dart';
 import '../../../services/bible/study_mode_service.dart';
+import '../../../services/bible/study_room_service.dart';
 import '../../../theme/bible_reader_theme.dart';
 import 'study_color_legend.dart';
 
@@ -26,6 +29,7 @@ class StudyReadingPanel extends StatefulWidget {
   final BibleVersion secondaryVersion;
   final int bookNumber;
   final int chapter;
+  final bool showSecondary;
 
   const StudyReadingPanel({
     super.key,
@@ -36,6 +40,7 @@ class StudyReadingPanel extends StatefulWidget {
     required this.secondaryVersion,
     required this.bookNumber,
     required this.chapter,
+    this.showSecondary = true,
   });
 
   @override
@@ -143,85 +148,120 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
   @override
   Widget build(BuildContext context) {
     final t = widget.theme;
-    return ValueListenableBuilder<List<StudyWordHighlight>>(
-      valueListenable: StudyModeService.I.highlightsNotifier,
-      builder: (_, allHighlights, _) {
-        return ValueListenableBuilder<double>(
-          valueListenable: BibleUserDataService.I.fontSizeNotifier,
-          builder: (_, fontSize, _) {
-            return Stack(
-              children: [
-                ListView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
-                  itemCount: widget.verses.length + 1,
-                  itemBuilder: (_, i) {
-                    if (i == 0) {
-                      return _ReadingControlsRow(
-                        theme: t,
-                        onShowLegend: () => _openLegendSheet(t),
-                        onUndo: _undo,
-                        onRedo: _redo,
-                      );
-                    }
-                    final v = widget.verses[i - 1];
-                    final secondary = _secondaryForVerse(v.verse);
-                    final primaryHighlights = allHighlights
-                        .where(
-                          (h) =>
-                              h.versionId == widget.primaryVersion.id &&
-                              h.bookNumber == widget.bookNumber &&
-                              h.chapter == widget.chapter &&
-                              h.verse == v.verse,
-                        )
-                        .toList();
-                    final secondaryHighlights = allHighlights
-                        .where(
-                          (h) =>
-                              h.versionId == widget.secondaryVersion.id &&
-                              h.bookNumber == widget.bookNumber &&
-                              h.chapter == widget.chapter &&
-                              h.verse == v.verse,
-                        )
-                        .toList();
-                    return _VerseComparisonRow(
-                      primary: v,
-                      secondary: secondary,
-                      primaryVersion: widget.primaryVersion,
-                      secondaryVersion: widget.secondaryVersion,
-                      theme: t,
-                      fontSize: fontSize,
-                      primaryHighlights: primaryHighlights,
-                      secondaryHighlights: secondaryHighlights,
-                      activeVersionId: _activeVersionId,
-                      activeVerse: _activeVerse,
-                      startWord: _startWord,
-                      endWord: _endWord,
-                      onTapPrimaryWord: (idx) =>
-                          _toggleWord(widget.primaryVersion.id, v.verse, idx),
-                      onTapSecondaryWord: secondary == null
-                          ? null
-                          : (idx) => _toggleWord(widget.secondaryVersion.id, secondary.verse, idx),
+    return ValueListenableBuilder<StudyRoom?>(
+      valueListenable: StudyRoomService.I.currentRoomNotifier,
+      builder: (_, room, _) {
+        return ValueListenableBuilder<List<StudyWordHighlight>>(
+          valueListenable: StudyModeService.I.highlightsNotifier,
+          builder: (_, personalHighlights, _) {
+            return ValueListenableBuilder<List<StudyWordHighlight>>(
+              valueListenable: StudyRoomService.I.roomHighlightsNotifier,
+              builder: (_, roomHighlights, _) {
+                final allHighlights = _effectiveHighlights(
+                  personalHighlights: personalHighlights,
+                  roomHighlights: roomHighlights,
+                  inRoom: room != null,
+                );
+                return ValueListenableBuilder<double>(
+                  valueListenable: BibleUserDataService.I.fontSizeNotifier,
+                  builder: (_, fontSize, _) {
+                    return Stack(
+                      children: [
+                        ListView.builder(
+                          padding: const EdgeInsets.fromLTRB(16, 8, 16, 120),
+                          itemCount: widget.verses.length + 1,
+                          itemBuilder: (_, i) {
+                            if (i == 0) {
+                              return _ReadingControlsRow(
+                                theme: t,
+                                onShowLegend: () => _openLegendSheet(t),
+                                onUndo: _undo,
+                                onRedo: _redo,
+                              );
+                            }
+                            final v = widget.verses[i - 1];
+                            final secondary = widget.showSecondary
+                                ? _secondaryForVerse(v.verse)
+                                : null;
+                            final primaryHighlights = allHighlights
+                                .where(
+                                  (h) =>
+                                      h.versionId == widget.primaryVersion.id &&
+                                      h.bookNumber == widget.bookNumber &&
+                                      h.chapter == widget.chapter &&
+                                      h.verse == v.verse,
+                                )
+                                .toList();
+                            final secondaryHighlights = allHighlights
+                                .where(
+                                  (h) =>
+                                      h.versionId == widget.secondaryVersion.id &&
+                                      h.bookNumber == widget.bookNumber &&
+                                      h.chapter == widget.chapter &&
+                                      h.verse == v.verse,
+                                )
+                                .toList();
+                            return _VerseComparisonRow(
+                              primary: v,
+                              secondary: secondary,
+                              primaryVersion: widget.primaryVersion,
+                              secondaryVersion: widget.secondaryVersion,
+                              showSecondary: widget.showSecondary,
+                              theme: t,
+                              fontSize: fontSize,
+                              primaryHighlights: primaryHighlights,
+                              secondaryHighlights: secondaryHighlights,
+                              activeVersionId: _activeVersionId,
+                              activeVerse: _activeVerse,
+                              startWord: _startWord,
+                              endWord: _endWord,
+                              onTapPrimaryWord: (idx) =>
+                                  _toggleWord(widget.primaryVersion.id, v.verse, idx),
+                              onTapSecondaryWord: secondary == null
+                                  ? null
+                                  : (idx) => _toggleWord(
+                                      widget.secondaryVersion.id,
+                                      secondary.verse,
+                                      idx,
+                                    ),
+                            );
+                          },
+                        ),
+                        if (_activeVerse != null && _startWord != null && _endWord != null)
+                          Positioned(
+                            left: 12,
+                            right: 12,
+                            bottom: 16,
+                            child: _ColorToolbar(
+                              theme: t,
+                              onPick: _applyColor,
+                              onClear: _clearSelectedWords,
+                              onCancel: _clearSelection,
+                            ),
+                          ),
+                      ],
                     );
                   },
-                ),
-                if (_activeVerse != null && _startWord != null && _endWord != null)
-                  Positioned(
-                    left: 12,
-                    right: 12,
-                    bottom: 16,
-                    child: _ColorToolbar(
-                      theme: t,
-                      onPick: _applyColor,
-                      onClear: _clearSelectedWords,
-                      onCancel: _clearSelection,
-                    ),
-                  ),
-              ],
+                );
+              },
             );
           },
         );
       },
     );
+  }
+
+  List<StudyWordHighlight> _effectiveHighlights({
+    required List<StudyWordHighlight> personalHighlights,
+    required List<StudyWordHighlight> roomHighlights,
+    required bool inRoom,
+  }) {
+    if (!inRoom) return personalHighlights;
+    final byId = {for (final highlight in roomHighlights) highlight.id: highlight};
+    for (final highlight in personalHighlights) {
+      byId.putIfAbsent(highlight.id, () => highlight);
+    }
+    return byId.values.toList(growable: false);
   }
 
   BibleVerse? _secondaryForVerse(int verseNumber) {
@@ -245,6 +285,7 @@ class _VerseComparisonRow extends StatelessWidget {
   final BibleVerse? secondary;
   final BibleVersion primaryVersion;
   final BibleVersion secondaryVersion;
+  final bool showSecondary;
   final BibleReaderThemeData theme;
   final double fontSize;
   final List<StudyWordHighlight> primaryHighlights;
@@ -261,6 +302,7 @@ class _VerseComparisonRow extends StatelessWidget {
     required this.secondary,
     required this.primaryVersion,
     required this.secondaryVersion,
+    required this.showSecondary,
     required this.theme,
     required this.fontSize,
     required this.primaryHighlights,
@@ -298,28 +340,30 @@ class _VerseComparisonRow extends StatelessWidget {
             endWord: endWord,
             onTapWord: onTapPrimaryWord,
           ),
-          const SizedBox(height: 8),
-          _VersionLabel(version: secondaryVersion, theme: t, muted: true),
-          const SizedBox(height: 4),
-          if (secondary == null)
-            _SecondaryVerseText(
-              verseNumber: primary.verse,
-              text: 'Versículo no disponible en esta versión.',
-              theme: t,
-              fontSize: fontSize,
-            )
-          else
-            _VerseRow(
-              verse: secondary!,
-              theme: t,
-              fontSize: fontSize * 0.92,
-              highlights: secondaryHighlights,
-              activeVerse: activeVersionId == secondaryVersion.id ? activeVerse : null,
-              startWord: startWord,
-              endWord: endWord,
-              onTapWord: onTapSecondaryWord!,
-              muted: true,
-            ),
+          if (showSecondary) ...[
+            const SizedBox(height: 8),
+            _VersionLabel(version: secondaryVersion, theme: t, muted: true),
+            const SizedBox(height: 4),
+            if (secondary == null)
+              _SecondaryVerseText(
+                verseNumber: primary.verse,
+                text: 'Versículo no disponible en esta versión.',
+                theme: t,
+                fontSize: fontSize,
+              )
+            else
+              _VerseRow(
+                verse: secondary!,
+                theme: t,
+                fontSize: fontSize * 0.92,
+                highlights: secondaryHighlights,
+                activeVerse: activeVersionId == secondaryVersion.id ? activeVerse : null,
+                startWord: startWord,
+                endWord: endWord,
+                onTapWord: onTapSecondaryWord!,
+                muted: true,
+              ),
+          ],
         ],
       ),
     );
@@ -415,6 +459,7 @@ class _VerseRow extends StatelessWidget {
     final t = theme;
     final tokens = verse.text.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
     final isSelectingHere = activeVerse == verse.verse;
+    final currentUid = FirebaseAuth.instance.currentUser?.uid;
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
@@ -437,7 +482,7 @@ class _VerseRow extends StatelessWidget {
               text: tokens[i],
               theme: t,
               fontSize: fontSize,
-              colors: _colorsForWord(i),
+              highlights: _highlightsForWord(i, currentUid),
               muted: muted,
               selected:
                   isSelectingHere &&
@@ -452,22 +497,34 @@ class _VerseRow extends StatelessWidget {
     );
   }
 
-  List<Color> _colorsForWord(int wordIndex) {
-    final colors = <Color>[];
+  List<_WordHighlightPaint> _highlightsForWord(int wordIndex, String? currentUid) {
+    final paints = <_WordHighlightPaint>[];
     for (final h in highlights) {
       if (h.overlapsWord(wordIndex)) {
-        colors.add(h.codeEnum.color);
+        final isMine = h.ownerUid == null || h.ownerUid == currentUid;
+        final owner = isMine
+            ? 'Tú'
+            : (h.ownerName?.trim().isNotEmpty == true ? h.ownerName! : 'Compañero');
+        paints.add(_WordHighlightPaint(color: h.codeEnum.color, isMine: isMine, owner: owner));
       }
     }
-    return colors;
+    return paints;
   }
+}
+
+class _WordHighlightPaint {
+  final Color color;
+  final bool isMine;
+  final String owner;
+
+  const _WordHighlightPaint({required this.color, required this.isMine, required this.owner});
 }
 
 class _WordChip extends StatelessWidget {
   final String text;
   final BibleReaderThemeData theme;
   final double fontSize;
-  final List<Color> colors;
+  final List<_WordHighlightPaint> highlights;
   final bool muted;
   final bool selected;
   final VoidCallback onTap;
@@ -476,7 +533,7 @@ class _WordChip extends StatelessWidget {
     required this.text,
     required this.theme,
     required this.fontSize,
-    required this.colors,
+    required this.highlights,
     required this.muted,
     required this.selected,
     required this.onTap,
@@ -485,11 +542,21 @@ class _WordChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
+    final ownHighlights = highlights.where((highlight) => highlight.isMine).toList();
+    final friendHighlights = highlights.where((highlight) => !highlight.isMine).toList();
     final bg = selected
         ? t.accent.withOpacity(0.35)
-        : (colors.isNotEmpty ? colors.last.withOpacity(0.20) : Colors.transparent);
-    final border = selected ? Border.all(color: t.accent, width: 1) : null;
-    return GestureDetector(
+        : ownHighlights.isNotEmpty
+        ? ownHighlights.last.color.withOpacity(0.20)
+        : friendHighlights.isNotEmpty
+        ? friendHighlights.last.color.withOpacity(0.10)
+        : Colors.transparent;
+    final border = selected
+        ? Border.all(color: t.accent, width: 1)
+        : friendHighlights.isNotEmpty
+        ? Border.all(color: friendHighlights.last.color.withOpacity(0.65), width: 0.8)
+        : null;
+    final chip = GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(
@@ -511,14 +578,28 @@ class _WordChip extends StatelessWidget {
                 height: 1.35,
               ),
             ),
-            if (colors.isNotEmpty)
+            if (highlights.isNotEmpty)
               SizedBox(
-                height: 3,
+                height: 4,
                 width: (text.length * fontSize * 0.48).clamp(12.0, 80.0),
                 child: Row(
                   children: [
-                    for (final color in colors)
-                      Expanded(child: Container(height: 3, color: color.withOpacity(0.9))),
+                    for (final highlight in highlights)
+                      Expanded(
+                        child: Align(
+                          alignment: Alignment.bottomCenter,
+                          child: Container(
+                            height: highlight.isMine ? 3 : 2,
+                            decoration: BoxDecoration(
+                              color: highlight.color.withOpacity(highlight.isMine ? 0.9 : 0.45),
+                              borderRadius: BorderRadius.circular(2),
+                              border: highlight.isMine
+                                  ? null
+                                  : Border.all(color: highlight.color.withOpacity(0.8), width: 0.6),
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -526,6 +607,9 @@ class _WordChip extends StatelessWidget {
         ),
       ),
     );
+    if (highlights.isEmpty) return chip;
+    final owners = highlights.map((highlight) => highlight.owner).toSet().join(' / ');
+    return Tooltip(message: 'Subrayado: $owners', child: chip);
   }
 }
 

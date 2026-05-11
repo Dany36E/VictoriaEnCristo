@@ -13,11 +13,7 @@ enum StudyHighlightCode {
   final String key;
   final String label;
   final String colorHex;
-  const StudyHighlightCode({
-    required this.key,
-    required this.label,
-    required this.colorHex,
-  });
+  const StudyHighlightCode({required this.key, required this.label, required this.colorHex});
 
   Color get color {
     final hex = colorHex.replaceFirst('#', '');
@@ -46,6 +42,8 @@ class StudyWordHighlight {
   final int startWord;
   final int endWord;
   final String code; // StudyHighlightCode.key
+  final String? ownerUid;
+  final String? ownerName;
   final DateTime createdAt;
 
   const StudyWordHighlight({
@@ -57,6 +55,8 @@ class StudyWordHighlight {
     required this.startWord,
     required this.endWord,
     required this.code,
+    this.ownerUid,
+    this.ownerName,
     required this.createdAt,
   });
 
@@ -64,23 +64,29 @@ class StudyWordHighlight {
   String get verseKey => '$versionId:$bookNumber:$chapter:$verse';
   String get chapterKey => '$versionId:$bookNumber:$chapter';
 
-  bool overlapsWord(int wordIndex) =>
-      wordIndex >= startWord && wordIndex < endWord;
+  bool overlapsWord(int wordIndex) => wordIndex >= startWord && wordIndex < endWord;
 
   bool overlapsRange(int start, int end) => startWord < end && start < endWord;
 
-  StudyWordHighlight copyWith({String? id, int? startWord, int? endWord}) =>
-      StudyWordHighlight(
-        id: id ?? this.id,
-        versionId: versionId,
-        bookNumber: bookNumber,
-        chapter: chapter,
-        verse: verse,
-        startWord: startWord ?? this.startWord,
-        endWord: endWord ?? this.endWord,
-        code: code,
-        createdAt: createdAt,
-      );
+  StudyWordHighlight copyWith({
+    String? id,
+    int? startWord,
+    int? endWord,
+    String? ownerUid,
+    String? ownerName,
+  }) => StudyWordHighlight(
+    id: id ?? this.id,
+    versionId: versionId,
+    bookNumber: bookNumber,
+    chapter: chapter,
+    verse: verse,
+    startWord: startWord ?? this.startWord,
+    endWord: endWord ?? this.endWord,
+    code: code,
+    ownerUid: ownerUid ?? this.ownerUid,
+    ownerName: ownerName ?? this.ownerName,
+    createdAt: createdAt,
+  );
 
   Map<String, dynamic> toMap() => {
     'versionId': versionId,
@@ -90,19 +96,22 @@ class StudyWordHighlight {
     'startWord': startWord,
     'endWord': endWord,
     'code': code,
+    if (ownerUid != null) 'ownerUid': ownerUid,
+    if (ownerName != null) 'ownerName': ownerName,
     'createdAt': Timestamp.fromDate(createdAt),
   };
 
-  factory StudyWordHighlight.fromMap(String id, Map<String, dynamic> map) =>
-      StudyWordHighlight(
-        id: id,
-        versionId: map['versionId'] as String? ?? 'RVR1960',
-        bookNumber: map['bookNumber'] as int,
-        chapter: map['chapter'] as int,
-        verse: map['verse'] as int,
-        startWord: map['startWord'] as int? ?? 0,
-        endWord: map['endWord'] as int? ?? 0,
-        code: map['code'] as String? ?? 'yellow',
-        createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      );
+  factory StudyWordHighlight.fromMap(String id, Map<String, dynamic> map) => StudyWordHighlight(
+    id: id,
+    versionId: map['versionId'] as String? ?? 'RVR1960',
+    bookNumber: map['bookNumber'] as int,
+    chapter: map['chapter'] as int,
+    verse: map['verse'] as int,
+    startWord: map['startWord'] as int? ?? 0,
+    endWord: map['endWord'] as int? ?? 0,
+    code: map['code'] as String? ?? 'yellow',
+    ownerUid: map['ownerUid'] as String?,
+    ownerName: map['ownerName'] as String?,
+    createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
+  );
 }

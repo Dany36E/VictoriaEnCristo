@@ -10,6 +10,7 @@ import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../models/bible/study_chapter_answers.dart';
 import '../../models/bible/study_room.dart';
+import '../../models/bible/study_word_highlight.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/study_export_service.dart';
@@ -60,8 +61,7 @@ class StudyModeScreen extends StatefulWidget {
   State<StudyModeScreen> createState() => _StudyModeScreenState();
 }
 
-class _StudyModeScreenState extends State<StudyModeScreen>
-    with SingleTickerProviderStateMixin {
+class _StudyModeScreenState extends State<StudyModeScreen> with SingleTickerProviderStateMixin {
   late int _bookNumber;
   late String _bookName;
   late int _chapter;
@@ -77,9 +77,12 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   Timer? _saveDebounce;
   bool _applyingRoomState = false;
   String? _lastRoomStateKey;
+  String? _lastSwapStartPromptKey;
   final Map<String, String> _draftAnswers = {};
   final Map<String, TextEditingController> _controllers = {};
   final TextEditingController _generalNotesController = TextEditingController();
+  final TextEditingController _hopeMessageController = TextEditingController();
+  final Set<int> _mainVerseNumbers = {};
 
   @override
   void initState() {
@@ -87,8 +90,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     _bookNumber = widget.bookNumber;
     _bookName = widget.bookName;
     _chapter = widget.chapter;
-    _version =
-        widget.version ?? BibleUserDataService.I.preferredVersionNotifier.value;
+    _version = widget.version ?? BibleUserDataService.I.preferredVersionNotifier.value;
     _secondaryVersion = _defaultSecondaryVersion(_version);
     _tabController = TabController(length: 2, vsync: this);
     for (final q in kStudyQuestions) {
@@ -175,6 +177,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       _controllers[q.id]!.text = existing[q.id] ?? '';
     }
     _generalNotesController.text = study?.generalNotes ?? '';
+    _hopeMessageController.text = study?.hopeMessage ?? '';
+    _mainVerseNumbers
+      ..clear()
+      ..addAll(study?.sortedMainVerses ?? const <int>[]);
   }
 
   void _onAnswerChanged(String questionId, String value) {
@@ -184,6 +190,23 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   void _onGeneralNotesChanged(String value) {
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 700), _flushAnswers);
+  }
+
+  void _onHopeMessageChanged(String value) {
+    _saveDebounce?.cancel();
+    _saveDebounce = Timer(const Duration(milliseconds: 700), _flushAnswers);
+  }
+
+  void _onMainVerseToggled(int verseNumber, bool selected) {
+    setState(() {
+      if (selected) {
+        _mainVerseNumbers.add(verseNumber);
+      } else {
+        _mainVerseNumbers.remove(verseNumber);
+      }
+    });
     _saveDebounce?.cancel();
     _saveDebounce = Timer(const Duration(milliseconds: 700), _flushAnswers);
   }
@@ -199,13 +222,15 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           versionId: _version.id,
         );
     final merged = _answersFromControllers();
-    await StudyModeService.I.saveAnswers(
-      base.copyWith(
-        answers: merged,
-        generalNotes: _generalNotesController.text.trim(),
-        versionId: _version.id,
-      ),
+    final updated = base.copyWith(
+      answers: merged,
+      generalNotes: _generalNotesController.text.trim(),
+      hopeMessage: _hopeMessageController.text.trim(),
+      mainVerses: _mainVerseNumbers.toList(),
+      versionId: _version.id,
     );
+    await StudyModeService.I.saveAnswers(updated);
+    unawaited(StudyRoomService.I.publishAnswerSnapshot(updated));
   }
 
   Map<String, String> _answersFromControllers() {
@@ -230,15 +255,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return base.copyWith(
       answers: _answersFromControllers(),
       generalNotes: _generalNotesController.text.trim(),
+      hopeMessage: _hopeMessageController.text.trim(),
+      mainVerses: _mainVerseNumbers.toList(),
       versionId: _version.id,
     );
   }
 
-  Future<void> _changeChapter(
-    int bookNumber,
-    String bookName,
-    int chapter,
-  ) async {
+  Future<void> _changeChapter(int bookNumber, String bookName, int chapter) async {
     await _flushAnswers();
     setState(() {
       _bookNumber = bookNumber;
@@ -270,10 +293,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _VersionPairSheet(
-        initialPrimary: _version,
-        initialSecondary: _secondaryVersion,
-      ),
+      builder: (_) =>
+          _VersionPairSheet(initialPrimary: _version, initialSecondary: _secondaryVersion),
     );
     if (result == null) return;
     await _changeVersions(result.primary, result.secondary);
@@ -311,10 +332,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     _hydrateAnswers();
   }
 
-  Future<void> _changeVersions(
-    BibleVersion primary,
-    BibleVersion secondary,
-  ) async {
+  Future<void> _changeVersions(BibleVersion primary, BibleVersion secondary) async {
     await _flushAnswers();
     if (secondary == primary) {
       secondary = _defaultSecondaryVersion(primary);
@@ -335,6 +353,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     final room = StudyRoomService.I.currentRoomNotifier.value;
     if (room == null) {
       _lastRoomStateKey = null;
+      _lastSwapStartPromptKey = null;
+      if (mounted) setState(() {});
       return;
     }
     final uid = FirebaseAuth.instance.currentUser?.uid;
@@ -347,30 +367,23 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       room.endVerse ?? '',
       assignedVersionId ?? '',
     ].join(':');
+    _maybePromptStartSwapTimer(room);
     if (key == _lastRoomStateKey) return;
     _lastRoomStateKey = key;
     unawaited(_applyRoomState(room, assignedVersionId));
   }
 
-  Future<void> _applyRoomState(
-    StudyRoom room,
-    String? assignedVersionId,
-  ) async {
+  Future<void> _applyRoomState(StudyRoom room, String? assignedVersionId) async {
     if (_applyingRoomState || !mounted) return;
     _applyingRoomState = true;
     try {
-      final primary = assignedVersionId == null
-          ? _version
-          : BibleVersion.fromId(assignedVersionId);
+      final primary = assignedVersionId == null ? _version : BibleVersion.fromId(assignedVersionId);
       final secondary = primary == _secondaryVersion
           ? _defaultSecondaryVersion(primary)
           : _secondaryVersion;
       final passageChanged =
-          room.bookNumber != _bookNumber ||
-          room.bookName != _bookName ||
-          room.chapter != _chapter;
-      final versionsChanged =
-          primary != _version || secondary != _secondaryVersion;
+          room.bookNumber != _bookNumber || room.bookName != _bookName || room.chapter != _chapter;
+      final versionsChanged = primary != _version || secondary != _secondaryVersion;
 
       if (passageChanged || versionsChanged) {
         await _flushAnswers();
@@ -394,9 +407,54 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         startVerse: room.startVerse,
         endVerse: room.endVerse,
       );
+      unawaited(StudyRoomService.I.publishHighlights(StudyModeService.I.highlightsNotifier.value));
       if (mounted) setState(() {});
     } finally {
       _applyingRoomState = false;
+    }
+  }
+
+  void _maybePromptStartSwapTimer(StudyRoom room) {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null || room.hostUid != uid || room.swapTimerActive || room.memberOrder.length < 2) {
+      if (room.swapTimerActive) _lastSwapStartPromptKey = null;
+      return;
+    }
+    final promptKey = '${room.code}:${room.memberOrder.join('|')}';
+    if (_lastSwapStartPromptKey == promptKey) return;
+    _lastSwapStartPromptKey = promptKey;
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (!mounted) return;
+      final activeRoom = StudyRoomService.I.currentRoomNotifier.value;
+      if (activeRoom == null || activeRoom.code != room.code || activeRoom.swapTimerActive) return;
+      final start = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('¿Iniciar timer de swap?'),
+          content: Text(
+            'Ya hay ${activeRoom.memberOrder.length} miembros en la sala. '
+            'Puedes iniciar los ${activeRoom.swapIntervalMinutes} minutos ahora o esperar a alguien más.',
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Esperar')),
+            ElevatedButton(
+              onPressed: () => Navigator.pop(ctx, true),
+              child: const Text('Iniciar timer'),
+            ),
+          ],
+        ),
+      );
+      if (start != true || !mounted) return;
+      await _startRoomSwapTimer();
+    });
+  }
+
+  Future<void> _startRoomSwapTimer() async {
+    try {
+      await StudyRoomService.I.startSwapTimer();
+      if (mounted) _showSnack('Timer de swap iniciado.');
+    } catch (e) {
+      if (mounted) _showSnack('No se pudo iniciar el timer: $e');
     }
   }
 
@@ -409,6 +467,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       c.dispose();
     }
     _generalNotesController.dispose();
+    _hopeMessageController.dispose();
     _tabController.dispose();
     super.dispose();
   }
@@ -418,9 +477,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return ValueListenableBuilder<String>(
       valueListenable: BibleUserDataService.I.readerThemeNotifier,
       builder: (_, themeId, _) {
-        final t = BibleReaderThemeData.fromId(
-          BibleReaderThemeData.migrateId(themeId),
-        );
+        final t = BibleReaderThemeData.fromId(BibleReaderThemeData.migrateId(themeId));
         SystemChrome.setSystemUIOverlayStyle(
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
@@ -428,12 +485,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           backgroundColor: t.background,
           body: SafeArea(
             child: _loading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: t.accent,
-                      strokeWidth: 1.5,
-                    ),
-                  )
+                ? Center(child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5))
                 : LayoutBuilder(
                     builder: (ctx, c) {
                       final isWide = c.maxWidth >= 900;
@@ -441,8 +493,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                         children: [
                           _buildHeader(t, isWide),
                           ValueListenableBuilder<StudyRoom?>(
-                            valueListenable:
-                                StudyRoomService.I.currentRoomNotifier,
+                            valueListenable: StudyRoomService.I.currentRoomNotifier,
                             builder: (_, room, _) {
                               if (room == null) return const SizedBox.shrink();
                               return StudyRoomBanner(
@@ -450,13 +501,12 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                                 theme: t,
                                 onLeave: _confirmLeaveRoom,
                                 onRotate: () => StudyRoomService.I.rotateNow(),
+                                onStartTimer: _startRoomSwapTimer,
                                 onVersionAssigned: _onAssignedVersionChanged,
                               );
                             },
                           ),
-                          Expanded(
-                            child: isWide ? _buildSplit(t) : _buildTabbed(t),
-                          ),
+                          Expanded(child: isWide ? _buildSplit(t) : _buildTabbed(t)),
                         ],
                       );
                     },
@@ -475,11 +525,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
+            icon: Icon(Icons.arrow_back_ios_new, color: t.textSecondary, size: 18),
             onPressed: () => Navigator.maybePop(context),
           ),
           Expanded(
@@ -499,10 +545,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                   ),
                   const SizedBox(width: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: t.accent.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(20),
@@ -528,15 +571,9 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           ),
           IconButton(
             tooltip: 'Tutorial',
-            icon: Icon(
-              Icons.help_outline,
-              color: t.textSecondary.withOpacity(0.6),
-              size: 20,
-            ),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => const StudyOnboardingOverlay(),
-            ),
+            icon: Icon(Icons.help_outline, color: t.textSecondary.withOpacity(0.6), size: 20),
+            onPressed: () =>
+                showDialog(context: context, builder: (_) => const StudyOnboardingOverlay()),
           ),
           TextButton.icon(
             onPressed: () => _openTypographySheet(t),
@@ -552,10 +589,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(color: t.accent.withOpacity(0.22)),
               ),
-              textStyle: GoogleFonts.manrope(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
+              textStyle: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(width: 4),
@@ -577,11 +611,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         children: [
           IconButton(
             visualDensity: VisualDensity.compact,
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
+            icon: Icon(Icons.arrow_back_ios_new, color: t.textSecondary, size: 18),
             onPressed: () => Navigator.maybePop(context),
           ),
           Expanded(
@@ -691,10 +721,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   ) {
     return PopupMenuItem(
       value: value,
-      child: Text(
-        label,
-        style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
-      ),
+      child: Text(label, style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13)),
     );
   }
 
@@ -705,9 +732,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         final answers = map['$_bookNumber:$_chapter'];
         final s = answers?.studyStartVerse;
         final e = answers?.studyEndVerse;
-        final label = (s != null && e != null)
-            ? (s == e ? 'v. $s' : 'v. $s–$e')
-            : 'Capítulo';
+        final label = (s != null && e != null) ? (s == e ? 'v. $s' : 'v. $s–$e') : 'Capítulo';
         return GestureDetector(
           onTap: _openRangePicker,
           behavior: HitTestBehavior.opaque,
@@ -726,11 +751,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.format_list_numbered,
-                  color: t.textSecondary,
-                  size: 14,
-                ),
+                Icon(Icons.format_list_numbered, color: t.textSecondary, size: 14),
                 const SizedBox(width: 6),
                 Text(
                   label,
@@ -797,9 +818,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     if (s == null || e == null) return _verses;
     final lo = s < e ? s : e;
     final hi = s < e ? e : s;
-    final filtered = _verses
-        .where((v) => v.verse >= lo && v.verse <= hi)
-        .toList(growable: false);
+    final filtered = _verses.where((v) => v.verse >= lo && v.verse <= hi).toList(growable: false);
     return filtered.isEmpty ? _verses : filtered;
   }
 
@@ -817,7 +836,19 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   String _versionsLabel() {
+    if (StudyRoomService.I.currentRoomNotifier.value != null) return _version.shortName;
     return '${_version.shortName} + ${_secondaryVersion.shortName}';
+  }
+
+  List<int> _mainVersePickerNumbers() {
+    final numbers = _visibleVerses().map((v) => v.verse).toSet()..addAll(_mainVerseNumbers);
+    return numbers.toList()..sort();
+  }
+
+  String _mainVerseReferenceLabel() {
+    final ranges = StudyChapterAnswers.verseRangesLabel(_mainVerseNumbers);
+    if (ranges.isEmpty) return 'Sin seleccionar';
+    return '$_bookName $_chapter:$ranges';
   }
 
   Future<void> _exportPdf() async {
@@ -826,21 +857,30 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       final action = await _pickPdfExportAction();
       if (action == null) return;
       final study = _currentStudySnapshot();
-      final highlights = StudyModeService.I.highlightsNotifier.value;
+      await StudyRoomService.I.publishAnswerSnapshot(study);
+      final inRoom = StudyRoomService.I.currentRoomNotifier.value != null;
+      final highlights = inRoom
+          ? _roomPdfHighlights()
+          : StudyModeService.I.highlightsNotifier.value;
+      final roomAnswers = inRoom
+          ? StudyRoomService.I.roomAnswerSnapshotsNotifier.value
+          : const <StudyRoomAnswerSnapshot>[];
       final file = action == _PdfExportAction.share
           ? await StudyExportService.I.exportAndShareStudy(
               study: study,
               chapterVerses: _verses,
-              secondaryChapterVerses: _secondaryVerses,
-              secondaryVersionId: _secondaryVersion.id,
+              secondaryChapterVerses: inRoom ? const [] : _secondaryVerses,
+              secondaryVersionId: inRoom ? null : _secondaryVersion.id,
               studyHighlights: highlights,
+              roomAnswerSnapshots: roomAnswers,
             )
           : await StudyExportService.I.exportStudyToPdf(
               study: study,
               chapterVerses: _verses,
-              secondaryChapterVerses: _secondaryVerses,
-              secondaryVersionId: _secondaryVersion.id,
+              secondaryChapterVerses: inRoom ? const [] : _secondaryVerses,
+              secondaryVersionId: inRoom ? null : _secondaryVersion.id,
               studyHighlights: highlights,
+              roomAnswerSnapshots: roomAnswers,
               saveToDownloads: true,
             );
       if (!mounted) return;
@@ -852,6 +892,17 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       if (!mounted) return;
       _showSnack('No se pudo exportar el PDF: $e');
     }
+  }
+
+  List<StudyWordHighlight> _roomPdfHighlights() {
+    final byId = {
+      for (final highlight in StudyRoomService.I.roomHighlightsNotifier.value)
+        highlight.id: highlight,
+    };
+    for (final highlight in StudyModeService.I.highlightsNotifier.value) {
+      byId.putIfAbsent(highlight.id, () => highlight);
+    }
+    return byId.values.toList(growable: false);
   }
 
   Future<_PdfExportAction?> _pickPdfExportAction() async {
@@ -871,8 +922,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       // Si ya está en una sala, ofrecer ver/salir.
       await showDialog(
         context: context,
-        builder: (_) =>
-            StudyRoomActiveDialog(room: current, onLeave: _confirmLeaveRoom),
+        builder: (_) => StudyRoomActiveDialog(room: current, onLeave: _confirmLeaveRoom),
       );
       return;
     }
@@ -904,10 +954,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       );
       if (form == null || !mounted) return;
       try {
-        await StudyRoomService.I.joinRoom(
-          code: form.code,
-          versionId: form.versionId,
-        );
+        await StudyRoomService.I.joinRoom(code: form.code, versionId: form.versionId);
         _showSnack('Te uniste a la sala ${form.code.toUpperCase()}');
       } catch (e) {
         _showSnack('No se pudo unir: $e');
@@ -925,14 +972,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           'Puedes volver a entrar usando el código.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Salir'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Salir')),
         ],
       ),
     );
@@ -945,9 +986,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   void _onAssignedVersionChanged(String versionId) {
     final v = BibleVersion.fromId(versionId);
     if (v == _version) return;
-    final secondary = v == _secondaryVersion
-        ? _defaultSecondaryVersion(v)
-        : _secondaryVersion;
+    final secondary = v == _secondaryVersion ? _defaultSecondaryVersion(v) : _secondaryVersion;
     unawaited(_changeVersions(v, secondary));
   }
 
@@ -992,9 +1031,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   Widget _buildReadingPanel(BibleReaderThemeData t) {
     return StudyReadingPanel(
-      key: ValueKey(
-        'reading_${_bookNumber}_${_chapter}_${_version.id}_${_secondaryVersion.id}',
-      ),
+      key: ValueKey('reading_${_bookNumber}_${_chapter}_${_version.id}_${_secondaryVersion.id}'),
       theme: t,
       verses: _visibleVerses(),
       secondaryVerses: _visibleSecondaryVerses(),
@@ -1002,6 +1039,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       secondaryVersion: _secondaryVersion,
       bookNumber: _bookNumber,
       chapter: _chapter,
+      showSecondary: StudyRoomService.I.currentRoomNotifier.value == null,
     );
   }
 
@@ -1010,8 +1048,14 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       theme: t,
       controllers: _controllers,
       generalNotesController: _generalNotesController,
+      hopeMessageController: _hopeMessageController,
+      mainVerseNumbers: _mainVersePickerNumbers(),
+      selectedMainVerses: Set.unmodifiable(_mainVerseNumbers),
+      mainVerseReference: _mainVerseReferenceLabel(),
       onChanged: _onAnswerChanged,
       onGeneralNotesChanged: _onGeneralNotesChanged,
+      onHopeMessageChanged: _onHopeMessageChanged,
+      onMainVerseToggled: _onMainVerseToggled,
       onManualSave: _flushAnswers,
       onExportPdf: _exportPdf,
       onPickSavedStudy: _openSavedStudiesPicker,
@@ -1022,6 +1066,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       reference: '$_bookName $_chapter',
       rangeLabel: _rangeLabel(),
       versionsLabel: _versionsLabel(),
+      roomMode: StudyRoomService.I.currentRoomNotifier.value != null,
     );
   }
 }
@@ -1042,9 +1087,7 @@ class _SavedStudiesSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
     return DraggableScrollableSheet(
       initialChildSize: studies.isEmpty ? 0.34 : 0.72,
@@ -1099,10 +1142,7 @@ class _SavedStudiesSheet extends StatelessWidget {
                             child: Text(
                               'Todavía no hay estudios guardados.',
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.manrope(
-                                color: t.textSecondary,
-                                fontSize: 13,
-                              ),
+                              style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 13),
                             ),
                           ),
                         )
@@ -1110,10 +1150,8 @@ class _SavedStudiesSheet extends StatelessWidget {
                           controller: scrollController,
                           padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                           itemCount: studies.length,
-                          separatorBuilder: (_, _) =>
-                              const SizedBox(height: 10),
-                          itemBuilder: (_, i) =>
-                              _SavedStudyTile(study: studies[i], theme: t),
+                          separatorBuilder: (_, _) => const SizedBox(height: 10),
+                          itemBuilder: (_, i) => _SavedStudyTile(study: studies[i], theme: t),
                         ),
                 ),
               ],
@@ -1134,18 +1172,14 @@ class _SavedStudyTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final answeredCount = study.answers.values
-        .where((answer) => answer.trim().isNotEmpty)
-        .length;
+    final answeredCount = study.answers.values.where((answer) => answer.trim().isNotEmpty).length;
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: () => Navigator.pop(context, study),
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+          color: t.isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: t.textSecondary.withOpacity(0.09)),
         ),
@@ -1174,8 +1208,11 @@ class _SavedStudyTile extends StatelessWidget {
               children: [
                 _StudyMiniChip(label: study.versionId, theme: t),
                 _StudyMiniChip(label: '$answeredCount respuestas', theme: t),
-                if (study.generalNotes.trim().isNotEmpty)
-                  _StudyMiniChip(label: 'Notas', theme: t),
+                if (study.generalNotes.trim().isNotEmpty) _StudyMiniChip(label: 'Notas', theme: t),
+                if (study.hopeMessage.trim().isNotEmpty)
+                  _StudyMiniChip(label: 'Esperanza', theme: t),
+                if (study.sortedMainVerses.isNotEmpty)
+                  _StudyMiniChip(label: 'Verso principal', theme: t),
                 _StudyMiniChip(label: _date(study.updatedAt), theme: t),
               ],
             ),
@@ -1186,9 +1223,7 @@ class _SavedStudyTile extends StatelessWidget {
   }
 
   String _referenceLabel(StudyChapterAnswers study) {
-    final bookName = study.bookName.trim().isEmpty
-        ? 'Libro ${study.bookNumber}'
-        : study.bookName;
+    final bookName = study.bookName.trim().isEmpty ? 'Libro ${study.bookNumber}' : study.bookName;
     if (study.studyStartVerse != null && study.studyEndVerse != null) {
       if (study.studyStartVerse == study.studyEndVerse) {
         return '$bookName ${study.chapter}:${study.studyStartVerse}';
@@ -1239,9 +1274,7 @@ class _PdfExportActionSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Container(
       decoration: BoxDecoration(
@@ -1321,9 +1354,7 @@ class _PdfActionTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+          color: t.isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: t.textSecondary.withOpacity(0.09)),
         ),
@@ -1346,11 +1377,7 @@ class _PdfActionTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary,
-                      fontSize: 12,
-                      height: 1.3,
-                    ),
+                    style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12, height: 1.3),
                   ),
                 ],
               ),
@@ -1372,10 +1399,7 @@ class _VersionPairSheet extends StatefulWidget {
   final BibleVersion initialPrimary;
   final BibleVersion initialSecondary;
 
-  const _VersionPairSheet({
-    required this.initialPrimary,
-    required this.initialSecondary,
-  });
+  const _VersionPairSheet({required this.initialPrimary, required this.initialSecondary});
 
   @override
   State<_VersionPairSheet> createState() => _VersionPairSheetState();
@@ -1402,9 +1426,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Container(
       decoration: BoxDecoration(
@@ -1441,11 +1463,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
             Text(
               'Se recomienda leer el pasaje en dos traducciones. La primera '
               'mantiene tus subrayados; la segunda sirve para comparar.',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary,
-                fontSize: 12,
-                height: 1.4,
-              ),
+              style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12, height: 1.4),
             ),
             const SizedBox(height: 18),
             _VersionDropdown(
@@ -1472,10 +1490,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancelar',
-                    style: TextStyle(color: t.textSecondary),
-                  ),
+                  child: Text('Cancelar', style: TextStyle(color: t.textSecondary)),
                 ),
                 const Spacer(),
                 ElevatedButton.icon(
@@ -1484,13 +1499,8 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
                     foregroundColor: t.background,
                   ),
                   icon: const Icon(Icons.compare_arrows, size: 17),
-                  label: Text(
-                    '${_primary.shortName} + ${_secondary.shortName}',
-                  ),
-                  onPressed: () => Navigator.pop(
-                    context,
-                    _VersionPairResult(_primary, _secondary),
-                  ),
+                  label: Text('${_primary.shortName} + ${_secondary.shortName}'),
+                  onPressed: () => Navigator.pop(context, _VersionPairResult(_primary, _secondary)),
                 ),
               ],
             ),
@@ -1570,11 +1580,7 @@ class _VerseRangeSheet extends StatefulWidget {
   final int maxVerse;
   final int? initialStart;
   final int? initialEnd;
-  const _VerseRangeSheet({
-    required this.maxVerse,
-    this.initialStart,
-    this.initialEnd,
-  });
+  const _VerseRangeSheet({required this.maxVerse, this.initialStart, this.initialEnd});
 
   @override
   State<_VerseRangeSheet> createState() => _VerseRangeSheetState();
@@ -1595,9 +1601,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Container(
       decoration: BoxDecoration(
@@ -1630,13 +1634,9 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
           ),
           const SizedBox(height: 4),
           Text(
-            'Las respuestas de las 6 preguntas se mostrarán como nota '
-            'en cada uno de los versículos seleccionados.',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary,
-              fontSize: 12,
-              height: 1.4,
-            ),
+            'Las respuestas, el mensaje de esperanza y el Verso Principal '
+            'se mostrarán como nota en cada uno de los versículos seleccionados.',
+            style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12, height: 1.4),
           ),
           const SizedBox(height: 20),
           Row(
@@ -1674,8 +1674,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                 icon: const Icon(Icons.clear, size: 16),
                 label: const Text('Capítulo completo'),
                 style: TextButton.styleFrom(foregroundColor: t.textSecondary),
-                onPressed: () =>
-                    Navigator.pop(context, const _RangeResult(null, null)),
+                onPressed: () => Navigator.pop(context, const _RangeResult(null, null)),
               ),
               const Spacer(),
               ElevatedButton(
@@ -1683,13 +1682,8 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                   backgroundColor: t.accent,
                   foregroundColor: t.background,
                 ),
-                onPressed: () =>
-                    Navigator.pop(context, _RangeResult(_start, _end)),
-                child: Text(
-                  _start == _end
-                      ? 'Estudiar v. $_start'
-                      : 'Estudiar v. $_start–$_end',
-                ),
+                onPressed: () => Navigator.pop(context, _RangeResult(_start, _end)),
+                child: Text(_start == _end ? 'Estudiar v. $_start' : 'Estudiar v. $_start–$_end'),
               ),
             ],
           ),
@@ -1806,13 +1800,7 @@ class _TypographySheet extends StatelessWidget {
               builder: (_, size, _) {
                 return Row(
                   children: [
-                    Text(
-                      'A',
-                      style: GoogleFonts.lora(
-                        color: t.textSecondary,
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text('A', style: GoogleFonts.lora(color: t.textSecondary, fontSize: 14)),
                     Expanded(
                       child: Slider(
                         value: size,
@@ -1824,13 +1812,7 @@ class _TypographySheet extends StatelessWidget {
                         onChanged: (v) => BibleUserDataService.I.setFontSize(v),
                       ),
                     ),
-                    Text(
-                      'A',
-                      style: GoogleFonts.lora(
-                        color: t.textSecondary,
-                        fontSize: 26,
-                      ),
-                    ),
+                    Text('A', style: GoogleFonts.lora(color: t.textSecondary, fontSize: 26)),
                   ],
                 );
               },
@@ -1863,18 +1845,14 @@ class _TypographySheet extends StatelessWidget {
                           color: th.swatchColor,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isActive
-                                ? t.accent
-                                : t.textSecondary.withOpacity(0.2),
+                            color: isActive ? t.accent : t.textSecondary.withOpacity(0.2),
                             width: isActive ? 2.5 : 1,
                           ),
                         ),
                         child: isActive
                             ? Icon(
                                 Icons.check,
-                                color: th.isDark
-                                    ? Colors.white70
-                                    : Colors.black54,
+                                color: th.isDark ? Colors.white70 : Colors.black54,
                                 size: 16,
                               )
                             : null,

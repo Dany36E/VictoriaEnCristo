@@ -39,6 +39,7 @@ export {
   joinStudyRoom,
   leaveStudyRoom,
   rotateStudyVersions,
+  startStudyRoomSwapTimer,
   studyRoomAutoSwap,
 } from "./studyRoomFunctions";
 

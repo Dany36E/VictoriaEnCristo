@@ -72,6 +72,18 @@ void main() {
       expect(a.hasContent, isTrue);
     });
 
+    test('hasContent es true con mensaje de esperanza o verso principal', () {
+      final base = StudyChapterAnswers.empty(
+        bookNumber: 43,
+        bookName: 'Juan',
+        chapter: 5,
+        versionId: 'RVR1960',
+      );
+
+      expect(base.copyWith(hopeMessage: 'Jesús quiere sanarte.').hasContent, isTrue);
+      expect(base.copyWith(mainVerses: [6]).hasContent, isTrue);
+    });
+
     test('toMarkdown omite respuestas vacías y respeta orden de preguntas', () {
       final a =
           StudyChapterAnswers.empty(
@@ -88,11 +100,29 @@ void main() {
           );
       final md = a.toMarkdown();
       // about_god va primero según orden canónico
-      expect(
-        md.indexOf('El Verbo es Dios.'),
-        lessThan(md.indexOf('Confiar en la Palabra hoy.')),
-      );
+      expect(md.indexOf('El Verbo es Dios.'), lessThan(md.indexOf('Confiar en la Palabra hoy.')));
       expect(md.contains('ignorar'), isFalse);
+    });
+
+    test('toMarkdown incluye mensaje de esperanza y Verso Principal', () {
+      final a =
+          StudyChapterAnswers.empty(
+            bookNumber: 43,
+            bookName: 'Juan',
+            chapter: 5,
+            versionId: 'RVR1960',
+          ).copyWith(
+            answers: {'about_god': 'Jesús ve al enfermo.'},
+            hopeMessage: 'Jesús quiere sanarte.',
+            mainVerses: [7, 5, 6, 9],
+          );
+
+      final md = a.toMarkdown();
+      expect(md, contains('**Mensaje de esperanza**'));
+      expect(md, contains('Jesús quiere sanarte.'));
+      expect(md, contains('**Verso Principal**'));
+      expect(md, contains('Juan 5:5-7, 9'));
+      expect(md.indexOf('Jesús ve al enfermo.'), lessThan(md.indexOf('**Mensaje de esperanza**')));
     });
 
     test('docId y chapterKey', () {
@@ -152,25 +182,29 @@ void main() {
 
     test('reference incluye rango cuando aplica', () {
       expect(makeBase().reference, 'Juan 4');
-      expect(
-        makeBase().copyWith(studyStartVerse: 7, studyEndVerse: 7).reference,
-        'Juan 4:7',
-      );
-      expect(
-        makeBase().copyWith(studyStartVerse: 44, studyEndVerse: 51).reference,
-        'Juan 4:44-51',
-      );
+      expect(makeBase().copyWith(studyStartVerse: 7, studyEndVerse: 7).reference, 'Juan 4:7');
+      expect(makeBase().copyWith(studyStartVerse: 44, studyEndVerse: 51).reference, 'Juan 4:44-51');
     });
 
     test('serialización roundtrip preserva el rango', () {
-      final a = makeBase().copyWith(studyStartVerse: 44, studyEndVerse: 51);
+      final a = makeBase().copyWith(
+        studyStartVerse: 44,
+        studyEndVerse: 51,
+        hopeMessage: 'Cristo recibe al que busca agua viva.',
+        mainVerses: [51, 44, 44, 50],
+      );
       final map = a.toMap();
       expect(map['studyStartVerse'], 44);
       expect(map['studyEndVerse'], 51);
+      expect(map['hopeMessage'], 'Cristo recibe al que busca agua viva.');
+      expect(map['mainVerses'], [44, 50, 51]);
       final round = StudyChapterAnswers.fromMap(map);
       expect(round.studyStartVerse, 44);
       expect(round.studyEndVerse, 51);
       expect(round.reference, 'Juan 4:44-51');
+      expect(round.hopeMessage, 'Cristo recibe al que busca agua viva.');
+      expect(round.sortedMainVerses, [44, 50, 51]);
+      expect(round.mainVerseReference, 'Juan 4:44, 50-51');
     });
 
     test('serialización omite el rango cuando es null', () {

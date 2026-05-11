@@ -9,6 +9,8 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 import '../../models/bible/study_room.dart';
+import '../../models/bible/study_chapter_answers.dart';
+import '../../models/bible/study_word_highlight.dart';
 import '../auth_service.dart' show kCloudFunctionRegion;
 import '../../utils/platform_capabilities.dart';
 
@@ -25,8 +27,14 @@ class StudyRoomService {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   StreamSubscription<DocumentSnapshot<Map<String, dynamic>>>? _roomSub;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _roomHighlightsSub;
+  StreamSubscription<QuerySnapshot<Map<String, dynamic>>>? _roomAnswersSub;
 
   final ValueNotifier<StudyRoom?> currentRoomNotifier = ValueNotifier<StudyRoom?>(null);
+  final ValueNotifier<List<StudyWordHighlight>> roomHighlightsNotifier = ValueNotifier(const []);
+  final ValueNotifier<List<StudyRoomAnswerSnapshot>> roomAnswerSnapshotsNotifier = ValueNotifier(
+    const [],
+  );
 
   String? get _uid => FirebaseAuth.instance.currentUser?.uid;
   bool get _signedIn => _uid != null;
@@ -40,8 +48,14 @@ class StudyRoomService {
   /// Llamar al cerrar sesión.
   Future<void> stop() async {
     await _roomSub?.cancel();
+    await _roomHighlightsSub?.cancel();
+    await _roomAnswersSub?.cancel();
     _roomSub = null;
+    _roomHighlightsSub = null;
+    _roomAnswersSub = null;
     currentRoomNotifier.value = null;
+    roomHighlightsNotifier.value = const [];
+    roomAnswerSnapshotsNotifier.value = const [];
   }
 
   /// Crea una sala. Devuelve la sala creada.
@@ -96,8 +110,14 @@ class StudyRoomService {
       await _callFunction('leaveStudyRoom', {'code': code});
     } finally {
       await _roomSub?.cancel();
+      await _roomHighlightsSub?.cancel();
+      await _roomAnswersSub?.cancel();
       _roomSub = null;
+      _roomHighlightsSub = null;
+      _roomAnswersSub = null;
       currentRoomNotifier.value = null;
+      roomHighlightsNotifier.value = const [];
+      roomAnswerSnapshotsNotifier.value = const [];
     }
   }
 
@@ -106,6 +126,138 @@ class StudyRoomService {
     final code = currentRoomNotifier.value?.code;
     if (code == null) return;
     await _callFunction('rotateStudyVersions', {'code': code, 'force': true});
+  }
+
+  Future<void> startSwapTimer() async {
+    final code = currentRoomNotifier.value?.code;
+    if (code == null) return;
+    await _callFunction('startStudyRoomSwapTimer', {'code': code});
+  }
+
+  Future<void> publishHighlight(StudyWordHighlight highlight) async {
+    final room = currentRoomNotifier.value;
+    final uid = _uid;
+    if (room == null || uid == null || !_highlightBelongsToRoom(highlight, room)) return;
+    final owned = _ownedHighlight(highlight, room, uid);
+    try {
+      await _db
+          .collection('studyRooms')
+          .doc(room.code)
+          .collection('highlights')
+          .doc(owned.id)
+          .set(owned.toMap(), SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('[STUDY-ROOM] publishHighlight error: $e');
+    }
+  }
+
+  Future<void> publishHighlights(Iterable<StudyWordHighlight> highlights) async {
+    final room = currentRoomNotifier.value;
+    final uid = _uid;
+    if (room == null || uid == null) return;
+    final filtered = highlights
+        .where((highlight) => _highlightBelongsToRoom(highlight, room))
+        .map((highlight) => _ownedHighlight(highlight, room, uid))
+        .toList(growable: false);
+    if (filtered.isEmpty) return;
+
+    try {
+      WriteBatch batch = _db.batch();
+      var writes = 0;
+      Future<void> commitBatch() async {
+        if (writes == 0) return;
+        await batch.commit();
+        batch = _db.batch();
+        writes = 0;
+      }
+
+      for (final highlight in filtered) {
+        final ref = _db
+            .collection('studyRooms')
+            .doc(room.code)
+            .collection('highlights')
+            .doc(highlight.id);
+        batch.set(ref, highlight.toMap(), SetOptions(merge: true));
+        writes++;
+        if (writes >= 450) await commitBatch();
+      }
+      await commitBatch();
+    } catch (e) {
+      debugPrint('[STUDY-ROOM] publishHighlights error: $e');
+    }
+  }
+
+  Future<void> deleteHighlight(String highlightId) async {
+    final room = currentRoomNotifier.value;
+    if (room == null || _uid == null) return;
+    try {
+      await _db
+          .collection('studyRooms')
+          .doc(room.code)
+          .collection('highlights')
+          .doc(highlightId)
+          .delete();
+    } catch (e) {
+      debugPrint('[STUDY-ROOM] deleteHighlight error: $e');
+    }
+  }
+
+  Future<void> publishAnswerSnapshot(StudyChapterAnswers study) async {
+    final room = currentRoomNotifier.value;
+    final uid = _uid;
+    if (room == null || uid == null) return;
+    if (study.bookNumber != room.bookNumber || study.chapter != room.chapter) return;
+
+    final snapshot = StudyRoomAnswerSnapshot(
+      uid: uid,
+      displayName: _displayNameFor(uid, room),
+      versionId: study.versionId,
+      answers: study.answers,
+      generalNotes: study.generalNotes,
+      hopeMessage: study.hopeMessage,
+      mainVerses: study.sortedMainVerses,
+      updatedAt: DateTime.now(),
+    );
+    _upsertAnswerSnapshot(snapshot);
+
+    try {
+      await _db
+          .collection('studyRooms')
+          .doc(room.code)
+          .collection('answerSnapshots')
+          .doc(uid)
+          .set(snapshot.toMap(), SetOptions(merge: true));
+    } catch (e) {
+      debugPrint('[STUDY-ROOM] publishAnswerSnapshot error: $e');
+    }
+  }
+
+  StudyWordHighlight _ownedHighlight(StudyWordHighlight highlight, StudyRoom room, String uid) {
+    return highlight.copyWith(ownerUid: uid, ownerName: _displayNameFor(uid, room));
+  }
+
+  String _displayNameFor(String uid, StudyRoom room) {
+    final roomName = room.members[uid]?.displayName.trim();
+    if (roomName != null && roomName.isNotEmpty) return roomName;
+    final authName = FirebaseAuth.instance.currentUser?.displayName?.trim();
+    if (authName != null && authName.isNotEmpty) return authName;
+    return 'Compañero';
+  }
+
+  bool _highlightBelongsToRoom(StudyWordHighlight highlight, StudyRoom room) {
+    if (highlight.bookNumber != room.bookNumber || highlight.chapter != room.chapter) {
+      return false;
+    }
+    return room.members.values.any((member) => member.versionId == highlight.versionId);
+  }
+
+  void _upsertAnswerSnapshot(StudyRoomAnswerSnapshot snapshot) {
+    final next = [
+      for (final item in roomAnswerSnapshotsNotifier.value)
+        if (item.uid != snapshot.uid) item,
+      snapshot,
+    ]..sort((a, b) => a.displayName.compareTo(b.displayName));
+    roomAnswerSnapshotsNotifier.value = List.unmodifiable(next);
   }
 
   Future<Map<String, dynamic>> _callFunction(String name, Map<String, dynamic> data) async {
@@ -198,12 +350,20 @@ class StudyRoomService {
 
   Future<StudyRoom> _bindRoom(String code) async {
     await _roomSub?.cancel();
+    await _roomHighlightsSub?.cancel();
+    await _roomAnswersSub?.cancel();
+    roomHighlightsNotifier.value = const [];
+    roomAnswerSnapshotsNotifier.value = const [];
     final ref = _db.collection('studyRooms').doc(code);
     final completer = Completer<StudyRoom>();
+    _listenRoomHighlights(code);
+    _listenRoomAnswerSnapshots(code);
     _roomSub = ref.snapshots().listen(
       (snap) {
         if (!snap.exists) {
           currentRoomNotifier.value = null;
+          roomHighlightsNotifier.value = const [];
+          roomAnswerSnapshotsNotifier.value = const [];
           if (!completer.isCompleted) {
             completer.completeError(StateError('La sala fue cerrada o no existe.'));
           }
@@ -221,6 +381,48 @@ class StudyRoomService {
       },
     );
     return completer.future;
+  }
+
+  void _listenRoomHighlights(String code) {
+    _roomHighlightsSub = _db
+        .collection('studyRooms')
+        .doc(code)
+        .collection('highlights')
+        .orderBy('createdAt')
+        .snapshots()
+        .listen((snap) {
+          final list = <StudyWordHighlight>[];
+          for (final doc in snap.docs) {
+            try {
+              list.add(StudyWordHighlight.fromMap(doc.id, doc.data()));
+            } catch (e) {
+              debugPrint('[STUDY-ROOM] highlight parse error: $e');
+            }
+          }
+          roomHighlightsNotifier.value = List.unmodifiable(list);
+        }, onError: (e) => debugPrint('[STUDY-ROOM] room highlights stream error: $e'));
+  }
+
+  void _listenRoomAnswerSnapshots(String code) {
+    _roomAnswersSub = _db
+        .collection('studyRooms')
+        .doc(code)
+        .collection('answerSnapshots')
+        .orderBy('updatedAt')
+        .snapshots()
+        .listen((snap) {
+          final list = <StudyRoomAnswerSnapshot>[];
+          for (final doc in snap.docs) {
+            try {
+              final data = doc.data();
+              data['uid'] ??= doc.id;
+              list.add(StudyRoomAnswerSnapshot.fromMap(data));
+            } catch (e) {
+              debugPrint('[STUDY-ROOM] answer snapshot parse error: $e');
+            }
+          }
+          roomAnswerSnapshotsNotifier.value = List.unmodifiable(list);
+        }, onError: (e) => debugPrint('[STUDY-ROOM] room answers stream error: $e'));
   }
 }
 
