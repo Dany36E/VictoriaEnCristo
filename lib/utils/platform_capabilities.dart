@@ -43,6 +43,14 @@ class PlatformCapabilities {
     };
   }
 
+  static bool get supportsCloudFunctionsPlugin {
+    if (kIsWeb) return true;
+    return switch (defaultTargetPlatform) {
+      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      _ => false,
+    };
+  }
+
   static bool get supportsGoogleSignIn {
     if (kIsWeb) return true;
     return switch (defaultTargetPlatform) {
