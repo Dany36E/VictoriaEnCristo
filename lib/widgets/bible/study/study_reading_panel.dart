@@ -200,17 +200,11 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
                           _toggleWord(widget.primaryVersion.id, v.verse, idx),
                       onTapSecondaryWord: secondary == null
                           ? null
-                          : (idx) => _toggleWord(
-                              widget.secondaryVersion.id,
-                              secondary.verse,
-                              idx,
-                            ),
+                          : (idx) => _toggleWord(widget.secondaryVersion.id, secondary.verse, idx),
                     );
                   },
                 ),
-                if (_activeVerse != null &&
-                    _startWord != null &&
-                    _endWord != null)
+                if (_activeVerse != null && _startWord != null && _endWord != null)
                   Positioned(
                     left: 12,
                     right: 12,
@@ -286,9 +280,7 @@ class _VerseComparisonRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       decoration: BoxDecoration(
-        color: t.isDark
-            ? Colors.white.withOpacity(0.025)
-            : Colors.black.withOpacity(0.025),
+        color: t.isDark ? Colors.white.withOpacity(0.025) : Colors.black.withOpacity(0.025),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.textSecondary.withOpacity(0.08)),
       ),
@@ -301,9 +293,7 @@ class _VerseComparisonRow extends StatelessWidget {
             theme: t,
             fontSize: fontSize,
             highlights: primaryHighlights,
-            activeVerse: activeVersionId == primaryVersion.id
-                ? activeVerse
-                : null,
+            activeVerse: activeVersionId == primaryVersion.id ? activeVerse : null,
             startWord: startWord,
             endWord: endWord,
             onTapWord: onTapPrimaryWord,
@@ -324,9 +314,7 @@ class _VerseComparisonRow extends StatelessWidget {
               theme: t,
               fontSize: fontSize * 0.92,
               highlights: secondaryHighlights,
-              activeVerse: activeVersionId == secondaryVersion.id
-                  ? activeVerse
-                  : null,
+              activeVerse: activeVersionId == secondaryVersion.id ? activeVerse : null,
               startWord: startWord,
               endWord: endWord,
               onTapWord: onTapSecondaryWord!,
@@ -343,11 +331,7 @@ class _VersionLabel extends StatelessWidget {
   final BibleReaderThemeData theme;
   final bool muted;
 
-  const _VersionLabel({
-    required this.version,
-    required this.theme,
-    this.muted = false,
-  });
+  const _VersionLabel({required this.version, required this.theme, this.muted = false});
 
   @override
   Widget build(BuildContext context) {
@@ -429,10 +413,7 @@ class _VerseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final tokens = verse.text
-        .split(RegExp(r'\s+'))
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final tokens = verse.text.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
     final isSelectingHere = activeVerse == verse.verse;
 
     return Padding(
@@ -506,9 +487,7 @@ class _WordChip extends StatelessWidget {
     final t = theme;
     final bg = selected
         ? t.accent.withOpacity(0.35)
-        : (colors.isNotEmpty
-              ? colors.last.withOpacity(0.20)
-              : Colors.transparent);
+        : (colors.isNotEmpty ? colors.last.withOpacity(0.20) : Colors.transparent);
     final border = selected ? Border.all(color: t.accent, width: 1) : null;
     return GestureDetector(
       onTap: onTap,
@@ -539,12 +518,7 @@ class _WordChip extends StatelessWidget {
                 child: Row(
                   children: [
                     for (final color in colors)
-                      Expanded(
-                        child: Container(
-                          height: 3,
-                          color: color.withOpacity(0.9),
-                        ),
-                      ),
+                      Expanded(child: Container(height: 3, color: color.withOpacity(0.9))),
                   ],
                 ),
               ),
@@ -585,12 +559,8 @@ class _ColorToolbar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             for (final code in StudyHighlightCode.values)
-              _ColorButton(
-                color: code.color,
-                label: code.label,
-                onTap: () => onPick(code),
-              ),
-            _TransparentColorButton(onTap: onClear),
+              _ColorButton(color: code.color, label: code.label, onTap: () => onPick(code)),
+            _TransparentColorButton(theme: t, onTap: onClear),
             Container(
               width: 1,
               height: 24,
@@ -654,12 +624,15 @@ class _ReadingControlsRow extends StatelessWidget {
 }
 
 class _TransparentColorButton extends StatelessWidget {
+  final BibleReaderThemeData theme;
   final VoidCallback onTap;
 
-  const _TransparentColorButton({required this.onTap});
+  const _TransparentColorButton({required this.theme, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final t = theme;
+    final stroke = t.textPrimary.withOpacity(t.isDark ? 0.76 : 0.64);
     return Tooltip(
       message: 'Borrar color seleccionado',
       child: InkWell(
@@ -671,11 +644,12 @@ class _TransparentColorButton extends StatelessWidget {
             width: 26,
             height: 26,
             decoration: BoxDecoration(
-              color: Colors.transparent,
+              color: t.textPrimary.withOpacity(t.isDark ? 0.08 : 0.05),
               shape: BoxShape.circle,
-              border: Border.all(color: Colors.white.withOpacity(0.55)),
+              border: Border.all(color: stroke, width: 1.6),
+              boxShadow: [BoxShadow(color: stroke.withOpacity(0.16), blurRadius: 6)],
             ),
-            child: CustomPaint(painter: _TransparentSwatchPainter()),
+            child: CustomPaint(painter: _TransparentSwatchPainter(stroke)),
           ),
         ),
       ),
@@ -684,11 +658,16 @@ class _TransparentColorButton extends StatelessWidget {
 }
 
 class _TransparentSwatchPainter extends CustomPainter {
+  final Color color;
+
+  const _TransparentSwatchPainter(this.color);
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withOpacity(0.18)
-      ..strokeWidth = 2;
+      ..color = color
+      ..strokeWidth = 2.2
+      ..strokeCap = StrokeCap.round;
     canvas.drawLine(
       Offset(size.width * 0.2, size.height * 0.8),
       Offset(size.width * 0.8, size.height * 0.2),
@@ -705,11 +684,7 @@ class _UndoRedoBar extends StatelessWidget {
   final VoidCallback onUndo;
   final VoidCallback onRedo;
 
-  const _UndoRedoBar({
-    required this.theme,
-    required this.onUndo,
-    required this.onRedo,
-  });
+  const _UndoRedoBar({required this.theme, required this.onUndo, required this.onRedo});
 
   @override
   Widget build(BuildContext context) {
@@ -733,10 +708,7 @@ class _UndoRedoBar extends StatelessWidget {
                 icon: const Icon(Icons.undo, size: 18),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 36,
-                  height: 34,
-                ),
+                constraints: const BoxConstraints.tightFor(width: 36, height: 34),
                 color: canUndo ? t.accent : t.textSecondary.withOpacity(0.35),
                 onPressed: canUndo ? onUndo : null,
               ),
@@ -748,10 +720,7 @@ class _UndoRedoBar extends StatelessWidget {
                 icon: const Icon(Icons.redo, size: 18),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 36,
-                  height: 34,
-                ),
+                constraints: const BoxConstraints.tightFor(width: 36, height: 34),
                 color: canRedo ? t.accent : t.textSecondary.withOpacity(0.35),
                 onPressed: canRedo ? onRedo : null,
               ),
@@ -768,11 +737,7 @@ class _ColorButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _ColorButton({
-    required this.color,
-    required this.label,
-    required this.onTap,
-  });
+  const _ColorButton({required this.color, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -789,9 +754,7 @@ class _ColorButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: color.withOpacity(0.5), blurRadius: 8),
-              ],
+              boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8)],
             ),
           ),
         ),
