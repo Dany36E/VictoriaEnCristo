@@ -11,6 +11,49 @@ import '../../models/bible/study_chapter_answers.dart';
 import '../../models/bible/study_room.dart';
 import '../../models/bible/study_word_highlight.dart';
 
+/// Conjunto de datos por participante de una sala de estudio para exportar al
+/// PDF combinado. Cada `StudyParticipantBundle` agrupa los resaltados de cada
+/// versión que el usuario leyó y sus respuestas privadas.
+class StudyParticipantBundle {
+  final String uid;
+  final String displayName;
+  final List<StudyParticipantVersion> versions;
+  final Map<String, String> answers;
+  final String hopeMessage;
+  final String mainVerseReference;
+  final String generalNotes;
+  final String currentVersionId;
+
+  const StudyParticipantBundle({
+    required this.uid,
+    required this.displayName,
+    required this.versions,
+    required this.answers,
+    required this.hopeMessage,
+    required this.mainVerseReference,
+    required this.generalNotes,
+    required this.currentVersionId,
+  });
+
+  bool get hasAnyContent =>
+      versions.any((v) => v.highlights.isNotEmpty || v.verses.isNotEmpty) ||
+      answers.values.any((value) => value.trim().isNotEmpty) ||
+      hopeMessage.trim().isNotEmpty ||
+      generalNotes.trim().isNotEmpty;
+}
+
+class StudyParticipantVersion {
+  final String versionId;
+  final List<BibleVerse> verses;
+  final List<StudyWordHighlight> highlights;
+
+  const StudyParticipantVersion({
+    required this.versionId,
+    required this.verses,
+    required this.highlights,
+  });
+}
+
 class StudyExportService {
   StudyExportService._();
   static final StudyExportService I = StudyExportService._();
@@ -117,6 +160,299 @@ class StudyExportService {
       text: 'Estudio bíblico ${study.reference}',
     );
     return file;
+  }
+
+  /// Exporta un PDF agrupado por participante de la sala. Cada participante
+  /// aparece con todas las versiones que leyó (con sus resaltados privados)
+  /// seguidas de sus respuestas, mensaje de esperanza y notas. Al final se
+  /// añade una sección combinada "Todo junto" con las respuestas de todos.
+  Future<File> exportRoomStudyToPdf({
+    required StudyChapterAnswers study,
+    required List<StudyParticipantBundle> participants,
+    List<StudyRoomAnswerSnapshot> roomAnswerSnapshots = const [],
+    bool saveToDownloads = false,
+  }) async {
+    final fontRegular = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Regular.ttf'));
+    final fontBold = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Bold.ttf'));
+    final fontItalic = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Italic.ttf'));
+
+    final doc = pw.Document(
+      title: 'Estudio en grupo ${study.reference}',
+      author: 'Victoria en Cristo',
+      creator: 'Victoria en Cristo',
+    );
+
+    doc.addPage(
+      pw.MultiPage(
+        pageTheme: pw.PageTheme(
+          margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42),
+          theme: pw.ThemeData.withFont(base: fontRegular, bold: fontBold, italic: fontItalic),
+        ),
+        footer: (context) => pw.Align(
+          alignment: pw.Alignment.centerRight,
+          child: pw.Text(
+            'Victoria en Cristo · Página ${context.pageNumber} de ${context.pagesCount}',
+            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+          ),
+        ),
+        build: (context) => [
+          _header(study),
+          pw.SizedBox(height: 8),
+          pw.Text(
+            'Estudio colaborativo · ${participants.length} '
+            '${participants.length == 1 ? 'participante' : 'participantes'}',
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+          ),
+          pw.SizedBox(height: 16),
+          if (participants.isEmpty)
+            pw.Text(
+              'Sin participantes registrados todavía.',
+              style: pw.TextStyle(
+                fontSize: 11,
+                color: PdfColors.grey600,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            )
+          else
+            for (var i = 0; i < participants.length; i++)
+              ..._participantSection(study, participants[i], index: i + 1),
+          if (roomAnswerSnapshots.isNotEmpty) ...[
+            pw.SizedBox(height: 20),
+            _sectionTitle('Todo junto · Respuestas combinadas'),
+            pw.SizedBox(height: 8),
+            ..._roomReflection(roomAnswerSnapshots),
+          ],
+        ],
+      ),
+    );
+
+    return _writePdf(await doc.save(), study, saveToDownloads: saveToDownloads);
+  }
+
+  Future<File> exportAndShareRoomStudy({
+    required StudyChapterAnswers study,
+    required List<StudyParticipantBundle> participants,
+    List<StudyRoomAnswerSnapshot> roomAnswerSnapshots = const [],
+  }) async {
+    final file = await exportRoomStudyToPdf(
+      study: study,
+      participants: participants,
+      roomAnswerSnapshots: roomAnswerSnapshots,
+    );
+    await Share.shareXFiles(
+      [XFile(file.path, mimeType: 'application/pdf')],
+      subject: 'Estudio en grupo ${study.reference}',
+      text: 'Estudio bíblico colaborativo ${study.reference}',
+    );
+    return file;
+  }
+
+  List<pw.Widget> _participantSection(
+    StudyChapterAnswers study,
+    StudyParticipantBundle participant, {
+    required int index,
+  }) {
+    return [
+      pw.SizedBox(height: 14),
+      pw.Container(
+        width: double.infinity,
+        padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+        decoration: pw.BoxDecoration(
+          color: const PdfColor(0.96, 0.92, 0.78),
+          borderRadius: pw.BorderRadius.circular(6),
+        ),
+        child: pw.Text(
+          'Usuario $index · ${participant.displayName}',
+          style: pw.TextStyle(
+            fontSize: 14,
+            fontWeight: pw.FontWeight.bold,
+            color: const PdfColor(0.12, 0.16, 0.20),
+          ),
+        ),
+      ),
+      pw.SizedBox(height: 10),
+      _sectionTitle('Texto bíblico con subrayados'),
+      pw.SizedBox(height: 6),
+      if (participant.versions.isEmpty)
+        pw.Text(
+          'Este participante no registró versiones todavía.',
+          style: pw.TextStyle(
+            fontSize: 10.8,
+            color: PdfColors.grey600,
+            fontStyle: pw.FontStyle.italic,
+          ),
+        )
+      else
+        for (final version in participant.versions)
+          ..._participantVersionBlock(study, version),
+      pw.SizedBox(height: 12),
+      _sectionTitle('Preguntas y respuestas'),
+      pw.SizedBox(height: 6),
+      ..._participantAnswersBlock(participant),
+      pw.SizedBox(height: 12),
+      _sectionTitle('Mensaje de esperanza'),
+      pw.SizedBox(height: 6),
+      _participantHopeBlock(participant),
+      pw.SizedBox(height: 12),
+      _sectionTitle('Notas generales'),
+      pw.SizedBox(height: 6),
+      _participantNotesBlock(participant),
+      pw.SizedBox(height: 6),
+      pw.Divider(color: PdfColors.grey300, thickness: 0.5),
+    ];
+  }
+
+  List<pw.Widget> _participantVersionBlock(
+    StudyChapterAnswers study,
+    StudyParticipantVersion version,
+  ) {
+    final selected = _selectedVerses(study, version.verses);
+    return [
+      pw.SizedBox(height: 6),
+      pw.Text(
+        'Versión: ${version.versionId}',
+        style: pw.TextStyle(
+          fontSize: 11,
+          fontWeight: pw.FontWeight.bold,
+          color: const PdfColor(0.72, 0.58, 0.20),
+        ),
+      ),
+      pw.SizedBox(height: 4),
+      if (selected.isEmpty)
+        pw.Text(
+          'Sin versículos cargados para esta versión.',
+          style: pw.TextStyle(
+            fontSize: 10.8,
+            color: PdfColors.grey600,
+            fontStyle: pw.FontStyle.italic,
+          ),
+        )
+      else
+        for (final verse in selected)
+          pw.Padding(
+            padding: const pw.EdgeInsets.only(bottom: 6),
+            child: _highlightedVerseText(
+              verse: verse,
+              highlights: _highlightsForVerse(version.highlights, verse),
+              fontSize: 11,
+              numberColor: const PdfColor(0.72, 0.58, 0.20),
+              textColor: PdfColors.grey900,
+            ),
+          ),
+    ];
+  }
+
+  List<pw.Widget> _participantAnswersBlock(StudyParticipantBundle participant) {
+    return [
+      for (final question in kStudyQuestions)
+        _answerCard(
+          prompt: question.prompt,
+          answer: (participant.answers[question.id] ?? '').trim(),
+        ),
+    ];
+  }
+
+  pw.Widget _answerCard({required String prompt, required String answer}) {
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 8),
+      padding: const pw.EdgeInsets.all(10),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey100,
+        borderRadius: pw.BorderRadius.circular(6),
+        border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            prompt,
+            style: pw.TextStyle(
+              fontSize: 11.5,
+              fontWeight: pw.FontWeight.bold,
+              color: const PdfColor(0.12, 0.16, 0.20),
+            ),
+          ),
+          pw.SizedBox(height: 4),
+          pw.Text(
+            answer.isEmpty ? 'Sin respuesta todavía.' : answer,
+            style: pw.TextStyle(
+              fontSize: 11,
+              lineSpacing: 2,
+              color: answer.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+              fontStyle: answer.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _participantHopeBlock(StudyParticipantBundle participant) {
+    final message = participant.hopeMessage.trim();
+    final mainReference = participant.mainVerseReference;
+    return pw.Container(
+      width: double.infinity,
+      padding: const pw.EdgeInsets.all(10),
+      decoration: pw.BoxDecoration(
+        color: const PdfColor(0.98, 0.96, 0.90),
+        borderRadius: pw.BorderRadius.circular(6),
+        border: pw.Border.all(color: const PdfColor(0.88, 0.78, 0.52), width: 0.5),
+      ),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            message.isEmpty ? 'Sin mensaje de esperanza todavía.' : message,
+            style: pw.TextStyle(
+              fontSize: 11,
+              lineSpacing: 2,
+              color: message.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+              fontStyle: message.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+            ),
+          ),
+          pw.SizedBox(height: 8),
+          pw.Text(
+            'Verso Principal',
+            style: pw.TextStyle(
+              fontSize: 10.5,
+              fontWeight: pw.FontWeight.bold,
+              color: const PdfColor(0.72, 0.58, 0.20),
+            ),
+          ),
+          pw.SizedBox(height: 3),
+          pw.Text(
+            mainReference.isEmpty ? 'Sin verso principal seleccionado.' : mainReference,
+            style: pw.TextStyle(
+              fontSize: 10.8,
+              color: mainReference.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+              fontStyle: mainReference.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _participantNotesBlock(StudyParticipantBundle participant) {
+    final notes = participant.generalNotes.trim();
+    return pw.Container(
+      width: double.infinity,
+      padding: const pw.EdgeInsets.all(10),
+      decoration: pw.BoxDecoration(
+        color: const PdfColor(0.98, 0.96, 0.90),
+        borderRadius: pw.BorderRadius.circular(6),
+        border: pw.Border.all(color: const PdfColor(0.88, 0.78, 0.52), width: 0.5),
+      ),
+      child: pw.Text(
+        notes.isEmpty ? 'Sin notas generales todavía.' : notes,
+        style: pw.TextStyle(
+          fontSize: 11,
+          lineSpacing: 2,
+          color: notes.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+          fontStyle: notes.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+        ),
+      ),
+    );
   }
 
   List<BibleVerse> _selectedVerses(StudyChapterAnswers study, List<BibleVerse> chapterVerses) {

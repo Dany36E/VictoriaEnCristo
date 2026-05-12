@@ -4,7 +4,6 @@ import '../screens/battle_partner/battle_partner_screen.dart';
 import '../screens/bible/bible_home_screen.dart';
 import '../screens/devotional_screen.dart';
 import '../screens/emergency_screen.dart';
-import '../screens/exercises_screen.dart';
 import '../screens/journal_screen.dart';
 import '../screens/learning/learning_home_screen.dart';
 import '../screens/plan_library_screen.dart';
@@ -21,9 +20,12 @@ class AppNavigation {
     WidgetBuilder builder, {
     bool fullscreenDialog = false,
   }) {
-    return Navigator.of(
-      context,
-    ).push<T>(MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog));
+    return Navigator.of(context).push<T>(
+      MaterialPageRoute<T>(
+        builder: builder,
+        fullscreenDialog: fullscreenDialog,
+      ),
+    );
   }
 
   static Future<T?> pushOn<T>(
@@ -32,7 +34,10 @@ class AppNavigation {
     bool fullscreenDialog = false,
   }) {
     return navigator.push<T>(
-      MaterialPageRoute<T>(builder: builder, fullscreenDialog: fullscreenDialog),
+      MaterialPageRoute<T>(
+        builder: builder,
+        fullscreenDialog: fullscreenDialog,
+      ),
     );
   }
 
@@ -82,10 +87,6 @@ class AppNavigation {
 
   static Future<void> openPrayers(BuildContext context) {
     return push<void>(context, (_) => const PrayersScreen());
-  }
-
-  static Future<void> openExercises(BuildContext context) {
-    return push<void>(context, (_) => const ExercisesScreen());
   }
 
   static Future<void> openVerses(BuildContext context) {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -858,31 +859,46 @@ class _StudyModeScreenState extends State<StudyModeScreen> with SingleTickerProv
       if (action == null) return;
       final study = _currentStudySnapshot();
       await StudyRoomService.I.publishAnswerSnapshot(study);
-      final inRoom = StudyRoomService.I.currentRoomNotifier.value != null;
-      final highlights = inRoom
-          ? _roomPdfHighlights()
-          : StudyModeService.I.highlightsNotifier.value;
-      final roomAnswers = inRoom
-          ? StudyRoomService.I.roomAnswerSnapshotsNotifier.value
-          : const <StudyRoomAnswerSnapshot>[];
-      final file = action == _PdfExportAction.share
-          ? await StudyExportService.I.exportAndShareStudy(
-              study: study,
-              chapterVerses: _verses,
-              secondaryChapterVerses: inRoom ? const [] : _secondaryVerses,
-              secondaryVersionId: inRoom ? null : _secondaryVersion.id,
-              studyHighlights: highlights,
-              roomAnswerSnapshots: roomAnswers,
-            )
-          : await StudyExportService.I.exportStudyToPdf(
-              study: study,
-              chapterVerses: _verses,
-              secondaryChapterVerses: inRoom ? const [] : _secondaryVerses,
-              secondaryVersionId: inRoom ? null : _secondaryVersion.id,
-              studyHighlights: highlights,
-              roomAnswerSnapshots: roomAnswers,
-              saveToDownloads: true,
-            );
+      await StudyRoomService.I.publishHighlights(
+        StudyModeService.I.highlightsNotifier.value,
+      );
+      final room = StudyRoomService.I.currentRoomNotifier.value;
+      final inRoom = room != null;
+      late final File file;
+      if (inRoom) {
+        final participants = await _buildRoomParticipantBundles(room, study);
+        final roomAnswers = StudyRoomService.I.roomAnswerSnapshotsNotifier.value;
+        file = action == _PdfExportAction.share
+            ? await StudyExportService.I.exportAndShareRoomStudy(
+                study: study,
+                participants: participants,
+                roomAnswerSnapshots: roomAnswers,
+              )
+            : await StudyExportService.I.exportRoomStudyToPdf(
+                study: study,
+                participants: participants,
+                roomAnswerSnapshots: roomAnswers,
+                saveToDownloads: true,
+              );
+      } else {
+        final highlights = StudyModeService.I.highlightsNotifier.value;
+        file = action == _PdfExportAction.share
+            ? await StudyExportService.I.exportAndShareStudy(
+                study: study,
+                chapterVerses: _verses,
+                secondaryChapterVerses: _secondaryVerses,
+                secondaryVersionId: _secondaryVersion.id,
+                studyHighlights: highlights,
+              )
+            : await StudyExportService.I.exportStudyToPdf(
+                study: study,
+                chapterVerses: _verses,
+                secondaryChapterVerses: _secondaryVerses,
+                secondaryVersionId: _secondaryVersion.id,
+                studyHighlights: highlights,
+                saveToDownloads: true,
+              );
+      }
       if (!mounted) return;
       final label = action == _PdfExportAction.share
           ? 'PDF listo para compartir'
@@ -892,6 +908,116 @@ class _StudyModeScreenState extends State<StudyModeScreen> with SingleTickerProv
       if (!mounted) return;
       _showSnack('No se pudo exportar el PDF: $e');
     }
+  }
+
+  Future<List<StudyParticipantBundle>> _buildRoomParticipantBundles(
+    StudyRoom room,
+    StudyChapterAnswers selfStudy,
+  ) async {
+    final selfUid = FirebaseAuth.instance.currentUser?.uid;
+    final allHighlights = _roomPdfHighlights();
+    final snapshotsByUid = {
+      for (final snapshot in StudyRoomService.I.roomAnswerSnapshotsNotifier.value)
+        snapshot.uid: snapshot,
+    };
+
+    // Versiones únicas a precargar (incluye versión asignada + versiones con
+    // resaltados de cada participante).
+    final neededVersions = <String>{};
+    for (final member in room.members.values) {
+      neededVersions.add(member.versionId);
+    }
+    for (final highlight in allHighlights) {
+      neededVersions.add(highlight.versionId);
+    }
+    if (selfUid != null) {
+      neededVersions.add(selfStudy.versionId);
+    }
+
+    final versionVerses = <String, List<BibleVerse>>{};
+    await Future.wait(
+      neededVersions.map((versionId) async {
+        try {
+          final verses = await BibleParserService.I.getChapter(
+            version: BibleVersion.fromId(versionId),
+            bookNumber: room.bookNumber,
+            chapter: room.chapter,
+          );
+          versionVerses[versionId] = verses;
+        } catch (e) {
+          debugPrint('[STUDY-MODE] export load $versionId error: $e');
+          versionVerses[versionId] = const [];
+        }
+      }),
+    );
+
+    final orderedUids = <String>[
+      ...room.memberOrder.where(room.members.containsKey),
+      for (final uid in room.members.keys)
+        if (!room.memberOrder.contains(uid)) uid,
+    ];
+
+    final bundles = <StudyParticipantBundle>[];
+    for (final uid in orderedUids) {
+      final member = room.members[uid];
+      if (member == null) continue;
+
+      final userHighlights = allHighlights
+          .where((h) => (h.ownerUid ?? selfUid) == uid)
+          .toList(growable: false);
+      final versionsFromHighlights = userHighlights.map((h) => h.versionId).toSet();
+      final orderedVersions = <String>[
+        member.versionId,
+        for (final v in versionsFromHighlights)
+          if (v != member.versionId) v,
+      ];
+
+      final versions = <StudyParticipantVersion>[];
+      for (final versionId in orderedVersions) {
+        final highlightsForVersion = userHighlights
+            .where((h) => h.versionId == versionId)
+            .toList(growable: false);
+        versions.add(
+          StudyParticipantVersion(
+            versionId: versionId,
+            verses: versionVerses[versionId] ?? const [],
+            highlights: highlightsForVersion,
+          ),
+        );
+      }
+
+      final isSelf = uid == selfUid;
+      final snapshot = snapshotsByUid[uid];
+      final answers = isSelf
+          ? Map<String, String>.from(selfStudy.answers)
+          : (snapshot?.answers ?? const <String, String>{});
+      final hopeMessage = isSelf ? selfStudy.hopeMessage : (snapshot?.hopeMessage ?? '');
+      final mainVerseReference = isSelf
+          ? selfStudy.mainVerseReference
+          : _buildMainVerseReference(room, snapshot);
+      final generalNotes = isSelf ? selfStudy.generalNotes : (snapshot?.generalNotes ?? '');
+
+      bundles.add(
+        StudyParticipantBundle(
+          uid: uid,
+          displayName: member.displayName,
+          versions: versions,
+          answers: answers,
+          hopeMessage: hopeMessage,
+          mainVerseReference: mainVerseReference,
+          generalNotes: generalNotes,
+          currentVersionId: member.versionId,
+        ),
+      );
+    }
+    return bundles;
+  }
+
+  String _buildMainVerseReference(StudyRoom room, StudyRoomAnswerSnapshot? snapshot) {
+    if (snapshot == null || snapshot.mainVerses.isEmpty) return '';
+    final ranges = StudyChapterAnswers.verseRangesLabel(snapshot.mainVerses);
+    if (ranges.isEmpty) return '';
+    return '${room.bookName} ${room.chapter}:$ranges';
   }
 
   List<StudyWordHighlight> _roomPdfHighlights() {

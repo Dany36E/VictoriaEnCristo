@@ -31,7 +31,6 @@ import 'battle_partner/battle_partner_screen.dart';
 import 'wall/wall_screen.dart';
 import 'admin/admin_wall_screen.dart';
 import 'bible/bible_home_screen.dart';
-import 'exercises_screen.dart';
 import 'relapse_recovery_screen.dart';
 import '../utils/bible_navigation_helper.dart';
 import '../services/battle_partner_service.dart';
@@ -62,7 +61,8 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, RouteAware {
+class _HomeScreenState extends State<HomeScreen>
+    with TickerProviderStateMixin, RouteAware {
   late BibleVerse dailyVerse;
 
   // Victoria del día
@@ -86,7 +86,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
 
     // Escuchar cambios en VictoryScoringService (se actualiza cuando
     // DataBootstrapper/AccountSessionManager hidratan desde cloud)
-    VictoryScoringService.I.currentStreakNotifier.addListener(_onScoringChanged);
+    VictoryScoringService.I.currentStreakNotifier.addListener(
+      _onScoringChanged,
+    );
     VictoryScoringService.I.loggedTodayNotifier.addListener(_onScoringChanged);
     VictoryScoringService.I.relapseEventNotifier.addListener(_onRelapseEvent);
 
@@ -227,7 +229,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
     // Feedback táctil suave para navegación
     FeedbackEngine.I.tap();
 
-    Navigator.push(context, MaterialPageRoute(builder: (_) => const ProgressScreen()))
+    Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const ProgressScreen()),
+        )
         .then((_) {
           // Recargar datos de victoria al volver (por si editó días)
           _refreshVictoryData();
@@ -263,9 +268,15 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
-    VictoryScoringService.I.currentStreakNotifier.removeListener(_onScoringChanged);
-    VictoryScoringService.I.loggedTodayNotifier.removeListener(_onScoringChanged);
-    VictoryScoringService.I.relapseEventNotifier.removeListener(_onRelapseEvent);
+    VictoryScoringService.I.currentStreakNotifier.removeListener(
+      _onScoringChanged,
+    );
+    VictoryScoringService.I.loggedTodayNotifier.removeListener(
+      _onScoringChanged,
+    );
+    VictoryScoringService.I.relapseEventNotifier.removeListener(
+      _onRelapseEvent,
+    );
     super.dispose();
   }
 
@@ -406,7 +417,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                       child: DailyVerseSection(
                         dailyVerse: dailyVerse,
                         onTapVerse: (ref) =>
-                            BibleNavigationHelper.navigateToSpanishRef(context, ref),
+                            BibleNavigationHelper.navigateToSpanishRef(
+                              context,
+                              ref,
+                            ),
                       ),
                     ),
                   ),
@@ -423,7 +437,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                       child: BibleReadingStreak(
                         onTap: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const BibleHomeScreen(),
+                          ),
                         ),
                       ),
                     ),
@@ -439,8 +455,10 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                         0,
                       ),
                       child: ValueListenableBuilder<int>(
-                        valueListenable: VictoryScoringService.I.currentStreakNotifier,
-                        builder: (_, streak, _) => MilestoneBanner(streak: streak),
+                        valueListenable:
+                            VictoryScoringService.I.currentStreakNotifier,
+                        builder: (_, streak, _) =>
+                            MilestoneBanner(streak: streak),
                       ),
                     ),
                   ),
@@ -457,20 +475,28 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                       child: DailyChecklistCard(
                         onTapDevotional: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const DevotionalScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const DevotionalScreen(),
+                          ),
                         ),
                         onTapPrayer: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const PrayersScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const PrayersScreen(),
+                          ),
                         ),
                         onTapJournal: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const JournalScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const JournalScreen(),
+                          ),
                         ),
                         onTapVictory: _registerVictory,
                         onTapStudy: () => Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (_) => const LearningHomeScreen()),
+                          MaterialPageRoute(
+                            builder: (_) => const LearningHomeScreen(),
+                          ),
                         ),
                       ),
                     ),
@@ -509,9 +535,11 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                     ),
                   ),
 
-                  // Grid: Práctica diaria (Oraciones, Ejercicios, Mi Diario, Versículos)
+                  // Grid: Práctica diaria (Oraciones, Mi Diario, Versículos, Escuela del Reino)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDesignSystem.spacingM,
+                    ),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         Row(
@@ -526,30 +554,13 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                 index: 0,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const PrayersScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const PrayersScreen(),
+                                  ),
                                 ),
                               ),
                             ),
                             const SizedBox(width: AppDesignSystem.spacingM),
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.fitness_center,
-                                title: 'Ejercicios',
-                                subtitle: 'Respira y ancla',
-                                accentColor: const Color(0xFF80CBC4),
-                                animationType: IconAnimationType.pulse,
-                                index: 1,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const ExercisesScreen()),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: AppDesignSystem.spacingM),
-                        Row(
-                          children: [
                             Expanded(
                               child: _GlassmorphicMenuButton(
                                 icon: Icons.auto_stories,
@@ -557,25 +568,12 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                 subtitle: 'Reflexiones',
                                 accentColor: const Color(0xFFCE93D8),
                                 animationType: IconAnimationType.pulse,
-                                index: 2,
+                                index: 1,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const JournalScreen()),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: AppDesignSystem.spacingM),
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.menu_book_outlined,
-                                title: 'Versículos',
-                                subtitle: 'Armadura espiritual',
-                                accentColor: const Color(0xFF64B5F6),
-                                animationType: IconAnimationType.shimmer,
-                                index: 3,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(builder: (_) => const VersesScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const JournalScreen(),
+                                  ),
                                 ),
                               ),
                             ),
@@ -586,20 +584,37 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                           children: [
                             Expanded(
                               child: _GlassmorphicMenuButton(
+                                icon: Icons.menu_book_outlined,
+                                title: 'Versículos',
+                                subtitle: 'Armadura espiritual',
+                                accentColor: const Color(0xFF64B5F6),
+                                animationType: IconAnimationType.shimmer,
+                                index: 2,
+                                onTap: () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const VersesScreen(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppDesignSystem.spacingM),
+                            Expanded(
+                              child: _GlassmorphicMenuButton(
                                 icon: Icons.school_rounded,
                                 title: 'Escuela del Reino',
                                 subtitle: 'Aprende y memoriza',
                                 accentColor: AppDesignSystem.gold,
                                 animationType: IconAnimationType.shimmer,
-                                index: 4,
+                                index: 3,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const LearningHomeScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const LearningHomeScreen(),
+                                  ),
                                 ),
                               ),
                             ),
-                            const SizedBox(width: AppDesignSystem.spacingM),
-                            const Expanded(child: SizedBox.shrink()),
                           ],
                         ),
                       ]),
@@ -626,7 +641,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
 
                   // Grid: Crecimiento (Planes, La Biblia, Mi Progreso)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDesignSystem.spacingM,
+                    ),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         Row(
@@ -641,7 +658,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                 index: 4,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const PlanLibraryScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const PlanLibraryScreen(),
+                                  ),
                                 ),
                               ),
                             ),
@@ -656,7 +675,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                 index: 5,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const BibleHomeScreen(),
+                                  ),
                                 ),
                               ),
                             ),
@@ -675,7 +696,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                 index: 6,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const ProgressScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const ProgressScreen(),
+                                  ),
                                 ),
                               ),
                             ),
@@ -690,7 +713,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                 index: 7,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const DevotionalScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const DevotionalScreen(),
+                                  ),
                                 ),
                               ),
                             ),
@@ -720,14 +745,18 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
 
                   // Grid: Comunidad (Compañero, Muro de Batalla)
                   SliverPadding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppDesignSystem.spacingM,
+                    ),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
                         Row(
                           children: [
                             Expanded(
                               child: ValueListenableBuilder<List<dynamic>>(
-                                valueListenable: BattlePartnerService.I.pendingInvitesNotifier,
+                                valueListenable: BattlePartnerService
+                                    .I
+                                    .pendingInvitesNotifier,
                                 builder: (context, invites, _) {
                                   return Stack(
                                     clipBehavior: Clip.none,
@@ -742,7 +771,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                         onTap: () => Navigator.push(
                                           context,
                                           MaterialPageRoute(
-                                            builder: (_) => const BattlePartnerScreen(),
+                                            builder: (_) =>
+                                                const BattlePartnerScreen(),
                                           ),
                                         ),
                                       ),
@@ -782,7 +812,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                 index: 8,
                                 onTap: () => Navigator.push(
                                   context,
-                                  MaterialPageRoute(builder: (_) => const WallScreen()),
+                                  MaterialPageRoute(
+                                    builder: (_) => const WallScreen(),
+                                  ),
                                 ),
                               ),
                             ),
@@ -791,7 +823,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                         // ── Admin row (hidden, solo si isAdmin) ──
                         if (ProfileRepository.I.currentProfile?.isAdmin == true)
                           Padding(
-                            padding: const EdgeInsets.only(top: AppDesignSystem.spacingM),
+                            padding: const EdgeInsets.only(
+                              top: AppDesignSystem.spacingM,
+                            ),
                             child: Row(
                               children: [
                                 Expanded(
@@ -804,7 +838,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
                                     index: 9,
                                     onTap: () => Navigator.push(
                                       context,
-                                      MaterialPageRoute(builder: (_) => const AdminWallScreen()),
+                                      MaterialPageRoute(
+                                        builder: (_) => const AdminWallScreen(),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -819,7 +855,9 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
 
                   // Bottom spacing for FAB + Safe Area
                   SliverToBoxAdapter(
-                    child: SizedBox(height: MediaQuery.of(context).padding.bottom + 120),
+                    child: SizedBox(
+                      height: MediaQuery.of(context).padding.bottom + 120,
+                    ),
                   ),
                 ],
               ),
@@ -856,7 +894,8 @@ class _HomeScreenState extends State<HomeScreen> with TickerProviderStateMixin, 
       children: [
         _QuickGlanceChip(
           emoji: '🛡️',
-          label: '${partners.length} compañero${partners.length > 1 ? 's' : ''}',
+          label:
+              '${partners.length} compañero${partners.length > 1 ? 's' : ''}',
           color: const Color(0xFFFFAB40),
           onTap: () => Navigator.push(
             context,
@@ -930,7 +969,8 @@ class _GlassmorphicMenuButton extends StatefulWidget {
   });
 
   @override
-  State<_GlassmorphicMenuButton> createState() => _GlassmorphicMenuButtonState();
+  State<_GlassmorphicMenuButton> createState() =>
+      _GlassmorphicMenuButtonState();
 }
 
 class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
@@ -973,23 +1013,34 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
           vsync: this,
           duration: const Duration(seconds: 1),
         );
-        _iconAnimation = Tween<double>(begin: 1.0, end: 1.0).animate(_iconAnimationController);
+        _iconAnimation = Tween<double>(
+          begin: 1.0,
+          end: 1.0,
+        ).animate(_iconAnimationController);
         break;
 
       case IconAnimationType.heartbeat:
-        _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
+        _shimmerController = AnimationController(
+          vsync: this,
+          duration: Duration.zero,
+        );
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 800),
         )..repeat(reverse: true);
-        _iconAnimation = Tween<double>(
-          begin: 1.0,
-          end: 1.15,
-        ).animate(CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeInOutSine));
+        _iconAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
+          CurvedAnimation(
+            parent: _iconAnimationController,
+            curve: Curves.easeInOutSine,
+          ),
+        );
         break;
 
       case IconAnimationType.rotate:
-        _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
+        _shimmerController = AnimationController(
+          vsync: this,
+          duration: Duration.zero,
+        );
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(seconds: 10),
@@ -1001,30 +1052,40 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         break;
 
       case IconAnimationType.drawUp:
-        _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
+        _shimmerController = AnimationController(
+          vsync: this,
+          duration: Duration.zero,
+        );
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 1200),
         );
-        _iconAnimation = Tween<double>(
-          begin: 0.0,
-          end: 1.0,
-        ).animate(CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeOutCubic));
+        _iconAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+          CurvedAnimation(
+            parent: _iconAnimationController,
+            curve: Curves.easeOutCubic,
+          ),
+        );
         Future.delayed(Duration(milliseconds: 400 + widget.index * 100), () {
           if (mounted) _iconAnimationController.forward();
         });
         break;
 
       case IconAnimationType.pulse:
-        _shimmerController = AnimationController(vsync: this, duration: Duration.zero);
+        _shimmerController = AnimationController(
+          vsync: this,
+          duration: Duration.zero,
+        );
         _iconAnimationController = AnimationController(
           vsync: this,
           duration: const Duration(milliseconds: 2000),
         )..repeat(reverse: true);
-        _iconAnimation = Tween<double>(
-          begin: 0.7,
-          end: 1.0,
-        ).animate(CurvedAnimation(parent: _iconAnimationController, curve: Curves.easeInOut));
+        _iconAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
+          CurvedAnimation(
+            parent: _iconAnimationController,
+            curve: Curves.easeInOut,
+          ),
+        );
         break;
     }
   }
@@ -1055,7 +1116,9 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
               curve: Curves.easeOutCubic,
               child: Container(
                 height: 115,
-                decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                ),
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(20),
                   child: BackdropFilter(
@@ -1072,7 +1135,10 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                                   widget.accentColor.withOpacity(0.15),
                                   widget.accentColor.withOpacity(0.05),
                                 ]
-                              : [Colors.white.withOpacity(0.10), Colors.white.withOpacity(0.02)],
+                              : [
+                                  Colors.white.withOpacity(0.10),
+                                  Colors.white.withOpacity(0.02),
+                                ],
                         ),
                         borderRadius: BorderRadius.circular(20),
                       ),
@@ -1114,7 +1180,9 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                                           widget.subtitle,
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: Colors.white.withOpacity(0.6),
+                                            color: Colors.white.withOpacity(
+                                              0.6,
+                                            ),
                                             fontWeight: FontWeight.w500,
                                             letterSpacing: 0.2,
                                           ),
@@ -1163,8 +1231,16 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
       decoration: BoxDecoration(
         boxShadow: [
           // Micro-glow LED detrás del icono
-          BoxShadow(color: widget.accentColor.withOpacity(0.6), blurRadius: 12, spreadRadius: 1),
-          BoxShadow(color: widget.accentColor.withOpacity(0.3), blurRadius: 20, spreadRadius: 2),
+          BoxShadow(
+            color: widget.accentColor.withOpacity(0.6),
+            blurRadius: 12,
+            spreadRadius: 1,
+          ),
+          BoxShadow(
+            color: widget.accentColor.withOpacity(0.3),
+            blurRadius: 20,
+            spreadRadius: 2,
+          ),
         ],
       ),
       child: Icon(widget.icon, color: widget.accentColor, size: iconSize),
@@ -1195,7 +1271,11 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                   return LinearGradient(
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
-                    colors: [widget.accentColor, Colors.white, widget.accentColor],
+                    colors: [
+                      widget.accentColor,
+                      Colors.white,
+                      widget.accentColor,
+                    ],
                     stops: [
                       (_shimmerController.value - 0.3).clamp(0.0, 1.0),
                       _shimmerController.value,
@@ -1214,7 +1294,10 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         return AnimatedBuilder(
           animation: _iconAnimation,
           builder: (context, child) {
-            return Transform.scale(scale: _iconAnimation.value, child: iconWidget);
+            return Transform.scale(
+              scale: _iconAnimation.value,
+              child: iconWidget,
+            );
           },
         );
 
@@ -1222,7 +1305,10 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         return AnimatedBuilder(
           animation: _iconAnimation,
           builder: (context, child) {
-            return Transform.rotate(angle: _iconAnimation.value, child: iconWidget);
+            return Transform.rotate(
+              angle: _iconAnimation.value,
+              child: iconWidget,
+            );
           },
         );
 
@@ -1244,7 +1330,10 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         return AnimatedBuilder(
           animation: _iconAnimation,
           builder: (context, child) {
-            return Opacity(opacity: 0.7 + (_iconAnimation.value * 0.3), child: iconWidget);
+            return Opacity(
+              opacity: 0.7 + (_iconAnimation.value * 0.3),
+              child: iconWidget,
+            );
           },
         );
     }
@@ -1259,7 +1348,10 @@ class _NeonGradientBorderPainter extends CustomPainter {
   final Color accentColor;
   final bool isHovered;
 
-  _NeonGradientBorderPainter({required this.accentColor, required this.isHovered});
+  _NeonGradientBorderPainter({
+    required this.accentColor,
+    required this.isHovered,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -1294,7 +1386,8 @@ class _NeonGradientBorderPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_NeonGradientBorderPainter oldDelegate) {
-    return oldDelegate.accentColor != accentColor || oldDelegate.isHovered != isHovered;
+    return oldDelegate.accentColor != accentColor ||
+        oldDelegate.isHovered != isHovered;
   }
 }
 
@@ -1340,7 +1433,11 @@ class _QuickGlanceChip extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               label,
-              style: TextStyle(color: color, fontSize: 12, fontWeight: FontWeight.w600),
+              style: TextStyle(
+                color: color,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
             ),
           ],
         ),

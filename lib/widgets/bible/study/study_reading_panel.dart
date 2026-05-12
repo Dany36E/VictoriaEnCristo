@@ -256,12 +256,11 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     required List<StudyWordHighlight> roomHighlights,
     required bool inRoom,
   }) {
-    if (!inRoom) return personalHighlights;
-    final byId = {for (final highlight in roomHighlights) highlight.id: highlight};
-    for (final highlight in personalHighlights) {
-      byId.putIfAbsent(highlight.id, () => highlight);
-    }
-    return byId.values.toList(growable: false);
+    // El Modo Estudio en sala es colaborativo a nivel de lectura/swap, pero el
+    // subrayado y las respuestas se mantienen privados durante la sesión. Cada
+    // usuario solo ve su propia tinta; los resaltados de los compañeros se
+    // consolidan únicamente al exportar el PDF final.
+    return personalHighlights;
   }
 
   BibleVerse? _secondaryForVerse(int verseNumber) {
