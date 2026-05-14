@@ -17,9 +17,15 @@ class SacredAlarmService {
   static const String _eventsKey = 'sacred_alarm_events_v1';
   static const MethodChannel _channel = MethodChannel('victoria/sacred_alarms');
 
-  final ValueNotifier<SacredAlarmConfig> config = ValueNotifier(const SacredAlarmConfig());
-  final ValueNotifier<List<SacredAlarmEvent>> scheduledEvents = ValueNotifier(const []);
-  final ValueNotifier<List<SacredAlarmEvent>> todayEvents = ValueNotifier(const []);
+  final ValueNotifier<SacredAlarmConfig> config = ValueNotifier(
+    const SacredAlarmConfig(),
+  );
+  final ValueNotifier<List<SacredAlarmEvent>> scheduledEvents = ValueNotifier(
+    const [],
+  );
+  final ValueNotifier<List<SacredAlarmEvent>> todayEvents = ValueNotifier(
+    const [],
+  );
   final ValueNotifier<SacredAlarmEvent?> activeEvent = ValueNotifier(null);
 
   bool _initialized = false;
@@ -50,7 +56,9 @@ class SacredAlarmService {
     config.value = config.value.copyWith(enabled: enabled);
     await _saveConfig();
     if (enabled) {
-      await ensureUpcomingSchedule(force: _realTodayEvents().length < config.value.randomCount);
+      await ensureUpcomingSchedule(
+        force: _realTodayEvents().length < config.value.randomCount,
+      );
     } else {
       scheduledEvents.value = const [];
       todayEvents.value = const [];
@@ -85,13 +93,17 @@ class SacredAlarmService {
     return true;
   }
 
-  Future<List<SacredAlarmEvent>> ensureTodaySchedule({bool force = false}) async {
+  Future<List<SacredAlarmEvent>> ensureTodaySchedule({
+    bool force = false,
+  }) async {
     await init();
     await ensureUpcomingSchedule(force: force);
     return todayEvents.value;
   }
 
-  Future<List<SacredAlarmEvent>> ensureUpcomingSchedule({bool force = false}) async {
+  Future<List<SacredAlarmEvent>> ensureUpcomingSchedule({
+    bool force = false,
+  }) async {
     await init();
     if (!config.value.enabled) {
       scheduledEvents.value = const [];
@@ -106,13 +118,16 @@ class SacredAlarmService {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final nowMs = now.millisecondsSinceEpoch;
-    final existing = scheduledEvents.value.where((event) => !_isTestEvent(event)).toList();
+    final existing = scheduledEvents.value
+        .where((event) => !_isTestEvent(event))
+        .toList();
     final rebuilt = <String, SacredAlarmEvent>{};
 
     for (final event in existing) {
       final keepActive = event.status == SacredAlarmEventStatus.ringing;
       final keepCompletedToday =
-          event.dateIso == _dateIso(today) && event.status == SacredAlarmEventStatus.completed;
+          event.dateIso == _dateIso(today) &&
+          event.status == SacredAlarmEventStatus.completed;
       final keepLockedFuture =
           !force &&
           config.value.strictMode &&
@@ -127,14 +142,17 @@ class SacredAlarmService {
     for (var offset = 0; offset < config.value.scheduleDaysAhead; offset++) {
       final date = today.add(Duration(days: offset));
       final dateIso = _dateIso(date);
-      final existingForDate = existing.where((event) => event.dateIso == dateIso).toList();
+      final existingForDate = existing
+          .where((event) => event.dateIso == dateIso)
+          .toList();
       final keepDate = !force && existingForDate.isNotEmpty;
       final source = keepDate
           ? existingForDate
           : buildScheduleForDate(date: date, config: config.value);
 
       for (final event in source) {
-        if (event.scheduledAtMs < nowMs && event.status == SacredAlarmEventStatus.scheduled) {
+        if (event.scheduledAtMs < nowMs &&
+            event.status == SacredAlarmEventStatus.scheduled) {
           continue;
         }
         rebuilt.putIfAbsent(event.id, () => event);
@@ -159,7 +177,8 @@ class SacredAlarmService {
   Future<SacredAlarmEvent> triggerTestAlarm() async {
     await init();
     final now = DateTime.now();
-    final verse = BibleVerses.victoryVerses[now.second % BibleVerses.victoryVerses.length];
+    final verse = BibleVerses
+        .victoryVerses[now.second % BibleVerses.victoryVerses.length];
     final event = SacredAlarmEvent(
       id: 'test-${now.millisecondsSinceEpoch}',
       dateIso: _dateIso(now),
@@ -215,8 +234,7 @@ class SacredAlarmService {
         // campana nativa SI puede seguir sonando, hacemos best-effort buscando
         // un evento reciente cercano a "ahora" para activarlo y permitir que
         // el usuario complete la pantalla normalmente.
-        final ringingWindowMs =
-            nowMs - const Duration(hours: 4).inMilliseconds;
+        final ringingWindowMs = nowMs - const Duration(hours: 4).inMilliseconds;
         index = events.indexWhere(
           (event) =>
               !_isTestEvent(event) &&
@@ -235,7 +253,8 @@ class SacredAlarmService {
       firedAtMs: events[index].firedAtMs ?? nowMs,
     );
     events[index] = event;
-    scheduledEvents.value = events..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
+    scheduledEvents.value = events
+      ..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
     _refreshTodayEvents();
     activeEvent.value = event;
     await _saveEvents();
@@ -256,7 +275,8 @@ class SacredAlarmService {
           completedAtMs: nowMs,
         );
       }
-      scheduledEvents.value = events..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
+      scheduledEvents.value = events
+        ..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
       _refreshTodayEvents();
       await _saveEvents();
     }
@@ -277,6 +297,7 @@ class SacredAlarmService {
     activeEvent.value = null;
     await _invokeNative('stopAlarm', {'sessionId': null});
   }
+
   Future<void> openExactAlarmSettings() async {
     await _invokeNative('openExactAlarmSettings');
   }
@@ -297,7 +318,8 @@ class SacredAlarmService {
     return scheduledEvents.value
         .where(
           (event) =>
-              event.scheduledAtMs >= nowMs && event.status == SacredAlarmEventStatus.scheduled,
+              event.scheduledAtMs >= nowMs &&
+              event.status == SacredAlarmEventStatus.scheduled,
         )
         .toList()
       ..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
@@ -330,6 +352,19 @@ class SacredAlarmService {
       );
     }
 
+    for (final rule in sanitized.oneTimeRules) {
+      if (!rule.matchesDate(date)) continue;
+      final scheduled = rule.scheduledAt;
+      slots.add(
+        _ScheduleSlot(
+          minute: scheduled.hour * 60 + scheduled.minute,
+          sourceType: 'oneTime',
+          sourceId: rule.id,
+          activityType: rule.activityType,
+        ),
+      );
+    }
+
     final fixedMinutes = slots.map((slot) => slot.minute).toList();
     final randomMinutes = sanitized.randomMode
         ? _pickRandomMinutes(sanitized, rng, blockedMinutes: fixedMinutes)
@@ -337,7 +372,11 @@ class SacredAlarmService {
     for (var index = 0; index < randomMinutes.length; index++) {
       final minute = randomMinutes[index];
       slots.add(
-        _ScheduleSlot(minute: minute, sourceType: 'random', sourceId: 'random-$index-$minute'),
+        _ScheduleSlot(
+          minute: minute,
+          sourceType: 'random',
+          sourceId: 'random-$index-$minute',
+        ),
       );
     }
 
@@ -349,8 +388,16 @@ class SacredAlarmService {
     return List<SacredAlarmEvent>.generate(slots.length, (index) {
       final slot = slots[index];
       final minute = slot.minute;
-      final scheduled = DateTime(date.year, date.month, date.day, minute ~/ 60, minute % 60);
-      final activity = slot.activityType ?? shuffledActivities[index % shuffledActivities.length];
+      final scheduled = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        minute ~/ 60,
+        minute % 60,
+      );
+      final activity =
+          slot.activityType ??
+          shuffledActivities[index % shuffledActivities.length];
       final verse = shuffledVerses[index % shuffledVerses.length];
       return SacredAlarmEvent(
         id: '$dateIso-${slot.sourceType}-${slot.sourceId}',
@@ -367,7 +414,9 @@ class SacredAlarmService {
 
   Future<void> _load() async {
     final prefs = await SharedPreferences.getInstance();
-    config.value = _sanitizeConfig(SacredAlarmConfig.decode(prefs.getString(_configKey)));
+    config.value = _sanitizeConfig(
+      SacredAlarmConfig.decode(prefs.getString(_configKey)),
+    );
     if (!config.value.enabled) {
       scheduledEvents.value = const [];
       todayEvents.value = const [];
@@ -378,33 +427,41 @@ class SacredAlarmService {
     }
     final events = SacredAlarmEvent.decodeList(prefs.getString(_eventsKey));
     final nowMs = DateTime.now().millisecondsSinceEpoch;
-    final cutoff = DateTime.now().subtract(const Duration(days: 2)).millisecondsSinceEpoch;
+    final cutoff = DateTime.now()
+        .subtract(const Duration(days: 2))
+        .millisecondsSinceEpoch;
     // Si una alarma sono mientras la app estaba cerrada, el codigo nativo no
     // pudo actualizar su estado en SharedPreferences. Cuando el usuario abre
     // la app (por ejemplo desde la notificacion), promovemos los eventos
     // pasados recientes a "ringing" para que la pantalla de Campana Sagrada
     // los pueda recuperar y permitir apagarlos. Usamos una ventana amplia
     // (24h) porque el usuario puede tardar en abrir la notificacion.
-    final ringingWindowMs =
-        nowMs - const Duration(hours: 24).inMilliseconds;
-    final restored = events.where((event) => event.scheduledAtMs >= cutoff).map((event) {
-      if (event.status == SacredAlarmEventStatus.scheduled &&
-          event.scheduledAtMs < nowMs &&
-          event.scheduledAtMs >= ringingWindowMs &&
-          !_isTestEvent(event)) {
-        return event.copyWith(
-          status: SacredAlarmEventStatus.ringing,
-          firedAtMs: event.firedAtMs ?? event.scheduledAtMs,
-        );
-      }
-      return event;
-    }).toList()..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
+    final ringingWindowMs = nowMs - const Duration(hours: 24).inMilliseconds;
+    final restored = events.where((event) => event.scheduledAtMs >= cutoff).map(
+      (event) {
+        if (event.status == SacredAlarmEventStatus.scheduled &&
+            event.scheduledAtMs < nowMs &&
+            event.scheduledAtMs >= ringingWindowMs &&
+            !_isTestEvent(event)) {
+          return event.copyWith(
+            status: SacredAlarmEventStatus.ringing,
+            firedAtMs: event.firedAtMs ?? event.scheduledAtMs,
+          );
+        }
+        return event;
+      },
+    ).toList()..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
     scheduledEvents.value = restored;
     _refreshTodayEvents();
-    activeEvent.value = todayEvents.value.where((event) => event.isActive).firstOrNull;
+    activeEvent.value = todayEvents.value
+        .where((event) => event.isActive)
+        .firstOrNull;
     // Persistimos los cambios de estado para que un siguiente arranque vea
     // la promocion ya aplicada.
-    await prefs.setString(_eventsKey, SacredAlarmEvent.encodeList(scheduledEvents.value));
+    await prefs.setString(
+      _eventsKey,
+      SacredAlarmEvent.encodeList(scheduledEvents.value),
+    );
   }
 
   Future<void> _saveConfig() async {
@@ -415,7 +472,10 @@ class SacredAlarmService {
 
   Future<void> _saveEvents() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_eventsKey, SacredAlarmEvent.encodeList(scheduledEvents.value));
+    await prefs.setString(
+      _eventsKey,
+      SacredAlarmEvent.encodeList(scheduledEvents.value),
+    );
     UserPrefCloudSyncService.I.markDirty();
   }
 
@@ -427,7 +487,8 @@ class SacredAlarmService {
     } else {
       events.add(event);
     }
-    scheduledEvents.value = events..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
+    scheduledEvents.value = events
+      ..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
     _refreshTodayEvents();
     await _saveEvents();
   }
@@ -441,27 +502,29 @@ class SacredAlarmService {
 
   void _refreshTodayEvents() {
     final today = _dateIso(DateTime.now());
-    todayEvents.value = scheduledEvents.value.where((event) => event.dateIso == today).toList()
-      ..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
+    todayEvents.value =
+        scheduledEvents.value.where((event) => event.dateIso == today).toList()
+          ..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
   }
 
-  static bool _isTestEvent(SacredAlarmEvent event) => event.id.startsWith('test-');
+  static bool _isTestEvent(SacredAlarmEvent event) =>
+      event.id.startsWith('test-');
 
   bool _needsScheduleRepair() {
     final now = DateTime.now();
     final nowMs = now.millisecondsSinceEpoch;
-    final horizon = DateTime(
-      now.year,
-      now.month,
-      now.day,
-    ).add(Duration(days: config.value.scheduleDaysAhead)).millisecondsSinceEpoch;
+    final horizon = DateTime(now.year, now.month, now.day)
+        .add(Duration(days: config.value.scheduleDaysAhead))
+        .millisecondsSinceEpoch;
     final futureScheduled = scheduledEvents.value.where(
       (event) =>
           !_isTestEvent(event) &&
           event.status == SacredAlarmEventStatus.scheduled &&
           event.scheduledAtMs >= nowMs,
     );
-    final hasEventsOutsideHorizon = futureScheduled.any((event) => event.scheduledAtMs >= horizon);
+    final hasEventsOutsideHorizon = futureScheduled.any(
+      (event) => event.scheduledAtMs >= horizon,
+    );
     if (hasEventsOutsideHorizon) return true;
 
     final hasRandomEventsWhenDisabled =
@@ -469,9 +532,18 @@ class SacredAlarmService {
         futureScheduled.any((event) => event.sourceType == 'random');
     if (hasRandomEventsWhenDisabled) return true;
 
-    final enabledFixedRuleCount = config.value.fixedRules.where((rule) => rule.enabled).length;
+    final enabledFixedRuleCount = config.value.fixedRules
+        .where((rule) => rule.enabled)
+        .length;
+    final enabledOneTimeCount = config.value.oneTimeRules.where((rule) {
+      return rule.enabled &&
+          rule.scheduledAtMs >= nowMs &&
+          rule.scheduledAtMs < horizon;
+    }).length;
     final maxExpected =
-        config.value.scheduleDaysAhead * (config.value.randomCount + enabledFixedRuleCount);
+        config.value.scheduleDaysAhead *
+            (config.value.randomCount + enabledFixedRuleCount) +
+        enabledOneTimeCount;
     return futureScheduled.length > maxExpected;
   }
 
@@ -481,7 +553,8 @@ class SacredAlarmService {
     final nativeEvents = events
         .where(
           (event) =>
-              event.scheduledAtMs >= nowMs && event.status == SacredAlarmEventStatus.scheduled,
+              event.scheduledAtMs >= nowMs &&
+              event.status == SacredAlarmEventStatus.scheduled,
         )
         .map(
           (event) => event.toNativeJson(
@@ -513,11 +586,20 @@ class SacredAlarmService {
     final start = config.startMinute.clamp(0, 23 * 60 + 45).toInt();
     final end = config.endMinute.clamp(start + 60, 24 * 60 - 1).toInt();
     final windows = _normalizeWindows(config.effectiveWindows);
+    final now = DateTime.now();
+    final todayStart = DateTime(
+      now.year,
+      now.month,
+      now.day,
+    ).millisecondsSinceEpoch;
     final rules =
         config.fixedRules
             .map((rule) {
               final weekdays =
-                  rule.weekdays.where((weekday) => weekday >= 1 && weekday <= 7).toSet().toList()
+                  rule.weekdays
+                      .where((weekday) => weekday >= 1 && weekday <= 7)
+                      .toSet()
+                      .toList()
                     ..sort();
               return rule.copyWith(
                 minuteOfDay: rule.minuteOfDay.clamp(0, 24 * 60 - 1).toInt(),
@@ -527,14 +609,22 @@ class SacredAlarmService {
             .where((rule) => rule.weekdays.isNotEmpty)
             .toList()
           ..sort((a, b) => a.minuteOfDay.compareTo(b.minuteOfDay));
+    final oneTimeRules =
+        config.oneTimeRules
+            .where((rule) => rule.scheduledAtMs >= todayStart)
+            .toList()
+          ..sort((a, b) => a.scheduledAtMs.compareTo(b.scheduledAtMs));
     return config.copyWith(
       startMinute: start,
       endMinute: end,
       randomCount: config.randomCount.clamp(0, 24).toInt(),
       minGapMinutes: config.minGapMinutes.clamp(15, 240).toInt(),
-      activities: config.activities.isEmpty ? SacredAlarmActivityType.values : config.activities,
+      activities: config.activities.isEmpty
+          ? SacredAlarmActivityType.values
+          : config.activities,
       windows: windows,
       fixedRules: rules,
+      oneTimeRules: oneTimeRules,
       minimumVolumePercent: config.minimumVolumePercent.clamp(30, 100).toInt(),
       scheduleDaysAhead: config.scheduleDaysAhead.clamp(1, 45).toInt(),
     );
@@ -552,7 +642,11 @@ class SacredAlarmService {
     final blocked = blockedMinutes.toSet();
     final targetCount = min(config.randomCount, candidates.length);
 
-    for (var attempts = 0; selected.length < targetCount && attempts < 1200; attempts++) {
+    for (
+      var attempts = 0;
+      selected.length < targetCount && attempts < 1200;
+      attempts++
+    ) {
       final candidate = candidates[rng.nextInt(candidates.length)];
       final hasGap = [
         ...selected,
@@ -585,14 +679,22 @@ class SacredAlarmService {
     });
   }
 
-  static List<SacredAlarmWindow> _normalizeWindows(List<SacredAlarmWindow> source) {
+  static List<SacredAlarmWindow> _normalizeWindows(
+    List<SacredAlarmWindow> source,
+  ) {
     final normalized = source.map((window) {
       final start = window.startMinute.clamp(0, 24 * 60 - 2).toInt();
       final end = window.endMinute.clamp(start + 1, 24 * 60 - 1).toInt();
       return window.copyWith(startMinute: start, endMinute: end);
     }).toList()..sort((a, b) => a.startMinute.compareTo(b.startMinute));
     if (normalized.isEmpty) {
-      return const [SacredAlarmWindow(id: 'default', startMinute: 7 * 60, endMinute: 22 * 60)];
+      return const [
+        SacredAlarmWindow(
+          id: 'default',
+          startMinute: 7 * 60,
+          endMinute: 22 * 60,
+        ),
+      ];
     }
     return normalized;
   }
@@ -600,7 +702,11 @@ class SacredAlarmService {
   static List<int> _allWindowMinutes(List<SacredAlarmWindow> windows) {
     final minutes = <int>{};
     for (final window in windows) {
-      for (var minute = window.startMinute; minute <= window.endMinute; minute++) {
+      for (
+        var minute = window.startMinute;
+        minute <= window.endMinute;
+        minute++
+      ) {
         minutes.add(minute);
       }
     }

@@ -29,10 +29,12 @@ extension SacredAlarmActivityTypeX on SacredAlarmActivityType {
     return switch (this) {
       SacredAlarmActivityType.prayer =>
         'Haz una oracion honesta y breve antes de apagar la campana.',
-      SacredAlarmActivityType.worship => 'Adora a Dios por quien es, no solo por lo que ha hecho.',
+      SacredAlarmActivityType.worship =>
+        'Adora a Dios por quien es, no solo por lo que ha hecho.',
       SacredAlarmActivityType.meditation =>
         'Lee el pasaje despacio y repite la frase que mas te confronte.',
-      SacredAlarmActivityType.gratitude => 'Nombra tres motivos concretos de gratitud.',
+      SacredAlarmActivityType.gratitude =>
+        'Nombra tres motivos concretos de gratitud.',
       SacredAlarmActivityType.intercession =>
         'Ora por una persona especifica durante este momento.',
       SacredAlarmActivityType.declaration =>
@@ -78,7 +80,11 @@ class SacredAlarmWindow {
   final int startMinute;
   final int endMinute;
 
-  const SacredAlarmWindow({required this.id, required this.startMinute, required this.endMinute});
+  const SacredAlarmWindow({
+    required this.id,
+    required this.startMinute,
+    required this.endMinute,
+  });
 
   SacredAlarmWindow copyWith({String? id, int? startMinute, int? endMinute}) {
     return SacredAlarmWindow(
@@ -96,7 +102,9 @@ class SacredAlarmWindow {
 
   factory SacredAlarmWindow.fromJson(Map<String, dynamic> json) {
     return SacredAlarmWindow(
-      id: json['id'] as String? ?? 'window-${DateTime.now().millisecondsSinceEpoch}',
+      id:
+          json['id'] as String? ??
+          'window-${DateTime.now().millisecondsSinceEpoch}',
       startMinute: _intFromJson(json['startMinute'], 7 * 60),
       endMinute: _intFromJson(json['endMinute'], 22 * 60),
     );
@@ -131,7 +139,9 @@ class SacredAlarmFixedRule {
       enabled: enabled ?? this.enabled,
       minuteOfDay: minuteOfDay ?? this.minuteOfDay,
       weekdays: weekdays ?? this.weekdays,
-      activityType: clearActivityType ? null : (activityType ?? this.activityType),
+      activityType: clearActivityType
+          ? null
+          : (activityType ?? this.activityType),
     );
   }
 
@@ -158,10 +168,80 @@ class SacredAlarmFixedRule {
         : <int>[];
     final rawActivity = json['activityType'];
     return SacredAlarmFixedRule(
-      id: json['id'] as String? ?? 'rule-${DateTime.now().millisecondsSinceEpoch}',
+      id:
+          json['id'] as String? ??
+          'rule-${DateTime.now().millisecondsSinceEpoch}',
       enabled: json['enabled'] as bool? ?? true,
       minuteOfDay: _intFromJson(json['minuteOfDay'], 7 * 60),
       weekdays: weekdays..sort(),
+      activityType: rawActivity is String && rawActivity.isNotEmpty
+          ? SacredAlarmActivityTypeX.fromId(rawActivity)
+          : null,
+    );
+  }
+}
+
+class SacredAlarmOneTimeRule {
+  final String id;
+  final bool enabled;
+  final int scheduledAtMs;
+  final SacredAlarmActivityType? activityType;
+
+  const SacredAlarmOneTimeRule({
+    required this.id,
+    required this.scheduledAtMs,
+    this.enabled = true,
+    this.activityType,
+  });
+
+  DateTime get scheduledAt =>
+      DateTime.fromMillisecondsSinceEpoch(scheduledAtMs);
+
+  SacredAlarmOneTimeRule copyWith({
+    String? id,
+    bool? enabled,
+    int? scheduledAtMs,
+    SacredAlarmActivityType? activityType,
+    bool clearActivityType = false,
+  }) {
+    return SacredAlarmOneTimeRule(
+      id: id ?? this.id,
+      enabled: enabled ?? this.enabled,
+      scheduledAtMs: scheduledAtMs ?? this.scheduledAtMs,
+      activityType: clearActivityType
+          ? null
+          : (activityType ?? this.activityType),
+    );
+  }
+
+  bool matchesDate(DateTime date) {
+    if (!enabled) return false;
+    final scheduled = scheduledAt;
+    return scheduled.year == date.year &&
+        scheduled.month == date.month &&
+        scheduled.day == date.day;
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'enabled': enabled,
+      'scheduledAtMs': scheduledAtMs,
+      'activityType': activityType?.id,
+    };
+  }
+
+  factory SacredAlarmOneTimeRule.fromJson(Map<String, dynamic> json) {
+    final rawActivity = json['activityType'];
+    return SacredAlarmOneTimeRule(
+      id:
+          json['id'] as String? ??
+          'one-time-${DateTime.now().millisecondsSinceEpoch}',
+      enabled: json['enabled'] as bool? ?? true,
+      scheduledAtMs: _intFromJson(
+        json['scheduledAtMs'],
+        DateTime.now().add(const Duration(hours: 1)).millisecondsSinceEpoch,
+      ),
       activityType: rawActivity is String && rawActivity.isNotEmpty
           ? SacredAlarmActivityTypeX.fromId(rawActivity)
           : null,
@@ -180,6 +260,7 @@ class SacredAlarmConfig {
   final List<SacredAlarmActivityType> activities;
   final List<SacredAlarmWindow> windows;
   final List<SacredAlarmFixedRule> fixedRules;
+  final List<SacredAlarmOneTimeRule> oneTimeRules;
   final bool enforceMinimumVolume;
   final int minimumVolumePercent;
   final int scheduleDaysAhead;
@@ -195,6 +276,7 @@ class SacredAlarmConfig {
     this.activities = SacredAlarmActivityType.values,
     this.windows = const [],
     this.fixedRules = const [],
+    this.oneTimeRules = const [],
     this.enforceMinimumVolume = true,
     this.minimumVolumePercent = 50,
     this.scheduleDaysAhead = 21,
@@ -202,7 +284,13 @@ class SacredAlarmConfig {
 
   List<SacredAlarmWindow> get effectiveWindows {
     if (windows.isNotEmpty) return windows;
-    return [SacredAlarmWindow(id: 'legacy', startMinute: startMinute, endMinute: endMinute)];
+    return [
+      SacredAlarmWindow(
+        id: 'legacy',
+        startMinute: startMinute,
+        endMinute: endMinute,
+      ),
+    ];
   }
 
   SacredAlarmConfig copyWith({
@@ -216,6 +304,7 @@ class SacredAlarmConfig {
     List<SacredAlarmActivityType>? activities,
     List<SacredAlarmWindow>? windows,
     List<SacredAlarmFixedRule>? fixedRules,
+    List<SacredAlarmOneTimeRule>? oneTimeRules,
     bool? enforceMinimumVolume,
     int? minimumVolumePercent,
     int? scheduleDaysAhead,
@@ -231,6 +320,7 @@ class SacredAlarmConfig {
       activities: activities ?? this.activities,
       windows: windows ?? this.windows,
       fixedRules: fixedRules ?? this.fixedRules,
+      oneTimeRules: oneTimeRules ?? this.oneTimeRules,
       enforceMinimumVolume: enforceMinimumVolume ?? this.enforceMinimumVolume,
       minimumVolumePercent: minimumVolumePercent ?? this.minimumVolumePercent,
       scheduleDaysAhead: scheduleDaysAhead ?? this.scheduleDaysAhead,
@@ -249,6 +339,7 @@ class SacredAlarmConfig {
       'activities': activities.map((activity) => activity.id).toList(),
       'windows': windows.map((window) => window.toJson()).toList(),
       'fixedRules': fixedRules.map((rule) => rule.toJson()).toList(),
+      'oneTimeRules': oneTimeRules.map((rule) => rule.toJson()).toList(),
       'enforceMinimumVolume': enforceMinimumVolume,
       'minimumVolumePercent': minimumVolumePercent,
       'scheduleDaysAhead': scheduleDaysAhead,
@@ -258,22 +349,45 @@ class SacredAlarmConfig {
   factory SacredAlarmConfig.fromJson(Map<String, dynamic> json) {
     final rawActivities = json['activities'];
     final parsedActivities = rawActivities is List
-        ? rawActivities.whereType<String>().map(SacredAlarmActivityTypeX.fromId).toSet().toList()
+        ? rawActivities
+              .whereType<String>()
+              .map(SacredAlarmActivityTypeX.fromId)
+              .toSet()
+              .toList()
         : SacredAlarmActivityType.values;
     final rawWindows = json['windows'];
     final parsedWindows = rawWindows is List
         ? rawWindows
               .whereType<Map>()
-              .map((entry) => SacredAlarmWindow.fromJson(Map<String, dynamic>.from(entry)))
+              .map(
+                (entry) => SacredAlarmWindow.fromJson(
+                  Map<String, dynamic>.from(entry),
+                ),
+              )
               .toList()
         : <SacredAlarmWindow>[];
     final rawRules = json['fixedRules'];
     final parsedRules = rawRules is List
         ? rawRules
               .whereType<Map>()
-              .map((entry) => SacredAlarmFixedRule.fromJson(Map<String, dynamic>.from(entry)))
+              .map(
+                (entry) => SacredAlarmFixedRule.fromJson(
+                  Map<String, dynamic>.from(entry),
+                ),
+              )
               .toList()
         : <SacredAlarmFixedRule>[];
+    final rawOneTimeRules = json['oneTimeRules'];
+    final parsedOneTimeRules = rawOneTimeRules is List
+        ? rawOneTimeRules
+              .whereType<Map>()
+              .map(
+                (entry) => SacredAlarmOneTimeRule.fromJson(
+                  Map<String, dynamic>.from(entry),
+                ),
+              )
+              .toList()
+        : <SacredAlarmOneTimeRule>[];
 
     return SacredAlarmConfig(
       enabled: json['enabled'] as bool? ?? false,
@@ -283,9 +397,12 @@ class SacredAlarmConfig {
       endMinute: _intFromJson(json['endMinute'], 22 * 60),
       randomCount: _intFromJson(json['randomCount'], 3),
       minGapMinutes: _intFromJson(json['minGapMinutes'], 90),
-      activities: parsedActivities.isEmpty ? SacredAlarmActivityType.values : parsedActivities,
+      activities: parsedActivities.isEmpty
+          ? SacredAlarmActivityType.values
+          : parsedActivities,
       windows: parsedWindows,
       fixedRules: parsedRules,
+      oneTimeRules: parsedOneTimeRules,
       enforceMinimumVolume: json['enforceMinimumVolume'] as bool? ?? true,
       minimumVolumePercent: _intFromJson(json['minimumVolumePercent'], 50),
       scheduleDaysAhead: _intFromJson(json['scheduleDaysAhead'], 21),
@@ -335,7 +452,8 @@ class SacredAlarmEvent {
     this.sourceId = 'random',
   });
 
-  DateTime get scheduledAt => DateTime.fromMillisecondsSinceEpoch(scheduledAtMs);
+  DateTime get scheduledAt =>
+      DateTime.fromMillisecondsSinceEpoch(scheduledAtMs);
   bool get isResolved => status == SacredAlarmEventStatus.completed;
   bool get isActive => status == SacredAlarmEventStatus.ringing;
 
@@ -355,7 +473,9 @@ class SacredAlarmEvent {
       reference: reference,
       status: status ?? this.status,
       firedAtMs: clearFiredAt ? null : (firedAtMs ?? this.firedAtMs),
-      completedAtMs: clearCompletedAt ? null : (completedAtMs ?? this.completedAtMs),
+      completedAtMs: clearCompletedAt
+          ? null
+          : (completedAtMs ?? this.completedAtMs),
       locked: locked,
       sourceType: sourceType,
       sourceId: sourceId,
@@ -404,7 +524,9 @@ class SacredAlarmEvent {
       id: json['id'] as String,
       dateIso: json['dateIso'] as String,
       scheduledAtMs: json['scheduledAtMs'] as int,
-      activityType: SacredAlarmActivityTypeX.fromId(json['activityType'] as String? ?? ''),
+      activityType: SacredAlarmActivityTypeX.fromId(
+        json['activityType'] as String? ?? '',
+      ),
       verse: json['verse'] as String? ?? '',
       reference: json['reference'] as String? ?? '',
       status: SacredAlarmEventStatusX.fromId(json['status'] as String? ?? ''),
@@ -427,7 +549,10 @@ class SacredAlarmEvent {
       if (decoded is List) {
         return decoded
             .whereType<Map>()
-            .map((entry) => SacredAlarmEvent.fromJson(Map<String, dynamic>.from(entry)))
+            .map(
+              (entry) =>
+                  SacredAlarmEvent.fromJson(Map<String, dynamic>.from(entry)),
+            )
             .toList();
       }
     } catch (_) {}

@@ -36,7 +36,11 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
     final messenger = ScaffoldMessenger.of(context);
     if (enabled && !PlatformCapabilities.supportsStrictSacredAlarms) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Campanas Sagradas estrictas estan disponibles en Android.')),
+        const SnackBar(
+          content: Text(
+            'Campanas Sagradas estrictas estan disponibles en Android.',
+          ),
+        ),
       );
       return;
     }
@@ -44,7 +48,11 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
       final ok = await NotificationService().requestPermissions();
       if (!ok && mounted) {
         messenger.showSnackBar(
-          const SnackBar(content: Text('Activa las notificaciones para usar Campanas Sagradas.')),
+          const SnackBar(
+            content: Text(
+              'Activa las notificaciones para usar Campanas Sagradas.',
+            ),
+          ),
         );
         return;
       }
@@ -52,7 +60,9 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
     final changed = await _service.setEnabled(enabled);
     if (!changed && mounted) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Modo pacto: hay campanas futuras bloqueadas.')),
+        const SnackBar(
+          content: Text('Modo pacto: hay campanas futuras bloqueadas.'),
+        ),
       );
     }
     _exactAllowed = await _service.isExactAlarmAllowed();
@@ -64,7 +74,11 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
     final changed = await _service.updateConfig(next);
     if (!changed && mounted) {
       messenger.showSnackBar(
-        const SnackBar(content: Text('Modo pacto: no se puede debilitar un compromiso activo.')),
+        const SnackBar(
+          content: Text(
+            'Modo pacto: no se puede debilitar un compromiso activo.',
+          ),
+        ),
       );
     }
     _exactAllowed = await _service.isExactAlarmAllowed();
@@ -90,11 +104,13 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
 
   Future<void> _removeWindow(SacredAlarmWindow window) async {
     final config = _service.config.value;
-    final windows = config.effectiveWindows.where((item) => item.id != window.id).toList();
+    final windows = config.effectiveWindows
+        .where((item) => item.id != window.id)
+        .toList();
     if (windows.isEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Deja al menos una ventana activa.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Deja al menos una ventana activa.')),
+      );
       return;
     }
     await _updateConfig(config.copyWith(windows: windows));
@@ -119,8 +135,94 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
 
   Future<void> _removeRule(SacredAlarmFixedRule rule) async {
     final config = _service.config.value;
-    final rules = config.fixedRules.where((item) => item.id != rule.id).toList();
+    final rules = config.fixedRules
+        .where((item) => item.id != rule.id)
+        .toList();
     await _updateConfig(config.copyWith(fixedRules: rules));
+  }
+
+  Future<void> _editOneTimeRule([SacredAlarmOneTimeRule? rule]) async {
+    final messenger = ScaffoldMessenger.of(context);
+    if (!PlatformCapabilities.supportsStrictSacredAlarms) {
+      messenger.showSnackBar(
+        const SnackBar(
+          content: Text('Campanas unicas estan disponibles en Android.'),
+        ),
+      );
+      return;
+    }
+
+    final result = await showDialog<SacredAlarmOneTimeRule>(
+      context: context,
+      builder: (_) => _OneTimeRuleDialog(rule: rule),
+    );
+    if (result == null) return;
+
+    final config = _service.config.value;
+    if (result.enabled && !config.enabled) {
+      final ok = await NotificationService().requestPermissions();
+      if (!ok && mounted) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Activa las notificaciones para usar esta campana.'),
+          ),
+        );
+        return;
+      }
+    }
+
+    final rules = config.oneTimeRules.toList();
+    final index = rules.indexWhere((item) => item.id == result.id);
+    if (index >= 0) {
+      rules[index] = result;
+    } else {
+      rules.add(result);
+    }
+    await _updateConfig(
+      config.copyWith(
+        enabled: result.enabled ? true : config.enabled,
+        randomCount: !config.enabled && result.enabled ? 0 : config.randomCount,
+        oneTimeRules: rules,
+      ),
+    );
+  }
+
+  Future<void> _removeOneTimeRule(SacredAlarmOneTimeRule rule) async {
+    final config = _service.config.value;
+    final rules = config.oneTimeRules
+        .where((item) => item.id != rule.id)
+        .toList();
+    await _updateConfig(config.copyWith(oneTimeRules: rules));
+  }
+
+  Future<void> _setOneTimeRuleEnabled(
+    SacredAlarmOneTimeRule rule,
+    bool enabled,
+  ) async {
+    final config = _service.config.value;
+    if (enabled && !config.enabled) {
+      final ok = await NotificationService().requestPermissions();
+      if (!ok && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Activa las notificaciones para usar esta campana.'),
+          ),
+        );
+        return;
+      }
+    }
+    await _updateConfig(
+      config.copyWith(
+        enabled: enabled ? true : config.enabled,
+        randomCount: !config.enabled && enabled ? 0 : config.randomCount,
+        oneTimeRules: config.oneTimeRules
+            .map(
+              (item) =>
+                  item.id == rule.id ? item.copyWith(enabled: enabled) : item,
+            )
+            .toList(),
+      ),
+    );
   }
 
   Future<void> _testAlarm() async {
@@ -162,14 +264,17 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                   final config = _service.config.value;
                   final todayEvents = _service.todayEvents.value;
                   final upcoming = _service.upcomingEvents();
-                  final lockedCount = upcoming.where((event) => event.locked).length;
+                  final lockedCount = upcoming
+                      .where((event) => event.locked)
+                      .length;
                   return ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
                       _HeroPanel(
                         enabled: config.enabled,
                         exactAllowed: _exactAllowed,
-                        supported: PlatformCapabilities.supportsStrictSacredAlarms,
+                        supported:
+                            PlatformCapabilities.supportsStrictSacredAlarms,
                         lockedCount: lockedCount,
                         daysAhead: config.scheduleDaysAhead,
                       ),
@@ -186,7 +291,10 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                                     ? '$lockedCount campanas futuras protegidas'
                                     : 'Programa desde ahora tus horas vulnerables.',
                               ),
-                              secondary: Icon(Icons.notifications_active, color: t.accent),
+                              secondary: Icon(
+                                Icons.notifications_active,
+                                color: t.accent,
+                              ),
                               onChanged: _toggleEnabled,
                             ),
                             const Divider(height: 1),
@@ -197,9 +305,51 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                               subtitle: const Text(
                                 'Lo ya programado permanece bloqueado hasta completarse.',
                               ),
-                              secondary: Icon(Icons.lock_clock, color: t.accent),
-                              onChanged: (value) =>
-                                  _updateConfig(config.copyWith(strictMode: value)),
+                              secondary: Icon(
+                                Icons.lock_clock,
+                                color: t.accent,
+                              ),
+                              onChanged: (value) => _updateConfig(
+                                config.copyWith(strictMode: value),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      _SectionTitle(
+                        title: 'Campanas de una sola vez',
+                        icon: Icons.event_available,
+                        color: t.accent,
+                      ),
+                      _Card(
+                        child: Column(
+                          children: [
+                            if (config.oneTimeRules.isEmpty)
+                              const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    'Agrega una campana para un evento imprevisto.',
+                                  ),
+                                ),
+                              )
+                            else
+                              ...config.oneTimeRules.map(
+                                (rule) => _OneTimeRuleTile(
+                                  rule: rule,
+                                  onTap: () => _editOneTimeRule(rule),
+                                  onDelete: () => _removeOneTimeRule(rule),
+                                  onEnabledChanged: (enabled) =>
+                                      _setOneTimeRuleEnabled(rule, enabled),
+                                ),
+                              ),
+                            const Divider(height: 1),
+                            _ActionRow(
+                              icon: Icons.add_alarm,
+                              label: 'Agregar campana unica',
+                              onTap: () => _editOneTimeRule(),
                             ),
                           ],
                         ),
@@ -243,7 +393,9 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                                 padding: EdgeInsets.all(16),
                                 child: Align(
                                   alignment: Alignment.centerLeft,
-                                  child: Text('Aun no hay horarios fijos repetitivos.'),
+                                  child: Text(
+                                    'Aun no hay horarios fijos repetitivos.',
+                                  ),
                                 ),
                               )
                             else
@@ -257,7 +409,9 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                                       fixedRules: config.fixedRules
                                           .map(
                                             (item) => item.id == rule.id
-                                                ? item.copyWith(enabled: enabled)
+                                                ? item.copyWith(
+                                                    enabled: enabled,
+                                                  )
                                                 : item,
                                           )
                                           .toList(),
@@ -288,8 +442,9 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                               value: config.randomCount,
                               min: 0,
                               max: 24,
-                              onChanged: (value) =>
-                                  _updateConfig(config.copyWith(randomCount: value)),
+                              onChanged: (value) => _updateConfig(
+                                config.copyWith(randomCount: value),
+                              ),
                             ),
                             const Divider(height: 1),
                             _CountStepper(
@@ -299,14 +454,19 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                               max: 240,
                               step: 15,
                               suffix: 'min',
-                              onChanged: (value) =>
-                                  _updateConfig(config.copyWith(minGapMinutes: value)),
+                              onChanged: (value) => _updateConfig(
+                                config.copyWith(minGapMinutes: value),
+                              ),
                             ),
                           ],
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _SectionTitle(title: 'Volumen', icon: Icons.volume_up, color: t.accent),
+                      _SectionTitle(
+                        title: 'Volumen',
+                        icon: Icons.volume_up,
+                        color: t.accent,
+                      ),
                       _Card(
                         child: Column(
                           children: [
@@ -314,14 +474,22 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                               value: config.enforceMinimumVolume,
                               activeColor: t.accent,
                               title: const Text('Forzar volumen minimo'),
-                              subtitle: const Text('Al sonar, Android sube el canal de alarma.'),
+                              subtitle: const Text(
+                                'Al sonar, Android sube el canal de alarma.',
+                              ),
                               secondary: Icon(Icons.volume_up, color: t.accent),
-                              onChanged: (value) =>
-                                  _updateConfig(config.copyWith(enforceMinimumVolume: value)),
+                              onChanged: (value) => _updateConfig(
+                                config.copyWith(enforceMinimumVolume: value),
+                              ),
                             ),
                             if (config.enforceMinimumVolume)
                               Padding(
-                                padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                                padding: const EdgeInsets.fromLTRB(
+                                  16,
+                                  0,
+                                  16,
+                                  10,
+                                ),
                                 child: Row(
                                   children: [
                                     Expanded(
@@ -329,10 +497,13 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                                         min: 30,
                                         max: 100,
                                         divisions: 7,
-                                        value: config.minimumVolumePercent.toDouble(),
+                                        value: config.minimumVolumePercent
+                                            .toDouble(),
                                         activeColor: t.accent,
                                         onChanged: (value) => _updateConfig(
-                                          config.copyWith(minimumVolumePercent: value.round()),
+                                          config.copyWith(
+                                            minimumVolumePercent: value.round(),
+                                          ),
                                         ),
                                       ),
                                     ),
@@ -354,15 +525,25 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _SectionTitle(title: 'Actividades', icon: Icons.checklist, color: t.accent),
+                      _SectionTitle(
+                        title: 'Actividades',
+                        icon: Icons.checklist,
+                        color: t.accent,
+                      ),
                       _Card(
                         child: Column(
-                          children: SacredAlarmActivityType.values.map((activity) {
-                            final selected = config.activities.contains(activity);
+                          children: SacredAlarmActivityType.values.map((
+                            activity,
+                          ) {
+                            final selected = config.activities.contains(
+                              activity,
+                            );
                             return CheckboxListTile(
                               value: selected,
                               activeColor: t.accent,
-                              title: Text('${activity.iconGlyph} ${activity.label}'),
+                              title: Text(
+                                '${activity.iconGlyph} ${activity.label}',
+                              ),
                               subtitle: Text(activity.shortInstruction),
                               onChanged: (value) async {
                                 final next = config.activities.toSet();
@@ -371,19 +552,27 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                                 } else if (next.length > 1) {
                                   next.remove(activity);
                                 }
-                                await _updateConfig(config.copyWith(activities: next.toList()));
+                                await _updateConfig(
+                                  config.copyWith(activities: next.toList()),
+                                );
                               },
                             );
                           }).toList(),
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _SectionTitle(title: 'Hoy', icon: Icons.today, color: t.accent),
+                      _SectionTitle(
+                        title: 'Hoy',
+                        icon: Icons.today,
+                        color: t.accent,
+                      ),
                       _Card(
                         child: todayEvents.isEmpty
                             ? const Padding(
                                 padding: EdgeInsets.all(16),
-                                child: Text('Activa las campanas para generar el horario de hoy.'),
+                                child: Text(
+                                  'Activa las campanas para generar el horario de hoy.',
+                                ),
                               )
                             : Column(
                                 children: todayEvents
@@ -392,26 +581,40 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                               ),
                       ),
                       const SizedBox(height: 16),
-                      _SectionTitle(title: 'Proximas', icon: Icons.lock, color: t.accent),
+                      _SectionTitle(
+                        title: 'Proximas',
+                        icon: Icons.lock,
+                        color: t.accent,
+                      ),
                       _Card(
                         child: upcoming.isEmpty
                             ? const Padding(
                                 padding: EdgeInsets.all(16),
-                                child: Text('No hay campanas futuras programadas.'),
+                                child: Text(
+                                  'No hay campanas futuras programadas.',
+                                ),
                               )
                             : Column(
                                 children: upcoming
                                     .take(10)
-                                    .map((event) => _EventTile(event: event, showDate: true))
+                                    .map(
+                                      (event) => _EventTile(
+                                        event: event,
+                                        showDate: true,
+                                      ),
+                                    )
                                     .toList(growable: false),
                               ),
                       ),
                       const SizedBox(height: 16),
                       if (!_exactAllowed)
-                        _PermissionPanel(onOpenSettings: _service.openExactAlarmSettings),
+                        _PermissionPanel(
+                          onOpenSettings: _service.openExactAlarmSettings,
+                        ),
                       const SizedBox(height: 16),
                       FilledButton.icon(
-                        onPressed: PlatformCapabilities.supportsStrictSacredAlarms
+                        onPressed:
+                            PlatformCapabilities.supportsStrictSacredAlarms
                             ? _testAlarm
                             : null,
                         icon: const Icon(Icons.campaign),
@@ -462,7 +665,10 @@ class _HeroPanel extends StatelessWidget {
               color: t.accent.withOpacity(0.14),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(enabled ? Icons.lock_clock : Icons.notifications_active, color: t.accent),
+            child: Icon(
+              enabled ? Icons.lock_clock : Icons.notifications_active,
+              color: t.accent,
+            ),
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -471,7 +677,11 @@ class _HeroPanel extends StatelessWidget {
               children: [
                 Text(
                   enabled ? 'Pacto activo' : 'Prepara tu defensa',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: t.textPrimary),
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w800,
+                    color: t.textPrimary,
+                  ),
                 ),
                 const SizedBox(height: 6),
                 Text(
@@ -523,7 +733,11 @@ class _SectionTitle extends StatelessWidget {
   final IconData icon;
   final Color color;
 
-  const _SectionTitle({required this.title, required this.icon, required this.color});
+  const _SectionTitle({
+    required this.title,
+    required this.icon,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -549,15 +763,59 @@ class _WindowTile extends StatelessWidget {
   final VoidCallback onTap;
   final VoidCallback onDelete;
 
-  const _WindowTile({required this.window, required this.onTap, required this.onDelete});
+  const _WindowTile({
+    required this.window,
+    required this.onTap,
+    required this.onDelete,
+  });
 
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return ListTile(
       leading: Icon(Icons.schedule, color: t.accent),
-      title: Text('${_formatMinute(window.startMinute)} - ${_formatMinute(window.endMinute)}'),
+      title: Text(
+        '${_formatMinute(window.startMinute)} - ${_formatMinute(window.endMinute)}',
+      ),
       subtitle: const Text('Rango habilitado para campanas aleatorias'),
+      trailing: IconButton(
+        tooltip: 'Eliminar',
+        icon: const Icon(Icons.delete_outline),
+        onPressed: onDelete,
+      ),
+      onTap: onTap,
+    );
+  }
+}
+
+class _OneTimeRuleTile extends StatelessWidget {
+  final SacredAlarmOneTimeRule rule;
+  final VoidCallback onTap;
+  final VoidCallback onDelete;
+  final ValueChanged<bool> onEnabledChanged;
+
+  const _OneTimeRuleTile({
+    required this.rule,
+    required this.onTap,
+    required this.onDelete,
+    required this.onEnabledChanged,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    final activity = rule.activityType;
+    final scheduled = rule.scheduledAt;
+    return ListTile(
+      leading: Switch.adaptive(
+        value: rule.enabled,
+        activeColor: t.accent,
+        onChanged: onEnabledChanged,
+      ),
+      title: Text(
+        '${_formatDate(scheduled)} · ${_formatMinute(scheduled.hour * 60 + scheduled.minute)}',
+      ),
+      subtitle: Text(activity == null ? 'Actividad rotativa' : activity.label),
       trailing: IconButton(
         tooltip: 'Eliminar',
         icon: const Icon(Icons.delete_outline),
@@ -610,7 +868,11 @@ class _ActionRow extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _ActionRow({required this.icon, required this.label, required this.onTap});
+  const _ActionRow({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -655,7 +917,9 @@ class _CountStepper extends StatelessWidget {
           Expanded(child: Text(label)),
           IconButton.filledTonal(
             tooltip: 'Bajar',
-            onPressed: value <= min ? null : () => onChanged((value - step).clamp(min, max)),
+            onPressed: value <= min
+                ? null
+                : () => onChanged((value - step).clamp(min, max)),
             icon: const Icon(Icons.remove),
           ),
           SizedBox(
@@ -668,7 +932,9 @@ class _CountStepper extends StatelessWidget {
           ),
           IconButton.filledTonal(
             tooltip: 'Subir',
-            onPressed: value >= max ? null : () => onChanged((value + step).clamp(min, max)),
+            onPressed: value >= max
+                ? null
+                : () => onChanged((value + step).clamp(min, max)),
             icon: const Icon(Icons.add),
           ),
         ],
@@ -688,14 +954,24 @@ class _EventTile extends StatelessWidget {
     final t = AppThemeData.of(context);
     final time = TimeOfDay.fromDateTime(event.scheduledAt);
     final statusText = switch (event.status) {
-      SacredAlarmEventStatus.scheduled => event.sourceType == 'fixed' ? 'Fija' : 'Aleatoria',
+      SacredAlarmEventStatus.scheduled =>
+        event.sourceType == 'fixed'
+            ? 'Fija'
+            : event.sourceType == 'oneTime'
+            ? 'Unica'
+            : 'Aleatoria',
       SacredAlarmEventStatus.ringing => 'Sonando',
       SacredAlarmEventStatus.completed => 'Completada',
       SacredAlarmEventStatus.missed => 'Pendiente',
     };
-    final dateText = showDate ? '${event.scheduledAt.day}/${event.scheduledAt.month} · ' : '';
+    final dateText = showDate
+        ? '${event.scheduledAt.day}/${event.scheduledAt.month} · '
+        : '';
     return ListTile(
-      leading: Text(event.activityType.iconGlyph, style: const TextStyle(fontSize: 24)),
+      leading: Text(
+        event.activityType.iconGlyph,
+        style: const TextStyle(fontSize: 24),
+      ),
       title: Text(event.activityType.label),
       subtitle: Text('$dateText${event.reference} · $statusText'),
       trailing: Text(
@@ -783,7 +1059,9 @@ class _WindowDialogState extends State<_WindowDialog> {
           _endMinute = (_startMinute + 60).clamp(1, 24 * 60 - 1);
         }
       } else {
-        _endMinute = next <= _startMinute ? (_startMinute + 60).clamp(1, 24 * 60 - 1) : next;
+        _endMinute = next <= _startMinute
+            ? (_startMinute + 60).clamp(1, 24 * 60 - 1)
+            : next;
       }
     });
   }
@@ -808,13 +1086,166 @@ class _WindowDialogState extends State<_WindowDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
         FilledButton(
-          onPressed: () => Navigator.of(
-            context,
-          ).pop(SacredAlarmWindow(id: _id, startMinute: _startMinute, endMinute: _endMinute)),
+          onPressed: () => Navigator.of(context).pop(
+            SacredAlarmWindow(
+              id: _id,
+              startMinute: _startMinute,
+              endMinute: _endMinute,
+            ),
+          ),
           child: const Text('Guardar'),
         ),
+      ],
+    );
+  }
+}
+
+class _OneTimeRuleDialog extends StatefulWidget {
+  final SacredAlarmOneTimeRule? rule;
+
+  const _OneTimeRuleDialog({this.rule});
+
+  @override
+  State<_OneTimeRuleDialog> createState() => _OneTimeRuleDialogState();
+}
+
+class _OneTimeRuleDialogState extends State<_OneTimeRuleDialog> {
+  late String _id;
+  late bool _enabled;
+  late DateTime _scheduledAt;
+  SacredAlarmActivityType? _activityType;
+
+  @override
+  void initState() {
+    super.initState();
+    final rule = widget.rule;
+    final fallback = DateTime.now().add(const Duration(hours: 1));
+    _id = rule?.id ?? 'one-time-${DateTime.now().millisecondsSinceEpoch}';
+    _enabled = rule?.enabled ?? true;
+    _scheduledAt = rule?.scheduledAt ?? fallback;
+    _activityType = rule?.activityType;
+  }
+
+  Future<void> _pickDate() async {
+    final now = DateTime.now();
+    final initialDate = _scheduledAt.isBefore(now) ? now : _scheduledAt;
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(now.year, now.month, now.day),
+      lastDate: now.add(const Duration(days: 365)),
+    );
+    if (picked == null) return;
+    setState(() {
+      _scheduledAt = DateTime(
+        picked.year,
+        picked.month,
+        picked.day,
+        _scheduledAt.hour,
+        _scheduledAt.minute,
+      );
+    });
+  }
+
+  Future<void> _pickTime() async {
+    final picked = await showTimePicker(
+      context: context,
+      initialTime: TimeOfDay(
+        hour: _scheduledAt.hour,
+        minute: _scheduledAt.minute,
+      ),
+    );
+    if (picked == null) return;
+    setState(() {
+      _scheduledAt = DateTime(
+        _scheduledAt.year,
+        _scheduledAt.month,
+        _scheduledAt.day,
+        picked.hour,
+        picked.minute,
+      );
+    });
+  }
+
+  void _save() {
+    if (!_scheduledAt.isAfter(DateTime.now())) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Elige una fecha y hora futura.')),
+      );
+      return;
+    }
+    Navigator.of(context).pop(
+      SacredAlarmOneTimeRule(
+        id: _id,
+        enabled: _enabled,
+        scheduledAtMs: _scheduledAt.millisecondsSinceEpoch,
+        activityType: _activityType,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
+    final minute = _scheduledAt.hour * 60 + _scheduledAt.minute;
+    return AlertDialog(
+      title: const Text('Campana unica'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SwitchListTile.adaptive(
+              value: _enabled,
+              activeColor: t.accent,
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Activa'),
+              onChanged: (value) => setState(() => _enabled = value),
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Fecha'),
+              trailing: Text(_formatDate(_scheduledAt)),
+              onTap: _pickDate,
+            ),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              title: const Text('Hora'),
+              trailing: Text(_formatMinute(minute)),
+              onTap: _pickTime,
+            ),
+            const SizedBox(height: 16),
+            DropdownButtonFormField<SacredAlarmActivityType?>(
+              value: _activityType,
+              decoration: const InputDecoration(labelText: 'Actividad'),
+              items: [
+                const DropdownMenuItem<SacredAlarmActivityType?>(
+                  value: null,
+                  child: Text('Rotativa'),
+                ),
+                ...SacredAlarmActivityType.values.map(
+                  (activity) => DropdownMenuItem<SacredAlarmActivityType?>(
+                    value: activity,
+                    child: Text('${activity.iconGlyph} ${activity.label}'),
+                  ),
+                ),
+              ],
+              onChanged: (value) => setState(() => _activityType = value),
+            ),
+          ],
+        ),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
+        FilledButton(onPressed: _save, child: const Text('Guardar')),
       ],
     );
   }
@@ -882,13 +1313,18 @@ class _RuleDialogState extends State<_RuleDialog> {
             const SizedBox(height: 8),
             Text(
               'Dias',
-              style: TextStyle(color: t.textSecondary, fontWeight: FontWeight.w700),
+              style: TextStyle(
+                color: t.textSecondary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
               runSpacing: 6,
-              children: List<int>.generate(7, (index) => index + 1).map((weekday) {
+              children: List<int>.generate(7, (index) => index + 1).map((
+                weekday,
+              ) {
                 final selected = _weekdays.contains(weekday);
                 return FilterChip(
                   label: Text(_weekdayShort(weekday)),
@@ -928,7 +1364,10 @@ class _RuleDialogState extends State<_RuleDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('Cancelar')),
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
+        ),
         FilledButton(
           onPressed: () => Navigator.of(context).pop(
             SacredAlarmFixedRule(
@@ -950,6 +1389,12 @@ String _formatMinute(int minute) {
   final hour = (minute ~/ 60).toString().padLeft(2, '0');
   final min = (minute % 60).toString().padLeft(2, '0');
   return '$hour:$min';
+}
+
+String _formatDate(DateTime date) {
+  final day = date.day.toString().padLeft(2, '0');
+  final month = date.month.toString().padLeft(2, '0');
+  return '$day/$month/${date.year}';
 }
 
 String _weekdayShort(int weekday) {
