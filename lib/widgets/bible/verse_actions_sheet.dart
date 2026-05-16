@@ -455,7 +455,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
                 context: context,
                 backgroundColor: Colors.transparent,
                 isScrollControlled: true,
-                builder: (_) => NoteEditorSheet(verse: widget.verse),
+                builder: (_) => NoteEditorSheet(verse: widget.verse, theme: _t),
               );
             },
           ),

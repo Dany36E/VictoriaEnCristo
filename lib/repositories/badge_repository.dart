@@ -11,7 +11,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../utils/retry_utils.dart';
 
 class BadgeRepository {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -70,7 +69,9 @@ class BadgeRepository {
       _pendingCloudSave = _prefs?.getBool(_keyPendingCloudSave) ?? false;
       _isInitialized = true;
 
-      debugPrint('🏅 [BADGE_REPO] Initialized with ${_cache.length} cached levels');
+      debugPrint(
+        '🏅 [BADGE_REPO] Initialized with ${_cache.length} cached levels',
+      );
     } catch (e) {
       debugPrint('🏅 [BADGE_REPO] Init error: $e');
       _isInitialized = true;
@@ -80,7 +81,9 @@ class BadgeRepository {
   /// Conectar con usuario y sincronizar (CLOUD-FIRST con merge)
   Future<void> connectUser(String uid) async {
     if (_connectingUid == uid && _connectFuture != null) {
-      debugPrint('🏅 [BADGE_REPO] connectUser already in progress for $uid, awaiting...');
+      debugPrint(
+        '🏅 [BADGE_REPO] connectUser already in progress for $uid, awaiting...',
+      );
       await _connectFuture;
       return;
     }
@@ -96,9 +99,10 @@ class BadgeRepository {
     try {
       debugPrint('🏅 [BADGE_REPO] Connecting user: $uid');
       await _realtimeSubscription?.cancel();
-      await _syncFromCloud(uid);
-      _startRealtimeSync(uid);
-      debugPrint('🏅 [BADGE_REPO] ✅ Connected with ${_cache.length} badge levels');
+      await _startRealtimeSync(uid);
+      debugPrint(
+        '🏅 [BADGE_REPO] ✅ Connected with ${_cache.length} badge levels',
+      );
     } catch (e) {
       debugPrint('🏅 [BADGE_REPO] Connect error: $e');
     } finally {
@@ -135,58 +139,11 @@ class BadgeRepository {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Referencia al documento único de badges
-  DocumentReference _badgesDoc(String uid) =>
-      _firestore.collection('users').doc(uid).collection('userSettings').doc('badges');
-
-  /// Descargar badges desde cloud — MERGE: siempre tomar nivel más alto
-  Future<void> _syncFromCloud(String uid) async {
-    try {
-      final localHadPendingSave = _pendingCloudSave;
-      final doc = await retryWithBackoff(
-        () => _badgesDoc(
-          uid,
-        ).get(const GetOptions(source: Source.server)).timeout(const Duration(seconds: 15)),
-      );
-
-      if (doc.exists) {
-        final data = doc.data() as Map<String, dynamic>? ?? {};
-        final cloudLevels =
-            (data['levels'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as int)) ?? {};
-
-        // Merge: tomar el nivel más alto entre local y cloud
-        var changedByLocal = false;
-        for (final entry in cloudLevels.entries) {
-          final localLevel = _cache[entry.key] ?? -1;
-          if (entry.value > localLevel) {
-            _cache[entry.key] = entry.value;
-          } else if (localLevel > entry.value) {
-            changedByLocal = true;
-          }
-        }
-        for (final localEntry in _cache.entries) {
-          if (!cloudLevels.containsKey(localEntry.key)) {
-            changedByLocal = true;
-          }
-        }
-        await _saveLocalCache();
-
-        if (localHadPendingSave || changedByLocal) {
-          await saveAllToCloud(_cache);
-        }
-
-        debugPrint('🏅 [BADGE_REPO] Merged ${cloudLevels.length} badge levels from cloud');
-      } else {
-        debugPrint('🏅 [BADGE_REPO] Cloud empty, keeping local cache');
-        // Si hay datos locales, subirlos a cloud para inicializar
-        if (_cache.isNotEmpty) {
-          await saveAllToCloud(_cache);
-        }
-      }
-    } catch (e) {
-      debugPrint('🏅 [BADGE_REPO] Cloud sync error: $e');
-      // Mantener cache local si falla
-    }
-  }
+  DocumentReference _badgesDoc(String uid) => _firestore
+      .collection('users')
+      .doc(uid)
+      .collection('userSettings')
+      .doc('badges');
 
   /// Guardar todos los niveles a cloud (un solo write)
   Future<void> saveAllToCloud(Map<String, int> levels) async {
@@ -199,14 +156,19 @@ class BadgeRepository {
 
       await _badgesDoc(uid).set({
         'levels': levels,
-        'totalUnlocked': levels.values.fold<int>(0, (acc, lvl) => acc + lvl + 1),
+        'totalUnlocked': levels.values.fold<int>(
+          0,
+          (acc, lvl) => acc + lvl + 1,
+        ),
         'updatedAt': FieldValue.serverTimestamp(),
       });
 
       _pendingCloudSave = false;
       await _prefs?.setBool(_keyPendingCloudSave, false);
 
-      debugPrint('☁️ [BADGE_REPO] Saved ${levels.length} badge levels to cloud');
+      debugPrint(
+        '☁️ [BADGE_REPO] Saved ${levels.length} badge levels to cloud',
+      );
     } catch (e) {
       _pendingCloudSave = true;
       await _prefs?.setBool(_keyPendingCloudSave, true);
@@ -222,15 +184,27 @@ class BadgeRepository {
     await saveAllToCloud(_cache);
   }
 
-  void _startRealtimeSync(String uid) {
+  Future<void> _startRealtimeSync(String uid) async {
+    final firstSnapshot = Completer<void>();
+
     _realtimeSubscription = _badgesDoc(uid).snapshots().listen(
       (doc) {
-        if (doc.metadata.hasPendingWrites || _pendingCloudSave) return;
-        if (!doc.exists) return;
+        if (doc.metadata.hasPendingWrites) return;
+
+        if (!doc.exists) {
+          if (_cache.isNotEmpty || _pendingCloudSave) {
+            unawaited(saveAllToCloud(_cache));
+          }
+          if (!firstSnapshot.isCompleted) firstSnapshot.complete();
+          return;
+        }
 
         final data = doc.data() as Map<String, dynamic>? ?? {};
         final cloudLevels =
-            (data['levels'] as Map<String, dynamic>?)?.map((k, v) => MapEntry(k, v as int)) ?? {};
+            (data['levels'] as Map<String, dynamic>?)?.map(
+              (k, v) => MapEntry(k, v as int),
+            ) ??
+            {};
 
         var changedByCloud = false;
         var changedByLocal = false;
@@ -249,18 +223,31 @@ class BadgeRepository {
           }
         }
 
+        final shouldUploadLocal = _pendingCloudSave || changedByLocal;
+
         if (changedByCloud) {
           _saveLocalCache();
           onCloudCacheChanged?.call();
-          debugPrint('🏅 [BADGE_REPO] Realtime update: ${_cache.length} badge levels');
+          debugPrint(
+            '🏅 [BADGE_REPO] Realtime update: ${_cache.length} badge levels',
+          );
         }
-        if (changedByLocal) {
+        if (shouldUploadLocal) {
           unawaited(saveAllToCloud(_cache));
         }
+
+        if (!firstSnapshot.isCompleted) firstSnapshot.complete();
       },
       onError: (e) {
         debugPrint('🏅 [BADGE_REPO] Realtime sync error: $e');
+        if (!firstSnapshot.isCompleted) firstSnapshot.complete();
       },
+    );
+
+    await firstSnapshot.future.timeout(
+      const Duration(seconds: 15),
+      onTimeout: () =>
+          debugPrint('🏅 [BADGE_REPO] Initial realtime snapshot timeout'),
     );
   }
 

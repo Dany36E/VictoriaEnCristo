@@ -35,28 +35,44 @@ class ReaderSearchOverlay extends StatelessWidget {
       right: 0,
       child: Container(
         height: 44,
-        padding: const EdgeInsets.symmetric(horizontal: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         color: t.surface.withOpacity(0.98),
         child: Row(
           children: [
             Expanded(
-              child: TextField(
-                controller: searchController,
-                focusNode: searchFocusNode,
-                style:
-                    GoogleFonts.manrope(color: t.textPrimary, fontSize: 14),
-                decoration: InputDecoration(
-                  hintText: 'Buscar en capítulo...',
-                  hintStyle: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.4),
-                    fontSize: 14,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                decoration: BoxDecoration(
+                  color: t.isDark
+                      ? Colors.white.withOpacity(0.06)
+                      : Colors.black.withOpacity(0.04),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: t.isDark
+                        ? Colors.white.withOpacity(0.08)
+                        : Colors.black.withOpacity(0.06),
+                    width: 1,
                   ),
-                  border: InputBorder.none,
-                  isDense: true,
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
                 ),
-                textInputAction: TextInputAction.search,
-                onChanged: controller.runInReaderSearch,
+                child: TextField(
+                  controller: searchController,
+                  focusNode: searchFocusNode,
+                  cursorColor: t.textPrimary,
+                  style: GoogleFonts.manrope(
+                      color: t.textPrimary, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: 'Buscar en capítulo...',
+                    hintStyle: GoogleFonts.manrope(
+                      color: t.textSecondary.withOpacity(0.4),
+                      fontSize: 14,
+                    ),
+                    border: InputBorder.none,
+                    isDense: true,
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                  ),
+                  textInputAction: TextInputAction.search,
+                  onChanged: controller.runInReaderSearch,
+                ),
               ),
             ),
             if (matchText.isNotEmpty)

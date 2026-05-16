@@ -7,8 +7,10 @@ import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_parser_service.dart';
+import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
+import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../widgets/bible/collapsible_section.dart';
 import '../../widgets/bible/concordance_sheet.dart';
@@ -68,9 +70,15 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadBooks();
+    _bootstrap();
     _loadLastRead();
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowWelcome());
+  }
+
+  Future<void> _bootstrap() async {
+    await UserScopedServices.I.ensureBible();
+    if (!mounted) return;
+    await _loadBooks();
   }
 
   Future<void> _maybeShowWelcome() async {
@@ -103,7 +111,12 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   Future<void> _loadBooks() async {
     try {
-      final books = await BibleParserService.I.getBooks(_version);
+      var version = _version;
+      if (!BibleDownloadService.I.isAvailable(version)) {
+        version = BibleVersion.rvr1960;
+        await BibleUserDataService.I.setPreferredVersion(version);
+      }
+      final books = await BibleParserService.I.getBooks(version);
       if (mounted) {
         setState(() {
           _allBooks = books;

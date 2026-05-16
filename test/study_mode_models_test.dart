@@ -80,7 +80,10 @@ void main() {
         versionId: 'RVR1960',
       );
 
-      expect(base.copyWith(hopeMessage: 'Jesús quiere sanarte.').hasContent, isTrue);
+      expect(
+        base.copyWith(hopeMessage: 'Jesús quiere sanarte.').hasContent,
+        isTrue,
+      );
       expect(base.copyWith(mainVerses: [6]).hasContent, isTrue);
     });
 
@@ -100,7 +103,10 @@ void main() {
           );
       final md = a.toMarkdown();
       // about_god va primero según orden canónico
-      expect(md.indexOf('El Verbo es Dios.'), lessThan(md.indexOf('Confiar en la Palabra hoy.')));
+      expect(
+        md.indexOf('El Verbo es Dios.'),
+        lessThan(md.indexOf('Confiar en la Palabra hoy.')),
+      );
       expect(md.contains('ignorar'), isFalse);
     });
 
@@ -122,18 +128,31 @@ void main() {
       expect(md, contains('Jesús quiere sanarte.'));
       expect(md, contains('**Verso Principal**'));
       expect(md, contains('Juan 5:5-7, 9'));
-      expect(md.indexOf('Jesús ve al enfermo.'), lessThan(md.indexOf('**Mensaje de esperanza**')));
+      expect(
+        md.indexOf('Jesús ve al enfermo.'),
+        lessThan(md.indexOf('**Mensaje de esperanza**')),
+      );
     });
 
-    test('docId y chapterKey', () {
+    test('docId y chapterKey para estudios nuevos y legacy', () {
       final a = StudyChapterAnswers.empty(
         bookNumber: 19,
         bookName: 'Salmos',
         chapter: 23,
         versionId: 'RVR1960',
       );
-      expect(a.docId, '19_23');
-      expect(a.chapterKey, '19:23');
+      expect(a.docId, startsWith('st_'));
+      expect(a.chapterKey, a.docId);
+
+      final legacy = StudyChapterAnswers.fromMap({
+        'bookNumber': 19,
+        'bookName': 'Salmos',
+        'chapter': 23,
+        'versionId': 'RVR1960',
+        'answers': <String, String>{},
+      });
+      expect(legacy.docId, '19_23');
+      expect(legacy.chapterKey, '19:23');
     });
 
     test('las 6 preguntas canónicas existen y tienen ids únicos', () {
@@ -182,8 +201,14 @@ void main() {
 
     test('reference incluye rango cuando aplica', () {
       expect(makeBase().reference, 'Juan 4');
-      expect(makeBase().copyWith(studyStartVerse: 7, studyEndVerse: 7).reference, 'Juan 4:7');
-      expect(makeBase().copyWith(studyStartVerse: 44, studyEndVerse: 51).reference, 'Juan 4:44-51');
+      expect(
+        makeBase().copyWith(studyStartVerse: 7, studyEndVerse: 7).reference,
+        'Juan 4:7',
+      );
+      expect(
+        makeBase().copyWith(studyStartVerse: 44, studyEndVerse: 51).reference,
+        'Juan 4:44-51',
+      );
     });
 
     test('serialización roundtrip preserva el rango', () {

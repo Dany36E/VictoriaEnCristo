@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../models/prayer_map.dart';
 import '../services/journal_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
@@ -109,28 +110,107 @@ class JournalEntryDetail extends StatelessWidget {
               const SizedBox(height: 24),
             ],
             
-            // Contenido
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: t.cardBg,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
+            // Contenido — si es un Mapa de Oración estructurado, renderiza
+            // cada sección como un bloque. Si es texto libre (entradas
+            // antiguas), lo muestra tal cual.
+            Builder(builder: (_) {
+              final pm = PrayerMapData.tryDecode(entry.content);
+              if (pm == null) {
+                return Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: t.cardBg,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.05),
+                        blurRadius: 10,
+                      ),
+                    ],
                   ),
+                  child: Text(
+                    entry.content,
+                    style: TextStyle(
+                      fontSize: 16,
+                      height: 1.7,
+                      color: t.textPrimary,
+                    ),
+                  ),
+                );
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ...PrayerMapData.sections.map((s) {
+                    final value = pm.getField(s.key).trim();
+                    if (value.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: t.cardBg,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                              color: t.accent.withOpacity(0.12)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              s.label,
+                              style: TextStyle(
+                                fontSize: 13,
+                                fontWeight: FontWeight.w700,
+                                color: t.accent,
+                                height: 1.3,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              value,
+                              style: TextStyle(
+                                fontSize: 15,
+                                height: 1.6,
+                                color: t.textPrimary,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                  Container(
+                    padding: const EdgeInsets.all(14),
+                    decoration: BoxDecoration(
+                      color: t.accent.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Text(
+                      'Amén. Gracias, Padre, por oír mis oraciones.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: t.textPrimary,
+                        fontWeight: FontWeight.w600,
+                        fontStyle: FontStyle.italic,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                  if (pm.verseReference.isNotEmpty) ...[
+                    const SizedBox(height: 10),
+                    Text(
+                      'Versículo del día: ${pm.verseReference}',
+                      style: TextStyle(
+                        color: t.textSecondary,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
                 ],
-              ),
-              child: Text(
-                entry.content,
-                style: TextStyle(
-                  fontSize: 16,
-                  height: 1.7,
-                  color: t.textPrimary,
-                ),
-              ),
-            ),
+              );
+            }),
           ],
         ),
       ),

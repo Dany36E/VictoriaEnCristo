@@ -44,7 +44,10 @@ class StudyModeService {
   static const _highlightsCachePrefix = 'study_highlights_cache_v1';
   static const _onboardingKey = 'study_mode_onboarding_seen_v1';
 
-  /// chapterKey ('book:chapter') → respuestas
+  /// chapterKey ('book:chapter' o studyId) → respuestas.
+  /// A partir de la migración de "estudios independientes" la clave principal
+  /// es el `studyId` propio de cada estudio. Los documentos legacy (sin
+  /// studyId) siguen usando la clave `'$bookNumber:$chapter'`.
   final ValueNotifier<Map<String, StudyChapterAnswers>> answersNotifier =
       ValueNotifier(const {});
 
@@ -134,7 +137,7 @@ class StudyModeService {
   void _listenHighlights() {
     _highlightsSub = _highlightsCol
         .orderBy('createdAt', descending: true)
-        .limit(2000)
+        .limit(500)
         .snapshots()
         .listen(
           (snap) {
@@ -163,8 +166,47 @@ class StudyModeService {
   // Answers API
   // ──────────────────────────────────────────────────────────────────────
 
-  StudyChapterAnswers? answersFor(int bookNumber, int chapter) =>
-      answersNotifier.value['$bookNumber:$chapter'];
+  /// Devuelve el estudio más reciente (por `updatedAt`) que coincida con
+  /// el libro y capítulo indicados. Si no hay ninguno, retorna null.
+  /// Mantenido por compatibilidad con llamadores antiguos; los nuevos
+  /// caminos deberían resolver por `studyId` vía `answersForStudyId`.
+  StudyChapterAnswers? answersFor(int bookNumber, int chapter) {
+    StudyChapterAnswers? best;
+    for (final a in answersNotifier.value.values) {
+      if (a.bookNumber != bookNumber || a.chapter != chapter) continue;
+      if (best == null || a.updatedAt.isAfter(best.updatedAt)) {
+        best = a;
+      }
+    }
+    return best;
+  }
+
+  /// Devuelve el estudio con el `studyId` indicado (o null).
+  StudyChapterAnswers? answersForStudyId(String? studyId) {
+    if (studyId == null) return null;
+    return answersNotifier.value[studyId];
+  }
+
+  /// Lista todos los estudios guardados para un libro/capítulo, ordenados por
+  /// fecha de actualización descendente. Útil para el selector de estudios
+  /// guardados y para segmentar notas espejo en la lectura normal.
+  List<StudyChapterAnswers> studiesForChapter(int bookNumber, int chapter) {
+    final list = answersNotifier.value.values
+        .where((a) => a.bookNumber == bookNumber && a.chapter == chapter)
+        .toList();
+    list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return list;
+  }
+
+  /// Estudios cuyo rango cubre un versículo concreto (para segmentar notas).
+  List<StudyChapterAnswers> studiesCoveringVerse(
+    int bookNumber,
+    int chapter,
+    int verse,
+  ) {
+    final list = studiesForChapter(bookNumber, chapter);
+    return list.where((a) => a.versesInRange().contains(verse)).toList();
+  }
 
   /// Elimina un estudio guardado y sus notas espejo. Por defecto conserva los
   /// subrayados palabra-por-palabra para evitar pérdida accidental de tinta.
@@ -264,6 +306,9 @@ class StudyModeService {
   }
 
   /// Actualiza únicamente el rango estudiado, sin tocar las respuestas.
+  /// Si se proporciona `studyId`, se opera sobre ese estudio concreto;
+  /// de lo contrario se crea uno nuevo (mantén la semántica de "nuevo
+  /// estudio" del modo Setup).
   Future<void> setStudyRange({
     required int bookNumber,
     required String bookName,
@@ -271,17 +316,19 @@ class StudyModeService {
     required String versionId,
     required int? startVerse,
     required int? endVerse,
+    String? studyId,
   }) async {
     if (_uid == null) return;
-    final key = '$bookNumber:$chapter';
-    final base =
-        answersNotifier.value[key] ??
-        StudyChapterAnswers.empty(
-          bookNumber: bookNumber,
-          bookName: bookName,
-          chapter: chapter,
-          versionId: versionId,
-        );
+    final base = studyId != null && answersNotifier.value[studyId] != null
+        ? answersNotifier.value[studyId]!
+        : StudyChapterAnswers.empty(
+            studyId: studyId,
+            bookNumber: bookNumber,
+            bookName: bookName,
+            chapter: chapter,
+            versionId: versionId,
+          );
+    final key = base.chapterKey;
     final clear = startVerse == null || endVerse == null;
     final updated = base.copyWith(
       versionId: versionId,
@@ -319,14 +366,48 @@ class StudyModeService {
           existing != null && !(existing.tags.contains('modo-estudio'));
       if (existingIsManual) return; // respetamos nota manual
 
+      // Agregamos TODOS los estudios del capítulo, ordenados por fecha de
+      // creación, para que la nota a nivel capítulo refleje cada estudio
+      // independiente en una sección propia.
+      final all =
+          studiesForChapter(
+              a.bookNumber,
+              a.chapter,
+            ).where((s) => s.hasContent).toList()
+            ..sort((x, y) => x.createdAt.compareTo(y.createdAt));
+
+      if (all.isEmpty) {
+        if (existing != null) {
+          await ChapterNoteService.I.deleteNote(existing.id);
+        }
+        return;
+      }
+
+      final buf = StringBuffer();
+      for (var i = 0; i < all.length; i++) {
+        final s = all[i];
+        buf.writeln('## ${i + 1}. ${s.reference}');
+        buf.writeln();
+        buf.writeln(s.toMarkdown());
+        if (i < all.length - 1) {
+          buf.writeln();
+          buf.writeln('---');
+          buf.writeln();
+        }
+      }
+
+      final title = all.length == 1
+          ? 'Modo Estudio · ${all.first.reference}'
+          : 'Modo Estudio · ${a.bookName} ${a.chapter}';
+
       await ChapterNoteService.I.saveNote(
         existingId: existing?.id,
         versionId: a.versionId,
         bookNumber: a.bookNumber,
         bookName: a.bookName,
         chapter: a.chapter,
-        title: 'Modo Estudio · ${a.reference}',
-        content: a.toMarkdown(),
+        title: title,
+        content: buf.toString().trimRight(),
         tags: const ['modo-estudio'],
         colorHex: 'D4A853',
       );
@@ -346,46 +427,17 @@ class StudyModeService {
     try {
       final prevSet = previous?.versesInRange().toSet() ?? const <int>{};
       final currSet = current.versesInRange().toSet();
-
-      // 1. Borrar notas-espejo de versículos que dejaron de estar en el rango.
-      final removed = prevSet.difference(currSet);
-      for (final v in removed) {
-        await _maybeRemoveMirrorVerseNote(
-          current.bookNumber,
-          current.chapter,
-          v,
-        );
-      }
-
-      // 2. Escribir/actualizar notas en el rango actual.
-      if (currSet.isEmpty) return;
-      final body = current.toMarkdown();
-      if (body.trim().isEmpty) {
-        for (final v in currSet) {
-          await _maybeRemoveMirrorVerseNote(
-            current.bookNumber,
-            current.chapter,
-            v,
-          );
-        }
-        return;
-      }
-      final mirrored = '$_verseNoteMarker ${current.reference}\n\n$body';
-      for (final v in currSet) {
-        final existing = BibleUserDataService
-            .I
-            .notesNotifier
-            .value['${current.bookNumber}:${current.chapter}:$v'];
-        // Respetar nota manual previa (sin marcador).
-        if (existing != null && !existing.text.startsWith(_verseNoteMarker)) {
-          continue;
-        }
-        await BibleUserDataService.I.saveNote(
+      // Recalculamos el cuerpo agregado de TODOS los versículos afectados
+      // (los que están en el rango actual, los que estaban antes pero ya no,
+      // o ambos). Cada versículo puede tener varias notas de estudios
+      // independientes que coexisten — segmentadas con separadores.
+      final affected = {...prevSet, ...currSet};
+      for (final v in affected) {
+        await _recomputeMirrorForVerse(
           bookNumber: current.bookNumber,
+          bookName: current.bookName,
           chapter: current.chapter,
           verse: v,
-          bookName: current.bookName,
-          text: mirrored,
         );
       }
     } catch (e) {
@@ -393,10 +445,75 @@ class StudyModeService {
     }
   }
 
+  /// Recalcula la nota espejo de un versículo a partir de todos los estudios
+  /// del capítulo cuyo rango lo cubre. Si no hay estudios con contenido, la
+  /// nota espejo se elimina (respetando notas manuales del usuario).
+  Future<void> _recomputeMirrorForVerse({
+    required int bookNumber,
+    required String bookName,
+    required int chapter,
+    required int verse,
+  }) async {
+    final covering = studiesCoveringVerse(
+      bookNumber,
+      chapter,
+      verse,
+    ).where((s) => s.hasContent).toList();
+
+    final existing = BibleUserDataService
+        .I
+        .notesNotifier
+        .value['$bookNumber:$chapter:$verse'];
+    // Si hay nota manual del usuario (sin marcador), no la tocamos.
+    if (existing != null && !existing.text.startsWith(_verseNoteMarker)) {
+      return;
+    }
+
+    if (covering.isEmpty) {
+      if (existing != null) {
+        await BibleUserDataService.I.deleteNote(bookNumber, chapter, verse);
+      }
+      return;
+    }
+
+    // Ordenamos por fecha de creación (estudio más antiguo primero) para
+    // que la lectura de la nota tenga un orden estable.
+    covering.sort((a, b) => a.createdAt.compareTo(b.createdAt));
+
+    final buf = StringBuffer('$_verseNoteMarker Estudios sobre v.$verse\n');
+    for (var i = 0; i < covering.length; i++) {
+      final s = covering[i];
+      buf.writeln();
+      buf.writeln('### ${i + 1}. ${s.reference}');
+      buf.writeln();
+      buf.writeln(s.toMarkdown());
+      if (i < covering.length - 1) {
+        buf.writeln();
+        buf.writeln('---');
+      }
+    }
+
+    await BibleUserDataService.I.saveNote(
+      bookNumber: bookNumber,
+      chapter: chapter,
+      verse: verse,
+      bookName: bookName,
+      text: buf.toString().trimRight(),
+    );
+  }
+
   Future<void> _clearMirroredVerseNotes(StudyChapterAnswers? prev) async {
     if (prev == null) return;
+    // Tras eliminar un estudio, recalculamos cada vers\u00edculo de su rango;
+    // si otros estudios siguen cubri\u00e9ndolo, la nota espejo queda con esas
+    // entradas; si no, se elimina.
     for (final v in prev.versesInRange()) {
-      await _maybeRemoveMirrorVerseNote(prev.bookNumber, prev.chapter, v);
+      await _recomputeMirrorForVerse(
+        bookNumber: prev.bookNumber,
+        bookName: prev.bookName,
+        chapter: prev.chapter,
+        verse: v,
+      );
     }
   }
 
@@ -410,21 +527,6 @@ class StudyModeService {
       await ChapterNoteService.I.deleteNote(existing.id);
     } catch (e) {
       debugPrint('[STUDY-MODE] clear mirrored chapter note error: $e');
-    }
-  }
-
-  Future<void> _maybeRemoveMirrorVerseNote(
-    int bookNumber,
-    int chapter,
-    int verse,
-  ) async {
-    final existing = BibleUserDataService
-        .I
-        .notesNotifier
-        .value['$bookNumber:$chapter:$verse'];
-    if (existing == null) return;
-    if (existing.text.startsWith(_verseNoteMarker)) {
-      await BibleUserDataService.I.deleteNote(bookNumber, chapter, verse);
     }
   }
 

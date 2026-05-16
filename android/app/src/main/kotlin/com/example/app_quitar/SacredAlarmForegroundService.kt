@@ -67,7 +67,7 @@ class SacredAlarmForegroundService : Service() {
         val title = extras.getString("title") ?: "Campana Sagrada"
         val body = extras.getString("body") ?: "Abre la app para completar este momento."
         val route = extras.getString("route") ?: "/sacred-alarm?sessionId=$sessionId"
-        val asset = extras.getString("asset") ?: "flutter_assets/assets/sounds/Worship_pads.mp3"
+        val asset = extras.getString("asset") ?: "flutter_assets/assets/sounds/Worship_pads.m4a"
         val enforceMinimumVolume = extras.getBoolean("enforceMinimumVolume", true)
         val minimumVolumePercent = when (val value = extras.get("minimumVolumePercent")) {
             is Number -> value.toInt()

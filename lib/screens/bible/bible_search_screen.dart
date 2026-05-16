@@ -230,24 +230,44 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             onPressed: () => Navigator.pop(context),
           ),
           Expanded(
-            child: TextField(
-              controller: _controller,
-              focusNode: _focus,
-              style: GoogleFonts.manrope(
-                color: t.textPrimary,
-                fontSize: 16,
+            child: Container(
+              height: 40,
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: t.isDark
+                    ? Colors.white.withOpacity(0.06)
+                    : Colors.black.withOpacity(0.04),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(
+                  color: t.isDark
+                      ? Colors.white.withOpacity(0.08)
+                      : Colors.black.withOpacity(0.06),
+                  width: 1,
+                ),
               ),
-              decoration: InputDecoration(
-                hintText: 'Buscar libros, capítulos o versículos...',
-                hintStyle: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5),
+              child: TextField(
+                controller: _controller,
+                focusNode: _focus,
+                cursorColor: t.textPrimary,
+                style: GoogleFonts.manrope(
+                  color: t.textPrimary,
                   fontSize: 16,
                 ),
-                border: InputBorder.none,
+                decoration: InputDecoration(
+                  hintText: 'Buscar libros, capítulos o versículos...',
+                  hintStyle: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.5),
+                    fontSize: 16,
+                  ),
+                  border: InputBorder.none,
+                  isCollapsed: true,
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 10),
+                ),
+                textInputAction: TextInputAction.search,
+                onChanged: _onQueryChanged,
+                onSubmitted: _submitSearch,
               ),
-              textInputAction: TextInputAction.search,
-              onChanged: _onQueryChanged,
-              onSubmitted: _submitSearch,
             ),
           ),
           if (_controller.text.isNotEmpty)

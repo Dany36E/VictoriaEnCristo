@@ -513,7 +513,7 @@ class SacredAlarmEvent {
       'verse': verse,
       'reference': reference,
       'route': '/sacred-alarm?sessionId=$id',
-      'asset': 'flutter_assets/assets/sounds/Worship_pads.mp3',
+      'asset': 'flutter_assets/assets/sounds/Worship_pads.m4a',
       'enforceMinimumVolume': enforceMinimumVolume,
       'minimumVolumePercent': minimumVolumePercent,
     };

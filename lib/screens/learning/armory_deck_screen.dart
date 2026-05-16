@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import '../../models/bible/bible_version.dart';
 import '../../models/learning/learning_models.dart';
 import '../../services/audio_engine.dart';
+import '../../services/bible/bible_download_service.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/verse_memory_service.dart';
 import '../../theme/app_theme.dart';
@@ -37,7 +38,9 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
   }
 
   Future<void> _pickVersion() async {
-    final current = VerseMemoryService.I.preferredVersionNotifier.value;
+    final current = BibleDownloadService.I.bestAvailableVersion(
+      VerseMemoryService.I.preferredVersionNotifier.value,
+    );
     final t = AppThemeData.of(context);
     final picked = await showModalBottomSheet<BibleVersion>(
       context: context,
@@ -65,10 +68,13 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
                   padding: const EdgeInsets.all(AppDesignSystem.spacingM),
                   child: Text(
                     'Elige la versión para memorizar',
-                    style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+                    style: AppDesignSystem.headlineSmall(
+                      context,
+                      color: t.textPrimary,
+                    ),
                   ),
                 ),
-                ...BibleVersion.values.map((v) {
+                ...BibleDownloadService.I.availableVersions.map((v) {
                   final selected = v == current;
                   return ListTile(
                     leading: Icon(
@@ -79,11 +85,17 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
                     ),
                     title: Text(
                       v.displayName,
-                      style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
+                      style: AppDesignSystem.bodyLarge(
+                        context,
+                        color: t.textPrimary,
+                      ),
                     ),
                     subtitle: Text(
                       v.shortName,
-                      style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
+                      style: AppDesignSystem.labelSmall(
+                        context,
+                        color: t.textSecondary,
+                      ),
                     ),
                     onTap: () => Navigator.pop(ctx, v),
                   );
@@ -152,7 +164,9 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
                   count: due.length,
                   color: AppDesignSystem.gold,
                 ),
-                ...due.map((v) => _VerseTile(verse: v, onOpen: () => _openStudy(v))),
+                ...due.map(
+                  (v) => _VerseTile(verse: v, onOpen: () => _openStudy(v)),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
               ],
               if (newOnes.isNotEmpty) ...[
@@ -161,7 +175,9 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
                   count: newOnes.length,
                   color: const Color(0xFF7CB8E8),
                 ),
-                ...newOnes.map((v) => _VerseTile(verse: v, onOpen: () => _openStudy(v))),
+                ...newOnes.map(
+                  (v) => _VerseTile(verse: v, onOpen: () => _openStudy(v)),
+                ),
                 const SizedBox(height: AppDesignSystem.spacingM),
               ],
               if (mastered.isNotEmpty) ...[
@@ -170,7 +186,9 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
                   count: mastered.length,
                   color: AppDesignSystem.victory,
                 ),
-                ...mastered.map((v) => _VerseTile(verse: v, onOpen: () => _openStudy(v))),
+                ...mastered.map(
+                  (v) => _VerseTile(verse: v, onOpen: () => _openStudy(v)),
+                ),
               ],
             ],
           );
@@ -189,12 +207,19 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
       ),
       child: Row(
         children: [
-          const Icon(Icons.shield_moon_rounded, color: AppDesignSystem.gold, size: 22),
+          const Icon(
+            Icons.shield_moon_rounded,
+            color: AppDesignSystem.gold,
+            size: 22,
+          ),
           const SizedBox(width: AppDesignSystem.spacingS),
           Expanded(
             child: Text(
               'Memoriza versículos clave. Los que domines se vuelven «escudos» para la tentación.',
-              style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+              style: AppDesignSystem.bodyMedium(
+                context,
+                color: t.textSecondary,
+              ),
             ),
           ),
         ],
@@ -204,7 +229,10 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
 
   Future<void> _openStudy(MemoryVerse v) async {
     FeedbackEngine.I.tap();
-    await Navigator.push(context, MaterialPageRoute(builder: (_) => VerseStudyScreen(verse: v)));
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => VerseStudyScreen(verse: v)),
+    );
     if (mounted) setState(() {});
   }
 }
@@ -214,7 +242,11 @@ class _SectionTitle extends StatelessWidget {
   final int count;
   final Color color;
 
-  const _SectionTitle({required this.label, required this.count, required this.color});
+  const _SectionTitle({
+    required this.label,
+    required this.count,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -228,11 +260,17 @@ class _SectionTitle extends StatelessWidget {
         children: [
           Container(width: 4, height: 16, color: color),
           const SizedBox(width: 8),
-          Text(label.toUpperCase(), style: AppDesignSystem.labelMedium(context, color: color)),
+          Text(
+            label.toUpperCase(),
+            style: AppDesignSystem.labelMedium(context, color: color),
+          ),
           const SizedBox(width: 6),
           Text(
             '($count)',
-            style: AppDesignSystem.labelMedium(context, color: color.withOpacity(0.7)),
+            style: AppDesignSystem.labelMedium(
+              context,
+              color: color.withOpacity(0.7),
+            ),
           ),
         ],
       ),
@@ -271,19 +309,27 @@ class _VerseTile extends StatelessWidget {
                   children: [
                     Text(
                       verse.reference,
-                      style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+                      style: AppDesignSystem.headlineSmall(
+                        context,
+                        color: t.textPrimary,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(
                       verse.topic,
-                      style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                      style: AppDesignSystem.bodyMedium(
+                        context,
+                        color: t.textSecondary,
+                      ),
                     ),
                     if (verse.situations.isNotEmpty) ...[
                       const SizedBox(height: 6),
                       Wrap(
                         spacing: 4,
                         runSpacing: 4,
-                        children: verse.situations.map((s) => _Tag(label: s)).toList(),
+                        children: verse.situations
+                            .map((s) => _Tag(label: s))
+                            .toList(),
                       ),
                     ],
                   ],
@@ -292,7 +338,11 @@ class _VerseTile extends StatelessWidget {
               const SizedBox(width: AppDesignSystem.spacingS),
               _LevelPill(level: level),
               const SizedBox(width: 6),
-              Icon(Icons.arrow_forward_ios_rounded, size: 14, color: t.textSecondary),
+              Icon(
+                Icons.arrow_forward_ios_rounded,
+                size: 14,
+                color: t.textSecondary,
+              ),
             ],
           ),
         ),
@@ -322,7 +372,10 @@ class _LevelPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
         border: Border.all(color: color.withOpacity(0.5)),
       ),
-      child: Text('Nv $level', style: AppDesignSystem.labelSmall(context, color: color)),
+      child: Text(
+        'Nv $level',
+        style: AppDesignSystem.labelSmall(context, color: color),
+      ),
     );
   }
 }
@@ -340,7 +393,10 @@ class _Tag extends StatelessWidget {
         color: t.textSecondary.withOpacity(0.1),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
       ),
-      child: Text(label, style: AppDesignSystem.labelSmall(context, color: t.textSecondary)),
+      child: Text(
+        label,
+        style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
+      ),
     );
   }
 }

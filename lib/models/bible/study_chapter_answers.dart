@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 /// IDs estables de las 6 preguntas del método inductivo del Modo Estudio.
@@ -43,6 +45,11 @@ const List<StudyQuestion> kStudyQuestions = [
 /// Documento Firestore en
 /// `users/{uid}/studyAnswers/{bookNumber}_{chapter}`.
 class StudyChapterAnswers {
+  /// Identificador único del estudio. Permite múltiples estudios independientes
+  /// del mismo capítulo (cada uno con sus propias notas y rango).
+  /// Para documentos legacy (creados antes de esta migración) será null y se
+  /// usará un identificador derivado de libro/capítulo para retro-compatibilidad.
+  final String? studyId;
   final int bookNumber;
   final String bookName;
   final int chapter;
@@ -61,6 +68,7 @@ class StudyChapterAnswers {
   final DateTime updatedAt;
 
   const StudyChapterAnswers({
+    this.studyId,
     required this.bookNumber,
     required this.bookName,
     required this.chapter,
@@ -75,8 +83,18 @@ class StudyChapterAnswers {
     required this.updatedAt,
   });
 
-  String get docId => '${bookNumber}_$chapter';
-  String get chapterKey => '$bookNumber:$chapter';
+  /// Genera un studyId único para nuevos estudios.
+  static String generateStudyId() {
+    final ms = DateTime.now().millisecondsSinceEpoch;
+    final rand = Random().nextInt(0xFFFFFFFF).toRadixString(36);
+    return 'st_${ms.toRadixString(36)}_$rand';
+  }
+
+  /// Clave estable para el documento Firestore y la cache local. Para estudios
+  /// con studyId la clave es el propio id; para documentos legacy mantenemos
+  /// el esquema antiguo `${bookNumber}_${chapter}`.
+  String get docId => studyId ?? '${bookNumber}_$chapter';
+  String get chapterKey => studyId ?? '$bookNumber:$chapter';
   String get reference {
     if (studyStartVerse != null && studyEndVerse != null) {
       if (studyStartVerse == studyEndVerse) {
@@ -115,6 +133,7 @@ class StudyChapterAnswers {
       sortedMainVerses.isNotEmpty;
 
   StudyChapterAnswers copyWith({
+    String? studyId,
     String? versionId,
     Map<String, String>? answers,
     String? generalNotes,
@@ -125,6 +144,7 @@ class StudyChapterAnswers {
     bool clearRange = false,
     DateTime? updatedAt,
   }) => StudyChapterAnswers(
+    studyId: studyId ?? this.studyId,
     bookNumber: bookNumber,
     bookName: bookName,
     chapter: chapter,
@@ -171,6 +191,7 @@ class StudyChapterAnswers {
   }
 
   Map<String, dynamic> toMap() => {
+    if (studyId != null) 'studyId': studyId,
     'bookNumber': bookNumber,
     'bookName': bookName,
     'chapter': chapter,
@@ -194,6 +215,7 @@ class StudyChapterAnswers {
       });
     }
     return StudyChapterAnswers(
+      studyId: map['studyId'] as String?,
       bookNumber: map['bookNumber'] as int,
       bookName: map['bookName'] as String? ?? '',
       chapter: map['chapter'] as int,
@@ -214,9 +236,11 @@ class StudyChapterAnswers {
     required String bookName,
     required int chapter,
     required String versionId,
+    String? studyId,
   }) {
     final now = DateTime.now();
     return StudyChapterAnswers(
+      studyId: studyId ?? generateStudyId(),
       bookNumber: bookNumber,
       bookName: bookName,
       chapter: chapter,

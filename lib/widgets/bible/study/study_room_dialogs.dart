@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../models/bible/bible_version.dart';
 import '../../../models/bible/study_room.dart';
+import '../../../services/bible/bible_download_service.dart';
 
 enum StudyRoomDialogAction { create, join }
 
@@ -14,13 +15,19 @@ class StudyRoomChoiceDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('Estudiar con amigos', style: GoogleFonts.cinzel(fontWeight: FontWeight.w700)),
+      title: Text(
+        'Estudiar con amigos',
+        style: GoogleFonts.cinzel(fontWeight: FontWeight.w700),
+      ),
       content: const Text(
         'Reúnete con hasta 4 amigos. Cada uno verá una traducción '
         'distinta y rotarán cada cierto tiempo para enriquecer la lectura.',
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
         TextButton(
           onPressed: () => Navigator.pop(context, StudyRoomDialogAction.join),
           child: const Text('Unirme con código'),
@@ -55,7 +62,9 @@ class _JoinRoomDialogState extends State<JoinRoomDialog> {
   @override
   void initState() {
     super.initState();
-    _versionId = widget.currentVersionId;
+    _versionId = BibleDownloadService.I
+        .bestAvailableVersion(BibleVersion.fromId(widget.currentVersionId))
+        .id;
   }
 
   @override
@@ -89,20 +98,29 @@ class _JoinRoomDialogState extends State<JoinRoomDialog> {
           DropdownButtonFormField<String>(
             value: _versionId,
             decoration: const InputDecoration(labelText: 'Tu traducción'),
-            items: BibleVersion.values
-                .map((v) => DropdownMenuItem(value: v.id, child: Text(v.displayName)))
+            items: BibleDownloadService.I.availableVersions
+                .map(
+                  (v) =>
+                      DropdownMenuItem(value: v.id, child: Text(v.displayName)),
+                )
                 .toList(),
             onChanged: (v) => setState(() => _versionId = v ?? _versionId),
           ),
           const SizedBox(height: 6),
           Text(
             'Recuerda: cada miembro debe usar una traducción distinta.',
-            style: TextStyle(fontSize: 11, color: Theme.of(context).colorScheme.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 11,
+              color: Theme.of(context).colorScheme.onSurfaceVariant,
+            ),
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
         ElevatedButton(
           onPressed: () {
             final code = _codeCtrl.text.trim().toUpperCase();
@@ -121,7 +139,11 @@ class StudyRoomActiveDialog extends StatelessWidget {
   final StudyRoom room;
   final VoidCallback onLeave;
 
-  const StudyRoomActiveDialog({super.key, required this.room, required this.onLeave});
+  const StudyRoomActiveDialog({
+    super.key,
+    required this.room,
+    required this.onLeave,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -135,7 +157,11 @@ class StudyRoomActiveDialog extends StatelessWidget {
           const SizedBox(height: 8),
           SelectableText(
             room.code,
-            style: GoogleFonts.cinzel(fontSize: 28, fontWeight: FontWeight.w800, letterSpacing: 6),
+            style: GoogleFonts.cinzel(
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 6,
+            ),
           ),
           const SizedBox(height: 16),
           Text('Miembros (${room.memberOrder.length}/5):'),
@@ -165,7 +191,10 @@ class StudyRoomActiveDialog extends StatelessWidget {
           },
           child: const Text('Salir de la sala'),
         ),
-        ElevatedButton(onPressed: () => Navigator.pop(context), child: const Text('Cerrar')),
+        ElevatedButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cerrar'),
+        ),
       ],
     );
   }

@@ -46,7 +46,9 @@ class BattlePartnerService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(region: 'us-central1');
+  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
+    region: 'us-central1',
+  );
   SharedPreferences? _prefs;
   String? _uid;
   bool _isInitialized = false;
@@ -56,17 +58,21 @@ class BattlePartnerService {
   StreamSubscription? _messagesSubscription;
 
   /// Lista reactiva de compañeros activos
-  final ValueNotifier<List<BattlePartnerData>> partnersNotifier = ValueNotifier([]);
+  final ValueNotifier<List<BattlePartnerData>> partnersNotifier = ValueNotifier(
+    [],
+  );
 
   /// `true` mientras se espera la primera respuesta de Firestore.
   /// Permite a la UI distinguir entre "cargando" y "genuinamente vacío".
   final ValueNotifier<bool> isLoadingNotifier = ValueNotifier(false);
 
   /// Invitaciones pendientes
-  final ValueNotifier<List<PartnerInvite>> pendingInvitesNotifier = ValueNotifier([]);
+  final ValueNotifier<List<PartnerInvite>> pendingInvitesNotifier =
+      ValueNotifier([]);
 
   /// Mensajes no leídos
-  final ValueNotifier<List<BattleMessageData>> unreadMessagesNotifier = ValueNotifier([]);
+  final ValueNotifier<List<BattleMessageData>> unreadMessagesNotifier =
+      ValueNotifier([]);
 
   /// ¿El usuario acepta nuevas invitaciones? (modo pausa)
   /// Se persiste localmente y se replica al doc del usuario.
@@ -75,10 +81,6 @@ class BattlePartnerService {
   /// UID del compañero con el que se comparte "gigante en batalla" (opt-in).
   /// `null` = sin compañero de confianza configurado. Solo uno a la vez.
   final ValueNotifier<String?> trustedPartnerUidNotifier = ValueNotifier(null);
-
-  /// Cache local de progreso público por partnerUid. Evita releer los 5 docs
-  /// cada vez que cambia CUALQUIER campo en battlePartners (fix N+1 reads).
-  final Map<String, Map<String, dynamic>?> _progressCache = {};
 
   /// Debounce del auto-sync de publicProgress al cambiar la racha.
   Timer? _publicProgressDebounce;
@@ -107,10 +109,11 @@ class BattlePartnerService {
     _prefs ??= await SharedPreferences.getInstance();
 
     // Cargar flags persistentes (pausa, trusted partner) antes de exponerlos.
-    acceptingInvitesNotifier.value = _prefs?.getBool(_kAcceptingInvitesKey) ?? true;
+    acceptingInvitesNotifier.value =
+        _prefs?.getBool(_kAcceptingInvitesKey) ?? true;
     trustedPartnerUidNotifier.value = _prefs?.getString(_kTrustedPartnerKey);
 
-    _startListening();
+    await _startListening();
     _attachStreakListener();
     _isInitialized = true;
   }
@@ -132,8 +135,6 @@ class BattlePartnerService {
     pendingInvitesNotifier.value = [];
     unreadMessagesNotifier.value = [];
     isLoadingNotifier.value = false;
-    _progressCache.clear();
-
     _uid = null;
     _isInitialized = false;
   }
@@ -142,9 +143,11 @@ class BattlePartnerService {
   // LISTENERS EN TIEMPO REAL
   // ═══════════════════════════════════════════════════════════════════════════
 
-  void _startListening() {
+  Future<void> _startListening() async {
     final uid = _uid;
     if (uid == null) return;
+
+    final firstPartnersSnapshot = Completer<void>();
 
     // Indicar carga mientras llega la primera respuesta del servidor.
     isLoadingNotifier.value = true;
@@ -158,8 +161,22 @@ class BattlePartnerService {
         .where('status', isEqualTo: 'active')
         .snapshots()
         .listen(
-          (snapshot) => _onPartnersChanged(snapshot),
-          onError: (e) => debugPrint('🤝 [BATTLE] Partners stream error: $e'),
+          (snapshot) {
+            unawaited(
+              _onPartnersChanged(snapshot).whenComplete(() {
+                if (!firstPartnersSnapshot.isCompleted) {
+                  firstPartnersSnapshot.complete();
+                }
+              }),
+            );
+          },
+          onError: (e) {
+            debugPrint('🤝 [BATTLE] Partners stream error: $e');
+            isLoadingNotifier.value = false;
+            if (!firstPartnersSnapshot.isCompleted) {
+              firstPartnersSnapshot.complete();
+            }
+          },
         ); // Invitaciones pendientes
     _invitesSubscription?.cancel();
     _invitesSubscription = _db
@@ -194,61 +211,27 @@ class BattlePartnerService {
           unreadMessagesNotifier.value = msgs;
           _maybeNotifyNewMessages(snapshot);
         }, onError: (e) => debugPrint('🤝 [BATTLE] Messages stream error: $e'));
+
+    await firstPartnersSnapshot.future.timeout(
+      const Duration(seconds: 15),
+      onTimeout: () {
+        isLoadingNotifier.value = false;
+        debugPrint('🤝 [BATTLE] Initial partners snapshot timeout');
+      },
+    );
   }
 
-  /// Cuando cambian los partners, fetch su publicProgress SOLO si es doc
-  /// nuevo o modificado (fix N+1 reads). Los restantes reutilizan el cache.
+  /// Cuando cambian los partners, usa los campos de progreso denormalizados
+  /// en cada doc de vínculo. No lee publicProgress por compañero.
   Future<void> _onPartnersChanged(QuerySnapshot snapshot) async {
     try {
-      // Mapear docChanges a uids que realmente requieren relectura.
-      final Set<String> toRefetch = {};
-      for (final ch in snapshot.docChanges) {
-        if (ch.type == DocumentChangeType.removed) continue;
-        final data = ch.doc.data() as Map<String, dynamic>?;
-        final pUid = data?['partnerUid'] as String? ?? '';
-        if (pUid.isEmpty) continue;
-        // Si no tengo cache aún, hay que leerlo. Si está cacheado, solo
-        // releemos cuando el cambio remoto no es una escritura local optimista.
-        final hasCache = _progressCache.containsKey(pUid);
-        final pending = ch.doc.metadata.hasPendingWrites;
-        if (!hasCache || (!pending && ch.type == DocumentChangeType.modified)) {
-          toRefetch.add(pUid);
-        }
-      }
-
-      // Releer sólo los cambiados (paralelo).
-      if (toRefetch.isNotEmpty) {
-        await Future.wait(
-          toRefetch.map((pUid) async {
-            try {
-              final doc = await _db
-                  .collection('users')
-                  .doc(pUid)
-                  .collection('publicProgress')
-                  .doc('latest')
-                  .get();
-              _progressCache[pUid] = doc.exists ? doc.data() : null;
-            } catch (e) {
-              debugPrint('🤝 [BATTLE] Error reading progress for $pUid: $e');
-              _progressCache.putIfAbsent(pUid, () => null);
-            }
-          }),
-        );
-      }
-
       final List<BattlePartnerData> partners = [];
       for (final doc in snapshot.docs) {
         final data = doc.data() as Map<String, dynamic>;
         final partnerUid = data['partnerUid'] as String? ?? '';
         if (partnerUid.isEmpty) continue;
-        partners.add(
-          BattlePartnerData.fromFirestore(data, progressDoc: _progressCache[partnerUid]),
-        );
+        partners.add(BattlePartnerData.fromFirestore(data));
       }
-
-      // Purgar cache de uids ya no presentes.
-      final presentUids = partners.map((p) => p.uid).toSet();
-      _progressCache.removeWhere((k, _) => !presentUids.contains(k));
 
       // Ordenar: inactivos al final
       partners.sort((a, b) {
@@ -259,10 +242,7 @@ class BattlePartnerService {
 
       partnersNotifier.value = partners;
       isLoadingNotifier.value = false;
-      debugPrint(
-        '🤝 [BATTLE] ${partners.length} compañeros activos '
-        '(refetched ${toRefetch.length})',
-      );
+      debugPrint('🤝 [BATTLE] ${partners.length} compañeros activos');
     } catch (e) {
       isLoadingNotifier.value = false;
       debugPrint('🤝 [BATTLE] Error procesando partners: $e');
@@ -273,7 +253,7 @@ class BattlePartnerService {
   Future<void> forceRefresh() async {
     if (_uid == null) return;
     debugPrint('🤝 [BATTLE] forceRefresh()');
-    _startListening();
+    await _startListening();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -319,7 +299,9 @@ class BattlePartnerService {
       unawaited(
         NotificationService().showBattlePartnerInvite(
           id: _notifIdFor('invite', change.doc.id),
-          fromName: (fromName == null || fromName.isEmpty) ? 'Alguien' : fromName,
+          fromName: (fromName == null || fromName.isEmpty)
+              ? 'Alguien'
+              : fromName,
         ),
       );
       if (ms > maxSeen) maxSeen = ms;
@@ -404,7 +386,10 @@ class BattlePartnerService {
   /// Genera un código de invitación de 8 chars (VKJM4XR2)
   String _generateCode() {
     final random = Random.secure();
-    return List.generate(8, (_) => _codeChars[random.nextInt(_codeChars.length)]).join();
+    return List.generate(
+      8,
+      (_) => _codeChars[random.nextInt(_codeChars.length)],
+    ).join();
   }
 
   /// Asegura que el usuario actual tiene un inviteCode generado
@@ -423,8 +408,10 @@ class BattlePartnerService {
 
       // Generar nuevo código
       final code = _generateCode();
-      final displayName = userDoc.data()?['displayName'] as String? ?? 'Usuario';
-      final publicName = userDoc.data()?['publicName'] as String? ?? displayName;
+      final displayName =
+          userDoc.data()?['displayName'] as String? ?? 'Usuario';
+      final publicName =
+          userDoc.data()?['publicName'] as String? ?? displayName;
 
       // Guardar en perfil del usuario y en colección global
       final batch = _db.batch();
@@ -475,11 +462,17 @@ class BattlePartnerService {
   Future<InviteResult> lookupCode(String code) async {
     final uid = _uid;
     if (uid == null) {
-      return const InviteResult(type: InviteResultType.error, errorMessage: 'No autenticado');
+      return const InviteResult(
+        type: InviteResultType.error,
+        errorMessage: 'No autenticado',
+      );
     }
 
     try {
-      final codeDoc = await _db.collection('inviteCodes').doc(code.toUpperCase()).get();
+      final codeDoc = await _db
+          .collection('inviteCodes')
+          .doc(code.toUpperCase())
+          .get();
       if (!codeDoc.exists) {
         return const InviteResult(type: InviteResultType.notFound);
       }
@@ -536,7 +529,10 @@ class BattlePartnerService {
       );
     } catch (e) {
       debugPrint('🤝 [BATTLE] Lookup error: $e');
-      return InviteResult(type: InviteResultType.error, errorMessage: e.toString());
+      return InviteResult(
+        type: InviteResultType.error,
+        errorMessage: e.toString(),
+      );
     }
   }
 
@@ -544,7 +540,10 @@ class BattlePartnerService {
   Future<InviteResult> sendInviteByCode(String code) async {
     final uid = _uid;
     if (uid == null) {
-      return const InviteResult(type: InviteResultType.error, errorMessage: 'No autenticado');
+      return const InviteResult(
+        type: InviteResultType.error,
+        errorMessage: 'No autenticado',
+      );
     }
 
     // Primero validar
@@ -555,7 +554,9 @@ class BattlePartnerService {
     final targetName = lookup.targetName!;
 
     try {
-      await _functions.httpsCallable('sendPartnerInvite').call({'inviteCode': code.toUpperCase()});
+      await _functions.httpsCallable('sendPartnerInvite').call({
+        'inviteCode': code.toUpperCase(),
+      });
       debugPrint('🤝 [BATTLE] Invitación enviada a $targetName');
 
       unawaited(_logEvent('battle_invite_sent', const {}));
@@ -566,11 +567,16 @@ class BattlePartnerService {
         targetName: targetName,
       );
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('🤝 [BATTLE] Error enviando invitación: ${e.code} ${e.message}');
+      debugPrint(
+        '🤝 [BATTLE] Error enviando invitación: ${e.code} ${e.message}',
+      );
       return _inviteResultFromFunctionError(e);
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error enviando invitación: $e');
-      return InviteResult(type: InviteResultType.error, errorMessage: e.toString());
+      return InviteResult(
+        type: InviteResultType.error,
+        errorMessage: e.toString(),
+      );
     }
   }
 
@@ -583,20 +589,27 @@ class BattlePartnerService {
     if (uid == null) return false;
 
     try {
-      await _functions.httpsCallable('acceptPartnerInvite').call({'inviteId': invite.inviteId});
+      await _functions.httpsCallable('acceptPartnerInvite').call({
+        'inviteId': invite.inviteId,
+      });
 
       // Analytics (#24)
       unawaited(
-        _logEvent('battle_invite_accepted', {'from_uid_hash': invite.fromUid.hashCode.abs()}),
+        _logEvent('battle_invite_accepted', {
+          'from_uid_hash': invite.fromUid.hashCode.abs(),
+        }),
       );
 
-      // Sincronizar mi progreso público para que el nuevo compañero lo vea
-      await syncPublicProgress();
+      // Sincronizar mi progreso público para que el nuevo compañero lo vea,
+      // incluso si el listener local aún no agregó el vínculo al notifier.
+      await syncPublicProgress(extraMirrorPartnerUids: {invite.fromUid});
 
       debugPrint('🤝 [BATTLE] ✅ Invitación aceptada de ${invite.fromName}');
       return true;
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('🤝 [BATTLE] Error aceptando invitación: ${e.code} ${e.message}');
+      debugPrint(
+        '🤝 [BATTLE] Error aceptando invitación: ${e.code} ${e.message}',
+      );
       return false;
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error aceptando invitación: $e');
@@ -659,7 +672,11 @@ class BattlePartnerService {
         await setTrustedPartner(null);
       }
 
-      final myRef = _db.collection('users').doc(uid).collection('battlePartners').doc(partnerUid);
+      final myRef = _db
+          .collection('users')
+          .doc(uid)
+          .collection('battlePartners')
+          .doc(partnerUid);
       final otherRef = _db
           .collection('users')
           .doc(partnerUid)
@@ -696,7 +713,10 @@ class BattlePartnerService {
   // NUNCA: giants, diario, score por gigante
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Future<void> syncPublicProgress({String? sharedGiantId}) async {
+  Future<void> syncPublicProgress({
+    String? sharedGiantId,
+    Set<String>? extraMirrorPartnerUids,
+  }) async {
     final uid = _uid;
     if (uid == null) return;
 
@@ -723,20 +743,78 @@ class BattlePartnerService {
         payload['trustedPartnerUid'] = FieldValue.delete();
       }
 
-      await _db
-          .collection('users')
-          .doc(uid)
-          .collection('publicProgress')
-          .doc('latest')
-          .set(payload, SetOptions(merge: true));
+      final batch = _db.batch();
+      batch.set(
+        _db
+            .collection('users')
+            .doc(uid)
+            .collection('publicProgress')
+            .doc('latest'),
+        payload,
+        SetOptions(merge: true),
+      );
+
+      final activePartnerUids = partnersNotifier.value
+          .where((p) => p.status == PartnerStatus.active)
+          .map((p) => p.uid)
+          .where((partnerUid) => partnerUid.isNotEmpty)
+          .toSet();
+      if (extraMirrorPartnerUids != null) {
+        activePartnerUids.addAll(
+          extraMirrorPartnerUids.where((partnerUid) => partnerUid.isNotEmpty),
+        );
+      }
+      for (final partnerUid in activePartnerUids) {
+        batch.set(
+          _db
+              .collection('users')
+              .doc(partnerUid)
+              .collection('battlePartners')
+              .doc(uid),
+          _partnerProgressPayload(
+            partnerUid: partnerUid,
+            streak: streak,
+            victoryToday: victoryToday,
+            sharedGiantId: sharedGiantId,
+          ),
+          SetOptions(merge: true),
+        );
+      }
+
+      await batch.commit();
 
       debugPrint(
         '🤝 [BATTLE] Public progress synced: '
-        'streak=$streak, today=$victoryToday, accepting=${acceptingInvitesNotifier.value}',
+        'streak=$streak, today=$victoryToday, accepting=${acceptingInvitesNotifier.value}, '
+        'mirrors=${activePartnerUids.length}',
       );
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error syncing public progress: $e');
     }
+  }
+
+  Map<String, dynamic> _partnerProgressPayload({
+    required String partnerUid,
+    required int streak,
+    required bool victoryToday,
+    String? sharedGiantId,
+  }) {
+    final trustedPartnerUid = trustedPartnerUidNotifier.value;
+    final payload = <String, dynamic>{
+      'streakDays': streak,
+      'victoryToday': victoryToday,
+      'lastOpenedAt': FieldValue.serverTimestamp(),
+      'progressUpdatedAt': FieldValue.serverTimestamp(),
+      'acceptingInvites': acceptingInvitesNotifier.value,
+    };
+
+    if (trustedPartnerUid == partnerUid && sharedGiantId != null) {
+      payload['sharedGiantId'] = sharedGiantId;
+    } else {
+      payload['sharedGiantId'] = FieldValue.delete();
+    }
+
+    return payload;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -762,7 +840,9 @@ class BattlePartnerService {
 
     // Rate-limit local
     if (_isRateLimited(toUid)) {
-      debugPrint('🤝 [BATTLE] Rate limited: ya enviaste $kMaxMessagesPerDay hoy a $toUid');
+      debugPrint(
+        '🤝 [BATTLE] Rate limited: ya enviaste $kMaxMessagesPerDay hoy a $toUid',
+      );
       return false;
     }
 
@@ -797,9 +877,12 @@ class BattlePartnerService {
     if (uid == null) return;
 
     try {
-      await _db.collection('users').doc(uid).collection('battleMessages').doc(messageId).update({
-        'read': true,
-      });
+      await _db
+          .collection('users')
+          .doc(uid)
+          .collection('battleMessages')
+          .doc(messageId)
+          .update({'read': true});
     } catch (e) {
       debugPrint('🤝 [BATTLE] Error marking message read: $e');
     }
@@ -896,7 +979,9 @@ class BattlePartnerService {
       final userDoc = await _db.collection('users').doc(uid).get();
       final code = userDoc.data()?['inviteCode'] as String?;
       if (code != null && code.isNotEmpty) {
-        batch.update(_db.collection('inviteCodes').doc(code), {'publicName': newName});
+        batch.update(_db.collection('inviteCodes').doc(code), {
+          'publicName': newName,
+        });
       }
 
       await batch.commit();
@@ -942,8 +1027,14 @@ class BattlePartnerService {
       await _prefs?.setString(_kTrustedPartnerKey, partnerUid);
     }
     UserPrefCloudSyncService.I.markDirty();
-    unawaited(_logEvent('battle_trusted_partner_changed', {'has_trusted': partnerUid != null}));
-    unawaited(syncPublicProgress()); // limpia sharedGiantId si ya no hay trusted
+    unawaited(
+      _logEvent('battle_trusted_partner_changed', {
+        'has_trusted': partnerUid != null,
+      }),
+    );
+    unawaited(
+      syncPublicProgress(),
+    ); // limpia sharedGiantId si ya no hay trusted
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -973,12 +1064,17 @@ class BattlePartnerService {
       debugPrint('🤝 [BATTLE] SOS rate-limited (1/día)');
       return 0;
     }
-    final partners = partnersNotifier.value.where((p) => p.status == PartnerStatus.active).toList();
+    final partners = partnersNotifier.value
+        .where((p) => p.status == PartnerStatus.active)
+        .toList();
     if (partners.isEmpty) return 0;
 
-    final text = kBattleMessageMap[kBattleSosKey]?.text ?? 'Necesito oración ahora';
+    final text =
+        kBattleMessageMap[kBattleSosKey]?.text ?? 'Necesito oración ahora';
     try {
-      final result = await _functions.httpsCallable('sendBattleSos').call({'text': text});
+      final result = await _functions.httpsCallable('sendBattleSos').call({
+        'text': text,
+      });
       final data = Map<String, dynamic>.from(result.data as Map);
       final sent = (data['recipients'] as num?)?.toInt() ?? 0;
       if (sent <= 0) return 0;
@@ -995,7 +1091,9 @@ class BattlePartnerService {
     }
   }
 
-  InviteResult _inviteResultFromFunctionError(FirebaseFunctionsException error) {
+  InviteResult _inviteResultFromFunctionError(
+    FirebaseFunctionsException error,
+  ) {
     switch (error.code) {
       case 'not-found':
         return const InviteResult(type: InviteResultType.notFound);
@@ -1012,7 +1110,10 @@ class BattlePartnerService {
             message.toLowerCase().contains('invalida')) {
           return const InviteResult(type: InviteResultType.selfInvite);
         }
-        return InviteResult(type: InviteResultType.error, errorMessage: message);
+        return InviteResult(
+          type: InviteResultType.error,
+          errorMessage: message,
+        );
       default:
         return InviteResult(
           type: InviteResultType.error,

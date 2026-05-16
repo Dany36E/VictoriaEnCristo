@@ -1,13 +1,24 @@
 import 'package:flutter/material.dart';
+import '../data/prayer_verses.dart';
+import '../models/prayer_map.dart';
 import '../services/journal_service.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 
-/// Editor para crear/editar entradas del diario
+/// Editor del "Mapa de Oración" (antes `JournalEntryEditor`).
+///
+/// Guía al usuario por una plantilla de oración con secciones fijas inspirada
+/// en el diario de oración impreso aportado por el usuario. El contenido se
+/// serializa como JSON (con un marcador) dentro del campo `content` de
+/// `JournalEntry`, manteniendo el modelo del servicio existente.
 class JournalEntryEditor extends StatefulWidget {
   final Function(JournalEntry) onSave;
   final JournalEntry? existingEntry;
+
+  /// Compat: el editor antiguo aceptaba un prompt inicial. Se ignora porque
+  /// el flujo nuevo usa secciones guiadas. Se mantiene la firma para no
+  /// romper los llamadores existentes (`journal_screen.dart`).
   final String? initialPrompt;
 
   const JournalEntryEditor({
@@ -22,262 +33,299 @@ class JournalEntryEditor extends StatefulWidget {
 }
 
 class _JournalEntryEditorState extends State<JournalEntryEditor> {
-  final TextEditingController _contentController = TextEditingController();
-  String _selectedMood = 'neutral';
-  bool _hadVictory = true;
-  final List<String> _selectedTriggers = [];
+  final Map<String, TextEditingController> _controllers = {
+    for (final s in PrayerMapData.sections) s.key: TextEditingController(),
+  };
+  late final PrayerVerse _verse;
 
   @override
   void initState() {
     super.initState();
-    if (widget.existingEntry != null) {
-      _contentController.text = widget.existingEntry!.content;
-      _selectedMood = widget.existingEntry!.mood;
-      _hadVictory = widget.existingEntry!.hadVictory;
-      _selectedTriggers.addAll(widget.existingEntry!.triggers);
-    } else if (widget.initialPrompt != null) {
-      // Prellenar con el prompt personalizado
-      _contentController.text = '${widget.initialPrompt}\n\n';
-      // Posicionar cursor al final
-      _contentController.selection = TextSelection.fromPosition(
-        TextPosition(offset: _contentController.text.length),
-      );
+    _verse = PrayerVerses.forToday();
+
+    // Si estamos editando, intentar decodificar PrayerMapData del content.
+    final existing = widget.existingEntry;
+    if (existing != null) {
+      final decoded = PrayerMapData.tryDecode(existing.content);
+      if (decoded != null) {
+        for (final s in PrayerMapData.sections) {
+          _controllers[s.key]!.text = decoded.getField(s.key);
+        }
+      } else {
+        // Entrada antigua: vuelca todo el texto en "situacion".
+        _controllers['situacion']!.text = existing.content;
+      }
     }
   }
 
   @override
   void dispose() {
-    _contentController.dispose();
+    for (final c in _controllers.values) {
+      c.dispose();
+    }
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    
+    final date = widget.existingEntry?.date ?? DateTime.now();
+
     return Scaffold(
+      backgroundColor: t.scaffoldBg,
       appBar: AppBar(
-        title: Text(widget.existingEntry != null ? 'Editar Entrada' : 'Nueva Entrada'),
+        title: Text(
+          widget.existingEntry != null
+              ? 'Editar oración'
+              : 'Nueva oración',
+        ),
         actions: [
-          TextButton(
+          TextButton.icon(
             onPressed: _saveEntry,
-            child: const Text('Guardar', style: TextStyle(color: Colors.white)),
+            icon: Icon(Icons.check,
+                color: Theme.of(context).appBarTheme.foregroundColor),
+            label: Text(
+              'Guardar',
+              style: TextStyle(
+                color: Theme.of(context).appBarTheme.foregroundColor,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // ¿Cómo te sientes?
-            Text(
-              '¿Cómo te sientes hoy?',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: t.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: JournalService.moodEmojis.entries.map((e) {
-                final isSelected = _selectedMood == e.key;
-                return GestureDetector(
-                  onTap: () {
-                    FeedbackEngine.I.select();
-                    setState(() => _selectedMood = e.key);
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? t.accent.withOpacity(0.2)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: isSelected
-                            ? t.accent
-                            : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        Text(e.value, style: const TextStyle(fontSize: 32)),
-                        const SizedBox(height: 4),
-                        Text(
-                          JournalService.moodLabels[e.key] ?? '',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: t.textSecondary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // ¿Tuviste victoria?
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: t.cardBg,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    _hadVictory ? Icons.emoji_events : Icons.refresh,
-                    color: _hadVictory ? AppTheme.successColor : AppTheme.emergencyColor,
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text(
-                      '¿Fue un día de victoria?',
-                      style: TextStyle(
-                        fontWeight: FontWeight.w600,
-                        color: t.textPrimary,
-                      ),
-                    ),
-                  ),
-                  Switch(
-                    value: _hadVictory,
-                    onChanged: (value) => setState(() => _hadVictory = value),
-                    activeThumbColor: AppTheme.successColor,
-                  ),
-                ],
-              ),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Triggers
-            Text(
-              '¿Qué situaciones enfrentaste? (opcional)',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: t.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: JournalService.commonTriggers.map((trigger) {
-                final isSelected = _selectedTriggers.contains(trigger);
-                return GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      if (isSelected) {
-                        _selectedTriggers.remove(trigger);
-                      } else {
-                        _selectedTriggers.add(trigger);
-                      }
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? AppTheme.emergencyColor.withOpacity(0.1)
-                          : t.surface,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected ? AppTheme.emergencyColor : Colors.transparent,
-                      ),
-                    ),
-                    child: Text(
-                      trigger,
-                      style: TextStyle(
-                        color: isSelected
-                            ? AppTheme.emergencyColor
-                            : t.textSecondary,
-                        fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            
-            const SizedBox(height: 24),
-            
-            // Contenido
-            Text(
-              'Escribe tu reflexión',
-              style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-                color: t.textPrimary,
-              ),
-            ),
-            const SizedBox(height: 12),
-            Container(
-              decoration: BoxDecoration(
-                color: t.cardBg,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                  ),
-                ],
-              ),
-              child: TextField(
-                controller: _contentController,
-                maxLines: 8,
-                decoration: InputDecoration(
-                  hintText: '¿Cómo fue tu día? ¿Qué aprendiste? ¿Cómo te sientes?',
-                  hintStyle: TextStyle(
-                    color: t.textSecondary,
-                  ),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.all(16),
-                ),
-                style: TextStyle(
-                  color: t.textPrimary,
-                  height: 1.5,
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildHeader(t, date),
+              const SizedBox(height: 20),
+              ...PrayerMapData.sections.map(
+                (s) => Padding(
+                  padding: const EdgeInsets.only(bottom: 18),
+                  child: _buildSectionField(t, s),
                 ),
               ),
-            ),
-            
-            const SizedBox(height: 32),
-          ],
+              _buildClosing(t),
+              const SizedBox(height: 20),
+              _buildVerseCard(t),
+            ],
+          ),
         ),
       ),
     );
   }
 
+  Widget _buildHeader(AppThemeData t, DateTime date) {
+    final months = [
+      'enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio',
+      'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre',
+    ];
+    final formatted = '${date.day} de ${months[date.month - 1]} de ${date.year}';
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            t.accent.withOpacity(0.18),
+            t.accent.withOpacity(0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: t.accent.withOpacity(0.25)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.calendar_today_outlined, color: t.accent, size: 20),
+          const SizedBox(width: 10),
+          Text(
+            'Hoy, $formatted',
+            style: TextStyle(
+              color: t.textPrimary,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionField(AppThemeData t, PrayerMapSection s) {
+    final controller = _controllers[s.key]!;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          s.label,
+          style: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w700,
+            color: t.textPrimary,
+            height: 1.3,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: t.cardBg,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: t.accent.withOpacity(0.12)),
+          ),
+          child: TextField(
+            controller: controller,
+            minLines: s.minLines,
+            maxLines: s.minLines + 4,
+            decoration: InputDecoration(
+              hintText: s.hint,
+              hintStyle: TextStyle(
+                color: t.textSecondary.withOpacity(0.6),
+                fontSize: 13,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(14),
+            ),
+            style: TextStyle(
+              color: t.textPrimary,
+              fontSize: 14,
+              height: 1.5,
+            ),
+            textCapitalization: TextCapitalization.sentences,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildClosing(AppThemeData t) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: t.accent.withOpacity(0.08),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: t.accent.withOpacity(0.2)),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.volunteer_activism, color: t.accent, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Amén. Gracias, Padre, por oír mis oraciones.',
+              style: TextStyle(
+                color: t.textPrimary,
+                fontWeight: FontWeight.w600,
+                fontStyle: FontStyle.italic,
+                fontSize: 14,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildVerseCard(AppThemeData t) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppDesignSystem.gold.withOpacity(0.16),
+            AppDesignSystem.gold.withOpacity(0.04),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Row(
+            children: [
+              Icon(
+                Icons.format_quote_rounded,
+                color: AppDesignSystem.gold,
+                size: 20,
+              ),
+              SizedBox(width: 6),
+              Text(
+                'Versículo de hoy',
+                style: TextStyle(
+                  color: AppDesignSystem.gold,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.6,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _verse.text,
+            style: TextStyle(
+              color: t.textPrimary,
+              fontSize: 14,
+              fontStyle: FontStyle.italic,
+              height: 1.5,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            '— ${_verse.reference}',
+            style: TextStyle(
+              color: t.textSecondary,
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _saveEntry() {
-    if (_contentController.text.trim().isEmpty) {
+    final data = PrayerMapData(
+      saludo: _controllers['saludo']!.text.trim(),
+      gracias: _controllers['gracias']!.text.trim(),
+      personas: _controllers['personas']!.text.trim(),
+      preocupaciones: _controllers['preocupaciones']!.text.trim(),
+      situacion: _controllers['situacion']!.text.trim(),
+      necesidades: _controllers['necesidades']!.text.trim(),
+      corazon: _controllers['corazon']!.text.trim(),
+      verseReference: _verse.reference,
+    );
+
+    if (data.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Escribe algo antes de guardar')),
+        const SnackBar(
+          content: Text('Escribe en al menos una sección antes de guardar'),
+        ),
       );
       return;
     }
 
     FeedbackEngine.I.confirm();
 
+    final existing = widget.existingEntry;
     final entry = JournalEntry(
-      id: widget.existingEntry?.id ?? JournalService().generateId(),
-      date: widget.existingEntry?.date ?? DateTime.now(),
-      content: _contentController.text.trim(),
-      mood: _selectedMood,
-      triggers: _selectedTriggers,
-      hadVictory: _hadVictory,
+      id: existing?.id ?? JournalService().generateId(),
+      date: existing?.date ?? DateTime.now(),
+      content: data.encode(),
+      // Una oración bien hecha siempre es gratitud frente a Dios: por defecto
+      // marcamos el ánimo como "grateful" para que las stats sigan siendo
+      // útiles. Si la entrada ya existía, preservamos su mood.
+      mood: existing?.mood ?? 'grateful',
+      triggers: existing?.triggers ?? const [],
+      hadVictory: existing?.hadVictory ?? true,
+      verseOfDay: _verse.reference,
     );
 
     widget.onSave(entry);
@@ -285,7 +333,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Entrada guardada ✓'),
+        content: Text('Oración guardada ✓'),
         backgroundColor: AppTheme.successColor,
       ),
     );

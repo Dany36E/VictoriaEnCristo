@@ -372,6 +372,7 @@ class PlansRepository {
         .collection('users')
         .doc(uid)
         .collection('plansProgress')
+        .limit(50)
         .snapshots()
         .listen(
           (snapshot) {

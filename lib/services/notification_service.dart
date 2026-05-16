@@ -5,6 +5,7 @@ import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../data/bible_verses.dart';
 import 'user_pref_cloud_sync_service.dart';
+import 'victory_scoring_service.dart';
 
 /// Servicio de notificaciones para recordatorios diarios.
 /// Usa flutter_local_notifications con timezone para scheduling recurrente.
@@ -15,7 +16,13 @@ class NotificationService {
   static const String _nightTimeKey = 'night_notification_time';
   static const String _emergencyReminderKey = 'emergency_reminder_enabled';
   static const String _victoryReminderKey = 'victory_reminder_enabled';
+  static const String _victoryReminderTimesKey = 'victory_reminder_times';
   static const String _reengagementKey = 'reengagement_enabled';
+  static const List<int> _defaultVictoryReminderMinutes = <int>[
+    18 * 60,
+    22 * 60,
+  ];
+  static const int _maxVictoryReminderSlots = 6;
 
   // Singleton
   static final NotificationService _instance = NotificationService._internal();
@@ -25,6 +32,10 @@ class NotificationService {
   // Configuración por defecto
   TimeOfDay _morningTime = const TimeOfDay(hour: 7, minute: 0);
   TimeOfDay _nightTime = const TimeOfDay(hour: 21, minute: 0);
+  List<TimeOfDay> _victoryReminderTimes = <TimeOfDay>[
+    const TimeOfDay(hour: 18, minute: 0),
+    const TimeOfDay(hour: 22, minute: 0),
+  ];
   bool _morningEnabled = true;
   bool _nightEnabled = true;
   bool _emergencyReminderEnabled = true;
@@ -32,13 +43,16 @@ class NotificationService {
   bool _reengagementEnabled = true;
 
   // Notificaciones locales
-  final FlutterLocalNotificationsPlugin _flnp = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin _flnp =
+      FlutterLocalNotificationsPlugin();
   bool _notificationsInitialized = false;
 
   /// Último payload tappeado. Lo observa `main.dart` para hacer deep-link
   /// a la pantalla correspondiente cuando el usuario abre la app desde una
   /// notificación (tanto en foreground como cold-start).
-  static final ValueNotifier<String?> lastTapPayload = ValueNotifier<String?>(null);
+  static final ValueNotifier<String?> lastTapPayload = ValueNotifier<String?>(
+    null,
+  );
 
   /// Payloads conocidos (mantener sincronizados con el router).
   static const String payloadMorning = 'route:devotional';
@@ -54,11 +68,15 @@ class NotificationService {
   /// Compañero de Batalla. Si es `true`, suprimimos notificaciones locales
   /// de invitaciones / mensajes porque la UI ya los muestra reactivamente
   /// (evita ruido duplicado). Lo controla el propio `BattlePartnerScreen`.
-  static final ValueNotifier<bool> isViewingBattlePartner = ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> isViewingBattlePartner = ValueNotifier<bool>(
+    false,
+  );
 
   // Getters
   TimeOfDay get morningTime => _morningTime;
   TimeOfDay get nightTime => _nightTime;
+  List<TimeOfDay> get victoryReminderTimes =>
+      List.unmodifiable(_victoryReminderTimes);
   bool get morningEnabled => _morningEnabled;
   bool get nightEnabled => _nightEnabled;
   bool get emergencyReminderEnabled => _emergencyReminderEnabled;
@@ -86,13 +104,30 @@ class NotificationService {
 
     final morningMinutes = prefs.getInt(_morningTimeKey);
     if (morningMinutes != null) {
-      _morningTime = TimeOfDay(hour: morningMinutes ~/ 60, minute: morningMinutes % 60);
+      _morningTime = TimeOfDay(
+        hour: morningMinutes ~/ 60,
+        minute: morningMinutes % 60,
+      );
     }
 
     final nightMinutes = prefs.getInt(_nightTimeKey);
     if (nightMinutes != null) {
-      _nightTime = TimeOfDay(hour: nightMinutes ~/ 60, minute: nightMinutes % 60);
+      _nightTime = TimeOfDay(
+        hour: nightMinutes ~/ 60,
+        minute: nightMinutes % 60,
+      );
     }
+
+    final victoryMinutes = prefs
+        .getStringList(_victoryReminderTimesKey)
+        ?.map(int.tryParse)
+        .whereType<int>()
+        .toList(growable: false);
+    _victoryReminderTimes = _timesFromMinutes(
+      victoryMinutes == null || victoryMinutes.isEmpty
+          ? _defaultVictoryReminderMinutes
+          : victoryMinutes,
+    );
   }
 
   Future<void> _initNotifications() async {
@@ -107,8 +142,15 @@ class NotificationService {
         requestBadgePermission: false,
         requestSoundPermission: false,
       );
-      const init = InitializationSettings(android: android, iOS: darwin, macOS: darwin);
-      await _flnp.initialize(init, onDidReceiveNotificationResponse: _handleNotificationTap);
+      const init = InitializationSettings(
+        android: android,
+        iOS: darwin,
+        macOS: darwin,
+      );
+      await _flnp.initialize(
+        init,
+        onDidReceiveNotificationResponse: _handleNotificationTap,
+      );
       await _createAndroidChannels();
 
       // Cold-start: si la app fue abierta desde una notificación cuando
@@ -116,7 +158,9 @@ class NotificationService {
       try {
         final launch = await _flnp.getNotificationAppLaunchDetails();
         final payload = launch?.notificationResponse?.payload;
-        if (launch?.didNotificationLaunchApp == true && payload != null && payload.isNotEmpty) {
+        if (launch?.didNotificationLaunchApp == true &&
+            payload != null &&
+            payload.isNotEmpty) {
           lastTapPayload.value = payload;
         }
       } catch (_) {}
@@ -130,7 +174,9 @@ class NotificationService {
 
   Future<void> _createAndroidChannels() async {
     final androidImpl = _flnp
-        .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
     if (androidImpl == null) return;
 
     const channels = [
@@ -178,8 +224,17 @@ class NotificationService {
     await prefs.setBool(_emergencyReminderKey, _emergencyReminderEnabled);
     await prefs.setBool(_victoryReminderKey, _victoryReminderEnabled);
     await prefs.setBool(_reengagementKey, _reengagementEnabled);
-    await prefs.setInt(_morningTimeKey, _morningTime.hour * 60 + _morningTime.minute);
+    await prefs.setInt(
+      _morningTimeKey,
+      _morningTime.hour * 60 + _morningTime.minute,
+    );
     await prefs.setInt(_nightTimeKey, _nightTime.hour * 60 + _nightTime.minute);
+    await prefs.setStringList(
+      _victoryReminderTimesKey,
+      _victoryReminderTimes
+          .map((time) => _minutesOfDay(time).toString())
+          .toList(),
+    );
     UserPrefCloudSyncService.I.markDirty();
   }
 
@@ -188,15 +243,29 @@ class NotificationService {
     try {
       if (!_notificationsInitialized) await _initNotifications();
       final androidImpl = _flnp
-          .resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>();
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >();
       final iosImpl = _flnp
-          .resolvePlatformSpecificImplementation<IOSFlutterLocalNotificationsPlugin>();
+          .resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin
+          >();
       final macosImpl = _flnp
-          .resolvePlatformSpecificImplementation<MacOSFlutterLocalNotificationsPlugin>();
+          .resolvePlatformSpecificImplementation<
+            MacOSFlutterLocalNotificationsPlugin
+          >();
 
       final androidOk = await androidImpl?.requestNotificationsPermission();
-      final iosOk = await iosImpl?.requestPermissions(alert: true, badge: true, sound: true);
-      final macOk = await macosImpl?.requestPermissions(alert: true, badge: true, sound: true);
+      final iosOk = await iosImpl?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
+      final macOk = await macosImpl?.requestPermissions(
+        alert: true,
+        badge: true,
+        sound: true,
+      );
 
       // Al menos una plataforma respondió true (o la actual no aplica y
       // asumimos true). Si todas son null, no hay impl; damos true.
@@ -248,6 +317,15 @@ class NotificationService {
     }
   }
 
+  /// Actualizar las horas de recordatorio para cerrar el día de victoria.
+  Future<void> setVictoryReminderTimes(List<TimeOfDay> times) async {
+    _victoryReminderTimes = _normalizeVictoryReminderTimes(times);
+    await _saveSettings();
+    if (_victoryReminderEnabled) {
+      await _scheduleVictoryReminders();
+    }
+  }
+
   /// Habilitar/deshabilitar recordatorio de emergencia
   Future<void> setEmergencyReminderEnabled(bool enabled) async {
     _emergencyReminderEnabled = enabled;
@@ -257,14 +335,78 @@ class NotificationService {
   // IDs fijos para notificaciones recurrentes
   static const int _morningNotificationId = 1001;
   static const int _nightNotificationId = 1002;
-  static const int _victoryReminderId = 1003;
+  static const int _legacyVictoryReminderId = 1003;
   static const int _reengagementId = 1004;
+  static const int _victoryReminderBaseId = 1100;
 
   /// Calcular próxima hora de disparo
   tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
     final now = tz.TZDateTime.now(tz.local);
-    var scheduled = tz.TZDateTime(tz.local, now.year, now.month, now.day, time.hour, time.minute);
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
     if (scheduled.isBefore(now)) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+    return scheduled;
+  }
+
+  int _minutesOfDay(TimeOfDay time) => time.hour * 60 + time.minute;
+
+  TimeOfDay _timeFromMinutes(int minutes) {
+    final safe = minutes.clamp(0, 23 * 60 + 59);
+    return TimeOfDay(hour: safe ~/ 60, minute: safe % 60);
+  }
+
+  List<TimeOfDay> _timesFromMinutes(Iterable<int> minutes) {
+    return _normalizeVictoryReminderTimes(minutes.map(_timeFromMinutes));
+  }
+
+  List<TimeOfDay> _normalizeVictoryReminderTimes(Iterable<TimeOfDay> times) {
+    final minutes = times.map(_minutesOfDay).toSet().toList()..sort();
+    final limited = minutes.take(_maxVictoryReminderSlots);
+    final normalized = limited.map(_timeFromMinutes).toList(growable: false);
+    if (normalized.isEmpty) {
+      return _timesFromMinutes(_defaultVictoryReminderMinutes.take(1));
+    }
+    return normalized;
+  }
+
+  Future<bool> _hasRegisteredToday() async {
+    try {
+      if (!VictoryScoringService.I.isInitialized) {
+        await VictoryScoringService.I.init();
+      }
+      return VictoryScoringService.I.hasDataForToday();
+    } catch (_) {
+      return false;
+    }
+  }
+
+  Future<tz.TZDateTime> _nextVictoryReminderInstance(
+    TimeOfDay time, {
+    bool skipToday = false,
+  }) async {
+    final now = tz.TZDateTime.now(tz.local);
+    var scheduled = tz.TZDateTime(
+      tz.local,
+      now.year,
+      now.month,
+      now.day,
+      time.hour,
+      time.minute,
+    );
+    final hasRegisteredToday = skipToday || await _hasRegisteredToday();
+    final isToday =
+        scheduled.year == now.year &&
+        scheduled.month == now.month &&
+        scheduled.day == now.day;
+    if (!scheduled.isAfter(now) || (hasRegisteredToday && isToday)) {
       scheduled = scheduled.add(const Duration(days: 1));
     }
     return scheduled;
@@ -297,7 +439,8 @@ class NotificationService {
         _nextInstanceOfTime(_morningTime),
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payloadMorning,
       );
@@ -333,7 +476,8 @@ class NotificationService {
         _nextInstanceOfTime(_nightTime),
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: payloadNight,
       );
@@ -367,10 +511,26 @@ class NotificationService {
 
   /// Programar todas las notificaciones
   Future<void> scheduleAllNotifications() async {
-    if (_morningEnabled) await _scheduleMorningNotification();
-    if (_nightEnabled) await _scheduleNightNotification();
-    if (_victoryReminderEnabled) await _scheduleVictoryReminder();
-    if (_reengagementEnabled) await _scheduleReengagement();
+    if (_morningEnabled) {
+      await _scheduleMorningNotification();
+    } else {
+      await _cancelMorningNotification();
+    }
+    if (_nightEnabled) {
+      await _scheduleNightNotification();
+    } else {
+      await _cancelNightNotification();
+    }
+    if (_victoryReminderEnabled) {
+      await _scheduleVictoryReminders();
+    } else {
+      await _cancelVictoryReminders();
+    }
+    if (_reengagementEnabled) {
+      await _scheduleReengagement();
+    } else {
+      await _flnp.cancel(_reengagementId);
+    }
   }
 
   /// ────────────────────────────────────────────────────────────────────────
@@ -400,7 +560,8 @@ class NotificationService {
         scheduled = scheduled.add(const Duration(days: 1));
       }
       if (weekdaysOnly) {
-        while (scheduled.weekday == DateTime.saturday || scheduled.weekday == DateTime.sunday) {
+        while (scheduled.weekday == DateTime.saturday ||
+            scheduled.weekday == DateTime.sunday) {
           scheduled = scheduled.add(const Duration(days: 1));
         }
       }
@@ -409,7 +570,8 @@ class NotificationService {
         android: AndroidNotificationDetails(
           'plan_reminders',
           'Recordatorios de Plan',
-          channelDescription: 'Recordatorios diarios para planes personalizados',
+          channelDescription:
+              'Recordatorios diarios para planes personalizados',
           importance: Importance.max,
           priority: Priority.high,
           playSound: true,
@@ -424,7 +586,8 @@ class NotificationService {
         scheduled,
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         matchDateTimeComponents: DateTimeComponents.time,
         payload: '$payloadPlanPrefix$planId',
       );
@@ -479,18 +642,18 @@ class NotificationService {
     _victoryReminderEnabled = enabled;
     await _saveSettings();
     if (enabled) {
-      await _scheduleVictoryReminder();
+      await _scheduleVictoryReminders();
     } else {
-      await _flnp.cancel(_victoryReminderId);
+      await _cancelVictoryReminders();
     }
   }
 
-  /// Programar recordatorio diario a las 20:00 para registrar victoria
-  Future<void> _scheduleVictoryReminder() async {
+  /// Programar recordatorios diarios para registrar victoria.
+  Future<void> _scheduleVictoryReminders({bool skipToday = false}) async {
     if (!_notificationsInitialized) await _initNotifications();
     if (!_notificationsInitialized) return;
     try {
-      await _flnp.cancel(_victoryReminderId);
+      await _cancelVictoryReminders();
       const details = NotificationDetails(
         android: AndroidNotificationDetails(
           'victory_reminder',
@@ -502,29 +665,48 @@ class NotificationService {
         ),
         iOS: DarwinNotificationDetails(presentSound: true),
       );
-      await _flnp.zonedSchedule(
-        _victoryReminderId,
-        '¿Ya registraste tu victoria?',
-        '⚔️ Ya son más de las 6 PM. ¡No olvides marcar tu día!',
-        _nextInstanceOfTime(const TimeOfDay(hour: 20, minute: 0)),
-        details,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: payloadVictory,
-      );
-      debugPrint('🔔 Recordatorio de victoria programado: 20:00');
+      for (var i = 0; i < _victoryReminderTimes.length; i++) {
+        final time = _victoryReminderTimes[i];
+        final scheduled = await _nextVictoryReminderInstance(
+          time,
+          skipToday: skipToday,
+        );
+        await _flnp.zonedSchedule(
+          _victoryReminderBaseId + i,
+          '¿Hoy fue día de victoria?',
+          '⚔️ Toma un momento para cerrar tu día y registrar victoria o gracia.',
+          scheduled,
+          details,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+          payload: payloadVictory,
+        );
+        debugPrint(
+          '🔔 Recordatorio de victoria programado: ${time.hour}:${time.minute.toString().padLeft(2, '0')}',
+        );
+      }
     } catch (e) {
       debugPrint('⚠️ Error programando recordatorio de victoria: $e');
     }
   }
 
+  Future<void> _cancelVictoryReminders() async {
+    try {
+      await _flnp.cancel(_legacyVictoryReminderId);
+      for (var i = 0; i < _maxVictoryReminderSlots; i++) {
+        await _flnp.cancel(_victoryReminderBaseId + i);
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error cancelando recordatorios de victoria: $e');
+    }
+  }
+
   /// Cancelar el recordatorio de victoria (llamar cuando el usuario registra)
   Future<void> cancelVictoryReminderForToday() async {
-    // Re-programar para mañana (zonedSchedule con matchDateTimeComponents.time
-    // ya maneja esto, pero cancelamos y reprogramamos para limpiar)
     if (_victoryReminderEnabled) {
-      await _scheduleVictoryReminder();
+      await _scheduleVictoryReminders(skipToday: true);
     }
   }
 
@@ -552,7 +734,9 @@ class NotificationService {
     try {
       await _flnp.cancel(_reengagementId);
 
-      final scheduled = tz.TZDateTime.now(tz.local).add(const Duration(hours: 48));
+      final scheduled = tz.TZDateTime.now(
+        tz.local,
+      ).add(const Duration(hours: 48));
 
       const messages = [
         '💪 La victoria se construye un día a la vez. ¡Vuelve!',
@@ -580,7 +764,8 @@ class NotificationService {
         scheduled,
         details,
         androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation: UILocalNotificationDateInterpretation.absoluteTime,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
         payload: payloadReengagement,
       );
       debugPrint('🔔 Re-engagement programado para: $scheduled');
@@ -596,7 +781,10 @@ class NotificationService {
   /// Notifica en el dispositivo una nueva solicitud de compañero de batalla.
   /// Si el usuario está actualmente en `BattlePartnerScreen`, se omite para
   /// evitar duplicar el feedback visual.
-  Future<void> showBattlePartnerInvite({required int id, required String fromName}) async {
+  Future<void> showBattlePartnerInvite({
+    required int id,
+    required String fromName,
+  }) async {
     if (isViewingBattlePartner.value) return;
     if (!_notificationsInitialized) await _initNotifications();
     if (!_notificationsInitialized) return;
@@ -605,7 +793,8 @@ class NotificationService {
         android: AndroidNotificationDetails(
           'battle_partner_invites',
           'Solicitudes de compañero',
-          channelDescription: 'Avisa cuando alguien quiere ser tu compañero de batalla',
+          channelDescription:
+              'Avisa cuando alguien quiere ser tu compañero de batalla',
           importance: Importance.high,
           priority: Priority.high,
           playSound: true,
@@ -663,7 +852,10 @@ class NotificationService {
   /// Notificación urgente de SOS ("Oren por mí ahora") enviada por un
   /// compañero. Se salta la supresión por foreground porque el usuario
   /// DEBE ver este tipo de alerta aunque esté en la misma pantalla.
-  Future<void> showBattleSos({required int id, required String fromName}) async {
+  Future<void> showBattleSos({
+    required int id,
+    required String fromName,
+  }) async {
     if (!_notificationsInitialized) await _initNotifications();
     if (!_notificationsInitialized) return;
     try {

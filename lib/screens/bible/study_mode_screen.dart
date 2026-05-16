@@ -12,11 +12,13 @@ import '../../models/bible/bible_version.dart';
 import '../../models/bible/study_chapter_answers.dart';
 import '../../models/bible/study_room.dart';
 import '../../models/bible/study_word_highlight.dart';
+import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/study_export_service.dart';
 import '../../services/bible/study_mode_service.dart';
 import '../../services/bible/study_room_service.dart';
+import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../widgets/bible/study/study_chapter_picker.dart';
 import '../../widgets/bible/study/study_onboarding_overlay.dart';
@@ -86,14 +88,32 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   final TextEditingController _hopeMessageController = TextEditingController();
   final Set<int> _mainVerseNumbers = {};
 
+  /// Identificador del estudio actualmente cargado en pantalla.
+  /// - null  → no se ha seleccionado aún; al primer guardado se generará
+  ///   un studyId fresco (un "nuevo estudio").
+  /// - !=null → hidrata y guarda contra ese estudio específico.
+  /// Permite tener varios estudios independientes del mismo capítulo.
+  String? _currentStudyId;
+
+  /// Resuelve el estudio actualmente cargado: prioriza `_currentStudyId`,
+  /// con fallback al estudio más reciente del libro/capítulo cuando todavía
+  /// no hay id (apertura legacy sin Setup).
+  StudyChapterAnswers? _resolveCurrentStudy() {
+    final byId = StudyModeService.I.answersForStudyId(_currentStudyId);
+    if (byId != null) return byId;
+    if (_currentStudyId != null) return null;
+    return StudyModeService.I.answersFor(_bookNumber, _chapter);
+  }
+
   @override
   void initState() {
     super.initState();
     _bookNumber = widget.bookNumber;
     _bookName = widget.bookName;
     _chapter = widget.chapter;
-    _version =
-        widget.version ?? BibleUserDataService.I.preferredVersionNotifier.value;
+    _version = BibleDownloadService.I.bestAvailableVersion(
+      widget.version ?? BibleUserDataService.I.preferredVersionNotifier.value,
+    );
     _secondaryVersion = _defaultSecondaryVersion(_version);
     _tabController = TabController(length: 2, vsync: this);
     for (final q in kStudyQuestions) {
@@ -104,6 +124,20 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   Future<void> _bootstrap() async {
+    await UserScopedServices.I.ensureStudyMode();
+    if (!mounted) return;
+    if (widget.version == null) {
+      _version = BibleDownloadService.I.bestAvailableVersion(
+        BibleUserDataService.I.preferredVersionNotifier.value,
+      );
+      _secondaryVersion = _defaultSecondaryVersion(_version);
+    }
+    // Si el usuario entró con el flujo de "Nuevo estudio" (Setup), creamos
+    // un studyId fresco para que las notas/respuestas sean independientes,
+    // incluso si ya existe otro estudio del mismo capítulo.
+    if (widget.openSetupOnStart && !widget.openSavedStudiesOnStart) {
+      _currentStudyId = StudyChapterAnswers.generateStudyId();
+    }
     await _loadChapter();
     _hydrateAnswers();
     // Onboarding (primer uso)
@@ -142,17 +176,24 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   Future<void> _loadChapter() async {
     setState(() => _loading = true);
     try {
+      _version = BibleDownloadService.I.bestAvailableVersion(_version);
+      if (!BibleDownloadService.I.isAvailable(_secondaryVersion) ||
+          _secondaryVersion == _version) {
+        _secondaryVersion = _defaultSecondaryVersion(_version);
+      }
       _books = await BibleParserService.I.getBooks(_version);
       final verses = await BibleParserService.I.getChapter(
         version: _version,
         bookNumber: _bookNumber,
         chapter: _chapter,
       );
-      final secondaryVerses = await BibleParserService.I.getChapter(
-        version: _secondaryVersion,
-        bookNumber: _bookNumber,
-        chapter: _chapter,
-      );
+      final secondaryVerses = _secondaryVersion == _version
+          ? const <BibleVerse>[]
+          : await BibleParserService.I.getChapter(
+              version: _secondaryVersion,
+              bookNumber: _bookNumber,
+              chapter: _chapter,
+            );
       if (!mounted) return;
       setState(() {
         _verses = verses;
@@ -166,12 +207,17 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   BibleVersion _defaultSecondaryVersion(BibleVersion primary) {
-    if (primary != BibleVersion.nvi) return BibleVersion.nvi;
-    return BibleVersion.rvr1960;
+    return BibleDownloadService.I.bestAvailableSecondary(primary);
   }
 
   void _hydrateAnswers() {
-    final study = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final study = _resolveCurrentStudy();
+    // Si encontramos un estudio vía fallback legacy, adoptamos su studyId
+    // para futuras escrituras (manteniendo la entrada existente en lugar de
+    // crear duplicados).
+    if (_currentStudyId == null && study != null) {
+      _currentStudyId = study.chapterKey;
+    }
     final existing = study?.answers ?? const <String, String>{};
     _draftAnswers
       ..clear()
@@ -217,15 +263,19 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   Future<void> _flushAnswers() async {
     _saveDebounce?.cancel();
     _saveDebounce = null;
-    final existing = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final existing = _resolveCurrentStudy();
     final base =
         existing ??
         StudyChapterAnswers.empty(
+          studyId: _currentStudyId,
           bookNumber: _bookNumber,
           bookName: _bookName,
           chapter: _chapter,
           versionId: _version.id,
         );
+    // Aseguramos que `_currentStudyId` refleje el studyId que se va a
+    // persistir (útil si veniámos sin id y empty() acaba de generar uno).
+    _currentStudyId ??= base.studyId ?? base.chapterKey;
     final merged = _answersFromControllers();
     final updated = base.copyWith(
       answers: merged,
@@ -248,10 +298,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   StudyChapterAnswers _currentStudySnapshot() {
-    final existing = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final existing = _resolveCurrentStudy();
     final base =
         existing ??
         StudyChapterAnswers.empty(
+          studyId: _currentStudyId,
           bookNumber: _bookNumber,
           bookName: _bookName,
           chapter: _chapter,
@@ -276,6 +327,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       _bookNumber = bookNumber;
       _bookName = bookName;
       _chapter = chapter;
+      // Al cambiar de capítulo soltamos el studyId actual; `_hydrateAnswers`
+      // lo adoptará del estudio más reciente del nuevo capítulo (o lo
+      // dejará null si no existe, creando uno nuevo al primer guardado).
+      _currentStudyId = null;
     });
     await _loadChapter();
     _hydrateAnswers();
@@ -352,7 +407,9 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   Future<void> _openSavedStudy(StudyChapterAnswers study) async {
     await _flushAnswers();
-    final primary = BibleVersion.fromId(study.versionId);
+    final primary = BibleDownloadService.I.bestAvailableVersion(
+      BibleVersion.fromId(study.versionId),
+    );
     final secondary = primary == _secondaryVersion
         ? _defaultSecondaryVersion(primary)
         : _secondaryVersion;
@@ -362,6 +419,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       _chapter = study.chapter;
       _version = primary;
       _secondaryVersion = secondary;
+      _currentStudyId = study.chapterKey;
     });
     await _loadChapter();
     _hydrateAnswers();
@@ -372,6 +430,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     BibleVersion secondary,
   ) async {
     await _flushAnswers();
+    primary = BibleDownloadService.I.bestAvailableVersion(primary);
+    if (!BibleDownloadService.I.isAvailable(secondary)) {
+      secondary = _defaultSecondaryVersion(primary);
+    }
     if (secondary == primary) {
       secondary = _defaultSecondaryVersion(primary);
     }
@@ -421,15 +483,18 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       final primary = assignedVersionId == null
           ? _version
           : BibleVersion.fromId(assignedVersionId);
-      final secondary = primary == _secondaryVersion
-          ? _defaultSecondaryVersion(primary)
+      final availablePrimary = BibleDownloadService.I.bestAvailableVersion(
+        primary,
+      );
+      final secondary = availablePrimary == _secondaryVersion
+          ? _defaultSecondaryVersion(availablePrimary)
           : _secondaryVersion;
       final passageChanged =
           room.bookNumber != _bookNumber ||
           room.bookName != _bookName ||
           room.chapter != _chapter;
       final versionsChanged =
-          primary != _version || secondary != _secondaryVersion;
+          availablePrimary != _version || secondary != _secondaryVersion;
 
       if (passageChanged || versionsChanged) {
         await _flushAnswers();
@@ -438,7 +503,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           _bookNumber = room.bookNumber;
           _bookName = room.bookName;
           _chapter = room.chapter;
-          _version = primary;
+          _version = availablePrimary;
           _secondaryVersion = secondary;
         });
         await _loadChapter();
@@ -446,10 +511,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       }
 
       await StudyModeService.I.setStudyRange(
+        studyId: _currentStudyId,
         bookNumber: room.bookNumber,
         bookName: room.bookName,
         chapter: room.chapter,
-        versionId: primary.id,
+        versionId: availablePrimary.id,
         startVerse: room.startVerse,
         endVerse: room.endVerse,
       );
@@ -879,7 +945,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   Future<void> _openRangePicker() async {
     final maxVerse = _verses.isEmpty ? 1 : _verses.last.verse;
-    final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final current = _resolveCurrentStudy();
     final result = await showModalBottomSheet<_RangeResult?>(
       context: context,
       isScrollControlled: true,
@@ -891,7 +957,12 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       ),
     );
     if (result == null) return; // cancel
+    // Aseguramos que la operación se aplique al estudio actual; si no hay
+    // ninguno cargado aún, generamos un id fresco para que se cree un
+    // estudio nuevo en vez de mutar el más reciente del capítulo.
+    _currentStudyId ??= StudyChapterAnswers.generateStudyId();
     await StudyModeService.I.setStudyRange(
+      studyId: _currentStudyId,
       bookNumber: _bookNumber,
       bookName: _bookName,
       chapter: _chapter,
@@ -903,7 +974,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   String _rangeLabel() {
-    final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final current = _resolveCurrentStudy();
     final s = current?.studyStartVerse;
     final e = current?.studyEndVerse;
     if (s == null || e == null) return 'Capítulo completo';
@@ -911,7 +982,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   List<BibleVerse> _visibleVerses() {
-    final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final current = _resolveCurrentStudy();
     final s = current?.studyStartVerse;
     final e = current?.studyEndVerse;
     if (s == null || e == null) return _verses;
@@ -924,7 +995,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   List<BibleVerse> _visibleSecondaryVerses() {
-    final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+    final current = _resolveCurrentStudy();
     final s = current?.studyStartVerse;
     final e = current?.studyEndVerse;
     if (s == null || e == null) return _secondaryVerses;
@@ -1175,7 +1246,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
     if (action == StudyRoomDialogAction.create) {
       try {
-        final current = StudyModeService.I.answersFor(_bookNumber, _chapter);
+        final current = _resolveCurrentStudy();
         final room = await StudyRoomService.I.createRoom(
           bookNumber: _bookNumber,
           bookName: _bookName,
@@ -1293,7 +1364,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       secondaryVersion: _secondaryVersion,
       bookNumber: _bookNumber,
       chapter: _chapter,
-      showSecondary: StudyRoomService.I.currentRoomNotifier.value == null,
+      showSecondary:
+          StudyRoomService.I.currentRoomNotifier.value == null &&
+          _secondaryVersion != _version &&
+          _secondaryVerses.isNotEmpty,
     );
   }
 
@@ -2591,14 +2665,16 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
   void initState() {
     super.initState();
     _primary = widget.initialPrimary;
-    _secondary = widget.initialSecondary == widget.initialPrimary
-        ? _fallbackSecondary(widget.initialPrimary)
+    _primary = BibleDownloadService.I.bestAvailableVersion(_primary);
+    _secondary =
+        widget.initialSecondary == _primary ||
+            !BibleDownloadService.I.isAvailable(widget.initialSecondary)
+        ? _fallbackSecondary(_primary)
         : widget.initialSecondary;
   }
 
   BibleVersion _fallbackSecondary(BibleVersion primary) {
-    if (primary != BibleVersion.nvi) return BibleVersion.nvi;
-    return BibleVersion.rvr1960;
+    return BibleDownloadService.I.bestAvailableSecondary(primary);
   }
 
   @override
@@ -2721,9 +2797,30 @@ class _VersionDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final versions = BibleVersion.values
+    final versions = BibleDownloadService.I.availableVersions
         .where((version) => version != exclude)
         .toList(growable: false);
+    if (versions.isEmpty) {
+      return TextFormField(
+        enabled: false,
+        initialValue: 'Descarga otra versión en Ajustes de Biblia',
+        style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 13),
+        decoration: InputDecoration(
+          labelText: label,
+          labelStyle: GoogleFonts.manrope(color: t.textSecondary),
+          filled: true,
+          fillColor: t.background,
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+          ),
+          disabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(10),
+            borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+          ),
+        ),
+      );
+    }
     final effectiveValue = versions.contains(value) ? value : versions.first;
     return DropdownButtonFormField<BibleVersion>(
       value: effectiveValue,

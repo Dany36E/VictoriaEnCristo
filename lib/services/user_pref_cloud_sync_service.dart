@@ -58,6 +58,7 @@ class UserPrefCloudSyncService {
     'night_notification_time',
     'emergency_reminder_enabled',
     'victory_reminder_enabled',
+    'victory_reminder_times',
     'reengagement_enabled',
     'battle.acceptingInvites',
     'battle.trustedPartnerUid',
@@ -92,7 +93,9 @@ class UserPrefCloudSyncService {
       final snap = await ref.get();
       if (!snap.exists) {
         if (_hasLocalData()) _schedulePush();
-        debugPrint('☁️ [USER_PREF_SYNC] Remote doc empty, local push scheduled');
+        debugPrint(
+          '☁️ [USER_PREF_SYNC] Remote doc empty, local push scheduled',
+        );
         return;
       }
 
@@ -106,7 +109,9 @@ class UserPrefCloudSyncService {
       if (remoteMs > localMs) {
         await _restorePrefs(remotePrefs);
         await _prefs?.setInt(_localUpdatedKey(uid), remoteMs);
-        debugPrint('☁️ [USER_PREF_SYNC] Restored ${remotePrefs.length} prefs from cloud');
+        debugPrint(
+          '☁️ [USER_PREF_SYNC] Restored ${remotePrefs.length} prefs from cloud',
+        );
       } else if (localMs > remoteMs && _hasLocalData()) {
         _schedulePush();
         debugPrint('☁️ [USER_PREF_SYNC] Local prefs newer, push scheduled');
@@ -120,7 +125,10 @@ class UserPrefCloudSyncService {
     final uid = _uid;
     if (uid == null || uid.isEmpty) return;
     _dirty = true;
-    _prefs?.setInt(_localUpdatedKey(uid), DateTime.now().millisecondsSinceEpoch);
+    _prefs?.setInt(
+      _localUpdatedKey(uid),
+      DateTime.now().millisecondsSinceEpoch,
+    );
     _schedulePush();
   }
 
@@ -146,7 +154,8 @@ class UserPrefCloudSyncService {
     }
     final keys = prefs.getKeys().toList(growable: false);
     for (final key in keys) {
-      if (_prefixes.any(key.startsWith) || key.startsWith(_localUpdatedPrefix)) {
+      if (_prefixes.any(key.startsWith) ||
+          key.startsWith(_localUpdatedPrefix)) {
         await prefs.remove(key);
       }
     }
@@ -225,12 +234,18 @@ class UserPrefCloudSyncService {
     Map<String, dynamic> localPrefs,
   ) {
     final preservedRemote = Map<String, dynamic>.from(remotePrefs)
-      ..removeWhere((key, _) => _exactKeys.contains(key) || _prefixes.any(key.startsWith));
+      ..removeWhere(
+        (key, _) => _exactKeys.contains(key) || _prefixes.any(key.startsWith),
+      );
     return <String, dynamic>{...preservedRemote, ...localPrefs};
   }
 
   static Set<String> _ownedKeysFrom(Iterable<String> keys) {
-    return keys.where((key) => _exactKeys.contains(key) || _prefixes.any(key.startsWith)).toSet();
+    return keys
+        .where(
+          (key) => _exactKeys.contains(key) || _prefixes.any(key.startsWith),
+        )
+        .toSet();
   }
 
   Future<void> _removeOwnedPrefsMissingFromRemote(

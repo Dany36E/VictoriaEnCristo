@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../screens/victory_celebration_screen.dart';
 import '../services/feedback_engine.dart';
+import '../services/notification_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/widget_sync_service.dart';
 import '../theme/app_theme_data.dart';
@@ -23,7 +24,8 @@ class DailyOutcomeRegistrationResult {
   const DailyOutcomeRegistrationResult(this.status, {this.streak = 0});
 
   bool get changed =>
-      status == DailyOutcomeStatus.victoryLogged || status == DailyOutcomeStatus.graceLogged;
+      status == DailyOutcomeStatus.victoryLogged ||
+      status == DailyOutcomeStatus.graceLogged;
 }
 
 Future<DailyOutcomeRegistrationResult> promptAndRegisterDailyOutcome(
@@ -35,20 +37,27 @@ Future<DailyOutcomeRegistrationResult> promptAndRegisterDailyOutcome(
   await scoring.init();
 
   if (scoring.hasDataForToday()) {
+    await NotificationService().cancelVictoryReminderForToday();
     final streak = scoring.getCurrentStreak();
     if (scoring.isTodayVictory()) {
       if (showAlreadyVictoryCelebration && context.mounted) {
         await _showVictoryCelebration(context, streak);
       }
-      return DailyOutcomeRegistrationResult(DailyOutcomeStatus.alreadyVictory, streak: streak);
+      return DailyOutcomeRegistrationResult(
+        DailyOutcomeStatus.alreadyVictory,
+        streak: streak,
+      );
     }
 
     if (context.mounted) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text('Ya registraste gracia para hoy.')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Ya registraste gracia para hoy.')),
+      );
     }
-    return DailyOutcomeRegistrationResult(DailyOutcomeStatus.alreadyGrace, streak: streak);
+    return DailyOutcomeRegistrationResult(
+      DailyOutcomeStatus.alreadyGrace,
+      streak: streak,
+    );
   }
 
   if (!scoring.canLogVictoryNow()) {
@@ -76,27 +85,35 @@ Future<DailyOutcomeRegistrationResult> promptAndRegisterDailyOutcome(
     FeedbackEngine.I.confirm();
     await scoring.logVictoryForToday();
     await WidgetSyncService.I.syncWidget();
+    await NotificationService().cancelVictoryReminderForToday();
     final streak = scoring.getCurrentStreak();
 
     if (showVictoryCelebration && context.mounted) {
       await _showVictoryCelebration(context, streak);
     }
 
-    return DailyOutcomeRegistrationResult(DailyOutcomeStatus.victoryLogged, streak: streak);
+    return DailyOutcomeRegistrationResult(
+      DailyOutcomeStatus.victoryLogged,
+      streak: streak,
+    );
   }
 
   FeedbackEngine.I.select();
   await scoring.setDayAllGiants(DateTime.now(), 0);
   await WidgetSyncService.I.syncWidget();
+  await NotificationService().cancelVictoryReminderForToday();
   final streak = scoring.getCurrentStreak();
 
   if (context.mounted) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Gracia registrada para hoy.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Gracia registrada para hoy.')),
+    );
   }
 
-  return DailyOutcomeRegistrationResult(DailyOutcomeStatus.graceLogged, streak: streak);
+  return DailyOutcomeRegistrationResult(
+    DailyOutcomeStatus.graceLogged,
+    streak: streak,
+  );
 }
 
 Future<DailyOutcomeChoice?> showDailyOutcomeChoiceSheet(BuildContext context) {
@@ -127,23 +144,29 @@ Future<DailyOutcomeChoice?> showDailyOutcomeChoiceSheet(BuildContext context) {
               const SizedBox(height: 6),
               Text(
                 'Elige cómo quieres registrar hoy.',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: theme.textSecondary),
+                style: Theme.of(
+                  context,
+                ).textTheme.bodyMedium?.copyWith(color: theme.textSecondary),
               ),
               const SizedBox(height: 18),
               _OutcomeTile(
                 icon: Icons.shield_rounded,
                 title: 'Victoria',
-                subtitle: 'Hoy resististe y quieres contar el día como victoria.',
+                subtitle:
+                    'Hoy resististe y quieres contar el día como victoria.',
                 color: const Color(0xFF66BB6A),
-                onTap: () => Navigator.of(context).pop(DailyOutcomeChoice.victory),
+                onTap: () =>
+                    Navigator.of(context).pop(DailyOutcomeChoice.victory),
               ),
               const SizedBox(height: 12),
               _OutcomeTile(
                 icon: Icons.spa_rounded,
                 title: 'Gracia',
-                subtitle: 'Hoy lo registras con honestidad, sin forzar una victoria.',
+                subtitle:
+                    'Hoy lo registras con honestidad, sin forzar una victoria.',
                 color: const Color(0xFF90A4AE),
-                onTap: () => Navigator.of(context).pop(DailyOutcomeChoice.grace),
+                onTap: () =>
+                    Navigator.of(context).pop(DailyOutcomeChoice.grace),
               ),
             ],
           ),
@@ -202,7 +225,10 @@ class _OutcomeTile extends StatelessWidget {
               Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(color: color.withOpacity(0.18), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.18),
+                  shape: BoxShape.circle,
+                ),
                 child: Icon(icon, color: color, size: 24),
               ),
               const SizedBox(width: 14),
@@ -220,9 +246,10 @@ class _OutcomeTile extends StatelessWidget {
                     const SizedBox(height: 3),
                     Text(
                       subtitle,
-                      style: Theme.of(
-                        context,
-                      ).textTheme.bodySmall?.copyWith(color: theme.textSecondary, height: 1.25),
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: theme.textSecondary,
+                        height: 1.25,
+                      ),
                     ),
                   ],
                 ),

@@ -6,6 +6,7 @@ import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../models/bible/highlight.dart';
+import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/recent_colors_service.dart';
@@ -62,12 +63,10 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     _bookNumber = widget.bookNumber;
     _bookName = widget.bookName;
     _currentChapter = widget.chapter;
-    _leftVersion = widget.primaryVersion;
-    // Pick a different version for right side
-    _rightVersion = BibleVersion.values.firstWhere(
-      (v) => v != _leftVersion,
-      orElse: () => BibleVersion.values.first,
+    _leftVersion = BibleDownloadService.I.bestAvailableVersion(
+      widget.primaryVersion,
     );
+    _rightVersion = BibleDownloadService.I.bestAvailableSecondary(_leftVersion);
     _leftScroll.addListener(_onLeftScroll);
     _rightScroll.addListener(_onRightScroll);
     SharedPreferences.getInstance()
@@ -118,25 +117,30 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
   Future<void> _loadAll() async {
     setState(() => _loading = true);
     try {
+      _leftVersion = BibleDownloadService.I.bestAvailableVersion(_leftVersion);
+      if (!BibleDownloadService.I.isAvailable(_rightVersion) ||
+          _rightVersion == _leftVersion) {
+        _rightVersion = BibleDownloadService.I.bestAvailableSecondary(
+          _leftVersion,
+        );
+      }
       final books = await BibleParserService.I.getBooks(_leftVersion);
       _allBooks = books;
       final book = books.where((b) => b.number == _bookNumber).firstOrNull;
       if (book != null) _maxChapters = book.totalChapters;
 
-      final results = await Future.wait([
-        BibleParserService.I.getChapter(
-          version: _leftVersion,
-          bookNumber: _bookNumber,
-          chapter: _currentChapter,
-        ),
-        BibleParserService.I.getChapter(
-          version: _rightVersion,
-          bookNumber: _bookNumber,
-          chapter: _currentChapter,
-        ),
-      ]);
-      _leftVerses = results[0];
-      _rightVerses = results[1];
+      _leftVerses = await BibleParserService.I.getChapter(
+        version: _leftVersion,
+        bookNumber: _bookNumber,
+        chapter: _currentChapter,
+      );
+      _rightVerses = _rightVersion == _leftVersion
+          ? const <BibleVerse>[]
+          : await BibleParserService.I.getChapter(
+              version: _rightVersion,
+              bookNumber: _bookNumber,
+              chapter: _currentChapter,
+            );
     } catch (e) {
       debugPrint('📖 [PARALLEL] Error loading chapters: $e');
       _leftVerses = [];
@@ -197,7 +201,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            ...BibleVersion.values.map((v) {
+            ...BibleDownloadService.I.availableVersions.map((v) {
               final isCurrent = v == current;
               final isOtherSide = v == other;
               return ListTile(
@@ -638,6 +642,24 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     ScrollController controller,
     bool isLeft,
   ) {
+    if (verses.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Text(
+            isLeft
+                ? 'No se pudo cargar esta versión.'
+                : 'Descarga otra versión en Ajustes de Biblia para comparar.',
+            textAlign: TextAlign.center,
+            style: GoogleFonts.manrope(
+              color: t.textSecondary.withOpacity(0.55),
+              fontSize: 13,
+              height: 1.4,
+            ),
+          ),
+        ),
+      );
+    }
     return ValueListenableBuilder<Map<String, Highlight>>(
       valueListenable: BibleUserDataService.I.highlightsNotifier,
       builder: (context, highlights, _) {

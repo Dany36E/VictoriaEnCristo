@@ -42,7 +42,10 @@ class BattlePartnerData {
     return DateTime.now().difference(lastOpenedAt!).inDays;
   }
 
-  /// Crear desde documento Firestore de battlePartners + publicProgress
+  /// Crear desde documento Firestore de battlePartners.
+  ///
+  /// Los campos de progreso están denormalizados en el documento del vínculo
+  /// para evitar leer /publicProgress/latest por cada compañero en cada sesión.
   factory BattlePartnerData.fromFirestore(
     Map<String, dynamic> partnerDoc, {
     Map<String, dynamic>? progressDoc,
@@ -50,9 +53,17 @@ class BattlePartnerData {
     return BattlePartnerData(
       uid: partnerDoc['partnerUid'] as String? ?? '',
       name: partnerDoc['partnerName'] as String? ?? 'Compañero',
-      streakDays: progressDoc?['streakDays'] as int? ?? 0,
-      victoryToday: progressDoc?['victoryToday'] as bool? ?? false,
-      lastOpenedAt: _toDateTime(progressDoc?['lastOpenedAt']),
+      streakDays:
+          partnerDoc['streakDays'] as int? ??
+          progressDoc?['streakDays'] as int? ??
+          0,
+      victoryToday:
+          partnerDoc['victoryToday'] as bool? ??
+          progressDoc?['victoryToday'] as bool? ??
+          false,
+      lastOpenedAt: _toDateTime(
+        partnerDoc['lastOpenedAt'] ?? progressDoc?['lastOpenedAt'],
+      ),
       addedAt: _toDateTime(partnerDoc['addedAt']) ?? DateTime.now(),
       status: _parseStatus(partnerDoc['status'] as String?),
     );
@@ -66,11 +77,16 @@ class BattlePartnerData {
 
   static PartnerStatus _parseStatus(String? value) {
     switch (value) {
-      case 'pending': return PartnerStatus.pending;
-      case 'active': return PartnerStatus.active;
-      case 'rejected': return PartnerStatus.rejected;
-      case 'removed': return PartnerStatus.removed;
-      default: return PartnerStatus.pending;
+      case 'pending':
+        return PartnerStatus.pending;
+      case 'active':
+        return PartnerStatus.active;
+      case 'rejected':
+        return PartnerStatus.rejected;
+      case 'removed':
+        return PartnerStatus.removed;
+      default:
+        return PartnerStatus.pending;
     }
   }
 }
@@ -102,7 +118,8 @@ class PartnerInvite {
       fromName: data['fromName'] as String? ?? 'Desconocido',
       inviteCode: data['inviteCode'] as String? ?? '',
       status: data['status'] as String? ?? 'pending',
-      createdAt: BattlePartnerData._toDateTime(data['createdAt']) ?? DateTime.now(),
+      createdAt:
+          BattlePartnerData._toDateTime(data['createdAt']) ?? DateTime.now(),
     );
   }
 }
@@ -123,7 +140,10 @@ class BattleMessageData {
     this.read = false,
   });
 
-  factory BattleMessageData.fromFirestore(String docId, Map<String, dynamic> data) {
+  factory BattleMessageData.fromFirestore(
+    String docId,
+    Map<String, dynamic> data,
+  ) {
     return BattleMessageData(
       id: docId,
       fromUid: data['fromUid'] as String? ?? '',

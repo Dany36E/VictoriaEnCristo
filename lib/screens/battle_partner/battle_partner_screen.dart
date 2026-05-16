@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../models/battle_partner_data.dart';
 import '../../services/battle_partner_service.dart';
+import '../../services/user_scoped_services.dart';
 import '../../services/audio_engine.dart';
 import '../../utils/clipboard_utils.dart';
 import '../../services/feedback_engine.dart';
@@ -33,12 +34,17 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
   void initState() {
     super.initState();
     AudioEngine.I.muteForScreen();
-    _loadInviteCode();
-    // Marcar todos los mensajes como leídos al entrar
-    _service.markAllMessagesRead();
+    _bootstrap();
     // Suprimir notificaciones locales de invitaciones/mensajes mientras la
     // pantalla esté visible (la UI ya muestra todo reactivamente).
     NotificationService.isViewingBattlePartner.value = true;
+  }
+
+  Future<void> _bootstrap() async {
+    await UserScopedServices.I.ensureBattlePartners(syncPublicProgress: true);
+    if (!mounted) return;
+    await _loadInviteCode();
+    await _service.markAllMessagesRead();
   }
 
   @override
@@ -49,7 +55,12 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
 
   Future<void> _loadInviteCode() async {
     final code = await _service.getMyInviteCode();
-    if (mounted) setState(() { _myInviteCode = code; _loadingCode = false; });
+    if (mounted) {
+      setState(() {
+        _myInviteCode = code;
+        _loadingCode = false;
+      });
+    }
   }
 
   @override
@@ -78,7 +89,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             builder: (_, accepting, _) {
               return IconButton(
                 icon: Icon(
-                  accepting ? Icons.notifications_active : Icons.notifications_off,
+                  accepting
+                      ? Icons.notifications_active
+                      : Icons.notifications_off,
                   color: accepting ? AppDesignSystem.gold : Colors.orange,
                   size: 22,
                 ),
@@ -90,7 +103,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             },
           ),
           IconButton(
-            icon: const Icon(Icons.person_add_alt_1, color: AppDesignSystem.gold, size: 22),
+            icon: const Icon(
+              Icons.person_add_alt_1,
+              color: AppDesignSystem.gold,
+              size: 22,
+            ),
             tooltip: 'Agregar compañero',
             onPressed: _navigateToAddPartner,
           ),
@@ -104,37 +121,37 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             children: [
-            // Banner de pausa (#12)
-            _buildPauseBanner(),
-            // ═════════════════════════════════════
-            // INVITACIONES PENDIENTES
-            // ═════════════════════════════════════
-            _buildPendingInvitesSection(),
+              // Banner de pausa (#12)
+              _buildPauseBanner(),
+              // ═════════════════════════════════════
+              // INVITACIONES PENDIENTES
+              // ═════════════════════════════════════
+              _buildPendingInvitesSection(),
 
-            // ═════════════════════════════════════
-            // MENSAJES NO LEÍDOS
-            // ═════════════════════════════════════
-            _buildUnreadMessagesSection(),
+              // ═════════════════════════════════════
+              // MENSAJES NO LEÍDOS
+              // ═════════════════════════════════════
+              _buildUnreadMessagesSection(),
 
-            // ═════════════════════════════════════
-            // COMPAÑEROS ACTIVOS
-            // ═════════════════════════════════════
-            _buildPartnersSection(),
+              // ═════════════════════════════════════
+              // COMPAÑEROS ACTIVOS
+              // ═════════════════════════════════════
+              _buildPartnersSection(),
 
-            // ═════════════════════════════════════
-            // SOS "Oren por mí ahora" (#16)
-            // ═════════════════════════════════════
-            _buildSosSection(),
+              // ═════════════════════════════════════
+              // SOS "Oren por mí ahora" (#16)
+              // ═════════════════════════════════════
+              _buildSosSection(),
 
-            const SizedBox(height: 16),
+              const SizedBox(height: 16),
 
-            // ═════════════════════════════════════
-            // MI CÓDIGO DE INVITACIÓN
-            // ═════════════════════════════════════
-            _buildMyCodeSection(),
+              // ═════════════════════════════════════
+              // MI CÓDIGO DE INVITACIÓN
+              // ═════════════════════════════════════
+              _buildMyCodeSection(),
 
-            const SizedBox(height: 24),
-          ],
+              const SizedBox(height: 24),
+            ],
           ),
         ),
       ),
@@ -185,7 +202,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             ),
             child: Center(
               child: Text(
-                invite.fromName.isNotEmpty ? invite.fromName[0].toUpperCase() : '?',
+                invite.fromName.isNotEmpty
+                    ? invite.fromName[0].toUpperCase()
+                    : '?',
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -270,7 +289,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           content: Text('¡${invite.fromName} ya es tu compañero! ⚔️'),
           backgroundColor: AppDesignSystem.midnightLight,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -381,10 +402,12 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                 else if (partners.isEmpty)
                   _buildEmptyPartnersState()
                 else
-                  ...partners.map((p) => BattlePartnerCard(
-                    partner: p,
-                    onRemove: () => _confirmRemovePartner(p),
-                  )),
+                  ...partners.map(
+                    (p) => BattlePartnerCard(
+                      partner: p,
+                      onRemove: () => _confirmRemovePartner(p),
+                    ),
+                  ),
               ],
             );
           },
@@ -495,7 +518,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               backgroundColor: AppDesignSystem.gold,
               foregroundColor: AppDesignSystem.midnightDeep,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
           ),
         ],
@@ -517,7 +542,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           'Dejarás de compartir tu progreso con ${partner.name}. '
           'No recibirás notificaciones. Podrás reconectar en cualquier '
           'momento volviendo a intercambiar códigos.',
-          style: TextStyle(color: Colors.white.withOpacity(0.75), fontSize: 13.5, height: 1.45),
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.75),
+            fontSize: 13.5,
+            height: 1.45,
+          ),
         ),
         actions: [
           TextButton(
@@ -575,17 +604,25 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             const SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: AppDesignSystem.gold),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppDesignSystem.gold,
+              ),
             )
           else if (_myInviteCode != null) ...[
             GestureDetector(
               onTap: _copyCode,
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white.withOpacity(0.06),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+                  border: Border.all(
+                    color: AppDesignSystem.gold.withOpacity(0.3),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -601,7 +638,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                       ),
                     ),
                     const SizedBox(width: 10),
-                    Icon(Icons.copy, color: AppDesignSystem.gold.withOpacity(0.6), size: 18),
+                    Icon(
+                      Icons.copy,
+                      color: AppDesignSystem.gold.withOpacity(0.6),
+                      size: 18,
+                    ),
                   ],
                 ),
               ),
@@ -618,7 +659,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             const SizedBox(height: 12),
             TextButton.icon(
               onPressed: _showQrSheet,
-              icon: const Icon(Icons.qr_code_2, size: 20, color: AppDesignSystem.gold),
+              icon: const Icon(
+                Icons.qr_code_2,
+                size: 20,
+                color: AppDesignSystem.gold,
+              ),
               label: const Text(
                 'Mostrar QR',
                 style: TextStyle(color: AppDesignSystem.gold, fontSize: 13),
@@ -627,7 +672,10 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           ] else
             Text(
               'Error generando código',
-              style: TextStyle(fontSize: 13, color: Colors.white.withOpacity(0.5)),
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.white.withOpacity(0.5),
+              ),
             ),
         ],
       ),
@@ -785,9 +833,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(next
-            ? '✅ Aceptando nuevas invitaciones'
-            : '⏸️ Invitaciones pausadas. Nadie podrá agregarte por ahora.'),
+        content: Text(
+          next
+              ? '✅ Aceptando nuevas invitaciones'
+              : '⏸️ Invitaciones pausadas. Nadie podrá agregarte por ahora.',
+        ),
         backgroundColor: AppDesignSystem.midnightLight,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -886,9 +936,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                       child: FilledButton.icon(
                         onPressed: remaining > 0 ? _triggerSos : null,
                         icon: const Icon(Icons.notifications_active, size: 18),
-                        label: Text(remaining > 0
-                            ? 'Pedir oración urgente'
-                            : 'Disponible mañana'),
+                        label: Text(
+                          remaining > 0
+                              ? 'Pedir oración urgente'
+                              : 'Disponible mañana',
+                        ),
                         style: FilledButton.styleFrom(
                           backgroundColor: AppDesignSystem.struggle,
                           foregroundColor: Colors.white,
@@ -929,7 +981,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
         ),
         content: Text(
           'Se notificará a todos tus compañeros de batalla que necesitas oración ahora. Solo puedes hacerlo 1 vez al día.',
-          style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14, height: 1.4),
+          style: TextStyle(
+            color: Colors.white.withOpacity(0.7),
+            fontSize: 14,
+            height: 1.4,
+          ),
         ),
         actions: [
           TextButton(
@@ -938,7 +994,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: FilledButton.styleFrom(backgroundColor: AppDesignSystem.struggle),
+            style: FilledButton.styleFrom(
+              backgroundColor: AppDesignSystem.struggle,
+            ),
             child: const Text('Enviar SOS'),
           ),
         ],
@@ -950,9 +1008,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(sent > 0
-            ? '🆘 Se notificó a $sent compañero${sent == 1 ? '' : 's'}. Están orando contigo.'
-            : 'No se pudo enviar la alerta (rate-limit o sin compañeros).'),
+        content: Text(
+          sent > 0
+              ? '🆘 Se notificó a $sent compañero${sent == 1 ? '' : 's'}. Están orando contigo.'
+              : 'No se pudo enviar la alerta (rate-limit o sin compañeros).',
+        ),
         backgroundColor: AppDesignSystem.midnightLight,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 4),

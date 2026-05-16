@@ -127,7 +127,7 @@ class BibleUserDataService {
     // existiendo en Firestore (no se borra) pero no se descarga.
     final sub = _col('bibleHighlights')
         .orderBy('createdAt', descending: true)
-        .limit(2000)
+        .limit(300)
         .snapshots()
         .listen((snap) {
           if (snap.docs.isEmpty &&

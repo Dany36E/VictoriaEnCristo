@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_verse.dart';
@@ -8,7 +8,9 @@ import '../../services/bible/bible_user_data_service.dart';
 /// Bottom sheet para crear/editar una nota sobre un versículo.
 class NoteEditorSheet extends StatefulWidget {
   final BibleVerse verse;
-  const NoteEditorSheet({super.key, required this.verse});
+  final BibleReaderThemeData? theme;
+
+  const NoteEditorSheet({super.key, required this.verse, this.theme});
 
   @override
   State<NoteEditorSheet> createState() => _NoteEditorSheetState();
@@ -21,7 +23,8 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
   @override
   void initState() {
     super.initState();
-    _existing = BibleUserDataService.I.notesNotifier.value[widget.verse.uniqueKey];
+    _existing =
+        BibleUserDataService.I.notesNotifier.value[widget.verse.uniqueKey];
     _controller = TextEditingController(text: _existing?.text ?? '');
   }
 
@@ -54,10 +57,20 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value),
-    );
+    final t =
+        widget.theme ??
+        BibleReaderThemeData.fromId(
+          BibleReaderThemeData.migrateId(
+            BibleUserDataService.I.readerThemeNotifier.value,
+          ),
+        );
+    final noteFontSize = (BibleUserDataService.I.fontSizeNotifier.value * 0.82)
+        .clamp(15.0, 21.0)
+        .toDouble();
+    final fieldBg = t.isDark
+        ? Color.lerp(t.surface, Colors.white, 0.08)!
+        : Color.lerp(t.surface, t.accent, 0.06)!;
+    final fieldBorder = t.accent.withOpacity(t.isDark ? 0.52 : 0.34);
     return Container(
       decoration: BoxDecoration(
         color: t.surface,
@@ -73,7 +86,8 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 40, height: 4,
+                width: 40,
+                height: 4,
                 decoration: BoxDecoration(
                   color: t.textSecondary.withOpacity(0.3),
                   borderRadius: BorderRadius.circular(2),
@@ -83,7 +97,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
               // Header
               Row(
                 children: [
-                  const Icon(Icons.note, color: Color(0xFFD4AF37), size: 20),
+                  Icon(Icons.note, color: t.accent, size: 20),
                   const SizedBox(width: 8),
                   Text(
                     'Nota — ${widget.verse.reference}',
@@ -105,8 +119,11 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                         );
                         if (mounted) nav.pop();
                       },
-                      child: const Icon(Icons.delete_outline,
-                          color: Color(0xFFE57373), size: 20),
+                      child: const Icon(
+                        Icons.delete_outline,
+                        color: Color(0xFFE57373),
+                        size: 20,
+                      ),
                     ),
                 ],
               ),
@@ -115,20 +132,38 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 decoration: BoxDecoration(
-                  color: t.isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+                  color: fieldBg,
                   borderRadius: BorderRadius.circular(10.0),
+                  border: Border.all(color: fieldBorder),
                 ),
-                child: TextField(
-                  controller: _controller,
-                  maxLines: null,
-                  minLines: 4,
-                  autofocus: true,
-                  style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14, height: 1.5),
-                  decoration: InputDecoration(
-                    hintText: 'Escribe tu reflexión...',
-                    hintStyle: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(16),
+                child: Theme(
+                  data: Theme.of(context).copyWith(
+                    textSelectionTheme: TextSelectionThemeData(
+                      cursorColor: t.accent,
+                      selectionColor: t.accent.withOpacity(0.24),
+                      selectionHandleColor: t.accent,
+                    ),
+                  ),
+                  child: TextField(
+                    controller: _controller,
+                    maxLines: null,
+                    minLines: 4,
+                    autofocus: true,
+                    cursorColor: t.accent,
+                    style: GoogleFonts.lora(
+                      color: t.textPrimary,
+                      fontSize: noteFontSize,
+                      height: 1.55,
+                    ),
+                    decoration: InputDecoration(
+                      hintText: 'Escribe tu reflexión...',
+                      hintStyle: GoogleFonts.lora(
+                        color: t.textSecondary.withOpacity(0.70),
+                        fontSize: noteFontSize,
+                      ),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.all(16),
+                    ),
                   ),
                 ),
               ),

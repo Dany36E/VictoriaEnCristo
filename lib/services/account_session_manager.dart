@@ -48,6 +48,7 @@ import 'learning/learning_registry.dart';
 import 'learning/talents_service.dart';
 import 'daily_practice_service.dart';
 import 'user_pref_cloud_sync_service.dart';
+import 'user_scoped_services.dart';
 import 'theme_service.dart';
 
 /// Clave para guardar el último UID conocido
@@ -67,7 +68,8 @@ class AccountSessionManager {
   // SINGLETON
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static final AccountSessionManager _instance = AccountSessionManager._internal();
+  static final AccountSessionManager _instance =
+      AccountSessionManager._internal();
   factory AccountSessionManager() => _instance;
   AccountSessionManager._internal();
 
@@ -88,7 +90,9 @@ class AccountSessionManager {
   StreamSubscription<User?>? _authSubscription;
 
   /// Estado actual de la sesión
-  final ValueNotifier<SessionState> stateNotifier = ValueNotifier(SessionState.idle);
+  final ValueNotifier<SessionState> stateNotifier = ValueNotifier(
+    SessionState.idle,
+  );
 
   /// Último error
   String? lastError;
@@ -164,7 +168,9 @@ class AccountSessionManager {
       await _performAccountSwitch(lastKnownUid, newUid);
     } else if (_currentSessionUid == newUid) {
       // Mismo usuario, ya activo o bootstrapping - no duplicar
-      debugPrint('🔐 [SESSION] Same user already active/bootstrapping, skipping');
+      debugPrint(
+        '🔐 [SESSION] Same user already active/bootstrapping, skipping',
+      );
       return;
     }
 
@@ -203,6 +209,7 @@ class AccountSessionManager {
     await StudyRoomService.I.stop();
     CollectionService.I.stop();
     BibleReadingStatsService.I.stop();
+    UserScopedServices.I.reset();
 
     // 1b. Eliminar el token FCM de este dispositivo del user doc de Firestore
     // para que la Cloud Function deje de enviar push a este device para un
@@ -228,7 +235,9 @@ class AccountSessionManager {
     _currentSessionUid = null;
     stateNotifier.value = SessionState.idle;
 
-    debugPrint('🔐 [SESSION] ✅ Logout complete (local cache purged, cloud untouched)');
+    debugPrint(
+      '🔐 [SESSION] ✅ Logout complete (local cache purged, cloud untouched)',
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -310,6 +319,7 @@ class AccountSessionManager {
     StudyRoomService.I.stop();
     CollectionService.I.stop();
     BibleReadingStatsService.I.stop();
+    UserScopedServices.I.reset();
 
     debugPrint('🔐 [SESSION] In-memory state reset complete');
   }
@@ -410,7 +420,10 @@ class AccountSessionManager {
       if (profile == null) {
         debugPrint('🔐 [SESSION] No profile found, new user');
         await UserPrefCloudSyncService.I.bootstrap(uid, force: true);
-        await Future.wait([ThemeService().initialize(), NotificationService().reloadSettings()]);
+        await Future.wait([
+          ThemeService().initialize(),
+          NotificationService().reloadSettings(),
+        ]);
         await Future.wait([
           PlansRepository.I.reloadActivePlanFromPrefs(),
           PlanProgressService.I.reloadActivePlanFromPrefs(),
@@ -433,7 +446,11 @@ class AccountSessionManager {
 
       // 4. Conectar resto de repositorios en paralelo
       await Future.wait([
-        ProgressRepository.I.connectUser(uid, selectedGiants: selectedGiants, threshold: threshold),
+        ProgressRepository.I.connectUser(
+          uid,
+          selectedGiants: selectedGiants,
+          threshold: threshold,
+        ),
         JournalRepository.I.connectUser(uid),
         PlansRepository.I.connectUser(uid),
         FavoritesRepository.I.connectUser(uid),
@@ -446,33 +463,19 @@ class AccountSessionManager {
       // 6. Sincronizar widget con datos del nuevo usuario
       await _syncWidgetForUser(uid);
 
-      // 7. Inicializar BattlePartnerService
-      await BattlePartnerService.I.init(uid);
-      BattlePartnerService.I.syncPublicProgress(); // fire-and-forget
+      // 7. Biblia/Compañero se inicializan bajo demanda al abrir sus módulos.
+      UserScopedServices.I.reset();
 
-      // 8. Inicializar BibleUserDataService
-      await BibleUserDataService.I.init(uid);
-
-      // 8b. Inicializar ChapterNoteService
-      await ChapterNoteService.I.init(uid);
-
-      // 8c. Inicializar StudyModeService (Modo Estudio)
-      await StudyModeService.I.init(uid);
-
-      // 8d. Inicializar StudyRoomService (salas colaborativas)
-      StudyRoomService.I.init();
-
-      // 9. Inicializar CollectionService y BibleReadingStatsService
-      await CollectionService.I.init(uid);
-      await BibleReadingStatsService.I.init(uid);
-
-      // 9b. Hidratar el log de ejercicios desde la nube (cross-device).
+      // 8. Hidratar el log de ejercicios desde la nube (cross-device).
       await ExerciseLogService.I.hydrateFromCloud();
 
-      // 9c. Hidratar preferencias de usuario sin repositorio dedicado:
+      // 9. Hidratar preferencias de usuario sin repositorio dedicado:
       // devocional, checklist diario, posicion de lectura y sesion Mana.
       await UserPrefCloudSyncService.I.bootstrap(uid, force: true);
-      await Future.wait([ThemeService().initialize(), NotificationService().reloadSettings()]);
+      await Future.wait([
+        ThemeService().initialize(),
+        NotificationService().reloadSettings(),
+      ]);
       await Future.wait([
         PlansRepository.I.reloadActivePlanFromPrefs(),
         PlanProgressService.I.reloadActivePlanFromPrefs(),
@@ -557,7 +560,9 @@ class AccountSessionManager {
         LearningCloudSync.I.flush(),
         TalentsService.I.flushSync(),
       ]);
-      debugPrint('🔐 [SESSION] Pending cloud sync retried after connectivity restore');
+      debugPrint(
+        '🔐 [SESSION] Pending cloud sync retried after connectivity restore',
+      );
     } catch (e) {
       debugPrint('🔐 [SESSION] Pending cloud sync retry failed: $e');
     }
@@ -567,11 +572,16 @@ class AccountSessionManager {
     if (_repositoryHydrationListenersAttached) return;
 
     _repositoryHydrationListenersAttached = true;
-    ProgressRepository.I.onCloudCacheChanged = _scheduleLocalHydrationFromRepositories;
-    JournalRepository.I.onCloudCacheChanged = _scheduleLocalHydrationFromRepositories;
-    PlansRepository.I.onCloudCacheChanged = _scheduleLocalHydrationFromRepositories;
-    FavoritesRepository.I.onCloudCacheChanged = _scheduleLocalHydrationFromRepositories;
-    BadgeRepository.I.onCloudCacheChanged = _scheduleLocalHydrationFromRepositories;
+    ProgressRepository.I.onCloudCacheChanged =
+        _scheduleLocalHydrationFromRepositories;
+    JournalRepository.I.onCloudCacheChanged =
+        _scheduleLocalHydrationFromRepositories;
+    PlansRepository.I.onCloudCacheChanged =
+        _scheduleLocalHydrationFromRepositories;
+    FavoritesRepository.I.onCloudCacheChanged =
+        _scheduleLocalHydrationFromRepositories;
+    BadgeRepository.I.onCloudCacheChanged =
+        _scheduleLocalHydrationFromRepositories;
   }
 
   void _detachRepositoryHydrationListeners() {
@@ -594,14 +604,22 @@ class AccountSessionManager {
 
     _localHydrationDebounce?.cancel();
     _localHydrationDebounce = Timer(const Duration(milliseconds: 350), () {
-      unawaited(_hydrateLocalServicesFromCloud(_currentSelectedGiants, _currentThreshold));
+      unawaited(
+        _hydrateLocalServicesFromCloud(
+          _currentSelectedGiants,
+          _currentThreshold,
+        ),
+      );
     });
   }
 
   /// Hidratar servicios locales (SharedPreferences) con datos ya descargados
   /// de Firestore por los repositorios. Esto asegura que la UI (que lee de
   /// VictoryScoringService y JournalService) tenga los datos correctos.
-  Future<void> _hydrateLocalServicesFromCloud(List<String> selectedGiants, double threshold) async {
+  Future<void> _hydrateLocalServicesFromCloud(
+    List<String> selectedGiants,
+    double threshold,
+  ) async {
     try {
       debugPrint('🔐 [SESSION] Hydrating local services from cloud...');
 
@@ -615,7 +633,9 @@ class AccountSessionManager {
       final scoring = VictoryScoringService.I;
       await scoring.init();
       await scoring.restoreFromCloud(victoryData);
-      debugPrint('🔐 [SESSION]   ✅ Progress: ${cachedDays.length} days hydrated');
+      debugPrint(
+        '🔐 [SESSION]   ✅ Progress: ${cachedDays.length} days hydrated',
+      );
 
       // --- Journal ---
       final cachedEntries = JournalRepository.I.cachedEntries;
@@ -636,14 +656,18 @@ class AccountSessionManager {
       final journalService = JournalService();
       await journalService.initialize();
       await journalService.restoreFromCloud(localEntries);
-      debugPrint('🔐 [SESSION]   ✅ Journal: ${cachedEntries.length} entries hydrated');
+      debugPrint(
+        '🔐 [SESSION]   ✅ Journal: ${cachedEntries.length} entries hydrated',
+      );
 
       // --- Favorites ---
       final cachedFavorites = FavoritesRepository.I.cachedFavorites;
       final favService = FavoritesService();
       await favService.init();
       await favService.restoreFromCloud(cachedFavorites);
-      debugPrint('🔐 [SESSION]   ✅ Favorites: ${cachedFavorites.length} restored');
+      debugPrint(
+        '🔐 [SESSION]   ✅ Favorites: ${cachedFavorites.length} restored',
+      );
 
       // --- Plan Progress ---
       final cachedPlans = PlansRepository.I.getAll();
@@ -658,7 +682,9 @@ class AccountSessionManager {
         await BadgeService.I.init();
         await BadgeService.I.restoreFromCloud(cachedBadges);
 
-        debugPrint('🔐 [SESSION]   ✅ Badges: ${cachedBadges.length} levels restored');
+        debugPrint(
+          '🔐 [SESSION]   ✅ Badges: ${cachedBadges.length} levels restored',
+        );
       } else {
         debugPrint('🔐 [SESSION]   ℹ️ Badges: cloud empty');
       }
@@ -677,7 +703,8 @@ class AccountSessionManager {
   UserProfile? get currentProfile => ProfileRepository.I.currentProfile;
 
   /// Verificar si onboarding está completado
-  bool get isOnboardingCompleted => currentProfile?.onboardingCompleted ?? false;
+  bool get isOnboardingCompleted =>
+      currentProfile?.onboardingCompleted ?? false;
 
   /// Forzar refresh de datos desde la nube
   Future<UserProfile?> refresh() async {
@@ -805,7 +832,9 @@ class AccountSessionManager {
       await ns.scheduleAllNotifications();
       debugPrint('🔔 [SESSION] Notifications rescheduled');
     } catch (e) {
-      debugPrint('🔔 [SESSION] Notification reschedule error (non-blocking): $e');
+      debugPrint(
+        '🔔 [SESSION] Notification reschedule error (non-blocking): $e',
+      );
     }
   }
 

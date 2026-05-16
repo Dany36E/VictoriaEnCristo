@@ -35,6 +35,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
     setState(() {});
   }
 
+  Future<bool> _ensureNotificationPermission() async {
+    final ok = await _notificationService.requestPermissions();
+    if (!ok && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Activa el permiso de notificaciones para recibir recordatorios.',
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+    return ok;
+  }
+
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
@@ -69,11 +84,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Text(
                             'Tema de la App',
-                            style: TextStyle(fontWeight: FontWeight.w600, color: t.textPrimary),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              color: t.textPrimary,
+                            ),
                           ),
                           Text(
                             'Selecciona un estilo visual',
-                            style: TextStyle(fontSize: 12, color: t.textSecondary),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: t.textSecondary,
+                            ),
                           ),
                         ],
                       ),
@@ -126,7 +147,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 title: Text(
                   'Campanas Sagradas',
-                  style: TextStyle(fontWeight: FontWeight.w600, color: t.textPrimary),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: t.textPrimary,
+                  ),
                 ),
                 subtitle: Text(
                   'Agenda momentos de oracion, adoracion y Palabra',
@@ -142,6 +166,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.wb_sunny,
                 value: _notificationService.morningEnabled,
                 onChanged: (value) async {
+                  if (value && !await _ensureNotificationPermission()) return;
                   await _notificationService.setMorningEnabled(value);
                   setState(() {});
                 },
@@ -152,6 +177,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: 'Hora de recordatorio matutino',
                   time: _notificationService.morningTime,
                   onChanged: (time) async {
+                    if (!await _ensureNotificationPermission()) return;
                     await _notificationService.setMorningTime(time);
                     setState(() {});
                   },
@@ -164,6 +190,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 icon: Icons.nightlight_round,
                 value: _notificationService.nightEnabled,
                 onChanged: (value) async {
+                  if (value && !await _ensureNotificationPermission()) return;
                   await _notificationService.setNightEnabled(value);
                   setState(() {});
                 },
@@ -174,11 +201,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   title: 'Hora de recordatorio nocturno',
                   time: _notificationService.nightTime,
                   onChanged: (time) async {
+                    if (!await _ensureNotificationPermission()) return;
                     await _notificationService.setNightTime(time);
                     setState(() {});
                   },
                   isDark: isDark,
                 ),
+              const Divider(height: 1),
+              _buildSwitchTile(
+                title: 'Recordatorios de victoria',
+                subtitle:
+                    'Te pregunta si hoy fue día de victoria después de las 6 PM',
+                icon: Icons.military_tech,
+                value: _notificationService.victoryReminderEnabled,
+                onChanged: (value) async {
+                  if (value && !await _ensureNotificationPermission()) return;
+                  await _notificationService.setVictoryReminderEnabled(value);
+                  setState(() {});
+                },
+                isDark: isDark,
+              ),
+              if (_notificationService.victoryReminderEnabled)
+                _buildVictoryReminderTimes(isDark),
             ],
           ),
 
@@ -357,9 +401,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 subtitle: Text(
                   'Personaliza el widget de tu pantalla de inicio',
-                  style: TextStyle(color: AppThemeData.of(context).textSecondary),
+                  style: TextStyle(
+                    color: AppThemeData.of(context).textSecondary,
+                  ),
                 ),
-                trailing: Icon(Icons.chevron_right, color: AppThemeData.of(context).textSecondary),
+                trailing: Icon(
+                  Icons.chevron_right,
+                  color: AppThemeData.of(context).textSecondary,
+                ),
                 onTap: () {
                   Navigator.pushNamed(context, '/widget-settings');
                 },
@@ -392,7 +441,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 subtitle: Text(
                   'Versión 1.0.0',
-                  style: TextStyle(color: AppThemeData.of(context).textSecondary),
+                  style: TextStyle(
+                    color: AppThemeData.of(context).textSecondary,
+                  ),
                 ),
               ),
               const Divider(height: 1),
@@ -414,7 +465,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
                 subtitle: Text(
                   'Para la gloria de Dios',
-                  style: TextStyle(color: AppThemeData.of(context).textSecondary),
+                  style: TextStyle(
+                    color: AppThemeData.of(context).textSecondary,
+                  ),
                 ),
               ),
             ],
@@ -432,12 +485,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
       padding: const EdgeInsets.only(left: 4, bottom: 8),
       child: Text(
         title,
-        style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: t.textPrimary),
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+          color: t.textPrimary,
+        ),
       ),
     );
   }
 
-  Widget _buildSettingCard({required List<Widget> children, required bool isDark}) {
+  Widget _buildSettingCard({
+    required List<Widget> children,
+    required bool isDark,
+  }) {
     final t = AppThemeData.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -478,7 +538,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
         style: TextStyle(fontWeight: FontWeight.w600, color: t.textPrimary),
       ),
       subtitle: Text(subtitle, style: TextStyle(color: t.textSecondary)),
-      trailing: Switch(value: value, onChanged: onChanged, activeThumbColor: t.accent),
+      trailing: Switch(
+        value: value,
+        onChanged: onChanged,
+        activeThumbColor: t.accent,
+      ),
     );
   }
 
@@ -499,7 +563,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           TextButton(
             onPressed: () async {
-              final picked = await showTimePicker(context: context, initialTime: time);
+              final picked = await showTimePicker(
+                context: context,
+                initialTime: time,
+              );
               if (picked != null) {
                 onChanged(picked);
               }
@@ -512,6 +579,99 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Widget _buildVictoryReminderTimes(bool isDark) {
+    final t = AppThemeData.of(context);
+    final times = _notificationService.victoryReminderTimes;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+      child: Column(
+        children: [
+          for (var i = 0; i < times.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Row(
+                children: [
+                  const SizedBox(width: 48),
+                  Expanded(
+                    child: Text(
+                      'Recordatorio ${i + 1}',
+                      style: TextStyle(color: t.textSecondary),
+                    ),
+                  ),
+                  TextButton(
+                    onPressed: () async {
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: times[i],
+                      );
+                      if (picked == null) return;
+                      if (!await _ensureNotificationPermission()) return;
+                      final updated = List<TimeOfDay>.from(times);
+                      updated[i] = picked;
+                      await _notificationService.setVictoryReminderTimes(
+                        updated,
+                      );
+                      setState(() {});
+                    },
+                    child: Text(
+                      _formatTime(times[i]),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        color: t.accent,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Quitar hora',
+                    onPressed: times.length <= 1
+                        ? null
+                        : () async {
+                            final updated = List<TimeOfDay>.from(times)
+                              ..removeAt(i);
+                            await _notificationService.setVictoryReminderTimes(
+                              updated,
+                            );
+                            setState(() {});
+                          },
+                    icon: Icon(Icons.close, color: t.textSecondary),
+                  ),
+                ],
+              ),
+            ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed: times.length >= 6
+                  ? null
+                  : () async {
+                      final initial = times.isEmpty
+                          ? const TimeOfDay(hour: 22, minute: 0)
+                          : times.last;
+                      final picked = await showTimePicker(
+                        context: context,
+                        initialTime: initial,
+                      );
+                      if (picked == null) return;
+                      if (!await _ensureNotificationPermission()) return;
+                      await _notificationService.setVictoryReminderTimes([
+                        ...times,
+                        picked,
+                      ]);
+                      setState(() {});
+                    },
+              icon: const Icon(Icons.add_alarm),
+              label: const Text('Agregar hora'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatTime(TimeOfDay time) {
+    return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
   Widget _buildSpeedSelector(bool isDark) {
@@ -553,13 +713,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? t.accent : (isDark ? t.surface : Colors.grey.shade100),
+          color: isSelected
+              ? t.accent
+              : (isDark ? t.surface : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           '${speed}x',
           style: TextStyle(
-            color: isSelected ? (isDark ? Colors.black87 : Colors.white) : t.textSecondary,
+            color: isSelected
+                ? (isDark ? Colors.black87 : Colors.white)
+                : t.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -622,10 +786,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
               icon: Icon(buttonIcon, size: 18),
               label: Text(buttonText),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AudioEngine.I.bgmEnabled.value ? buttonColor : Colors.grey,
+                backgroundColor: AudioEngine.I.bgmEnabled.value
+                    ? buttonColor
+                    : Colors.grey,
                 foregroundColor: Colors.white,
                 padding: const EdgeInsets.symmetric(vertical: 10),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
               ),
             ),
           ),
@@ -668,7 +836,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
         children: [
           SizedBox(
             width: 80,
-            child: Text(label, style: TextStyle(fontSize: 12, color: t.textSecondary)),
+            child: Text(
+              label,
+              style: TextStyle(fontSize: 12, color: t.textSecondary),
+            ),
           ),
           Expanded(
             child: SliderTheme(
@@ -677,14 +848,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 thumbColor: t.accent,
                 overlayColor: t.accent.withOpacity(0.2),
               ),
-              child: Slider(value: value, min: 0.0, max: 1.0, divisions: 10, onChanged: onChanged),
+              child: Slider(
+                value: value,
+                min: 0.0,
+                max: 1.0,
+                divisions: 10,
+                onChanged: onChanged,
+              ),
             ),
           ),
           SizedBox(
             width: 40,
             child: Text(
               '${(value * 100).toInt()}%',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: t.textPrimary),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: t.textPrimary,
+              ),
             ),
           ),
         ],
@@ -721,7 +902,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
               SizedBox(width: 8),
               Text(
                 'DEBUG PANEL v2.0',
-                style: TextStyle(fontWeight: FontWeight.bold, color: Colors.orange, fontSize: 14),
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.orange,
+                  fontSize: 14,
+                ),
               ),
             ],
           ),
@@ -753,8 +938,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     audioEngine.bgmMuted.value ? '🔇 Sí' : '🔊 No',
                     isDark,
                   ),
-                  _buildDiagnosticRow('Position', '${audioEngine.bgmPosition.inSeconds}s', isDark),
-                  _buildDiagnosticRow('Duration', '${audioEngine.bgmDuration.inSeconds}s', isDark),
+                  _buildDiagnosticRow(
+                    'Position',
+                    '${audioEngine.bgmPosition.inSeconds}s',
+                    isDark,
+                  ),
+                  _buildDiagnosticRow(
+                    'Duration',
+                    '${audioEngine.bgmDuration.inSeconds}s',
+                    isDark,
+                  ),
                   _buildDiagnosticRow(
                     'Volume',
                     '${(audioEngine.bgmVolume.value * 100).toInt()}%',
@@ -765,8 +958,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     audioEngine.currentBgmAsset ?? 'ninguno',
                     isDark,
                   ),
-                  _buildDiagnosticRow('BGM Player #', '${audioEngine.bgmPlayerHash}', isDark),
-                  _buildDiagnosticRow('SFX Player #', '${audioEngine.sfxPlayerHash}', isDark),
+                  _buildDiagnosticRow(
+                    'BGM Player #',
+                    '${audioEngine.bgmPlayerHash}',
+                    isDark,
+                  ),
+                  _buildDiagnosticRow(
+                    'SFX Player #',
+                    '${audioEngine.sfxPlayerHash}',
+                    isDark,
+                  ),
                   if (audioEngine.lastError != null)
                     _buildDiagnosticRow(
                       'Last Error',
@@ -789,7 +990,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 children: [
                   Text(
                     'BGM Vol:',
-                    style: TextStyle(color: isDark ? Colors.white70 : Colors.black54),
+                    style: TextStyle(
+                      color: isDark ? Colors.white70 : Colors.black54,
+                    ),
                   ),
                   Expanded(
                     child: Slider(
@@ -920,7 +1123,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 if (mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('🎯 Feedback test: tap→select→tab→confirm→paper'),
+                      content: Text(
+                        '🎯 Feedback test: tap→select→tab→confirm→paper',
+                      ),
                       backgroundColor: Colors.teal,
                       duration: Duration(seconds: 3),
                     ),
@@ -970,7 +1175,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildDiagnosticRow(String label, String value, bool isDark, {bool isError = false}) {
+  Widget _buildDiagnosticRow(
+    String label,
+    String value,
+    bool isDark, {
+    bool isError = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Row(
@@ -993,7 +1203,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontFamily: 'monospace',
-                color: isError ? Colors.red : (isDark ? Colors.white : Colors.black87),
+                color: isError
+                    ? Colors.red
+                    : (isDark ? Colors.white : Colors.black87),
               ),
             ),
           ),

@@ -4,7 +4,6 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
-import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
@@ -27,7 +26,6 @@ class WallScreen extends StatefulWidget {
 
 class _WallScreenState extends State<WallScreen> {
   String? _selectedGiant;
-  StreamSubscription? _feedSub;
   List<WallPost> _posts = [];
   bool _loading = true;
   bool _isEmpty = false;
@@ -36,44 +34,34 @@ class _WallScreenState extends State<WallScreen> {
   void initState() {
     super.initState();
     AudioEngine.I.muteForScreen();
-    _subscribeFeed();
+    _loadFeed();
   }
 
-  @override
-  void dispose() {
-    _feedSub?.cancel();
-    super.dispose();
-  }
-
-  void _subscribeFeed() {
-    _feedSub?.cancel();
+  Future<void> _loadFeed() async {
     setState(() {
       _loading = true;
       _isEmpty = false;
     });
-
-    _feedSub = WallService.I
-        .watchApprovedFeed(giantFilter: _selectedGiant)
-        .listen(
-      (posts) {
-        if (!mounted) return;
-        setState(() {
-          _posts = posts;
-          _loading = false;
-          _isEmpty = posts.isEmpty;
-        });
-      },
-      onError: (e) {
-        debugPrint('❌ [WALL] Feed error: $e');
-        if (mounted) setState(() => _loading = false);
-      },
-    );
+    try {
+      final posts = await WallService.I.fetchApprovedFeed(
+        giantFilter: _selectedGiant,
+      );
+      if (!mounted) return;
+      setState(() {
+        _posts = posts;
+        _loading = false;
+        _isEmpty = posts.isEmpty;
+      });
+    } catch (e) {
+      debugPrint('❌ [WALL] Feed error: $e');
+      if (mounted) setState(() => _loading = false);
+    }
   }
 
   void _onGiantChanged(String? giantId) {
     FeedbackEngine.I.tabChange();
     setState(() => _selectedGiant = giantId);
-    _subscribeFeed();
+    _loadFeed();
   }
 
   Future<void> _openComposer() async {
@@ -252,10 +240,7 @@ class _WallScreenState extends State<WallScreen> {
     return RefreshIndicator(
       color: t.accent,
       backgroundColor: t.inputBg,
-      onRefresh: () async {
-        _subscribeFeed();
-        await Future.delayed(const Duration(milliseconds: 500));
-      },
+      onRefresh: _loadFeed,
       child: ListView.builder(
         padding: const EdgeInsets.symmetric(
           horizontal: AppDesignSystem.spacingM,

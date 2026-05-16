@@ -22,6 +22,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../models/bible/bible_version.dart';
 import '../../models/learning/learning_models.dart';
+import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/daily_practice_service.dart';
 import '../../services/feedback_engine.dart';
@@ -68,7 +69,12 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
   }
 
   Future<void> _loadText() async {
-    final v = VerseMemoryService.I.preferredVersionNotifier.value;
+    final v = BibleDownloadService.I.bestAvailableVersion(
+      VerseMemoryService.I.preferredVersionNotifier.value,
+    );
+    if (v != VerseMemoryService.I.preferredVersionNotifier.value) {
+      await VerseMemoryService.I.setPreferredVersion(v);
+    }
     setState(() {
       _loading = true;
       _loadedVersion = v;
@@ -188,32 +194,36 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
   }
 
   Widget _buildResultDialog(
-      BuildContext ctx, int quality, int level, bool mastered) {
+    BuildContext ctx,
+    int quality,
+    int level,
+    bool mastered,
+  ) {
     final t = AppThemeData.of(ctx);
     final color = quality == 2
         ? AppDesignSystem.victory
         : quality == 1
-            ? AppDesignSystem.hope
-            : AppDesignSystem.struggle;
+        ? AppDesignSystem.hope
+        : AppDesignSystem.struggle;
     final icon = quality == 2
         ? Icons.emoji_events_rounded
         : quality == 1
-            ? Icons.trending_up_rounded
-            : Icons.refresh_rounded;
+        ? Icons.trending_up_rounded
+        : Icons.refresh_rounded;
     final title = mastered
         ? '¡Versículo dominado!'
         : quality == 2
-            ? '¡Perfecto!'
-            : quality == 1
-                ? '¡Bien hecho!'
-                : 'Sigue practicando';
+        ? '¡Perfecto!'
+        : quality == 1
+        ? '¡Bien hecho!'
+        : 'Sigue practicando';
     final body = mastered
         ? 'Ahora es parte permanente de tu armadura espiritual.'
         : quality == 2
-            ? 'Sin errores. Avanzaste al nivel $level/5.'
-            : quality == 1
-                ? 'Errores: $_mistakes/${_tokens.length}. Nivel $level/5.'
-                : 'Errores: $_mistakes/${_tokens.length}. Repásalo más a menudo.';
+        ? 'Sin errores. Avanzaste al nivel $level/5.'
+        : quality == 1
+        ? 'Errores: $_mistakes/${_tokens.length}. Nivel $level/5.'
+        : 'Errores: $_mistakes/${_tokens.length}. Repásalo más a menudo.';
     return AlertDialog(
       backgroundColor: t.cardBg,
       shape: RoundedRectangleBorder(
@@ -240,10 +250,7 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
           onPressed: () => Navigator.pop(ctx),
           child: Text(
             'Continuar',
-            style: AppDesignSystem.labelLarge(
-              ctx,
-              color: AppDesignSystem.gold,
-            ),
+            style: AppDesignSystem.labelLarge(ctx, color: AppDesignSystem.gold),
           ),
         ),
       ],
@@ -264,49 +271,55 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
           child: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                margin: const EdgeInsets.symmetric(vertical: 10),
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-                child: Text(
-                  'Versión para este versículo',
-                  style: AppDesignSystem.headlineSmall(
-                    context,
-                    color: t.textPrimary,
+              children: [
+                Container(
+                  margin: const EdgeInsets.symmetric(vertical: 10),
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: t.textSecondary.withOpacity(0.3),
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
-              ),
-              ...BibleVersion.values.map((v) {
-                final selected = v == _loadedVersion;
-                return ListTile(
-                  leading: Icon(
-                    selected
-                        ? Icons.radio_button_checked_rounded
-                        : Icons.radio_button_off_rounded,
-                    color: selected ? AppDesignSystem.gold : t.textSecondary,
+                Padding(
+                  padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+                  child: Text(
+                    'Versión para este versículo',
+                    style: AppDesignSystem.headlineSmall(
+                      context,
+                      color: t.textPrimary,
+                    ),
                   ),
-                  title: Text(
-                    v.displayName,
-                    style: AppDesignSystem.bodyLarge(
-                        context, color: t.textPrimary),
-                  ),
-                  subtitle: Text(v.shortName,
-                      style: AppDesignSystem.labelSmall(context,
-                          color: t.textSecondary)),
-                  onTap: () => Navigator.pop(ctx, v),
-                );
-              }),
-              const SizedBox(height: AppDesignSystem.spacingM),
-            ],
-          ),
+                ),
+                ...BibleDownloadService.I.availableVersions.map((v) {
+                  final selected = v == _loadedVersion;
+                  return ListTile(
+                    leading: Icon(
+                      selected
+                          ? Icons.radio_button_checked_rounded
+                          : Icons.radio_button_off_rounded,
+                      color: selected ? AppDesignSystem.gold : t.textSecondary,
+                    ),
+                    title: Text(
+                      v.displayName,
+                      style: AppDesignSystem.bodyLarge(
+                        context,
+                        color: t.textPrimary,
+                      ),
+                    ),
+                    subtitle: Text(
+                      v.shortName,
+                      style: AppDesignSystem.labelSmall(
+                        context,
+                        color: t.textSecondary,
+                      ),
+                    ),
+                    onTap: () => Navigator.pop(ctx, v),
+                  );
+                }),
+                const SizedBox(height: AppDesignSystem.spacingM),
+              ],
+            ),
           ),
         );
       },
@@ -360,10 +373,10 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
                 child: _loading
                     ? const Center(child: CircularProgressIndicator())
                     : _text == null
-                        ? _buildNoTextFallback(context, t)
-                        : _phase == _Phase.preview
-                            ? _buildPreview(context, t)
-                            : _buildPractice(context, t),
+                    ? _buildNoTextFallback(context, t)
+                    : _phase == _Phase.preview
+                    ? _buildPreview(context, t)
+                    : _buildPractice(context, t),
               ),
             ],
           ),
@@ -399,8 +412,11 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.shield_moon_rounded,
-                  color: AppDesignSystem.gold, size: 20),
+              const Icon(
+                Icons.shield_moon_rounded,
+                color: AppDesignSystem.gold,
+                size: 20,
+              ),
               const SizedBox(width: 6),
               Expanded(
                 child: Text(
@@ -493,14 +509,15 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
             decoration: BoxDecoration(
               color: AppDesignSystem.gold.withOpacity(0.08),
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-              border: Border.all(
-                color: AppDesignSystem.gold.withOpacity(0.3),
-              ),
+              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
             ),
             child: Row(
               children: [
-                const Icon(Icons.lightbulb_outline_rounded,
-                    color: AppDesignSystem.gold, size: 20),
+                const Icon(
+                  Icons.lightbulb_outline_rounded,
+                  color: AppDesignSystem.gold,
+                  size: 20,
+                ),
                 const SizedBox(width: 10),
                 Expanded(
                   child: Text(
@@ -569,18 +586,18 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
                   runSpacing: 8,
                   children: _placed.map((tok) {
                     final isFlash = _correctFlashIdx == tok.idx;
-                    return _PlacedChip(
-                      label: tok.display,
-                      highlight: isFlash,
-                    );
+                    return _PlacedChip(label: tok.display, highlight: isFlash);
                   }).toList(),
                 ),
         ),
         const SizedBox(height: AppDesignSystem.spacingS),
         Row(
           children: [
-            const Icon(Icons.error_outline_rounded,
-                size: 16, color: AppDesignSystem.struggle),
+            const Icon(
+              Icons.error_outline_rounded,
+              size: 16,
+              color: AppDesignSystem.struggle,
+            ),
             const SizedBox(width: 4),
             Text(
               'Errores: $_mistakes',
@@ -643,23 +660,27 @@ class _PlacedChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 180),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: highlight
-            ? AppDesignSystem.gold.withOpacity(0.25)
-            : AppDesignSystem.gold.withOpacity(0.12),
-        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(
-          color: AppDesignSystem.gold.withOpacity(highlight ? 0.8 : 0.4),
-        ),
-      ),
-      child: Text(
-        label,
-        style: AppDesignSystem.bodyLarge(context, color: t.textPrimary)
-            .copyWith(fontWeight: FontWeight.w600),
-      ),
-    ).animate(target: highlight ? 1 : 0).scale(
+          duration: const Duration(milliseconds: 180),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: highlight
+                ? AppDesignSystem.gold.withOpacity(0.25)
+                : AppDesignSystem.gold.withOpacity(0.12),
+            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+            border: Border.all(
+              color: AppDesignSystem.gold.withOpacity(highlight ? 0.8 : 0.4),
+            ),
+          ),
+          child: Text(
+            label,
+            style: AppDesignSystem.bodyLarge(
+              context,
+              color: t.textPrimary,
+            ).copyWith(fontWeight: FontWeight.w600),
+          ),
+        )
+        .animate(target: highlight ? 1 : 0)
+        .scale(
           duration: 160.ms,
           begin: const Offset(1, 1),
           end: const Offset(1.08, 1.08),
@@ -707,9 +728,11 @@ class _BankChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
         onTap: onTap,
         child: wrong
-            ? chip
-                .animate()
-                .shake(hz: 6, offset: const Offset(2, 0), duration: 300.ms)
+            ? chip.animate().shake(
+                hz: 6,
+                offset: const Offset(2, 0),
+                duration: 300.ms,
+              )
             : chip,
       ),
     );

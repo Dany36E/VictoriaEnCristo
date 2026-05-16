@@ -17,12 +17,13 @@ import '../../models/bible/bible_version.dart';
 /// - Base para futuras descargas remotas
 /// - UX de gestión de espacio por versión
 ///
-/// Las versiones se extraen de assets/bible/*.xml al directorio local
-/// del app. RVR1960 se descarga automáticamente en el primer arranque.
+/// RVR1960 se extrae desde assets al directorio local del app. Las demás
+/// versiones se descargan desde URLs remotas configuradas en Firestore.
 /// ═══════════════════════════════════════════════════════════════════════════
 class BibleDownloadService {
   // ── Singleton ──
-  static final BibleDownloadService _instance = BibleDownloadService._internal();
+  static final BibleDownloadService _instance =
+      BibleDownloadService._internal();
   factory BibleDownloadService() => _instance;
   static BibleDownloadService get I => _instance;
   BibleDownloadService._internal();
@@ -43,8 +44,8 @@ class BibleDownloadService {
   final ValueNotifier<double?> progressNotifier = ValueNotifier(null);
 
   /// Caché en memoria de URLs remotas por versión, pobladas en init().
-  /// Si la versión no tiene URL, se usa el asset bundle (comportamiento
-  /// legacy). Esto permite ir migrando versiones a CDN sin romper la app.
+  /// Si una versión no base no tiene URL, se marca como no disponible para no
+  /// obligar a empaquetar todos los XML en el bundle inicial.
   final Map<String, String> _remoteUrls = {};
 
   static const _prefsKeyPrefix = 'bible_downloaded_';
@@ -115,6 +116,42 @@ class BibleDownloadService {
     return stateNotifier.value[version] == DownloadState.downloaded;
   }
 
+  /// RVR1960 queda incluida en el bundle como versión base offline.
+  bool isBundled(BibleVersion version) => version == BibleVersion.rvr1960;
+
+  /// ¿Hay una URL remota configurada para descargar esta versión?
+  bool hasRemoteSource(BibleVersion version) =>
+      _remoteUrls.containsKey(version.id);
+
+  /// ¿Puede usarse ya esta versión? RVR1960 puede leerse desde assets aunque
+  /// todavía no se haya copiado al directorio local.
+  bool isAvailable(BibleVersion version) =>
+      isBundled(version) || isDownloaded(version);
+
+  /// Versiones utilizables en este momento.
+  List<BibleVersion> get availableVersions =>
+      BibleVersion.values.where(isAvailable).toList(growable: false);
+
+  /// Fallback seguro para una versión preferida que todavía no está descargada.
+  BibleVersion bestAvailableVersion(BibleVersion preferred) {
+    return isAvailable(preferred) ? preferred : BibleVersion.rvr1960;
+  }
+
+  /// Escoge una segunda versión disponible para comparar/estudiar.
+  BibleVersion bestAvailableSecondary(BibleVersion primary) {
+    const preference = [
+      BibleVersion.nvi,
+      BibleVersion.lbla,
+      BibleVersion.ntv,
+      BibleVersion.tla,
+      BibleVersion.rvr1960,
+    ];
+    for (final version in preference) {
+      if (version != primary && isAvailable(version)) return version;
+    }
+    return primary;
+  }
+
   /// Ruta local del archivo XML descargado (null si no descargado)
   String? getLocalPath(BibleVersion version) {
     if (!isDownloaded(version)) return null;
@@ -142,8 +179,8 @@ class BibleDownloadService {
   }
 
   /// Descargar versión: intenta HTTP (si hay URL remota configurada)
-  /// y cae a leer del asset bundle como fallback. El archivo queda en
-  /// el directorio local del app para lectura rápida posterior.
+  /// y sólo cae a leer del asset bundle para RVR1960. El archivo queda en el
+  /// directorio local del app para lectura rápida posterior.
   Future<bool> downloadVersion(BibleVersion version) async {
     if (isDownloaded(version)) return true;
 
@@ -160,9 +197,13 @@ class BibleDownloadService {
       if (remoteUrl != null) {
         // Descarga HTTP con progreso si el servidor expone Content-Length.
         final req = http.Request('GET', Uri.parse(remoteUrl));
-        final resp = await http.Client().send(req).timeout(const Duration(seconds: 60));
+        final resp = await http.Client()
+            .send(req)
+            .timeout(const Duration(seconds: 60));
         if (resp.statusCode != 200) {
-          throw HttpException('HTTP ${resp.statusCode} al descargar ${version.id}');
+          throw HttpException(
+            'HTTP ${resp.statusCode} al descargar ${version.id}',
+          );
         }
         final total = resp.contentLength ?? 0;
         final sink = file.openWrite();
@@ -177,6 +218,15 @@ class BibleDownloadService {
         byteLength = received;
         sourceLabel = 'remote';
       } else {
+        if (!isBundled(version)) {
+          debugPrint(
+            '📥 [BIBLE-DL] ${version.id} has no remote URL and is not bundled',
+          );
+          _updateState(version, DownloadState.notDownloaded);
+          downloadingNotifier.value = null;
+          progressNotifier.value = null;
+          return false;
+        }
         // Fallback: leer desde assets bundled.
         final xmlString = await rootBundle.loadString(
           'assets/bible/${version.fileName}',
@@ -195,7 +245,9 @@ class BibleDownloadService {
 
       downloadingNotifier.value = null;
       progressNotifier.value = null;
-      debugPrint('📥 [BIBLE-DL] ${version.id} downloaded from $sourceLabel ($byteLength bytes)');
+      debugPrint(
+        '📥 [BIBLE-DL] ${version.id} downloaded from $sourceLabel ($byteLength bytes)',
+      );
       return true;
     } catch (e) {
       _updateState(version, DownloadState.notDownloaded);
@@ -231,7 +283,8 @@ class BibleDownloadService {
   /// Descargar todas las versiones que faltan
   Future<void> downloadAll() async {
     for (final version in BibleVersion.values) {
-      if (!isDownloaded(version)) {
+      if (!isDownloaded(version) &&
+          (isBundled(version) || hasRemoteSource(version))) {
         await downloadVersion(version);
       }
     }
@@ -246,7 +299,8 @@ class BibleDownloadService {
     final map = <BibleVersion, DownloadState>{};
 
     for (final version in BibleVersion.values) {
-      final isDownloaded = prefs.getBool('$_prefsKeyPrefix${version.id}') ?? false;
+      final isDownloaded =
+          prefs.getBool('$_prefsKeyPrefix${version.id}') ?? false;
 
       // Verificar que el archivo realmente exista
       if (isDownloaded) {
@@ -279,8 +333,4 @@ class BibleDownloadService {
 }
 
 /// Estado de descarga de una versión bíblica
-enum DownloadState {
-  notDownloaded,
-  downloading,
-  downloaded,
-}
+enum DownloadState { notDownloaded, downloading, downloaded }

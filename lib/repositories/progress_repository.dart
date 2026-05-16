@@ -88,7 +88,9 @@ class ProgressRepository {
       _isInitialized = true;
       _updateAllNotifiers();
 
-      debugPrint('📊 [PROGRESS_REPO] Initialized with ${_cache.length} cached days');
+      debugPrint(
+        '📊 [PROGRESS_REPO] Initialized with ${_cache.length} cached days',
+      );
     } catch (e) {
       debugPrint('📊 [PROGRESS_REPO] Init error: $e');
       _isInitialized = true;
@@ -104,7 +106,9 @@ class ProgressRepository {
   }) async {
     // Guard: si ya hay un connectUser en progreso para este UID, esperar
     if (_connectingUid == uid && _connectFuture != null) {
-      debugPrint('📊 [PROGRESS_REPO] connectUser already in progress for $uid, awaiting...');
+      debugPrint(
+        '📊 [PROGRESS_REPO] connectUser already in progress for $uid, awaiting...',
+      );
       await _connectFuture;
       return;
     }
@@ -114,7 +118,11 @@ class ProgressRepository {
     await _connectFuture;
   }
 
-  Future<void> _doConnectUser(String uid, List<String> selectedGiants, double threshold) async {
+  Future<void> _doConnectUser(
+    String uid,
+    List<String> selectedGiants,
+    double threshold,
+  ) async {
     if (!_isInitialized) await init();
 
     try {
@@ -136,7 +144,7 @@ class ProgressRepository {
       // OPTIMIZACIÓN: confiamos en el listener `.snapshots()` para hidratar
       // (la primera emisión trae los docs desde server). Antes hacíamos un
       // `_syncWithCloud` con `Source.server` adicional que duplicaba lecturas.
-      // El listener filtra por últimos 365 días para acotar costo a largo plazo.
+      // El listener filtra por últimos 90 días para acotar costo a largo plazo.
 
       await _replayPendingWrites(uid, pendingDays);
 
@@ -204,11 +212,16 @@ class ProgressRepository {
   }
 
   /// Obtener estados de gigantes para una fecha
-  Map<String, int> getDayGiantStates(DateTime date, List<String> selectedGiants) {
+  Map<String, int> getDayGiantStates(
+    DateTime date,
+    List<String> selectedGiants,
+  ) {
     final day = getDay(date);
     if (day != null) {
       // Asegurar que todos los gigantes tienen valor
-      return {for (final giant in selectedGiants) giant: day.giants[giant] ?? 0};
+      return {
+        for (final giant in selectedGiants) giant: day.giants[giant] ?? 0,
+      };
     }
 
     // Sin datos -> todos en gracia (0)
@@ -360,9 +373,15 @@ class ProgressRepository {
 
     final dateISO = _dateToISO(date);
 
-    final giants = {for (final giant in selectedGiants) giant: value.clamp(0, 1)};
+    final giants = {
+      for (final giant in selectedGiants) giant: value.clamp(0, 1),
+    };
 
-    final victoryDay = VictoryDay.create(dateISO: dateISO, giants: giants, threshold: threshold);
+    final victoryDay = VictoryDay.create(
+      dateISO: dateISO,
+      giants: giants,
+      threshold: threshold,
+    );
 
     _cache[dateISO] = victoryDay;
     await _saveLocalCache();
@@ -384,7 +403,12 @@ class ProgressRepository {
     required List<String> selectedGiants,
     required double threshold,
   }) async {
-    await setDayAllGiants(DateTime.now(), 1, selectedGiants: selectedGiants, threshold: threshold);
+    await setDayAllGiants(
+      DateTime.now(),
+      1,
+      selectedGiants: selectedGiants,
+      threshold: threshold,
+    );
     return true;
   }
 
@@ -393,7 +417,11 @@ class ProgressRepository {
   // ═══════════════════════════════════════════════════════════════════════════
 
   // ignore: unused_element
-  Future<void> _syncWithCloud(String uid, List<String> selectedGiants, double threshold) async {
+  Future<void> _syncWithCloud(
+    String uid,
+    List<String> selectedGiants,
+    double threshold,
+  ) async {
     try {
       // CLOUD-FIRST: Siempre descargar desde Firestore como fuente de verdad.
       // NUNCA subir cache local durante el sync — un cache vacío post-logout
@@ -409,7 +437,9 @@ class ProgressRepository {
 
       if (snapshot.docs.isNotEmpty) {
         // Nube tiene datos -> SIEMPRE usar como fuente de verdad
-        debugPrint('📊 [PROGRESS_REPO] Loading ${snapshot.docs.length} days from cloud');
+        debugPrint(
+          '📊 [PROGRESS_REPO] Loading ${snapshot.docs.length} days from cloud',
+        );
 
         _cache.clear();
         for (final doc in snapshot.docs) {
@@ -418,7 +448,9 @@ class ProgressRepository {
         await _saveLocalCache();
       } else {
         // Nube vacía -> usuario nuevo o sin datos, empezar limpio
-        debugPrint('📊 [PROGRESS_REPO] Cloud empty, starting fresh (NOT uploading local cache)');
+        debugPrint(
+          '📊 [PROGRESS_REPO] Cloud empty, starting fresh (NOT uploading local cache)',
+        );
         _cache.clear();
         await _saveLocalCache();
       }
@@ -432,7 +464,9 @@ class ProgressRepository {
             .collection('victoryDays')
             .get(const GetOptions(source: Source.cache));
         if (fallback.docs.isNotEmpty) {
-          debugPrint('📊 [PROGRESS_REPO] Using Firestore SDK cache as fallback');
+          debugPrint(
+            '📊 [PROGRESS_REPO] Using Firestore SDK cache as fallback',
+          );
           _cache.clear();
           for (final doc in fallback.docs) {
             _cache[doc.id] = VictoryDay.fromFirestore(doc);
@@ -440,7 +474,9 @@ class ProgressRepository {
           await _saveLocalCache();
         }
       } catch (e) {
-        debugPrint('📊 [PROGRESS_REPO] Firestore cache fallback also failed: $e');
+        debugPrint(
+          '📊 [PROGRESS_REPO] Firestore cache fallback also failed: $e',
+        );
       }
     }
   }
@@ -470,7 +506,7 @@ class ProgressRepository {
     // Los docs más antiguos siguen en Firestore, pero no se descargan en cada
     // arranque. El doc id es `dateISO` (YYYY-MM-DD), por eso usamos
     // `FieldPath.documentId()`.
-    final cutoff = DateTime.now().subtract(const Duration(days: 365));
+    final cutoff = DateTime.now().subtract(const Duration(days: 90));
     final cutoffISO = TimeUtils.dateToISO(cutoff);
     _realtimeSubscription = _firestore
         .collection('users')
@@ -492,7 +528,9 @@ class ProgressRepository {
             if (!snapshot.metadata.hasPendingWrites) {
               onCloudCacheChanged?.call();
             }
-            debugPrint('📊 [PROGRESS_REPO] Realtime update: ${snapshot.docChanges.length} changes');
+            debugPrint(
+              '📊 [PROGRESS_REPO] Realtime update: ${snapshot.docChanges.length} changes',
+            );
           },
           onError: (e) {
             debugPrint('📊 [PROGRESS_REPO] Realtime sync error: $e');
@@ -511,7 +549,10 @@ class ProgressRepository {
     }
   }
 
-  Future<void> _replayPendingWrites(String uid, Map<String, VictoryDay> pendingDays) async {
+  Future<void> _replayPendingWrites(
+    String uid,
+    Map<String, VictoryDay> pendingDays,
+  ) async {
     if (pendingDays.isEmpty) return;
 
     final failedWrites = <String>[];
@@ -547,7 +588,9 @@ class ProgressRepository {
       return;
     }
 
-    debugPrint('📊 [PROGRESS_REPO] Retrying ${pendingDays.length} pending writes');
+    debugPrint(
+      '📊 [PROGRESS_REPO] Retrying ${pendingDays.length} pending writes',
+    );
     await _replayPendingWrites(uid, pendingDays);
   }
 
@@ -572,10 +615,14 @@ class ProgressRepository {
       if (json != null && json.isNotEmpty) {
         final data = jsonDecode(json) as Map<String, dynamic>;
         _cache = data.map(
-          (dateISO, dayData) =>
-              MapEntry(dateISO, VictoryDay.fromLocal(dateISO, dayData as Map<String, dynamic>)),
+          (dateISO, dayData) => MapEntry(
+            dateISO,
+            VictoryDay.fromLocal(dateISO, dayData as Map<String, dynamic>),
+          ),
         );
-        debugPrint('📊 [PROGRESS_REPO] Loaded ${_cache.length} days from local cache');
+        debugPrint(
+          '📊 [PROGRESS_REPO] Loaded ${_cache.length} days from local cache',
+        );
       }
     } catch (e) {
       debugPrint('📊 [PROGRESS_REPO] Local cache load error: $e');
@@ -585,7 +632,9 @@ class ProgressRepository {
 
   Future<void> _saveLocalCache() async {
     try {
-      final data = _cache.map((dateISO, day) => MapEntry(dateISO, day.toLocal()));
+      final data = _cache.map(
+        (dateISO, day) => MapEntry(dateISO, day.toLocal()),
+      );
       await _prefs?.setString(_keyVictoryDaysCache, jsonEncode(data));
     } catch (e) {
       debugPrint('📊 [PROGRESS_REPO] Local cache save error: $e');
@@ -657,7 +706,9 @@ class ProgressRepository {
       await _saveLocalCache();
       _updateAllNotifiers();
 
-      debugPrint('📊 [PROGRESS_REPO] ✅ Migrated ${_cache.length} days from legacy');
+      debugPrint(
+        '📊 [PROGRESS_REPO] ✅ Migrated ${_cache.length} days from legacy',
+      );
     } catch (e) {
       debugPrint('📊 [PROGRESS_REPO] Migration error: $e');
     }

@@ -52,10 +52,12 @@ import 'services/learning/learning_registry.dart';
 import 'services/learning/learning_cloud_sync.dart';
 import 'services/learning/talents_service.dart';
 import 'services/user_pref_cloud_sync_service.dart';
+import 'services/force_update_service.dart';
 import 'data/devotionals.dart';
 
 /// RouteObserver global para detectar navegación (usado por HomeScreen)
-final RouteObserver<ModalRoute<void>> routeObserver = RouteObserver<ModalRoute<void>>();
+final RouteObserver<ModalRoute<void>> routeObserver =
+    RouteObserver<ModalRoute<void>>();
 
 Future<T> _timedStartup<T>(String label, Future<T> Function() action) async {
   final sw = Stopwatch()..start();
@@ -64,7 +66,9 @@ Future<T> _timedStartup<T>(String label, Future<T> Function() action) async {
     debugPrint('⏱️ [STARTUP] $label listo en ${sw.elapsedMilliseconds}ms');
     return result;
   } catch (e) {
-    debugPrint('⏱️ [STARTUP] $label falló tras ${sw.elapsedMilliseconds}ms: $e');
+    debugPrint(
+      '⏱️ [STARTUP] $label falló tras ${sw.elapsedMilliseconds}ms: $e',
+    );
     rethrow;
   }
 }
@@ -84,14 +88,18 @@ class StartupServices {
   final ThemeService themeService;
   final OnboardingService onboardingService;
 
-  const StartupServices({required this.themeService, required this.onboardingService});
+  const StartupServices({
+    required this.themeService,
+    required this.onboardingService,
+  });
 }
 
 Future<StartupServices> _initializeStartupServices() async {
   // Inicializar Firebase con opciones de plataforma
   await _timedStartup(
     'Firebase.initializeApp',
-    () => Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
+    () =>
+        Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
   );
 
   // App Check: protege Firestore/Functions de clientes no autorizados.
@@ -109,7 +117,10 @@ Future<StartupServices> _initializeStartupServices() async {
       // como cadena vacía para que solo aplique en plataformas móviles por
       // ahora (en Web la activación se omite si la API key no está configurada).
       webProvider: ReCaptchaEnterpriseProvider(
-        const String.fromEnvironment('APP_CHECK_RECAPTCHA_KEY', defaultValue: ''),
+        const String.fromEnvironment(
+          'APP_CHECK_RECAPTCHA_KEY',
+          defaultValue: '',
+        ),
       ),
     );
     debugPrint('✅ [STARTUP] App Check activado');
@@ -179,7 +190,10 @@ Future<StartupServices> _initializeStartupServices() async {
   final scoringService = VictoryScoringService.I;
   await _timedStartup('VictoryScoringService.init', scoringService.init);
   await _timedStartup('DataBootstrapper.init', DataBootstrapper.I.init);
-  await _timedStartup('AccountSessionManager.init', AccountSessionManager.I.init);
+  await _timedStartup(
+    'AccountSessionManager.init',
+    AccountSessionManager.I.init,
+  );
 
   // Si el audio estaba habilitado, intentar reproducir (fire-and-forget)
   if (audioEngine.bgmEnabled.value) {
@@ -202,7 +216,10 @@ Future<StartupServices> _initializeStartupServices() async {
     );
   }
 
-  return StartupServices(themeService: themeService, onboardingService: onboardingService);
+  return StartupServices(
+    themeService: themeService,
+    onboardingService: onboardingService,
+  );
 }
 
 Future<void> _startDeferredServices() async {
@@ -231,7 +248,9 @@ Future<void> _startDeferredServices() async {
     if (PlatformCapabilities.supportsHomeWidgets) {
       WidgetSyncService.I.syncWidget();
     }
-    debugPrint('🚀 [MAIN] Deferred services ready in ${sw.elapsedMilliseconds}ms');
+    debugPrint(
+      '🚀 [MAIN] Deferred services ready in ${sw.elapsedMilliseconds}ms',
+    );
   } catch (e, st) {
     AppErrorHandler.I.report(
       e,
@@ -290,12 +309,20 @@ class _StartupAppState extends State<StartupApp> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.error_outline, color: Colors.white70, size: 48),
+                const Icon(
+                  Icons.error_outline,
+                  color: Colors.white70,
+                  size: 48,
+                ),
                 const SizedBox(height: 16),
                 const Text(
                   'No se pudo iniciar la app',
                   textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.w700),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Padding(
@@ -309,7 +336,10 @@ class _StartupAppState extends State<StartupApp> {
                   ),
                 ),
                 const SizedBox(height: 18),
-                FilledButton(onPressed: _retry, child: const Text('Reintentar')),
+                FilledButton(
+                  onPressed: _retry,
+                  child: const Text('Reintentar'),
+                ),
               ],
             ),
           );
@@ -322,15 +352,25 @@ class _StartupAppState extends State<StartupApp> {
               SizedBox(
                 width: 38,
                 height: 38,
-                child: CircularProgressIndicator(strokeWidth: 3, color: Colors.white),
+                child: CircularProgressIndicator(
+                  strokeWidth: 3,
+                  color: Colors.white,
+                ),
               ),
               SizedBox(height: 18),
               Text(
                 'Victoria en Cristo',
-                style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.w700),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 22,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
               SizedBox(height: 8),
-              Text('Iniciando...', style: TextStyle(color: Colors.white70, fontSize: 14)),
+              Text(
+                'Iniciando...',
+                style: TextStyle(color: Colors.white70, fontSize: 14),
+              ),
             ],
           ),
         );
@@ -371,7 +411,8 @@ class VictoriaEnCristoApp extends StatefulWidget {
   State<VictoriaEnCristoApp> createState() => _VictoriaEnCristoAppState();
 }
 
-class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsBindingObserver {
+class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
+    with WidgetsBindingObserver {
   late bool _isDarkMode;
   String? _pendingRoute;
   final _navigatorKey = GlobalKey<NavigatorState>();
@@ -390,7 +431,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsB
     _navigationChannel.setMethodCallHandler(_handleNavigationCall);
     _checkInitialRoute();
     if (PlatformCapabilities.supportsHomeWidgets) {
-      WidgetSyncService.I.registerInteractionCallback(navigatorKey: _navigatorKey);
+      WidgetSyncService.I.registerInteractionCallback(
+        navigatorKey: _navigatorKey,
+      );
     }
 
     // Deep-link desde notificaciones locales.
@@ -441,8 +484,8 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsB
           payload == NotificationService.payloadBattleSos) {
         unawaited(AppNavigation.openBattlePartnerFromNavigator(nav));
       } else if (payload == NotificationService.payloadVictory) {
-        // Victoria se marca desde Home; llevamos a home sin push extra.
         nav.popUntil((r) => r.isFirst);
+        setState(() => _pendingRoute = '/daily-outcome');
       } else if (payload == NotificationService.payloadReengagement) {
         nav.popUntil((r) => r.isFirst);
       } else if (payload.startsWith(NotificationService.payloadPlanPrefix)) {
@@ -466,7 +509,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsB
   Future<void> _checkInitialRoute() async {
     try {
       if (!PlatformCapabilities.supportsHomeWidgets) return;
-      final route = await _navigationChannel.invokeMethod<String>('getInitialRoute');
+      final route = await _navigationChannel.invokeMethod<String>(
+        'getInitialRoute',
+      );
       if (route != null && route.isNotEmpty && mounted) {
         setState(() => _pendingRoute = route);
       }
@@ -506,7 +551,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsB
         final today = TimeUtils.todayISO();
         if (today != _lastKnownDate) {
           _lastKnownDate = today;
-          debugPrint('🌅 [LIFECYCLE] Cambio de día detectado → refrescando datos');
+          debugPrint(
+            '🌅 [LIFECYCLE] Cambio de día detectado → refrescando datos',
+          );
           // Refrescar versículo del día
           DailyVerseService.I.refreshToday();
           // Refrescar scoring (streak, loggedToday)
@@ -550,9 +597,15 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsB
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: _isDarkMode ? Brightness.light : Brightness.dark,
-        systemNavigationBarColor: _isDarkMode ? AppTheme.darkBackground : AppTheme.backgroundColor,
-        systemNavigationBarIconBrightness: _isDarkMode ? Brightness.light : Brightness.dark,
+        statusBarIconBrightness: _isDarkMode
+            ? Brightness.light
+            : Brightness.dark,
+        systemNavigationBarColor: _isDarkMode
+            ? AppTheme.darkBackground
+            : AppTheme.backgroundColor,
+        systemNavigationBarIconBrightness: _isDarkMode
+            ? Brightness.light
+            : Brightness.dark,
       ),
     );
   }
@@ -588,10 +641,15 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsB
         '/sacred-alarms': (context) => const SacredAlarmsScreen(),
       },
       onGenerateRoute: (settings) {
-        return MaterialPageRoute(builder: (context) => _buildHomeOrOnboarding());
+        return MaterialPageRoute(
+          builder: (context) => _buildHomeOrOnboarding(),
+        );
       },
       builder: (context, child) {
-        return AppThemeData.provider(theme: appTheme, child: child ?? const SizedBox.shrink());
+        return AppThemeData.provider(
+          theme: appTheme,
+          child: child ?? const SizedBox.shrink(),
+        );
       },
       home: _buildHomeOrOnboarding(),
     );
@@ -605,7 +663,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp> with WidgetsB
       builder: (context, snapshot) {
         // Mostrar pantalla de carga mientras se verifica auth
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         // Si NO está autenticado => Login
@@ -648,7 +708,7 @@ class _ProfileGate extends StatefulWidget {
   State<_ProfileGate> createState() => _ProfileGateState();
 }
 
-enum _ProfileGateStatus { loading, needsOnboarding, ready, error }
+enum _ProfileGateStatus { loading, needsOnboarding, ready, error, updateRequired }
 
 class _ProfileGateState extends State<_ProfileGate> {
   _ProfileGateStatus _status = _ProfileGateStatus.loading;
@@ -710,8 +770,12 @@ class _ProfileGateState extends State<_ProfileGate> {
 
       if (!mounted || _status != _ProfileGateStatus.needsOnboarding) return;
 
-      if (profile != null && profile.onboardingCompleted && profile.selectedGiants.isNotEmpty) {
-        debugPrint('🚪 [PROFILE_GATE] 🔍 Cloud verify found completed profile! Transitioning...');
+      if (profile != null &&
+          profile.onboardingCompleted &&
+          profile.selectedGiants.isNotEmpty) {
+        debugPrint(
+          '🚪 [PROFILE_GATE] 🔍 Cloud verify found completed profile! Transitioning...',
+        );
         _bootstrapAndGoHome();
       }
     } catch (e) {
@@ -750,6 +814,14 @@ class _ProfileGateState extends State<_ProfileGate> {
       _errorMessage = null;
     });
 
+    // Verificar si la versión instalada necesita actualización.
+    final needsUpdate = await ForceUpdateService.I.isUpdateRequired();
+    if (!mounted) return;
+    if (needsUpdate) {
+      setState(() => _status = _ProfileGateStatus.updateRequired);
+      return;
+    }
+
     final uid = widget.user.uid;
     debugPrint('🚪 [PROFILE_GATE] Checking profile for UID: $uid');
 
@@ -772,7 +844,9 @@ class _ProfileGateState extends State<_ProfileGate> {
           if (timeSinceCreation.inMinutes > 1) {
             final profile = await _fetchProfileFromCloud(uid);
             if (profile == null || !profile.onboardingCompleted) {
-              debugPrint('🚪 [PROFILE_GATE] Old anonymous user without onboarding, signing out');
+              debugPrint(
+                '🚪 [PROFILE_GATE] Old anonymous user without onboarding, signing out',
+              );
               await FirebaseAuth.instance.signOut();
               return;
             }
@@ -788,12 +862,16 @@ class _ProfileGateState extends State<_ProfileGate> {
       // 3. Decidir navegación basado en perfil cloud
       if (profile == null) {
         // NO existe documento => crear minimal y enviar a Onboarding
-        debugPrint('🚪 [PROFILE_GATE] No profile exists, creating minimal and going to Onboarding');
+        debugPrint(
+          '🚪 [PROFILE_GATE] No profile exists, creating minimal and going to Onboarding',
+        );
         await _createMinimalProfile(uid);
         // CRÍTICO: Conectar ProfileRepository para que el realtime listener
         // y profileNotifier funcionen cuando el onboarding se complete
         await _connectRepositoriesForOnboarding(uid);
-        if (mounted) setState(() => _status = _ProfileGateStatus.needsOnboarding);
+        if (mounted) {
+          setState(() => _status = _ProfileGateStatus.needsOnboarding);
+        }
         return;
       }
 
@@ -805,7 +883,9 @@ class _ProfileGateState extends State<_ProfileGate> {
         // CRÍTICO: Conectar ProfileRepository para que el realtime listener
         // y profileNotifier funcionen cuando el onboarding se complete
         await _connectRepositoriesForOnboarding(uid);
-        if (mounted) setState(() => _status = _ProfileGateStatus.needsOnboarding);
+        if (mounted) {
+          setState(() => _status = _ProfileGateStatus.needsOnboarding);
+        }
         return;
       }
 
@@ -821,7 +901,8 @@ class _ProfileGateState extends State<_ProfileGate> {
       if (mounted) {
         setState(() {
           _status = _ProfileGateStatus.error;
-          _errorMessage = 'No se pudo cargar tu perfil. Verifica tu conexión e intenta de nuevo.';
+          _errorMessage =
+              'No se pudo cargar tu perfil. Verifica tu conexión e intenta de nuevo.';
         });
       }
     }
@@ -848,13 +929,17 @@ class _ProfileGateState extends State<_ProfileGate> {
   /// cuando el usuario complete el onboarding
   Future<void> _connectRepositoriesForOnboarding(String uid) async {
     try {
-      debugPrint('🚪 [PROFILE_GATE] Connecting ProfileRepository for onboarding...');
+      debugPrint(
+        '🚪 [PROFILE_GATE] Connecting ProfileRepository for onboarding...',
+      );
       await ProfileRepository.I.connectUser(uid);
       // También reactivar AccountSessionManager y DataBootstrapper
       // (podrían estar "sordos" después de un deleteAccount)
       await AccountSessionManager.I.reactivateAuthListener();
       await DataBootstrapper.I.reactivateAuthListener();
-      debugPrint('🚪 [PROFILE_GATE] ✅ ProfileRepository connected for onboarding');
+      debugPrint(
+        '🚪 [PROFILE_GATE] ✅ ProfileRepository connected for onboarding',
+      );
     } catch (e, st) {
       AppErrorHandler.I.report(
         e,
@@ -944,7 +1029,10 @@ class _ProfileGateState extends State<_ProfileGate> {
                       await FirebaseAuth.instance.signOut();
                     },
                     icon: const Icon(Icons.logout, color: Colors.red),
-                    label: const Text('Cerrar sesión', style: TextStyle(color: Colors.red)),
+                    label: const Text(
+                      'Cerrar sesión',
+                      style: TextStyle(color: Colors.red),
+                    ),
                   ),
                 ],
               ),
@@ -969,7 +1057,9 @@ class _ProfileGateState extends State<_ProfileGate> {
             }
           });
           // Mostrar loading mientras transicionamos (NO OnboardingWelcomeScreen)
-          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+          return const Scaffold(
+            body: Center(child: CircularProgressIndicator()),
+          );
         }
 
         // Safety check 2: Verificar desde cloud en caso de que el cache esté desactualizado
@@ -983,11 +1073,16 @@ class _ProfileGateState extends State<_ProfileGate> {
 
         return const OnboardingWelcomeScreen();
 
+      case _ProfileGateStatus.updateRequired:
+        return const _UpdateRequiredScreen();
+
       case _ProfileGateStatus.ready:
         return _NavigationHandler(
           pendingRoute: widget.pendingRoute,
           onRouteConsumed: widget.onRouteConsumed,
-          child: ErrorBoundary(child: HomeScreen(onThemeChanged: widget.onThemeChanged)),
+          child: ErrorBoundary(
+            child: HomeScreen(onThemeChanged: widget.onThemeChanged),
+          ),
         );
     }
   }
@@ -1027,7 +1122,8 @@ class _NavigationHandlerState extends State<_NavigationHandler> {
   @override
   void didUpdateWidget(covariant _NavigationHandler oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.pendingRoute != widget.pendingRoute && widget.pendingRoute != null) {
+    if (oldWidget.pendingRoute != widget.pendingRoute &&
+        widget.pendingRoute != null) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _handlePendingRoute();
       });
@@ -1098,4 +1194,92 @@ class _NavigationHandlerState extends State<_NavigationHandler> {
 
   @override
   Widget build(BuildContext context) => widget.child;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// UPDATE REQUIRED SCREEN — bloquea la app hasta que el usuario actualice
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _UpdateRequiredScreen extends StatelessWidget {
+  const _UpdateRequiredScreen();
+
+  @override
+  Widget build(BuildContext context) {
+    const bgColor = Color(0xFF07111C);
+    const gold = Color(0xFFD4AF37);
+
+    return PopScope(
+      canPop: false,
+      child: Scaffold(
+        backgroundColor: bgColor,
+        body: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 96,
+                    height: 96,
+                    decoration: BoxDecoration(
+                      color: gold.withOpacity(0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.system_update_rounded,
+                      color: gold,
+                      size: 52,
+                    ),
+                  ),
+                  const SizedBox(height: 28),
+                  const Text(
+                    'Nueva versión disponible',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.3,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    'Para seguir usando Victoria en Cristo necesitas instalar la última versión de la app.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.65),
+                      fontSize: 15,
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 36),
+                  SizedBox(
+                    width: double.infinity,
+                    child: FilledButton.icon(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: gold,
+                        foregroundColor: bgColor,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        textStyle: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      icon: const Icon(Icons.download_rounded),
+                      label: const Text('Actualizar ahora'),
+                      onPressed: () => ForceUpdateService.I.openPlayStore(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

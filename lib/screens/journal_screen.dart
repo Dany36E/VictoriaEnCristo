@@ -1,5 +1,6 @@
 ﻿import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import '../models/prayer_map.dart';
 import '../services/journal_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
@@ -62,7 +63,7 @@ class _JournalScreenState extends State<JournalScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Mi Diario'),
+        title: const Text('Mapa de Oración'),
         actions: [
           if (_journalService.entries.isNotEmpty) ...[
             IconButton(
@@ -88,7 +89,7 @@ class _JournalScreenState extends State<JournalScreen> {
           _openNewEntry(context, isDark);
         },
         icon: const Icon(Icons.add),
-        label: const Text('Nueva Entrada'),
+        label: const Text('Nueva oración'),
         backgroundColor: t.accent,
         foregroundColor: isDark ? Colors.black87 : Colors.white,
       ),
@@ -297,7 +298,7 @@ class _JournalScreenState extends State<JournalScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Tu diario está vacío',
+              'Tu mapa de oración está vacío',
               style: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -306,7 +307,7 @@ class _JournalScreenState extends State<JournalScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Escribe tus reflexiones, victorias y luchas.\nTe ayudará a ver tu progreso.',
+              'Escribe tus oraciones, gratitudes y peticiones.\nDios escucha cada palabra.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: t.textSecondary,
@@ -388,17 +389,23 @@ class _JournalScreenState extends State<JournalScreen> {
                 ],
               ),
               const SizedBox(height: 12),
-              Text(
-                entry.content.length > 100
-                    ? '${entry.content.substring(0, 100)}...'
-                    : entry.content,
-                maxLines: 3,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: t.textPrimary,
-                  height: 1.4,
-                ),
-              ),
+              Builder(builder: (_) {
+                final pm = PrayerMapData.tryDecode(entry.content);
+                final preview = pm != null
+                    ? pm.summary()
+                    : entry.content;
+                return Text(
+                  preview.length > 120
+                      ? '${preview.substring(0, 120)}...'
+                      : preview,
+                  maxLines: 3,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: t.textPrimary,
+                    height: 1.4,
+                  ),
+                );
+              }),
               if (entry.triggers.isNotEmpty) ...[
                 const SizedBox(height: 12),
                 Wrap(
@@ -514,7 +521,7 @@ class _JournalScreenState extends State<JournalScreen> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    '📊 Estadísticas del Diario',
+                    '📊 Estadísticas del Mapa de Oración',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,

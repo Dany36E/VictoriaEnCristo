@@ -87,11 +87,18 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 flutter build appbundle --release   # SUBIR A PLAY (no APK)
 # Validar:
 bundletool validate --bundle=build/app/outputs/bundle/release/app-release.aab
+# Validar Google Sign-In en APK local:
+powershell -ExecutionPolicy Bypass -File scripts/verify_android_google_signin.ps1
 ```
+
+Antes de compartir un link de verificadores / testing por Play Console:
+- Play Console -> App integrity -> App signing key certificate: copiar SHA-1 y SHA-256.
+- Firebase Console -> Project settings -> Android app `com.victoriaencristo.app` -> Add fingerprint.
+- Descargar el `google-services.json` actualizado, reemplazar `android/app/google-services.json`, reconstruir y subir de nuevo si Firebase agrego nuevos OAuth clients.
 
 ## 🔐 Post-lanzamiento
 
-- [ ] Activar **Play App Signing** (Google gestiona la upload key).
+- [ ] Activar **Play App Signing** (Google gestiona la upload key) y registrar su SHA-1/SHA-256 en Firebase Auth.
 - [ ] Activar **Play Integrity API** y vincular con App Check.
 - [ ] Configurar alertas en Firebase Console (errores Functions, picos Firestore).
 - [ ] Habilitar **Cloud Logging** para inspección post-incident.

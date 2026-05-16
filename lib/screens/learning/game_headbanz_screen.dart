@@ -77,54 +77,126 @@ extension _HeadbanzDifficultyInfo on _HeadbanzDifficulty {
 
 /// Baraja de 24 personajes bíblicos.
 const List<_HeadbanzCard> _deck = [
-  _HeadbanzCard('Aarón', 'assets/images/headbanz/Headbanz_Aaron.png', _HeadbanzDifficulty.medium),
-  _HeadbanzCard('Abraham', 'assets/images/headbanz/Headbanz_Abraham.png', _HeadbanzDifficulty.easy),
   _HeadbanzCard(
-    'Benjamín',
-    'assets/images/headbanz/Headbanz_Benjamin.png',
-    _HeadbanzDifficulty.hard,
+    'Aarón',
+    'assets/images/headbanz/Headbanz_Aaron.webp',
+    _HeadbanzDifficulty.medium,
   ),
-  _HeadbanzCard('Dalila', 'assets/images/headbanz/Headbanz_Dalila.png', _HeadbanzDifficulty.medium),
-  _HeadbanzCard('Elías', 'assets/images/headbanz/Headbanz_Elias.png', _HeadbanzDifficulty.medium),
-  _HeadbanzCard('Goliat', 'assets/images/headbanz/Headbanz_Goliat.png', _HeadbanzDifficulty.easy),
-  _HeadbanzCard('Jacob', 'assets/images/headbanz/Headbanz_Jacob.png', _HeadbanzDifficulty.medium),
-  _HeadbanzCard('Jesús', 'assets/images/headbanz/Headbanz_Jesus.png', _HeadbanzDifficulty.easy),
-  _HeadbanzCard('Jonás', 'assets/images/headbanz/Headbanz_Jonas.png', _HeadbanzDifficulty.easy),
-  _HeadbanzCard('José', 'assets/images/headbanz/Headbanz_Jose.png', _HeadbanzDifficulty.hard),
   _HeadbanzCard(
-    'José el Soñador',
-    'assets/images/headbanz/Headbanz_JoseElSoñador.png',
+    'Abraham',
+    'assets/images/headbanz/Headbanz_Abraham.webp',
     _HeadbanzDifficulty.easy,
   ),
-  _HeadbanzCard('Josué', 'assets/images/headbanz/Headbanz_Josue.png', _HeadbanzDifficulty.medium),
-  _HeadbanzCard('Juan', 'assets/images/headbanz/Headbanz_Juan.png', _HeadbanzDifficulty.hard),
+  _HeadbanzCard(
+    'Benjamín',
+    'assets/images/headbanz/Headbanz_Benjamin.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Dalila',
+    'assets/images/headbanz/Headbanz_Dalila.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Elías',
+    'assets/images/headbanz/Headbanz_Elias.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Goliat',
+    'assets/images/headbanz/Headbanz_Goliat.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Jacob',
+    'assets/images/headbanz/Headbanz_Jacob.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Jesús',
+    'assets/images/headbanz/Headbanz_Jesus.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Jonás',
+    'assets/images/headbanz/Headbanz_Jonas.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'José',
+    'assets/images/headbanz/Headbanz_Jose.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'José el Soñador',
+    'assets/images/headbanz/Headbanz_JoseElSoñador.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Josué',
+    'assets/images/headbanz/Headbanz_Josue.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Juan',
+    'assets/images/headbanz/Headbanz_Juan.webp',
+    _HeadbanzDifficulty.hard,
+  ),
   _HeadbanzCard(
     'Juan el Bautista',
-    'assets/images/headbanz/Headbanz_JuanElBautista.png',
+    'assets/images/headbanz/Headbanz_JuanElBautista.webp',
     _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
     'Judas Iscariote',
-    'assets/images/headbanz/Headbanz_JudasIscariote.png',
+    'assets/images/headbanz/Headbanz_JudasIscariote.webp',
     _HeadbanzDifficulty.easy,
   ),
-  _HeadbanzCard('Lea', 'assets/images/headbanz/Headbanz_Lea.png', _HeadbanzDifficulty.hard),
-  _HeadbanzCard('Marta', 'assets/images/headbanz/Headbanz_Marta.png', _HeadbanzDifficulty.hard),
-  _HeadbanzCard('Rebeca', 'assets/images/headbanz/Headbanz_Rebeca.png', _HeadbanzDifficulty.hard),
   _HeadbanzCard(
-    'Salomón',
-    'assets/images/headbanz/Headbanz_Salomon.png',
-    _HeadbanzDifficulty.medium,
-  ),
-  _HeadbanzCard('Sansón', 'assets/images/headbanz/Headbanz_Sanson.png', _HeadbanzDifficulty.easy),
-  _HeadbanzCard(
-    'Santiago',
-    'assets/images/headbanz/Headbanz_Santiago.png',
+    'Lea',
+    'assets/images/headbanz/Headbanz_Lea.webp',
     _HeadbanzDifficulty.hard,
   ),
-  _HeadbanzCard('Saúl', 'assets/images/headbanz/Headbanz_Saul.png', _HeadbanzDifficulty.medium),
-  _HeadbanzCard('Tomás', 'assets/images/headbanz/Headbanz_Tomás.png', _HeadbanzDifficulty.hard),
-  _HeadbanzCard('Zaqueo', 'assets/images/headbanz/Headbanz_Zaqueo.png', _HeadbanzDifficulty.easy),
+  _HeadbanzCard(
+    'Marta',
+    'assets/images/headbanz/Headbanz_Marta.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Rebeca',
+    'assets/images/headbanz/Headbanz_Rebeca.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Salomón',
+    'assets/images/headbanz/Headbanz_Salomon.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Sansón',
+    'assets/images/headbanz/Headbanz_Sanson.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Santiago',
+    'assets/images/headbanz/Headbanz_Santiago.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Saúl',
+    'assets/images/headbanz/Headbanz_Saul.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Tomás',
+    'assets/images/headbanz/Headbanz_Tomás.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Zaqueo',
+    'assets/images/headbanz/Headbanz_Zaqueo.webp',
+    _HeadbanzDifficulty.easy,
+  ),
 ];
 
 enum _Phase { intro, playing }
@@ -167,8 +239,9 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
     super.dispose();
   }
 
-  List<_HeadbanzCard> get _currentDeck =>
-      _deck.where((card) => card.difficulty == _difficulty).toList(growable: false);
+  List<_HeadbanzCard> get _currentDeck => _deck
+      .where((card) => card.difficulty == _difficulty)
+      .toList(growable: false);
 
   void _prepareDeck() {
     _shuffled = List.of(_currentDeck)..shuffle(Random());
@@ -300,13 +373,19 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                 Text(
                   '¿QUIÉN SOY?',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.displaySmall(context, color: AppDesignSystem.gold),
+                  style: AppDesignSystem.displaySmall(
+                    context,
+                    color: AppDesignSystem.gold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Personajes bíblicos · Modo fiesta',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.bodyMedium(context, color: Colors.white70),
+                  style: AppDesignSystem.bodyMedium(
+                    context,
+                    color: Colors.white70,
+                  ),
                 ),
               ],
             ),
@@ -356,7 +435,10 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Dificultad', style: AppDesignSystem.headlineSmall(context, color: t.textPrimary)),
+          Text(
+            'Dificultad',
+            style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+          ),
           const SizedBox(height: AppDesignSystem.spacingM),
           for (final difficulty in _HeadbanzDifficulty.values) ...[
             _difficultyOption(t, difficulty),
@@ -395,17 +477,25 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                 children: [
                   Text(
                     difficulty.label,
-                    style: AppDesignSystem.labelLarge(context, color: t.textPrimary),
+                    style: AppDesignSystem.labelLarge(
+                      context,
+                      color: t.textPrimary,
+                    ),
                   ),
                   Text(
                     '${difficulty.description} · $count cartas',
-                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                    style: AppDesignSystem.bodyMedium(
+                      context,
+                      color: t.textSecondary,
+                    ),
                   ),
                 ],
               ),
             ),
             Icon(
-              selected ? Icons.radio_button_checked_rounded : Icons.radio_button_off_rounded,
+              selected
+                  ? Icons.radio_button_checked_rounded
+                  : Icons.radio_button_off_rounded,
               color: selected ? difficulty.color : t.textSecondary,
             ),
           ],
@@ -430,10 +520,26 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
             style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
-          _rule(t, '1', 'Un jugador sostiene el celular en su frente sin mirar la pantalla.'),
-          _rule(t, '2', 'Los demás ven la carta y le dan pistas (sin decir el nombre).'),
-          _rule(t, '3', 'El jugador adivina. ¿Acertó o se rinde? Pasen a la siguiente.'),
-          _rule(t, '4', 'Turnos libres. No hay puntaje, es sólo para reír y aprender.'),
+          _rule(
+            t,
+            '1',
+            'Un jugador sostiene el celular en su frente sin mirar la pantalla.',
+          ),
+          _rule(
+            t,
+            '2',
+            'Los demás ven la carta y le dan pistas (sin decir el nombre).',
+          ),
+          _rule(
+            t,
+            '3',
+            'El jugador adivina. ¿Acertó o se rinde? Pasen a la siguiente.',
+          ),
+          _rule(
+            t,
+            '4',
+            'Turnos libres. No hay puntaje, es sólo para reír y aprender.',
+          ),
         ],
       ),
     );
@@ -465,7 +571,13 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(txt, style: AppDesignSystem.bodyMedium(context, color: t.textSecondary)),
+            child: Text(
+              txt,
+              style: AppDesignSystem.bodyMedium(
+                context,
+                color: t.textSecondary,
+              ),
+            ),
           ),
         ],
       ),
@@ -502,7 +614,9 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                   _statusPill(
                     label: _formatTime(_cardSecondsLeft),
                     icon: Icons.timer_rounded,
-                    color: _cardTimedOut ? AppDesignSystem.struggle : AppDesignSystem.gold,
+                    color: _cardTimedOut
+                        ? AppDesignSystem.struggle
+                        : AppDesignSystem.gold,
                   ),
               ],
             ),
@@ -527,7 +641,10 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                           const SizedBox(height: 8),
                           Text(
                             'Pon el celular en tu frente',
-                            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                            style: AppDesignSystem.bodyMedium(
+                              context,
+                              color: t.textSecondary,
+                            ),
                           ),
                           const SizedBox(height: 24),
                           Text(
@@ -544,9 +661,13 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                   : Center(
                           child: AnimatedContainer(
                             duration: 250.ms,
-                            padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+                            padding: const EdgeInsets.all(
+                              AppDesignSystem.spacingM,
+                            ),
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+                              borderRadius: BorderRadius.circular(
+                                AppDesignSystem.radiusL,
+                              ),
                               border: Border.all(
                                 color: AppDesignSystem.gold.withOpacity(0.6),
                                 width: 2,
@@ -561,8 +682,13 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                               color: t.cardBg,
                             ),
                             child: ClipRRect(
-                              borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                              child: Image.asset(card.asset, fit: BoxFit.contain),
+                              borderRadius: BorderRadius.circular(
+                                AppDesignSystem.radiusM,
+                              ),
+                              child: Image.asset(
+                                card.asset,
+                                fit: BoxFit.contain,
+                              ),
                             ),
                           ),
                         )
@@ -578,7 +704,9 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
               child: _cardTimedOut
                   ? Padding(
                       key: const ValueKey('timeout'),
-                      padding: const EdgeInsets.only(bottom: AppDesignSystem.spacingS),
+                      padding: const EdgeInsets.only(
+                        bottom: AppDesignSystem.spacingS,
+                      ),
                       child: Text(
                         'Tiempo agotado para esta carta',
                         textAlign: TextAlign.center,
@@ -600,13 +728,18 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                 icon: const Icon(Icons.skip_next_rounded, size: 28),
                 label: Text(
                   'Siguiente carta',
-                  style: AppDesignSystem.labelLarge(context, color: Colors.white),
+                  style: AppDesignSystem.labelLarge(
+                    context,
+                    color: Colors.white,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppDesignSystem.gold,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+                    borderRadius: BorderRadius.circular(
+                      AppDesignSystem.radiusL,
+                    ),
                   ),
                 ),
               ),
@@ -623,7 +756,11 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
     return '$min:${sec.toString().padLeft(2, '0')}';
   }
 
-  Widget _statusPill({required String label, required IconData icon, required Color color}) {
+  Widget _statusPill({
+    required String label,
+    required IconData icon,
+    required Color color,
+  }) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
       decoration: BoxDecoration(
@@ -638,7 +775,11 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
           const SizedBox(width: 6),
           Text(
             label,
-            style: TextStyle(color: color, fontWeight: FontWeight.w700, fontSize: 13),
+            style: TextStyle(
+              color: color,
+              fontWeight: FontWeight.w700,
+              fontSize: 13,
+            ),
           ),
         ],
       ),

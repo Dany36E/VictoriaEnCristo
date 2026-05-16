@@ -26,8 +26,9 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
           return Container(
             decoration: BoxDecoration(
               color: t.surface,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(12)),
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(12),
+              ),
             ),
             child: Column(
               children: [
@@ -64,18 +65,30 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                     builder: (context, current, _) {
                       return ListView(
                         controller: scrollCtrl,
-                        padding:
-                            const EdgeInsets.symmetric(horizontal: 24),
+                        padding: const EdgeInsets.symmetric(horizontal: 24),
                         children: BibleVersion.values.map((v) {
                           final isCurrent = v == current;
                           return GestureDetector(
                             onTap: () async {
-                              if (!BibleDownloadService.I.isDownloaded(v)) {
-                                await BibleDownloadService.I
+                              if (!BibleDownloadService.I.isAvailable(v)) {
+                                final ok = await BibleDownloadService.I
                                     .downloadVersion(v);
+                                if (!ok) {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          '${v.shortName} aún no está disponible para descarga.',
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return;
+                                }
                               }
-                              BibleUserDataService.I
-                                  .setPreferredVersion(v);
+                              await BibleUserDataService.I.setPreferredVersion(
+                                v,
+                              );
                               if (context.mounted) Navigator.pop(context);
                               onChanged?.call();
                             },
@@ -97,15 +110,17 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                                     style: GoogleFonts.manrope(
                                       color: isCurrent
                                           ? t.accent
-                                          : t.textSecondary
-                                              .withOpacity(0.6),
+                                          : t.textSecondary.withOpacity(0.6),
                                       fontSize: 13,
                                     ),
                                   ),
                                   if (isCurrent) ...[
                                     const SizedBox(width: 8),
-                                    Icon(Icons.check,
-                                        color: t.accent, size: 16),
+                                    Icon(
+                                      Icons.check,
+                                      color: t.accent,
+                                      size: 16,
+                                    ),
                                   ],
                                 ],
                               ),

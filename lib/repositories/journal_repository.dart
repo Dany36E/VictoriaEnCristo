@@ -411,7 +411,7 @@ class JournalRepository {
         .doc(uid)
         .collection('journalEntries')
         .orderBy('timestamp', descending: true)
-        .limit(300)
+        .limit(100)
         .snapshots()
         .listen(
           (snapshot) {

@@ -16,28 +16,78 @@ XmlDocument _parseXmlInIsolate(String xmlContent) {
 
 /// Nombres canónicos de los 66 libros de la Biblia, indexados por número (1-based).
 const Map<int, String> _canonicalBookNames = {
-  1: 'Génesis', 2: 'Éxodo', 3: 'Levítico', 4: 'Números', 5: 'Deuteronomio',
-  6: 'Josué', 7: 'Jueces', 8: 'Rut', 9: '1 Samuel', 10: '2 Samuel',
-  11: '1 Reyes', 12: '2 Reyes', 13: '1 Crónicas', 14: '2 Crónicas',
-  15: 'Esdras', 16: 'Nehemías', 17: 'Ester', 18: 'Job', 19: 'Salmos',
-  20: 'Proverbios', 21: 'Eclesiastés', 22: 'Cantares', 23: 'Isaías',
-  24: 'Jeremías', 25: 'Lamentaciones', 26: 'Ezequiel', 27: 'Daniel',
-  28: 'Oseas', 29: 'Joel', 30: 'Amós', 31: 'Abdías', 32: 'Jonás',
-  33: 'Miqueas', 34: 'Nahúm', 35: 'Habacuc', 36: 'Sofonías', 37: 'Hageo',
-  38: 'Zacarías', 39: 'Malaquías',
-  40: 'Mateo', 41: 'Marcos', 42: 'Lucas', 43: 'Juan', 44: 'Hechos',
-  45: 'Romanos', 46: '1 Corintios', 47: '2 Corintios', 48: 'Gálatas',
-  49: 'Efesios', 50: 'Filipenses', 51: 'Colosenses',
-  52: '1 Tesalonicenses', 53: '2 Tesalonicenses',
-  54: '1 Timoteo', 55: '2 Timoteo', 56: 'Tito', 57: 'Filemón',
-  58: 'Hebreos', 59: 'Santiago', 60: '1 Pedro', 61: '2 Pedro',
-  62: '1 Juan', 63: '2 Juan', 64: '3 Juan', 65: 'Judas', 66: 'Apocalipsis',
+  1: 'Génesis',
+  2: 'Éxodo',
+  3: 'Levítico',
+  4: 'Números',
+  5: 'Deuteronomio',
+  6: 'Josué',
+  7: 'Jueces',
+  8: 'Rut',
+  9: '1 Samuel',
+  10: '2 Samuel',
+  11: '1 Reyes',
+  12: '2 Reyes',
+  13: '1 Crónicas',
+  14: '2 Crónicas',
+  15: 'Esdras',
+  16: 'Nehemías',
+  17: 'Ester',
+  18: 'Job',
+  19: 'Salmos',
+  20: 'Proverbios',
+  21: 'Eclesiastés',
+  22: 'Cantares',
+  23: 'Isaías',
+  24: 'Jeremías',
+  25: 'Lamentaciones',
+  26: 'Ezequiel',
+  27: 'Daniel',
+  28: 'Oseas',
+  29: 'Joel',
+  30: 'Amós',
+  31: 'Abdías',
+  32: 'Jonás',
+  33: 'Miqueas',
+  34: 'Nahúm',
+  35: 'Habacuc',
+  36: 'Sofonías',
+  37: 'Hageo',
+  38: 'Zacarías',
+  39: 'Malaquías',
+  40: 'Mateo',
+  41: 'Marcos',
+  42: 'Lucas',
+  43: 'Juan',
+  44: 'Hechos',
+  45: 'Romanos',
+  46: '1 Corintios',
+  47: '2 Corintios',
+  48: 'Gálatas',
+  49: 'Efesios',
+  50: 'Filipenses',
+  51: 'Colosenses',
+  52: '1 Tesalonicenses',
+  53: '2 Tesalonicenses',
+  54: '1 Timoteo',
+  55: '2 Timoteo',
+  56: 'Tito',
+  57: 'Filemón',
+  58: 'Hebreos',
+  59: 'Santiago',
+  60: '1 Pedro',
+  61: '2 Pedro',
+  62: '1 Juan',
+  63: '2 Juan',
+  64: '3 Juan',
+  65: 'Judas',
+  66: 'Apocalipsis',
 };
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE PARSER SERVICE - Singleton
 /// ═══════════════════════════════════════════════════════════════════════════
-/// 
+///
 /// Estructura XML detectada (confirmada en los 5 archivos):
 ///   <bible translation="...">
 ///     <testament name="Old|Antiguo">
@@ -88,7 +138,9 @@ class BibleParserService {
     // Pre-cargar el índice de RVR1960 (versión por defecto)
     await _ensureVersionLoaded(BibleVersion.rvr1960);
     _initialized = true;
-    debugPrint('📖 [BIBLE] BibleParserService initialized (RVR1960 index ready)');
+    debugPrint(
+      '📖 [BIBLE] BibleParserService initialized (RVR1960 index ready)',
+    );
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -174,6 +226,9 @@ class BibleParserService {
   }) async {
     final futures = BibleVersion.values.map((version) async {
       try {
+        if (!BibleDownloadService.I.isAvailable(version)) {
+          return MapEntry(version, null);
+        }
         final result = await getVerse(
           version: version,
           bookNumber: bookNumber,
@@ -182,7 +237,9 @@ class BibleParserService {
         ).timeout(const Duration(seconds: 8));
         return MapEntry(version, result);
       } catch (e) {
-        debugPrint('📖 [BIBLE] getVerseInAllVersions: ${version.id} failed: $e');
+        debugPrint(
+          '📖 [BIBLE] getVerseInAllVersions: ${version.id} failed: $e',
+        );
         return MapEntry(version, null);
       }
     });
@@ -209,7 +266,8 @@ class BibleParserService {
       final books = testament.findAllElements('book');
       for (final book in books) {
         final bookNum = int.parse(book.getAttribute('number')!);
-        final bookName = book.getAttribute('name') ??
+        final bookName =
+            book.getAttribute('name') ??
             _canonicalBookNames[bookNum] ??
             'Libro $bookNum';
         final chapters = book.findAllElements('chapter');
@@ -219,14 +277,16 @@ class BibleParserService {
           for (final verseEl in verses) {
             final text = verseEl.innerText;
             if (text.toLowerCase().contains(queryLower)) {
-              results.add(BibleVerse(
-                bookName: bookName,
-                bookNumber: bookNum,
-                chapter: chapNum,
-                verse: int.parse(verseEl.getAttribute('number')!),
-                text: text,
-                version: version.id,
-              ));
+              results.add(
+                BibleVerse(
+                  bookName: bookName,
+                  bookNumber: bookNum,
+                  chapter: chapNum,
+                  verse: int.parse(verseEl.getAttribute('number')!),
+                  text: text,
+                  version: version.id,
+                ),
+              );
               if (results.length >= maxResults) return results;
             }
           }
@@ -280,7 +340,9 @@ class BibleParserService {
         debugPrint('📖 [BIBLE] $label: fallback to Latin-1 encoding');
         return latin1.decode(bytes);
       } catch (e) {
-        debugPrint('📖 [BIBLE] $label: encoding error, using allowMalformed: $e');
+        debugPrint(
+          '📖 [BIBLE] $label: encoding error, using allowMalformed: $e',
+        );
         return utf8.decode(bytes, allowMalformed: true);
       }
     }
@@ -304,12 +366,24 @@ class BibleParserService {
         xmlString = _decodeBytes(bytes, version.id);
         debugPrint('📖 [BIBLE] ${version.id} loaded from local storage');
       } else {
-        final byteData = await rootBundle.load('assets/bible/${version.fileName}');
+        if (!BibleDownloadService.I.isBundled(version)) {
+          throw StateError('${version.shortName} requiere descarga');
+        }
+        final byteData = await rootBundle.load(
+          'assets/bible/${version.fileName}',
+        );
         xmlString = _decodeBytes(byteData.buffer.asUint8List(), version.id);
-        debugPrint('📖 [BIBLE] ${version.id} loaded from assets (local file missing)');
+        debugPrint(
+          '📖 [BIBLE] ${version.id} loaded from assets (local file missing)',
+        );
       }
     } else {
-      final byteData = await rootBundle.load('assets/bible/${version.fileName}');
+      if (!BibleDownloadService.I.isBundled(version)) {
+        throw StateError('${version.shortName} requiere descarga');
+      }
+      final byteData = await rootBundle.load(
+        'assets/bible/${version.fileName}',
+      );
       xmlString = _decodeBytes(byteData.buffer.asUint8List(), version.id);
       debugPrint('📖 [BIBLE] ${version.id} loaded from assets');
     }
@@ -318,11 +392,15 @@ class BibleParserService {
     final doc = await compute(_parseXmlInIsolate, xmlString);
     _parsedDocs[version] = doc;
     sw.stop();
-    debugPrint('📖 [BIBLE] ${version.id} parsed in ${sw.elapsedMilliseconds}ms');
+    debugPrint(
+      '📖 [BIBLE] ${version.id} parsed in ${sw.elapsedMilliseconds}ms',
+    );
 
     // Build books index
     _booksIndex[version] = _buildBooksIndex(doc);
-    debugPrint('📖 [BIBLE] ${version.id} loaded: ${_booksIndex[version]!.length} books');
+    debugPrint(
+      '📖 [BIBLE] ${version.id} loaded: ${_booksIndex[version]!.length} books',
+    );
   }
 
   /// Construir índice de libros desde el documento XML.
@@ -341,7 +419,8 @@ class BibleParserService {
       for (final bookEl in bookElements) {
         final bookNum = int.parse(bookEl.getAttribute('number')!);
         // Usar atributo name si existe, sino usar nombre canónico por número
-        final bookName = bookEl.getAttribute('name') ??
+        final bookName =
+            bookEl.getAttribute('name') ??
             _canonicalBookNames[bookNum] ??
             'Libro $bookNum';
         final chapters = bookEl.findAllElements('chapter');
@@ -355,13 +434,15 @@ class BibleParserService {
           versesPerChapter[chapNum] = verseCount;
         }
 
-        books.add(BibleBook(
-          number: bookNum,
-          name: bookName,
-          testament: testCode,
-          totalChapters: totalChaps,
-          versesPerChapter: versesPerChapter,
-        ));
+        books.add(
+          BibleBook(
+            number: bookNum,
+            name: bookName,
+            testament: testCode,
+            totalChapters: totalChaps,
+            versesPerChapter: versesPerChapter,
+          ),
+        );
       }
     }
     return books;
@@ -382,7 +463,8 @@ class BibleParserService {
       for (final bookEl in bookElements) {
         if (int.parse(bookEl.getAttribute('number')!) != bookNumber) continue;
 
-        final bookName = bookEl.getAttribute('name') ??
+        final bookName =
+            bookEl.getAttribute('name') ??
             _canonicalBookNames[bookNumber] ??
             'Libro $bookNumber';
         final chapters = bookEl.findAllElements('chapter');
@@ -393,14 +475,16 @@ class BibleParserService {
           for (final verseEl in verseElements) {
             final text = verseEl.innerText;
             if (text.trim().isEmpty) continue; // Saltar versículos vacíos
-            verses.add(BibleVerse(
-              bookName: bookName,
-              bookNumber: bookNumber,
-              chapter: chapter,
-              verse: int.parse(verseEl.getAttribute('number')!),
-              text: text,
-              version: version.id,
-            ));
+            verses.add(
+              BibleVerse(
+                bookName: bookName,
+                bookNumber: bookNumber,
+                chapter: chapter,
+                verse: int.parse(verseEl.getAttribute('number')!),
+                text: text,
+                version: version.id,
+              ),
+            );
           }
           return verses;
         }

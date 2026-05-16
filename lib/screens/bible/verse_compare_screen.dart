@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
+import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -51,6 +52,15 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
   Future<void> _loadVersion(BibleVersion version) async {
     setState(() => _loading.add(version));
     try {
+      if (!BibleDownloadService.I.isAvailable(version)) {
+        if (mounted) {
+          setState(() {
+            _loading.remove(version);
+            _failed.add(version);
+          });
+        }
+        return;
+      }
       final result = await BibleParserService.I
           .getVerse(
             version: version,
@@ -78,6 +88,30 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
         });
       }
     }
+  }
+
+  Future<void> _downloadAndRetry(BibleVersion version) async {
+    setState(() {
+      _failed.remove(version);
+      _loading.add(version);
+    });
+    final ok = await BibleDownloadService.I.downloadVersion(version);
+    if (!mounted) return;
+    if (!ok) {
+      setState(() {
+        _loading.remove(version);
+        _failed.add(version);
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '${version.shortName} aún no está disponible para descarga.',
+          ),
+        ),
+      );
+      return;
+    }
+    await _loadVersion(version);
   }
 
   @override
@@ -114,8 +148,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Icon(Icons.arrow_back_ios,
-                color: t.textSecondary, size: 18),
+            child: Icon(Icons.arrow_back_ios, color: t.textSecondary, size: 18),
           ),
           const SizedBox(width: 12),
           Column(
@@ -198,12 +231,13 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
                 ),
                 const SizedBox(height: 6),
                 GestureDetector(
-                  onTap: () {
-                    _failed.remove(version);
-                    _loadVersion(version);
-                  },
+                  onTap: () => BibleDownloadService.I.isAvailable(version)
+                      ? _loadVersion(version)
+                      : _downloadAndRetry(version),
                   child: Text(
-                    'No disponible. Toca para reintentar.',
+                    BibleDownloadService.I.isAvailable(version)
+                        ? 'No disponible. Toca para reintentar.'
+                        : 'No descargada. Toca para descargar.',
                     style: GoogleFonts.manrope(
                       color: t.textSecondary.withOpacity(0.4),
                       fontSize: 13,

@@ -76,6 +76,7 @@ assets/config.json
 
 # Gradle caches (faith-victory-app companion project)
 faith-victory-app/.gradle/
+android/.kotlin/
 
 # Node modules (Cloud Functions)
 functions/node_modules/
@@ -86,8 +87,11 @@ temp_data/
 test_screenshots/
 test_*.png
 .asset_backups/
+source_assets/
 scripts/*
 !scripts/*.ps1
 
 # Integration tests (contain test credentials)
 integration_test/
+!android/app/src/release/java/dev/flutter/plugins/integration_test/
+!android/app/src/release/java/dev/flutter/plugins/integration_test/IntegrationTestPlugin.java

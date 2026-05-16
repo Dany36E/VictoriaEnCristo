@@ -87,7 +87,9 @@ class AudioEngine {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Estado actual del BGM - LA ÚNICA FUENTE DE VERDAD PARA UI
-  final ValueNotifier<BgmPlaybackState> bgmState = ValueNotifier(BgmPlaybackState.stopped);
+  final ValueNotifier<BgmPlaybackState> bgmState = ValueNotifier(
+    BgmPlaybackState.stopped,
+  );
 
   /// ¿Está habilitado el BGM? (solo indica preferencia del usuario)
   final ValueNotifier<bool> bgmEnabled = ValueNotifier(true);
@@ -132,9 +134,9 @@ class AudioEngine {
 
   /// Assets en orden de preferencia para fallback.
   static const List<String> _bgmCandidates = [
-    'assets/sounds/bgm/bgm_home_peaceful_days.mp3',
-    'assets/sounds/bgm/bgm_reflection_place_home.mp3',
-    'assets/sounds/Worship_pads.mp3',
+    'assets/sounds/bgm/bgm_home_peaceful_days.m4a',
+    'assets/sounds/bgm/bgm_reflection_place_home.m4a',
+    'assets/sounds/Worship_pads.m4a',
   ];
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -172,7 +174,10 @@ class AudioEngine {
     // platforms — UI keeps working, BGM/SFX simply become no-ops.
     // ─────────────────────────────────────────────────────────────────────
     if (!PlatformCapabilities.supportsAudioPlayback) {
-      _log('INIT', 'Audio disabled on this platform (${PlatformCapabilities.currentLabel})');
+      _log(
+        'INIT',
+        'Audio disabled on this platform (${PlatformCapabilities.currentLabel})',
+      );
       _isInitialized = true;
       bgmEnabled.value = false;
       sfxEnabled.value = false;
@@ -189,9 +194,11 @@ class AudioEngine {
       await session.configure(
         const AudioSessionConfiguration(
           avAudioSessionCategory: AVAudioSessionCategory.playback,
-          avAudioSessionCategoryOptions: AVAudioSessionCategoryOptions.mixWithOthers,
+          avAudioSessionCategoryOptions:
+              AVAudioSessionCategoryOptions.mixWithOthers,
           avAudioSessionMode: AVAudioSessionMode.defaultMode,
-          avAudioSessionRouteSharingPolicy: AVAudioSessionRouteSharingPolicy.defaultPolicy,
+          avAudioSessionRouteSharingPolicy:
+              AVAudioSessionRouteSharingPolicy.defaultPolicy,
           avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
           androidAudioAttributes: AndroidAudioAttributes(
             contentType: AndroidAudioContentType.music,
@@ -236,8 +243,14 @@ class AudioEngine {
       await _sfxPlayer!.setVolume(sfxVolume.value);
 
       _log('INIT', 'Preferences loaded:');
-      _log('INIT', '  BGM: enabled=${bgmEnabled.value}, vol=${bgmVolume.value}');
-      _log('INIT', '  SFX: enabled=${sfxEnabled.value}, vol=${sfxVolume.value}');
+      _log(
+        'INIT',
+        '  BGM: enabled=${bgmEnabled.value}, vol=${bgmVolume.value}',
+      );
+      _log(
+        'INIT',
+        '  SFX: enabled=${sfxEnabled.value}, vol=${sfxVolume.value}',
+      );
 
       _isInitialized = true;
       _lastError = null;
@@ -350,7 +363,8 @@ class AudioEngine {
       }
 
       // Si está pausado, resumir
-      if (bgmState.value == BgmPlaybackState.paused && _currentBgmAsset != null) {
+      if (bgmState.value == BgmPlaybackState.paused &&
+          _currentBgmAsset != null) {
         _log('BGM', '▶️ Resuming from pause');
         await _bgmPlayer!.play();
         bgmState.value = BgmPlaybackState.playing;
@@ -431,7 +445,10 @@ class AudioEngine {
           final isPlaying = _bgmPlayer!.playing;
           final isAdvancing = pos2 > pos1;
 
-          _log('BGM', 'Check: playing=$isPlaying, pos1=$pos1, pos2=$pos2, advancing=$isAdvancing');
+          _log(
+            'BGM',
+            'Check: playing=$isPlaying, pos1=$pos1, pos2=$pos2, advancing=$isAdvancing',
+          );
 
           if (isPlaying) {
             // Última verificación antes de declarar éxito
@@ -469,7 +486,10 @@ class AudioEngine {
 
       // SOLO pausar si está playing
       if (bgmState.value != BgmPlaybackState.playing) {
-        _log('BGM', '⚠️ Cannot pause - state is ${bgmState.value}, not playing');
+        _log(
+          'BGM',
+          '⚠️ Cannot pause - state is ${bgmState.value}, not playing',
+        );
         return;
       }
 
@@ -492,7 +512,10 @@ class AudioEngine {
 
       // SOLO resumir si está paused
       if (bgmState.value != BgmPlaybackState.paused) {
-        _log('BGM', '⚠️ Cannot resume - state is ${bgmState.value}, not paused');
+        _log(
+          'BGM',
+          '⚠️ Cannot resume - state is ${bgmState.value}, not paused',
+        );
         return;
       }
 
@@ -551,21 +574,23 @@ class AudioEngine {
 
   /// Contextos de BGM y sus assets correspondientes
   static const Map<BgmContext, String> _bgmContextAssets = {
-    BgmContext.home: 'assets/sounds/bgm/bgm_home_peaceful_days.mp3',
-    BgmContext.bible: 'assets/sounds/bgm/bgm_reflection_place_home.mp3',
-    BgmContext.journal: 'assets/sounds/bgm/bgm_reflection_place_home.mp3',
-    BgmContext.prayer: 'assets/sounds/bgm/bgm_reflection_place_home.mp3',
-    BgmContext.exercise: 'assets/sounds/bgm/bgm_focus_innocence.mp3',
-    BgmContext.plan: 'assets/sounds/bgm/bgm_story_summer_memories.mp3',
+    BgmContext.home: 'assets/sounds/bgm/bgm_home_peaceful_days.m4a',
+    BgmContext.bible: 'assets/sounds/bgm/bgm_reflection_place_home.m4a',
+    BgmContext.journal: 'assets/sounds/bgm/bgm_reflection_place_home.m4a',
+    BgmContext.prayer: 'assets/sounds/bgm/bgm_reflection_place_home.m4a',
+    BgmContext.exercise: 'assets/sounds/bgm/bgm_focus_innocence.m4a',
+    BgmContext.plan: 'assets/sounds/bgm/bgm_story_summer_memories.m4a',
     // Escuela del Reino
-    BgmContext.learningExplore: 'assets/sounds/bgm/bgm_home_peaceful_days.mp3',
-    BgmContext.learningQuiz: 'assets/sounds/bgm/bgm_focus_innocence.mp3',
-    BgmContext.learningStory: 'assets/sounds/bgm/bgm_story_summer_memories.mp3',
-    BgmContext.learningProphecy: 'assets/sounds/bgm/bgm_mystery_suspense.mp3',
-    BgmContext.learningMap: 'assets/sounds/bgm/bgm_story_summer_memories.mp3',
-    BgmContext.learningDuel: 'assets/sounds/bgm/bgm_battle_determined_pursuit.mp3',
-    BgmContext.learningHeadbanz: 'assets/sounds/bgm/bgm_game_let_the_games_begin.mp3',
-    BgmContext.learningBibleOrder: 'assets/sounds/bgm/bgm_focus_innocence.mp3',
+    BgmContext.learningExplore: 'assets/sounds/bgm/bgm_home_peaceful_days.m4a',
+    BgmContext.learningQuiz: 'assets/sounds/bgm/bgm_focus_innocence.m4a',
+    BgmContext.learningStory: 'assets/sounds/bgm/bgm_story_summer_memories.m4a',
+    BgmContext.learningProphecy: 'assets/sounds/bgm/bgm_mystery_suspense.m4a',
+    BgmContext.learningMap: 'assets/sounds/bgm/bgm_story_summer_memories.m4a',
+    BgmContext.learningDuel:
+        'assets/sounds/bgm/bgm_battle_determined_pursuit.m4a',
+    BgmContext.learningHeadbanz:
+        'assets/sounds/bgm/bgm_game_let_the_games_begin.m4a',
+    BgmContext.learningBibleOrder: 'assets/sounds/bgm/bgm_focus_innocence.m4a',
   };
 
   /// Volumen BGM específico por contexto (override sobre el volumen global).
@@ -606,7 +631,10 @@ class AudioEngine {
     }
 
     // Cambiar al nuevo asset con fade
-    _log('BGM', '🎵 Switching context: ${context.name} → $targetAsset (vol=$targetVol)');
+    _log(
+      'BGM',
+      '🎵 Switching context: ${context.name} → $targetAsset (vol=$targetVol)',
+    );
     try {
       // Fade out suave
       if (bgmState.value == BgmPlaybackState.playing) {

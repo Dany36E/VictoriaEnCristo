@@ -20,24 +20,23 @@ import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/content_repository.dart';
 import '../widgets/jesus_streak_widget.dart';
-import 'verses_screen.dart';
 import 'prayers_screen.dart';
-import 'plan_library_screen.dart';
 import 'progress_screen.dart';
 import 'journal_screen.dart';
 import 'devotional_screen.dart';
 
 import 'battle_partner/battle_partner_screen.dart';
-import 'wall/wall_screen.dart';
-import 'admin/admin_wall_screen.dart';
 import 'bible/bible_home_screen.dart';
 import 'relapse_recovery_screen.dart';
+import 'categories/vida_espiritual_screen.dart';
+import 'categories/crecimiento_espiritual_screen.dart';
+import 'categories/hermanos_en_cristo_screen.dart';
+import '../widgets/home/glassmorphic_menu_button.dart' as gmb;
 import '../utils/bible_navigation_helper.dart';
 import '../services/battle_partner_service.dart';
 import '../services/audio_engine.dart';
 import '../services/badge_service.dart';
 import '../widgets/badge_celebration.dart';
-import '../repositories/profile_repository.dart';
 import '../widgets/morning_checkin_sheet.dart';
 import '../widgets/offline_banner.dart';
 import '../main.dart' show routeObserver;
@@ -517,7 +516,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
 
-                  // Tools Section Header — PRÁCTICA DIARIA
+                  // Tools Section Header — MENÚ PRINCIPAL (3 botones simplificados)
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(
@@ -527,328 +526,109 @@ class _HomeScreenState extends State<HomeScreen>
                         AppDesignSystem.spacingM,
                       ),
                       child: _buildSectionHeader(
-                        label: 'PRÁCTICA DIARIA',
-                        icon: Icons.wb_sunny_outlined,
-                        accent: const Color(0xFFFF80AB),
+                        label: 'EXPLORA',
+                        icon: Icons.apps_rounded,
+                        accent: const Color(0xFFE8C97A),
                         animationDelayMs: 250,
                       ),
                     ),
                   ),
 
-                  // Grid: Práctica diaria (Oraciones, Mi Diario, Versículos, Escuela del Reino)
+                  // 3 grandes botones principales: Vida Espiritual /
+                  // Crecimiento Espiritual / Hermanos en Cristo.
+                  // Cada uno abre un sub-hub con las herramientas de esa área.
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                       horizontal: AppDesignSystem.spacingM,
                     ),
                     sliver: SliverList(
                       delegate: SliverChildListDelegate([
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.favorite,
-                                title: 'Oraciones',
-                                subtitle: 'Conexión con Dios',
-                                accentColor: const Color(0xFFFF80AB),
-                                animationType: IconAnimationType.heartbeat,
-                                index: 0,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const PrayersScreen(),
-                                  ),
-                                ),
-                              ),
+                        gmb.GlassmorphicMenuButton(
+                          icon: Icons.wb_sunny_outlined,
+                          title: 'Vida Espiritual',
+                          subtitle: 'Oración, palabra y reflexión diaria',
+                          accentColor: const Color(0xFFFF80AB),
+                          animationType: gmb.IconAnimationType.heartbeat,
+                          index: 0,
+                          height: 130,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const VidaEspiritualScreen(),
                             ),
-                            const SizedBox(width: AppDesignSystem.spacingM),
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.auto_stories,
-                                title: 'Mi Diario',
-                                subtitle: 'Reflexiones',
-                                accentColor: const Color(0xFFCE93D8),
-                                animationType: IconAnimationType.pulse,
-                                index: 1,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const JournalScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         const SizedBox(height: AppDesignSystem.spacingM),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.menu_book_outlined,
-                                title: 'Versículos',
-                                subtitle: 'Armadura espiritual',
-                                accentColor: const Color(0xFF64B5F6),
-                                animationType: IconAnimationType.shimmer,
-                                index: 2,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const VersesScreen(),
-                                  ),
-                                ),
-                              ),
+                        gmb.GlassmorphicMenuButton(
+                          icon: Icons.trending_up_rounded,
+                          title: 'Crecimiento Espiritual',
+                          subtitle: 'Biblia, planes y escuela del Reino',
+                          accentColor: const Color(0xFFE8C97A),
+                          animationType: gmb.IconAnimationType.shimmer,
+                          index: 1,
+                          height: 130,
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  const CrecimientoEspiritualScreen(),
                             ),
-                            const SizedBox(width: AppDesignSystem.spacingM),
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.school_rounded,
-                                title: 'Escuela del Reino',
-                                subtitle: 'Aprende y memoriza',
-                                accentColor: AppDesignSystem.gold,
-                                animationType: IconAnimationType.shimmer,
-                                index: 3,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const LearningHomeScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ]),
-                    ),
-                  ),
-
-                  // Tools Section Header — CRECIMIENTO
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppDesignSystem.spacingM,
-                        AppDesignSystem.spacingL,
-                        AppDesignSystem.spacingM,
-                        AppDesignSystem.spacingM,
-                      ),
-                      child: _buildSectionHeader(
-                        label: 'CRECIMIENTO',
-                        icon: Icons.trending_up_rounded,
-                        accent: const Color(0xFFE8C97A),
-                        animationDelayMs: 300,
-                      ),
-                    ),
-                  ),
-
-                  // Grid: Crecimiento (Planes, La Biblia, Mi Progreso)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDesignSystem.spacingM,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.wb_sunny,
-                                title: 'Planes',
-                                subtitle: 'Crecimiento espiritual',
-                                accentColor: const Color(0xFFFFD740),
-                                animationType: IconAnimationType.rotate,
-                                index: 4,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const PlanLibraryScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: AppDesignSystem.spacingM),
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.menu_book,
-                                title: 'La Biblia',
-                                subtitle: 'Palabra de Dios',
-                                accentColor: const Color(0xFFE8C97A),
-                                animationType: IconAnimationType.shimmer,
-                                index: 5,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const BibleHomeScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
+                          ),
                         ),
                         const SizedBox(height: AppDesignSystem.spacingM),
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.show_chart,
-                                title: 'Mi Progreso',
-                                subtitle: 'Días de victoria',
-                                accentColor: const Color(0xFF69F0AE),
-                                animationType: IconAnimationType.drawUp,
-                                index: 6,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const ProgressScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: AppDesignSystem.spacingM),
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.auto_stories_rounded,
-                                title: 'Devocional',
-                                subtitle: '30 días de fe',
-                                accentColor: const Color(0xFFCE93D8),
-                                animationType: IconAnimationType.pulse,
-                                index: 7,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const DevotionalScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ]),
-                    ),
-                  ),
-
-                  // Tools Section Header — COMUNIDAD
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppDesignSystem.spacingM,
-                        AppDesignSystem.spacingL,
-                        AppDesignSystem.spacingM,
-                        AppDesignSystem.spacingM,
-                      ),
-                      child: _buildSectionHeader(
-                        label: 'COMUNIDAD',
-                        icon: Icons.groups_rounded,
-                        accent: const Color(0xFFFFAB40),
-                        animationDelayMs: 350,
-                      ),
-                    ),
-                  ),
-
-                  // Grid: Comunidad (Compañero, Muro de Batalla)
-                  SliverPadding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppDesignSystem.spacingM,
-                    ),
-                    sliver: SliverList(
-                      delegate: SliverChildListDelegate([
-                        Row(
-                          children: [
-                            Expanded(
-                              child: ValueListenableBuilder<List<dynamic>>(
-                                valueListenable: BattlePartnerService
-                                    .I
-                                    .pendingInvitesNotifier,
-                                builder: (context, invites, _) {
-                                  return Stack(
-                                    clipBehavior: Clip.none,
-                                    children: [
-                                      _GlassmorphicMenuButton(
-                                        icon: Icons.shield,
-                                        title: 'Compañero',
-                                        subtitle: 'De Batalla',
-                                        accentColor: const Color(0xFFFFAB40),
-                                        animationType: IconAnimationType.pulse,
-                                        index: 7,
-                                        onTap: () => Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) =>
-                                                const BattlePartnerScreen(),
-                                          ),
-                                        ),
-                                      ),
-                                      if (invites.isNotEmpty)
-                                        Positioned(
-                                          top: -4,
-                                          right: -4,
-                                          child: Container(
-                                            padding: const EdgeInsets.all(5),
-                                            decoration: const BoxDecoration(
-                                              color: AppDesignSystem.struggle,
-                                              shape: BoxShape.circle,
-                                            ),
-                                            child: Text(
-                                              '${invites.length}',
-                                              style: const TextStyle(
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w700,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                    ],
-                                  );
-                                },
-                              ),
-                            ),
-                            const SizedBox(width: AppDesignSystem.spacingM),
-                            Expanded(
-                              child: _GlassmorphicMenuButton(
-                                icon: Icons.forum_rounded,
-                                title: 'Muro de',
-                                subtitle: 'Batalla',
-                                accentColor: const Color(0xFF64B5F6),
-                                animationType: IconAnimationType.shimmer,
-                                index: 8,
-                                onTap: () => Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) => const WallScreen(),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        // ── Admin row (hidden, solo si isAdmin) ──
-                        if (ProfileRepository.I.currentProfile?.isAdmin == true)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: AppDesignSystem.spacingM,
-                            ),
-                            child: Row(
+                        ValueListenableBuilder<List<dynamic>>(
+                          valueListenable:
+                              BattlePartnerService.I.pendingInvitesNotifier,
+                          builder: (context, invites, _) {
+                            return Stack(
+                              clipBehavior: Clip.none,
                               children: [
-                                Expanded(
-                                  child: _GlassmorphicMenuButton(
-                                    icon: Icons.admin_panel_settings_rounded,
-                                    title: 'Moderación',
-                                    subtitle: 'Admin',
-                                    accentColor: AppDesignSystem.struggle,
-                                    animationType: IconAnimationType.pulse,
-                                    index: 9,
-                                    onTap: () => Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (_) => const AdminWallScreen(),
-                                      ),
+                                gmb.GlassmorphicMenuButton(
+                                  icon: Icons.groups_rounded,
+                                  title: 'Hermanos en Cristo',
+                                  subtitle:
+                                      'Compañero, muro y comunidad de batalla',
+                                  accentColor: const Color(0xFFFFAB40),
+                                  animationType: gmb.IconAnimationType.pulse,
+                                  index: 2,
+                                  height: 130,
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) =>
+                                          const HermanosEnCristoScreen(),
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: AppDesignSystem.spacingM),
-                                const Expanded(child: SizedBox()),
+                                if (invites.isNotEmpty)
+                                  Positioned(
+                                    top: -4,
+                                    right: -4,
+                                    child: Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                        vertical: 4,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: AppDesignSystem.struggle,
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: Text(
+                                        invites.length == 1
+                                            ? '1 invitación'
+                                            : '${invites.length} invitaciones',
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
                               ],
-                            ),
-                          ),
+                            );
+                          },
+                        ),
                       ]),
                     ),
                   ),
