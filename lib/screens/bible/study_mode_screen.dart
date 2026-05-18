@@ -15,6 +15,7 @@ import '../../models/bible/study_word_highlight.dart';
 import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
+import '../../services/bible/section_title_service.dart';
 import '../../services/bible/study_export_service.dart';
 import '../../services/bible/study_mode_service.dart';
 import '../../services/bible/study_room_service.dart';
@@ -27,7 +28,7 @@ import '../../widgets/bible/study/study_questions_panel.dart';
 import '../../widgets/bible/study/study_room_banner.dart';
 import '../../widgets/bible/study/study_room_dialogs.dart';
 
-enum _StudyHeaderAction { passage, range, text, tutorial, room }
+enum _StudyHeaderAction { passage, range, addPassage, text, tutorial, room }
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// MODO ESTUDIO — Pantalla principal
@@ -64,8 +65,7 @@ class StudyModeScreen extends StatefulWidget {
   State<StudyModeScreen> createState() => _StudyModeScreenState();
 }
 
-class _StudyModeScreenState extends State<StudyModeScreen>
-    with SingleTickerProviderStateMixin {
+class _StudyModeScreenState extends State<StudyModeScreen> with SingleTickerProviderStateMixin {
   late int _bookNumber;
   late String _bookName;
   late int _chapter;
@@ -75,6 +75,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   List<BibleBook> _books = const [];
   List<BibleVerse> _verses = const [];
   List<BibleVerse> _secondaryVerses = const [];
+  Map<String, List<BibleVerse>> _extraVersesByPassage = const {};
+  Map<String, List<BibleVerse>> _extraSecondaryVersesByPassage = const {};
   bool _loading = true;
 
   late final TabController _tabController;
@@ -87,6 +89,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   final TextEditingController _generalNotesController = TextEditingController();
   final TextEditingController _hopeMessageController = TextEditingController();
   final Set<int> _mainVerseNumbers = {};
+  bool _isFreshStudySession = false;
 
   /// Identificador del estudio actualmente cargado en pantalla.
   /// - null  → no se ha seleccionado aún; al primer guardado se generará
@@ -95,14 +98,38 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   /// Permite tener varios estudios independientes del mismo capítulo.
   String? _currentStudyId;
 
-  /// Resuelve el estudio actualmente cargado: prioriza `_currentStudyId`,
-  /// con fallback al estudio más reciente del libro/capítulo cuando todavía
-  /// no hay id (apertura legacy sin Setup).
+  /// Resuelve el estudio actualmente cargado: prioriza `_currentStudyId`.
+  /// Sólo usa fallback al estudio más reciente del libro/capítulo cuando no
+  /// estamos en un flujo explícito de "Nuevo estudio".
   StudyChapterAnswers? _resolveCurrentStudy() {
     final byId = StudyModeService.I.answersForStudyId(_currentStudyId);
     if (byId != null) return byId;
     if (_currentStudyId != null) return null;
+    if (_isFreshStudySession) return null;
     return StudyModeService.I.answersFor(_bookNumber, _chapter);
+  }
+
+  void _startFreshStudySession() {
+    _isFreshStudySession = true;
+    _currentStudyId = StudyChapterAnswers.generateStudyId();
+    _clearAnswerFields();
+  }
+
+  bool _hasDraftContent() {
+    return _answersFromControllers().isNotEmpty ||
+        _generalNotesController.text.trim().isNotEmpty ||
+        _hopeMessageController.text.trim().isNotEmpty ||
+        _mainVerseNumbers.isNotEmpty;
+  }
+
+  void _clearAnswerFields() {
+    _draftAnswers.clear();
+    for (final controller in _controllers.values) {
+      controller.clear();
+    }
+    _generalNotesController.clear();
+    _hopeMessageController.clear();
+    _mainVerseNumbers.clear();
   }
 
   @override
@@ -136,10 +163,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     // un studyId fresco para que las notas/respuestas sean independientes,
     // incluso si ya existe otro estudio del mismo capítulo.
     if (widget.openSetupOnStart && !widget.openSavedStudiesOnStart) {
-      _currentStudyId = StudyChapterAnswers.generateStudyId();
+      _startFreshStudySession();
     }
     await _loadChapter();
     _hydrateAnswers();
+    await _loadAdditionalPassagesForStudy(_resolveCurrentStudy());
     // Onboarding (primer uso)
     final seen = await StudyModeService.I.hasSeenOnboarding();
     if (!mounted) return;
@@ -159,7 +187,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       }
       if (!mounted) return;
       if (widget.openSetupOnStart) {
-        await _openPicker();
+        await _openPicker(preserveFreshStudy: true);
         if (!mounted) return;
         await Future<void>.delayed(const Duration(milliseconds: 150));
         if (mounted) await _openRangePicker();
@@ -177,8 +205,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     setState(() => _loading = true);
     try {
       _version = BibleDownloadService.I.bestAvailableVersion(_version);
-      if (!BibleDownloadService.I.isAvailable(_secondaryVersion) ||
-          _secondaryVersion == _version) {
+      if (!BibleDownloadService.I.isAvailable(_secondaryVersion) || _secondaryVersion == _version) {
         _secondaryVersion = _defaultSecondaryVersion(_version);
       }
       _books = await BibleParserService.I.getBooks(_version);
@@ -210,12 +237,61 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return BibleDownloadService.I.bestAvailableSecondary(primary);
   }
 
+  String _passageKey(StudyPassage passage) =>
+      '${passage.bookNumber}:${passage.chapter}:${passage.startVerse}:${passage.endVerse}';
+
+  List<BibleVerse> _filterPassageVerses(List<BibleVerse> source, StudyPassage passage) {
+    final lo = passage.startVerse < passage.endVerse ? passage.startVerse : passage.endVerse;
+    final hi = passage.startVerse < passage.endVerse ? passage.endVerse : passage.startVerse;
+    return source.where((v) => v.verse >= lo && v.verse <= hi).toList(growable: false);
+  }
+
+  Future<void> _loadAdditionalPassagesForStudy(StudyChapterAnswers? study) async {
+    final passages = study?.additionalPassages ?? const <StudyPassage>[];
+    if (passages.isEmpty) {
+      if (mounted) {
+        setState(() {
+          _extraVersesByPassage = const {};
+          _extraSecondaryVersesByPassage = const {};
+        });
+      }
+      return;
+    }
+
+    final primary = <String, List<BibleVerse>>{};
+    final secondary = <String, List<BibleVerse>>{};
+    await Future.wait(
+      passages.map((passage) async {
+        final key = _passageKey(passage);
+        final loaded = await BibleParserService.I.getChapter(
+          version: _version,
+          bookNumber: passage.bookNumber,
+          chapter: passage.chapter,
+        );
+        primary[key] = _filterPassageVerses(loaded, passage);
+        if (_secondaryVersion != _version) {
+          final loadedSecondary = await BibleParserService.I.getChapter(
+            version: _secondaryVersion,
+            bookNumber: passage.bookNumber,
+            chapter: passage.chapter,
+          );
+          secondary[key] = _filterPassageVerses(loadedSecondary, passage);
+        }
+      }),
+    );
+    if (!mounted) return;
+    setState(() {
+      _extraVersesByPassage = Map.unmodifiable(primary);
+      _extraSecondaryVersesByPassage = Map.unmodifiable(secondary);
+    });
+  }
+
   void _hydrateAnswers() {
     final study = _resolveCurrentStudy();
     // Si encontramos un estudio vía fallback legacy, adoptamos su studyId
     // para futuras escrituras (manteniendo la entrada existente en lugar de
     // crear duplicados).
-    if (_currentStudyId == null && study != null) {
+    if (!_isFreshStudySession && _currentStudyId == null && study != null) {
       _currentStudyId = study.chapterKey;
     }
     final existing = study?.answers ?? const <String, String>{};
@@ -320,35 +396,60 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   Future<void> _changeChapter(
     int bookNumber,
     String bookName,
-    int chapter,
-  ) async {
+    int chapter, {
+    bool preserveFreshStudy = false,
+  }) async {
+    final keepFreshStudy = preserveFreshStudy || _isFreshStudySession;
+    final currentStudy = _resolveCurrentStudy();
+    final canReuseFreshId = keepFreshStudy && currentStudy == null && !_hasDraftContent();
+    final nextFreshStudyId = keepFreshStudy
+        ? canReuseFreshId
+              ? (_currentStudyId ?? StudyChapterAnswers.generateStudyId())
+              : StudyChapterAnswers.generateStudyId()
+        : null;
     await _flushAnswers();
     setState(() {
       _bookNumber = bookNumber;
       _bookName = bookName;
       _chapter = chapter;
-      // Al cambiar de capítulo soltamos el studyId actual; `_hydrateAnswers`
-      // lo adoptará del estudio más reciente del nuevo capítulo (o lo
-      // dejará null si no existe, creando uno nuevo al primer guardado).
-      _currentStudyId = null;
+      if (keepFreshStudy) {
+        _isFreshStudySession = true;
+        _currentStudyId = nextFreshStudyId;
+        if (!canReuseFreshId) {
+          _clearAnswerFields();
+        }
+      } else {
+        // Al cambiar de capítulo desde una navegación normal soltamos el
+        // studyId actual; `_hydrateAnswers` puede adoptar el estudio más
+        // reciente del nuevo capítulo por compatibilidad legacy.
+        _isFreshStudySession = false;
+        _currentStudyId = null;
+      }
     });
     await _loadChapter();
     _hydrateAnswers();
+    await _loadAdditionalPassagesForStudy(_resolveCurrentStudy());
   }
 
-  Future<void> _openPicker() async {
+  Future<void> _openPicker({bool preserveFreshStudy = false}) async {
     final result = await showModalBottomSheet<StudyPickerResult>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => StudyChapterPicker(
         books: _books,
+        version: _version,
         currentBookNumber: _bookNumber,
         currentChapter: _chapter,
       ),
     );
     if (result != null) {
-      await _changeChapter(result.bookNumber, result.bookName, result.chapter);
+      await _changeChapter(
+        result.bookNumber,
+        result.bookName,
+        result.chapter,
+        preserveFreshStudy: preserveFreshStudy,
+      );
     }
   }
 
@@ -357,10 +458,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _VersionPairSheet(
-        initialPrimary: _version,
-        initialSecondary: _secondaryVersion,
-      ),
+      builder: (_) =>
+          _VersionPairSheet(initialPrimary: _version, initialSecondary: _secondaryVersion),
     );
     if (result == null) return;
     await _changeVersions(result.primary, result.secondary);
@@ -375,10 +474,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (_) => _SavedStudiesSheet(
-        studies: studies,
-        onDeleteStudy: _deleteSavedStudy,
-      ),
+      builder: (_) => _SavedStudiesSheet(studies: studies, onDeleteStudy: _deleteSavedStudy),
     );
     if (result == null) return;
     await _openSavedStudy(result);
@@ -388,20 +484,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     StudyChapterAnswers study, {
     required bool deleteHighlights,
   }) async {
-    final deletingCurrent =
-        study.bookNumber == _bookNumber && study.chapter == _chapter;
-    await StudyModeService.I.deleteStudy(
-      study,
-      deleteHighlights: deleteHighlights,
-    );
+    final currentStudy = _resolveCurrentStudy();
+    final deletingCurrent = currentStudy?.chapterKey == study.chapterKey;
+    await StudyModeService.I.deleteStudy(study, deleteHighlights: deleteHighlights);
     if (!deletingCurrent || !mounted) return;
-    _draftAnswers.clear();
-    for (final controller in _controllers.values) {
-      controller.clear();
-    }
-    _generalNotesController.clear();
-    _hopeMessageController.clear();
-    _mainVerseNumbers.clear();
+    _clearAnswerFields();
+    _currentStudyId = StudyChapterAnswers.generateStudyId();
+    _isFreshStudySession = true;
     setState(() {});
   }
 
@@ -420,15 +509,14 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       _version = primary;
       _secondaryVersion = secondary;
       _currentStudyId = study.chapterKey;
+      _isFreshStudySession = false;
     });
     await _loadChapter();
     _hydrateAnswers();
+    await _loadAdditionalPassagesForStudy(_resolveCurrentStudy());
   }
 
-  Future<void> _changeVersions(
-    BibleVersion primary,
-    BibleVersion secondary,
-  ) async {
+  Future<void> _changeVersions(BibleVersion primary, BibleVersion secondary) async {
     await _flushAnswers();
     primary = BibleDownloadService.I.bestAvailableVersion(primary);
     if (!BibleDownloadService.I.isAvailable(secondary)) {
@@ -442,6 +530,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       _secondaryVersion = secondary;
     });
     await _loadChapter();
+    await _loadAdditionalPassagesForStudy(_resolveCurrentStudy());
     await _flushAnswers();
   }
 
@@ -473,28 +562,18 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     unawaited(_applyRoomState(room, assignedVersionId));
   }
 
-  Future<void> _applyRoomState(
-    StudyRoom room,
-    String? assignedVersionId,
-  ) async {
+  Future<void> _applyRoomState(StudyRoom room, String? assignedVersionId) async {
     if (_applyingRoomState || !mounted) return;
     _applyingRoomState = true;
     try {
-      final primary = assignedVersionId == null
-          ? _version
-          : BibleVersion.fromId(assignedVersionId);
-      final availablePrimary = BibleDownloadService.I.bestAvailableVersion(
-        primary,
-      );
+      final primary = assignedVersionId == null ? _version : BibleVersion.fromId(assignedVersionId);
+      final availablePrimary = BibleDownloadService.I.bestAvailableVersion(primary);
       final secondary = availablePrimary == _secondaryVersion
           ? _defaultSecondaryVersion(availablePrimary)
           : _secondaryVersion;
       final passageChanged =
-          room.bookNumber != _bookNumber ||
-          room.bookName != _bookName ||
-          room.chapter != _chapter;
-      final versionsChanged =
-          availablePrimary != _version || secondary != _secondaryVersion;
+          room.bookNumber != _bookNumber || room.bookName != _bookName || room.chapter != _chapter;
+      final versionsChanged = availablePrimary != _version || secondary != _secondaryVersion;
 
       if (passageChanged || versionsChanged) {
         await _flushAnswers();
@@ -519,11 +598,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         startVerse: room.startVerse,
         endVerse: room.endVerse,
       );
-      unawaited(
-        StudyRoomService.I.publishHighlights(
-          StudyModeService.I.highlightsNotifier.value,
-        ),
-      );
+      unawaited(StudyRoomService.I.publishHighlights(StudyModeService.I.highlightsNotifier.value));
       if (mounted) setState(() {});
     } finally {
       _applyingRoomState = false;
@@ -532,10 +607,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   void _maybePromptStartSwapTimer(StudyRoom room) {
     final uid = FirebaseAuth.instance.currentUser?.uid;
-    if (uid == null ||
-        room.hostUid != uid ||
-        room.swapTimerActive ||
-        room.memberOrder.length < 2) {
+    if (uid == null || room.hostUid != uid || room.swapTimerActive || room.memberOrder.length < 2) {
       if (room.swapTimerActive) _lastSwapStartPromptKey = null;
       return;
     }
@@ -545,9 +617,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       if (!mounted) return;
       final activeRoom = StudyRoomService.I.currentRoomNotifier.value;
-      if (activeRoom == null ||
-          activeRoom.code != room.code ||
-          activeRoom.swapTimerActive) {
+      if (activeRoom == null || activeRoom.code != room.code || activeRoom.swapTimerActive) {
         return;
       }
       final start = await showDialog<bool>(
@@ -559,10 +629,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             'Puedes iniciar los ${activeRoom.swapIntervalMinutes} minutos ahora o esperar a alguien más.',
           ),
           actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(ctx, false),
-              child: const Text('Esperar'),
-            ),
+            TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Esperar')),
             ElevatedButton(
               onPressed: () => Navigator.pop(ctx, true),
               child: const Text('Iniciar timer'),
@@ -603,9 +670,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return ValueListenableBuilder<String>(
       valueListenable: BibleUserDataService.I.readerThemeNotifier,
       builder: (_, themeId, _) {
-        final t = BibleReaderThemeData.fromId(
-          BibleReaderThemeData.migrateId(themeId),
-        );
+        final t = BibleReaderThemeData.fromId(BibleReaderThemeData.migrateId(themeId));
         SystemChrome.setSystemUIOverlayStyle(
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
@@ -613,12 +678,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           backgroundColor: t.background,
           body: SafeArea(
             child: _loading
-                ? Center(
-                    child: CircularProgressIndicator(
-                      color: t.accent,
-                      strokeWidth: 1.5,
-                    ),
-                  )
+                ? Center(child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5))
                 : LayoutBuilder(
                     builder: (ctx, c) {
                       final isWide = c.maxWidth >= 900;
@@ -626,8 +686,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                         children: [
                           _buildHeader(t, isWide),
                           ValueListenableBuilder<StudyRoom?>(
-                            valueListenable:
-                                StudyRoomService.I.currentRoomNotifier,
+                            valueListenable: StudyRoomService.I.currentRoomNotifier,
                             builder: (_, room, _) {
                               if (room == null) return const SizedBox.shrink();
                               return StudyRoomBanner(
@@ -640,9 +699,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                               );
                             },
                           ),
-                          Expanded(
-                            child: isWide ? _buildSplit(t) : _buildTabbed(t),
-                          ),
+                          Expanded(child: isWide ? _buildSplit(t) : _buildTabbed(t)),
                         ],
                       );
                     },
@@ -661,11 +718,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       child: Row(
         children: [
           IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
+            icon: Icon(Icons.arrow_back_ios_new, color: t.textSecondary, size: 18),
             onPressed: () => Navigator.maybePop(context),
           ),
           Expanded(
@@ -685,10 +738,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                   ),
                   const SizedBox(width: 10),
                   Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                     decoration: BoxDecoration(
                       color: t.accent.withOpacity(0.12),
                       borderRadius: BorderRadius.circular(20),
@@ -714,15 +764,9 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           ),
           IconButton(
             tooltip: 'Tutorial',
-            icon: Icon(
-              Icons.help_outline,
-              color: t.textSecondary.withOpacity(0.6),
-              size: 20,
-            ),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => const StudyOnboardingOverlay(),
-            ),
+            icon: Icon(Icons.help_outline, color: t.textSecondary.withOpacity(0.6), size: 20),
+            onPressed: () =>
+                showDialog(context: context, builder: (_) => const StudyOnboardingOverlay()),
           ),
           TextButton.icon(
             onPressed: () => _openTypographySheet(t),
@@ -738,10 +782,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(color: t.accent.withOpacity(0.22)),
               ),
-              textStyle: GoogleFonts.manrope(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
+              textStyle: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(width: 4),
@@ -763,11 +804,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         children: [
           IconButton(
             visualDensity: VisualDensity.compact,
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
+            icon: Icon(Icons.arrow_back_ios_new, color: t.textSecondary, size: 18),
             onPressed: () => Navigator.maybePop(context),
           ),
           Expanded(
@@ -842,6 +879,9 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                 case _StudyHeaderAction.range:
                   await _openRangePicker();
                   break;
+                case _StudyHeaderAction.addPassage:
+                  await _openAddPassagePicker();
+                  break;
                 case _StudyHeaderAction.text:
                   await _openTypographySheet(t);
                   break;
@@ -860,6 +900,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             itemBuilder: (_) => [
               _headerMenuItem(t, _StudyHeaderAction.passage, 'Cambiar pasaje'),
               _headerMenuItem(t, _StudyHeaderAction.range, 'Elegir rango'),
+              _headerMenuItem(t, _StudyHeaderAction.addPassage, 'Añadir pasaje'),
               _headerMenuItem(t, _StudyHeaderAction.text, 'Texto y colores'),
               _headerMenuItem(t, _StudyHeaderAction.tutorial, 'Tutorial'),
               _headerMenuItem(t, _StudyHeaderAction.room, 'Sala de estudio'),
@@ -877,10 +918,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   ) {
     return PopupMenuItem(
       value: value,
-      child: Text(
-        label,
-        style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
-      ),
+      child: Text(label, style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13)),
     );
   }
 
@@ -888,10 +926,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return ValueListenableBuilder<Map<String, StudyChapterAnswers>>(
       valueListenable: StudyModeService.I.answersNotifier,
       builder: (_, map, _) {
-        final answers = map['$_bookNumber:$_chapter'];
+        final answers = _resolveCurrentStudy();
         final s = answers?.studyStartVerse;
         final e = answers?.studyEndVerse;
-        final label = (s != null && e != null)
+        final hasExtras = answers?.additionalPassages.isNotEmpty == true;
+        final label = hasExtras
+            ? answers!.reference
+            : (s != null && e != null)
             ? (s == e ? 'v. $s' : 'v. $s–$e')
             : 'Capítulo';
         return GestureDetector(
@@ -904,7 +945,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
               color: t.textSecondary.withOpacity(0.08),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: (s != null && e != null)
+                color: (s != null && e != null) || hasExtras
                     ? t.accent.withOpacity(0.5)
                     : t.textSecondary.withOpacity(0.15),
               ),
@@ -912,11 +953,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.format_list_numbered,
-                  color: t.textSecondary,
-                  size: 14,
-                ),
+                Icon(Icons.format_list_numbered, color: t.textSecondary, size: 14),
                 const SizedBox(width: 6),
                 Text(
                   label,
@@ -954,6 +991,10 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         maxVerse: maxVerse,
         initialStart: current?.studyStartVerse,
         initialEnd: current?.studyEndVerse,
+        verses: _verses,
+        bookNumber: _bookNumber,
+        chapter: _chapter,
+        versionId: _version.id,
       ),
     );
     if (result == null) return; // cancel
@@ -973,8 +1014,91 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     if (mounted) setState(() {});
   }
 
+  Future<void> _openAddPassagePicker() async {
+    await _flushAnswers();
+    if (!mounted) return;
+    final picked = await showModalBottomSheet<StudyPickerResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => StudyChapterPicker(
+        books: _books,
+        version: _version,
+        currentBookNumber: _bookNumber,
+        currentChapter: _chapter,
+      ),
+    );
+    if (picked == null || !mounted) return;
+
+    final chapterVerses = await BibleParserService.I.getChapter(
+      version: _version,
+      bookNumber: picked.bookNumber,
+      chapter: picked.chapter,
+    );
+    if (!mounted) return;
+    final maxVerse = chapterVerses.isEmpty ? 1 : chapterVerses.last.verse;
+    final range = await showModalBottomSheet<_RangeResult?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _VerseRangeSheet(
+        maxVerse: maxVerse,
+        initialStart: 1,
+        initialEnd: maxVerse,
+        verses: chapterVerses,
+        bookNumber: picked.bookNumber,
+        chapter: picked.chapter,
+        versionId: _version.id,
+      ),
+    );
+    if (range == null) return;
+    final start = range.start ?? 1;
+    final end = range.end ?? maxVerse;
+    final passage = StudyPassage(
+      bookNumber: picked.bookNumber,
+      bookName: picked.bookName,
+      chapter: picked.chapter,
+      startVerse: start,
+      endVerse: end,
+    );
+    final current = _resolveCurrentStudy();
+    _currentStudyId ??=
+        current?.studyId ?? current?.chapterKey ?? StudyChapterAnswers.generateStudyId();
+    final base =
+        current ??
+        StudyChapterAnswers.empty(
+          studyId: _currentStudyId,
+          bookNumber: _bookNumber,
+          bookName: _bookName,
+          chapter: _chapter,
+          versionId: _version.id,
+        );
+    final existing = base.additionalPassages.map(_passageKey).toSet();
+    if (existing.contains(_passageKey(passage))) {
+      _showSnack('Ese pasaje ya está en este estudio.');
+      return;
+    }
+    final updated = base.copyWith(
+      answers: _answersFromControllers(),
+      generalNotes: _generalNotesController.text.trim(),
+      hopeMessage: _hopeMessageController.text.trim(),
+      mainVerses: _mainVerseNumbers.toList(),
+      versionId: _version.id,
+      additionalPassages: [...base.additionalPassages, passage],
+    );
+    await StudyModeService.I.saveAnswers(updated);
+    await _loadAdditionalPassagesForStudy(updated);
+    if (mounted) {
+      setState(() {});
+      _showSnack('Pasaje añadido: ${passage.reference}');
+    }
+  }
+
   String _rangeLabel() {
     final current = _resolveCurrentStudy();
+    if (current != null && current.additionalPassages.isNotEmpty) {
+      return current.reference;
+    }
     final s = current?.studyStartVerse;
     final e = current?.studyEndVerse;
     if (s == null || e == null) return 'Capítulo completo';
@@ -985,26 +1109,38 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     final current = _resolveCurrentStudy();
     final s = current?.studyStartVerse;
     final e = current?.studyEndVerse;
-    if (s == null || e == null) return _verses;
-    final lo = s < e ? s : e;
-    final hi = s < e ? e : s;
-    final filtered = _verses
-        .where((v) => v.verse >= lo && v.verse <= hi)
-        .toList(growable: false);
-    return filtered.isEmpty ? _verses : filtered;
+    final primary = () {
+      if (s == null || e == null) return _verses;
+      final lo = s < e ? s : e;
+      final hi = s < e ? e : s;
+      final filtered = _verses.where((v) => v.verse >= lo && v.verse <= hi).toList(growable: false);
+      return filtered.isEmpty ? _verses : filtered;
+    }();
+    final extras = <BibleVerse>[];
+    for (final passage in current?.additionalPassages ?? const <StudyPassage>[]) {
+      extras.addAll(_extraVersesByPassage[_passageKey(passage)] ?? const []);
+    }
+    return [...primary, ...extras];
   }
 
   List<BibleVerse> _visibleSecondaryVerses() {
     final current = _resolveCurrentStudy();
     final s = current?.studyStartVerse;
     final e = current?.studyEndVerse;
-    if (s == null || e == null) return _secondaryVerses;
-    final lo = s < e ? s : e;
-    final hi = s < e ? e : s;
-    final filtered = _secondaryVerses
-        .where((v) => v.verse >= lo && v.verse <= hi)
-        .toList(growable: false);
-    return filtered.isEmpty ? _secondaryVerses : filtered;
+    final primary = () {
+      if (s == null || e == null) return _secondaryVerses;
+      final lo = s < e ? s : e;
+      final hi = s < e ? e : s;
+      final filtered = _secondaryVerses
+          .where((v) => v.verse >= lo && v.verse <= hi)
+          .toList(growable: false);
+      return filtered.isEmpty ? _secondaryVerses : filtered;
+    }();
+    final extras = <BibleVerse>[];
+    for (final passage in current?.additionalPassages ?? const <StudyPassage>[]) {
+      extras.addAll(_extraSecondaryVersesByPassage[_passageKey(passage)] ?? const []);
+    }
+    return [...primary, ...extras];
   }
 
   String _versionsLabel() {
@@ -1015,8 +1151,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   }
 
   List<int> _mainVersePickerNumbers() {
-    final numbers = _visibleVerses().map((v) => v.verse).toSet()
-      ..addAll(_mainVerseNumbers);
+    final numbers = _visibleVerses().map((v) => v.verse).toSet()..addAll(_mainVerseNumbers);
     return numbers.toList()..sort();
   }
 
@@ -1033,16 +1168,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       if (action == null) return;
       final study = _currentStudySnapshot();
       await StudyRoomService.I.publishAnswerSnapshot(study);
-      await StudyRoomService.I.publishHighlights(
-        StudyModeService.I.highlightsNotifier.value,
-      );
+      await StudyRoomService.I.publishHighlights(StudyModeService.I.highlightsNotifier.value);
       final room = StudyRoomService.I.currentRoomNotifier.value;
       final inRoom = room != null;
       late final File file;
       if (inRoom) {
         final participants = await _buildRoomParticipantBundles(room, study);
-        final roomAnswers =
-            StudyRoomService.I.roomAnswerSnapshotsNotifier.value;
+        final roomAnswers = StudyRoomService.I.roomAnswerSnapshotsNotifier.value;
         file = action == _PdfExportAction.share
             ? await StudyExportService.I.exportAndShareRoomStudy(
                 study: study,
@@ -1092,8 +1224,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     final selfUid = FirebaseAuth.instance.currentUser?.uid;
     final allHighlights = _roomPdfHighlights();
     final snapshotsByUid = {
-      for (final snapshot
-          in StudyRoomService.I.roomAnswerSnapshotsNotifier.value)
+      for (final snapshot in StudyRoomService.I.roomAnswerSnapshotsNotifier.value)
         snapshot.uid: snapshot,
     };
 
@@ -1141,9 +1272,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       final userHighlights = allHighlights
           .where((h) => (h.ownerUid ?? selfUid) == uid)
           .toList(growable: false);
-      final versionsFromHighlights = userHighlights
-          .map((h) => h.versionId)
-          .toSet();
+      final versionsFromHighlights = userHighlights.map((h) => h.versionId).toSet();
       final orderedVersions = <String>[
         member.versionId,
         for (final v in versionsFromHighlights)
@@ -1169,15 +1298,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       final answers = isSelf
           ? Map<String, String>.from(selfStudy.answers)
           : (snapshot?.answers ?? const <String, String>{});
-      final hopeMessage = isSelf
-          ? selfStudy.hopeMessage
-          : (snapshot?.hopeMessage ?? '');
+      final hopeMessage = isSelf ? selfStudy.hopeMessage : (snapshot?.hopeMessage ?? '');
       final mainVerseReference = isSelf
           ? selfStudy.mainVerseReference
           : _buildMainVerseReference(room, snapshot);
-      final generalNotes = isSelf
-          ? selfStudy.generalNotes
-          : (snapshot?.generalNotes ?? '');
+      final generalNotes = isSelf ? selfStudy.generalNotes : (snapshot?.generalNotes ?? '');
 
       bundles.add(
         StudyParticipantBundle(
@@ -1195,10 +1320,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     return bundles;
   }
 
-  String _buildMainVerseReference(
-    StudyRoom room,
-    StudyRoomAnswerSnapshot? snapshot,
-  ) {
+  String _buildMainVerseReference(StudyRoom room, StudyRoomAnswerSnapshot? snapshot) {
     if (snapshot == null || snapshot.mainVerses.isEmpty) return '';
     final ranges = StudyChapterAnswers.verseRangesLabel(snapshot.mainVerses);
     if (ranges.isEmpty) return '';
@@ -1233,8 +1355,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       // Si ya está en una sala, ofrecer ver/salir.
       await showDialog(
         context: context,
-        builder: (_) =>
-            StudyRoomActiveDialog(room: current, onLeave: _confirmLeaveRoom),
+        builder: (_) => StudyRoomActiveDialog(room: current, onLeave: _confirmLeaveRoom),
       );
       return;
     }
@@ -1266,10 +1387,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       );
       if (form == null || !mounted) return;
       try {
-        await StudyRoomService.I.joinRoom(
-          code: form.code,
-          versionId: form.versionId,
-        );
+        await StudyRoomService.I.joinRoom(code: form.code, versionId: form.versionId);
         _showSnack('Te uniste a la sala ${form.code.toUpperCase()}');
       } catch (e) {
         _showSnack('No se pudo unir: $e');
@@ -1287,14 +1405,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           'Puedes volver a entrar usando el código.',
         ),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancelar'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Salir'),
-          ),
+          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancelar')),
+          TextButton(onPressed: () => Navigator.pop(ctx, true), child: const Text('Salir')),
         ],
       ),
     );
@@ -1307,9 +1419,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   void _onAssignedVersionChanged(String versionId) {
     final v = BibleVersion.fromId(versionId);
     if (v == _version) return;
-    final secondary = v == _secondaryVersion
-        ? _defaultSecondaryVersion(v)
-        : _secondaryVersion;
+    final secondary = v == _secondaryVersion ? _defaultSecondaryVersion(v) : _secondaryVersion;
     unawaited(_changeVersions(v, secondary));
   }
 
@@ -1354,9 +1464,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 
   Widget _buildReadingPanel(BibleReaderThemeData t) {
     return StudyReadingPanel(
-      key: ValueKey(
-        'reading_${_bookNumber}_${_chapter}_${_version.id}_${_secondaryVersion.id}',
-      ),
+      key: ValueKey('reading_${_bookNumber}_${_chapter}_${_version.id}_${_secondaryVersion.id}'),
       theme: t,
       verses: _visibleVerses(),
       secondaryVerses: _visibleSecondaryVerses(),
@@ -1388,6 +1496,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       onExportPdf: _exportPdf,
       onPickSavedStudy: _openSavedStudiesPicker,
       onPickRange: _openRangePicker,
+      onAddPassage: _openAddPassagePicker,
       onPickVersions: _openVersionsPicker,
       onSwapVersions: _swapVersions,
       onOpenTextSettings: () => _openTypographySheet(t),
@@ -1415,16 +1524,10 @@ enum _SavedStudyGrouping { recent, book }
 
 class _SavedStudiesSheet extends StatefulWidget {
   final List<StudyChapterAnswers> studies;
-  final Future<void> Function(
-    StudyChapterAnswers study, {
-    required bool deleteHighlights,
-  })
+  final Future<void> Function(StudyChapterAnswers study, {required bool deleteHighlights})
   onDeleteStudy;
 
-  const _SavedStudiesSheet({
-    required this.studies,
-    required this.onDeleteStudy,
-  });
+  const _SavedStudiesSheet({required this.studies, required this.onDeleteStudy});
 
   @override
   State<_SavedStudiesSheet> createState() => _SavedStudiesSheetState();
@@ -1451,17 +1554,13 @@ class _SavedStudiesSheetState extends State<_SavedStudiesSheet> {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
     return ValueListenableBuilder<Map<String, StudyChapterAnswers>>(
       valueListenable: StudyModeService.I.answersNotifier,
       builder: (context, map, _) {
         final liveStudies = map.values.toList();
-        final source = liveStudies.isEmpty && _deletedKeys.isEmpty
-            ? widget.studies
-            : liveStudies;
+        final source = liveStudies.isEmpty && _deletedKeys.isEmpty ? widget.studies : liveStudies;
         final studies = source
             .where((study) => !_deletedKeys.contains(study.chapterKey))
             .toList(growable: false);
@@ -1475,9 +1574,7 @@ class _SavedStudiesSheetState extends State<_SavedStudiesSheet> {
             return Container(
               decoration: BoxDecoration(
                 color: t.surface,
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(16),
-                ),
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
               ),
               child: SafeArea(
                 top: false,
@@ -1511,13 +1608,10 @@ class _SavedStudiesSheetState extends State<_SavedStudiesSheet> {
                         sort: _sort,
                         grouping: _grouping,
                         onChanged: () => setState(() {}),
-                        onBookChanged: (value) =>
-                            setState(() => _bookFilter = value),
-                        onContentFilterChanged: (value) =>
-                            setState(() => _contentFilter = value),
+                        onBookChanged: (value) => setState(() => _bookFilter = value),
+                        onContentFilterChanged: (value) => setState(() => _contentFilter = value),
                         onSortChanged: (value) => setState(() => _sort = value),
-                        onGroupingChanged: (value) =>
-                            setState(() => _grouping = value),
+                        onGroupingChanged: (value) => setState(() => _grouping = value),
                       ),
                     Expanded(
                       child: studies.isEmpty
@@ -1544,9 +1638,7 @@ class _SavedStudiesSheetState extends State<_SavedStudiesSheet> {
     );
   }
 
-  List<StudyChapterAnswers> _filteredStudies(
-    List<StudyChapterAnswers> studies,
-  ) {
+  List<StudyChapterAnswers> _filteredStudies(List<StudyChapterAnswers> studies) {
     final query = _normalize(_searchController.text);
     final chapterText = _chapterController.text.trim();
     final chapter = int.tryParse(chapterText);
@@ -1600,14 +1692,10 @@ class _SavedStudiesSheetState extends State<_SavedStudiesSheet> {
     for (final study in studies) {
       books.putIfAbsent(
         study.bookNumber,
-        () => study.bookName.trim().isEmpty
-            ? 'Libro ${study.bookNumber}'
-            : study.bookName,
+        () => study.bookName.trim().isEmpty ? 'Libro ${study.bookNumber}' : study.bookName,
       );
     }
-    return Map.fromEntries(
-      books.entries.toList()..sort((a, b) => a.key.compareTo(b.key)),
-    );
+    return Map.fromEntries(books.entries.toList()..sort((a, b) => a.key.compareTo(b.key)));
   }
 
   String _searchBlob(StudyChapterAnswers study) {
@@ -1645,17 +1733,11 @@ class _SavedStudiesSheetState extends State<_SavedStudiesSheet> {
     if (choice == null || !mounted) return;
     setState(() => _deletingKeys.add(study.chapterKey));
     try {
-      await widget.onDeleteStudy(
-        study,
-        deleteHighlights: choice.deleteHighlights,
-      );
+      await widget.onDeleteStudy(study, deleteHighlights: choice.deleteHighlights);
       _deletedKeys.add(study.chapterKey);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Estudio eliminado'),
-            duration: Duration(seconds: 1),
-          ),
+          const SnackBar(content: Text('Estudio eliminado'), duration: Duration(seconds: 1)),
         );
       }
     } catch (e) {
@@ -1704,9 +1786,7 @@ class _SavedStudiesHeader extends StatelessWidget {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  totalCount == 0
-                      ? 'Sin estudios todavía'
-                      : '$filteredCount de $totalCount',
+                  totalCount == 0 ? 'Sin estudios todavía' : '$filteredCount de $totalCount',
                   style: GoogleFonts.manrope(
                     color: t.textSecondary.withOpacity(0.75),
                     fontSize: 11,
@@ -1780,11 +1860,7 @@ class _SavedStudiesFilters extends StatelessWidget {
                 options: bookOptions,
                 onChanged: onBookChanged,
               ),
-              _SortFilterButton(
-                theme: t,
-                value: sort,
-                onChanged: onSortChanged,
-              ),
+              _SortFilterButton(theme: t, value: sort, onChanged: onSortChanged),
               _SavedFilterChoiceChip(
                 theme: t,
                 label: 'Recientes',
@@ -1828,10 +1904,7 @@ class _SavedStudiesFilters extends StatelessWidget {
       style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
       decoration: InputDecoration(
         hintText: 'Buscar estudio, respuesta o nota',
-        hintStyle: GoogleFonts.manrope(
-          color: t.textSecondary.withOpacity(0.56),
-          fontSize: 13,
-        ),
+        hintStyle: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.56), fontSize: 13),
         prefixIcon: Icon(Icons.search, color: t.textSecondary, size: 18),
         suffixIcon: searchController.text.isEmpty
             ? null
@@ -1846,10 +1919,7 @@ class _SavedStudiesFilters extends StatelessWidget {
         isDense: true,
         filled: true,
         fillColor: t.background.withOpacity(t.isDark ? 0.78 : 0.88),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 12,
-          vertical: 12,
-        ),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
         border: _inputBorder(t),
         enabledBorder: _inputBorder(t),
         focusedBorder: _inputBorder(t, focused: true),
@@ -1864,17 +1934,10 @@ class _SavedStudiesFilters extends StatelessWidget {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       textAlign: TextAlign.center,
-      style: GoogleFonts.manrope(
-        color: t.textPrimary,
-        fontSize: 13,
-        fontWeight: FontWeight.w800,
-      ),
+      style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13, fontWeight: FontWeight.w800),
       decoration: InputDecoration(
         hintText: 'Cap.',
-        hintStyle: GoogleFonts.manrope(
-          color: t.textSecondary.withOpacity(0.56),
-          fontSize: 12,
-        ),
+        hintStyle: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.56), fontSize: 12),
         prefixIcon: Icon(Icons.tag, color: t.textSecondary, size: 16),
         suffixIcon: chapterController.text.isEmpty
             ? null
@@ -1897,16 +1960,11 @@ class _SavedStudiesFilters extends StatelessWidget {
     );
   }
 
-  OutlineInputBorder _inputBorder(
-    BibleReaderThemeData t, {
-    bool focused = false,
-  }) {
+  OutlineInputBorder _inputBorder(BibleReaderThemeData t, {bool focused = false}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(
-        color: focused
-            ? t.accent.withOpacity(0.7)
-            : t.textSecondary.withOpacity(0.14),
+        color: focused ? t.accent.withOpacity(0.7) : t.textSecondary.withOpacity(0.14),
       ),
     );
   }
@@ -1961,9 +2019,7 @@ class _BookFilterButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final label = value == null
-        ? 'Todos los libros'
-        : options[value] ?? 'Libro $value';
+    final label = value == null ? 'Todos los libros' : options[value] ?? 'Libro $value';
     return PopupMenuButton<int?>(
       tooltip: 'Filtrar por libro',
       color: theme.surface,
@@ -1971,18 +2027,12 @@ class _BookFilterButton extends StatelessWidget {
       itemBuilder: (_) => [
         PopupMenuItem<int?>(
           value: null,
-          child: Text(
-            'Todos los libros',
-            style: GoogleFonts.manrope(color: theme.textPrimary),
-          ),
+          child: Text('Todos los libros', style: GoogleFonts.manrope(color: theme.textPrimary)),
         ),
         for (final entry in options.entries)
           PopupMenuItem<int?>(
             value: entry.key,
-            child: Text(
-              entry.value,
-              style: GoogleFonts.manrope(color: theme.textPrimary),
-            ),
+            child: Text(entry.value, style: GoogleFonts.manrope(color: theme.textPrimary)),
           ),
       ],
       child: _FilterButtonShell(
@@ -2000,11 +2050,7 @@ class _SortFilterButton extends StatelessWidget {
   final _SavedStudySort value;
   final ValueChanged<_SavedStudySort> onChanged;
 
-  const _SortFilterButton({
-    required this.theme,
-    required this.value,
-    required this.onChanged,
-  });
+  const _SortFilterButton({required this.theme, required this.value, required this.onChanged});
 
   @override
   Widget build(BuildContext context) {
@@ -2065,14 +2111,10 @@ class _FilterButtonShell extends StatelessWidget {
       constraints: const BoxConstraints(maxWidth: 230),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
-        color: selected
-            ? t.accent.withOpacity(0.13)
-            : t.textSecondary.withOpacity(0.07),
+        color: selected ? t.accent.withOpacity(0.13) : t.textSecondary.withOpacity(0.07),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: selected
-              ? t.accent.withOpacity(0.38)
-              : t.textSecondary.withOpacity(0.10),
+          color: selected ? t.accent.withOpacity(0.38) : t.textSecondary.withOpacity(0.10),
         ),
       ),
       child: Row(
@@ -2093,11 +2135,7 @@ class _FilterButtonShell extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 3),
-          Icon(
-            Icons.expand_more,
-            color: selected ? t.accent : t.textSecondary,
-            size: 15,
-          ),
+          Icon(Icons.expand_more, color: selected ? t.accent : t.textSecondary, size: 15),
         ],
       ),
     );
@@ -2122,30 +2160,35 @@ class _SavedFilterChoiceChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    return FilterChip(
-      label: Text(label),
-      avatar: Icon(
-        icon,
-        size: 14,
-        color: selected ? t.accent : t.textSecondary,
-      ),
-      selected: selected,
-      onSelected: (_) => onTap(),
-      showCheckmark: false,
-      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-      visualDensity: VisualDensity.compact,
-      backgroundColor: t.textSecondary.withOpacity(0.06),
-      selectedColor: t.accent.withOpacity(t.isDark ? 0.20 : 0.14),
-      side: BorderSide(
-        color: selected
-            ? t.accent.withOpacity(0.5)
-            : t.textSecondary.withOpacity(0.10),
-      ),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
-      labelStyle: GoogleFonts.manrope(
-        color: selected ? t.accent : t.textPrimary.withOpacity(0.76),
-        fontSize: 11,
-        fontWeight: FontWeight.w800,
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 150),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+        decoration: BoxDecoration(
+          color: selected
+              ? t.accent.withOpacity(t.isDark ? 0.22 : 0.14)
+              : t.textSecondary.withOpacity(0.08),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: selected ? t.accent.withOpacity(0.55) : t.textSecondary.withOpacity(0.15),
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 13, color: selected ? t.accent : t.textSecondary),
+            const SizedBox(width: 5),
+            Text(
+              label,
+              style: GoogleFonts.manrope(
+                color: selected ? t.accent : t.textPrimary.withOpacity(0.76),
+                fontSize: 11,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -2172,14 +2215,9 @@ class _SavedStudiesEmptyState extends StatelessWidget {
             ),
             const SizedBox(height: 12),
             Text(
-              filtered
-                  ? 'No hay estudios con esos filtros.'
-                  : 'Todavía no hay estudios guardados.',
+              filtered ? 'No hay estudios con esos filtros.' : 'Todavía no hay estudios guardados.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
-                color: theme.textSecondary,
-                fontSize: 13,
-              ),
+              style: GoogleFonts.manrope(color: theme.textSecondary, fontSize: 13),
             ),
           ],
         ),
@@ -2212,9 +2250,7 @@ class _SavedStudiesList extends StatelessWidget {
     return ListView(
       controller: scrollController,
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-      children: grouping == _SavedStudyGrouping.book
-          ? _bookGroupedChildren()
-          : _flatChildren(),
+      children: grouping == _SavedStudyGrouping.book ? _bookGroupedChildren() : _flatChildren(),
     );
   }
 
@@ -2247,9 +2283,7 @@ class _SavedStudiesList extends StatelessWidget {
         if (byChapter != 0) return byChapter;
         return b.updatedAt.compareTo(a.updatedAt);
       });
-      children.add(
-        _SavedStudyGroupHeader(theme: theme, label: _bookLabel(group.first)),
-      );
+      children.add(_SavedStudyGroupHeader(theme: theme, label: _bookLabel(group.first)));
       for (final study in group) {
         children.add(
           _SavedStudyTile(
@@ -2267,9 +2301,7 @@ class _SavedStudiesList extends StatelessWidget {
   }
 
   String _bookLabel(StudyChapterAnswers study) {
-    return study.bookName.trim().isEmpty
-        ? 'Libro ${study.bookNumber}'
-        : study.bookName;
+    return study.bookName.trim().isEmpty ? 'Libro ${study.bookNumber}' : study.bookName;
   }
 }
 
@@ -2285,11 +2317,7 @@ class _SavedStudyGroupHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
       child: Text(
         label,
-        style: GoogleFonts.manrope(
-          color: theme.accent,
-          fontSize: 12,
-          fontWeight: FontWeight.w900,
-        ),
+        style: GoogleFonts.manrope(color: theme.accent, fontSize: 12, fontWeight: FontWeight.w900),
       ),
     );
   }
@@ -2313,18 +2341,14 @@ class _SavedStudyTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final answeredCount = study.answers.values
-        .where((answer) => answer.trim().isNotEmpty)
-        .length;
+    final answeredCount = study.answers.values.where((answer) => answer.trim().isNotEmpty).length;
     return InkWell(
       borderRadius: BorderRadius.circular(10),
       onTap: deleting ? null : onOpen,
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+          color: t.isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: t.textSecondary.withOpacity(0.09)),
         ),
@@ -2347,23 +2371,14 @@ class _SavedStudyTile extends StatelessWidget {
                   SizedBox(
                     width: 30,
                     height: 30,
-                    child: CircularProgressIndicator(
-                      color: t.accent,
-                      strokeWidth: 1.5,
-                    ),
+                    child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.5),
                   )
                 else ...[
                   IconButton(
                     tooltip: 'Eliminar estudio',
-                    icon: Icon(
-                      Icons.delete_outline,
-                      color: Colors.redAccent.withOpacity(0.78),
-                    ),
+                    icon: Icon(Icons.delete_outline, color: Colors.redAccent.withOpacity(0.78)),
                     visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 36,
-                      height: 34,
-                    ),
+                    constraints: const BoxConstraints.tightFor(width: 36, height: 34),
                     padding: EdgeInsets.zero,
                     onPressed: onDelete,
                   ),
@@ -2379,11 +2394,9 @@ class _SavedStudyTile extends StatelessWidget {
                 _StudyMiniChip(label: 'Cap. ${study.chapter}', theme: t),
                 _StudyMiniChip(label: study.versionId, theme: t),
                 _StudyMiniChip(label: '$answeredCount respuestas', theme: t),
-                if (study.studyStartVerse != null &&
-                    study.studyEndVerse != null)
+                if (study.studyStartVerse != null && study.studyEndVerse != null)
                   _StudyMiniChip(label: _rangeChipLabel(study), theme: t),
-                if (study.generalNotes.trim().isNotEmpty)
-                  _StudyMiniChip(label: 'Notas', theme: t),
+                if (study.generalNotes.trim().isNotEmpty) _StudyMiniChip(label: 'Notas', theme: t),
                 if (study.hopeMessage.trim().isNotEmpty)
                   _StudyMiniChip(label: 'Esperanza', theme: t),
                 if (study.sortedMainVerses.isNotEmpty)
@@ -2398,9 +2411,7 @@ class _SavedStudyTile extends StatelessWidget {
   }
 
   String _referenceLabel(StudyChapterAnswers study) {
-    final bookName = study.bookName.trim().isEmpty
-        ? 'Libro ${study.bookNumber}'
-        : study.bookName;
+    final bookName = study.bookName.trim().isEmpty ? 'Libro ${study.bookNumber}' : study.bookName;
     if (study.studyStartVerse != null && study.studyEndVerse != null) {
       if (study.studyStartVerse == study.studyEndVerse) {
         return '$bookName ${study.chapter}:${study.studyStartVerse}';
@@ -2448,14 +2459,11 @@ class _DeleteStudyDialogState extends State<_DeleteStudyDialog> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            'Se eliminará ${widget.study.reference} de tus estudios guardados.',
-          ),
+          Text('Se eliminará ${widget.study.reference} de tus estudios guardados.'),
           const SizedBox(height: 10),
           CheckboxListTile(
             value: _deleteHighlights,
-            onChanged: (value) =>
-                setState(() => _deleteHighlights = value ?? false),
+            onChanged: (value) => setState(() => _deleteHighlights = value ?? false),
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
             title: const Text('También borrar subrayados de este capítulo'),
@@ -2463,17 +2471,12 @@ class _DeleteStudyDialogState extends State<_DeleteStudyDialog> {
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancelar'),
-        ),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancelar')),
         FilledButton.icon(
           icon: const Icon(Icons.delete_outline, size: 17),
           label: const Text('Eliminar'),
-          onPressed: () => Navigator.pop(
-            context,
-            _DeleteStudyChoice(deleteHighlights: _deleteHighlights),
-          ),
+          onPressed: () =>
+              Navigator.pop(context, _DeleteStudyChoice(deleteHighlights: _deleteHighlights)),
         ),
       ],
     );
@@ -2515,9 +2518,7 @@ class _PdfExportActionSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Container(
       decoration: BoxDecoration(
@@ -2597,9 +2598,7 @@ class _PdfActionTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+          color: t.isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: t.textSecondary.withOpacity(0.09)),
         ),
@@ -2622,11 +2621,7 @@ class _PdfActionTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary,
-                      fontSize: 12,
-                      height: 1.3,
-                    ),
+                    style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12, height: 1.3),
                   ),
                 ],
               ),
@@ -2648,10 +2643,7 @@ class _VersionPairSheet extends StatefulWidget {
   final BibleVersion initialPrimary;
   final BibleVersion initialSecondary;
 
-  const _VersionPairSheet({
-    required this.initialPrimary,
-    required this.initialSecondary,
-  });
+  const _VersionPairSheet({required this.initialPrimary, required this.initialSecondary});
 
   @override
   State<_VersionPairSheet> createState() => _VersionPairSheetState();
@@ -2680,9 +2672,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ),
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Container(
       decoration: BoxDecoration(
@@ -2719,11 +2709,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
             Text(
               'Se recomienda leer el pasaje en dos traducciones. La primera '
               'mantiene tus subrayados; la segunda sirve para comparar.',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary,
-                fontSize: 12,
-                height: 1.4,
-              ),
+              style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12, height: 1.4),
             ),
             const SizedBox(height: 18),
             _VersionDropdown(
@@ -2750,10 +2736,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
               children: [
                 TextButton(
                   onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Cancelar',
-                    style: TextStyle(color: t.textSecondary),
-                  ),
+                  child: Text('Cancelar', style: TextStyle(color: t.textSecondary)),
                 ),
                 const Spacer(),
                 ElevatedButton.icon(
@@ -2762,13 +2745,8 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
                     foregroundColor: t.background,
                   ),
                   icon: const Icon(Icons.compare_arrows, size: 17),
-                  label: Text(
-                    '${_primary.shortName} + ${_secondary.shortName}',
-                  ),
-                  onPressed: () => Navigator.pop(
-                    context,
-                    _VersionPairResult(_primary, _secondary),
-                  ),
+                  label: Text('${_primary.shortName} + ${_secondary.shortName}'),
+                  onPressed: () => Navigator.pop(context, _VersionPairResult(_primary, _secondary)),
                 ),
               ],
             ),
@@ -2869,10 +2847,18 @@ class _VerseRangeSheet extends StatefulWidget {
   final int maxVerse;
   final int? initialStart;
   final int? initialEnd;
+  final List<BibleVerse> verses;
+  final int bookNumber;
+  final int chapter;
+  final String versionId;
   const _VerseRangeSheet({
     required this.maxVerse,
     this.initialStart,
     this.initialEnd,
+    this.verses = const [],
+    this.bookNumber = 0,
+    this.chapter = 0,
+    this.versionId = '',
   });
 
   @override
@@ -2882,6 +2868,8 @@ class _VerseRangeSheet extends StatefulWidget {
 class _VerseRangeSheetState extends State<_VerseRangeSheet> {
   late int _start;
   late int _end;
+  bool _previewExpanded = false;
+  final ScrollController _scrollController = ScrollController();
 
   @override
   void initState() {
@@ -2889,110 +2877,317 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
     _start = widget.initialStart ?? 1;
     _end = widget.initialEnd ?? widget.maxVerse;
     if (_end < _start) _end = _start;
+    // Carga los títulos de sección y redibuja cuando estén listos.
+    SectionTitleService.I.ensureLoaded().then((_) {
+      if (mounted) setState(() {});
+    });
+    SectionTitleService.I.revision.addListener(_onTitlesReady);
+  }
+
+  void _onTitlesReady() {
+    if (mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    SectionTitleService.I.revision.removeListener(_onTitlesReady);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  bool get _hasVerses => widget.verses.isNotEmpty;
+
+  Widget _buildPickerRow(BibleReaderThemeData t) {
+    return Row(
+      children: [
+        Expanded(
+          child: _NumberPicker(
+            label: 'Desde',
+            value: _start,
+            min: 1,
+            max: widget.maxVerse,
+            theme: t,
+            onChanged: (v) => setState(() {
+              _start = v;
+              if (_end < _start) _end = _start;
+            }),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: _NumberPicker(
+            label: 'Hasta',
+            value: _end,
+            min: _start,
+            max: widget.maxVerse,
+            theme: t,
+            onChanged: (v) => setState(() => _end = v),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildActionRow(BibleReaderThemeData t) {
+    return Row(
+      children: [
+        TextButton.icon(
+          icon: const Icon(Icons.clear, size: 16),
+          label: const Text('Capítulo completo'),
+          style: TextButton.styleFrom(foregroundColor: t.textSecondary),
+          onPressed: () => Navigator.pop(context, const _RangeResult(null, null)),
+        ),
+        const Spacer(),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(backgroundColor: t.accent, foregroundColor: t.background),
+          onPressed: () => Navigator.pop(context, _RangeResult(_start, _end)),
+          child: Text(_start == _end ? 'Estudiar v. $_start' : 'Estudiar v. $_start–$_end'),
+        ),
+      ],
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
+      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
+    );
+
+    final dragHandle = Center(
+      child: Container(
+        width: 40,
+        height: 3,
+        decoration: BoxDecoration(
+          color: t.textSecondary.withOpacity(0.3),
+          borderRadius: BorderRadius.circular(2),
+        ),
       ),
     );
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Center(
-            child: Container(
-              width: 40,
-              height: 3,
-              decoration: BoxDecoration(
-                color: t.textSecondary.withOpacity(0.3),
-                borderRadius: BorderRadius.circular(2),
+
+    // ── Modo compacto (sin preview) ───────────────────────────────────────
+    if (!_previewExpanded) {
+      return Container(
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+        ),
+        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            dragHandle,
+            const SizedBox(height: 16),
+            Text(
+              'Versículos a estudiar',
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Versículos a estudiar',
-            style: GoogleFonts.cinzel(
-              color: t.textPrimary,
-              fontSize: 16,
-              fontWeight: FontWeight.w600,
+            const SizedBox(height: 4),
+            Text(
+              'Las respuestas, el mensaje de esperanza y el Verso Principal '
+              'se mostrarán como nota en cada uno de los versículos seleccionados.',
+              style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12, height: 1.4),
             ),
+            const SizedBox(height: 20),
+            _buildPickerRow(t),
+            const SizedBox(height: 12),
+            if (_hasVerses)
+              Center(
+                child: TextButton.icon(
+                  icon: const Icon(Icons.menu_book_outlined, size: 16),
+                  label: const Text('Ver capítulo'),
+                  style: TextButton.styleFrom(
+                    foregroundColor: t.accent,
+                    textStyle: GoogleFonts.manrope(fontWeight: FontWeight.w600, fontSize: 13),
+                  ),
+                  onPressed: () => setState(() => _previewExpanded = true),
+                ),
+              ),
+            const SizedBox(height: 12),
+            _buildActionRow(t),
+          ],
+        ),
+      );
+    }
+
+    // ── Modo expandido (preview del capítulo) ─────────────────────────────
+    return SafeArea(
+      child: ConstrainedBox(
+        constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.88),
+        child: Container(
+          decoration: BoxDecoration(
+            color: t.surface,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Las respuestas, el mensaje de esperanza y el Verso Principal '
-            'se mostrarán como nota en cada uno de los versículos seleccionados.',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary,
-              fontSize: 12,
-              height: 1.4,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Row(
+          child: Column(
             children: [
-              Expanded(
-                child: _NumberPicker(
-                  label: 'Desde',
-                  value: _start,
-                  min: 1,
-                  max: widget.maxVerse,
-                  theme: t,
-                  onChanged: (v) => setState(() {
-                    _start = v;
-                    if (_end < _start) _end = _start;
-                  }),
+              // Header fijo: drag handle + título + pickers
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    dragHandle,
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text(
+                          'Versículos a estudiar',
+                          style: GoogleFonts.cinzel(
+                            color: t.textPrimary,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        TextButton.icon(
+                          icon: Icon(
+                            Icons.visibility_off_outlined,
+                            size: 15,
+                            color: t.textSecondary,
+                          ),
+                          label: Text(
+                            'Ocultar',
+                            style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12),
+                          ),
+                          style: TextButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                            minimumSize: Size.zero,
+                          ),
+                          onPressed: () => setState(() => _previewExpanded = false),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    _buildPickerRow(t),
+                    const SizedBox(height: 10),
+                    Text(
+                      'Toca un versículo para ajustar el rango.',
+                      style: GoogleFonts.manrope(
+                        color: t.textSecondary.withOpacity(0.65),
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Divider(color: t.textSecondary.withOpacity(0.15), height: 1),
+                  ],
                 ),
               ),
-              const SizedBox(width: 12),
+              // Versículos del capítulo (scrollable)
               Expanded(
-                child: _NumberPicker(
-                  label: 'Hasta',
-                  value: _end,
-                  min: _start,
-                  max: widget.maxVerse,
-                  theme: t,
-                  onChanged: (v) => setState(() => _end = v),
+                child: ListView.builder(
+                  controller: _scrollController,
+                  padding: const EdgeInsets.symmetric(vertical: 6),
+                  itemCount: widget.verses.length,
+                  itemBuilder: (ctx, i) {
+                    final verse = widget.verses[i];
+                    final inRange = verse.verse >= _start && verse.verse <= _end;
+                    final sectionTitle = widget.versionId.isNotEmpty
+                        ? SectionTitleService.I.titleAt(
+                            widget.versionId,
+                            widget.bookNumber,
+                            widget.chapter,
+                            verse.verse,
+                          )
+                        : null;
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (sectionTitle != null)
+                          Padding(
+                            padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
+                            child: Text(
+                              sectionTitle,
+                              style: GoogleFonts.cinzel(
+                                color: t.accent,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
+                              ),
+                            ),
+                          ),
+                        GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () {
+                            setState(() {
+                              final distToStart = (verse.verse - _start).abs();
+                              final distToEnd = (verse.verse - _end).abs();
+                              if (verse.verse < _start) {
+                                _start = verse.verse;
+                              } else if (verse.verse > _end) {
+                                _end = verse.verse;
+                              } else if (distToStart <= distToEnd) {
+                                _start = verse.verse;
+                                if (_end < _start) _end = _start;
+                              } else {
+                                _end = verse.verse;
+                                if (_start > _end) _start = _end;
+                              }
+                            });
+                          },
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 120),
+                            padding: const EdgeInsets.fromLTRB(16, 7, 16, 7),
+                            decoration: BoxDecoration(
+                              color: inRange ? t.accent.withOpacity(0.10) : Colors.transparent,
+                              border: inRange
+                                  ? Border(left: BorderSide(color: t.accent, width: 3))
+                                  : null,
+                            ),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SizedBox(
+                                  width: 28,
+                                  child: Text(
+                                    '${verse.verse}',
+                                    textAlign: TextAlign.right,
+                                    style: GoogleFonts.cinzel(
+                                      color: inRange ? t.accent : t.textSecondary,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: Text(
+                                    verse.text,
+                                    style: GoogleFonts.crimsonPro(
+                                      color: inRange
+                                          ? t.textPrimary
+                                          : t.textPrimary.withOpacity(0.65),
+                                      fontSize: 15,
+                                      height: 1.5,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
                 ),
+              ),
+              // Pie fijo: botones de acción
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
+                decoration: BoxDecoration(
+                  color: t.surface,
+                  border: Border(top: BorderSide(color: t.textSecondary.withOpacity(0.15))),
+                ),
+                child: _buildActionRow(t),
               ),
             ],
           ),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              TextButton.icon(
-                icon: const Icon(Icons.clear, size: 16),
-                label: const Text('Capítulo completo'),
-                style: TextButton.styleFrom(foregroundColor: t.textSecondary),
-                onPressed: () =>
-                    Navigator.pop(context, const _RangeResult(null, null)),
-              ),
-              const Spacer(),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: t.accent,
-                  foregroundColor: t.background,
-                ),
-                onPressed: () =>
-                    Navigator.pop(context, _RangeResult(_start, _end)),
-                child: Text(
-                  _start == _end
-                      ? 'Estudiar v. $_start'
-                      : 'Estudiar v. $_start–$_end',
-                ),
-              ),
-            ],
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -3045,13 +3240,20 @@ class _NumberPicker extends StatelessWidget {
                 onPressed: value > min ? () => onChanged(value - 1) : null,
               ),
               Expanded(
-                child: Text(
-                  '$value',
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.cinzel(
-                    color: t.textPrimary,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(6),
+                  onTap: () => _promptForValue(context),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    child: Text(
+                      '$value',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.cinzel(
+                        color: t.textPrimary,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
                 ),
               ),
@@ -3065,6 +3267,89 @@ class _NumberPicker extends StatelessWidget {
         ),
       ],
     );
+  }
+
+  Future<void> _promptForValue(BuildContext context) async {
+    final t = theme;
+    final controller = TextEditingController(text: '$value');
+    controller.selection = TextSelection(baseOffset: 0, extentOffset: controller.text.length);
+    final result = await showDialog<int>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: t.surface,
+        title: Text(
+          'Versículo ($label)',
+          style: GoogleFonts.manrope(
+            color: t.textPrimary,
+            fontWeight: FontWeight.w700,
+            fontSize: 15,
+          ),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          keyboardType: TextInputType.number,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            LengthLimitingTextInputFormatter(4),
+          ],
+          textAlign: TextAlign.center,
+          style: GoogleFonts.cinzel(
+            color: t.textPrimary,
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+          ),
+          decoration: InputDecoration(
+            hintText: '$min – $max',
+            hintStyle: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 13),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: t.textSecondary.withOpacity(0.2)),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: t.textSecondary.withOpacity(0.2)),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(8),
+              borderSide: BorderSide(color: t.accent, width: 1.4),
+            ),
+          ),
+          onSubmitted: (raw) {
+            final parsed = int.tryParse(raw);
+            if (parsed == null) {
+              Navigator.pop(ctx);
+              return;
+            }
+            Navigator.pop(ctx, parsed.clamp(min, max));
+          },
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('Cancelar', style: TextStyle(color: t.textSecondary)),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: t.accent,
+              foregroundColor: t.background,
+            ),
+            onPressed: () {
+              final parsed = int.tryParse(controller.text);
+              if (parsed == null) {
+                Navigator.pop(ctx);
+                return;
+              }
+              Navigator.pop(ctx, parsed.clamp(min, max));
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+    if (result != null && result != value) {
+      onChanged(result);
+    }
   }
 }
 
@@ -3105,13 +3390,7 @@ class _TypographySheet extends StatelessWidget {
               builder: (_, size, _) {
                 return Row(
                   children: [
-                    Text(
-                      'A',
-                      style: GoogleFonts.lora(
-                        color: t.textSecondary,
-                        fontSize: 14,
-                      ),
-                    ),
+                    Text('A', style: GoogleFonts.lora(color: t.textSecondary, fontSize: 14)),
                     Expanded(
                       child: Slider(
                         value: size,
@@ -3123,13 +3402,7 @@ class _TypographySheet extends StatelessWidget {
                         onChanged: (v) => BibleUserDataService.I.setFontSize(v),
                       ),
                     ),
-                    Text(
-                      'A',
-                      style: GoogleFonts.lora(
-                        color: t.textSecondary,
-                        fontSize: 26,
-                      ),
-                    ),
+                    Text('A', style: GoogleFonts.lora(color: t.textSecondary, fontSize: 26)),
                   ],
                 );
               },
@@ -3162,18 +3435,14 @@ class _TypographySheet extends StatelessWidget {
                           color: th.swatchColor,
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: isActive
-                                ? t.accent
-                                : t.textSecondary.withOpacity(0.2),
+                            color: isActive ? t.accent : t.textSecondary.withOpacity(0.2),
                             width: isActive ? 2.5 : 1,
                           ),
                         ),
                         child: isActive
                             ? Icon(
                                 Icons.check,
-                                color: th.isDark
-                                    ? Colors.white70
-                                    : Colors.black54,
+                                color: th.isDark ? Colors.white70 : Colors.black54,
                                 size: 16,
                               )
                             : null,

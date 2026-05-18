@@ -108,7 +108,7 @@ class StudyExportService {
             ...selectedVerses.map(
               (verse) => _versePairParagraph(
                 primary: verse,
-                secondary: _secondaryForVerse(selectedSecondary, verse.verse),
+                secondary: _secondaryForVerse(selectedSecondary, verse),
                 secondaryVersionId: secondaryVersionId,
                 studyHighlights: studyHighlights,
               ),
@@ -283,8 +283,7 @@ class StudyExportService {
           ),
         )
       else
-        for (final version in participant.versions)
-          ..._participantVersionBlock(study, version),
+        for (final version in participant.versions) ..._participantVersionBlock(study, version),
       pw.SizedBox(height: 12),
       _sectionTitle('Preguntas y respuestas'),
       pw.SizedBox(height: 6),
@@ -456,6 +455,17 @@ class StudyExportService {
   }
 
   List<BibleVerse> _selectedVerses(StudyChapterAnswers study, List<BibleVerse> chapterVerses) {
+    if (study.rangedPassages.isNotEmpty) {
+      return chapterVerses
+          .where(
+            (v) =>
+                (study.primaryPassage == null &&
+                    v.bookNumber == study.bookNumber &&
+                    v.chapter == study.chapter) ||
+                study.coversVerse(v.bookNumber, v.chapter, v.verse),
+          )
+          .toList(growable: false);
+    }
     final start = study.studyStartVerse;
     final end = study.studyEndVerse;
     if (start == null || end == null) return chapterVerses;
@@ -464,9 +474,13 @@ class StudyExportService {
     return chapterVerses.where((v) => v.verse >= lo && v.verse <= hi).toList(growable: false);
   }
 
-  BibleVerse? _secondaryForVerse(List<BibleVerse> verses, int verseNumber) {
+  BibleVerse? _secondaryForVerse(List<BibleVerse> verses, BibleVerse primary) {
     for (final verse in verses) {
-      if (verse.verse == verseNumber) return verse;
+      if (verse.bookNumber == primary.bookNumber &&
+          verse.chapter == primary.chapter &&
+          verse.verse == primary.verse) {
+        return verse;
+      }
     }
     return null;
   }

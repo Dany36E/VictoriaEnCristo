@@ -48,12 +48,10 @@ class StudyModeService {
   /// A partir de la migración de "estudios independientes" la clave principal
   /// es el `studyId` propio de cada estudio. Los documentos legacy (sin
   /// studyId) siguen usando la clave `'$bookNumber:$chapter'`.
-  final ValueNotifier<Map<String, StudyChapterAnswers>> answersNotifier =
-      ValueNotifier(const {});
+  final ValueNotifier<Map<String, StudyChapterAnswers>> answersNotifier = ValueNotifier(const {});
 
   /// Lista plana de subrayados granulares
-  final ValueNotifier<List<StudyWordHighlight>> highlightsNotifier =
-      ValueNotifier(const []);
+  final ValueNotifier<List<StudyWordHighlight>> highlightsNotifier = ValueNotifier(const []);
   final ValueNotifier<bool> canUndoHighlightsNotifier = ValueNotifier(false);
   final ValueNotifier<bool> canRedoHighlightsNotifier = ValueNotifier(false);
 
@@ -110,28 +108,24 @@ class StudyModeService {
   // ──────────────────────────────────────────────────────────────────────
 
   void _listenAnswers() {
-    _answersSub = _answersCol
-        .orderBy('updatedAt', descending: true)
-        .limit(500)
-        .snapshots()
-        .listen((snap) {
-          if (snap.docs.isEmpty &&
-              snap.metadata.isFromCache &&
-              answersNotifier.value.isNotEmpty) {
-            return;
-          }
-          final map = <String, StudyChapterAnswers>{};
-          for (final d in snap.docs) {
-            try {
-              final a = StudyChapterAnswers.fromMap(d.data());
-              map[a.chapterKey] = a;
-            } catch (e) {
-              debugPrint('[STUDY-MODE] answers parse error: $e');
-            }
-          }
-          answersNotifier.value = Map.unmodifiable(map);
-          unawaited(_saveAnswersCache(map));
-        }, onError: (e) => debugPrint('[STUDY-MODE] answers stream error: $e'));
+    _answersSub = _answersCol.orderBy('updatedAt', descending: true).limit(500).snapshots().listen((
+      snap,
+    ) {
+      if (snap.docs.isEmpty && snap.metadata.isFromCache && answersNotifier.value.isNotEmpty) {
+        return;
+      }
+      final map = <String, StudyChapterAnswers>{};
+      for (final d in snap.docs) {
+        try {
+          final a = StudyChapterAnswers.fromMap(d.data());
+          map[a.chapterKey] = a;
+        } catch (e) {
+          debugPrint('[STUDY-MODE] answers parse error: $e');
+        }
+      }
+      answersNotifier.value = Map.unmodifiable(map);
+      unawaited(_saveAnswersCache(map));
+    }, onError: (e) => debugPrint('[STUDY-MODE] answers stream error: $e'));
   }
 
   void _listenHighlights() {
@@ -139,27 +133,23 @@ class StudyModeService {
         .orderBy('createdAt', descending: true)
         .limit(500)
         .snapshots()
-        .listen(
-          (snap) {
-            if (snap.docs.isEmpty &&
-                snap.metadata.isFromCache &&
-                highlightsNotifier.value.isNotEmpty) {
-              return;
+        .listen((snap) {
+          if (snap.docs.isEmpty &&
+              snap.metadata.isFromCache &&
+              highlightsNotifier.value.isNotEmpty) {
+            return;
+          }
+          final list = <StudyWordHighlight>[];
+          for (final d in snap.docs) {
+            try {
+              list.add(StudyWordHighlight.fromMap(d.id, d.data()));
+            } catch (e) {
+              debugPrint('[STUDY-MODE] highlight parse error: $e');
             }
-            final list = <StudyWordHighlight>[];
-            for (final d in snap.docs) {
-              try {
-                list.add(StudyWordHighlight.fromMap(d.id, d.data()));
-              } catch (e) {
-                debugPrint('[STUDY-MODE] highlight parse error: $e');
-              }
-            }
-            highlightsNotifier.value = List.unmodifiable(list);
-            unawaited(_saveHighlightsCache(list));
-          },
-          onError: (e) =>
-              debugPrint('[STUDY-MODE] highlights stream error: $e'),
-        );
+          }
+          highlightsNotifier.value = List.unmodifiable(list);
+          unawaited(_saveHighlightsCache(list));
+        }, onError: (e) => debugPrint('[STUDY-MODE] highlights stream error: $e'));
   }
 
   // ──────────────────────────────────────────────────────────────────────
@@ -199,27 +189,22 @@ class StudyModeService {
   }
 
   /// Estudios cuyo rango cubre un versículo concreto (para segmentar notas).
-  List<StudyChapterAnswers> studiesCoveringVerse(
-    int bookNumber,
-    int chapter,
-    int verse,
-  ) {
-    final list = studiesForChapter(bookNumber, chapter);
-    return list.where((a) => a.versesInRange().contains(verse)).toList();
+  List<StudyChapterAnswers> studiesCoveringVerse(int bookNumber, int chapter, int verse) {
+    final list = answersNotifier.value.values
+        .where((a) => a.coversVerse(bookNumber, chapter, verse))
+        .toList();
+    list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
+    return list;
   }
 
   /// Elimina un estudio guardado y sus notas espejo. Por defecto conserva los
   /// subrayados palabra-por-palabra para evitar pérdida accidental de tinta.
-  Future<void> deleteStudy(
-    StudyChapterAnswers study, {
-    bool deleteHighlights = false,
-  }) async {
+  Future<void> deleteStudy(StudyChapterAnswers study, {bool deleteHighlights = false}) async {
     if (_uid == null) return;
 
     final key = study.chapterKey;
     final previous = answersNotifier.value[key] ?? study;
-    final next = Map<String, StudyChapterAnswers>.from(answersNotifier.value)
-      ..remove(key);
+    final next = Map<String, StudyChapterAnswers>.from(answersNotifier.value)..remove(key);
     answersNotifier.value = Map.unmodifiable(next);
     await _saveAnswersCache(next);
 
@@ -233,10 +218,7 @@ class StudyModeService {
     await _clearMirroredChapterNote(previous);
 
     if (deleteHighlights) {
-      await clearChapterHighlights(
-        bookNumber: study.bookNumber,
-        chapter: study.chapter,
-      );
+      await clearChapterHighlights(bookNumber: study.bookNumber, chapter: study.chapter);
     }
   }
 
@@ -258,8 +240,7 @@ class StudyModeService {
     final next = Map<String, StudyChapterAnswers>.from(answersNotifier.value);
     final previous = next[key];
 
-    final hasRange =
-        answers.studyStartVerse != null && answers.studyEndVerse != null;
+    final hasRange = answers.rangedPassages.isNotEmpty;
 
     if (cleaned.isEmpty &&
         generalNotes.isEmpty &&
@@ -289,9 +270,7 @@ class StudyModeService {
     await _saveAnswersCache(next);
 
     try {
-      await _answersCol
-          .doc(updated.docId)
-          .set(updated.toMap(), SetOptions(merge: true));
+      await _answersCol.doc(updated.docId).set(updated.toMap(), SetOptions(merge: true));
     } catch (e) {
       debugPrint('[STUDY-MODE] saveAnswers error: $e');
     }
@@ -344,10 +323,8 @@ class StudyModeService {
 
     try {
       // Si nunca había documento (todo vacío y sin rango antes), no escribimos.
-      if (updated.hasContent || !clear) {
-        await _answersCol
-            .doc(updated.docId)
-            .set(updated.toMap(), SetOptions(merge: true));
+      if (updated.hasContent || updated.rangedPassages.isNotEmpty || !clear) {
+        await _answersCol.doc(updated.docId).set(updated.toMap(), SetOptions(merge: true));
       }
     } catch (e) {
       debugPrint('[STUDY-MODE] setStudyRange error: $e');
@@ -358,23 +335,15 @@ class StudyModeService {
 
   Future<void> _mirrorToChapterNote(StudyChapterAnswers a) async {
     try {
-      final existing = ChapterNoteService.I.getNoteForChapter(
-        a.bookNumber,
-        a.chapter,
-      );
-      final existingIsManual =
-          existing != null && !(existing.tags.contains('modo-estudio'));
+      final existing = ChapterNoteService.I.getNoteForChapter(a.bookNumber, a.chapter);
+      final existingIsManual = existing != null && !(existing.tags.contains('modo-estudio'));
       if (existingIsManual) return; // respetamos nota manual
 
       // Agregamos TODOS los estudios del capítulo, ordenados por fecha de
       // creación, para que la nota a nivel capítulo refleje cada estudio
       // independiente en una sección propia.
-      final all =
-          studiesForChapter(
-              a.bookNumber,
-              a.chapter,
-            ).where((s) => s.hasContent).toList()
-            ..sort((x, y) => x.createdAt.compareTo(y.createdAt));
+      final all = studiesForChapter(a.bookNumber, a.chapter).where((s) => s.hasContent).toList()
+        ..sort((x, y) => x.createdAt.compareTo(y.createdAt));
 
       if (all.isEmpty) {
         if (existing != null) {
@@ -425,19 +394,22 @@ class StudyModeService {
     required StudyChapterAnswers current,
   }) async {
     try {
-      final prevSet = previous?.versesInRange().toSet() ?? const <int>{};
-      final currSet = current.versesInRange().toSet();
+      final prevRefs = {
+        for (final ref in previous?.verseRefsInStudy() ?? const <StudyVerseRef>[]) ref.key: ref,
+      };
+      final currRefs = {for (final ref in current.verseRefsInStudy()) ref.key: ref};
       // Recalculamos el cuerpo agregado de TODOS los versículos afectados
       // (los que están en el rango actual, los que estaban antes pero ya no,
       // o ambos). Cada versículo puede tener varias notas de estudios
       // independientes que coexisten — segmentadas con separadores.
-      final affected = {...prevSet, ...currSet};
-      for (final v in affected) {
+      final affected = {...prevRefs.keys, ...currRefs.keys};
+      for (final key in affected) {
+        final ref = currRefs[key] ?? prevRefs[key]!;
         await _recomputeMirrorForVerse(
-          bookNumber: current.bookNumber,
-          bookName: current.bookName,
-          chapter: current.chapter,
-          verse: v,
+          bookNumber: ref.bookNumber,
+          bookName: ref.bookName,
+          chapter: ref.chapter,
+          verse: ref.verse,
         );
       }
     } catch (e) {
@@ -460,10 +432,7 @@ class StudyModeService {
       verse,
     ).where((s) => s.hasContent).toList();
 
-    final existing = BibleUserDataService
-        .I
-        .notesNotifier
-        .value['$bookNumber:$chapter:$verse'];
+    final existing = BibleUserDataService.I.notesNotifier.value['$bookNumber:$chapter:$verse'];
     // Si hay nota manual del usuario (sin marcador), no la tocamos.
     if (existing != null && !existing.text.startsWith(_verseNoteMarker)) {
       return;
@@ -507,22 +476,27 @@ class StudyModeService {
     // Tras eliminar un estudio, recalculamos cada vers\u00edculo de su rango;
     // si otros estudios siguen cubri\u00e9ndolo, la nota espejo queda con esas
     // entradas; si no, se elimina.
-    for (final v in prev.versesInRange()) {
+    for (final ref in prev.verseRefsInStudy()) {
       await _recomputeMirrorForVerse(
-        bookNumber: prev.bookNumber,
-        bookName: prev.bookName,
-        chapter: prev.chapter,
-        verse: v,
+        bookNumber: ref.bookNumber,
+        bookName: ref.bookName,
+        chapter: ref.chapter,
+        verse: ref.verse,
       );
     }
   }
 
   Future<void> _clearMirroredChapterNote(StudyChapterAnswers study) async {
     try {
-      final existing = ChapterNoteService.I.getNoteForChapter(
+      final remaining = studiesForChapter(
         study.bookNumber,
         study.chapter,
-      );
+      ).where((s) => s.hasContent).toList();
+      if (remaining.isNotEmpty) {
+        await _mirrorToChapterNote(remaining.first);
+        return;
+      }
+      final existing = ChapterNoteService.I.getNoteForChapter(study.bookNumber, study.chapter);
       if (existing == null || !existing.tags.contains('modo-estudio')) return;
       await ChapterNoteService.I.deleteNote(existing.id);
     } catch (e) {
@@ -534,17 +508,10 @@ class StudyModeService {
   // Highlights API
   // ──────────────────────────────────────────────────────────────────────
 
-  List<StudyWordHighlight> highlightsForChapter(
-    String versionId,
-    int bookNumber,
-    int chapter,
-  ) {
+  List<StudyWordHighlight> highlightsForChapter(String versionId, int bookNumber, int chapter) {
     return highlightsNotifier.value
         .where(
-          (h) =>
-              h.versionId == versionId &&
-              h.bookNumber == bookNumber &&
-              h.chapter == chapter,
+          (h) => h.versionId == versionId && h.bookNumber == bookNumber && h.chapter == chapter,
         )
         .toList(growable: false);
   }
@@ -593,8 +560,7 @@ class StudyModeService {
       createdAt: DateTime.now(),
     );
 
-    final next = List<StudyWordHighlight>.from(highlightsNotifier.value)
-      ..add(h);
+    final next = List<StudyWordHighlight>.from(highlightsNotifier.value)..add(h);
     highlightsNotifier.value = List.unmodifiable(next);
     await _saveHighlightsCache(next);
 
@@ -683,14 +649,10 @@ class StudyModeService {
     final replacements = <StudyWordHighlight>[];
     for (final highlight in affected) {
       if (highlight.startWord < startWord) {
-        replacements.add(
-          highlight.copyWith(id: _highlightsCol.doc().id, endWord: startWord),
-        );
+        replacements.add(highlight.copyWith(id: _highlightsCol.doc().id, endWord: startWord));
       }
       if (endWord < highlight.endWord) {
-        replacements.add(
-          highlight.copyWith(id: _highlightsCol.doc().id, startWord: endWord),
-        );
+        replacements.add(highlight.copyWith(id: _highlightsCol.doc().id, startWord: endWord));
       }
     }
 
@@ -775,9 +737,7 @@ class StudyModeService {
 
     _rememberHighlightState();
     final affectedIds = affected.map((h) => h.id).toSet();
-    final next = current
-        .where((h) => !affectedIds.contains(h.id))
-        .toList(growable: false);
+    final next = current.where((h) => !affectedIds.contains(h.id)).toList(growable: false);
     highlightsNotifier.value = List.unmodifiable(next);
     await _saveHighlightsCache(next);
 
@@ -830,9 +790,7 @@ class StudyModeService {
   }
 
   void _rememberHighlightState() {
-    _undoHighlightStack.add(
-      List<StudyWordHighlight>.from(highlightsNotifier.value),
-    );
+    _undoHighlightStack.add(List<StudyWordHighlight>.from(highlightsNotifier.value));
     if (_undoHighlightStack.length > 50) {
       _undoHighlightStack.removeAt(0);
     }
@@ -855,9 +813,8 @@ class StudyModeService {
     final previousById = {for (final h in previous) h.id: h};
     final targetById = {for (final h in target) h.id: h};
     final affectedVerseKeys = <String>{};
-    void mark(StudyWordHighlight h) => affectedVerseKeys.add(
-      '${h.versionId}|${h.bookNumber}|${h.chapter}|${h.verse}',
-    );
+    void mark(StudyWordHighlight h) =>
+        affectedVerseKeys.add('${h.versionId}|${h.bookNumber}|${h.chapter}|${h.verse}');
     previous.forEach(mark);
     target.forEach(mark);
 
@@ -908,21 +865,12 @@ class StudyModeService {
     required List<StudyWordHighlight> source,
   }) async {
     if (bookNumber <= 0 || chapter <= 0 || verse <= 0) return;
-    final existing = BibleUserDataService
-        .I
-        .highlightsNotifier
-        .value['$versionId:$bookNumber:$chapter:$verse'];
+    final existing =
+        BibleUserDataService.I.highlightsNotifier.value['$versionId:$bookNumber:$chapter:$verse'];
     if (existing == null) return;
-    final studyHexes = StudyHighlightCode.values
-        .map((c) => c.colorHex.toUpperCase())
-        .toSet();
+    final studyHexes = StudyHighlightCode.values.map((c) => c.colorHex.toUpperCase()).toSet();
     if (studyHexes.contains(existing.colorHex.toUpperCase())) {
-      await BibleUserDataService.I.removeHighlight(
-        versionId,
-        bookNumber,
-        chapter,
-        verse,
-      );
+      await BibleUserDataService.I.removeHighlight(versionId, bookNumber, chapter, verse);
     }
   }
 
@@ -939,9 +887,7 @@ class StudyModeService {
   Future<void> _purgeLegacyMirroredHighlights() async {
     final wordHighlights = highlightsNotifier.value;
     if (wordHighlights.isEmpty) return;
-    final studyHexes = StudyHighlightCode.values
-        .map((c) => c.colorHex.toUpperCase())
-        .toSet();
+    final studyHexes = StudyHighlightCode.values.map((c) => c.colorHex.toUpperCase()).toSet();
     final wordKeys = wordHighlights
         .map((h) => '${h.versionId}:${h.bookNumber}:${h.chapter}:${h.verse}')
         .toSet();
@@ -1015,6 +961,7 @@ class StudyModeService {
     final list = data.values
         .map(
           (a) => {
+            if (a.studyId != null) 'studyId': a.studyId,
             'bookNumber': a.bookNumber,
             'bookName': a.bookName,
             'chapter': a.chapter,
@@ -1025,6 +972,8 @@ class StudyModeService {
             'mainVerses': a.sortedMainVerses,
             'studyStartVerse': a.studyStartVerse,
             'studyEndVerse': a.studyEndVerse,
+            if (a.additionalPassages.isNotEmpty)
+              'additionalPassages': a.additionalPassages.map((p) => p.toMap()).toList(),
             'createdAtMs': a.createdAt.millisecondsSinceEpoch,
             'updatedAtMs': a.updatedAt.millisecondsSinceEpoch,
           },

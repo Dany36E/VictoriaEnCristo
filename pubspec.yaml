@@ -88,6 +88,8 @@ flutter:
     - assets/images/plan_covers/
     - assets/images/headbanz/
     - assets/bible/Reina Valera 1960.xml
+    - assets/bible/section_titles.json
+    - assets/bible/section_title_overrides.json
     - assets/bible/interlinear/greek/
     - assets/bible/interlinear/hebrew/
     - assets/bible/red_letter/

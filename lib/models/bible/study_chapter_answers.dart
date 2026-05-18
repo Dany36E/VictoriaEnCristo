@@ -40,6 +40,78 @@ const List<StudyQuestion> kStudyQuestions = [
   ),
 ];
 
+/// Rango bíblico adicional dentro de un estudio. Permite que un mismo set de
+/// respuestas cubra más de un pasaje, incluso en libros/capítulos distintos.
+class StudyPassage {
+  final int bookNumber;
+  final String bookName;
+  final int chapter;
+  final int startVerse;
+  final int endVerse;
+
+  const StudyPassage({
+    required this.bookNumber,
+    required this.bookName,
+    required this.chapter,
+    required this.startVerse,
+    required this.endVerse,
+  });
+
+  String get chapterKey => '$bookNumber:$chapter';
+
+  String get reference {
+    final name = bookName.trim().isEmpty ? 'Libro $bookNumber' : bookName;
+    if (startVerse == endVerse) return '$name $chapter:$startVerse';
+    return '$name $chapter:$startVerse-$endVerse';
+  }
+
+  List<int> versesInRange() {
+    final lo = startVerse < endVerse ? startVerse : endVerse;
+    final hi = startVerse < endVerse ? endVerse : startVerse;
+    return [for (var v = lo; v <= hi; v++) v];
+  }
+
+  bool coversVerse(int bookNumber, int chapter, int verse) {
+    if (this.bookNumber != bookNumber || this.chapter != chapter) return false;
+    final lo = startVerse < endVerse ? startVerse : endVerse;
+    final hi = startVerse < endVerse ? endVerse : startVerse;
+    return verse >= lo && verse <= hi;
+  }
+
+  Map<String, dynamic> toMap() => {
+    'bookNumber': bookNumber,
+    'bookName': bookName,
+    'chapter': chapter,
+    'startVerse': startVerse,
+    'endVerse': endVerse,
+  };
+
+  factory StudyPassage.fromMap(Map<String, dynamic> map) => StudyPassage(
+    bookNumber: _asInt(map['bookNumber']),
+    bookName: map['bookName'] as String? ?? '',
+    chapter: _asInt(map['chapter']),
+    startVerse: _asInt(map['startVerse']),
+    endVerse: _asInt(map['endVerse']),
+  );
+}
+
+class StudyVerseRef {
+  final int bookNumber;
+  final String bookName;
+  final int chapter;
+  final int verse;
+
+  const StudyVerseRef({
+    required this.bookNumber,
+    required this.bookName,
+    required this.chapter,
+    required this.verse,
+  });
+
+  String get key => '$bookNumber:$chapter:$verse';
+  String get chapterKey => '$bookNumber:$chapter';
+}
+
 /// Respuestas del usuario a las 6 preguntas para un capítulo concreto.
 ///
 /// Documento Firestore en
@@ -64,6 +136,7 @@ class StudyChapterAnswers {
 
   /// Versículo final del rango estudiado (1-based, inclusive). Null = capítulo completo.
   final int? studyEndVerse;
+  final List<StudyPassage> additionalPassages;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -79,6 +152,7 @@ class StudyChapterAnswers {
     this.mainVerses = const [],
     this.studyStartVerse,
     this.studyEndVerse,
+    this.additionalPassages = const [],
     required this.createdAt,
     required this.updatedAt,
   });
@@ -96,13 +170,36 @@ class StudyChapterAnswers {
   String get docId => studyId ?? '${bookNumber}_$chapter';
   String get chapterKey => studyId ?? '$bookNumber:$chapter';
   String get reference {
+    final refs = <String>[];
     if (studyStartVerse != null && studyEndVerse != null) {
       if (studyStartVerse == studyEndVerse) {
-        return '$bookName $chapter:$studyStartVerse';
+        refs.add('$bookName $chapter:$studyStartVerse');
+      } else {
+        refs.add('$bookName $chapter:$studyStartVerse-$studyEndVerse');
       }
-      return '$bookName $chapter:$studyStartVerse-$studyEndVerse';
+    } else {
+      refs.add('$bookName $chapter');
     }
-    return '$bookName $chapter';
+    refs.addAll(additionalPassages.map((p) => p.reference));
+    return refs.join(' + ');
+  }
+
+  StudyPassage? get primaryPassage {
+    final s = studyStartVerse;
+    final e = studyEndVerse;
+    if (s == null || e == null) return null;
+    return StudyPassage(
+      bookNumber: bookNumber,
+      bookName: bookName,
+      chapter: chapter,
+      startVerse: s,
+      endVerse: e,
+    );
+  }
+
+  List<StudyPassage> get rangedPassages {
+    final primary = primaryPassage;
+    return List.unmodifiable([?primary, ...additionalPassages]);
   }
 
   /// Lista de versículos cubiertos por el rango (vacío si no hay rango).
@@ -113,6 +210,27 @@ class StudyChapterAnswers {
     final lo = s < e ? s : e;
     final hi = s < e ? e : s;
     return [for (var v = lo; v <= hi; v++) v];
+  }
+
+  List<StudyVerseRef> verseRefsInStudy() {
+    final refs = <StudyVerseRef>[];
+    for (final passage in rangedPassages) {
+      for (final verse in passage.versesInRange()) {
+        refs.add(
+          StudyVerseRef(
+            bookNumber: passage.bookNumber,
+            bookName: passage.bookName,
+            chapter: passage.chapter,
+            verse: verse,
+          ),
+        );
+      }
+    }
+    return List.unmodifiable(refs);
+  }
+
+  bool coversVerse(int bookNumber, int chapter, int verse) {
+    return rangedPassages.any((passage) => passage.coversVerse(bookNumber, chapter, verse));
   }
 
   List<int> get sortedMainVerses => _normalizedVerseNumbers(mainVerses);
@@ -141,7 +259,9 @@ class StudyChapterAnswers {
     List<int>? mainVerses,
     int? studyStartVerse,
     int? studyEndVerse,
+    List<StudyPassage>? additionalPassages,
     bool clearRange = false,
+    bool clearAdditionalPassages = false,
     DateTime? updatedAt,
   }) => StudyChapterAnswers(
     studyId: studyId ?? this.studyId,
@@ -155,6 +275,9 @@ class StudyChapterAnswers {
     mainVerses: mainVerses ?? this.mainVerses,
     studyStartVerse: clearRange ? null : (studyStartVerse ?? this.studyStartVerse),
     studyEndVerse: clearRange ? null : (studyEndVerse ?? this.studyEndVerse),
+    additionalPassages: clearAdditionalPassages
+        ? const []
+        : (additionalPassages ?? this.additionalPassages),
     createdAt: createdAt,
     updatedAt: updatedAt ?? DateTime.now(),
   );
@@ -202,6 +325,8 @@ class StudyChapterAnswers {
     'mainVerses': sortedMainVerses,
     if (studyStartVerse != null) 'studyStartVerse': studyStartVerse,
     if (studyEndVerse != null) 'studyEndVerse': studyEndVerse,
+    if (additionalPassages.isNotEmpty)
+      'additionalPassages': additionalPassages.map((p) => p.toMap()).toList(),
     'createdAt': Timestamp.fromDate(createdAt),
     'updatedAt': Timestamp.fromDate(updatedAt),
   };
@@ -226,6 +351,7 @@ class StudyChapterAnswers {
       mainVerses: _parseVerseNumbers(map['mainVerses']),
       studyStartVerse: (map['studyStartVerse'] as num?)?.toInt(),
       studyEndVerse: (map['studyEndVerse'] as num?)?.toInt(),
+      additionalPassages: _parsePassages(map['additionalPassages']),
       createdAt: (map['createdAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
       updatedAt: (map['updatedAt'] as Timestamp?)?.toDate() ?? DateTime.now(),
     );
@@ -253,6 +379,24 @@ class StudyChapterAnswers {
       updatedAt: now,
     );
   }
+}
+
+List<StudyPassage> _parsePassages(Object? raw) {
+  if (raw is! Iterable) return const [];
+  final passages = <StudyPassage>[];
+  for (final item in raw) {
+    if (item is Map) {
+      try {
+        passages.add(StudyPassage.fromMap(Map<String, dynamic>.from(item)));
+      } catch (_) {}
+    }
+  }
+  return List.unmodifiable(passages);
+}
+
+int _asInt(Object? value) {
+  if (value is num) return value.toInt();
+  return int.tryParse(value?.toString() ?? '') ?? 0;
 }
 
 List<int> _parseVerseNumbers(Object? raw) {

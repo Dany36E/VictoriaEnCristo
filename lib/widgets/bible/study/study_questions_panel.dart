@@ -21,6 +21,7 @@ class StudyQuestionsPanel extends StatelessWidget {
   final Future<void> Function() onExportPdf;
   final VoidCallback onPickSavedStudy;
   final VoidCallback onPickRange;
+  final VoidCallback onAddPassage;
   final VoidCallback onPickVersions;
   final VoidCallback onSwapVersions;
   final VoidCallback onOpenTextSettings;
@@ -46,6 +47,7 @@ class StudyQuestionsPanel extends StatelessWidget {
     required this.onExportPdf,
     required this.onPickSavedStudy,
     required this.onPickRange,
+    required this.onAddPassage,
     required this.onPickVersions,
     required this.onSwapVersions,
     required this.onOpenTextSettings,
@@ -72,6 +74,7 @@ class StudyQuestionsPanel extends StatelessWidget {
             roomMode: roomMode,
             onPickSavedStudy: onPickSavedStudy,
             onPickRange: onPickRange,
+            onAddPassage: onAddPassage,
             onPickVersions: onPickVersions,
             onSwapVersions: onSwapVersions,
             onOpenTextSettings: onOpenTextSettings,
@@ -345,6 +348,7 @@ class _QuestionsToolbar extends StatelessWidget {
   final bool roomMode;
   final VoidCallback onPickSavedStudy;
   final VoidCallback onPickRange;
+  final VoidCallback onAddPassage;
   final VoidCallback onPickVersions;
   final VoidCallback onSwapVersions;
   final VoidCallback onOpenTextSettings;
@@ -359,6 +363,7 @@ class _QuestionsToolbar extends StatelessWidget {
     required this.roomMode,
     required this.onPickSavedStudy,
     required this.onPickRange,
+    required this.onAddPassage,
     required this.onPickVersions,
     required this.onSwapVersions,
     required this.onOpenTextSettings,
@@ -454,6 +459,12 @@ class _QuestionsToolbar extends StatelessWidget {
                 icon: Icons.format_list_numbered,
                 label: 'Rango: $rangeLabel',
                 onTap: onPickRange,
+              ),
+              _QuestionToolChip(
+                theme: t,
+                icon: Icons.add_location_alt_outlined,
+                label: 'Añadir pasaje',
+                onTap: onAddPassage,
               ),
               _QuestionToolChip(
                 theme: t,

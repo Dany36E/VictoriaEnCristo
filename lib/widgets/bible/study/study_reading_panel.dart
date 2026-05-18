@@ -54,16 +54,23 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
   /// Versículo activo en selección (sólo se permite seleccionar dentro de un
   /// versículo a la vez para mantener la semántica de subrayado por verso).
   String? _activeVersionId;
+  int? _activeBookNumber;
+  int? _activeChapter;
   int? _activeVerse;
 
   /// Índices [start, end) de palabras seleccionadas en `_activeVerse`.
   int? _startWord;
   int? _endWord; // exclusive
 
-  void _toggleWord(String versionId, int verseNumber, int wordIndex) {
+  void _toggleWord(String versionId, int bookNumber, int chapter, int verseNumber, int wordIndex) {
     setState(() {
-      if (_activeVersionId != versionId || _activeVerse != verseNumber) {
+      if (_activeVersionId != versionId ||
+          _activeBookNumber != bookNumber ||
+          _activeChapter != chapter ||
+          _activeVerse != verseNumber) {
         _activeVersionId = versionId;
+        _activeBookNumber = bookNumber;
+        _activeChapter = chapter;
         _activeVerse = verseNumber;
         _startWord = wordIndex;
         _endWord = wordIndex + 1;
@@ -96,6 +103,8 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
   void _clearSelection() {
     setState(() {
       _activeVersionId = null;
+      _activeBookNumber = null;
+      _activeChapter = null;
       _activeVerse = null;
       _startWord = null;
       _endWord = null;
@@ -111,14 +120,16 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     }
     HapticFeedback.selectionClick();
     final versionId = _activeVersionId!;
+    final bookNumber = _activeBookNumber!;
+    final chapter = _activeChapter!;
     final verse = _activeVerse!;
     final s = _startWord!;
     final e = _endWord!;
     _clearSelection();
     await StudyModeService.I.addHighlight(
       versionId: versionId,
-      bookNumber: widget.bookNumber,
-      chapter: widget.chapter,
+      bookNumber: bookNumber,
+      chapter: chapter,
       verse: verse,
       startWord: s,
       endWord: e,
@@ -129,6 +140,8 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
   Future<void> _clearSelectedWords() async {
     if (_activeVersionId == null || _activeVerse == null) return;
     final versionId = _activeVersionId!;
+    final bookNumber = _activeBookNumber!;
+    final chapter = _activeChapter!;
     final verse = _activeVerse!;
     final s = _startWord;
     final e = _endWord;
@@ -136,8 +149,8 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     _clearSelection();
     await StudyModeService.I.clearHighlightRange(
       versionId: versionId,
-      bookNumber: widget.bookNumber,
-      chapter: widget.chapter,
+      bookNumber: bookNumber,
+      chapter: chapter,
       verse: verse,
       startWord: s,
       endWord: e,
@@ -153,6 +166,8 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     if (_activeVersionId != null || _activeVerse != null) {
       setState(() {
         _activeVersionId = null;
+        _activeBookNumber = null;
+        _activeChapter = null;
         _activeVerse = null;
         _startWord = null;
         _endWord = null;
@@ -206,29 +221,28 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
                               );
                             }
                             final v = widget.verses[i - 1];
-                            final secondary = widget.showSecondary
-                                ? _secondaryForVerse(v.verse)
-                                : null;
+                            final secondary = widget.showSecondary ? _secondaryForVerse(v) : null;
+                            final showPassageHeader =
+                                i == 1 || _isNewPassage(widget.verses[i - 2], v);
                             final primaryHighlights = allHighlights
                                 .where(
                                   (h) =>
                                       h.versionId == widget.primaryVersion.id &&
-                                      h.bookNumber == widget.bookNumber &&
-                                      h.chapter == widget.chapter &&
+                                      h.bookNumber == v.bookNumber &&
+                                      h.chapter == v.chapter &&
                                       h.verse == v.verse,
                                 )
                                 .toList();
                             final secondaryHighlights = allHighlights
                                 .where(
                                   (h) =>
-                                      h.versionId ==
-                                          widget.secondaryVersion.id &&
-                                      h.bookNumber == widget.bookNumber &&
-                                      h.chapter == widget.chapter &&
+                                      h.versionId == widget.secondaryVersion.id &&
+                                      h.bookNumber == v.bookNumber &&
+                                      h.chapter == v.chapter &&
                                       h.verse == v.verse,
                                 )
                                 .toList();
-                            return _VerseComparisonRow(
+                            final verseRow = _VerseComparisonRow(
                               primary: v,
                               secondary: secondary,
                               primaryVersion: widget.primaryVersion,
@@ -239,11 +253,15 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
                               primaryHighlights: primaryHighlights,
                               secondaryHighlights: secondaryHighlights,
                               activeVersionId: _activeVersionId,
+                              activeBookNumber: _activeBookNumber,
+                              activeChapter: _activeChapter,
                               activeVerse: _activeVerse,
                               startWord: _startWord,
                               endWord: _endWord,
                               onTapPrimaryWord: (idx) => _toggleWord(
                                 widget.primaryVersion.id,
+                                v.bookNumber,
+                                v.chapter,
                                 v.verse,
                                 idx,
                               ),
@@ -252,15 +270,23 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
                                   ? null
                                   : (idx) => _toggleWord(
                                       widget.secondaryVersion.id,
+                                      secondary.bookNumber,
+                                      secondary.chapter,
                                       secondary.verse,
                                       idx,
                                     ),
                             );
+                            if (!showPassageHeader) return verseRow;
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                _PassageHeader(verse: v, theme: t),
+                                verseRow,
+                              ],
+                            );
                           },
                         ),
-                        if (_activeVerse != null &&
-                            _startWord != null &&
-                            _endWord != null)
+                        if (_activeVerse != null && _startWord != null && _endWord != null)
                           Positioned(
                             left: 12,
                             right: 12,
@@ -296,11 +322,19 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     return personalHighlights;
   }
 
-  BibleVerse? _secondaryForVerse(int verseNumber) {
+  BibleVerse? _secondaryForVerse(BibleVerse primary) {
     for (final verse in widget.secondaryVerses) {
-      if (verse.verse == verseNumber) return verse;
+      if (verse.bookNumber == primary.bookNumber &&
+          verse.chapter == primary.chapter &&
+          verse.verse == primary.verse) {
+        return verse;
+      }
     }
     return null;
+  }
+
+  bool _isNewPassage(BibleVerse previous, BibleVerse current) {
+    return previous.bookNumber != current.bookNumber || previous.chapter != current.chapter;
   }
 
   Future<void> _openLegendSheet(BibleReaderThemeData t) async {
@@ -308,6 +342,40 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (_) => _LegendSheet(theme: t),
+    );
+  }
+}
+
+class _PassageHeader extends StatelessWidget {
+  final BibleVerse verse;
+  final BibleReaderThemeData theme;
+
+  const _PassageHeader({required this.verse, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(2, 14, 2, 8),
+      child: Row(
+        children: [
+          Icon(Icons.menu_book_outlined, size: 14, color: t.accent),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              '${verse.bookName} ${verse.chapter}',
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: GoogleFonts.manrope(
+                color: t.textSecondary.withOpacity(0.78),
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 0.3,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -323,6 +391,8 @@ class _VerseComparisonRow extends StatelessWidget {
   final List<StudyWordHighlight> primaryHighlights;
   final List<StudyWordHighlight> secondaryHighlights;
   final String? activeVersionId;
+  final int? activeBookNumber;
+  final int? activeChapter;
   final int? activeVerse;
   final int? startWord;
   final int? endWord;
@@ -341,6 +411,8 @@ class _VerseComparisonRow extends StatelessWidget {
     required this.primaryHighlights,
     required this.secondaryHighlights,
     required this.activeVersionId,
+    required this.activeBookNumber,
+    required this.activeChapter,
     required this.activeVerse,
     required this.startWord,
     required this.endWord,
@@ -356,9 +428,7 @@ class _VerseComparisonRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       decoration: BoxDecoration(
-        color: t.isDark
-            ? Colors.white.withOpacity(0.025)
-            : Colors.black.withOpacity(0.025),
+        color: t.isDark ? Colors.white.withOpacity(0.025) : Colors.black.withOpacity(0.025),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.textSecondary.withOpacity(0.08)),
       ),
@@ -371,7 +441,10 @@ class _VerseComparisonRow extends StatelessWidget {
             theme: t,
             fontSize: fontSize,
             highlights: primaryHighlights,
-            activeVerse: activeVersionId == primaryVersion.id
+            activeVerse:
+                activeVersionId == primaryVersion.id &&
+                    activeBookNumber == primary.bookNumber &&
+                    activeChapter == primary.chapter
                 ? activeVerse
                 : null,
             startWord: startWord,
@@ -396,7 +469,10 @@ class _VerseComparisonRow extends StatelessWidget {
                 theme: t,
                 fontSize: fontSize * 0.92,
                 highlights: secondaryHighlights,
-                activeVerse: activeVersionId == secondaryVersion.id
+                activeVerse:
+                    activeVersionId == secondaryVersion.id &&
+                        activeBookNumber == secondary!.bookNumber &&
+                        activeChapter == secondary!.chapter
                     ? activeVerse
                     : null,
                 startWord: startWord,
@@ -416,11 +492,7 @@ class _VersionLabel extends StatelessWidget {
   final BibleReaderThemeData theme;
   final bool muted;
 
-  const _VersionLabel({
-    required this.version,
-    required this.theme,
-    this.muted = false,
-  });
+  const _VersionLabel({required this.version, required this.theme, this.muted = false});
 
   @override
   Widget build(BuildContext context) {
@@ -504,10 +576,7 @@ class _VerseRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final tokens = verse.text
-        .split(RegExp(r'\s+'))
-        .where((s) => s.isNotEmpty)
-        .toList();
+    final tokens = verse.text.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
     final isSelectingHere = activeVerse == verse.verse;
     final currentUid = FirebaseAuth.instance.currentUser?.uid;
 
@@ -549,26 +618,15 @@ class _VerseRow extends StatelessWidget {
     );
   }
 
-  List<_WordHighlightPaint> _highlightsForWord(
-    int wordIndex,
-    String? currentUid,
-  ) {
+  List<_WordHighlightPaint> _highlightsForWord(int wordIndex, String? currentUid) {
     final paints = <_WordHighlightPaint>[];
     for (final h in highlights) {
       if (h.overlapsWord(wordIndex)) {
         final isMine = h.ownerUid == null || h.ownerUid == currentUid;
         final owner = isMine
             ? 'Tú'
-            : (h.ownerName?.trim().isNotEmpty == true
-                  ? h.ownerName!
-                  : 'Compañero');
-        paints.add(
-          _WordHighlightPaint(
-            color: h.codeEnum.color,
-            isMine: isMine,
-            owner: owner,
-          ),
-        );
+            : (h.ownerName?.trim().isNotEmpty == true ? h.ownerName! : 'Compañero');
+        paints.add(_WordHighlightPaint(color: h.codeEnum.color, isMine: isMine, owner: owner));
       }
     }
     return paints;
@@ -637,9 +695,7 @@ class _ChapterContextStripState extends State<_ChapterContextStrip> {
   void didUpdateWidget(covariant _ChapterContextStrip oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.bookNumber != widget.bookNumber) {
-      _introFuture = BookIntroService.instance.getIntroduction(
-        widget.bookNumber,
-      );
+      _introFuture = BookIntroService.instance.getIntroduction(widget.bookNumber);
     }
   }
 
@@ -668,13 +724,9 @@ class _ChapterContextStripState extends State<_ChapterContextStrip> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
             decoration: BoxDecoration(
-              color: widget.theme.surface.withOpacity(
-                widget.theme.isDark ? 0.72 : 0.62,
-              ),
+              color: widget.theme.surface.withOpacity(widget.theme.isDark ? 0.72 : 0.62),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: widget.theme.textSecondary.withOpacity(0.10),
-              ),
+              border: Border.all(color: widget.theme.textSecondary.withOpacity(0.10)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -703,19 +755,11 @@ class _ChapterContextStripState extends State<_ChapterContextStrip> {
                 if (hasDetails)
                   IconButton(
                     tooltip: 'Contexto del capítulo',
-                    icon: Icon(
-                      Icons.info_outline,
-                      color: widget.theme.accent,
-                      size: 19,
-                    ),
+                    icon: Icon(Icons.info_outline, color: widget.theme.accent, size: 19),
                     visualDensity: VisualDensity.compact,
-                    constraints: const BoxConstraints.tightFor(
-                      width: 36,
-                      height: 34,
-                    ),
+                    constraints: const BoxConstraints.tightFor(width: 36, height: 34),
                     padding: EdgeInsets.zero,
-                    onPressed: () =>
-                        _openContextSheet(context, intro, chapterIntro),
+                    onPressed: () => _openContextSheet(context, intro, chapterIntro),
                   ),
               ],
             ),
@@ -725,11 +769,7 @@ class _ChapterContextStripState extends State<_ChapterContextStrip> {
     );
   }
 
-  void _openContextSheet(
-    BuildContext context,
-    BookIntroduction intro,
-    String chapterIntro,
-  ) {
+  void _openContextSheet(BuildContext context, BookIntroduction intro, String chapterIntro) {
     showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
@@ -755,11 +795,7 @@ class _ContextChip extends StatelessWidget {
   final IconData icon;
   final String label;
 
-  const _ContextChip({
-    required this.theme,
-    required this.icon,
-    required this.label,
-  });
+  const _ContextChip({required this.theme, required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {
@@ -816,29 +852,13 @@ class _ChapterContextSheet extends StatelessWidget {
       if (intro.author.trim().isNotEmpty)
         _ContextDetail(theme: theme, title: 'Autor', body: intro.author.trim()),
       if (intro.authorDetails.trim().isNotEmpty)
-        _ContextDetail(
-          theme: theme,
-          title: 'Sobre el autor',
-          body: intro.authorDetails.trim(),
-        ),
+        _ContextDetail(theme: theme, title: 'Sobre el autor', body: intro.authorDetails.trim()),
       if (intro.writtenDate.trim().isNotEmpty)
-        _ContextDetail(
-          theme: theme,
-          title: 'Fecha',
-          body: intro.writtenDate.trim(),
-        ),
+        _ContextDetail(theme: theme, title: 'Fecha', body: intro.writtenDate.trim()),
       if (intro.period.trim().isNotEmpty)
-        _ContextDetail(
-          theme: theme,
-          title: 'Periodo',
-          body: intro.period.trim(),
-        ),
+        _ContextDetail(theme: theme, title: 'Periodo', body: intro.period.trim()),
       if (chapterIntro.isNotEmpty)
-        _ContextDetail(
-          theme: theme,
-          title: 'Capítulo $chapter',
-          body: chapterIntro,
-        ),
+        _ContextDetail(theme: theme, title: 'Capítulo $chapter', body: chapterIntro),
       if (intro.historicalContext.trim().isNotEmpty)
         _ContextDetail(
           theme: theme,
@@ -900,11 +920,7 @@ class _ContextDetail extends StatelessWidget {
   final String title;
   final String body;
 
-  const _ContextDetail({
-    required this.theme,
-    required this.title,
-    required this.body,
-  });
+  const _ContextDetail({required this.theme, required this.title, required this.body});
 
   @override
   Widget build(BuildContext context) {
@@ -941,11 +957,7 @@ class _WordHighlightPaint {
   final bool isMine;
   final String owner;
 
-  const _WordHighlightPaint({
-    required this.color,
-    required this.isMine,
-    required this.owner,
-  });
+  const _WordHighlightPaint({required this.color, required this.isMine, required this.owner});
 }
 
 class _WordChip extends StatelessWidget {
@@ -970,12 +982,8 @@ class _WordChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final ownHighlights = highlights
-        .where((highlight) => highlight.isMine)
-        .toList();
-    final friendHighlights = highlights
-        .where((highlight) => !highlight.isMine)
-        .toList();
+    final ownHighlights = highlights.where((highlight) => highlight.isMine).toList();
+    final friendHighlights = highlights.where((highlight) => !highlight.isMine).toList();
     final bg = selected
         ? t.accent.withOpacity(0.35)
         : ownHighlights.isNotEmpty
@@ -986,10 +994,7 @@ class _WordChip extends StatelessWidget {
     final border = selected
         ? Border.all(color: t.accent, width: 1)
         : friendHighlights.isNotEmpty
-        ? Border.all(
-            color: friendHighlights.last.color.withOpacity(0.65),
-            width: 0.8,
-          )
+        ? Border.all(color: friendHighlights.last.color.withOpacity(0.65), width: 0.8)
         : null;
     final chip = GestureDetector(
       onTap: onTap,
@@ -1026,16 +1031,11 @@ class _WordChip extends StatelessWidget {
                           child: Container(
                             height: highlight.isMine ? 3 : 2,
                             decoration: BoxDecoration(
-                              color: highlight.color.withOpacity(
-                                highlight.isMine ? 0.9 : 0.45,
-                              ),
+                              color: highlight.color.withOpacity(highlight.isMine ? 0.9 : 0.45),
                               borderRadius: BorderRadius.circular(2),
                               border: highlight.isMine
                                   ? null
-                                  : Border.all(
-                                      color: highlight.color.withOpacity(0.8),
-                                      width: 0.6,
-                                    ),
+                                  : Border.all(color: highlight.color.withOpacity(0.8), width: 0.6),
                             ),
                           ),
                         ),
@@ -1048,10 +1048,7 @@ class _WordChip extends StatelessWidget {
       ),
     );
     if (highlights.isEmpty) return chip;
-    final owners = highlights
-        .map((highlight) => highlight.owner)
-        .toSet()
-        .join(' / ');
+    final owners = highlights.map((highlight) => highlight.owner).toSet().join(' / ');
     return Tooltip(message: 'Subrayado: $owners', child: chip);
   }
 }
@@ -1086,11 +1083,7 @@ class _ColorToolbar extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             for (final code in StudyHighlightCode.values)
-              _ColorButton(
-                color: code.color,
-                label: code.label,
-                onTap: () => onPick(code),
-              ),
+              _ColorButton(color: code.color, label: code.label, onTap: () => onPick(code)),
             _TransparentColorButton(theme: t, onTap: onClear),
             Container(
               width: 1,
@@ -1178,9 +1171,7 @@ class _TransparentColorButton extends StatelessWidget {
               color: t.textPrimary.withOpacity(t.isDark ? 0.08 : 0.05),
               shape: BoxShape.circle,
               border: Border.all(color: stroke, width: 1.6),
-              boxShadow: [
-                BoxShadow(color: stroke.withOpacity(0.16), blurRadius: 6),
-              ],
+              boxShadow: [BoxShadow(color: stroke.withOpacity(0.16), blurRadius: 6)],
             ),
             child: CustomPaint(painter: _TransparentSwatchPainter(stroke)),
           ),
@@ -1217,11 +1208,7 @@ class _UndoRedoBar extends StatelessWidget {
   final VoidCallback onUndo;
   final VoidCallback onRedo;
 
-  const _UndoRedoBar({
-    required this.theme,
-    required this.onUndo,
-    required this.onRedo,
-  });
+  const _UndoRedoBar({required this.theme, required this.onUndo, required this.onRedo});
 
   @override
   Widget build(BuildContext context) {
@@ -1245,10 +1232,7 @@ class _UndoRedoBar extends StatelessWidget {
                 icon: const Icon(Icons.undo, size: 18),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 36,
-                  height: 34,
-                ),
+                constraints: const BoxConstraints.tightFor(width: 36, height: 34),
                 color: canUndo ? t.accent : t.textSecondary.withOpacity(0.35),
                 onPressed: canUndo ? onUndo : null,
               ),
@@ -1260,10 +1244,7 @@ class _UndoRedoBar extends StatelessWidget {
                 icon: const Icon(Icons.redo, size: 18),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
-                constraints: const BoxConstraints.tightFor(
-                  width: 36,
-                  height: 34,
-                ),
+                constraints: const BoxConstraints.tightFor(width: 36, height: 34),
                 color: canRedo ? t.accent : t.textSecondary.withOpacity(0.35),
                 onPressed: canRedo ? onRedo : null,
               ),
@@ -1280,11 +1261,7 @@ class _ColorButton extends StatelessWidget {
   final String label;
   final VoidCallback onTap;
 
-  const _ColorButton({
-    required this.color,
-    required this.label,
-    required this.onTap,
-  });
+  const _ColorButton({required this.color, required this.label, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -1301,9 +1278,7 @@ class _ColorButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(color: color.withOpacity(0.5), blurRadius: 8),
-              ],
+              boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8)],
             ),
           ),
         ),

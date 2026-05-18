@@ -1,0 +1,33 @@
+{
+  "_meta": {
+    "description": "Overrides de subtítulos por versión. Si una clave no existe para la versión activa, SectionTitleService usa assets/bible/section_titles.json como fallback. Los XML locales no contienen subtítulos editoriales; este archivo permite cargar mapas exactos por versión cuando estén disponibles/licenciados.",
+    "version": 1,
+    "keyFormat": "bookNumber:chapter:startVerse",
+    "supportedVersions": ["RVR1960", "TLA", "NTV", "NVI"]
+  },
+  "RVR1960": {
+    "49:6:10": "La armadura de Dios",
+    "49:6:21": "Salutaciones finales"
+  },
+  "TLA": {
+    "40:5:1": "Jesús enseña a sus discípulos",
+    "40:6:5": "Jesús enseña a orar",
+    "43:3:1": "Jesús y Nicodemo",
+    "49:6:10": "La armadura que Dios nos da",
+    "49:6:21": "Saludos finales"
+  },
+  "NTV": {
+    "40:5:1": "El sermón del monte",
+    "40:6:5": "Enseñanza acerca de la oración",
+    "43:3:1": "Jesús y Nicodemo",
+    "49:6:10": "Toda la armadura de Dios",
+    "49:6:21": "Saludos finales"
+  },
+  "NVI": {
+    "40:5:1": "Las bienaventuranzas",
+    "40:6:5": "La oración",
+    "43:3:1": "Jesús enseña a Nicodemo",
+    "49:6:10": "La armadura de Dios",
+    "49:6:21": "Saludos finales"
+  }
+}
