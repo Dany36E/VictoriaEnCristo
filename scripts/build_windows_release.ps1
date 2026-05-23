@@ -1,5 +1,7 @@
 param(
     [switch]$Zip,
+    [switch]$Install,
+    [switch]$CreateDesktopShortcut,
     [string]$GoogleDesktopClientId = $env:GOOGLE_DESKTOP_CLIENT_ID,
     [string]$GoogleDesktopClientSecret = $env:GOOGLE_DESKTOP_CLIENT_SECRET
 )
@@ -50,6 +52,11 @@ if ($Zip) {
     }
     Compress-Archive -Path "$releaseDir\*" -DestinationPath $zipPath
     Write-Host "Zip created: $zipPath"
+}
+
+if ($Install) {
+    Write-Host "Installing / updating local Windows app shortcut..."
+    & "$PSScriptRoot\install_windows_app.ps1" -CreateDesktopShortcut:$CreateDesktopShortcut
 }
 
 Write-Host "Done. Keep the .exe next to the data/ folder and DLL files."

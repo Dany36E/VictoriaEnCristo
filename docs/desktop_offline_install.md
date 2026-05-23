@@ -23,6 +23,14 @@ Para generar un ZIP portable:
 ./scripts/build_windows_release.ps1 -Zip
 ```
 
+Para dejar la app instalada en tu Windows, visible en Inicio/buscador, y crear un acceso directo en el escritorio:
+
+```powershell
+./scripts/build_windows_release.ps1 -Zip -Install -CreateDesktopShortcut
+```
+
+Eso copia la build a `%LocalAppData%\Programs\Victoria en Cristo` y registra un acceso directo en el menú Inicio. Si luego haces otro build, vuelves a correr el mismo comando y se actualiza sobre la misma instalación.
+
 La carpeta resultante queda en `build/windows/x64/runner/Release`. Para distribuirla, conserva el `.exe`, la carpeta `data/` y los DLL juntos.
 
 ## Offline

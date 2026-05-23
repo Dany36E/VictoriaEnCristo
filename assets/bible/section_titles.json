@@ -1,8 +1,8 @@
 {
   "_meta": {
-    "description": "Subtítulos de perícopas (secciones) de la Biblia RVR1960. El subtítulo aparece justo ANTES del versículo indicado por la clave. Formato de clave: 'bookNumber:chapter:startVerse'. Cobertura inicial: pasajes clásicos del NT, Salmos selectos, Génesis y Éxodo claves. Se irá ampliando.",
-    "version": 1,
-    "source": "Títulos tradicionales en español cubriendo los 66 libros"
+    "description": "Subt?tulos originales de navegaci?n para la app. La clave indica el primer vers?culo donde se renderiza el encabezado. Formato: bookNumber:chapter:startVerse.",
+    "version": 2,
+    "source": "Base descriptiva original de la app, utilizable como fallback para versiones sin mapa propio."
   },
   "1:1:1": "La creación",
   "1:1:14": "Los luminares del cielo",
