@@ -1,14 +1,19 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../models/bible/rich_note_document.dart';
 import '../../../models/bible/study_chapter_answers.dart';
 import '../../../theme/bible_reader_theme.dart';
+import '../sermon/sermon_rich_text_controller.dart';
 
 /// Panel derecho del Modo Estudio: preguntas, notas y cierre con autosave.
 class StudyQuestionsPanel extends StatelessWidget {
   final BibleReaderThemeData theme;
   final Map<String, TextEditingController> controllers;
-  final TextEditingController generalNotesController;
+  final SermonRichTextController generalNotesController;
   final TextEditingController hopeMessageController;
   final List<int> mainVerseNumbers;
   final Set<int> selectedMainVerses;
@@ -25,6 +30,11 @@ class StudyQuestionsPanel extends StatelessWidget {
   final VoidCallback onPickVersions;
   final VoidCallback onSwapVersions;
   final VoidCallback onOpenTextSettings;
+  final String generalNotesSaveStatusLabel;
+  final bool canGeneralNotesUndo;
+  final bool canGeneralNotesRedo;
+  final VoidCallback onGeneralNotesUndo;
+  final VoidCallback onGeneralNotesRedo;
   final String reference;
   final String rangeLabel;
   final String versionsLabel;
@@ -51,6 +61,11 @@ class StudyQuestionsPanel extends StatelessWidget {
     required this.onPickVersions,
     required this.onSwapVersions,
     required this.onOpenTextSettings,
+    required this.generalNotesSaveStatusLabel,
+    required this.canGeneralNotesUndo,
+    required this.canGeneralNotesRedo,
+    required this.onGeneralNotesUndo,
+    required this.onGeneralNotesRedo,
     required this.reference,
     required this.rangeLabel,
     required this.versionsLabel,
@@ -87,6 +102,11 @@ class StudyQuestionsPanel extends StatelessWidget {
             controller: generalNotesController,
             onChanged: onGeneralNotesChanged,
             theme: t,
+            saveStatusLabel: generalNotesSaveStatusLabel,
+            canUndo: canGeneralNotesUndo,
+            canRedo: canGeneralNotesRedo,
+            onUndo: onGeneralNotesUndo,
+            onRedo: onGeneralNotesRedo,
           );
         }
         if (i == kStudyQuestions.length + 2) {
@@ -177,10 +197,17 @@ class _HopeMessageCard extends StatelessWidget {
             onChanged: onChanged,
             maxLines: null,
             minLines: 3,
-            style: GoogleFonts.lora(color: t.textPrimary, fontSize: 14, height: 1.5),
+            style: GoogleFonts.lora(
+              color: t.textPrimary,
+              fontSize: 14,
+              height: 1.5,
+            ),
             decoration: InputDecoration(
               hintText: 'Ej. Jesús quiere sanarte y darte vida nueva.',
-              hintStyle: GoogleFonts.lora(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
+              hintStyle: GoogleFonts.lora(
+                color: t.textSecondary.withOpacity(0.5),
+                fontSize: 14,
+              ),
               filled: true,
               fillColor: t.background,
               border: OutlineInputBorder(
@@ -243,7 +270,9 @@ class _HopeMessageCard extends StatelessWidget {
             child: Text(
               mainVerseReference,
               style: GoogleFonts.manrope(
-                color: selectedVerses.isEmpty ? t.textSecondary.withOpacity(0.65) : t.accent,
+                color: selectedVerses.isEmpty
+                    ? t.textSecondary.withOpacity(0.65)
+                    : t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
               ),
@@ -325,7 +354,9 @@ class _MainVerseChip extends StatelessWidget {
       backgroundColor: t.background,
       selectedColor: t.accent.withOpacity(t.isDark ? 0.24 : 0.18),
       side: BorderSide(
-        color: selected ? t.accent.withOpacity(0.68) : t.textSecondary.withOpacity(0.16),
+        color: selected
+            ? t.accent.withOpacity(0.68)
+            : t.textSecondary.withOpacity(0.16),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       labelStyle: GoogleFonts.manrope(
@@ -371,7 +402,10 @@ class _QuestionsToolbar extends StatelessWidget {
     required this.onExportPdf,
   });
 
-  Future<void> _handleMenuAction(BuildContext context, _StudyPanelAction action) async {
+  Future<void> _handleMenuAction(
+    BuildContext context,
+    _StudyPanelAction action,
+  ) async {
     switch (action) {
       case _StudyPanelAction.savedStudies:
         onPickSavedStudy();
@@ -380,7 +414,10 @@ class _QuestionsToolbar extends StatelessWidget {
         await onManualSave();
         if (context.mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Estudio guardado'), duration: Duration(seconds: 1)),
+            const SnackBar(
+              content: Text('Estudio guardado'),
+              duration: Duration(seconds: 1),
+            ),
           );
         }
         break;
@@ -396,7 +433,9 @@ class _QuestionsToolbar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 12),
       decoration: BoxDecoration(
-        color: t.isDark ? Colors.white.withOpacity(0.025) : Colors.black.withOpacity(0.02),
+        color: t.isDark
+            ? Colors.white.withOpacity(0.025)
+            : Colors.black.withOpacity(0.02),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.textSecondary.withOpacity(0.08)),
       ),
@@ -468,7 +507,9 @@ class _QuestionsToolbar extends StatelessWidget {
               ),
               _QuestionToolChip(
                 theme: t,
-                icon: roomMode ? Icons.menu_book_outlined : Icons.compare_arrows,
+                icon: roomMode
+                    ? Icons.menu_book_outlined
+                    : Icons.compare_arrows,
                 label: versionsLabel,
                 onTap: roomMode ? null : onPickVersions,
               ),
@@ -588,16 +629,227 @@ class _QuestionIconChip extends StatelessWidget {
   }
 }
 
-class _GeneralNotesCard extends StatelessWidget {
-  final TextEditingController controller;
+class _GeneralNotesCard extends StatefulWidget {
+  final SermonRichTextController controller;
   final ValueChanged<String> onChanged;
   final BibleReaderThemeData theme;
+  final String saveStatusLabel;
+  final bool canUndo;
+  final bool canRedo;
+  final VoidCallback onUndo;
+  final VoidCallback onRedo;
 
-  const _GeneralNotesCard({required this.controller, required this.onChanged, required this.theme});
+  const _GeneralNotesCard({
+    required this.controller,
+    required this.onChanged,
+    required this.theme,
+    required this.saveStatusLabel,
+    required this.canUndo,
+    required this.canRedo,
+    required this.onUndo,
+    required this.onRedo,
+  });
+
+  @override
+  State<_GeneralNotesCard> createState() => _GeneralNotesCardState();
+}
+
+class _GeneralNotesCardState extends State<_GeneralNotesCard> {
+  final _spellCheckService = DefaultSpellCheckService();
+  final Set<String> _ignoredTokens = <String>{};
+  Timer? _spellCheckDebounce;
+  List<SuggestionSpan> _spellSuggestions = const <SuggestionSpan>[];
+  String _lastText = '';
+  TextSelection _lastSelection = const TextSelection.collapsed(offset: -1);
+
+  @override
+  void initState() {
+    super.initState();
+    _lastText = widget.controller.text;
+    _lastSelection = widget.controller.selection;
+    widget.controller.addListener(_onControllerChanged);
+    _scheduleSpellCheck();
+  }
+
+  @override
+  void didUpdateWidget(covariant _GeneralNotesCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller == widget.controller) return;
+    oldWidget.controller.removeListener(_onControllerChanged);
+    _lastText = widget.controller.text;
+    _lastSelection = widget.controller.selection;
+    widget.controller.addListener(_onControllerChanged);
+    _scheduleSpellCheck();
+  }
+
+  @override
+  void dispose() {
+    _spellCheckDebounce?.cancel();
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  void _onControllerChanged() {
+    final textChanged = _lastText != widget.controller.text;
+    final selectionChanged = _lastSelection != widget.controller.selection;
+    if (!textChanged && !selectionChanged) return;
+    _lastText = widget.controller.text;
+    _lastSelection = widget.controller.selection;
+    if (textChanged) {
+      widget.onChanged(widget.controller.text);
+      _scheduleSpellCheck();
+    }
+    if (mounted) setState(() {});
+  }
+
+  void _scheduleSpellCheck() {
+    _spellCheckDebounce?.cancel();
+    _spellCheckDebounce = Timer(
+      const Duration(milliseconds: 420),
+      _runSpellCheck,
+    );
+  }
+
+  Future<void> _runSpellCheck() async {
+    final text = widget.controller.text;
+    if (text.trim().isEmpty) {
+      _spellSuggestions = const <SuggestionSpan>[];
+      widget.controller.updateSpellSuggestions(const <SuggestionSpan>[]);
+      if (mounted) setState(() {});
+      return;
+    }
+    try {
+      final results = await _spellCheckService.fetchSpellCheckSuggestions(
+        const Locale('es'),
+        text,
+      );
+      if (!mounted || text != widget.controller.text) return;
+      _spellSuggestions = (results ?? const <SuggestionSpan>[])
+          .where((suggestion) {
+            final token = _normalizedSuggestionToken(suggestion);
+            return token.isNotEmpty && !_ignoredTokens.contains(token);
+          })
+          .toList(growable: false);
+      widget.controller.updateSpellSuggestions(_spellSuggestions);
+      setState(() {});
+    } catch (_) {
+      _spellSuggestions = const <SuggestionSpan>[];
+      widget.controller.updateSpellSuggestions(const <SuggestionSpan>[]);
+      if (mounted) setState(() {});
+    }
+  }
+
+  String _normalizedSuggestionToken(SuggestionSpan suggestion) {
+    final token = _studySuggestionLabel(widget.controller, suggestion)
+        .trim()
+        .toLowerCase()
+        .replaceAll('á', 'a')
+        .replaceAll('é', 'e')
+        .replaceAll('í', 'i')
+        .replaceAll('ó', 'o')
+        .replaceAll('ú', 'u')
+        .replaceAll('ü', 'u')
+        .replaceAll('ñ', 'n');
+    return token.replaceAll(RegExp(r'^[^a-z0-9]+|[^a-z0-9]+$'), '');
+  }
+
+  SuggestionSpan? _activeSuggestion() {
+    final selection = widget.controller.selection;
+    if (!selection.isValid) return null;
+    final cursor = selection.extentOffset;
+    for (final suggestion in _spellSuggestions) {
+      if (cursor >= suggestion.range.start && cursor <= suggestion.range.end) {
+        return suggestion;
+      }
+    }
+    return null;
+  }
+
+  void _replaceSuggestion(SuggestionSpan suggestion, String replacement) {
+    final text = widget.controller.text;
+    final start = suggestion.range.start.clamp(0, text.length);
+    final end = suggestion.range.end.clamp(start, text.length);
+    final next = text.replaceRange(start, end, replacement);
+    widget.controller.value = TextEditingValue(
+      text: next,
+      selection: TextSelection.collapsed(offset: start + replacement.length),
+    );
+    widget.onChanged(next);
+    _scheduleSpellCheck();
+  }
+
+  void _ignoreSuggestion(SuggestionSpan suggestion) {
+    final token = _normalizedSuggestionToken(suggestion);
+    if (token.isEmpty) return;
+    setState(() {
+      _ignoredTokens.add(token);
+      _spellSuggestions = _spellSuggestions
+          .where((item) => _normalizedSuggestionToken(item) != token)
+          .toList(growable: false);
+      widget.controller.updateSpellSuggestions(_spellSuggestions);
+    });
+  }
+
+  void _applyFormat(RichNoteFormat format, {double? fontSize}) {
+    widget.controller.applyFormat(format, fontSize: fontSize);
+    widget.onChanged(widget.controller.text);
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _openSizeSheet() async {
+    final size = await showModalBottomSheet<double>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _StudyNotesFontSheet(theme: widget.theme),
+    );
+    if (size == null) return;
+    _applyFormat(RichNoteFormat.size, fontSize: size);
+  }
+
+  Widget _buildContextMenu(
+    BuildContext context,
+    EditableTextState editableTextState,
+  ) {
+    final activeSuggestion = _activeSuggestion();
+    final items = List<ContextMenuButtonItem>.from(
+      editableTextState.contextMenuButtonItems,
+    );
+    if (activeSuggestion != null) {
+      final replacements = activeSuggestion.suggestions.take(3).toList();
+      for (var i = replacements.length - 1; i >= 0; i--) {
+        final replacement = replacements[i];
+        items.insert(
+          0,
+          ContextMenuButtonItem(
+            label: 'Cambiar a "$replacement"',
+            onPressed: () {
+              editableTextState.hideToolbar();
+              _replaceSuggestion(activeSuggestion, replacement);
+            },
+          ),
+        );
+      }
+      items.insert(
+        replacements.length,
+        ContextMenuButtonItem(
+          label: 'Omitir palabra',
+          onPressed: () {
+            editableTextState.hideToolbar();
+            _ignoreSuggestion(activeSuggestion);
+          },
+        ),
+      );
+    }
+    return AdaptiveTextSelectionToolbar.buttonItems(
+      anchors: editableTextState.contextMenuAnchors,
+      buttonItems: items,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final t = theme;
+    final t = widget.theme;
+    final activeSuggestion = _activeSuggestion();
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
@@ -635,15 +887,79 @@ class _GeneralNotesCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Selecciona texto para darle formato.',
+                      style: GoogleFonts.manrope(
+                        color: t.textSecondary.withOpacity(0.66),
+                        fontSize: 11.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    _StudySaveStatusChip(
+                      theme: t,
+                      label: widget.saveStatusLabel,
+                    ),
+                  ],
+                ),
+              ),
+              _StudyRichFormatIcon(
+                theme: t,
+                tooltip: 'Deshacer',
+                icon: Icons.undo,
+                enabled: widget.canUndo,
+                onTap: widget.onUndo,
+              ),
+              _StudyRichFormatIcon(
+                theme: t,
+                tooltip: 'Rehacer',
+                icon: Icons.redo,
+                enabled: widget.canRedo,
+                onTap: widget.onRedo,
+              ),
+              _StudyRichFormatIcon(
+                theme: t,
+                tooltip: 'Negrita',
+                icon: Icons.format_bold,
+                onTap: () => _applyFormat(RichNoteFormat.bold),
+              ),
+              _StudyRichFormatIcon(
+                theme: t,
+                tooltip: 'Subrayado',
+                icon: Icons.format_underlined,
+                onTap: () => _applyFormat(RichNoteFormat.underline),
+              ),
+              _StudyRichFormatIcon(
+                theme: t,
+                tooltip: 'Tamano de texto',
+                icon: Icons.format_size,
+                onTap: _openSizeSheet,
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
           TextField(
-            controller: controller,
-            onChanged: onChanged,
+            controller: widget.controller,
             maxLines: null,
             minLines: 3,
-            style: GoogleFonts.lora(color: t.textPrimary, fontSize: 14, height: 1.5),
+            hintLocales: const [Locale('es')],
+            contextMenuBuilder: _buildContextMenu,
+            style: GoogleFonts.lora(
+              color: t.textPrimary,
+              fontSize: 14,
+              height: 1.5,
+            ),
             decoration: InputDecoration(
               hintText: 'Escribe notas libres de este estudio…',
-              hintStyle: GoogleFonts.lora(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
+              hintStyle: GoogleFonts.lora(
+                color: t.textSecondary.withOpacity(0.5),
+                fontSize: 14,
+              ),
               filled: true,
               fillColor: t.background,
               border: OutlineInputBorder(
@@ -659,6 +975,550 @@ class _GeneralNotesCard extends StatelessWidget {
                 borderSide: BorderSide(color: t.accent, width: 1.2),
               ),
               contentPadding: const EdgeInsets.all(12),
+            ),
+          ),
+          const SizedBox(height: 10),
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 160),
+            child:
+                activeSuggestion != null &&
+                    activeSuggestion.suggestions.isNotEmpty
+                ? _StudySpellingSuggestionBar(
+                    key: ValueKey(
+                      '${activeSuggestion.range.start}:${activeSuggestion.range.end}',
+                    ),
+                    theme: t,
+                    token: _studySuggestionLabel(
+                      widget.controller,
+                      activeSuggestion,
+                    ),
+                    replacement: activeSuggestion.suggestions.first,
+                    onReplace: () => _replaceSuggestion(
+                      activeSuggestion,
+                      activeSuggestion.suggestions.first,
+                    ),
+                    onIgnore: () => _ignoreSuggestion(activeSuggestion),
+                  )
+                : _StudyGeneralNotesHint(
+                    key: const ValueKey('study_notes_hint'),
+                    theme: t,
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ignore: unused_element
+class _StudyNotesFormatToolbar extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final VoidCallback onBold;
+  final VoidCallback onUnderline;
+  final ValueChanged<double> onSize;
+
+  const _StudyNotesFormatToolbar({
+    required this.theme,
+    required this.onBold,
+    required this.onUnderline,
+    required this.onSize,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _FormatButton(
+          theme: t,
+          tooltip: 'Negrita',
+          icon: Icons.format_bold,
+          onTap: onBold,
+        ),
+        _FormatButton(
+          theme: t,
+          tooltip: 'Subrayado',
+          icon: Icons.format_underlined,
+          onTap: onUnderline,
+        ),
+        _FormatSizeButton(theme: t, label: '14', onTap: () => onSize(14)),
+        _FormatSizeButton(theme: t, label: '18', onTap: () => onSize(18)),
+        _FormatSizeButton(theme: t, label: '22', onTap: () => onSize(22)),
+      ],
+    );
+  }
+}
+
+class _FormatButton extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String tooltip;
+  final IconData icon;
+  final VoidCallback onTap;
+
+  const _FormatButton({
+    required this.theme,
+    required this.tooltip,
+    required this.icon,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Container(
+          width: 34,
+          height: 32,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: t.background,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: t.accent.withOpacity(0.28)),
+          ),
+          child: Icon(icon, color: t.accent, size: 18),
+        ),
+      ),
+    );
+  }
+}
+
+class _FormatSizeButton extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String label;
+  final VoidCallback onTap;
+
+  const _FormatSizeButton({
+    required this.theme,
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Tooltip(
+      message: 'Tamaño $label',
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Container(
+          height: 32,
+          padding: const EdgeInsets.symmetric(horizontal: 9),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: t.background,
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: t.accent.withOpacity(0.28)),
+          ),
+          child: Text(
+            label,
+            style: GoogleFonts.manrope(
+              color: t.accent,
+              fontSize: 12,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ignore: unused_element
+class _StudyNotesPreview extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String source;
+
+  const _StudyNotesPreview({required this.theme, required this.source});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final segments = richNoteSegments(source);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        color: t.background.withOpacity(t.isDark ? 0.62 : 0.86),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: t.textSecondary.withOpacity(0.10)),
+      ),
+      child: RichText(
+        text: TextSpan(
+          style: GoogleFonts.lora(
+            color: t.textPrimary,
+            fontSize: 14,
+            height: 1.5,
+          ),
+          children: [
+            for (final segment in segments)
+              TextSpan(
+                text: segment.text,
+                style: TextStyle(
+                  fontSize: segment.fontSize,
+                  fontWeight: segment.bold
+                      ? FontWeight.w800
+                      : FontWeight.normal,
+                  decoration: segment.underline
+                      ? TextDecoration.underline
+                      : null,
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StudyRichFormatIcon extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String tooltip;
+  final IconData icon;
+  final bool enabled;
+  final VoidCallback onTap;
+
+  const _StudyRichFormatIcon({
+    required this.theme,
+    required this.tooltip,
+    required this.icon,
+    this.enabled = true,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final color = enabled ? t.accent : t.textSecondary.withOpacity(0.45);
+    return IconButton(
+      visualDensity: VisualDensity.compact,
+      tooltip: tooltip,
+      onPressed: enabled ? onTap : null,
+      icon: Icon(icon, color: color, size: 18),
+    );
+  }
+}
+
+class _StudySaveStatusChip extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String label;
+
+  const _StudySaveStatusChip({required this.theme, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final saving = label.startsWith('Guardando');
+    final pending = label.startsWith('Cambios');
+    final color = saving
+        ? const Color(0xFFC78D1B)
+        : pending
+        ? const Color(0xFFD64045)
+        : t.accent;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+      decoration: BoxDecoration(
+        color: color.withOpacity(t.isDark ? 0.16 : 0.10),
+        borderRadius: BorderRadius.circular(999),
+        border: Border.all(color: color.withOpacity(0.24)),
+      ),
+      child: Text(
+        label,
+        style: GoogleFonts.manrope(
+          color: color,
+          fontSize: 10.5,
+          fontWeight: FontWeight.w800,
+        ),
+      ),
+    );
+  }
+}
+
+class _StudyNotesFontSheet extends StatelessWidget {
+  final BibleReaderThemeData theme;
+
+  const _StudyNotesFontSheet({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    const sizes = <double>[14, 18, 22];
+    return Container(
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: t.textSecondary.withOpacity(0.28),
+                  borderRadius: BorderRadius.circular(999),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Tamano del texto',
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              'Selecciona una parte de la nota y despues elige el tamano que quieras aplicar.',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary.withOpacity(0.72),
+                fontSize: 12,
+                height: 1.35,
+              ),
+            ),
+            const SizedBox(height: 14),
+            for (final size in sizes) ...[
+              _StudyNotesFontTile(
+                theme: t,
+                size: size,
+                preview: size == 14
+                    ? 'Texto base'
+                    : size == 18
+                    ? 'Enfasis intermedio'
+                    : 'Enfasis fuerte',
+                onTap: () => Navigator.pop(context, size),
+              ),
+              if (size != sizes.last) const SizedBox(height: 8),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _StudyNotesFontTile extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final double size;
+  final String preview;
+  final VoidCallback onTap;
+
+  const _StudyNotesFontTile({
+    required this.theme,
+    required this.size,
+    required this.preview,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return InkWell(
+      borderRadius: BorderRadius.circular(12),
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: t.background.withOpacity(t.isDark ? 0.28 : 0.60),
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: t.textSecondary.withOpacity(0.10)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              width: 38,
+              height: 38,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: t.accent.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Text(
+                size.toInt().toString(),
+                style: GoogleFonts.manrope(
+                  color: t.accent,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    preview,
+                    style: GoogleFonts.lora(
+                      color: t.textPrimary,
+                      fontSize: size,
+                      height: 1.1,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    'Aplicar a la seleccion actual',
+                    style: GoogleFonts.manrope(
+                      color: t.textSecondary.withOpacity(0.72),
+                      fontSize: 11.5,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+String _studySuggestionLabel(
+  TextEditingController controller,
+  SuggestionSpan suggestion,
+) {
+  final text = controller.text;
+  final start = suggestion.range.start.clamp(0, text.length);
+  final end = suggestion.range.end.clamp(start, text.length);
+  return text.substring(start, end);
+}
+
+class _StudySpellingSuggestionBar extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final String token;
+  final String replacement;
+  final VoidCallback onReplace;
+  final VoidCallback onIgnore;
+
+  const _StudySpellingSuggestionBar({
+    super.key,
+    required this.theme,
+    required this.token,
+    required this.replacement,
+    required this.onReplace,
+    required this.onIgnore,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    const highlight = Color(0xFFD64045);
+    return Container(
+      key: key,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: highlight.withOpacity(t.isDark ? 0.16 : 0.08),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: highlight.withOpacity(0.26)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            decoration: BoxDecoration(
+              color: highlight.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(Icons.spellcheck, color: highlight, size: 17),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  token,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.manrope(
+                    color: t.textPrimary,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  'Sugerencia: $replacement',
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withOpacity(0.76),
+                    fontSize: 11,
+                    height: 1.25,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: onIgnore,
+            style: TextButton.styleFrom(
+              foregroundColor: t.textSecondary,
+              visualDensity: VisualDensity.compact,
+              minimumSize: const Size(0, 34),
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+            ),
+            child: const Text('Omitir'),
+          ),
+          const SizedBox(width: 4),
+          FilledButton.tonal(
+            onPressed: onReplace,
+            style: FilledButton.styleFrom(
+              backgroundColor: highlight.withOpacity(t.isDark ? 0.18 : 0.10),
+              foregroundColor: highlight,
+              visualDensity: VisualDensity.compact,
+              minimumSize: const Size(0, 34),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            child: const Text('Corregir'),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StudyGeneralNotesHint extends StatelessWidget {
+  final BibleReaderThemeData theme;
+
+  const _StudyGeneralNotesHint({super.key, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Container(
+      key: key,
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+      decoration: BoxDecoration(
+        color: t.background.withOpacity(t.isDark ? 0.28 : 0.65),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.edit_note_outlined, color: t.accent, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              'Ahora tus notas generales usan formato real dentro del editor. Las palabras dudosas se subrayan en rojo y puedes corregirlas desde el menu o la sugerencia contextual.',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary.withOpacity(0.76),
+                fontSize: 11.5,
+                height: 1.35,
+              ),
             ),
           ),
         ],
@@ -688,7 +1548,9 @@ class _QuestionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.isDark ? Colors.white.withOpacity(0.04) : Colors.black.withOpacity(0.03),
+        color: t.isDark
+            ? Colors.white.withOpacity(0.04)
+            : Colors.black.withOpacity(0.03),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.textSecondary.withOpacity(0.08), width: 1),
       ),
@@ -746,10 +1608,17 @@ class _QuestionCard extends StatelessWidget {
             onChanged: onChanged,
             maxLines: null,
             minLines: 2,
-            style: GoogleFonts.lora(color: t.textPrimary, fontSize: 14, height: 1.5),
+            style: GoogleFonts.lora(
+              color: t.textPrimary,
+              fontSize: 14,
+              height: 1.5,
+            ),
             decoration: InputDecoration(
               hintText: 'Escribe tu respuesta…',
-              hintStyle: GoogleFonts.lora(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
+              hintStyle: GoogleFonts.lora(
+                color: t.textSecondary.withOpacity(0.5),
+                fontSize: 14,
+              ),
               filled: true,
               fillColor: t.background,
               border: OutlineInputBorder(

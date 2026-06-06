@@ -2,6 +2,8 @@ import 'dart:math';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'rich_note_document.dart';
+
 /// IDs estables de las 6 preguntas del método inductivo del Modo Estudio.
 /// Mantén este orden — la UI depende de él.
 class StudyQuestion {
@@ -32,7 +34,11 @@ const List<StudyQuestion> kStudyQuestions = [
     '¿Quién lo escribió? ¿Quién está hablando?',
     'Autor humano, audiencia original, voz que habla.',
   ),
-  StudyQuestion('place', '¿Dónde suceden los hechos?', 'Ciudad, región, geografía relevante.'),
+  StudyQuestion(
+    'place',
+    '¿Dónde suceden los hechos?',
+    'Ciudad, región, geografía relevante.',
+  ),
   StudyQuestion(
     'context',
     '¿Qué estaba sucediendo? ¿Por qué?',
@@ -230,7 +236,9 @@ class StudyChapterAnswers {
   }
 
   bool coversVerse(int bookNumber, int chapter, int verse) {
-    return rangedPassages.any((passage) => passage.coversVerse(bookNumber, chapter, verse));
+    return rangedPassages.any(
+      (passage) => passage.coversVerse(bookNumber, chapter, verse),
+    );
   }
 
   List<int> get sortedMainVerses => _normalizedVerseNumbers(mainVerses);
@@ -241,7 +249,8 @@ class StudyChapterAnswers {
     return '$bookName $chapter:$ranges';
   }
 
-  static String verseRangesLabel(Iterable<int> verses) => _formatVerseRanges(verses);
+  static String verseRangesLabel(Iterable<int> verses) =>
+      _formatVerseRanges(verses);
 
   /// ¿Hay al menos una respuesta o nota no vacía?
   bool get hasContent =>
@@ -273,7 +282,9 @@ class StudyChapterAnswers {
     generalNotes: generalNotes ?? this.generalNotes,
     hopeMessage: hopeMessage ?? this.hopeMessage,
     mainVerses: mainVerses ?? this.mainVerses,
-    studyStartVerse: clearRange ? null : (studyStartVerse ?? this.studyStartVerse),
+    studyStartVerse: clearRange
+        ? null
+        : (studyStartVerse ?? this.studyStartVerse),
     studyEndVerse: clearRange ? null : (studyEndVerse ?? this.studyEndVerse),
     additionalPassages: clearAdditionalPassages
         ? const []
@@ -307,7 +318,7 @@ class StudyChapterAnswers {
     final notes = generalNotes.trim();
     if (notes.isNotEmpty) {
       buf.writeln('**Notas generales**');
-      buf.writeln(notes);
+      buf.writeln(richNotePlainText(notes));
       buf.writeln();
     }
     return buf.toString().trimRight();

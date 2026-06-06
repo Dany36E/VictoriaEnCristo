@@ -7,6 +7,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
 import '../../models/bible/bible_verse.dart';
+import '../../models/bible/rich_note_document.dart';
 import '../../models/bible/study_chapter_answers.dart';
 import '../../models/bible/study_room.dart';
 import '../../models/bible/study_word_highlight.dart';
@@ -68,15 +69,22 @@ class StudyExportService {
     List<StudyWordHighlight> studyHighlights = const [],
     List<StudyRoomAnswerSnapshot> roomAnswerSnapshots = const [],
     bool saveToDownloads = false,
+    bool cleanCover = false,
   }) async {
     final selectedVerses = _selectedVerses(study, chapterVerses);
     final selectedSecondary = _selectedVerses(study, secondaryChapterVerses);
 
     // Carga fuentes TTF embebidas para soportar caracteres latinos/españoles.
     // pw.Font.helvetica() es ASCII-only y produce cajas negras con á/é/ñ/etc.
-    final fontRegular = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Regular.ttf'));
-    final fontBold = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Bold.ttf'));
-    final fontItalic = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Italic.ttf'));
+    final fontRegular = pw.Font.ttf(
+      await rootBundle.load('google_fonts/Lato-Regular.ttf'),
+    );
+    final fontBold = pw.Font.ttf(
+      await rootBundle.load('google_fonts/Lato-Bold.ttf'),
+    );
+    final fontItalic = pw.Font.ttf(
+      await rootBundle.load('google_fonts/Lato-Italic.ttf'),
+    );
 
     final doc = pw.Document(
       title: 'Estudio ${study.reference}',
@@ -88,7 +96,11 @@ class StudyExportService {
       pw.MultiPage(
         pageTheme: pw.PageTheme(
           margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42),
-          theme: pw.ThemeData.withFont(base: fontRegular, bold: fontBold, italic: fontItalic),
+          theme: pw.ThemeData.withFont(
+            base: fontRegular,
+            bold: fontBold,
+            italic: fontItalic,
+          ),
         ),
         footer: (context) => pw.Align(
           alignment: pw.Alignment.centerRight,
@@ -98,7 +110,11 @@ class StudyExportService {
           ),
         ),
         build: (context) => [
-          _header(study, secondaryVersionId: secondaryVersionId),
+          _header(
+            study,
+            secondaryVersionId: secondaryVersionId,
+            cleanCover: cleanCover,
+          ),
           pw.SizedBox(height: 18),
           _sectionTitle('Texto bíblico'),
           pw.SizedBox(height: 8),
@@ -145,6 +161,7 @@ class StudyExportService {
     String? secondaryVersionId,
     List<StudyWordHighlight> studyHighlights = const [],
     List<StudyRoomAnswerSnapshot> roomAnswerSnapshots = const [],
+    bool cleanCover = false,
   }) async {
     final file = await exportStudyToPdf(
       study: study,
@@ -153,6 +170,7 @@ class StudyExportService {
       secondaryVersionId: secondaryVersionId,
       studyHighlights: studyHighlights,
       roomAnswerSnapshots: roomAnswerSnapshots,
+      cleanCover: cleanCover,
     );
     await Share.shareXFiles(
       [XFile(file.path, mimeType: 'application/pdf')],
@@ -171,10 +189,17 @@ class StudyExportService {
     required List<StudyParticipantBundle> participants,
     List<StudyRoomAnswerSnapshot> roomAnswerSnapshots = const [],
     bool saveToDownloads = false,
+    bool cleanCover = false,
   }) async {
-    final fontRegular = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Regular.ttf'));
-    final fontBold = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Bold.ttf'));
-    final fontItalic = pw.Font.ttf(await rootBundle.load('google_fonts/Lato-Italic.ttf'));
+    final fontRegular = pw.Font.ttf(
+      await rootBundle.load('google_fonts/Lato-Regular.ttf'),
+    );
+    final fontBold = pw.Font.ttf(
+      await rootBundle.load('google_fonts/Lato-Bold.ttf'),
+    );
+    final fontItalic = pw.Font.ttf(
+      await rootBundle.load('google_fonts/Lato-Italic.ttf'),
+    );
 
     final doc = pw.Document(
       title: 'Estudio en grupo ${study.reference}',
@@ -186,7 +211,11 @@ class StudyExportService {
       pw.MultiPage(
         pageTheme: pw.PageTheme(
           margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42),
-          theme: pw.ThemeData.withFont(base: fontRegular, bold: fontBold, italic: fontItalic),
+          theme: pw.ThemeData.withFont(
+            base: fontRegular,
+            bold: fontBold,
+            italic: fontItalic,
+          ),
         ),
         footer: (context) => pw.Align(
           alignment: pw.Alignment.centerRight,
@@ -196,7 +225,7 @@ class StudyExportService {
           ),
         ),
         build: (context) => [
-          _header(study),
+          _header(study, cleanCover: cleanCover),
           pw.SizedBox(height: 8),
           pw.Text(
             'Estudio colaborativo · ${participants.length} '
@@ -233,11 +262,13 @@ class StudyExportService {
     required StudyChapterAnswers study,
     required List<StudyParticipantBundle> participants,
     List<StudyRoomAnswerSnapshot> roomAnswerSnapshots = const [],
+    bool cleanCover = false,
   }) async {
     final file = await exportRoomStudyToPdf(
       study: study,
       participants: participants,
       roomAnswerSnapshots: roomAnswerSnapshots,
+      cleanCover: cleanCover,
     );
     await Share.shareXFiles(
       [XFile(file.path, mimeType: 'application/pdf')],
@@ -283,7 +314,8 @@ class StudyExportService {
           ),
         )
       else
-        for (final version in participant.versions) ..._participantVersionBlock(study, version),
+        for (final version in participant.versions)
+          ..._participantVersionBlock(study, version),
       pw.SizedBox(height: 12),
       _sectionTitle('Preguntas y respuestas'),
       pw.SizedBox(height: 6),
@@ -378,8 +410,11 @@ class StudyExportService {
               fontSize: 11,
               lineSpacing: 2,
               color: answer.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
-              fontStyle: answer.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+              fontStyle: answer.isEmpty
+                  ? pw.FontStyle.italic
+                  : pw.FontStyle.normal,
             ),
+            overflow: pw.TextOverflow.span,
           ),
         ],
       ),
@@ -395,7 +430,10 @@ class StudyExportService {
       decoration: pw.BoxDecoration(
         color: const PdfColor(0.98, 0.96, 0.90),
         borderRadius: pw.BorderRadius.circular(6),
-        border: pw.Border.all(color: const PdfColor(0.88, 0.78, 0.52), width: 0.5),
+        border: pw.Border.all(
+          color: const PdfColor(0.88, 0.78, 0.52),
+          width: 0.5,
+        ),
       ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -406,8 +444,11 @@ class StudyExportService {
               fontSize: 11,
               lineSpacing: 2,
               color: message.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
-              fontStyle: message.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+              fontStyle: message.isEmpty
+                  ? pw.FontStyle.italic
+                  : pw.FontStyle.normal,
             ),
+            overflow: pw.TextOverflow.span,
           ),
           pw.SizedBox(height: 8),
           pw.Text(
@@ -420,11 +461,17 @@ class StudyExportService {
           ),
           pw.SizedBox(height: 3),
           pw.Text(
-            mainReference.isEmpty ? 'Sin verso principal seleccionado.' : mainReference,
+            mainReference.isEmpty
+                ? 'Sin verso principal seleccionado.'
+                : mainReference,
             style: pw.TextStyle(
               fontSize: 10.8,
-              color: mainReference.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
-              fontStyle: mainReference.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+              color: mainReference.isEmpty
+                  ? PdfColors.grey600
+                  : PdfColors.grey900,
+              fontStyle: mainReference.isEmpty
+                  ? pw.FontStyle.italic
+                  : pw.FontStyle.normal,
             ),
           ),
         ],
@@ -440,21 +487,30 @@ class StudyExportService {
       decoration: pw.BoxDecoration(
         color: const PdfColor(0.98, 0.96, 0.90),
         borderRadius: pw.BorderRadius.circular(6),
-        border: pw.Border.all(color: const PdfColor(0.88, 0.78, 0.52), width: 0.5),
+        border: pw.Border.all(
+          color: const PdfColor(0.88, 0.78, 0.52),
+          width: 0.5,
+        ),
       ),
       child: pw.Text(
-        notes.isEmpty ? 'Sin notas generales todavía.' : notes,
+        notes.isEmpty
+            ? 'Sin notas generales todavía.'
+            : richNotePlainText(notes),
         style: pw.TextStyle(
           fontSize: 11,
           lineSpacing: 2,
           color: notes.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
           fontStyle: notes.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
         ),
+        overflow: pw.TextOverflow.span,
       ),
     );
   }
 
-  List<BibleVerse> _selectedVerses(StudyChapterAnswers study, List<BibleVerse> chapterVerses) {
+  List<BibleVerse> _selectedVerses(
+    StudyChapterAnswers study,
+    List<BibleVerse> chapterVerses,
+  ) {
     if (study.rangedPassages.isNotEmpty) {
       return chapterVerses
           .where(
@@ -471,7 +527,9 @@ class StudyExportService {
     if (start == null || end == null) return chapterVerses;
     final lo = start < end ? start : end;
     final hi = start < end ? end : start;
-    return chapterVerses.where((v) => v.verse >= lo && v.verse <= hi).toList(growable: false);
+    return chapterVerses
+        .where((v) => v.verse >= lo && v.verse <= hi)
+        .toList(growable: false);
   }
 
   BibleVerse? _secondaryForVerse(List<BibleVerse> verses, BibleVerse primary) {
@@ -502,10 +560,18 @@ class StudyExportService {
         }
       }
     }
-    return _writeInDirectory(await _appDocumentsExportDirectory(), fileName, bytes);
+    return _writeInDirectory(
+      await _appDocumentsExportDirectory(),
+      fileName,
+      bytes,
+    );
   }
 
-  Future<File> _writeInDirectory(Directory directory, String fileName, List<int> bytes) async {
+  Future<File> _writeInDirectory(
+    Directory directory,
+    String fileName,
+    List<int> bytes,
+  ) async {
     if (!await directory.exists()) {
       await directory.create(recursive: true);
     }
@@ -543,7 +609,9 @@ class StudyExportService {
       try {
         final external = await getExternalStorageDirectory();
         if (external != null) {
-          return Directory('${external.path}${Platform.pathSeparator}Descargas');
+          return Directory(
+            '${external.path}${Platform.pathSeparator}Descargas',
+          );
         }
       } catch (_) {}
     }
@@ -556,14 +624,76 @@ class StudyExportService {
     return null;
   }
 
-  pw.Widget _header(StudyChapterAnswers study, {String? secondaryVersionId}) {
+  pw.Widget _header(
+    StudyChapterAnswers study, {
+    String? secondaryVersionId,
+    bool cleanCover = false,
+  }) {
     final versions = secondaryVersionId == null
         ? study.versionId
         : '${study.versionId} + $secondaryVersionId';
+    if (cleanCover) {
+      return pw.Container(
+        width: double.infinity,
+        padding: const pw.EdgeInsets.fromLTRB(18, 16, 18, 14),
+        decoration: pw.BoxDecoration(
+          color: PdfColors.white,
+          borderRadius: pw.BorderRadius.circular(10),
+          border: pw.Border.all(
+            color: const PdfColor(0.86, 0.82, 0.74),
+            width: 0.7,
+          ),
+        ),
+        child: pw.Column(
+          crossAxisAlignment: pw.CrossAxisAlignment.start,
+          children: [
+            pw.Container(
+              width: 42,
+              height: 4,
+              decoration: pw.BoxDecoration(
+                color: const PdfColor(0.72, 0.58, 0.20),
+                borderRadius: pw.BorderRadius.circular(999),
+              ),
+            ),
+            pw.SizedBox(height: 14),
+            pw.Text(
+              'Estudio bíblico',
+              style: pw.TextStyle(
+                fontSize: 22,
+                fontWeight: pw.FontWeight.bold,
+                color: const PdfColor(0.12, 0.16, 0.20),
+              ),
+            ),
+            pw.SizedBox(height: 6),
+            pw.Text(
+              study.reference,
+              style: pw.TextStyle(
+                fontSize: 15,
+                fontWeight: pw.FontWeight.bold,
+                color: const PdfColor(0.72, 0.58, 0.20),
+              ),
+            ),
+            pw.SizedBox(height: 8),
+            pw.Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                _metaChip('Versión principal', study.versionId),
+                if (secondaryVersionId != null)
+                  _metaChip('Versión secundaria', secondaryVersionId),
+                _metaChip('Actualizado', _date(study.updatedAt)),
+              ],
+            ),
+          ],
+        ),
+      );
+    }
     return pw.Container(
       padding: const pw.EdgeInsets.only(bottom: 14),
       decoration: const pw.BoxDecoration(
-        border: pw.Border(bottom: pw.BorderSide(color: PdfColor(0.72, 0.58, 0.20), width: 1)),
+        border: pw.Border(
+          bottom: pw.BorderSide(color: PdfColor(0.72, 0.58, 0.20), width: 1),
+        ),
       ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -591,6 +721,41 @@ class StudyExportService {
             style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
           ),
         ],
+      ),
+    );
+  }
+
+  pw.Widget _metaChip(String label, String value) {
+    return pw.Container(
+      padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.white,
+        borderRadius: pw.BorderRadius.circular(16),
+        border: pw.Border.all(
+          color: const PdfColor(0.86, 0.82, 0.72),
+          width: 0.6,
+        ),
+      ),
+      child: pw.RichText(
+        text: pw.TextSpan(
+          children: [
+            pw.TextSpan(
+              text: '$label: ',
+              style: pw.TextStyle(
+                fontSize: 10.3,
+                fontWeight: pw.FontWeight.bold,
+                color: const PdfColor(0.45, 0.36, 0.20),
+              ),
+            ),
+            pw.TextSpan(
+              text: value,
+              style: const pw.TextStyle(
+                fontSize: 10.3,
+                color: PdfColors.grey900,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -718,7 +883,11 @@ class StudyExportService {
     required double fontSize,
     required PdfColor textColor,
   }) {
-    final style = pw.TextStyle(fontSize: fontSize, lineSpacing: 2, color: textColor);
+    final style = pw.TextStyle(
+      fontSize: fontSize,
+      lineSpacing: 2,
+      color: textColor,
+    );
     final child = pw.Column(
       mainAxisSize: pw.MainAxisSize.min,
       children: [
@@ -737,17 +906,26 @@ class StudyExportService {
       ],
     );
     if (colors.isEmpty) {
-      return pw.Padding(padding: const pw.EdgeInsets.only(right: 1, bottom: 2), child: child);
+      return pw.Padding(
+        padding: const pw.EdgeInsets.only(right: 1, bottom: 2),
+        child: child,
+      );
     }
     return pw.Container(
       margin: const pw.EdgeInsets.only(right: 1, bottom: 2),
       padding: const pw.EdgeInsets.symmetric(horizontal: 1.5, vertical: 1),
-      decoration: pw.BoxDecoration(color: colors.last, borderRadius: pw.BorderRadius.circular(2)),
+      decoration: pw.BoxDecoration(
+        color: colors.last,
+        borderRadius: pw.BorderRadius.circular(2),
+      ),
       child: child,
     );
   }
 
-  List<PdfColor> _highlightColorsForWord(List<StudyWordHighlight> highlights, int wordIndex) {
+  List<PdfColor> _highlightColorsForWord(
+    List<StudyWordHighlight> highlights,
+    int wordIndex,
+  ) {
     final colors = <PdfColor>[];
     for (final highlight in highlights) {
       if (highlight.overlapsWord(wordIndex)) {
@@ -768,6 +946,45 @@ class StudyExportService {
     return PdfColor(blend(red), blend(green), blend(blue));
   }
 
+  pw.Widget _emptyText(String text) {
+    return pw.Text(
+      text,
+      style: pw.TextStyle(
+        fontSize: 11,
+        lineSpacing: 2,
+        color: PdfColors.grey600,
+        fontStyle: pw.FontStyle.italic,
+      ),
+      overflow: pw.TextOverflow.span,
+    );
+  }
+
+  pw.Widget _formattedStudyText(String source) {
+    final segments = richNoteSegments(source);
+    return pw.RichText(
+      overflow: pw.TextOverflow.span,
+      text: pw.TextSpan(
+        children: [
+          for (final segment in segments)
+            pw.TextSpan(
+              text: segment.text,
+              style: pw.TextStyle(
+                fontSize: segment.fontSize ?? 11,
+                lineSpacing: 2,
+                color: PdfColors.grey900,
+                fontWeight: segment.bold
+                    ? pw.FontWeight.bold
+                    : pw.FontWeight.normal,
+                decoration: segment.underline
+                    ? pw.TextDecoration.underline
+                    : null,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
   pw.Widget _generalNotes(StudyChapterAnswers study) {
     final notes = study.generalNotes.trim();
     return pw.Container(
@@ -776,17 +993,14 @@ class StudyExportService {
       decoration: pw.BoxDecoration(
         color: const PdfColor(0.98, 0.96, 0.90),
         borderRadius: pw.BorderRadius.circular(6),
-        border: pw.Border.all(color: const PdfColor(0.88, 0.78, 0.52), width: 0.5),
-      ),
-      child: pw.Text(
-        notes.isEmpty ? 'Sin notas generales todavía.' : notes,
-        style: pw.TextStyle(
-          fontSize: 11,
-          lineSpacing: 2,
-          color: notes.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
-          fontStyle: notes.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+        border: pw.Border.all(
+          color: const PdfColor(0.88, 0.78, 0.52),
+          width: 0.5,
         ),
       ),
+      child: notes.isEmpty
+          ? _emptyText('Sin notas generales todavía.')
+          : _formattedStudyText(notes),
     );
   }
 
@@ -799,7 +1013,10 @@ class StudyExportService {
       decoration: pw.BoxDecoration(
         color: const PdfColor(0.98, 0.96, 0.90),
         borderRadius: pw.BorderRadius.circular(6),
-        border: pw.Border.all(color: const PdfColor(0.88, 0.78, 0.52), width: 0.5),
+        border: pw.Border.all(
+          color: const PdfColor(0.88, 0.78, 0.52),
+          width: 0.5,
+        ),
       ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -810,8 +1027,11 @@ class StudyExportService {
               fontSize: 11,
               lineSpacing: 2,
               color: message.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
-              fontStyle: message.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+              fontStyle: message.isEmpty
+                  ? pw.FontStyle.italic
+                  : pw.FontStyle.normal,
             ),
+            overflow: pw.TextOverflow.span,
           ),
           pw.SizedBox(height: 8),
           pw.Text(
@@ -824,11 +1044,17 @@ class StudyExportService {
           ),
           pw.SizedBox(height: 3),
           pw.Text(
-            mainReference.isEmpty ? 'Sin verso principal seleccionado.' : mainReference,
+            mainReference.isEmpty
+                ? 'Sin verso principal seleccionado.'
+                : mainReference,
             style: pw.TextStyle(
               fontSize: 10.8,
-              color: mainReference.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
-              fontStyle: mainReference.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+              color: mainReference.isEmpty
+                  ? PdfColors.grey600
+                  : PdfColors.grey900,
+              fontStyle: mainReference.isEmpty
+                  ? pw.FontStyle.italic
+                  : pw.FontStyle.normal,
             ),
           ),
         ],
@@ -867,8 +1093,11 @@ class StudyExportService {
                   fontSize: 11,
                   lineSpacing: 2,
                   color: answer.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
-                  fontStyle: answer.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
+                  fontStyle: answer.isEmpty
+                      ? pw.FontStyle.italic
+                      : pw.FontStyle.normal,
                 ),
+                overflow: pw.TextOverflow.span,
               ),
             ],
           ),
@@ -884,7 +1113,10 @@ class StudyExportService {
     final widgets = <pw.Widget>[];
     for (final question in kStudyQuestions) {
       final answers = participants
-          .map((snapshot) => MapEntry(snapshot, snapshot.answers[question.id]?.trim() ?? ''))
+          .map(
+            (snapshot) =>
+                MapEntry(snapshot, snapshot.answers[question.id]?.trim() ?? ''),
+          )
           .where((entry) => entry.value.isNotEmpty)
           .toList(growable: false);
       widgets.add(
@@ -894,7 +1126,10 @@ class StudyExportService {
           decoration: pw.BoxDecoration(
             color: const PdfColor(0.98, 0.96, 0.90),
             borderRadius: pw.BorderRadius.circular(6),
-            border: pw.Border.all(color: const PdfColor(0.88, 0.78, 0.52), width: 0.5),
+            border: pw.Border.all(
+              color: const PdfColor(0.88, 0.78, 0.52),
+              width: 0.5,
+            ),
           ),
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -918,7 +1153,9 @@ class StudyExportService {
                   ),
                 )
               else
-                ...answers.map((entry) => _participantAnswer(entry.key, entry.value)),
+                ...answers.map(
+                  (entry) => _participantAnswer(entry.key, entry.value),
+                ),
             ],
           ),
         ),
@@ -927,7 +1164,10 @@ class StudyExportService {
     return widgets;
   }
 
-  pw.Widget _participantAnswer(StudyRoomAnswerSnapshot snapshot, String answer) {
+  pw.Widget _participantAnswer(
+    StudyRoomAnswerSnapshot snapshot,
+    String answer,
+  ) {
     return pw.Container(
       width: double.infinity,
       margin: const pw.EdgeInsets.only(top: 6),
@@ -951,7 +1191,12 @@ class StudyExportService {
           pw.SizedBox(height: 3),
           pw.Text(
             answer,
-            style: const pw.TextStyle(fontSize: 10.8, lineSpacing: 2, color: PdfColors.grey900),
+            style: const pw.TextStyle(
+              fontSize: 10.8,
+              lineSpacing: 2,
+              color: PdfColors.grey900,
+            ),
+            overflow: pw.TextOverflow.span,
           ),
         ],
       ),

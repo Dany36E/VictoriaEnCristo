@@ -2,7 +2,7 @@ name: app_quitar
 description: "Victoria en Cristo - App cristiana para superar tentaciones y vicios"
 publish_to: 'none'
 
-version: 1.0.7+8
+version: 1.0.13+15
 
 environment:
   sdk: ^3.10.1
@@ -88,6 +88,10 @@ flutter:
     - assets/images/plan_covers/
     - assets/images/headbanz/
     - assets/bible/Reina Valera 1960.xml
+    - assets/bible/NVI.xml
+    - assets/bible/LBLA.xml
+    - assets/bible/NTV.xml
+    - assets/bible/TLA.xml
     - assets/bible/section_titles.json
     - assets/bible/section_title_overrides.json
     - assets/bible/interlinear/greek/
