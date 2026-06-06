@@ -30,6 +30,8 @@ import 'bible_map_screen.dart';
 import 'gospel_harmony_screen.dart';
 import 'typology_screen.dart';
 import 'ot_quotes_screen.dart';
+import 'sermon_notes_mode_screen.dart';
+import 'sermon_notes_saved_screen.dart';
 import 'study_mode_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -637,9 +639,48 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     );
   }
 
+  void _openSermonNotesMode() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => SermonNotesModeScreen(
+          bookNumber: _lastBookNumber ?? 1,
+          bookName: _lastBookName ?? 'Genesis',
+          chapter: _lastChapter ?? 1,
+          version: _version,
+        ),
+      ),
+    );
+  }
+
+  void _openSavedSermonNotes() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const SermonNotesSavedScreen()),
+    );
+  }
+
+  Future<void> _openSermonEntryOptions() async {
+    final action = await showModalBottomSheet<_SermonEntryAction>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _SermonEntrySheet(theme: _currentTheme()),
+    );
+    if (!mounted || action == null) return;
+    switch (action) {
+      case _SermonEntryAction.newNote:
+        _openSermonNotesMode();
+        break;
+      case _SermonEntryAction.savedNotes:
+        _openSavedSermonNotes();
+        break;
+    }
+  }
+
   Widget _buildQuickToolsStrip(BibleReaderThemeData t) {
     final quickTools = [
       _ToolItem(Icons.menu_book, 'Estudio', _openStudyEntryOptions),
+      _ToolItem(Icons.edit_note, 'Apuntes', _openSermonEntryOptions),
       _ToolItem(Icons.view_column_outlined, '2 versiones', _openParallelReader),
       _ToolItem(
         Icons.bookmark_outline,
@@ -888,6 +929,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         ),
       ),
       _ToolItem(Icons.menu_book, 'Modo Estudio', _openStudyEntryOptions),
+      _ToolItem(Icons.edit_note, 'Modo Predicacion', _openSermonEntryOptions),
     ];
 
     return GridView.count(
@@ -1142,6 +1184,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
 enum _StudyEntryAction { newStudy, savedStudies }
 
+enum _SermonEntryAction { newNote, savedNotes }
+
 class _StudyEntrySheet extends StatelessWidget {
   final BibleReaderThemeData theme;
 
@@ -1197,6 +1241,69 @@ class _StudyEntrySheet extends StatelessWidget {
               theme: t,
               onTap: () =>
                   Navigator.pop(context, _StudyEntryAction.savedStudies),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _SermonEntrySheet extends StatelessWidget {
+  final BibleReaderThemeData theme;
+
+  const _SermonEntrySheet({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Container(
+      decoration: BoxDecoration(
+        color: t.surface,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
+              child: Container(
+                width: 40,
+                height: 3,
+                decoration: BoxDecoration(
+                  color: t.textSecondary.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Apuntes de predicacion',
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 16,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 12),
+            _StudyEntryTile(
+              icon: Icons.add_circle_outline,
+              title: 'Nuevo apunte',
+              subtitle: 'Abrir lectura y tomar notas de la predicacion.',
+              theme: t,
+              onTap: () => Navigator.pop(context, _SermonEntryAction.newNote),
+            ),
+            const SizedBox(height: 8),
+            _StudyEntryTile(
+              icon: Icons.folder_open_outlined,
+              title: 'Apuntes guardados',
+              subtitle: 'Buscar por pastor, fecha, titulo o pasaje.',
+              theme: t,
+              onTap: () =>
+                  Navigator.pop(context, _SermonEntryAction.savedNotes),
             ),
           ],
         ),

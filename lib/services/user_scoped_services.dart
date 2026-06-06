@@ -7,6 +7,7 @@ import 'bible/bible_reading_stats_service.dart';
 import 'bible/bible_user_data_service.dart';
 import 'bible/chapter_note_service.dart';
 import 'bible/collection_service.dart';
+import 'bible/sermon_note_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
 
@@ -21,6 +22,7 @@ class UserScopedServices {
   Future<void>? _battleInit;
   Future<void>? _bibleInit;
   Future<void>? _studyModeInit;
+  Future<void>? _sermonNotesInit;
 
   String? get _uid => FirebaseAuth.instance.currentUser?.uid;
 
@@ -59,9 +61,20 @@ class UserScopedServices {
     StudyRoomService.I.init();
   }
 
+  Future<void> ensureSermonNotes() async {
+    final uid = _uid;
+    if (uid == null || uid.isEmpty) return;
+
+    await ensureBible();
+    _sermonNotesInit ??= SermonNoteService.I.init(uid);
+    await _sermonNotesInit;
+    await ensureStudyMode();
+  }
+
   void reset() {
     _battleInit = null;
     _bibleInit = null;
     _studyModeInit = null;
+    _sermonNotesInit = null;
   }
 }

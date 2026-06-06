@@ -27,6 +27,7 @@ import 'bible/bible_user_data_service.dart';
 import 'bible/bible_reading_stats_service.dart';
 import 'bible/collection_service.dart';
 import 'bible/chapter_note_service.dart';
+import 'bible/sermon_note_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
 import 'bible/blb_api_service.dart';
@@ -205,6 +206,7 @@ class AccountSessionManager {
     BattlePartnerService.I.stop();
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
+    SermonNoteService.I.stop();
     StudyModeService.I.stop();
     await StudyRoomService.I.stop();
     CollectionService.I.stop();
@@ -315,6 +317,7 @@ class AccountSessionManager {
     // Reset BibleUserDataService
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
+    SermonNoteService.I.stop();
     StudyModeService.I.stop();
     StudyRoomService.I.stop();
     CollectionService.I.stop();
