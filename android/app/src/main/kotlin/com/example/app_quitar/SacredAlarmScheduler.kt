@@ -71,6 +71,7 @@ object SacredAlarmScheduler {
                 pendingIntent.cancel()
             }
         }
+        clearSavedAlarms(context)
     }
 
     fun rescheduleSaved(context: Context) {
@@ -104,6 +105,13 @@ object SacredAlarmScheduler {
         } catch (_: Exception) {
             emptyList()
         }
+    }
+
+    private fun clearSavedAlarms(context: Context) {
+        context.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+            .edit()
+            .remove(KEY_ALARMS)
+            .apply()
     }
 
     private fun requestCodeFor(sessionId: String): Int {

@@ -543,6 +543,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         if (engine.bgmEnabled.value) {
           engine.resumeBgm();
         }
+        // Resincronizar campanas al volver al frente: algunos OEM limpian
+        // alarmas programadas tras reinicios, updates o ahorro agresivo.
+        unawaited(SacredAlarmService.I.ensureUpcomingSchedule());
         // Sincronizar widget al volver (actualiza saludo por hora del día)
         if (PlatformCapabilities.supportsHomeWidgets) {
           WidgetSyncService.I.syncWidget();
@@ -708,7 +711,13 @@ class _ProfileGate extends StatefulWidget {
   State<_ProfileGate> createState() => _ProfileGateState();
 }
 
-enum _ProfileGateStatus { loading, needsOnboarding, ready, error, updateRequired }
+enum _ProfileGateStatus {
+  loading,
+  needsOnboarding,
+  ready,
+  error,
+  updateRequired,
+}
 
 class _ProfileGateState extends State<_ProfileGate> {
   _ProfileGateStatus _status = _ProfileGateStatus.loading;
