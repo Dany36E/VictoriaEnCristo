@@ -10,6 +10,7 @@
 library;
 
 import 'package:flutter/foundation.dart';
+import '../config/feature_flags.dart';
 import '../repositories/badge_repository.dart';
 import '../utils/sync_retry.dart';
 import 'badge_service.dart';
@@ -26,6 +27,7 @@ class BadgeSyncAdapter {
   /// Inicializar (modo pasivo + write-through)
   void init() {
     if (_isListening) return;
+    if (!FeatureFlags.badgesEnabled) return;
     _isListening = true;
 
     // Write-through: cada vez que se desbloquean nuevos badges,
@@ -39,6 +41,7 @@ class BadgeSyncAdapter {
 
   /// Sincronizar badges a cloud
   Future<void> _syncToCloud(Map<String, int> levels) async {
+    if (!FeatureFlags.badgesEnabled) return;
     await SyncRetry.withBackoff(
       () => BadgeRepository.I.saveAllToCloud(levels),
       where: 'BadgeSync.save',
@@ -47,6 +50,7 @@ class BadgeSyncAdapter {
 
   /// Forzar sincronización completa de LOCAL → CLOUD
   Future<void> forceSyncAll() async {
+    if (!FeatureFlags.badgesEnabled) return;
     try {
       final levels = BadgeService.I.unlockedLevels;
       await BadgeRepository.I.saveAllToCloud(levels);

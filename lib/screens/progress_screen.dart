@@ -14,9 +14,6 @@ import '../widgets/monthly_victory_calendar.dart';
 import '../widgets/journal_day_note_card.dart';
 import '../widgets/victory_summary_header.dart';
 import '../widgets/giant_day_editor.dart';
-import '../services/badge_service.dart';
-import '../widgets/badge_celebration.dart';
-import '../widgets/badge_grid_section.dart';
 import '../widgets/offline_banner.dart';
 import '../utils/progress_export.dart';
 import 'journal_screen.dart';
@@ -99,9 +96,6 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     
     _loadProgress();
     _loadCalendarData();
-    
-    // Inicializar BadgeService
-    BadgeService.I.init();
     
     // Reactive sync: escuchar cambios del JournalService (add/edit/delete)
     _journalService.changeNotifier.addListener(_onJournalDataChanged);
@@ -300,8 +294,6 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     // Sincronizar widget
     WidgetSyncService.I.syncWidget();
     
-    // Verificar insignias
-    _checkBadges();
   }
   
   /// Callback cuando cambia algo en el editor de gigantes
@@ -329,20 +321,6 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     // Sincronizar widget
     WidgetSyncService.I.syncWidget();
     
-    // Verificar insignias
-    _checkBadges();
-  }
-  
-  /// Verifica y celebra nuevas insignias desbloqueadas
-  Future<void> _checkBadges() async {
-    final newBadges = await BadgeService.I.checkForNewBadges();
-    if (!mounted || newBadges.isEmpty) return;
-    
-    // Refrescar UI para actualizar la grilla de insignias
-    setState(() {});
-    
-    // Mostrar celebración completa para el badge más alto
-    BadgeCelebration.showFullCelebration(context, newBadges.last);
   }
   
   void _navigateToJournalEditor({bool isNew = false}) {
@@ -531,14 +509,6 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                         ),
                       ),
                       
-                      // 5. Insignias
-                      const SliverToBoxAdapter(
-                        child: Padding(
-                          padding: EdgeInsets.fromLTRB(24, 16, 24, 0),
-                          child: BadgeGridSection(),
-                        ),
-                      ),
-
                       // Bottom spacing
                       SliverToBoxAdapter(
                         child: SizedBox(height: MediaQuery.of(context).padding.bottom + 40),

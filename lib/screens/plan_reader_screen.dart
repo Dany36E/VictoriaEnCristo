@@ -7,7 +7,6 @@ import '../theme/app_theme_data.dart';
 import '../models/plan.dart';
 import '../models/plan_day.dart';
 import '../services/plan_progress_service.dart';
-import '../services/badge_service.dart';
 import '../services/feedback_engine.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -941,9 +940,6 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
       final completedCount = progress?.completedDays.length ?? 0;
       final isPlanComplete = completedCount >= totalDays;
 
-      // Check for new badges
-      BadgeService.I.checkForNewBadges();
-      
       if (isPlanComplete && mounted) {
         _showPlanCompletionDialog();
       } else if (result.isSuccess && mounted) {

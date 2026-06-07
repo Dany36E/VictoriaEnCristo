@@ -3,11 +3,9 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
-import '../services/badge_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
-import '../widgets/badge_grid_section.dart';
 import '../widgets/theme_selector.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -31,7 +29,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _loadUserData() async {
-    await BadgeService.I.init();
     final data = await _authService.getUserData();
     setState(() {
       _userData = data;
@@ -108,14 +105,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         _buildStatsRow(),
                       ],
                     ),
-                  ),
-                ),
-
-                // ─── Insignias ───
-                const SliverToBoxAdapter(
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(20, 4, 20, 16),
-                    child: BadgeGridSection(),
                   ),
                 ),
 

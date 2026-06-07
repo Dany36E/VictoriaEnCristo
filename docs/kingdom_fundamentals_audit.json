@@ -1,0 +1,923 @@
+{
+  "generatedAt": "2026-05-24",
+  "scope": "Fundamentos / Nivel 1",
+  "lessons": [
+    {
+      "lessonId": "bible_what_is",
+      "unitId": "fund_bible_orientation",
+      "unitTitle": "La Biblia en tus manos",
+      "orderInUnit": 1,
+      "title": "Que es la Biblia",
+      "status": "reviewed",
+      "doctrinalCategory": "Bibliologia",
+      "baseTextRefs": [
+        "2 Timoteo 3:16-17",
+        "2 Pedro 1:20-21",
+        "Juan 20:31"
+      ],
+      "keyVerseRef": "2 Timoteo 3:16-17",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "bible_two_testaments",
+      "unitId": "fund_bible_orientation",
+      "unitTitle": "La Biblia en tus manos",
+      "orderInUnit": 2,
+      "title": "Una historia en dos testamentos",
+      "status": "reviewed",
+      "doctrinalCategory": "Bibliologia",
+      "baseTextRefs": [
+        "2 Timoteo 3:16-17",
+        "2 Pedro 1:20-21",
+        "Juan 20:31"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "bible_library_66",
+      "unitId": "fund_bible_orientation",
+      "unitTitle": "La Biblia en tus manos",
+      "orderInUnit": 3,
+      "title": "Los 66 libros como biblioteca",
+      "status": "reviewed",
+      "doctrinalCategory": "Bibliologia",
+      "baseTextRefs": [
+        "2 Timoteo 3:16-17",
+        "2 Pedro 1:20-21",
+        "Juan 20:31"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "bible_basic_genres",
+      "unitId": "fund_bible_orientation",
+      "unitTitle": "La Biblia en tus manos",
+      "orderInUnit": 4,
+      "title": "Generos biblicos basicos",
+      "status": "reviewed",
+      "doctrinalCategory": "Bibliologia",
+      "baseTextRefs": [
+        "2 Timoteo 3:16-17",
+        "2 Pedro 1:20-21",
+        "Juan 20:31"
+      ],
+      "keyVerseRef": "Salmo 119:105",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "orientation_checkpoint",
+      "unitId": "fund_bible_orientation",
+      "unitTitle": "La Biblia en tus manos",
+      "orderInUnit": 5,
+      "title": "Checkpoint: orientacion",
+      "status": "reviewed",
+      "doctrinalCategory": "Bibliologia",
+      "baseTextRefs": [
+        "2 Timoteo 3:16-17",
+        "2 Pedro 1:20-21",
+        "Juan 20:31"
+      ],
+      "keyVerseRef": "2 Timoteo 3:16-17",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "reading_observe_first",
+      "unitId": "fund_reading_basics",
+      "unitTitle": "Como leer un pasaje",
+      "orderInUnit": 1,
+      "title": "Observa antes de interpretar",
+      "status": "reviewed",
+      "doctrinalCategory": "Hermeneutica basica",
+      "baseTextRefs": [
+        "Hechos 17:11",
+        "2 Timoteo 2:15",
+        "Nehemias 8:8",
+        "Santiago 1:22"
+      ],
+      "keyVerseRef": "Hechos 17:11",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "reading_who_speaks",
+      "unitId": "fund_reading_basics",
+      "unitTitle": "Como leer un pasaje",
+      "orderInUnit": 2,
+      "title": "Quien habla y a quien",
+      "status": "reviewed",
+      "doctrinalCategory": "Hermeneutica basica",
+      "baseTextRefs": [
+        "Hechos 17:11",
+        "2 Timoteo 2:15",
+        "Nehemias 8:8",
+        "Santiago 1:22"
+      ],
+      "keyVerseRef": "Lucas 10:25-28",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "reading_near_context",
+      "unitId": "fund_reading_basics",
+      "unitTitle": "Como leer un pasaje",
+      "orderInUnit": 3,
+      "title": "Contexto cercano",
+      "status": "reviewed",
+      "doctrinalCategory": "Hermeneutica basica",
+      "baseTextRefs": [
+        "Hechos 17:11",
+        "2 Timoteo 2:15",
+        "Nehemias 8:8",
+        "Santiago 1:22"
+      ],
+      "keyVerseRef": "Nehemias 8:8",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "reading_main_truth",
+      "unitId": "fund_reading_basics",
+      "unitTitle": "Como leer un pasaje",
+      "orderInUnit": 4,
+      "title": "Verdad central",
+      "status": "reviewed",
+      "doctrinalCategory": "Hermeneutica basica",
+      "baseTextRefs": [
+        "Hechos 17:11",
+        "2 Timoteo 2:15",
+        "Nehemias 8:8",
+        "Santiago 1:22"
+      ],
+      "keyVerseRef": "Santiago 1:22",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "reading_small_response",
+      "unitId": "fund_reading_basics",
+      "unitTitle": "Como leer un pasaje",
+      "orderInUnit": 5,
+      "title": "Respuesta pequena",
+      "status": "reviewed",
+      "doctrinalCategory": "Hermeneutica basica",
+      "baseTextRefs": [
+        "Hechos 17:11",
+        "2 Timoteo 2:15",
+        "Nehemias 8:8",
+        "Santiago 1:22"
+      ],
+      "keyVerseRef": "Santiago 1:22",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "reading_checkpoint",
+      "unitId": "fund_reading_basics",
+      "unitTitle": "Como leer un pasaje",
+      "orderInUnit": 6,
+      "title": "Checkpoint: lectura basica",
+      "status": "reviewed",
+      "doctrinalCategory": "Hermeneutica basica",
+      "baseTextRefs": [
+        "Hechos 17:11",
+        "2 Timoteo 2:15",
+        "Nehemias 8:8",
+        "Santiago 1:22"
+      ],
+      "keyVerseRef": "2 Timoteo 2:15",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_pentateuch_learn",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 1,
+      "title": "Pentateuco aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_pentateuch_quiz",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 2,
+      "title": "Pentateuco practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_history_learn",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 3,
+      "title": "Historicos aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_history_quiz",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 4,
+      "title": "Historicos practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_poetry_learn",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 5,
+      "title": "Poeticos aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_poetry_quiz",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 6,
+      "title": "Poeticos practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_major_prophets_learn",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 7,
+      "title": "Profetas Mayores aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_major_prophets_quiz",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 8,
+      "title": "Profetas Mayores practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_minor_prophets_learn",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 9,
+      "title": "Profetas Menores aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_minor_prophets_quiz",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 10,
+      "title": "Profetas Menores practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_ot_all_checkpoint",
+      "unitId": "fund_order_ot",
+      "unitTitle": "Orden del Antiguo Testamento",
+      "orderInUnit": 11,
+      "title": "Checkpoint: todo el AT",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Antiguo Testamento",
+      "baseTextRefs": [
+        "Lucas 24:44",
+        "Romanos 15:4",
+        "Mateo 5:17"
+      ],
+      "keyVerseRef": "Lucas 24:44",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_gospels_learn",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 1,
+      "title": "Evangelios aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_gospels_quiz",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 2,
+      "title": "Evangelios practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_history_learn",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 3,
+      "title": "Hechos aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_history_quiz",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 4,
+      "title": "Evangelios + Hechos practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_pauline_learn",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 5,
+      "title": "Cartas Paulinas aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_pauline_quiz",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 6,
+      "title": "Cartas Paulinas practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_pastoral_learn",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 7,
+      "title": "Pastorales aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_pastoral_quiz",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 8,
+      "title": "Pastorales practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_general_learn",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 9,
+      "title": "Generales aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_general_quiz",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 10,
+      "title": "Generales practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_prophetic_learn",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 11,
+      "title": "Apocalipsis aprende",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_prophetic_quiz",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 12,
+      "title": "Apocalipsis practica",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_nt_all_checkpoint",
+      "unitId": "fund_order_nt",
+      "unitTitle": "Orden del Nuevo Testamento",
+      "orderInUnit": 13,
+      "title": "Checkpoint: todo el NT",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon y panorama del Nuevo Testamento",
+      "baseTextRefs": [
+        "Juan 20:31",
+        "Hechos 1:8",
+        "2 Pedro 3:15-16"
+      ],
+      "keyVerseRef": "Juan 20:31",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_review_ot",
+      "unitId": "fund_order_mastery",
+      "unitTitle": "Biblia completa",
+      "orderInUnit": 1,
+      "title": "Repaso AT",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon biblico completo",
+      "baseTextRefs": [
+        "Lucas 24:27",
+        "Lucas 24:44",
+        "2 Timoteo 3:16-17"
+      ],
+      "keyVerseRef": "Lucas 24:27",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_review_nt",
+      "unitId": "fund_order_mastery",
+      "unitTitle": "Biblia completa",
+      "orderInUnit": 2,
+      "title": "Repaso NT",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon biblico completo",
+      "baseTextRefs": [
+        "Lucas 24:27",
+        "Lucas 24:44",
+        "2 Timoteo 3:16-17"
+      ],
+      "keyVerseRef": "Lucas 24:27",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_bible_full_learn",
+      "unitId": "fund_order_mastery",
+      "unitTitle": "Biblia completa",
+      "orderInUnit": 3,
+      "title": "AT + NT juntos",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon biblico completo",
+      "baseTextRefs": [
+        "Lucas 24:27",
+        "Lucas 24:44",
+        "2 Timoteo 3:16-17"
+      ],
+      "keyVerseRef": "Lucas 24:27",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_bible_full_quiz",
+      "unitId": "fund_order_mastery",
+      "unitTitle": "Biblia completa",
+      "orderInUnit": 4,
+      "title": "Quiz 66 libros",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon biblico completo",
+      "baseTextRefs": [
+        "Lucas 24:27",
+        "Lucas 24:44",
+        "2 Timoteo 3:16-17"
+      ],
+      "keyVerseRef": "Lucas 24:27",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_bible_spaced_review",
+      "unitId": "fund_order_mastery",
+      "unitTitle": "Biblia completa",
+      "orderInUnit": 5,
+      "title": "Repaso espaciado",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon biblico completo",
+      "baseTextRefs": [
+        "Lucas 24:27",
+        "Lucas 24:44",
+        "2 Timoteo 3:16-17"
+      ],
+      "keyVerseRef": "Lucas 24:27",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "order_bible_mastery_checkpoint",
+      "unitId": "fund_order_mastery",
+      "unitTitle": "Biblia completa",
+      "orderInUnit": 6,
+      "title": "Checkpoint: dominio del orden",
+      "status": "reviewed",
+      "doctrinalCategory": "Canon biblico completo",
+      "baseTextRefs": [
+        "Lucas 24:27",
+        "Lucas 24:44",
+        "2 Timoteo 3:16-17"
+      ],
+      "keyVerseRef": "Lucas 24:27",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "bajo",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "gospel_creation",
+      "unitId": "fund_gospel_basics",
+      "unitTitle": "Mensaje central",
+      "orderInUnit": 1,
+      "title": "Creacion",
+      "status": "reviewed",
+      "doctrinalCategory": "Evangelio y salvacion",
+      "baseTextRefs": [
+        "Genesis 1:1",
+        "Genesis 3:15",
+        "Romanos 3:23",
+        "Romanos 5:8",
+        "1 Corintios 15:3-4",
+        "Efesios 2:8-10"
+      ],
+      "keyVerseRef": "Genesis 1:1",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "medio",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "gospel_fall",
+      "unitId": "fund_gospel_basics",
+      "unitTitle": "Mensaje central",
+      "orderInUnit": 2,
+      "title": "Caida",
+      "status": "reviewed",
+      "doctrinalCategory": "Evangelio y salvacion",
+      "baseTextRefs": [
+        "Genesis 1:1",
+        "Genesis 3:15",
+        "Romanos 3:23",
+        "Romanos 5:8",
+        "1 Corintios 15:3-4",
+        "Efesios 2:8-10"
+      ],
+      "keyVerseRef": "Romanos 3:23",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "medio",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "gospel_promise",
+      "unitId": "fund_gospel_basics",
+      "unitTitle": "Mensaje central",
+      "orderInUnit": 3,
+      "title": "Promesa",
+      "status": "reviewed",
+      "doctrinalCategory": "Evangelio y salvacion",
+      "baseTextRefs": [
+        "Genesis 1:1",
+        "Genesis 3:15",
+        "Romanos 3:23",
+        "Romanos 5:8",
+        "1 Corintios 15:3-4",
+        "Efesios 2:8-10"
+      ],
+      "keyVerseRef": "Genesis 3:15",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "medio",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "gospel_christ",
+      "unitId": "fund_gospel_basics",
+      "unitTitle": "Mensaje central",
+      "orderInUnit": 4,
+      "title": "Cristo",
+      "status": "reviewed",
+      "doctrinalCategory": "Evangelio y salvacion",
+      "baseTextRefs": [
+        "Genesis 1:1",
+        "Genesis 3:15",
+        "Romanos 3:23",
+        "Romanos 5:8",
+        "1 Corintios 15:3-4",
+        "Efesios 2:8-10"
+      ],
+      "keyVerseRef": "1 Corintios 15:3-4",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "medio",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "gospel_response",
+      "unitId": "fund_gospel_basics",
+      "unitTitle": "Mensaje central",
+      "orderInUnit": 5,
+      "title": "Respuesta de fe",
+      "status": "reviewed",
+      "doctrinalCategory": "Evangelio y salvacion",
+      "baseTextRefs": [
+        "Genesis 1:1",
+        "Genesis 3:15",
+        "Romanos 3:23",
+        "Romanos 5:8",
+        "1 Corintios 15:3-4",
+        "Efesios 2:8-10"
+      ],
+      "keyVerseRef": "Efesios 2:8-10",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "medio",
+      "pedagogicalRisk": "bajo",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    },
+    {
+      "lessonId": "gospel_checkpoint",
+      "unitId": "fund_gospel_basics",
+      "unitTitle": "Mensaje central",
+      "orderInUnit": 6,
+      "title": "Checkpoint: mensaje central",
+      "status": "reviewed",
+      "doctrinalCategory": "Evangelio y salvacion",
+      "baseTextRefs": [
+        "Genesis 1:1",
+        "Genesis 3:15",
+        "Romanos 3:23",
+        "Romanos 5:8",
+        "1 Corintios 15:3-4",
+        "Efesios 2:8-10"
+      ],
+      "keyVerseRef": "1 Corintios 15:3-4",
+      "auditSummary": "Leccion alineada como fundamento inicial; contiene referencia RVR1960, contexto, doctrina, pregunta formativa, quiz y aplicacion.",
+      "doctrinalRisk": "medio",
+      "pedagogicalRisk": "medio",
+      "requiredBeforeApproval": "Revision humana de redaccion doctrinal y confirmacion de que las preguntas miden el objetivo especifico."
+    }
+  ]
+}

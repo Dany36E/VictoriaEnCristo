@@ -88,7 +88,7 @@ class _LearningHomeCardState extends State<LearningHomeCard> {
                           Text(
                             due > 0
                                 ? 'Tienes $due versículo${due == 1 ? '' : 's'} para repasar'
-                                : 'Maná del día + Armadura · ${level.emoji} ${level.displayName}',
+                                : 'Práctica diaria + Armadura · ${level.emoji} ${level.displayName}',
                             style: AppDesignSystem.bodyMedium(
                               context,
                               color: t.textSecondary,
@@ -117,8 +117,11 @@ class _LearningHomeCardState extends State<LearningHomeCard> {
                         ],
                       ),
                     ),
-                    Icon(Icons.arrow_forward_ios_rounded,
-                        size: 14, color: t.textSecondary),
+                    Icon(
+                      Icons.arrow_forward_ios_rounded,
+                      size: 14,
+                      color: t.textSecondary,
+                    ),
                   ],
                 ),
               ),

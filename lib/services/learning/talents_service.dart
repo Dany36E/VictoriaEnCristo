@@ -31,6 +31,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../config/feature_flags.dart';
+
 /// Tabla pública de recompensas. Centralizada para no esparcir magic numbers.
 class TalentRewards {
   TalentRewards._();
@@ -155,7 +157,9 @@ class TalentsService {
     _loadFromPrefs();
     _loadLedger();
     // Intento de merge con la nube — no bloquea el init.
-    unawaited(_pullFromCloud());
+    if (FeatureFlags.learningCollectiblesEnabled) {
+      unawaited(_pullFromCloud());
+    }
     debugPrint(
       '⭐ [TALENTS] Init balance=${stateNotifier.value.balance} '
       'unlocks=${stateNotifier.value.unlocked.length}',
@@ -169,6 +173,7 @@ class TalentsService {
     }
     _loadFromPrefs();
     _loadLedger();
+    if (!FeatureFlags.learningCollectiblesEnabled) return;
     await _pullFromCloud();
   }
 
@@ -294,6 +299,7 @@ class TalentsService {
   // ══════════════════════════════════════════════════════════════════════════
 
   void _scheduleSync() {
+    if (!FeatureFlags.learningCollectiblesEnabled) return;
     _dirty = true;
     _syncTimer?.cancel();
     _syncTimer = Timer(_syncDebounce, () {
@@ -303,6 +309,7 @@ class TalentsService {
 
   /// Fuerza un push inmediato (útil al cerrar sesión / dispose).
   Future<void> flushSync() async {
+    if (!FeatureFlags.learningCollectiblesEnabled) return;
     _syncTimer?.cancel();
     if (_dirty) await _pushToCloud();
   }
@@ -318,6 +325,7 @@ class TalentsService {
   }
 
   Future<void> _pushToCloud() async {
+    if (!FeatureFlags.learningCollectiblesEnabled) return;
     final ref = _docRef();
     if (ref == null) return;
     final s = stateNotifier.value;
@@ -338,6 +346,7 @@ class TalentsService {
   }
 
   Future<void> _pullFromCloud() async {
+    if (!FeatureFlags.learningCollectiblesEnabled) return;
     final ref = _docRef();
     if (ref == null) return;
     try {

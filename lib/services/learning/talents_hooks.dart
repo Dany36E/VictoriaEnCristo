@@ -12,6 +12,7 @@ import 'dart:async';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/foundation.dart';
 
+import '../../config/feature_flags.dart';
 import '../../utils/platform_capabilities.dart';
 import 'talents_service.dart';
 
@@ -19,6 +20,7 @@ class TalentsHooks {
   TalentsHooks._();
 
   static void _award(int amount, String reason) {
+    if (!FeatureFlags.learningCollectiblesEnabled) return;
     if (amount <= 0) return;
     unawaited(TalentsService.I.earn(amount, reason: reason));
     unawaited(_logAnalytics(amount, reason));

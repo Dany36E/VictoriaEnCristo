@@ -3,7 +3,7 @@
 ///
 /// Muestra: definición + versículo + meditación + 3 acciones (toggleables)
 /// + reflexión (textfield). Al cumplir las 3 acciones + reflexión ≥ 20 chars,
-/// aparece el botón "Ganar insignia".
+/// aparece el botón para completar el fruto.
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
@@ -63,8 +63,8 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
     FeedbackEngine.I.confirm();
   }
 
-  Future<void> _tryAwardBadge() async {
-    // Guardar antes de intentar otorgar
+  Future<void> _completeFruit() async {
+    // Guardar antes de intentar completar
     await FruitProgressService.I.setReflection(f.id, _reflCtrl.text);
     final xp = await FruitProgressService.I
         .tryAwardBadge(f.id, f.actions.length, f.xpReward);
@@ -202,9 +202,9 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: PremiumButton(
-                    onPressed: canAward ? _tryAwardBadge : () {},
+                    onPressed: canAward ? _completeFruit : () {},
                     child: Text(canAward
-                        ? 'Ganar insignia de ${f.name}'
+                        ? 'Completar ${f.name}'
                         : 'Cumple las 3 acciones y escribe reflexión'),
                   ),
                 ),
@@ -401,9 +401,11 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Insignia ganada',
-                  style: AppDesignSystem.headlineSmall(context,
-                      color: t.textPrimary),
+                  'Fruto completado',
+                  style: AppDesignSystem.headlineSmall(
+                    context,
+                    color: t.textPrimary,
+                  ),
                 ),
                 Text(
                   'Regresa cuando quieras a repasar este fruto.',
@@ -446,7 +448,7 @@ class _BadgeDialog extends StatelessWidget {
                     curve: Curves.elasticOut),
             const SizedBox(height: AppDesignSystem.spacingM),
             Text(
-              '¡Insignia de ${fruit.name}!',
+              '¡${fruit.name} completado!',
               style: AppDesignSystem.headlineMedium(context,
                   color: t.textPrimary),
             ),

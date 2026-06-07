@@ -12,6 +12,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../config/feature_flags.dart';
+
 class BadgeRepository {
   // ═══════════════════════════════════════════════════════════════════════════
   // SINGLETON
@@ -80,6 +82,7 @@ class BadgeRepository {
 
   /// Conectar con usuario y sincronizar (CLOUD-FIRST con merge)
   Future<void> connectUser(String uid) async {
+    if (!FeatureFlags.badgesEnabled) return;
     if (_connectingUid == uid && _connectFuture != null) {
       debugPrint(
         '🏅 [BADGE_REPO] connectUser already in progress for $uid, awaiting...',
@@ -94,6 +97,7 @@ class BadgeRepository {
   }
 
   Future<void> _doConnectUser(String uid) async {
+    if (!FeatureFlags.badgesEnabled) return;
     if (!_isInitialized) await init();
 
     try {
@@ -147,6 +151,7 @@ class BadgeRepository {
 
   /// Guardar todos los niveles a cloud (un solo write)
   Future<void> saveAllToCloud(Map<String, int> levels) async {
+    if (!FeatureFlags.badgesEnabled) return;
     final uid = _currentUid;
     if (uid == null) return;
 
@@ -177,6 +182,7 @@ class BadgeRepository {
   }
 
   Future<void> retryPendingCloudSave() async {
+    if (!FeatureFlags.badgesEnabled) return;
     if (!_isInitialized) await init();
     if (!_pendingCloudSave) return;
 

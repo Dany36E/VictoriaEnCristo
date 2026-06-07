@@ -32,7 +32,8 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
   int _wrong = 0;
   bool _usedHonesty = false; // D3 — marcó alguna vez "no la sé"
 
-  int? _selected; // índice seleccionado (MC/WhoSaid/TF/chooseReference/situational)
+  int?
+  _selected; // índice seleccionado (MC/WhoSaid/TF/chooseReference/situational)
   final TextEditingController _textCtrl = TextEditingController();
   bool _answered = false;
   bool _lastWasCorrect = false;
@@ -264,7 +265,13 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
         appBar: AppBar(
           backgroundColor: t.surface,
           iconTheme: IconThemeData(color: t.textPrimary),
-          title: Text('Maná', style: AppDesignSystem.headlineMedium(context, color: t.textPrimary)),
+          title: Text(
+            'Práctica diaria',
+            style: AppDesignSystem.headlineMedium(
+              context,
+              color: t.textPrimary,
+            ),
+          ),
         ),
         body: Center(
           child: Padding(
@@ -280,7 +287,10 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
     }
 
     final p = (_idx + 1) / _questions.length;
-    final promptMaxHeight = (MediaQuery.sizeOf(context).height * 0.32).clamp(140.0, 260.0);
+    final promptMaxHeight = (MediaQuery.sizeOf(context).height * 0.32).clamp(
+      140.0,
+      260.0,
+    );
     return Scaffold(
       backgroundColor: t.scaffoldBg,
       appBar: AppBar(
@@ -321,7 +331,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                     onPressed: _markAsUnknown,
                     icon: const Icon(Icons.help_outline_rounded, size: 18),
                     label: const Text('No la sé'),
-                    style: TextButton.styleFrom(foregroundColor: t.textSecondary),
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.textSecondary,
+                    ),
                   ),
                 ),
               const SizedBox(height: AppDesignSystem.spacingM),
@@ -355,7 +367,10 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                 IconButton(
                   tooltip: 'Escuchar',
                   visualDensity: VisualDensity.compact,
-                  icon: const Icon(Icons.volume_up_rounded, color: AppDesignSystem.gold),
+                  icon: const Icon(
+                    Icons.volume_up_rounded,
+                    color: AppDesignSystem.gold,
+                  ),
                   onPressed: _speakPrompt,
                 ),
               if (_q.reference != null &&
@@ -471,7 +486,10 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                   Expanded(
                     child: Text(
                       _q.options[i],
-                      style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
+                      style: AppDesignSystem.bodyLarge(
+                        context,
+                        color: t.textPrimary,
+                      ),
                     ),
                   ),
                   if (showResult && isCorrect)
@@ -481,7 +499,11 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                       size: 22,
                     ),
                   if (showResult && selected && !isCorrect)
-                    const Icon(Icons.cancel_rounded, color: AppDesignSystem.struggle, size: 22),
+                    const Icon(
+                      Icons.cancel_rounded,
+                      color: AppDesignSystem.struggle,
+                      size: 22,
+                    ),
                 ],
               ),
             ),
@@ -503,7 +525,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          _answered ? 'Orden correcto:' : 'Toca los eventos en orden cronológico:',
+          _answered
+              ? 'Orden correcto:'
+              : 'Toca los eventos en orden cronológico:',
           style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
         ),
         const SizedBox(height: AppDesignSystem.spacingS),
@@ -530,7 +554,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                 bg = AppDesignSystem.gold.withOpacity(0.08);
               }
               return Padding(
-                padding: const EdgeInsets.only(bottom: AppDesignSystem.spacingS),
+                padding: const EdgeInsets.only(
+                  bottom: AppDesignSystem.spacingS,
+                ),
                 child: InkWell(
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                   onTap: _answered
@@ -549,7 +575,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                     padding: const EdgeInsets.all(AppDesignSystem.spacingM),
                     decoration: BoxDecoration(
                       color: bg,
-                      borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                      borderRadius: BorderRadius.circular(
+                        AppDesignSystem.radiusM,
+                      ),
                       border: Border.all(color: border, width: 1.5),
                     ),
                     child: Row(
@@ -558,7 +586,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                           width: 28,
                           height: 28,
                           decoration: BoxDecoration(
-                            color: pickedPos >= 0 ? AppDesignSystem.gold : t.cardBorder,
+                            color: pickedPos >= 0
+                                ? AppDesignSystem.gold
+                                : t.cardBorder,
                             shape: BoxShape.circle,
                           ),
                           alignment: Alignment.center,
@@ -574,7 +604,10 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                         Expanded(
                           child: Text(
                             opt,
-                            style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
+                            style: AppDesignSystem.bodyLarge(
+                              context,
+                              color: t.textPrimary,
+                            ),
                           ),
                         ),
                         if (_answered)
@@ -626,7 +659,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                     final matched = _matchResult.containsKey(i);
                     final isCurrent = i == _matchLeftPtr && !_answered;
                     final wasCorrect =
-                        _answered && _matchResult[i] != null && _rightOrder[_matchResult[i]!] == i;
+                        _answered &&
+                        _matchResult[i] != null &&
+                        _rightOrder[_matchResult[i]!] == i;
                     return Container(
                       margin: const EdgeInsets.only(bottom: 6),
                       padding: const EdgeInsets.all(10),
@@ -638,7 +673,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                                   ? AppDesignSystem.struggle.withOpacity(0.12)
                                   : AppDesignSystem.gold.withOpacity(0.10))
                             : t.cardBg,
-                        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                        borderRadius: BorderRadius.circular(
+                          AppDesignSystem.radiusM,
+                        ),
                         border: Border.all(
                           color: isCurrent
                               ? AppDesignSystem.gold
@@ -653,7 +690,10 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                       child: Text(
                         q.pairs[i].left,
                         softWrap: true,
-                        style: AppDesignSystem.bodyMedium(context, color: t.textPrimary),
+                        style: AppDesignSystem.bodyMedium(
+                          context,
+                          color: t.textPrimary,
+                        ),
                       ),
                     );
                   },
@@ -692,13 +732,16 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 6),
                       child: InkWell(
-                        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                        borderRadius: BorderRadius.circular(
+                          AppDesignSystem.radiusM,
+                        ),
                         onTap: (_answered || used || _matchLeftPtr >= n)
                             ? null
                             : () {
                                 setState(() {
                                   _matchResult[_matchLeftPtr] = displayIdx;
-                                  if (_rightOrder[displayIdx] != _matchLeftPtr) {
+                                  if (_rightOrder[displayIdx] !=
+                                      _matchLeftPtr) {
                                     _matchAllCorrect = false;
                                   }
                                   _matchLeftPtr++;
@@ -709,13 +752,18 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
                             color: bg,
-                            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                            borderRadius: BorderRadius.circular(
+                              AppDesignSystem.radiusM,
+                            ),
                             border: Border.all(color: border, width: 1.5),
                           ),
                           child: Text(
                             q.pairs[pairIdx].right,
                             softWrap: true,
-                            style: AppDesignSystem.bodyMedium(context, color: t.textPrimary),
+                            style: AppDesignSystem.bodyMedium(
+                              context,
+                              color: t.textPrimary,
+                            ),
                           ),
                         ),
                       ),
@@ -731,7 +779,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
   }
 
   Widget _buildFeedback(BuildContext context, AppThemeData t) {
-    final color = _lastWasCorrect ? AppDesignSystem.victory : AppDesignSystem.struggle;
+    final color = _lastWasCorrect
+        ? AppDesignSystem.victory
+        : AppDesignSystem.struggle;
     return Container(
       width: double.infinity,
       margin: const EdgeInsets.only(top: AppDesignSystem.spacingM),
@@ -747,7 +797,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
           Row(
             children: [
               Icon(
-                _lastWasCorrect ? Icons.check_circle_rounded : Icons.info_rounded,
+                _lastWasCorrect
+                    ? Icons.check_circle_rounded
+                    : Icons.info_rounded,
                 color: color,
                 size: 20,
               ),
@@ -759,7 +811,10 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
             ],
           ),
           const SizedBox(height: 6),
-          Text(_q.explanation, style: AppDesignSystem.bodyMedium(context, color: t.textPrimary)),
+          Text(
+            _q.explanation,
+            style: AppDesignSystem.bodyMedium(context, color: t.textPrimary),
+          ),
           if (!_lastWasCorrect && _q.type == QuestionType.completeVerse) ...[
             const SizedBox(height: 4),
             Text(
@@ -779,7 +834,8 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
           QuestionType.completeVerse => _textCtrl.text.trim().isNotEmpty,
           QuestionType.orderEvents =>
             _orderSeq.length == _q.options.length && _q.options.isNotEmpty,
-          QuestionType.matchPairs => _matchResult.length == _q.pairs.length && _q.pairs.isNotEmpty,
+          QuestionType.matchPairs =>
+            _matchResult.length == _q.pairs.length && _q.pairs.isNotEmpty,
           _ => _selected != null,
         };
     final label = _answered
@@ -852,7 +908,10 @@ class _TypeChip extends StatelessWidget {
         color: AppDesignSystem.gold.withOpacity(0.15),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
       ),
-      child: Text(_label, style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold)),
+      child: Text(
+        _label,
+        style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+      ),
     );
   }
 }

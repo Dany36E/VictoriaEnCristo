@@ -35,8 +35,6 @@ import '../widgets/home/glassmorphic_menu_button.dart' as gmb;
 import '../utils/bible_navigation_helper.dart';
 import '../services/battle_partner_service.dart';
 import '../services/audio_engine.dart';
-import '../services/badge_service.dart';
-import '../widgets/badge_celebration.dart';
 import '../widgets/morning_checkin_sheet.dart';
 import '../widgets/offline_banner.dart';
 import '../main.dart' show routeObserver;
@@ -148,9 +146,6 @@ class _HomeScreenState extends State<HomeScreen>
         });
       }
     }
-
-    // Verificar insignias después de cargar datos
-    _checkBadgesAndNotify();
 
     // Mostrar check-in matutino (una vez al día)
     _showMorningCheckinIfNeeded();
@@ -286,22 +281,10 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void didPopNext() {
     AudioEngine.I.unmuteForScreen();
-    _checkBadgesAndNotify();
   }
 
   @override
   void didPushNext() => AudioEngine.I.muteForScreen();
-
-  /// Verifica insignias y muestra snackbar si hay nuevas
-  Future<void> _checkBadgesAndNotify() async {
-    final newBadges = await BadgeService.I.checkForNewBadges();
-    if (!mounted || newBadges.isEmpty) return;
-    for (final badge in newBadges) {
-      BadgeCelebration.showSnackbar(context, badge);
-      await Future.delayed(const Duration(milliseconds: 600));
-      if (!mounted) return;
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

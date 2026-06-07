@@ -176,7 +176,7 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
           const SizedBox(height: AppDesignSystem.spacingM),
           Row(
             children: [
-              _chip('$earned/$total insignias'),
+              _chip('$earned/$total frutos'),
               const SizedBox(width: 8),
               if (crown) _chip('👑 Corona completa'),
             ],

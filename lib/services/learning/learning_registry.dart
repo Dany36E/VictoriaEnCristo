@@ -18,6 +18,7 @@ library;
 
 import 'package:flutter/foundation.dart';
 
+import '../../config/feature_flags.dart';
 import 'bible_map_progress_service.dart';
 import 'bible_map_repository.dart';
 import 'bible_order_progress_service.dart';
@@ -30,6 +31,8 @@ import 'heroes_progress_service.dart';
 import 'heroes_repository.dart';
 import 'journey_progress_service.dart';
 import 'journey_repository.dart';
+import 'kingdom_curriculum_repository.dart';
+import 'kingdom_progress_service.dart';
 import 'learning_cloud_sync.dart';
 import 'learning_progress_service.dart';
 import 'parable_progress_service.dart';
@@ -86,8 +89,12 @@ class LearningRegistry {
       ProphecyProgressService.I.init(),
       BibleOrderProgressService.I.init(),
       VerseMemoryService.I.init(),
-      TalentsService.I.refreshFromCloud(),
-      CollectiblesService.I.init(),
+      KingdomCurriculumRepository.I.load(),
+      KingdomProgressService.I.init(),
+      if (FeatureFlags.learningCollectiblesEnabled)
+        TalentsService.I.refreshFromCloud(),
+      if (FeatureFlags.learningCollectiblesEnabled)
+        CollectiblesService.I.init(),
     ]);
   }
 
@@ -112,6 +119,7 @@ class LearningRegistry {
         FruitRepository.I.load(),
         BookRepository.I.load(),
         ProphecyRepository.I.load(),
+        KingdomCurriculumRepository.I.load(),
 
         // Servicios de progreso por módulo
         JourneyProgressService.I.init(),
@@ -123,6 +131,7 @@ class LearningRegistry {
         BookProgressService.I.init(),
         ProphecyProgressService.I.init(),
         BibleOrderProgressService.I.init(),
+        KingdomProgressService.I.init(),
 
         // Versículos memorizados (depende de Progress para contador dominados,
         // pero el ciclo es seguro: Progress se inicializa con valor por defecto
@@ -133,8 +142,9 @@ class LearningRegistry {
         // CollectiblesService) — Future.wait las pone en paralelo igualmente,
         // pero CollectiblesService.init() vuelve a llamar TalentsService.I.init()
         // que es idempotente.
-        TalentsService.I.init(),
-        CollectiblesService.I.init(),
+        if (FeatureFlags.learningCollectiblesEnabled) TalentsService.I.init(),
+        if (FeatureFlags.learningCollectiblesEnabled)
+          CollectiblesService.I.init(),
       ]);
 
       // FASE C — observar todos los notifiers de servicios sincronizables.
@@ -153,6 +163,7 @@ class LearningRegistry {
         BibleOrderProgressService.I.stateNotifier,
         VerseMemoryService.I.changeTickNotifier,
         VerseMemoryService.I.preferredVersionNotifier,
+        KingdomProgressService.I.stateNotifier,
       ]);
 
       readyNotifier.value = true;

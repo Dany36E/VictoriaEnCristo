@@ -1,19 +1,3 @@
-/// ═══════════════════════════════════════════════════════════════════════════
-/// MyKingdomScreen — "Mi Reino" (C5)
-///
-/// Sala de trofeos: muestra todo lo que el usuario ha conquistado en una sola
-/// vista. Útil para reforzar la sensación de logro acumulado y para que pueda
-/// repasar sin entrar a cada módulo.
-///
-/// Resumen mostrado:
-///   • Nivel espiritual + XP
-///   • Racha y escudo de gracia
-///   • Versículos dominados / aprendiendo / total
-///   • Travesía: estaciones completadas
-///   • Héroes desbloqueados
-///   • Parábolas / Línea del tiempo / Fruto / Mapas / Profecías
-///   • Libros estudiados (66)
-/// ═══════════════════════════════════════════════════════════════════════════
 library;
 
 import 'package:flutter/material.dart';
@@ -24,7 +8,6 @@ import '../../services/learning/bible_map_repository.dart';
 import '../../services/learning/bible_order_progress_service.dart';
 import '../../services/learning/book_progress_service.dart';
 import '../../services/learning/book_repository.dart';
-import '../../services/learning/collectibles_service.dart';
 import '../../services/learning/fruit_progress_service.dart';
 import '../../services/learning/fruit_repository.dart';
 import '../../services/learning/heroes_progress_service.dart';
@@ -36,13 +19,11 @@ import '../../services/learning/parable_progress_service.dart';
 import '../../services/learning/parable_repository.dart';
 import '../../services/learning/prophecy_progress_service.dart';
 import '../../services/learning/prophecy_repository.dart';
-import '../../services/learning/talents_service.dart';
 import '../../services/learning/timeline_progress_service.dart';
 import '../../services/learning/timeline_repository.dart';
 import '../../services/learning/verse_memory_service.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
-import 'talents_library_screen.dart';
 
 class MyKingdomScreen extends StatelessWidget {
   const MyKingdomScreen({super.key});
@@ -56,8 +37,10 @@ class MyKingdomScreen extends StatelessWidget {
         backgroundColor: t.surface,
         elevation: 0,
         iconTheme: IconThemeData(color: t.textPrimary),
-        title: Text('Mi Reino',
-            style: AppDesignSystem.headlineMedium(context, color: t.textPrimary)),
+        title: Text(
+          'Mi Reino',
+          style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
+        ),
       ),
       body: AnimatedBuilder(
         animation: Listenable.merge([
@@ -72,26 +55,24 @@ class MyKingdomScreen extends StatelessWidget {
           BibleMapProgressService.I.stateNotifier,
           ProphecyProgressService.I.stateNotifier,
           BibleOrderProgressService.I.stateNotifier,
-          TalentsService.I.stateNotifier,
-          CollectiblesService.I.unlockedNotifier,
         ]),
         builder: (context, _) {
-          final p = LearningProgressService.I.progressNotifier.value;
+          final progress = LearningProgressService.I.progressNotifier.value;
           final verses = VerseMemoryService.I.summary();
+          final fruitCompleted =
+              FruitProgressService.I.stateNotifier.value.badges.length;
           return ListView(
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
             children: [
-              _LevelHeader(progress: p),
+              _LevelHeader(progress: progress),
               const SizedBox(height: AppDesignSystem.spacingL),
-              // ── Tarjeta especial Talentos ─────────────────────────────
-              _TalentsCard(),
-              const SizedBox(height: AppDesignSystem.spacingM),
               _trophyTile(
                 context,
                 icon: Icons.local_fire_department_rounded,
                 color: AppDesignSystem.gold,
                 title: 'Racha',
-                value: '${p.studyStreak} día${p.studyStreak == 1 ? '' : 's'}',
+                value:
+                    '${progress.studyStreak} d${progress.studyStreak == 1 ? "ía" : "ías"}',
                 hint: LearningProgressService.I.isGraceShieldAvailable
                     ? 'Escudo de gracia disponible esta semana'
                     : 'Escudo usado · vuelve la próxima semana',
@@ -138,9 +119,9 @@ class MyKingdomScreen extends StatelessWidget {
                 color: const Color(0xFF9FB8D8),
                 title: 'Línea del tiempo',
                 value: () {
-                  final s = TimelineProgressService.I.stateNotifier.value;
-                  final stars = s.completed.values.fold(0, (a, b) => a + b);
-                  return '${s.completed.length} / ${TimelineRepository.I.all.length}  ·  $stars ★';
+                  final state = TimelineProgressService.I.stateNotifier.value;
+                  final stars = state.completed.values.fold(0, (a, b) => a + b);
+                  return '${state.completed.length} / ${TimelineRepository.I.all.length} · $stars ★';
                 }(),
                 hint: 'Lecciones',
               ),
@@ -149,9 +130,8 @@ class MyKingdomScreen extends StatelessWidget {
                 icon: Icons.eco_rounded,
                 color: const Color(0xFF7FC99A),
                 title: 'Fruto del Espíritu',
-                value:
-                    '${FruitProgressService.I.stateNotifier.value.badges.length} / ${FruitRepository.I.all.length}',
-                hint: 'Insignias · Gálatas 5:22-23',
+                value: '$fruitCompleted / ${FruitRepository.I.all.length}',
+                hint: 'Frutos cultivados · Gálatas 5:22-23',
               ),
               _trophyTile(
                 context,
@@ -177,9 +157,9 @@ class MyKingdomScreen extends StatelessWidget {
                 color: const Color(0xFF6BC5A0),
                 title: 'Tierras bíblicas',
                 value: () {
-                  final s = BibleMapProgressService.I.stateNotifier.value;
-                  final stars = s.completedMaps.values.fold(0, (a, b) => a + b);
-                  return '${s.completedMaps.length} / ${BibleMapRepository.I.all.length}  ·  $stars ★';
+                  final state = BibleMapProgressService.I.stateNotifier.value;
+                  final stars = state.completedMaps.values.fold(0, (a, b) => a + b);
+                  return '${state.completedMaps.length} / ${BibleMapRepository.I.all.length} · $stars ★';
                 }(),
                 hint: '',
               ),
@@ -189,9 +169,9 @@ class MyKingdomScreen extends StatelessWidget {
                 color: const Color(0xFFB59FE3),
                 title: 'Profecías',
                 value: () {
-                  final s = ProphecyProgressService.I.stateNotifier.value;
-                  final stars = s.bestStars.values.fold(0, (a, b) => a + b);
-                  return '${s.bestStars.length} / ${ProphecyRepository.I.all.length}  ·  $stars ★';
+                  final state = ProphecyProgressService.I.stateNotifier.value;
+                  final stars = state.bestStars.values.fold(0, (a, b) => a + b);
+                  return '${state.bestStars.length} / ${ProphecyRepository.I.all.length} · $stars ★';
                 }(),
                 hint: 'AT → NT',
               ),
@@ -249,27 +229,33 @@ class MyKingdomScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(title,
-                      style: AppDesignSystem.headlineSmall(
-                        context,
-                        color: t.textPrimary,
-                      )),
+                  Text(
+                    title,
+                    style: AppDesignSystem.headlineSmall(
+                      context,
+                      color: t.textPrimary,
+                    ),
+                  ),
                   if (hint.isNotEmpty) ...[
                     const SizedBox(height: 2),
-                    Text(hint,
-                        style: AppDesignSystem.bodyMedium(
-                          context,
-                          color: t.textSecondary,
-                        )),
+                    Text(
+                      hint,
+                      style: AppDesignSystem.bodyMedium(
+                        context,
+                        color: t.textSecondary,
+                      ),
+                    ),
                   ],
                 ],
               ),
             ),
-            Text(value,
-                style: AppDesignSystem.headlineSmall(
-                  context,
-                  color: AppDesignSystem.gold,
-                )),
+            Text(
+              value,
+              style: AppDesignSystem.headlineSmall(
+                context,
+                color: AppDesignSystem.gold,
+              ),
+            ),
           ],
         ),
       ),
@@ -279,12 +265,13 @@ class MyKingdomScreen extends StatelessWidget {
 
 class _LevelHeader extends StatelessWidget {
   final LearningProgress progress;
+
   const _LevelHeader({required this.progress});
 
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    final lvl = progress.level;
+    final level = progress.level;
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
       decoration: BoxDecoration(
@@ -301,121 +288,31 @@ class _LevelHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(lvl.emoji, style: const TextStyle(fontSize: 56)),
+          Text(level.emoji, style: const TextStyle(fontSize: 56)),
           const SizedBox(width: AppDesignSystem.spacingM),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(lvl.displayName,
-                    style: AppDesignSystem.displaySmall(
-                      context,
-                      color: t.textPrimary,
-                    )),
+                Text(
+                  level.displayName,
+                  style: AppDesignSystem.displaySmall(
+                    context,
+                    color: t.textPrimary,
+                  ),
+                ),
                 const SizedBox(height: 4),
-                Text('${progress.totalXp} XP totales',
-                    style: AppDesignSystem.bodyMedium(
-                      context,
-                      color: t.textSecondary,
-                    )),
+                Text(
+                  '${progress.totalXp} XP totales',
+                  style: AppDesignSystem.bodyMedium(
+                    context,
+                    color: t.textSecondary,
+                  ),
+                ),
               ],
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-
-/// Tarjeta destacada que muestra balance de Talentos + progreso global de
-/// coleccionables. Tap ? abre la biblioteca.
-class _TalentsCard extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
-    final balance = TalentsService.I.stateNotifier.value.balance;
-    final unlocked = CollectiblesService.I.totalUnlocked;
-    final total = CollectiblesService.I.totalAvailable;
-    final pct = total == 0 ? 0.0 : (unlocked / total).clamp(0.0, 1.0);
-
-    return InkWell(
-      onTap: () => Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => const TalentsLibraryScreen()),
-      ),
-      borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-      child: Container(
-        padding: const EdgeInsets.all(AppDesignSystem.spacingL),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppDesignSystem.gold.withOpacity(0.25),
-              AppDesignSystem.goldDark.withOpacity(0.08),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-          border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppDesignSystem.gold,
-                        AppDesignSystem.goldDark,
-                      ],
-                    ),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.star_rounded,
-                    color: AppDesignSystem.midnightDeep,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(width: AppDesignSystem.spacingM),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Talentos',
-                          style: AppDesignSystem.headlineSmall(context,
-                              color: t.textPrimary)),
-                      Text('$balance disponibles',
-                          style: AppDesignSystem.bodyMedium(context,
-                              color: AppDesignSystem.gold)),
-                    ],
-                  ),
-                ),
-                Icon(Icons.chevron_right_rounded, color: t.textSecondary),
-              ],
-            ),
-            const SizedBox(height: AppDesignSystem.spacingM),
-            Text(
-              'Biblioteca: $unlocked / $total piezas',
-              style: AppDesignSystem.labelMedium(context, color: t.textSecondary),
-            ),
-            const SizedBox(height: 6),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-              child: LinearProgressIndicator(
-                value: pct,
-                minHeight: 6,
-                backgroundColor: t.cardBg,
-                valueColor:
-                    const AlwaysStoppedAnimation(AppDesignSystem.gold),
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

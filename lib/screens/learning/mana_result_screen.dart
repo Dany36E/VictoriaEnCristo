@@ -16,6 +16,7 @@ class ManaResultScreen extends StatelessWidget {
   final int correct;
   final int wrong;
   final int xpEarned;
+
   /// Desglose opcional para mostrar bonus + escudo de gracia.
   final SessionXpReward? reward;
 
@@ -35,8 +36,8 @@ class ManaResultScreen extends StatelessWidget {
     final title = correct == total
         ? '¡Sesión perfecta!'
         : correct >= total / 2
-            ? '¡Buen trabajo!'
-            : 'Sigue entrenando';
+        ? '¡Buen trabajo!'
+        : 'Sigue entrenando';
     final subtitle = correct == total
         ? 'Dominaste cada pregunta. La Palabra se arraiga en ti.'
         : 'Cada día rinde fruto. Lo que aprendiste queda.';
@@ -108,16 +109,20 @@ class ManaResultScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(AppDesignSystem.spacingM),
                   decoration: BoxDecoration(
                     color: AppDesignSystem.gold.withOpacity(0.08),
-                    borderRadius:
-                        BorderRadius.circular(AppDesignSystem.radiusM),
+                    borderRadius: BorderRadius.circular(
+                      AppDesignSystem.radiusM,
+                    ),
                     border: Border.all(
                       color: AppDesignSystem.gold.withOpacity(0.3),
                     ),
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.shield_rounded,
-                          color: AppDesignSystem.gold, size: 22),
+                      const Icon(
+                        Icons.shield_rounded,
+                        color: AppDesignSystem.gold,
+                        size: 22,
+                      ),
                       const SizedBox(width: AppDesignSystem.spacingS),
                       Expanded(
                         child: Text(
@@ -166,6 +171,7 @@ class _Stat extends StatelessWidget {
   final String label;
   final String value;
   final bool highlight;
+
   /// Si se provee, el valor se anima con [AnimatedCounter] (anteponiendo "+").
   final int? animatedValue;
 
@@ -190,7 +196,9 @@ class _Stat extends StatelessWidget {
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
-            color: highlight ? AppDesignSystem.gold.withOpacity(0.5) : t.cardBorder,
+            color: highlight
+                ? AppDesignSystem.gold.withOpacity(0.5)
+                : t.cardBorder,
           ),
         ),
         child: Column(
