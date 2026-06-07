@@ -354,6 +354,50 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
     return _normalize(buffer.toString());
   }
 
+  Future<void> _deleteNote(BibleReaderThemeData t, SermonNote note) async {
+    final title = _noteTitle(note);
+    final confirmed =
+        await showDialog<bool>(
+          context: context,
+          builder: (ctx) => AlertDialog(
+            backgroundColor: t.surface,
+            title: Text(
+              'Eliminar apunte',
+              style: GoogleFonts.manrope(
+                color: t.textPrimary,
+                fontSize: 16,
+              ),
+            ),
+            content: Text(
+              'Eliminar "$title"?',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary,
+                fontSize: 14,
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, false),
+                child: Text(
+                  'Cancelar',
+                  style: GoogleFonts.manrope(color: t.textSecondary),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(ctx, true),
+                child: Text(
+                  'Eliminar',
+                  style: GoogleFonts.manrope(color: Colors.red),
+                ),
+              ),
+            ],
+          ),
+        ) ??
+        false;
+    if (!confirmed) return;
+    await SermonNoteService.I.deleteNote(note.id);
+  }
+
   Widget _buildNoteTile(BibleReaderThemeData t, SermonNote note) {
     final preview = _previewText(note);
     final central = note.centralPassage;
@@ -486,6 +530,18 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     style: GoogleFonts.manrope(
                       color: t.textSecondary.withOpacity(0.4),
                       fontSize: 11,
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  IconButton(
+                    tooltip: 'Eliminar apunte',
+                    visualDensity: VisualDensity.compact,
+                    splashRadius: 18,
+                    onPressed: () => _deleteNote(t, note),
+                    icon: Icon(
+                      Icons.delete_outline,
+                      size: 18,
+                      color: t.textSecondary.withOpacity(0.72),
                     ),
                   ),
                 ],

@@ -710,7 +710,8 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     await showModalBottomSheet<void>(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (_) => _TypographyHintSheet(theme: t),
+      isScrollControlled: true,
+      builder: (_) => _TypographySheet(theme: t),
     );
   }
 
@@ -926,10 +927,25 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
             ),
             onPressed: _exportPdf,
           ),
-          IconButton(
-            tooltip: 'Texto',
-            icon: Icon(Icons.text_fields, color: t.textSecondary, size: 20),
+          TextButton.icon(
             onPressed: () => _openTypographySheet(t),
+            icon: Icon(Icons.text_fields, color: t.accent, size: 17),
+            label: const Text('Texto y colores'),
+            style: TextButton.styleFrom(
+              foregroundColor: t.accent,
+              visualDensity: VisualDensity.compact,
+              minimumSize: const Size(0, 34),
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+                side: BorderSide(color: t.accent.withOpacity(0.22)),
+              ),
+              textStyle: GoogleFonts.manrope(
+                fontSize: 12,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
           ),
         ],
       ),
@@ -1019,7 +1035,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
               ),
               _menuItem(t, _SermonHeaderAction.savedNotes, 'Apuntes guardados'),
               _menuItem(t, _SermonHeaderAction.exportPdf, 'Exportar PDF'),
-              _menuItem(t, _SermonHeaderAction.text, 'Texto'),
+              _menuItem(t, _SermonHeaderAction.text, 'Texto y colores'),
             ],
           ),
         ],
@@ -2373,6 +2389,7 @@ class _VerseDropdown extends StatelessWidget {
   }
 }
 
+// ignore: unused_element
 class _TypographyHintSheet extends StatelessWidget {
   final BibleReaderThemeData theme;
 
@@ -2392,6 +2409,127 @@ class _TypographyHintSheet extends StatelessWidget {
         child: Text(
           'Selecciona texto dentro de Notas y usa B, subrayado o tamaño.',
           style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14),
+        ),
+      ),
+    );
+  }
+}
+
+class _TypographySheet extends StatelessWidget {
+  final BibleReaderThemeData theme;
+
+  const _TypographySheet({required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return SafeArea(
+      child: Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 20),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: t.textSecondary.withOpacity(0.1)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'TEXTO Y COLORES',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary.withOpacity(0.6),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 14),
+            ValueListenableBuilder<double>(
+              valueListenable: BibleUserDataService.I.fontSizeNotifier,
+              builder: (_, size, _) {
+                return Row(
+                  children: [
+                    Text(
+                      'A',
+                      style: GoogleFonts.lora(
+                        color: t.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Expanded(
+                      child: Slider(
+                        value: size,
+                        min: 14,
+                        max: 28,
+                        divisions: 7,
+                        activeColor: t.accent,
+                        inactiveColor: t.textSecondary.withOpacity(0.2),
+                        onChanged: (v) => BibleUserDataService.I.setFontSize(v),
+                      ),
+                    ),
+                    Text(
+                      'A',
+                      style: GoogleFonts.lora(
+                        color: t.textSecondary,
+                        fontSize: 26,
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'TEMA',
+              style: GoogleFonts.manrope(
+                color: t.textSecondary.withOpacity(0.6),
+                fontSize: 10,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 2,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ValueListenableBuilder<String>(
+              valueListenable: BibleUserDataService.I.readerThemeNotifier,
+              builder: (_, currentId, _) {
+                final migrated = BibleReaderThemeData.migrateId(currentId);
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: BibleReaderThemeData.all.map((th) {
+                    final isActive = th.id == migrated;
+                    return GestureDetector(
+                      onTap: () => BibleUserDataService.I.setReaderTheme(th.id),
+                      child: Container(
+                        width: 36,
+                        height: 36,
+                        decoration: BoxDecoration(
+                          color: th.swatchColor,
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: isActive
+                                ? t.accent
+                                : t.textSecondary.withOpacity(0.2),
+                            width: isActive ? 2.5 : 1,
+                          ),
+                        ),
+                        child: isActive
+                            ? Icon(
+                                Icons.check,
+                                color: th.isDark
+                                    ? Colors.white70
+                                    : Colors.black54,
+                                size: 16,
+                              )
+                            : null,
+                      ),
+                    );
+                  }).toList(),
+                );
+              },
+            ),
+          ],
         ),
       ),
     );
