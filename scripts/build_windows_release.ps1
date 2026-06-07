@@ -8,6 +8,19 @@ param(
 
 $ErrorActionPreference = "Stop"
 
+$pubspecPath = "pubspec.yaml"
+if (-not (Test-Path $pubspecPath)) {
+    throw "pubspec.yaml not found at repository root."
+}
+
+$versionLine = Get-Content $pubspecPath | Where-Object { $_ -match '^version:\s*([0-9]+\.[0-9]+\.[0-9]+)(?:\+([0-9]+))?$' } | Select-Object -First 1
+if (-not $versionLine -or $versionLine -notmatch '^version:\s*([0-9]+\.[0-9]+\.[0-9]+)(?:\+([0-9]+))?$') {
+    throw "Could not parse app version from pubspec.yaml."
+}
+
+$buildName = $Matches[1]
+$versionTag = "v$buildName"
+
 $localEnvPath = ".env.desktop"
 if (Test-Path $localEnvPath) {
     Get-Content $localEnvPath | ForEach-Object {
@@ -36,7 +49,15 @@ if (-not [string]::IsNullOrWhiteSpace($GoogleDesktopClientId) -and
 } else {
     Write-Warning "Google Desktop OAuth not configured. Create .env.desktop or pass -GoogleDesktopClientId/-GoogleDesktopClientSecret."
 }
-flutter @buildArgs
+
+$flutterExe = (Get-Command flutter -ErrorAction SilentlyContinue | Select-Object -First 1).Source
+if ([string]::IsNullOrWhiteSpace($flutterExe)) {
+    $flutterExe = "C:\Users\danie\flutter\bin\flutter.bat"
+}
+if (-not (Test-Path $flutterExe)) {
+    throw "Flutter executable not found. Expected flutter in PATH or at C:\Users\danie\flutter\bin\flutter.bat"
+}
+& $flutterExe @buildArgs
 
 $releaseDir = "build\windows\x64\runner\Release"
 if (-not (Test-Path $releaseDir)) {
@@ -47,11 +68,18 @@ Write-Host "Release folder: $releaseDir"
 
 if ($Zip) {
     $zipPath = "build\VictoriaEnCristo-Windows.zip"
+    $versionedZipPath = "build\VictoriaEnCristo-Windows-$versionTag.zip"
+    $distZipPath = "dist\VictoriaEnCristo-Windows-$versionTag.zip"
     if (Test-Path $zipPath) {
         Remove-Item $zipPath -Force
     }
     Compress-Archive -Path "$releaseDir\*" -DestinationPath $zipPath
     Write-Host "Zip created: $zipPath"
+    New-Item -ItemType Directory -Force "dist" | Out-Null
+    Copy-Item $zipPath $versionedZipPath -Force
+    Copy-Item $zipPath $distZipPath -Force
+    Write-Host "Versioned zip copied to: $versionedZipPath"
+    Write-Host "Versioned zip copied to: $distZipPath"
 }
 
 if ($Install) {
