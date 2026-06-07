@@ -30,6 +30,7 @@ class BibleDownloadService {
 
   // ── Estado ──
   bool _initialized = false;
+  Future<void>? _initFuture;
   late String _bibleDirPath;
 
   /// Estado de descarga de cada versión (reactivo)
@@ -47,6 +48,13 @@ class BibleDownloadService {
   /// Si una versión no base no tiene URL, se marca como no disponible para no
   /// obligar a empaquetar todos los XML en el bundle inicial.
   final Map<String, String> _remoteUrls = {};
+  static const Set<String> _bundledFileNames = {
+    'Reina Valera 1960.xml',
+    'NVI.xml',
+    'LBLA.xml',
+    'NTV.xml',
+    'TLA.xml',
+  };
 
   static const _prefsKeyPrefix = 'bible_downloaded_';
 
@@ -55,6 +63,13 @@ class BibleDownloadService {
   // ══════════════════════════════════════════════════════════════════════════
 
   Future<void> init() async {
+    if (_initialized) return;
+    if (_initFuture != null) return _initFuture!;
+    _initFuture = _initInternal();
+    await _initFuture;
+  }
+
+  Future<void> _initInternal() async {
     if (_initialized) return;
 
     final dir = await getApplicationDocumentsDirectory();
@@ -82,6 +97,8 @@ class BibleDownloadService {
     _initialized = true;
     debugPrint('📥 [BIBLE-DL] BibleDownloadService initialized');
   }
+
+  Future<void> ensureInitialized() => init();
 
   Future<void> _loadRemoteUrls() async {
     try {
@@ -117,11 +134,16 @@ class BibleDownloadService {
   }
 
   /// RVR1960 queda incluida en el bundle como versión base offline.
-  bool isBundled(BibleVersion version) => version == BibleVersion.rvr1960;
+  bool isBundled(BibleVersion version) =>
+      _bundledFileNames.contains(version.fileName);
 
   /// ¿Hay una URL remota configurada para descargar esta versión?
   bool hasRemoteSource(BibleVersion version) =>
       _remoteUrls.containsKey(version.id);
+
+  /// ¿Existe una fuente válida para guardar esta versión localmente?
+  bool canDownload(BibleVersion version) =>
+      isBundled(version) || hasRemoteSource(version);
 
   /// ¿Puede usarse ya esta versión? RVR1960 puede leerse desde assets aunque
   /// todavía no se haya copiado al directorio local.
@@ -160,6 +182,7 @@ class BibleDownloadService {
 
   /// Tamaño del archivo descargado en bytes (0 si no existe)
   Future<int> getDownloadedSize(BibleVersion version) async {
+    await ensureInitialized();
     final path = getLocalPath(version);
     if (path == null) return 0;
     final file = File(path);
@@ -171,6 +194,7 @@ class BibleDownloadService {
 
   /// Tamaño total de todas las descargas
   Future<int> getTotalDownloadedSize() async {
+    await ensureInitialized();
     int total = 0;
     for (final version in BibleVersion.values) {
       total += await getDownloadedSize(version);
@@ -182,6 +206,7 @@ class BibleDownloadService {
   /// y sólo cae a leer del asset bundle para RVR1960. El archivo queda en el
   /// directorio local del app para lectura rápida posterior.
   Future<bool> downloadVersion(BibleVersion version) async {
+    await ensureInitialized();
     if (isDownloaded(version)) return true;
 
     try {
@@ -261,6 +286,7 @@ class BibleDownloadService {
   /// Eliminar versión descargada (liberar espacio)
   /// No permite eliminar RVR1960 (versión base)
   Future<bool> deleteVersion(BibleVersion version) async {
+    await ensureInitialized();
     if (version == BibleVersion.rvr1960) return false; // Proteger versión base
 
     try {
@@ -282,9 +308,9 @@ class BibleDownloadService {
 
   /// Descargar todas las versiones que faltan
   Future<void> downloadAll() async {
+    await ensureInitialized();
     for (final version in BibleVersion.values) {
-      if (!isDownloaded(version) &&
-          (isBundled(version) || hasRemoteSource(version))) {
+      if (!isDownloaded(version) && canDownload(version)) {
         await downloadVersion(version);
       }
     }

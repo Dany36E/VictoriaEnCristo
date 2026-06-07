@@ -569,6 +569,10 @@ class _DownloadsSection extends StatelessWidget {
                 ...BibleVersion.values.map((version) {
                   final state = states[version] ?? DownloadState.notDownloaded;
                   final isBase = version == BibleVersion.rvr1960;
+                  final isBundled = dl.isBundled(version);
+                  final isLocallyDownloaded =
+                      state == DownloadState.downloaded;
+                  final canDownload = dl.canDownload(version);
                   final isDownloadingThis = downloading == version;
 
                   return Container(
@@ -602,9 +606,13 @@ class _DownloadsSection extends StatelessWidget {
                               Text(
                                 isBase
                                     ? '${version.shortName} · Incluida'
-                                    : state == DownloadState.downloaded
-                                    ? '${version.shortName} · ~${_estimatedSize(version)}'
-                                    : '${version.shortName} · ~5 MB',
+                                    : isLocallyDownloaded
+                                    ? '${version.shortName} · Guardada localmente · ~${_estimatedSize(version)}'
+                                    : isBundled
+                                    ? '${version.shortName} · Disponible en la app'
+                                    : canDownload
+                                    ? '${version.shortName} · ~5 MB'
+                                    : '${version.shortName} · No disponible',
                                 style: GoogleFonts.manrope(
                                   color: t.textSecondary.withOpacity(0.5),
                                   fontSize: 12,
@@ -634,7 +642,8 @@ class _DownloadsSection extends StatelessWidget {
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
                           )
-                        else if (state == DownloadState.notDownloaded)
+                        else if (state == DownloadState.notDownloaded &&
+                            canDownload)
                           IconButton(
                             icon: Icon(
                               Icons.download_rounded,
@@ -647,7 +656,7 @@ class _DownloadsSection extends StatelessWidget {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
                                     content: Text(
-                                      '${version.shortName} aún no está disponible para descarga.',
+                                      'No se pudo guardar ${version.shortName} localmente.',
                                     ),
                                   ),
                                 );
@@ -655,6 +664,12 @@ class _DownloadsSection extends StatelessWidget {
                             },
                             padding: EdgeInsets.zero,
                             constraints: const BoxConstraints(),
+                          )
+                        else
+                          Icon(
+                            Icons.lock_outline,
+                            color: t.textSecondary.withOpacity(0.25),
+                            size: 18,
                           ),
                       ],
                     ),
