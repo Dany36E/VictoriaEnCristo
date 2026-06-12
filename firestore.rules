@@ -292,6 +292,27 @@ service cloud.firestore {
        (evitan basura, abuso y corrupción)
        ───────────────────────────────────────────── */
 
+    // Límite de tamaño para un campo string OPCIONAL: si el campo viene en
+    // el doc, debe ser string y no exceder maxLen. Evita payloads abusivos
+    // (p.ej. un displayName de 1MB) sin romper escrituras legítimas.
+    function strMax(data, field, maxLen) {
+      return !(field in data)
+             || data[field] == null
+             || (data[field] is string && data[field].size() <= maxLen);
+    }
+
+    // Límites de tamaño de los campos string del documento de usuario.
+    function hasValidUserFieldSizes() {
+      let d = request.resource.data;
+      return strMax(d, 'displayName', 100)
+             && strMax(d, 'publicName', 50)
+             && strMax(d, 'email', 320)
+             && strMax(d, 'photoURL', 2048)
+             && strMax(d, 'photoUrl', 2048)
+             && strMax(d, 'inviteCode', 16)
+             && (!('selectedGiants' in d) || (d.selectedGiants is list && d.selectedGiants.size() <= 20));
+    }
+
     // Campos permitidos al CREAR usuario
     function isValidUserCreate() {
       let allowedFields = [
@@ -318,7 +339,8 @@ service cloud.firestore {
       ];
       
       return request.resource.data.keys().hasOnly(allowedFields)
-             && request.resource.data.uid == request.auth.uid;
+             && request.resource.data.uid == request.auth.uid
+             && hasValidUserFieldSizes();
     }
 
     // Campos permitidos al ACTUALIZAR usuario
@@ -344,7 +366,8 @@ service cloud.firestore {
       ];
       
       return request.resource.data.diff(resource.data).changedKeys()
-             .hasOnly(allowedChanges);
+             .hasOnly(allowedChanges)
+             && hasValidUserFieldSizes();
     }
   }
 }

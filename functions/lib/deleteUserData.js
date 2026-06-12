@@ -86,6 +86,30 @@ exports.deleteUserData = functions
         console.error(`❌ [DELETE] recursiveDelete failed:`, err);
         throw new functions.https.HttpsError("internal", "No se pudieron eliminar todos los datos. Intenta de nuevo en unos minutos.", { phase: "firestore" });
     }
+    // Borrar códigos de invitación del usuario en /inviteCodes (colección
+    // top-level, fuera del árbol de /users/{uid}, así que recursiveDelete no
+    // la cubre). Sin esto quedan códigos huérfanos apuntando a un uid que ya
+    // no existe, y las rules impiden borrarlos desde cliente.
+    try {
+        const codesSnap = await db
+            .collection("inviteCodes")
+            .where("uid", "==", uid)
+            .get();
+        for (const doc of codesSnap.docs) {
+            await doc.ref.delete();
+        }
+        deletionStats["inviteCodes"] = codesSnap.size;
+        if (codesSnap.size > 0) {
+            console.log(`🗑️ [DELETE] ${codesSnap.size} inviteCode(s) deleted for ${uidShort}…`);
+        }
+    }
+    catch (err) {
+        // No bloquear el borrado de Auth por esto: el código huérfano es
+        // inofensivo (no resuelve a ningún usuario) y preferimos completar
+        // la eliminación de la cuenta.
+        console.error(`⚠️ [DELETE] inviteCodes cleanup failed:`, err);
+        deletionStats["inviteCodes"] = -1;
+    }
     // Borrar usuario de Auth
     try {
         await auth.deleteUser(uid);
