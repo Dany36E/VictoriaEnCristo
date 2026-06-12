@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/bible/typology.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -47,7 +47,7 @@ class TypologyDetailScreen extends StatelessWidget {
           Text(
             typology.description,
             style: GoogleFonts.manrope(
-              color: t.textPrimary.withOpacity(0.6),
+              color: t.textPrimary.withValues(alpha: 0.6),
               fontSize: 14,
               height: 1.5,
             ),
@@ -64,7 +64,7 @@ class TypologyDetailScreen extends StatelessWidget {
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
-                      backgroundColor: t.accent.withOpacity(0.1),
+                      backgroundColor: t.accent.withValues(alpha: 0.1),
                       side: BorderSide.none,
                       padding: EdgeInsets.zero,
                       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -88,11 +88,11 @@ class TypologyDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   Icon(Icons.arrow_downward,
-                      color: t.accent.withOpacity(0.3), size: 24),
+                      color: t.accent.withValues(alpha: 0.3), size: 24),
                   Text(
                     'Se cumple en',
                     style: GoogleFonts.manrope(
-                      color: t.accent.withOpacity(0.4),
+                      color: t.accent.withValues(alpha: 0.4),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
                     ),
@@ -145,9 +145,9 @@ class TypologyDetailScreen extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.06),
+          color: color.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(12.0),
-          border: Border.all(color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +180,7 @@ class TypologyDetailScreen extends StatelessWidget {
             Text(
               ref.text,
               style: GoogleFonts.crimsonPro(
-                color: t.textPrimary.withOpacity(0.7),
+                color: t.textPrimary.withValues(alpha: 0.7),
                 fontSize: 16,
                 fontStyle: FontStyle.italic,
                 height: 1.6,
@@ -192,19 +192,19 @@ class TypologyDetailScreen extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.08),
+                  color: color.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Row(
                   children: [
                     Icon(Icons.lightbulb_outline,
-                        color: color.withOpacity(0.6), size: 14),
+                        color: color.withValues(alpha: 0.6), size: 14),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
                         ref.aspect,
                         style: GoogleFonts.manrope(
-                          color: t.textPrimary.withOpacity(0.5),
+                          color: t.textPrimary.withValues(alpha: 0.5),
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -221,13 +221,13 @@ class TypologyDetailScreen extends StatelessWidget {
                 Text(
                   'Ir al pasaje',
                   style: GoogleFonts.manrope(
-                    color: color.withOpacity(0.5),
+                    color: color.withValues(alpha: 0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 Icon(Icons.chevron_right,
-                    color: color.withOpacity(0.4), size: 16),
+                    color: color.withValues(alpha: 0.4), size: 16),
               ],
             ),
           ],

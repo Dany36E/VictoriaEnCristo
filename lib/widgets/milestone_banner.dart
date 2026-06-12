@@ -81,13 +81,13 @@ class MilestoneBanner extends StatelessWidget {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppDesignSystem.gold.withOpacity(0.18),
-              AppDesignSystem.goldLight.withOpacity(0.06),
+              AppDesignSystem.gold.withValues(alpha: 0.18),
+              AppDesignSystem.goldLight.withValues(alpha: 0.06),
             ],
           ),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
-            color: AppDesignSystem.gold.withOpacity(0.5),
+            color: AppDesignSystem.gold.withValues(alpha: 0.5),
           ),
         ),
         child: Column(
@@ -144,7 +144,7 @@ class MilestoneBanner extends StatelessWidget {
         color: t.surface,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
         border: Border.all(
-          color: AppDesignSystem.gold.withOpacity(0.14),
+          color: AppDesignSystem.gold.withValues(alpha: 0.14),
         ),
       ),
       child: Row(
@@ -194,7 +194,7 @@ class MilestoneBanner extends StatelessWidget {
         color: t.surface,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
         border: Border.all(
-          color: t.textSecondary.withOpacity(0.1),
+          color: t.textSecondary.withValues(alpha: 0.1),
         ),
       ),
       child: Row(

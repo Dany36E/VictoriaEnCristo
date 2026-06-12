@@ -36,7 +36,7 @@ class ReaderSearchOverlay extends StatelessWidget {
       child: Container(
         height: 44,
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-        color: t.surface.withOpacity(0.98),
+        color: t.surface.withValues(alpha: 0.98),
         child: Row(
           children: [
             Expanded(
@@ -44,13 +44,13 @@ class ReaderSearchOverlay extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
                   color: t.isDark
-                      ? Colors.white.withOpacity(0.06)
-                      : Colors.black.withOpacity(0.04),
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
                     color: t.isDark
-                        ? Colors.white.withOpacity(0.08)
-                        : Colors.black.withOpacity(0.06),
+                        ? Colors.white.withValues(alpha: 0.08)
+                        : Colors.black.withValues(alpha: 0.06),
                     width: 1,
                   ),
                 ),
@@ -63,7 +63,7 @@ class ReaderSearchOverlay extends StatelessWidget {
                   decoration: InputDecoration(
                     hintText: 'Buscar en capítulo...',
                     hintStyle: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                     ),
                     border: InputBorder.none,
@@ -81,7 +81,7 @@ class ReaderSearchOverlay extends StatelessWidget {
                 child: Text(
                   matchText,
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 11,
                   ),
                 ),
@@ -100,7 +100,7 @@ class ReaderSearchOverlay extends StatelessWidget {
                   child: Icon(Icons.keyboard_arrow_up,
                       color: controller.currentMatchIndex > 0
                           ? t.textSecondary
-                          : t.textSecondary.withOpacity(0.2),
+                          : t.textSecondary.withValues(alpha: 0.2),
                       size: 20),
                 ),
               ),
@@ -120,7 +120,7 @@ class ReaderSearchOverlay extends StatelessWidget {
                       color: controller.currentMatchIndex <
                               controller.searchMatchIndices.length - 1
                           ? t.textSecondary
-                          : t.textSecondary.withOpacity(0.2),
+                          : t.textSecondary.withValues(alpha: 0.2),
                       size: 20),
                 ),
               ),
@@ -134,7 +134,7 @@ class ReaderSearchOverlay extends StatelessWidget {
               child: Padding(
                 padding: const EdgeInsets.all(6),
                 child: Icon(Icons.close,
-                    color: t.textSecondary.withOpacity(0.5), size: 18),
+                    color: t.textSecondary.withValues(alpha: 0.5), size: 18),
               ),
             ),
           ],

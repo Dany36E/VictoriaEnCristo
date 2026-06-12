@@ -145,7 +145,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
             (c) => Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
-                color: c.color.withOpacity(0.25),
+                color: c.color.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: c.color, width: 1),
               ),

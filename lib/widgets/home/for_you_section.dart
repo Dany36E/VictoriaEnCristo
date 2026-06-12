@@ -40,10 +40,10 @@ class ForYouTodaySection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppDesignSystem.spacingS),
               decoration: BoxDecoration(
-                color: const Color(0xFFD4AF37).withOpacity(0.2),
+                color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
                 border: Border.all(
-                  color: const Color(0xFFD4AF37).withOpacity(0.4),
+                  color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
                   width: 0.5,
                 ),
               ),
@@ -71,7 +71,7 @@ class ForYouTodaySection extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(0.7),
+                      color: Colors.white.withValues(alpha: 0.7),
                     ),
                   ),
                 ],
@@ -135,13 +135,13 @@ class _AnchorVerseCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Colors.white.withOpacity(0.12),
-              Colors.white.withOpacity(0.05),
+              Colors.white.withValues(alpha: 0.12),
+              Colors.white.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
-            color: const Color(0xFFD4AF37).withOpacity(0.3),
+            color: const Color(0xFFD4AF37).withValues(alpha: 0.3),
             width: 1,
           ),
         ),
@@ -158,14 +158,14 @@ class _AnchorVerseCard extends StatelessWidget {
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
-                    color: const Color(0xFFD4AF37).withOpacity(0.9),
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.9),
                   ),
                 ),
                 const Spacer(),
                 Icon(
                   Icons.arrow_forward_ios_rounded,
                   size: 12,
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                 ),
               ],
             ),
@@ -188,21 +188,21 @@ class _AnchorVerseCard extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
               ),
             ),
             const SizedBox(height: 6),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.08),
+                color: Colors.white.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
                 scoredVerse.reason,
                 style: TextStyle(
                   fontSize: 10,
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                 ),
               ),
             ),
@@ -237,10 +237,10 @@ class _QuickActionChip extends StatelessWidget {
           vertical: AppDesignSystem.spacingS,
         ),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
           border: Border.all(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             width: 0.5,
           ),
         ),
@@ -254,7 +254,7 @@ class _QuickActionChip extends StatelessWidget {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withOpacity(0.8),
+                color: Colors.white.withValues(alpha: 0.8),
               ),
             ),
           ],

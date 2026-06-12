@@ -54,17 +54,17 @@ class _BreathingSosButtonState extends State<BreathingSosButton> with TickerProv
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.redAccent.withOpacity(glowOpacity * 0.6),
+                      color: Colors.redAccent.withValues(alpha: glowOpacity * 0.6),
                       blurRadius: 30,
                       spreadRadius: 5,
                     ),
                     BoxShadow(
-                      color: Colors.deepOrange.withOpacity(glowOpacity * 0.4),
+                      color: Colors.deepOrange.withValues(alpha: glowOpacity * 0.4),
                       blurRadius: 20,
                       spreadRadius: 2,
                     ),
                     BoxShadow(
-                      color: const Color(0xFFFF5722).withOpacity(glowOpacity * 0.3),
+                      color: const Color(0xFFFF5722).withValues(alpha: glowOpacity * 0.3),
                       blurRadius: 10,
                       spreadRadius: 1,
                     ),
@@ -95,12 +95,12 @@ class _BreathingSosButtonState extends State<BreathingSosButton> with TickerProv
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Colors.redAccent.withOpacity(0.95),
-                        Colors.deepOrange.withOpacity(0.85),
+                        Colors.redAccent.withValues(alpha: 0.95),
+                        Colors.deepOrange.withValues(alpha: 0.85),
                       ],
                     ),
                     borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.white.withOpacity(0.4), width: 1.5),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.4), width: 1.5),
                   ),
                   child: const Row(
                     mainAxisSize: MainAxisSize.min,

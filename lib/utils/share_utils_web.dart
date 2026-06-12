@@ -1,4 +1,6 @@
-// ignore_for_file: avoid_web_libraries_in_flutter
+// Web no es plataforma de distribución de esta app (Android + Windows);
+// migrar a package:web añadiría una dependencia sin beneficio actual.
+// ignore_for_file: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
 import 'dart:typed_data';
 

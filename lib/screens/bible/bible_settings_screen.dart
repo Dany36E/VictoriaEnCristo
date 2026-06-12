@@ -86,11 +86,11 @@ class BibleSettingsScreen extends StatelessWidget {
                       ),
                       decoration: BoxDecoration(
                         color: selected
-                            ? t.accent.withOpacity(0.1)
-                            : t.textPrimary.withOpacity(0.04),
+                            ? t.accent.withValues(alpha: 0.1)
+                            : t.textPrimary.withValues(alpha: 0.04),
                         borderRadius: BorderRadius.circular(10.0),
                         border: selected
-                            ? Border.all(color: t.accent.withOpacity(0.3))
+                            ? Border.all(color: t.accent.withValues(alpha: 0.3))
                             : null,
                       ),
                       child: Row(
@@ -101,7 +101,7 @@ class BibleSettingsScreen extends StatelessWidget {
                                 : Icons.circle_outlined,
                             color: selected
                                 ? t.accent
-                                : t.textSecondary.withOpacity(0.3),
+                                : t.textSecondary.withValues(alpha: 0.3),
                             size: 20,
                           ),
                           const SizedBox(width: 12),
@@ -122,7 +122,7 @@ class BibleSettingsScreen extends StatelessWidget {
                                 Text(
                                   v.shortName,
                                   style: GoogleFonts.manrope(
-                                    color: t.textSecondary.withOpacity(0.5),
+                                    color: t.textSecondary.withValues(alpha: 0.5),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -152,13 +152,13 @@ class BibleSettingsScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(20),
                     margin: const EdgeInsets.only(bottom: 12),
                     decoration: BoxDecoration(
-                      color: t.textPrimary.withOpacity(0.04),
+                      color: t.textPrimary.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(12.0),
                     ),
                     child: Text(
                       'Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito...',
                       style: GoogleFonts.crimsonPro(
-                        color: t.textPrimary.withOpacity(0.7),
+                        color: t.textPrimary.withValues(alpha: 0.7),
                         fontSize: fontSize,
                         fontStyle: FontStyle.italic,
                         height: 1.7,
@@ -172,7 +172,7 @@ class BibleSettingsScreen extends StatelessWidget {
                       Text(
                         'A',
                         style: GoogleFonts.crimsonPro(
-                          color: t.textSecondary.withOpacity(0.5),
+                          color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 14,
                         ),
                       ),
@@ -186,7 +186,7 @@ class BibleSettingsScreen extends StatelessWidget {
                             max: 32,
                             divisions: 9,
                             activeColor: t.accent,
-                            inactiveColor: t.textSecondary.withOpacity(0.15),
+                            inactiveColor: t.textSecondary.withValues(alpha: 0.15),
                             label: '${fontSize.toInt()}',
                             onChanged: (v) =>
                                 BibleUserDataService.I.setFontSize(v),
@@ -196,7 +196,7 @@ class BibleSettingsScreen extends StatelessWidget {
                       Text(
                         'A',
                         style: GoogleFonts.crimsonPro(
-                          color: t.textPrimary.withOpacity(0.7),
+                          color: t.textPrimary.withValues(alpha: 0.7),
                           fontSize: 28,
                         ),
                       ),
@@ -205,7 +205,7 @@ class BibleSettingsScreen extends StatelessWidget {
                   Text(
                     '${fontSize.toInt()} pt',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.5),
+                      color: t.textSecondary.withValues(alpha: 0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -270,7 +270,7 @@ class BibleSettingsScreen extends StatelessWidget {
                                   border: Border.all(
                                     color: isActive
                                         ? t.accent
-                                        : t.textSecondary.withOpacity(0.3),
+                                        : t.textSecondary.withValues(alpha: 0.3),
                                     width: isActive ? 2.5 : 1,
                                   ),
                                 ),
@@ -290,7 +290,7 @@ class BibleSettingsScreen extends StatelessWidget {
                                 style: GoogleFonts.manrope(
                                   color: isActive
                                       ? t.accent
-                                      : t.textSecondary.withOpacity(0.6),
+                                      : t.textSecondary.withValues(alpha: 0.6),
                                   fontSize: 9,
                                 ),
                               ),
@@ -356,7 +356,7 @@ class BibleSettingsScreen extends StatelessWidget {
                     ),
                     Switch(
                       value: enabled,
-                      activeColor: const Color(0xFFE57373),
+                      activeThumbColor: const Color(0xFFE57373),
                       onChanged: (v) =>
                           BibleUserDataService.I.setRedLettersEnabled(v),
                     ),
@@ -529,9 +529,9 @@ class _DownloadsSection extends StatelessWidget {
                   padding: const EdgeInsets.all(14),
                   margin: const EdgeInsets.only(bottom: 12),
                   decoration: BoxDecoration(
-                    color: t.accent.withOpacity(0.06),
+                    color: t.accent.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(10.0),
-                    border: Border.all(color: t.accent.withOpacity(0.12)),
+                    border: Border.all(color: t.accent.withValues(alpha: 0.12)),
                   ),
                   child: Row(
                     children: [
@@ -545,7 +545,7 @@ class _DownloadsSection extends StatelessWidget {
                         child: Text(
                           '$downloadedCount de ${BibleVersion.values.length} versiones descargadas',
                           style: GoogleFonts.manrope(
-                            color: t.textPrimary.withOpacity(0.7),
+                            color: t.textPrimary.withValues(alpha: 0.7),
                             fontSize: 13,
                           ),
                         ),
@@ -582,7 +582,7 @@ class _DownloadsSection extends StatelessWidget {
                       vertical: 12,
                     ),
                     decoration: BoxDecoration(
-                      color: t.textPrimary.withOpacity(0.04),
+                      color: t.textPrimary.withValues(alpha: 0.04),
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     child: Row(
@@ -614,7 +614,7 @@ class _DownloadsSection extends StatelessWidget {
                                     ? '${version.shortName} · ~5 MB'
                                     : '${version.shortName} · No disponible',
                                 style: GoogleFonts.manrope(
-                                  color: t.textSecondary.withOpacity(0.5),
+                                  color: t.textSecondary.withValues(alpha: 0.5),
                                   fontSize: 12,
                                 ),
                               ),
@@ -635,7 +635,7 @@ class _DownloadsSection extends StatelessWidget {
                           IconButton(
                             icon: Icon(
                               Icons.delete_outline,
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               size: 20,
                             ),
                             onPressed: () => _confirmDelete(context, version),
@@ -668,7 +668,7 @@ class _DownloadsSection extends StatelessWidget {
                         else
                           Icon(
                             Icons.lock_outline,
-                            color: t.textSecondary.withOpacity(0.25),
+                            color: t.textSecondary.withValues(alpha: 0.25),
                             size: 18,
                           ),
                       ],
@@ -711,7 +711,7 @@ class _DownloadsSection extends StatelessWidget {
       case DownloadState.notDownloaded:
         return Icon(
           Icons.cloud_download_outlined,
-          color: t.textSecondary.withOpacity(0.4),
+          color: t.textSecondary.withValues(alpha: 0.4),
           size: 20,
         );
     }
@@ -749,7 +749,7 @@ class _DownloadsSection extends StatelessWidget {
         content: Text(
           '¿Eliminar ${version.displayName} del almacenamiento local?\n\nPodrás descargarla de nuevo en cualquier momento.',
           style: GoogleFonts.manrope(
-            color: t.textPrimary.withOpacity(0.7),
+            color: t.textPrimary.withValues(alpha: 0.7),
             fontSize: 14,
           ),
         ),
@@ -759,7 +759,7 @@ class _DownloadsSection extends StatelessWidget {
             child: Text(
               'Cancelar',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
               ),
             ),
           ),

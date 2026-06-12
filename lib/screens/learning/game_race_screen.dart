@@ -381,12 +381,12 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                const Color(0xFFD4A574).withOpacity(0.2),
-                const Color(0xFFE8D5B7).withOpacity(0.05),
+                const Color(0xFFD4A574).withValues(alpha: 0.2),
+                const Color(0xFFE8D5B7).withValues(alpha: 0.05),
               ],
             ),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-            border: Border.all(color: const Color(0xFFD4A574).withOpacity(0.3)),
+            border: Border.all(color: const Color(0xFFD4A574).withValues(alpha: 0.3)),
           ),
           child: Column(
             children: [
@@ -476,9 +476,9 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       decoration: BoxDecoration(
-        color: runner.color.withOpacity(0.06),
+        color: runner.color.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: runner.color.withOpacity(0.3)),
+        border: Border.all(color: runner.color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -549,14 +549,14 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                         width: 74,
                         padding: const EdgeInsets.symmetric(vertical: 6),
                         decoration: BoxDecoration(
-                          color: isSelected ? r.color.withOpacity(0.15) : t.cardBg,
+                          color: isSelected ? r.color.withValues(alpha: 0.15) : t.cardBg,
                           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                           border: Border.all(
                             color: isSelected ? r.color : t.divider,
                             width: isSelected ? 2.5 : 1,
                           ),
                           boxShadow: isSelected
-                              ? [BoxShadow(color: r.color.withOpacity(0.3), blurRadius: 12)]
+                              ? [BoxShadow(color: r.color.withValues(alpha: 0.3), blurRadius: 12)]
                               : null,
                         ),
                         child: Column(
@@ -575,7 +575,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                             if (isSelected)
                               Text(
                                 r.title,
-                                style: TextStyle(fontSize: 8, color: r.color.withOpacity(0.7)),
+                                style: TextStyle(fontSize: 8, color: r.color.withValues(alpha: 0.7)),
                                 textAlign: TextAlign.center,
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -597,7 +597,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
             decoration: BoxDecoration(
               color: t.cardBg,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-              border: Border.all(color: runner.color.withOpacity(0.3)),
+              border: Border.all(color: runner.color.withValues(alpha: 0.3)),
             ),
             child: TextField(
               controller: ctrl,
@@ -605,7 +605,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
               style: AppDesignSystem.bodyLarge(context, color: t.textPrimary),
               decoration: InputDecoration(
                 hintText: runner.name,
-                hintStyle: TextStyle(color: t.textSecondary.withOpacity(0.5)),
+                hintStyle: TextStyle(color: t.textSecondary.withValues(alpha: 0.5)),
                 prefixIcon: Text(runner.emoji, style: const TextStyle(fontSize: 20)),
                 prefixIconConstraints: const BoxConstraints(minWidth: 48),
                 border: InputBorder.none,
@@ -642,11 +642,11 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
-                    colors: [color.withOpacity(0.3), color.withOpacity(0.05)],
+                    colors: [color.withValues(alpha: 0.3), color.withValues(alpha: 0.05)],
                   ),
                   border: Border.all(color: color, width: 3),
                   boxShadow: [
-                    BoxShadow(color: color.withOpacity(0.4), blurRadius: 24, spreadRadius: 4),
+                    BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 24, spreadRadius: 4),
                   ],
                 ),
                 child: Center(child: Text(runner.emoji, style: const TextStyle(fontSize: 60))),
@@ -671,7 +671,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
           const SizedBox(height: 4),
           Text(
             'Pasa el celular',
-            style: AppDesignSystem.labelSmall(context, color: t.textSecondary.withOpacity(0.5)),
+            style: AppDesignSystem.labelSmall(context, color: t.textSecondary.withValues(alpha: 0.5)),
           ),
 
           const Spacer(),
@@ -764,7 +764,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
             decoration: BoxDecoration(
               color: t.cardBg,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-              border: Border.all(color: color.withOpacity(0.3)),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Text(
               q.prompt,
@@ -784,14 +784,14 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                 if (_answered) {
                   if (i == q.correctIndex) {
                     border = AppDesignSystem.victory;
-                    bg = AppDesignSystem.victory.withOpacity(0.10);
+                    bg = AppDesignSystem.victory.withValues(alpha: 0.10);
                   } else if (i == _selected) {
                     border = AppDesignSystem.struggle;
-                    bg = AppDesignSystem.struggle.withOpacity(0.10);
+                    bg = AppDesignSystem.struggle.withValues(alpha: 0.10);
                   }
                 } else if (i == _selected) {
                   border = color;
-                  bg = color.withOpacity(0.10);
+                  bg = color.withValues(alpha: 0.10);
                 }
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
@@ -856,8 +856,8 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                 shape: BoxShape.circle,
                 gradient: RadialGradient(
                   colors: [
-                    AppDesignSystem.victory.withOpacity(0.3),
-                    AppDesignSystem.victory.withOpacity(0.05),
+                    AppDesignSystem.victory.withValues(alpha: 0.3),
+                    AppDesignSystem.victory.withValues(alpha: 0.05),
                   ],
                 ),
               ),
@@ -880,7 +880,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
               height: 100,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppDesignSystem.struggle.withOpacity(0.1),
+                color: AppDesignSystem.struggle.withValues(alpha: 0.1),
               ),
               child: Center(child: Text(runner.emoji, style: const TextStyle(fontSize: 50))),
             ).animate().shake(hz: 3, duration: 500.ms).fadeIn(duration: 300.ms),
@@ -945,8 +945,8 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          AppDesignSystem.gold.withOpacity(0.3),
-                          AppDesignSystem.gold.withOpacity(0.0),
+                          AppDesignSystem.gold.withValues(alpha: 0.3),
+                          AppDesignSystem.gold.withValues(alpha: 0.0),
                         ],
                       ),
                     ),
@@ -1061,7 +1061,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
         border: Border.all(color: const Color(0xFF2A2A4E)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -1076,7 +1076,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
             style: TextStyle(
               fontSize: 10,
               fontWeight: FontWeight.w800,
-              color: const Color(0xFFD4A574).withOpacity(0.7),
+              color: const Color(0xFFD4A574).withValues(alpha: 0.7),
               letterSpacing: 2,
             ),
           ),
@@ -1121,14 +1121,14 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               decoration: BoxDecoration(
-                color: runner.color.withOpacity(0.15),
+                color: runner.color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Text(
                 '$pos/$_finishLine',
                 style: TextStyle(
                   fontSize: 11,
-                  color: runner.color.withOpacity(0.9),
+                  color: runner.color.withValues(alpha: 0.9),
                   fontWeight: FontWeight.w600,
                 ),
               ),
@@ -1170,10 +1170,10 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                       width: w * pct.clamp(0.0, 1.0),
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
-                          colors: [runner.color.withOpacity(0.3), runner.color],
+                          colors: [runner.color.withValues(alpha: 0.3), runner.color],
                         ),
                         borderRadius: BorderRadius.circular(4),
-                        boxShadow: [BoxShadow(color: runner.color.withOpacity(0.4), blurRadius: 8)],
+                        boxShadow: [BoxShadow(color: runner.color.withValues(alpha: 0.4), blurRadius: 8)],
                       ),
                     ),
                   ),
@@ -1212,12 +1212,12 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                       width: runnerSize,
                       height: runnerSize,
                       decoration: BoxDecoration(
-                        color: runner.color.withOpacity(0.9),
+                        color: runner.color.withValues(alpha: 0.9),
                         shape: BoxShape.circle,
                         border: Border.all(color: Colors.white, width: 2),
                         boxShadow: [
                           BoxShadow(
-                            color: runner.color.withOpacity(isCurrent ? 0.6 : 0.3),
+                            color: runner.color.withValues(alpha: isCurrent ? 0.6 : 0.3),
                             blurRadius: isCurrent ? 16 : 6,
                           ),
                         ],
@@ -1245,7 +1245,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
             Text(m.emoji, style: const TextStyle(fontSize: 10)),
             Text(
               m.name,
-              style: TextStyle(fontSize: 7, color: const Color(0xFFD4A574).withOpacity(0.6)),
+              style: TextStyle(fontSize: 7, color: const Color(0xFFD4A574).withValues(alpha: 0.6)),
             ),
           ],
         );
@@ -1306,7 +1306,7 @@ class _ConfettiPainter extends CustomPainter {
       final opacity = localT < 0.8 ? 1.0 : (1.0 - (localT - 0.8) / 0.2);
 
       final paint = Paint()
-        ..color = _colors[rng.nextInt(_colors.length)].withOpacity(opacity.clamp(0.0, 1.0));
+        ..color = _colors[rng.nextInt(_colors.length)].withValues(alpha: opacity.clamp(0.0, 1.0));
 
       final w = 4.0 + rng.nextDouble() * 8;
       final h = 2.0 + rng.nextDouble() * 6;

@@ -254,7 +254,7 @@ class _HeroCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [t.surface, t.cardBg],
         ),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.24)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.24)),
         boxShadow: t.cardShadow,
       ),
       child: Column(
@@ -669,7 +669,7 @@ class _QuizCard extends StatelessWidget {
                   foregroundColor: t.textPrimary,
                   side: BorderSide(color: _optionColor(i, t)),
                   backgroundColor: selectedIndex == i
-                      ? _optionColor(i, t).withOpacity(0.12)
+                      ? _optionColor(i, t).withValues(alpha: 0.12)
                       : Colors.transparent,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(
@@ -739,9 +739,9 @@ class _Chip extends StatelessWidget {
         vertical: AppDesignSystem.spacingXS,
       ),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.12),
+        color: AppDesignSystem.gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.26)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.26)),
       ),
       child: Text(
         text,

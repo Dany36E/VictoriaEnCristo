@@ -36,7 +36,7 @@ class HarmonySheet extends StatelessWidget {
             color: t.background,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20),
             ],
           ),
           child: ListView(
@@ -50,7 +50,7 @@ class HarmonySheet extends StatelessWidget {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
+                    color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -70,7 +70,7 @@ class HarmonySheet extends StatelessWidget {
                           child: Text(
                             'Armonía de los Evangelios',
                             style: GoogleFonts.cinzel(
-                              color: t.textSecondary.withOpacity(0.5),
+                              color: t.textSecondary.withValues(alpha: 0.5),
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -92,7 +92,7 @@ class HarmonySheet extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: t.accent.withOpacity(0.1),
+                        color: t.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -108,7 +108,7 @@ class HarmonySheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              Divider(height: 1, color: t.textSecondary.withOpacity(0.1)),
+              Divider(height: 1, color: t.textSecondary.withValues(alpha: 0.1)),
               // Gospel columns
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -128,7 +128,7 @@ class HarmonySheet extends StatelessWidget {
                 child: Text(
                   '${section.gospelCount} de 4 evangelios narran este evento',
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.4),
+                    color: t.textSecondary.withValues(alpha: 0.4),
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                   ),
@@ -163,12 +163,12 @@ class HarmonySheet extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         decoration: BoxDecoration(
           color: hasRef
-              ? t.accent.withOpacity(0.08)
-              : t.textSecondary.withOpacity(0.04),
+              ? t.accent.withValues(alpha: 0.08)
+              : t.textSecondary.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
             color: hasRef
-                ? t.accent.withOpacity(0.2)
+                ? t.accent.withValues(alpha: 0.2)
                 : Colors.transparent,
           ),
         ),
@@ -177,7 +177,7 @@ class HarmonySheet extends StatelessWidget {
             Text(
               abbr,
               style: GoogleFonts.cinzel(
-                color: hasRef ? t.accent : t.textSecondary.withOpacity(0.3),
+                color: hasRef ? t.accent : t.textSecondary.withValues(alpha: 0.3),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
@@ -197,7 +197,7 @@ class HarmonySheet extends StatelessWidget {
               Text(
                 '—',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.2),
+                  color: t.textSecondary.withValues(alpha: 0.2),
                   fontSize: 14,
                 ),
               ),

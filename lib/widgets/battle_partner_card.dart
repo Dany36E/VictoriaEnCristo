@@ -27,12 +27,12 @@ class BattlePartnerCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.05),
+        color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: isInactive
-              ? Colors.orange.withOpacity(0.2)
-              : Colors.white.withOpacity(0.08),
+              ? Colors.orange.withValues(alpha: 0.2)
+              : Colors.white.withValues(alpha: 0.08),
         ),
       ),
       child: Material(
@@ -73,12 +73,12 @@ class BattlePartnerCard extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: partner.isInactive
               ? [Colors.grey.shade700, Colors.grey.shade800]
-              : [AppDesignSystem.gold.withOpacity(0.3), AppDesignSystem.goldDark.withOpacity(0.2)],
+              : [AppDesignSystem.gold.withValues(alpha: 0.3), AppDesignSystem.goldDark.withValues(alpha: 0.2)],
         ),
         border: Border.all(
           color: partner.isInactive
-              ? Colors.grey.withOpacity(0.3)
-              : AppDesignSystem.gold.withOpacity(0.4),
+              ? Colors.grey.withValues(alpha: 0.3)
+              : AppDesignSystem.gold.withValues(alpha: 0.4),
           width: 1.5,
         ),
       ),
@@ -118,7 +118,7 @@ class BattlePartnerCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.15),
+                  color: Colors.orange.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Text(
@@ -140,7 +140,7 @@ class BattlePartnerCard extends StatelessWidget {
             fontSize: 12,
             color: partner.victoryToday
                 ? AppDesignSystem.victory
-                : Colors.white.withOpacity(0.4),
+                : Colors.white.withValues(alpha: 0.4),
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -164,9 +164,9 @@ class BattlePartnerCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
           decoration: BoxDecoration(
-            color: AppDesignSystem.gold.withOpacity(0.1),
+            color: AppDesignSystem.gold.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: AppDesignSystem.gold.withOpacity(0.25)),
+            border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.25)),
           ),
           child: const Column(
             mainAxisSize: MainAxisSize.min,

@@ -120,11 +120,11 @@ class ReaderContentView extends StatelessWidget {
             color: const Color(0xFF1A1A2E),
             child: Row(
               children: [
-                Icon(Icons.wifi_off_outlined, size: 12, color: t.textSecondary.withOpacity(0.5)),
+                Icon(Icons.wifi_off_outlined, size: 12, color: t.textSecondary.withValues(alpha: 0.5)),
                 const SizedBox(width: 6),
                 Text(
                   'Sin conexión · Funciones online no disponibles',
-                  style: GoogleFonts.manrope(fontSize: 10, color: t.textSecondary.withOpacity(0.5)),
+                  style: GoogleFonts.manrope(fontSize: 10, color: t.textSecondary.withValues(alpha: 0.5)),
                 ),
               ],
             ),
@@ -144,7 +144,7 @@ class ReaderContentView extends StatelessWidget {
             Text(
               '${controller.currentChapter}',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.25),
+                color: t.textSecondary.withValues(alpha: 0.25),
                 fontSize: 64,
                 fontWeight: FontWeight.w200,
                 height: 1.0,
@@ -155,7 +155,7 @@ class ReaderContentView extends StatelessWidget {
               Text(
                 controller.chapterIntro!,
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5),
+                  color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
                   height: 1.5,
@@ -272,7 +272,7 @@ class _SectionTitleHeader extends StatelessWidget {
             width: 3,
             height: fontSize + 6,
             decoration: BoxDecoration(
-              color: t.accent.withOpacity(0.7),
+              color: t.accent.withValues(alpha: 0.7),
               borderRadius: BorderRadius.circular(2),
             ),
           ),

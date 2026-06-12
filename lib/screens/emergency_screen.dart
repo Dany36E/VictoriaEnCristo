@@ -124,7 +124,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
             decoration: BoxDecoration(
               color: t.surface,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -203,7 +203,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                   height: 4,
                   margin: const EdgeInsets.only(bottom: AppDesignSystem.spacingM),
                   decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
+                    color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -319,7 +319,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
             decoration: BoxDecoration(
               color: t.surface,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-              border: Border.all(color: AppDesignSystem.victory.withOpacity(0.3), width: 2),
+              border: Border.all(color: AppDesignSystem.victory.withValues(alpha: 0.3), width: 2),
               boxShadow: AppDesignSystem.shadowVictory,
             ),
             child: Column(
@@ -330,8 +330,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppDesignSystem.victory.withOpacity(0.2),
-                            AppDesignSystem.victoryLight.withOpacity(0.1),
+                            AppDesignSystem.victory.withValues(alpha: 0.2),
+                            AppDesignSystem.victoryLight.withValues(alpha: 0.1),
                           ],
                         ),
                         shape: BoxShape.circle,
@@ -446,7 +446,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                   gradient: RadialGradient(
                     center: Alignment.topCenter,
                     radius: 1.5 + (_breatheController.value * 0.2),
-                    colors: [AppDesignSystem.struggle.withOpacity(0.15), t.scaffoldBg],
+                    colors: [AppDesignSystem.struggle.withValues(alpha: 0.15), t.scaffoldBg],
                   ),
                 ),
               );
@@ -492,9 +492,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
         vertical: AppDesignSystem.spacingXS,
       ),
       decoration: BoxDecoration(
-        color: AppDesignSystem.struggle.withOpacity(0.15),
+        color: AppDesignSystem.struggle.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.struggle.withOpacity(0.3)),
+        border: Border.all(color: AppDesignSystem.struggle.withValues(alpha: 0.3)),
       ),
       child: Text(
         'Plan personalizado: $_giantName',
@@ -519,7 +519,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
           height: 12,
           decoration: BoxDecoration(
             gradient: isActive ? AppDesignSystem.goldShimmer : null,
-            color: isActive ? null : t.textSecondary.withOpacity(0.2),
+            color: isActive ? null : t.textSecondary.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(6),
             boxShadow: isCurrent ? AppDesignSystem.shadowGold : null,
           ),
@@ -555,7 +555,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
 
           // Instruction card
           GlassContainer(
-                backgroundColor: t.textPrimary.withOpacity(0.08),
+                backgroundColor: t.textPrimary.withValues(alpha: 0.08),
                 padding: const EdgeInsets.all(AppDesignSystem.spacingL),
                 child: Column(
                   children: [
@@ -622,7 +622,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
   Widget _buildPrayerCard(String prayer) {
     final t = AppThemeData.of(context);
     return GlassContainer(
-      backgroundColor: t.textPrimary.withOpacity(0.05),
+      backgroundColor: t.textPrimary.withValues(alpha: 0.05),
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       child: Column(
         children: [
@@ -718,7 +718,7 @@ class _EscalationTile extends StatelessWidget {
             decoration: BoxDecoration(
               color: t.scaffoldBg,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.18)),
+              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.18)),
             ),
             child: Row(
               children: [
@@ -737,7 +737,7 @@ class _EscalationTile extends StatelessWidget {
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: t.textSecondary.withOpacity(0.6)),
+                Icon(Icons.chevron_right_rounded, color: t.textSecondary.withValues(alpha: 0.6)),
               ],
             ),
           ),

@@ -218,7 +218,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
               width: 40,
               height: 3,
               decoration: BoxDecoration(
-                color: t.textSecondary.withOpacity(0.3),
+                color: t.textSecondary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -264,7 +264,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                 decoration: InputDecoration(
                   hintText: 'Buscar palabra o referencia (armadura, Ef 6)',
                   hintStyle: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.45),
+                    color: t.textSecondary.withValues(alpha: 0.45),
                     fontSize: 12,
                   ),
                   prefixIcon: Icon(
@@ -290,18 +290,18 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: t.textSecondary.withOpacity(0.12),
+                      color: t.textSecondary.withValues(alpha: 0.12),
                     ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
                     borderSide: BorderSide(
-                      color: t.textSecondary.withOpacity(0.12),
+                      color: t.textSecondary.withValues(alpha: 0.12),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: t.accent.withOpacity(0.75)),
+                    borderSide: BorderSide(color: t.accent.withValues(alpha: 0.75)),
                   ),
                 ),
                 onChanged: _runSearch,
@@ -355,7 +355,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                             trailing: Text(
                               hit.source,
                               style: GoogleFonts.manrope(
-                                color: t.textSecondary.withOpacity(0.6),
+                                color: t.textSecondary.withValues(alpha: 0.6),
                                 fontSize: 10,
                                 fontWeight: FontWeight.w700,
                               ),
@@ -398,7 +398,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                       },
                     ),
                   ),
-                  Container(width: 1, color: t.textSecondary.withOpacity(0.12)),
+                  Container(width: 1, color: t.textSecondary.withValues(alpha: 0.12)),
                   // Grilla de capítulos
                   Expanded(
                     flex: 4,
@@ -422,7 +422,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                             decoration: BoxDecoration(
                               color: selected
                                   ? t.accent
-                                  : t.textSecondary.withOpacity(0.08),
+                                  : t.textSecondary.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             alignment: Alignment.center,

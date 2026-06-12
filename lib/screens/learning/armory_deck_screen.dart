@@ -60,7 +60,7 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
+                    color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -269,7 +269,7 @@ class _SectionTitle extends StatelessWidget {
             '($count)',
             style: AppDesignSystem.labelMedium(
               context,
-              color: color.withOpacity(0.7),
+              color: color.withValues(alpha: 0.7),
             ),
           ),
         ],
@@ -368,9 +368,9 @@ class _LevelPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Text(
         'Nv $level',
@@ -390,7 +390,7 @@ class _Tag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
-        color: t.textSecondary.withOpacity(0.1),
+        color: t.textSecondary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
       ),
       child: Text(

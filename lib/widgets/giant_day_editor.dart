@@ -135,10 +135,10 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
       decoration: BoxDecoration(
         color: _warmBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -170,7 +170,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 16),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.04),
+                color: Colors.white.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(
@@ -202,8 +202,8 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
           height: 42,
           decoration: BoxDecoration(
             color: _isVictoryDay
-                ? _victory.withOpacity(0.15)
-                : Colors.white.withOpacity(0.05),
+                ? _victory.withValues(alpha: 0.15)
+                : Colors.white.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(12),
           ),
           child: Center(
@@ -230,7 +230,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
                 'Progreso del día',
                 style: GoogleFonts.manrope(
                   fontSize: 12,
-                  color: _textMuted.withOpacity(0.7),
+                  color: _textMuted.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -241,13 +241,13 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
           decoration: BoxDecoration(
             color: _isVictoryDay
-                ? _victory.withOpacity(0.15)
-                : Colors.white.withOpacity(0.06),
+                ? _victory.withValues(alpha: 0.15)
+                : Colors.white.withValues(alpha: 0.06),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
               color: _isVictoryDay
-                  ? _victory.withOpacity(0.3)
-                  : Colors.white.withOpacity(0.1),
+                  ? _victory.withValues(alpha: 0.3)
+                  : Colors.white.withValues(alpha: 0.1),
             ),
           ),
           child: Text(
@@ -298,9 +298,9 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.10),
+          color: color.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: color.withOpacity(0.20)),
+          border: Border.all(color: color.withValues(alpha: 0.20)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -334,13 +334,13 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
           color: isVictory
-              ? _victory.withOpacity(0.08)
-              : Colors.white.withOpacity(0.03),
+              ? _victory.withValues(alpha: 0.08)
+              : Colors.white.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isVictory
-                ? _victory.withOpacity(0.25)
-                : Colors.white.withOpacity(0.06),
+                ? _victory.withValues(alpha: 0.25)
+                : Colors.white.withValues(alpha: 0.06),
           ),
         ),
         child: Row(
@@ -353,7 +353,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
                 style: GoogleFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: _textPrimary.withOpacity(0.9),
+                  color: _textPrimary.withValues(alpha: 0.9),
                 ),
               ),
             ),
@@ -391,10 +391,10 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.18) : Colors.transparent,
+          color: isSelected ? color.withValues(alpha: 0.18) : Colors.transparent,
           borderRadius: BorderRadius.circular(10),
           border: Border.all(
-            color: isSelected ? color.withOpacity(0.4) : Colors.white.withOpacity(0.1),
+            color: isSelected ? color.withValues(alpha: 0.4) : Colors.white.withValues(alpha: 0.1),
             width: isSelected ? 2 : 1,
           ),
         ),

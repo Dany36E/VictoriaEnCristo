@@ -44,16 +44,16 @@ class AppThemeData {
 
   // Helpers derivados
   Color get overlayBg => isDark
-      ? Colors.white.withOpacity(0.06)
-      : Colors.black.withOpacity(0.04);
+      ? Colors.white.withValues(alpha: 0.06)
+      : Colors.black.withValues(alpha: 0.04);
 
   Color get shimmerBase => isDark
-      ? Colors.white.withOpacity(0.05)
-      : Colors.black.withOpacity(0.04);
+      ? Colors.white.withValues(alpha: 0.05)
+      : Colors.black.withValues(alpha: 0.04);
 
   Color get shimmerHighlight => isDark
-      ? Colors.white.withOpacity(0.1)
-      : Colors.black.withOpacity(0.08);
+      ? Colors.white.withValues(alpha: 0.1)
+      : Colors.black.withValues(alpha: 0.08);
 
   /// Gradient para headers (sutil, del surface hacia scaffoldBg)
   LinearGradient get headerGradient => LinearGradient(
@@ -66,19 +66,19 @@ class AppThemeData {
   List<BoxShadow> get cardShadow => isDark
       ? [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
         ]
       : [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
           BoxShadow(
-            color: Colors.black.withOpacity(0.02),
+            color: Colors.black.withValues(alpha: 0.02),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),

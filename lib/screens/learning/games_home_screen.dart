@@ -113,7 +113,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
           end: Alignment.bottomRight,
           colors: [t.surface, t.cardBg],
         ),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.25)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
@@ -121,7 +121,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.15),
+              color: AppDesignSystem.gold.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: const Icon(Icons.sports_esports_rounded, color: AppDesignSystem.gold, size: 30),
@@ -166,7 +166,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
         decoration: BoxDecoration(
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-          border: Border.all(color: color.withOpacity(0.35), width: 1.5),
+          border: Border.all(color: color.withValues(alpha: 0.35), width: 1.5),
           boxShadow: t.cardShadow,
         ),
         child: Row(
@@ -174,7 +174,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
             Container(
               width: 56,
               height: 56,
-              decoration: BoxDecoration(color: color.withOpacity(0.15), shape: BoxShape.circle),
+              decoration: BoxDecoration(color: color.withValues(alpha: 0.15), shape: BoxShape.circle),
               child: Icon(icon, color: color, size: 30),
             ),
             const SizedBox(width: AppDesignSystem.spacingM),
@@ -193,9 +193,9 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                         decoration: BoxDecoration(
-                          color: AppDesignSystem.gold.withOpacity(0.15),
+                          color: AppDesignSystem.gold.withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-                          border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
+                          border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.5)),
                         ),
                         child: Text(
                           badge,

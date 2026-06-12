@@ -306,7 +306,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
           child: LinearProgressIndicator(
             value: p,
             minHeight: 4,
-            backgroundColor: t.textSecondary.withOpacity(0.1),
+            backgroundColor: t.textSecondary.withValues(alpha: 0.1),
             valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
           ),
         ),
@@ -431,7 +431,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
               hintText: 'palabra...',
               hintStyle: AppDesignSystem.bodyMedium(
                 context,
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
               ),
             ),
           ),
@@ -460,14 +460,14 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
         if (showResult) {
           if (isCorrect) {
             border = AppDesignSystem.victory;
-            bg = AppDesignSystem.victory.withOpacity(0.12);
+            bg = AppDesignSystem.victory.withValues(alpha: 0.12);
           } else if (selected && !isCorrect) {
             border = AppDesignSystem.struggle;
-            bg = AppDesignSystem.struggle.withOpacity(0.12);
+            bg = AppDesignSystem.struggle.withValues(alpha: 0.12);
           }
         } else if (selected) {
           border = AppDesignSystem.gold;
-          bg = AppDesignSystem.gold.withOpacity(0.08);
+          bg = AppDesignSystem.gold.withValues(alpha: 0.08);
         }
         return Padding(
           padding: const EdgeInsets.only(bottom: AppDesignSystem.spacingS),
@@ -544,14 +544,14 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                 final isRightPlace = pickedPos == correctPos;
                 if (isRightPlace) {
                   border = AppDesignSystem.victory;
-                  bg = AppDesignSystem.victory.withOpacity(0.10);
+                  bg = AppDesignSystem.victory.withValues(alpha: 0.10);
                 } else {
                   border = AppDesignSystem.struggle;
-                  bg = AppDesignSystem.struggle.withOpacity(0.10);
+                  bg = AppDesignSystem.struggle.withValues(alpha: 0.10);
                 }
               } else if (pickedPos >= 0) {
                 border = AppDesignSystem.gold;
-                bg = AppDesignSystem.gold.withOpacity(0.08);
+                bg = AppDesignSystem.gold.withValues(alpha: 0.08);
               }
               return Padding(
                 padding: const EdgeInsets.only(
@@ -668,10 +668,10 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                       decoration: BoxDecoration(
                         color: matched
                             ? (wasCorrect
-                                  ? AppDesignSystem.victory.withOpacity(0.12)
+                                  ? AppDesignSystem.victory.withValues(alpha: 0.12)
                                   : _answered
-                                  ? AppDesignSystem.struggle.withOpacity(0.12)
-                                  : AppDesignSystem.gold.withOpacity(0.10))
+                                  ? AppDesignSystem.struggle.withValues(alpha: 0.12)
+                                  : AppDesignSystem.gold.withValues(alpha: 0.10))
                             : t.cardBg,
                         borderRadius: BorderRadius.circular(
                           AppDesignSystem.radiusM,
@@ -720,14 +720,14 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
                     if (_answered) {
                       if (wasCorrect) {
                         border = AppDesignSystem.victory;
-                        bg = AppDesignSystem.victory.withOpacity(0.12);
+                        bg = AppDesignSystem.victory.withValues(alpha: 0.12);
                       } else if (used) {
                         border = AppDesignSystem.struggle;
-                        bg = AppDesignSystem.struggle.withOpacity(0.12);
+                        bg = AppDesignSystem.struggle.withValues(alpha: 0.12);
                       }
                     } else if (used) {
                       border = AppDesignSystem.gold;
-                      bg = AppDesignSystem.gold.withOpacity(0.10);
+                      bg = AppDesignSystem.gold.withValues(alpha: 0.10);
                     }
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 6),
@@ -787,9 +787,9 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
       margin: const EdgeInsets.only(top: AppDesignSystem.spacingM),
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -905,7 +905,7 @@ class _TypeChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.15),
+        color: AppDesignSystem.gold.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
       ),
       child: Text(

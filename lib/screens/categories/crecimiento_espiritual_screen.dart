@@ -85,9 +85,9 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
     return Container(
           padding: const EdgeInsets.all(AppDesignSystem.spacingM),
           decoration: BoxDecoration(
-            color: _accent.withOpacity(0.08),
+            color: _accent.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-            border: Border.all(color: _accent.withOpacity(0.2), width: 0.5),
+            border: Border.all(color: _accent.withValues(alpha: 0.2), width: 0.5),
           ),
           child: Row(
             children: [
@@ -97,7 +97,7 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
                 child: Text(
                   'Profundiza en la Palabra y crece en tu caminar con Dios.',
                   style: TextStyle(
-                    color: Colors.white.withOpacity(0.86),
+                    color: Colors.white.withValues(alpha: 0.86),
                     fontSize: 13,
                     height: 1.4,
                   ),

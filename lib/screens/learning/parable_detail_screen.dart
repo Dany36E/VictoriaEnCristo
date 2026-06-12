@@ -223,14 +223,14 @@ class _ParableDetailScreenState extends State<ParableDetailScreen> {
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
                       colors: [
-                        AppDesignSystem.gold.withOpacity(0.12),
-                        AppDesignSystem.gold.withOpacity(0.04),
+                        AppDesignSystem.gold.withValues(alpha: 0.12),
+                        AppDesignSystem.gold.withValues(alpha: 0.04),
                       ],
                     ),
                     borderRadius:
                         BorderRadius.circular(AppDesignSystem.radiusL),
                     border: Border.all(
-                        color: AppDesignSystem.gold.withOpacity(0.3)),
+                        color: AppDesignSystem.gold.withValues(alpha: 0.3)),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -310,7 +310,7 @@ class _ParableDetailScreenState extends State<ParableDetailScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppDesignSystem.gold.withOpacity(0.18),
+                        color: AppDesignSystem.gold.withValues(alpha: 0.18),
                         borderRadius: BorderRadius.circular(
                             AppDesignSystem.radiusFull),
                       ),
@@ -418,13 +418,13 @@ class _ParableDetailScreenState extends State<ParableDetailScreen> {
               if (_answered) {
                 if (isCorrect) {
                   border = AppDesignSystem.gold;
-                  bg = AppDesignSystem.gold.withOpacity(0.1);
+                  bg = AppDesignSystem.gold.withValues(alpha: 0.1);
                 } else if (isSelected) {
                   border = Colors.redAccent;
-                  bg = Colors.redAccent.withOpacity(0.1);
+                  bg = Colors.redAccent.withValues(alpha: 0.1);
                 }
               } else if (isSelected) {
-                border = AppDesignSystem.gold.withOpacity(0.7);
+                border = AppDesignSystem.gold.withValues(alpha: 0.7);
               }
               return InkWell(
                 borderRadius:
@@ -464,11 +464,11 @@ class _ParableDetailScreenState extends State<ParableDetailScreen> {
           Container(
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.08),
+              color: AppDesignSystem.gold.withValues(alpha: 0.08),
               borderRadius:
                   BorderRadius.circular(AppDesignSystem.radiusM),
               border: Border.all(
-                  color: AppDesignSystem.gold.withOpacity(0.3)),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.3)),
             ),
             child: Text(
               q.explanation!,
@@ -506,9 +506,9 @@ class _ParableDetailScreenState extends State<ParableDetailScreen> {
         Container(
           padding: const EdgeInsets.all(AppDesignSystem.spacingM),
           decoration: BoxDecoration(
-            color: AppDesignSystem.gold.withOpacity(0.08),
+            color: AppDesignSystem.gold.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-            border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+            border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
           ),
           child: Text(
             p.applicationPrompt,
@@ -588,11 +588,11 @@ class _ParableDetailScreenState extends State<ParableDetailScreen> {
             padding: const EdgeInsets.symmetric(
                 horizontal: 20, vertical: 10),
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.18),
+              color: AppDesignSystem.gold.withValues(alpha: 0.18),
               borderRadius:
                   BorderRadius.circular(AppDesignSystem.radiusFull),
               border: Border.all(
-                  color: AppDesignSystem.gold.withOpacity(0.5)),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.5)),
             ),
             child: Text(
               '+$_xpAwarded XP',

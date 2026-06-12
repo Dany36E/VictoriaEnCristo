@@ -46,10 +46,10 @@ class JournalDayNoteCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: _warmBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -89,7 +89,7 @@ class JournalDayNoteCard extends StatelessWidget {
           width: 42,
           height: 42,
           decoration: BoxDecoration(
-            color: _gold.withOpacity(0.12),
+            color: _gold.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(12),
           ),
           child: const Center(
@@ -113,7 +113,7 @@ class JournalDayNoteCard extends StatelessWidget {
                 dateStr,
                 style: GoogleFonts.manrope(
                   fontSize: 12,
-                  color: _textMuted.withOpacity(0.7),
+                  color: _textMuted.withValues(alpha: 0.7),
                 ),
               ),
             ],
@@ -127,7 +127,7 @@ class JournalDayNoteCard extends StatelessWidget {
     return Container(
       height: 60,
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.03),
+        color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Center(
@@ -136,7 +136,7 @@ class JournalDayNoteCard extends StatelessWidget {
           height: 22,
           child: CircularProgressIndicator(
             strokeWidth: 2,
-            color: _gold.withOpacity(0.5),
+            color: _gold.withValues(alpha: 0.5),
           ),
         ),
       ),
@@ -160,9 +160,9 @@ class JournalDayNoteCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.04),
+            color: Colors.white.withValues(alpha: 0.04),
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: Colors.white.withOpacity(0.06)),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +179,7 @@ class JournalDayNoteCard extends StatelessWidget {
                       JournalService.moodLabels[entry!.mood] ?? '',
                       style: GoogleFonts.manrope(
                         fontSize: 13,
-                        color: _gold.withOpacity(0.8),
+                        color: _gold.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -188,7 +188,7 @@ class JournalDayNoteCard extends StatelessWidget {
                       '🕐 $timeStr',
                       style: GoogleFonts.manrope(
                         fontSize: 11,
-                        color: _textMuted.withOpacity(0.5),
+                        color: _textMuted.withValues(alpha: 0.5),
                       ),
                     ),
                   ],
@@ -199,7 +199,7 @@ class JournalDayNoteCard extends StatelessWidget {
                 snippet,
                 style: GoogleFonts.manrope(
                   fontSize: 14,
-                  color: _textPrimary.withOpacity(0.85),
+                  color: _textPrimary.withValues(alpha: 0.85),
                   height: 1.55,
                 ),
                 maxLines: 3,
@@ -228,7 +228,7 @@ class JournalDayNoteCard extends StatelessWidget {
           width: double.infinity,
           padding: const EdgeInsets.symmetric(vertical: 24),
           decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.03),
+            color: Colors.white.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(14),
           ),
           child: Column(
@@ -240,7 +240,7 @@ class JournalDayNoteCard extends StatelessWidget {
                 style: GoogleFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
-                  color: _textMuted.withOpacity(0.6),
+                  color: _textMuted.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 4),
@@ -248,7 +248,7 @@ class JournalDayNoteCard extends StatelessWidget {
                 _isToday ? 'Escribe sobre tu día' : 'Puedes agregar una reflexión',
                 style: GoogleFonts.manrope(
                   fontSize: 12,
-                  color: _textMuted.withOpacity(0.4),
+                  color: _textMuted.withValues(alpha: 0.4),
                 ),
               ),
             ],
@@ -281,13 +281,13 @@ class JournalDayNoteCard extends StatelessWidget {
         height: 46,
         decoration: BoxDecoration(
           color: isPrimary
-              ? _gold.withOpacity(0.15)
-              : Colors.white.withOpacity(0.04),
+              ? _gold.withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isPrimary
-                ? _gold.withOpacity(0.3)
-                : Colors.white.withOpacity(0.10),
+                ? _gold.withValues(alpha: 0.3)
+                : Colors.white.withValues(alpha: 0.10),
           ),
         ),
         child: Row(

@@ -42,14 +42,14 @@ class VictorySummaryHeader extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [
             t.surface,
-            t.surface.withOpacity(0.8),
+            t.surface.withValues(alpha: 0.8),
           ],
         ),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: t.divider),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -65,7 +65,7 @@ class VictorySummaryHeader extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: t.accent.withOpacity(0.12),
+                  color: t.accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: const Center(
@@ -171,7 +171,7 @@ class VictorySummaryHeader extends StatelessWidget {
                   style: GoogleFonts.manrope(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
-                    color: t.textSecondary.withOpacity(0.7),
+                    color: t.textSecondary.withValues(alpha: 0.7),
                   ),
                 ),
                 Text(
@@ -196,9 +196,9 @@ class VictorySummaryHeader extends StatelessWidget {
         width: double.infinity,
         height: 50,
         decoration: BoxDecoration(
-          color: _victory.withOpacity(0.15),
+          color: _victory.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: _victory.withOpacity(0.3)),
+          border: Border.all(color: _victory.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -237,7 +237,7 @@ class VictorySummaryHeader extends StatelessWidget {
               style: GoogleFonts.manrope(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: t.textSecondary.withOpacity(0.5),
+                color: t.textSecondary.withValues(alpha: 0.5),
               ),
             ),
           ],
@@ -252,10 +252,10 @@ class VictorySummaryHeader extends StatelessWidget {
         height: 50,
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [t.accent.withOpacity(0.3), t.accent.withOpacity(0.15)],
+            colors: [t.accent.withValues(alpha: 0.3), t.accent.withValues(alpha: 0.15)],
           ),
           borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: t.accent.withOpacity(0.4)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.4)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,

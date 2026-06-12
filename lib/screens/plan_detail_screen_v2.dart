@@ -162,7 +162,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                     colors: [
                       Colors.transparent,
                       Colors.transparent,
-                      t.surface.withOpacity(0.8),
+                      t.surface.withValues(alpha: 0.8),
                       t.surface,
                     ],
                     stops: const [0.0, 0.3, 0.7, 1.0],
@@ -226,7 +226,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
           child: Container(
             decoration: BoxDecoration(
-              color: t.surface.withOpacity(0.3),
+              color: t.surface.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
@@ -250,7 +250,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           width: 40,
           height: 40,
           decoration: BoxDecoration(
-            color: t.surface.withOpacity(0.3),
+            color: t.surface.withValues(alpha: 0.3),
             borderRadius: BorderRadius.circular(12),
           ),
           child: IconButton(
@@ -276,8 +276,8 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
             height: 40,
             decoration: BoxDecoration(
               color: _hasReminder 
-                  ? t.accent.withOpacity(0.3)
-                  : t.surface.withOpacity(0.3),
+                  ? t.accent.withValues(alpha: 0.3)
+                  : t.surface.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(12),
             ),
             child: IconButton(
@@ -309,9 +309,9 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: t.accent.withOpacity(0.2),
+        color: t.accent.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: t.accent.withOpacity(0.3)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -337,7 +337,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppDesignSystem.victory.withOpacity(0.4),
+            color: AppDesignSystem.victory.withValues(alpha: 0.4),
             blurRadius: 12,
             offset: const Offset(0, 4),
           ),
@@ -440,9 +440,9 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -487,9 +487,9 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: _getGiantColor(giant).withOpacity(0.15),
+                    color: _getGiantColor(giant).withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: _getGiantColor(giant).withOpacity(0.3)),
+                    border: Border.all(color: _getGiantColor(giant).withValues(alpha: 0.3)),
                   ),
                   child: Text(
                     giant.displayName,
@@ -515,9 +515,9 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
-                    color: t.surface.withOpacity(0.5),
+                    color: t.surface.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(16),
-                    border: Border.all(color: t.textSecondary.withOpacity(0.2)),
+                    border: Border.all(color: t.textSecondary.withValues(alpha: 0.2)),
                   ),
                   child: Text(
                     technique.displayName,
@@ -551,12 +551,12 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              AppDesignSystem.gold.withOpacity(0.15),
-              AppDesignSystem.gold.withOpacity(0.05),
+              AppDesignSystem.gold.withValues(alpha: 0.15),
+              AppDesignSystem.gold.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppDesignSystem.gold.withOpacity(0.2)),
+          border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.2)),
         ),
         child: Row(
           children: [
@@ -570,7 +570,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                   CircularProgressIndicator(
                     value: _progressPercent,
                     strokeWidth: 5,
-                    backgroundColor: t.surface.withOpacity(0.3),
+                    backgroundColor: t.surface.withValues(alpha: 0.3),
                     valueColor: AlwaysStoppedAnimation(t.accent),
                   ),
                   Text(
@@ -685,14 +685,14 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isCurrentDay
-                  ? t.accent.withOpacity(0.1)
+                  ? t.accent.withValues(alpha: 0.1)
                   : t.inputBg,
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: isCurrentDay
-                    ? t.accent.withOpacity(0.3)
+                    ? t.accent.withValues(alpha: 0.3)
                     : isCompleted
-                        ? AppDesignSystem.victory.withOpacity(0.3)
+                        ? AppDesignSystem.victory.withValues(alpha: 0.3)
                         : Colors.transparent,
               ),
             ),
@@ -736,7 +736,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                         style: AppDesignSystem.labelLarge(
                           context,
                           color: isLocked
-                              ? t.textSecondary.withOpacity(0.5)
+                              ? t.textSecondary.withValues(alpha: 0.5)
                               : t.textPrimary,
                         ),
                       ),
@@ -748,14 +748,14 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                               Icon(
                                 Icons.access_time_outlined,
                                 size: 12,
-                                color: t.textSecondary.withOpacity(isLocked ? 0.3 : 0.7),
+                                color: t.textSecondary.withValues(alpha: isLocked ? 0.3 : 0.7),
                               ),
                               const SizedBox(width: 4),
                               Text(
                                 '${day.estimatedMinutes} min',
                                 style: AppDesignSystem.labelSmall(
                                   context,
-                                  color: t.textSecondary.withOpacity(isLocked ? 0.3 : 0.7),
+                                  color: t.textSecondary.withValues(alpha: isLocked ? 0.3 : 0.7),
                                 ),
                               ),
                             ],
@@ -764,14 +764,14 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppDesignSystem.hope.withOpacity(0.15),
+                                  color: AppDesignSystem.hope.withValues(alpha: 0.15),
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
                                   '2 min',
                                   style: TextStyle(
                                     fontSize: 9,
-                                    color: AppDesignSystem.hope.withOpacity(isLocked ? 0.3 : 0.8),
+                                    color: AppDesignSystem.hope.withValues(alpha: isLocked ? 0.3 : 0.8),
                                     fontWeight: FontWeight.w500,
                                   ),
                                 ),
@@ -788,7 +788,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
                 Icon(
                   isLocked ? Icons.lock_outline : Icons.chevron_right,
                   color: isLocked
-                      ? t.textSecondary.withOpacity(0.3)
+                      ? t.textSecondary.withValues(alpha: 0.3)
                       : isCurrentDay
                           ? t.accent
                           : t.textSecondary,

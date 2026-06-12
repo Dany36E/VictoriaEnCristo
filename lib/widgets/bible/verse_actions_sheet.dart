@@ -94,7 +94,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
       width: 36,
       height: 3.5,
       decoration: BoxDecoration(
-        color: _t.textSecondary.withOpacity(0.25),
+        color: _t.textSecondary.withValues(alpha: 0.25),
         borderRadius: BorderRadius.circular(2),
       ),
     ),
@@ -120,7 +120,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
           widget.verse.text,
           style: GoogleFonts.crimsonPro(
             fontSize: 14,
-            color: _t.textPrimary.withOpacity(0.85),
+            color: _t.textPrimary.withValues(alpha: 0.85),
             fontStyle: FontStyle.italic,
             height: 1.5,
           ),
@@ -215,7 +215,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
           'Toca para compartir  ·  Mantén para editar',
           style: GoogleFonts.manrope(
             fontSize: 9,
-            color: _t.textSecondary.withOpacity(0.35),
+            color: _t.textSecondary.withValues(alpha: 0.35),
           ),
         ),
       ),
@@ -245,7 +245,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
           borderRadius: BorderRadius.circular(10),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.25),
+              color: Colors.black.withValues(alpha: 0.25),
               blurRadius: 6,
               offset: const Offset(0, 3),
             ),
@@ -280,7 +280,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      Colors.black.withOpacity(0.55),
+                      Colors.black.withValues(alpha: 0.55),
                     ],
                   ),
                 ),
@@ -380,9 +380,9 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         child: Container(
           padding: const EdgeInsets.symmetric(vertical: 10),
           decoration: BoxDecoration(
-            color: _t.accent.withOpacity(0.08),
+            color: _t.accent.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: _t.accent.withOpacity(0.15)),
+            border: Border.all(color: _t.accent.withValues(alpha: 0.15)),
           ),
           child: Column(
             children: [
@@ -552,7 +552,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
     text,
     style: GoogleFonts.manrope(
       fontSize: 9,
-      color: _t.textSecondary.withOpacity(0.5),
+      color: _t.textSecondary.withValues(alpha: 0.5),
       fontWeight: FontWeight.w700,
       letterSpacing: 1.5,
     ),

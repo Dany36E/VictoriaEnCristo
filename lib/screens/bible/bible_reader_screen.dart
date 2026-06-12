@@ -262,7 +262,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                 child: Text(
                                   label,
                                   style: GoogleFonts.manrope(
-                                    color: t.textSecondary.withOpacity(0.3),
+                                    color: t.textSecondary.withValues(alpha: 0.3),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -369,7 +369,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         if (hasPrev)
           Icon(
             Icons.chevron_left,
-            color: t.textSecondary.withOpacity(0.2),
+            color: t.textSecondary.withValues(alpha: 0.2),
             size: 18,
           ),
         Padding(
@@ -377,7 +377,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           child: Text(
             '${_ctrl.currentChapter} / ${_ctrl.totalChapters}',
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.3),
+              color: t.textSecondary.withValues(alpha: 0.3),
               fontSize: 11,
               fontWeight: FontWeight.w500,
             ),
@@ -386,7 +386,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         if (hasNext)
           Icon(
             Icons.chevron_right,
-            color: t.textSecondary.withOpacity(0.2),
+            color: t.textSecondary.withValues(alpha: 0.2),
             size: 18,
           ),
       ],
@@ -410,7 +410,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 width: 32,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

@@ -879,7 +879,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: t.accent.withOpacity(0.12),
+                      color: t.accent.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -905,7 +905,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             tooltip: 'Tutorial',
             icon: Icon(
               Icons.help_outline,
-              color: t.textSecondary.withOpacity(0.6),
+              color: t.textSecondary.withValues(alpha: 0.6),
               size: 20,
             ),
             onPressed: () => showDialog(
@@ -925,7 +925,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
-                side: BorderSide(color: t.accent.withOpacity(0.22)),
+                side: BorderSide(color: t.accent.withValues(alpha: 0.22)),
               ),
               textStyle: GoogleFonts.manrope(
                 fontSize: 12,
@@ -998,9 +998,9 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.10),
+                color: t.accent.withValues(alpha: 0.10),
                 borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: t.accent.withOpacity(0.22)),
+                border: Border.all(color: t.accent.withValues(alpha: 0.22)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -1101,12 +1101,12 @@ class _StudyModeScreenState extends State<StudyModeScreen>
             margin: const EdgeInsets.symmetric(horizontal: 8),
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
             decoration: BoxDecoration(
-              color: t.textSecondary.withOpacity(0.08),
+              color: t.textSecondary.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
                 color: (s != null && e != null) || hasExtras
-                    ? t.accent.withOpacity(0.5)
-                    : t.textSecondary.withOpacity(0.15),
+                    ? t.accent.withValues(alpha: 0.5)
+                    : t.textSecondary.withValues(alpha: 0.15),
               ),
             ),
             child: Row(
@@ -1637,7 +1637,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(child: _buildReadingPanel(t)),
-        Container(width: 1, color: t.textSecondary.withOpacity(0.12)),
+        Container(width: 1, color: t.textSecondary.withValues(alpha: 0.12)),
         Expanded(child: _buildQuestionsPanel(t)),
       ],
     );
@@ -1820,7 +1820,7 @@ class _SavedStudiesSheetState extends State<_SavedStudiesSheet> {
                         width: 40,
                         height: 3,
                         decoration: BoxDecoration(
-                          color: t.textSecondary.withOpacity(0.3),
+                          color: t.textSecondary.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(2),
                         ),
                       ),
@@ -2038,7 +2038,7 @@ class _SavedStudiesHeader extends StatelessWidget {
                       ? 'Sin estudios todavía'
                       : '$filteredCount de $totalCount',
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.75),
+                    color: t.textSecondary.withValues(alpha: 0.75),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -2159,7 +2159,7 @@ class _SavedStudiesFilters extends StatelessWidget {
       decoration: InputDecoration(
         hintText: 'Buscar estudio, respuesta o nota',
         hintStyle: GoogleFonts.manrope(
-          color: t.textSecondary.withOpacity(0.56),
+          color: t.textSecondary.withValues(alpha: 0.56),
           fontSize: 13,
         ),
         prefixIcon: Icon(Icons.search, color: t.textSecondary, size: 18),
@@ -2175,7 +2175,7 @@ class _SavedStudiesFilters extends StatelessWidget {
               ),
         isDense: true,
         filled: true,
-        fillColor: t.background.withOpacity(t.isDark ? 0.78 : 0.88),
+        fillColor: t.background.withValues(alpha: t.isDark ? 0.78 : 0.88),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 12,
@@ -2202,7 +2202,7 @@ class _SavedStudiesFilters extends StatelessWidget {
       decoration: InputDecoration(
         hintText: 'Cap.',
         hintStyle: GoogleFonts.manrope(
-          color: t.textSecondary.withOpacity(0.56),
+          color: t.textSecondary.withValues(alpha: 0.56),
           fontSize: 12,
         ),
         prefixIcon: Icon(Icons.tag, color: t.textSecondary, size: 16),
@@ -2218,7 +2218,7 @@ class _SavedStudiesFilters extends StatelessWidget {
               ),
         isDense: true,
         filled: true,
-        fillColor: t.background.withOpacity(t.isDark ? 0.78 : 0.88),
+        fillColor: t.background.withValues(alpha: t.isDark ? 0.78 : 0.88),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         border: _inputBorder(t),
         enabledBorder: _inputBorder(t),
@@ -2235,8 +2235,8 @@ class _SavedStudiesFilters extends StatelessWidget {
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(
         color: focused
-            ? t.accent.withOpacity(0.7)
-            : t.textSecondary.withOpacity(0.14),
+            ? t.accent.withValues(alpha: 0.7)
+            : t.textSecondary.withValues(alpha: 0.14),
       ),
     );
   }
@@ -2396,13 +2396,13 @@ class _FilterButtonShell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: selected
-            ? t.accent.withOpacity(0.13)
-            : t.textSecondary.withOpacity(0.07),
+            ? t.accent.withValues(alpha: 0.13)
+            : t.textSecondary.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: selected
-              ? t.accent.withOpacity(0.38)
-              : t.textSecondary.withOpacity(0.10),
+              ? t.accent.withValues(alpha: 0.38)
+              : t.textSecondary.withValues(alpha: 0.10),
         ),
       ),
       child: Row(
@@ -2416,7 +2416,7 @@ class _FilterButtonShell extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.manrope(
-                color: selected ? t.accent : t.textPrimary.withOpacity(0.78),
+                color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.78),
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -2459,13 +2459,13 @@ class _SavedFilterChoiceChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: selected
-              ? t.accent.withOpacity(t.isDark ? 0.22 : 0.14)
-              : t.textSecondary.withOpacity(0.08),
+              ? t.accent.withValues(alpha: t.isDark ? 0.22 : 0.14)
+              : t.textSecondary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: selected
-                ? t.accent.withOpacity(0.55)
-                : t.textSecondary.withOpacity(0.15),
+                ? t.accent.withValues(alpha: 0.55)
+                : t.textSecondary.withValues(alpha: 0.15),
           ),
         ),
         child: Row(
@@ -2476,7 +2476,7 @@ class _SavedFilterChoiceChip extends StatelessWidget {
             Text(
               label,
               style: GoogleFonts.manrope(
-                color: selected ? t.accent : t.textPrimary.withOpacity(0.76),
+                color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.76),
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
               ),
@@ -2504,7 +2504,7 @@ class _SavedStudiesEmptyState extends StatelessWidget {
           children: [
             Icon(
               filtered ? Icons.search_off : Icons.folder_open_outlined,
-              color: theme.textSecondary.withOpacity(0.42),
+              color: theme.textSecondary.withValues(alpha: 0.42),
               size: 38,
             ),
             const SizedBox(height: 12),
@@ -2660,10 +2660,10 @@ class _SavedStudyTile extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.textSecondary.withOpacity(0.09)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.09)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -2694,7 +2694,7 @@ class _SavedStudyTile extends StatelessWidget {
                     tooltip: 'Eliminar estudio',
                     icon: Icon(
                       Icons.delete_outline,
-                      color: Colors.redAccent.withOpacity(0.78),
+                      color: Colors.redAccent.withValues(alpha: 0.78),
                     ),
                     visualDensity: VisualDensity.compact,
                     constraints: const BoxConstraints.tightFor(
@@ -2829,7 +2829,7 @@ class _StudyMiniChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: t.textSecondary.withOpacity(0.08),
+        color: t.textSecondary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
       ),
       child: Text(
@@ -2887,7 +2887,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -2905,7 +2905,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
             Text(
               'Elige una portada mas limpia si quieres un resultado mas sobrio.',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.66),
+                color: t.textSecondary.withValues(alpha: 0.66),
                 fontSize: 12,
                 height: 1.35,
               ),
@@ -2916,7 +2916,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
               onChanged: (value) => setState(() => _cleanCover = value),
               dense: true,
               contentPadding: EdgeInsets.zero,
-              activeColor: t.accent,
+              activeThumbColor: t.accent,
               title: Text(
                 'Portada limpia',
                 style: GoogleFonts.manrope(
@@ -2928,7 +2928,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
               subtitle: Text(
                 'Usa un encabezado mas minimalista y resalta las versiones elegidas.',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.64),
+                  color: t.textSecondary.withValues(alpha: 0.64),
                   fontSize: 11.5,
                 ),
               ),
@@ -2993,10 +2993,10 @@ class _PdfActionTile extends StatelessWidget {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.textSecondary.withOpacity(0.09)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.09)),
         ),
         child: Row(
           children: [
@@ -3096,7 +3096,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -3207,18 +3207,18 @@ class _VersionDropdown extends StatelessWidget {
           fillColor: t.background,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+            borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.14)),
           ),
           disabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(10),
-            borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+            borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.14)),
           ),
         ),
       );
     }
     final effectiveValue = versions.contains(value) ? value : versions.first;
     return DropdownButtonFormField<BibleVersion>(
-      value: effectiveValue,
+      initialValue: effectiveValue,
       items: [
         for (final version in versions)
           DropdownMenuItem(
@@ -3238,11 +3238,11 @@ class _VersionDropdown extends StatelessWidget {
         fillColor: t.background,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+          borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.14)),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+          borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.14)),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
@@ -3385,7 +3385,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
         width: 40,
         height: 3,
         decoration: BoxDecoration(
-          color: t.textSecondary.withOpacity(0.3),
+          color: t.textSecondary.withValues(alpha: 0.3),
           borderRadius: BorderRadius.circular(2),
         ),
       ),
@@ -3511,14 +3511,14 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                     Text(
                       'Toca un versículo para ajustar el rango.',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.65),
+                        color: t.textSecondary.withValues(alpha: 0.65),
                         fontSize: 11,
                         fontStyle: FontStyle.italic,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Divider(
-                      color: t.textSecondary.withOpacity(0.15),
+                      color: t.textSecondary.withValues(alpha: 0.15),
                       height: 1,
                     ),
                   ],
@@ -3582,7 +3582,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                             padding: const EdgeInsets.fromLTRB(16, 7, 16, 7),
                             decoration: BoxDecoration(
                               color: inRange
-                                  ? t.accent.withOpacity(0.10)
+                                  ? t.accent.withValues(alpha: 0.10)
                                   : Colors.transparent,
                               border: inRange
                                   ? Border(
@@ -3617,7 +3617,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                                     style: GoogleFonts.crimsonPro(
                                       color: inRange
                                           ? t.textPrimary
-                                          : t.textPrimary.withOpacity(0.65),
+                                          : t.textPrimary.withValues(alpha: 0.65),
                                       fontSize: 15,
                                       height: 1.5,
                                     ),
@@ -3638,7 +3638,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                 decoration: BoxDecoration(
                   color: t.surface,
                   border: Border(
-                    top: BorderSide(color: t.textSecondary.withOpacity(0.15)),
+                    top: BorderSide(color: t.textSecondary.withValues(alpha: 0.15)),
                   ),
                 ),
                 child: _buildActionRow(t),
@@ -3688,7 +3688,7 @@ class _NumberPicker extends StatelessWidget {
           decoration: BoxDecoration(
             color: t.background,
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: t.textSecondary.withOpacity(0.15)),
+            border: Border.all(color: t.textSecondary.withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
@@ -3763,16 +3763,16 @@ class _NumberPicker extends StatelessWidget {
           decoration: InputDecoration(
             hintText: '$min – $max',
             hintStyle: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.5),
+              color: t.textSecondary.withValues(alpha: 0.5),
               fontSize: 13,
             ),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: t.textSecondary.withOpacity(0.2)),
+              borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.2)),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
-              borderSide: BorderSide(color: t.textSecondary.withOpacity(0.2)),
+              borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.2)),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(8),
@@ -3833,7 +3833,7 @@ class _TypographySheet extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: t.textSecondary.withOpacity(0.1)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.1)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -3842,7 +3842,7 @@ class _TypographySheet extends StatelessWidget {
             Text(
               'TEXTO Y COLORES',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
@@ -3868,7 +3868,7 @@ class _TypographySheet extends StatelessWidget {
                         max: 28,
                         divisions: 7,
                         activeColor: t.accent,
-                        inactiveColor: t.textSecondary.withOpacity(0.2),
+                        inactiveColor: t.textSecondary.withValues(alpha: 0.2),
                         onChanged: (v) => BibleUserDataService.I.setFontSize(v),
                       ),
                     ),
@@ -3887,7 +3887,7 @@ class _TypographySheet extends StatelessWidget {
             Text(
               'TEMA',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
@@ -3913,7 +3913,7 @@ class _TypographySheet extends StatelessWidget {
                           border: Border.all(
                             color: isActive
                                 ? t.accent
-                                : t.textSecondary.withOpacity(0.2),
+                                : t.textSecondary.withValues(alpha: 0.2),
                             width: isActive ? 2.5 : 1,
                           ),
                         ),

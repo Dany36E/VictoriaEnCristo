@@ -95,9 +95,9 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
       margin: const EdgeInsets.fromLTRB(8, 6, 8, 0),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: t.accent.withOpacity(0.10),
+        color: t.accent.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.accent.withOpacity(0.35)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.35)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -159,7 +159,7 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
                 decoration: BoxDecoration(
                   color: t.background,
                   borderRadius: BorderRadius.circular(20),
-                  border: Border.all(color: t.textSecondary.withOpacity(0.15)),
+                  border: Border.all(color: t.textSecondary.withValues(alpha: 0.15)),
                 ),
                 child: Text(
                   '${m.displayName} · ${m.versionId}',

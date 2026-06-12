@@ -52,7 +52,7 @@ void showBookChapterSelector(
                         width: 36,
                         height: 2,
                         decoration: BoxDecoration(
-                          color: t.textSecondary.withOpacity(0.3),
+                          color: t.textSecondary.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(1),
                         ),
                       ),
@@ -70,7 +70,7 @@ void showBookChapterSelector(
                           decoration: InputDecoration(
                             hintText: 'Buscar libro...',
                             hintStyle: GoogleFonts.manrope(
-                              color: t.textSecondary.withOpacity(0.5),
+                              color: t.textSecondary.withValues(alpha: 0.5),
                               fontSize: 14,
                             ),
                             border: InputBorder.none,
@@ -83,7 +83,7 @@ void showBookChapterSelector(
                     Container(
                       height: 0.5,
                       margin: const EdgeInsets.symmetric(horizontal: 20),
-                      color: t.textSecondary.withOpacity(0.1),
+                      color: t.textSecondary.withValues(alpha: 0.1),
                     ),
                     Expanded(
                       child: selectedBookNumber != null
@@ -150,7 +150,7 @@ void showBookChapterSelector(
                                           '${book.totalChapters}',
                                           style: GoogleFonts.manrope(
                                             color: t.textSecondary
-                                                .withOpacity(0.5),
+                                                .withValues(alpha: 0.5),
                                             fontSize: 12,
                                           ),
                                         ),

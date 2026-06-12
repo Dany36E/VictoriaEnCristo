@@ -96,7 +96,7 @@ class _JoinRoomDialogState extends State<JoinRoomDialog> {
           ),
           const SizedBox(height: 12),
           DropdownButtonFormField<String>(
-            value: _versionId,
+            initialValue: _versionId,
             decoration: const InputDecoration(labelText: 'Tu traducción'),
             items: BibleDownloadService.I.availableVersions
                 .map(

@@ -122,7 +122,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
           end: Alignment.bottomRight,
           colors: [t.surface, t.cardBg],
         ),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.25)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.25)),
         boxShadow: t.cardShadow,
       ),
       child: Column(
@@ -226,7 +226,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
           border: Border.all(
-            color: unlocked ? AppDesignSystem.gold.withOpacity(0.55) : t.cardBorder,
+            color: unlocked ? AppDesignSystem.gold.withValues(alpha: 0.55) : t.cardBorder,
             width: unlocked ? 1.4 : 1,
           ),
           boxShadow: t.cardShadow,
@@ -240,7 +240,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: AppDesignSystem.gold.withOpacity(0.18),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.18),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(icon, color: AppDesignSystem.gold, size: 22),

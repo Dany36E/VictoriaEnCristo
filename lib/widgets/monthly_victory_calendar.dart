@@ -47,10 +47,10 @@ class MonthlyVictoryCalendar extends StatelessWidget {
       decoration: BoxDecoration(
         color: _warmBg,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 8,
             offset: const Offset(0, 3),
           ),
@@ -112,10 +112,10 @@ class MonthlyVictoryCalendar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.06),
+          color: Colors.white.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(10),
         ),
-        child: Icon(icon, color: _textPrimary.withOpacity(0.7), size: 24),
+        child: Icon(icon, color: _textPrimary.withValues(alpha: 0.7), size: 24),
       ),
     );
   }
@@ -133,7 +133,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
           style: GoogleFonts.manrope(
             fontSize: 11,
             fontWeight: FontWeight.w600,
-            color: _textMuted.withOpacity(0.5),
+            color: _textMuted.withValues(alpha: 0.5),
           ),
         ),
       )).toList(),
@@ -230,29 +230,29 @@ class MonthlyVictoryCalendar extends StatelessWidget {
   Widget _buildDayTile(_DayInfo dayInfo) {
     // Colores
     Color bgColor = Colors.transparent;
-    Color textColor = _textMuted.withOpacity(0.2);
+    Color textColor = _textMuted.withValues(alpha: 0.2);
 
     if (dayInfo.isCurrentMonth && !dayInfo.isFuture) {
-      textColor = _textPrimary.withOpacity(0.85);
-      bgColor = Colors.white.withOpacity(0.03);
+      textColor = _textPrimary.withValues(alpha: 0.85);
+      bgColor = Colors.white.withValues(alpha: 0.03);
     }
 
     if (dayInfo.isFuture && dayInfo.isCurrentMonth) {
-      textColor = _textMuted.withOpacity(0.25);
+      textColor = _textMuted.withValues(alpha: 0.25);
       bgColor = Colors.transparent;
     }
 
     // Victoria: fondo verde sutil
     if (dayInfo.isVictory && dayInfo.isCurrentMonth) {
-      bgColor = _victory.withOpacity(0.12);
+      bgColor = _victory.withValues(alpha: 0.12);
     }
 
     Border? border;
     if (dayInfo.isSelected) {
       border = Border.all(color: _gold, width: 2);
-      bgColor = _gold.withOpacity(0.18);
+      bgColor = _gold.withValues(alpha: 0.18);
     } else if (dayInfo.isToday) {
-      bgColor = _gold.withOpacity(0.12);
+      bgColor = _gold.withValues(alpha: 0.12);
     }
 
     // Indicador de victoria: checkmark ✓
@@ -370,7 +370,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
           label,
           style: GoogleFonts.manrope(
             fontSize: 12,
-            color: _textMuted.withOpacity(0.7),
+            color: _textMuted.withValues(alpha: 0.7),
             fontWeight: FontWeight.w500,
           ),
         ),

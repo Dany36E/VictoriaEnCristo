@@ -231,11 +231,11 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
           height: 44,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppDesignSystem.midnight.withOpacity(0.8),
+            color: AppDesignSystem.midnight.withValues(alpha: 0.8),
             border: Border.all(
               color: isBgmEnabled 
-                  ? AppDesignSystem.gold.withOpacity(0.5)
-                  : Colors.grey.withOpacity(0.3),
+                  ? AppDesignSystem.gold.withValues(alpha: 0.5)
+                  : Colors.grey.withValues(alpha: 0.3),
               width: 1.5,
             ),
           ),
@@ -276,7 +276,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                 },
                 icon: Icon(
                   Icons.arrow_back_rounded,
-                  color: AppDesignSystem.pureWhite.withOpacity(0.7),
+                  color: AppDesignSystem.pureWhite.withValues(alpha: 0.7),
                 ),
               ),
               
@@ -286,10 +286,10 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.15),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppDesignSystem.gold.withOpacity(0.3),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -353,7 +353,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
             style: GoogleFonts.manrope(
               fontSize: 15,
               fontWeight: FontWeight.w400,
-              color: AppDesignSystem.pureWhite.withOpacity(0.75),
+              color: AppDesignSystem.pureWhite.withValues(alpha: 0.75),
               height: 1.5,
             ),
           ),
@@ -406,7 +406,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
           transform: isSelected 
-              ? (Matrix4.identity()..scale(1.02)) // Micro-escala al seleccionar
+              ? (Matrix4.identity()..scaleByDouble(1.02, 1.02, 1.02, 1)) // Micro-escala al seleccionar
               : Matrix4.identity(),
           decoration: BoxDecoration(
             // Color de fondo uniforme para todos
@@ -424,7 +424,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
             boxShadow: isSelected
                 ? [
                     BoxShadow(
-                      color: accentColor.withOpacity(0.25),
+                      color: accentColor.withValues(alpha: 0.25),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -456,7 +456,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                         // Dorado al seleccionar, blanco si no
                         color: isSelected
                             ? accentColor
-                            : AppDesignSystem.pureWhite.withOpacity(0.9),
+                            : AppDesignSystem.pureWhite.withValues(alpha: 0.9),
                         letterSpacing: 0.5,
                       ),
                     ),
@@ -471,8 +471,8 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: isSelected
-                              ? AppDesignSystem.pureWhite.withOpacity(0.9)
-                              : AppDesignSystem.pureWhite.withOpacity(0.6),
+                              ? AppDesignSystem.pureWhite.withValues(alpha: 0.9)
+                              : AppDesignSystem.pureWhite.withValues(alpha: 0.6),
                           height: 1.4,
                         ),
                         maxLines: 3,
@@ -496,7 +496,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
-                          color: accentColor.withOpacity(0.5),
+                          color: accentColor.withValues(alpha: 0.5),
                           blurRadius: 8,
                         ),
                       ],
@@ -531,7 +531,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
           boxShadow: hasSelection
               ? [
                   BoxShadow(
-                    color: AppDesignSystem.gold.withOpacity(0.35),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -556,7 +556,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                       fontWeight: FontWeight.w700,
                       color: hasSelection
                           ? AppDesignSystem.midnight
-                          : AppDesignSystem.pureWhite.withOpacity(0.5),
+                          : AppDesignSystem.pureWhite.withValues(alpha: 0.5),
                       letterSpacing: 1.5,
                     ),
                   ),

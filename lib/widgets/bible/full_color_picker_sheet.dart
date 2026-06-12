@@ -55,7 +55,7 @@ class _FullColorPickerSheetState extends State<FullColorPickerSheet> {
               width: 36,
               height: 2,
               decoration: BoxDecoration(
-                color: t.textSecondary.withOpacity(0.3),
+                color: t.textSecondary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(1),
               ),
             ),
@@ -111,7 +111,7 @@ class _FullColorPickerSheetState extends State<FullColorPickerSheet> {
                     color: selectedColor,
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: t.textSecondary.withOpacity(0.2),
+                      color: t.textSecondary.withValues(alpha: 0.2),
                     ),
                   ),
                   child: Center(
@@ -211,7 +211,7 @@ class _HueBar extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 2.5),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 4,
                         ),
                       ],
@@ -278,7 +278,7 @@ class _SVSquare extends StatelessWidget {
                       border: Border.all(color: Colors.white, width: 2.5),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.3),
+                          color: Colors.black.withValues(alpha: 0.3),
                           blurRadius: 4,
                         ),
                       ],

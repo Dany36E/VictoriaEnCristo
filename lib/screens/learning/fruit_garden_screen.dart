@@ -150,7 +150,7 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.2)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.2)),
         boxShadow: t.cardShadow,
       ),
       child: Column(
@@ -190,9 +190,9 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.12),
+        color: AppDesignSystem.gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
       ),
       child: Text(
         text,
@@ -211,7 +211,7 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
           decoration: BoxDecoration(
             gradient: const LinearGradient(colors: [AppDesignSystem.gold, Color(0xFFF0CC7A)]),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-            boxShadow: [BoxShadow(color: AppDesignSystem.gold.withOpacity(0.5), blurRadius: 20)],
+            boxShadow: [BoxShadow(color: AppDesignSystem.gold.withValues(alpha: 0.5), blurRadius: 20)],
           ),
           child: Column(
             children: [
@@ -263,7 +263,7 @@ class _FruitTile extends StatelessWidget {
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
           gradient: earned
-              ? LinearGradient(colors: [color.withOpacity(0.35), color.withOpacity(0.15)])
+              ? LinearGradient(colors: [color.withValues(alpha: 0.35), color.withValues(alpha: 0.15)])
               : null,
           color: earned ? null : t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
@@ -271,12 +271,12 @@ class _FruitTile extends StatelessWidget {
             color: earned
                 ? color
                 : inProgress
-                ? color.withOpacity(0.5)
+                ? color.withValues(alpha: 0.5)
                 : t.cardBorder,
             width: earned ? 2 : 1,
           ),
           boxShadow: earned
-              ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 12)]
+              ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 12)]
               : t.cardShadow,
         ),
         child: Column(
@@ -288,7 +288,7 @@ class _FruitTile extends StatelessWidget {
                 Container(
                   width: 52,
                   height: 52,
-                  decoration: BoxDecoration(color: color.withOpacity(0.18), shape: BoxShape.circle),
+                  decoration: BoxDecoration(color: color.withValues(alpha: 0.18), shape: BoxShape.circle),
                   child: Icon(icon, color: color, size: 28),
                 ),
                 if (earned)

@@ -151,9 +151,9 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    AppDesignSystem.midnight.withOpacity(0.3),
-                    AppDesignSystem.midnight.withOpacity(0.7),
-                    AppDesignSystem.midnight.withOpacity(0.95),
+                    AppDesignSystem.midnight.withValues(alpha: 0.3),
+                    AppDesignSystem.midnight.withValues(alpha: 0.7),
+                    AppDesignSystem.midnight.withValues(alpha: 0.95),
                     AppDesignSystem.midnight,
                   ],
                   stops: const [0.0, 0.3, 0.5, 0.7, 0.85],
@@ -174,8 +174,8 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                   center: const Alignment(0, -0.5),
                   radius: 1.2,
                   colors: [
-                    AppDesignSystem.gold.withOpacity(0.25),
-                    AppDesignSystem.gold.withOpacity(0.1),
+                    AppDesignSystem.gold.withValues(alpha: 0.25),
+                    AppDesignSystem.gold.withValues(alpha: 0.1),
                     Colors.transparent,
                   ],
                   stops: const [0.0, 0.3, 1.0],
@@ -265,19 +265,19 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: isBgmEnabled 
-                ? AppDesignSystem.gold.withOpacity(0.9)
-                : AppDesignSystem.midnight.withOpacity(0.9),
+                ? AppDesignSystem.gold.withValues(alpha: 0.9)
+                : AppDesignSystem.midnight.withValues(alpha: 0.9),
             border: Border.all(
               color: isBgmEnabled 
                   ? AppDesignSystem.gold
-                  : Colors.white.withOpacity(0.5),
+                  : Colors.white.withValues(alpha: 0.5),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
                 color: isBgmEnabled 
-                    ? AppDesignSystem.gold.withOpacity(0.4)
-                    : Colors.black.withOpacity(0.4),
+                    ? AppDesignSystem.gold.withValues(alpha: 0.4)
+                    : Colors.black.withValues(alpha: 0.4),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -318,13 +318,13 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
         shape: BoxShape.circle,
         gradient: RadialGradient(
           colors: [
-            AppDesignSystem.gold.withOpacity(0.3),
-            AppDesignSystem.gold.withOpacity(0.1),
+            AppDesignSystem.gold.withValues(alpha: 0.3),
+            AppDesignSystem.gold.withValues(alpha: 0.1),
             Colors.transparent,
           ],
         ),
         border: Border.all(
-          color: AppDesignSystem.gold.withOpacity(0.5),
+          color: AppDesignSystem.gold.withValues(alpha: 0.5),
           width: 2,
         ),
       ),
@@ -381,7 +381,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           style: GoogleFonts.manrope(
             fontSize: 16,
             fontWeight: FontWeight.w400,
-            color: AppDesignSystem.pureWhite.withOpacity(0.85),
+            color: AppDesignSystem.pureWhite.withValues(alpha: 0.85),
             height: 1.7,
           ),
           textAlign: TextAlign.center,
@@ -391,10 +391,10 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            color: AppDesignSystem.gold.withOpacity(0.1),
+            color: AppDesignSystem.gold.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: AppDesignSystem.gold.withOpacity(0.3),
+              color: AppDesignSystem.gold.withValues(alpha: 0.3),
             ),
           ),
           child: Row(
@@ -433,13 +433,13 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppDesignSystem.gold.withOpacity(0.4),
+            color: AppDesignSystem.gold.withValues(alpha: 0.4),
             blurRadius: 24,
             offset: const Offset(0, 8),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: AppDesignSystem.gold.withOpacity(0.2),
+            color: AppDesignSystem.gold.withValues(alpha: 0.2),
             blurRadius: 40,
             offset: const Offset(0, 16),
             spreadRadius: -8,

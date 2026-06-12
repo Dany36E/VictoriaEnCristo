@@ -87,7 +87,7 @@ class ReaderVerseItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: showSelected
                 ? (isMultiSelected
-                      ? theme.accent.withOpacity(0.12)
+                      ? theme.accent.withValues(alpha: 0.12)
                       : theme.selectionBg)
                 : null,
             border: isTtsActive
@@ -136,7 +136,7 @@ class ReaderVerseItem extends StatelessWidget {
                             style: GoogleFonts.manrope(
                               color: showSelected
                                   ? theme.accent
-                                  : theme.textSecondary.withOpacity(0.5),
+                                  : theme.textSecondary.withValues(alpha: 0.5),
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -176,7 +176,7 @@ class ReaderVerseItem extends StatelessWidget {
                       child: Text(
                         '⊞',
                         style: TextStyle(
-                          color: const Color(0xFF42A5F5).withOpacity(0.6),
+                          color: const Color(0xFF42A5F5).withValues(alpha: 0.6),
                           fontSize: 10,
                         ),
                       ),
@@ -193,13 +193,13 @@ class ReaderVerseItem extends StatelessWidget {
                           vertical: 0.5,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF7043).withOpacity(0.15),
+                          color: const Color(0xFFFF7043).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(2),
                         ),
                         child: Text(
                           verse.bookNumber <= 39 ? '↗NT' : 'AT',
                           style: TextStyle(
-                            color: const Color(0xFFFF7043).withOpacity(0.7),
+                            color: const Color(0xFFFF7043).withValues(alpha: 0.7),
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
                           ),
@@ -322,7 +322,7 @@ class ReaderVerseItem extends StatelessWidget {
           TextSpan(
             text: part,
             style: baseStyle.copyWith(
-              backgroundColor: color.withOpacity(theme.isDark ? 0.32 : 0.28),
+              backgroundColor: color.withValues(alpha: theme.isDark ? 0.32 : 0.28),
             ),
           ),
         );

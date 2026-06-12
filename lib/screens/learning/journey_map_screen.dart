@@ -118,7 +118,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
           end: Alignment.bottomRight,
           colors: [t.surface, t.cardBg],
         ),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.25)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.25)),
         boxShadow: t.cardShadow,
       ),
       child: Column(
@@ -220,7 +220,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
             color: t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
-              color: isCurrent ? AppDesignSystem.gold.withOpacity(0.55) : t.cardBorder,
+              color: isCurrent ? AppDesignSystem.gold.withValues(alpha: 0.55) : t.cardBorder,
               width: isCurrent ? 1.5 : 1,
             ),
             boxShadow: t.cardShadow,
@@ -230,7 +230,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
               Container(
                 width: 48,
                 height: 48,
-                decoration: BoxDecoration(color: accent.withOpacity(0.15), shape: BoxShape.circle),
+                decoration: BoxDecoration(color: accent.withValues(alpha: 0.15), shape: BoxShape.circle),
                 child: Icon(unlocked ? icon : Icons.lock_outline_rounded, color: accent),
               ),
               const SizedBox(width: AppDesignSystem.spacingM),

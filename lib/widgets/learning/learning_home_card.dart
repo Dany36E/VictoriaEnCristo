@@ -46,7 +46,7 @@ class _LearningHomeCardState extends State<LearningHomeCard> {
                   color: t.cardBg,
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
                   border: Border.all(
-                    color: AppDesignSystem.gold.withOpacity(0.25),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.25),
                   ),
                   boxShadow: t.cardShadow,
                 ),
@@ -61,8 +61,8 @@ class _LearningHomeCardState extends State<LearningHomeCard> {
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                           colors: [
-                            AppDesignSystem.gold.withOpacity(0.35),
-                            AppDesignSystem.gold.withOpacity(0.1),
+                            AppDesignSystem.gold.withValues(alpha: 0.35),
+                            AppDesignSystem.gold.withValues(alpha: 0.1),
                           ],
                         ),
                       ),
@@ -146,7 +146,7 @@ class _Pill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: t.textSecondary.withOpacity(0.08),
+        color: t.textSecondary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
       ),
       child: Row(

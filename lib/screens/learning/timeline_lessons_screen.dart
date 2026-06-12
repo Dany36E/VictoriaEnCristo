@@ -103,7 +103,7 @@ class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.2)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.2)),
         boxShadow: t.cardShadow,
       ),
       child: Column(
@@ -143,9 +143,9 @@ class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.12),
+        color: AppDesignSystem.gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
       ),
       child: Text(
         text,
@@ -178,7 +178,7 @@ class _LessonCard extends StatelessWidget {
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
           border: Border.all(
-            color: stars > 0 ? AppDesignSystem.gold.withOpacity(0.5) : t.cardBorder,
+            color: stars > 0 ? AppDesignSystem.gold.withValues(alpha: 0.5) : t.cardBorder,
           ),
           boxShadow: t.cardShadow,
         ),
@@ -188,7 +188,7 @@ class _LessonCard extends StatelessWidget {
               width: 52,
               height: 52,
               decoration: BoxDecoration(
-                color: AppDesignSystem.gold.withOpacity(0.15),
+                color: AppDesignSystem.gold.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: const Icon(Icons.timeline_rounded, color: AppDesignSystem.gold, size: 28),

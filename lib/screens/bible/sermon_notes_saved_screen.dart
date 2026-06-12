@@ -123,7 +123,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
             decoration: InputDecoration(
               hintText: 'Buscar por titulo, pastor o pasaje',
               hintStyle: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.55),
+                color: t.textSecondary.withValues(alpha: 0.55),
                 fontSize: 13,
               ),
               prefixIcon: Icon(Icons.search, color: t.textSecondary, size: 18),
@@ -139,7 +139,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     ),
               isDense: true,
               filled: true,
-              fillColor: t.background.withOpacity(t.isDark ? 0.78 : 0.88),
+              fillColor: t.background.withValues(alpha: t.isDark ? 0.78 : 0.88),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 12,
@@ -268,7 +268,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     : 'Tus apuntes de predicacion guardados apareceran aqui.',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.45),
+                  color: t.textSecondary.withValues(alpha: 0.45),
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -410,7 +410,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
         child: Text(
           'Eliminar',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.5),
+            color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -495,7 +495,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
           margin: const EdgeInsets.only(bottom: 18),
           decoration: BoxDecoration(
             border: Border(
-              bottom: BorderSide(color: t.textSecondary.withOpacity(0.10)),
+              bottom: BorderSide(color: t.textSecondary.withValues(alpha: 0.10)),
             ),
           ),
           child: Column(
@@ -528,7 +528,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   Text(
                     _formatDate(note.sermonDate),
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -541,7 +541,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     icon: Icon(
                       Icons.delete_outline,
                       size: 18,
-                      color: t.textSecondary.withOpacity(0.72),
+                      color: t.textSecondary.withValues(alpha: 0.72),
                     ),
                   ),
                 ],
@@ -650,8 +650,8 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
       borderRadius: BorderRadius.circular(12),
       borderSide: BorderSide(
         color: focused
-            ? t.accent.withOpacity(0.7)
-            : t.textSecondary.withOpacity(0.14),
+            ? t.accent.withValues(alpha: 0.7)
+            : t.textSecondary.withValues(alpha: 0.14),
       ),
     );
   }
@@ -680,13 +680,13 @@ class _FilterShell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: selected
-            ? t.accent.withOpacity(0.13)
-            : t.textSecondary.withOpacity(0.07),
+            ? t.accent.withValues(alpha: 0.13)
+            : t.textSecondary.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: selected
-              ? t.accent.withOpacity(0.38)
-              : t.textSecondary.withOpacity(0.10),
+              ? t.accent.withValues(alpha: 0.38)
+              : t.textSecondary.withValues(alpha: 0.10),
         ),
       ),
       child: Row(
@@ -700,7 +700,7 @@ class _FilterShell extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.manrope(
-                color: selected ? t.accent : t.textPrimary.withOpacity(0.78),
+                color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.78),
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -738,13 +738,13 @@ class _ChoiceChipShell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: selected
-            ? t.accent.withOpacity(t.isDark ? 0.22 : 0.14)
-            : t.textSecondary.withOpacity(0.08),
+            ? t.accent.withValues(alpha: t.isDark ? 0.22 : 0.14)
+            : t.textSecondary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: selected
-              ? t.accent.withOpacity(0.55)
-              : t.textSecondary.withOpacity(0.15),
+              ? t.accent.withValues(alpha: 0.55)
+              : t.textSecondary.withValues(alpha: 0.15),
         ),
       ),
       child: Row(
@@ -755,7 +755,7 @@ class _ChoiceChipShell extends StatelessWidget {
           Text(
             label,
             style: GoogleFonts.manrope(
-              color: selected ? t.accent : t.textPrimary.withOpacity(0.76),
+              color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.76),
               fontSize: 11,
               fontWeight: FontWeight.w800,
             ),

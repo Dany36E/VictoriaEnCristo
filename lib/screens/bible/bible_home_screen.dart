@@ -236,7 +236,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           IconButton(
             icon: Icon(
               Icons.search,
-              color: t.textSecondary.withOpacity(0.6),
+              color: t.textSecondary.withValues(alpha: 0.6),
               size: 20,
             ),
             onPressed: () => Navigator.push(
@@ -247,7 +247,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           IconButton(
             icon: Icon(
               Icons.tune,
-              color: t.textSecondary.withOpacity(0.6),
+              color: t.textSecondary.withValues(alpha: 0.6),
               size: 20,
             ),
             onPressed: () => Navigator.push(
@@ -276,8 +276,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: t.isDark
-                    ? Colors.white.withOpacity(0.06)
-                    : Colors.black.withOpacity(0.04),
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.black.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: TextField(
@@ -287,7 +287,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 decoration: InputDecoration(
                   hintText: 'Buscar en la Biblia...',
                   hintStyle: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.4),
+                    color: t.textSecondary.withValues(alpha: 0.4),
                     fontSize: 14,
                   ),
                   border: InputBorder.none,
@@ -418,7 +418,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           Text(
             section.name.toUpperCase(),
             style: GoogleFonts.manrope(
-              color: t.accent.withOpacity(0.7),
+              color: t.accent.withValues(alpha: 0.7),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.4,
@@ -428,7 +428,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           Text(
             section.description,
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.4),
+              color: t.textSecondary.withValues(alpha: 0.4),
               fontSize: 11,
             ),
           ),
@@ -463,16 +463,16 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
             color: t.isDark
-                ? Colors.white.withOpacity(0.04)
-                : Colors.black.withOpacity(0.03),
+                ? Colors.white.withValues(alpha: 0.04)
+                : Colors.black.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: t.accent.withOpacity(0.15)),
+            border: Border.all(color: t.accent.withValues(alpha: 0.15)),
           ),
           child: Row(
             children: [
               Icon(
                 Icons.menu_book_rounded,
-                color: t.accent.withOpacity(0.8),
+                color: t.accent.withValues(alpha: 0.8),
                 size: 28,
               ),
               const SizedBox(width: 16),
@@ -484,7 +484,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     Text(
                       'Continuar leyendo',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
@@ -504,7 +504,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               ),
               Icon(
                 Icons.arrow_forward_ios,
-                color: t.textSecondary.withOpacity(0.3),
+                color: t.textSecondary.withValues(alpha: 0.3),
                 size: 14,
               ),
             ],
@@ -557,7 +557,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                       borderRadius: BorderRadius.circular(2),
                       child: LinearProgressIndicator(
                         value: pct / 100,
-                        backgroundColor: t.textSecondary.withOpacity(0.08),
+                        backgroundColor: t.textSecondary.withValues(alpha: 0.08),
                         color: t.accent,
                       ),
                     ),
@@ -566,7 +566,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   Text(
                     '${pct.toStringAsFixed(1)}%',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 10,
                     ),
                   ),
@@ -767,10 +767,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 ),
                 decoration: BoxDecoration(
                   color: t.isDark
-                      ? Colors.white.withOpacity(0.05)
-                      : Colors.black.withOpacity(0.04),
+                      ? Colors.white.withValues(alpha: 0.05)
+                      : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: t.accent.withOpacity(0.12)),
+                  border: Border.all(color: t.accent.withValues(alpha: 0.12)),
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -780,7 +780,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     Text(
                       tool.label,
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.6),
+                        color: t.textSecondary.withValues(alpha: 0.6),
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -946,8 +946,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           child: Container(
             decoration: BoxDecoration(
               color: t.isDark
-                  ? Colors.white.withOpacity(0.04)
-                  : Colors.black.withOpacity(0.03),
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : Colors.black.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Column(
@@ -959,7 +959,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   tool.label,
                   textAlign: TextAlign.center,
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.6),
+                    color: t.textSecondary.withValues(alpha: 0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     height: 1.2,
@@ -1012,7 +1012,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   book.genre.label,
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.32),
+                    color: t.textSecondary.withValues(alpha: 0.32),
                     fontSize: 10,
                     letterSpacing: 0.4,
                   ),
@@ -1021,7 +1021,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   '${book.totalChapters}',
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 13,
                   ),
                 ),
@@ -1043,7 +1043,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         child: Text(
           'Escribe al menos 3 caracteres',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 13,
           ),
         ),
@@ -1061,7 +1061,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         child: Text(
           'Sin resultados',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 14,
           ),
         ),
@@ -1105,7 +1105,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   '${verse.reference} — ${verse.version}',
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
@@ -1211,7 +1211,7 @@ class _StudyEntrySheet extends StatelessWidget {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -1274,7 +1274,7 @@ class _SermonEntrySheet extends StatelessWidget {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -1337,10 +1337,10 @@ class _StudyEntryTile extends StatelessWidget {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.textSecondary.withOpacity(0.09)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.09)),
         ),
         child: Row(
           children: [
@@ -1362,7 +1362,7 @@ class _StudyEntryTile extends StatelessWidget {
                   Text(
                     subtitle,
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.7),
+                      color: t.textSecondary.withValues(alpha: 0.7),
                       fontSize: 11,
                       height: 1.3,
                     ),

@@ -41,7 +41,7 @@ class StickerPickerSheet extends StatelessWidget {
         color: AppDesignSystem.midnightLight,
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         border: Border(
-          top: BorderSide(color: AppDesignSystem.gold.withOpacity(0.3)),
+          top: BorderSide(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
         ),
       ),
       padding: EdgeInsets.only(
@@ -81,9 +81,9 @@ class StickerPickerSheet extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: Colors.orange.withOpacity(0.1),
+                  color: Colors.orange.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                 ),
                 child: const Row(
                   children: [
@@ -131,7 +131,7 @@ class StickerPickerSheet extends StatelessWidget {
                 '$remaining mensaje${remaining == 1 ? '' : 's'} restante${remaining == 1 ? '' : 's'} hoy',
                 style: TextStyle(
                   fontSize: 11,
-                  color: Colors.white.withOpacity(0.4),
+                  color: Colors.white.withValues(alpha: 0.4),
                 ),
               ),
             ),
@@ -254,9 +254,9 @@ class _StickerButton extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.06),
+              color: Colors.white.withValues(alpha: 0.06),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.08)),
+              border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
             ),
             child: Row(
               children: [
@@ -268,7 +268,7 @@ class _StickerButton extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 11,
                       fontWeight: FontWeight.w500,
-                      color: Colors.white.withOpacity(enabled ? 0.9 : 0.5),
+                      color: Colors.white.withValues(alpha: enabled ? 0.9 : 0.5),
                     ),
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,

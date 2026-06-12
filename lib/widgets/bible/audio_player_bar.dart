@@ -35,12 +35,12 @@ class AudioPlayerBar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: t.surface.withOpacity(0.95),
+        color: t.surface.withValues(alpha: 0.95),
         border: Border(
           bottom: BorderSide(
             color: isRealAudio
-                ? const Color(0xFFD4AF37).withOpacity(0.3)
-                : t.accent.withOpacity(0.15),
+                ? const Color(0xFFD4AF37).withValues(alpha: 0.3)
+                : t.accent.withValues(alpha: 0.15),
           ),
         ),
       ),
@@ -67,7 +67,7 @@ class AudioPlayerBar extends StatelessWidget {
                   child: Padding(
                     padding: const EdgeInsets.all(6),
                     child: Icon(Icons.close,
-                        color: t.textSecondary.withOpacity(0.5), size: 18),
+                        color: t.textSecondary.withValues(alpha: 0.5), size: 18),
                   ),
                 ),
               ],
@@ -150,24 +150,24 @@ class AudioPlayerBar extends StatelessWidget {
                   width: 10, height: 10,
                   child: CircularProgressIndicator(
                     strokeWidth: 1.5,
-                    color: const Color(0xFFD4AF37).withOpacity(0.7),
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(width: 3),
                 Text('Cargando...',
                   style: GoogleFonts.manrope(
                     fontSize: 8,
-                    color: const Color(0xFFD4AF37).withOpacity(0.7),
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7),
                   ),
                 ),
               ] else ...[
                 Icon(Icons.graphic_eq, size: 10,
-                    color: const Color(0xFFD4AF37).withOpacity(0.7)),
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7)),
                 const SizedBox(width: 3),
                 Text('Audio bíblico',
                   style: GoogleFonts.manrope(
                     fontSize: 8,
-                    color: const Color(0xFFD4AF37).withOpacity(0.7),
+                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -182,12 +182,12 @@ class AudioPlayerBar extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Icon(Icons.record_voice_over_outlined, size: 10,
-            color: t.textSecondary.withOpacity(0.5)),
+            color: t.textSecondary.withValues(alpha: 0.5)),
         const SizedBox(width: 3),
         Text('Lectura sintetizada',
           style: GoogleFonts.manrope(
             fontSize: 8,
-            color: t.textSecondary.withOpacity(0.5),
+            color: t.textSecondary.withValues(alpha: 0.5),
           ),
         ),
       ],
@@ -219,7 +219,7 @@ class AudioPlayerBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
               margin: const EdgeInsets.only(right: 8),
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.15),
+                color: t.accent.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(4),
               ),
               child: Text(
@@ -261,7 +261,7 @@ class AudioPlayerBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 backgroundColor:
-                    const Color(0xFFD4AF37).withOpacity(0.15),
+                    const Color(0xFFD4AF37).withValues(alpha: 0.15),
                 valueColor: const AlwaysStoppedAnimation(Color(0xFFD4AF37)),
                 minHeight: 2,
               ),

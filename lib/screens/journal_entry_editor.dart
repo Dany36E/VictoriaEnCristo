@@ -129,14 +129,14 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            t.accent.withOpacity(0.18),
-            t.accent.withOpacity(0.04),
+            t.accent.withValues(alpha: 0.18),
+            t.accent.withValues(alpha: 0.04),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: t.accent.withOpacity(0.25)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
@@ -174,7 +174,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
           decoration: BoxDecoration(
             color: t.cardBg,
             borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: t.accent.withOpacity(0.12)),
+            border: Border.all(color: t.accent.withValues(alpha: 0.12)),
           ),
           child: TextField(
             controller: controller,
@@ -183,7 +183,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
             decoration: InputDecoration(
               hintText: s.hint,
               hintStyle: TextStyle(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 13,
               ),
               border: InputBorder.none,
@@ -205,9 +205,9 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: t.accent.withOpacity(0.08),
+        color: t.accent.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: t.accent.withOpacity(0.2)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.2)),
       ),
       child: Row(
         children: [
@@ -236,14 +236,14 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppDesignSystem.gold.withOpacity(0.16),
-            AppDesignSystem.gold.withOpacity(0.04),
+            AppDesignSystem.gold.withValues(alpha: 0.16),
+            AppDesignSystem.gold.withValues(alpha: 0.04),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

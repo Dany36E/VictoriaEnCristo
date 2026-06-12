@@ -232,10 +232,10 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
         decoration: BoxDecoration(
           color: _isQuickMode 
               ? AppDesignSystem.hope 
-              : AppDesignSystem.hope.withOpacity(0.2),
+              : AppDesignSystem.hope.withValues(alpha: 0.2),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: AppDesignSystem.hope.withOpacity(0.3),
+            color: AppDesignSystem.hope.withValues(alpha: 0.3),
           ),
         ),
         child: Row(
@@ -324,7 +324,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: t.accent.withOpacity(0.15),
+              color: t.accent.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -375,7 +375,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.hope.withOpacity(0.15),
+                  color: AppDesignSystem.hope.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -425,7 +425,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.struggle.withOpacity(0.15),
+                  color: AppDesignSystem.struggle.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -459,7 +459,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color: t.accent.withOpacity(0.2),
+                      color: t.accent.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Center(
@@ -509,12 +509,12 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  t.accent.withOpacity(0.3),
-                  t.accent.withOpacity(0.1),
+                  t.accent.withValues(alpha: 0.3),
+                  t.accent.withValues(alpha: 0.1),
                 ],
               ),
               shape: BoxShape.circle,
-              border: Border.all(color: t.accent.withOpacity(0.3)),
+              border: Border.all(color: t.accent.withValues(alpha: 0.3)),
             ),
             child: Icon(
               Icons.flash_on,
@@ -538,7 +538,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
             decoration: BoxDecoration(
               color: t.inputBg,
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: t.accent.withOpacity(0.2)),
+              border: Border.all(color: t.accent.withValues(alpha: 0.2)),
             ),
             child: Text(
               section.content,
@@ -573,7 +573,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.hope.withOpacity(0.15),
+                  color: AppDesignSystem.hope.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -600,7 +600,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 decoration: BoxDecoration(
                   color: t.inputBg,
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: AppDesignSystem.hope.withOpacity(0.2)),
+                  border: Border.all(color: AppDesignSystem.hope.withValues(alpha: 0.2)),
                 ),
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -608,7 +608,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                     Icon(
                       Icons.help_outline,
                       size: 20,
-                      color: AppDesignSystem.hope.withOpacity(0.7),
+                      color: AppDesignSystem.hope.withValues(alpha: 0.7),
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -645,7 +645,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: AppDesignSystem.victory.withOpacity(0.15),
+              color: AppDesignSystem.victory.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -698,12 +698,12 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  AppDesignSystem.victory.withOpacity(0.3),
-                  AppDesignSystem.victory.withOpacity(0.1),
+                  AppDesignSystem.victory.withValues(alpha: 0.3),
+                  AppDesignSystem.victory.withValues(alpha: 0.1),
                 ],
               ),
               shape: BoxShape.circle,
-              border: Border.all(color: AppDesignSystem.victory.withOpacity(0.3), width: 2),
+              border: Border.all(color: AppDesignSystem.victory.withValues(alpha: 0.3), width: 2),
             ),
             child: Icon(
               _isDayCompleted ? Icons.check_circle : Icons.emoji_events_outlined,
@@ -769,7 +769,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
-              color: AppDesignSystem.hope.withOpacity(0.2),
+              color: AppDesignSystem.hope.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(16),
             ),
             child: Row(
@@ -832,7 +832,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
       decoration: BoxDecoration(
         color: t.inputBg,
         border: Border(
-          top: BorderSide(color: t.surface.withOpacity(0.5)),
+          top: BorderSide(color: t.surface.withValues(alpha: 0.5)),
         ),
       ),
       child: Row(
@@ -862,8 +862,8 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                         color: isActive
                             ? t.accent
                             : isCompleted
-                                ? t.accent.withOpacity(0.5)
-                                : t.textSecondary.withOpacity(0.3),
+                                ? t.accent.withValues(alpha: 0.5)
+                                : t.textSecondary.withValues(alpha: 0.3),
                         borderRadius: BorderRadius.circular(4),
                       ),
                     ),
@@ -979,11 +979,11 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
             color: td.cardBg,
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
-              color: const Color(0xFFD4AF37).withOpacity(0.4),
+              color: const Color(0xFFD4AF37).withValues(alpha: 0.4),
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFD4AF37).withOpacity(0.15),
+                color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
                 blurRadius: 40,
                 spreadRadius: 5,
               ),
@@ -1000,7 +1000,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                   gradient: LinearGradient(
                     colors: [
                       const Color(0xFFD4AF37),
-                      const Color(0xFFD4AF37).withOpacity(0.6),
+                      const Color(0xFFD4AF37).withValues(alpha: 0.6),
                     ],
                   ),
                 ),
@@ -1013,7 +1013,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                 .scale(begin: const Offset(0, 0), end: const Offset(1, 1),
                     duration: 500.ms, curve: Curves.elasticOut)
                 .shimmer(delay: 500.ms, duration: 1500.ms,
-                    color: Colors.white.withOpacity(0.3)),
+                    color: Colors.white.withValues(alpha: 0.3)),
               const SizedBox(height: 24),
               Text(
                 '¡PLAN COMPLETADO!',

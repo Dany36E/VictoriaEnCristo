@@ -224,7 +224,7 @@ class _BookSpine extends StatelessWidget {
             width: studied ? 1.5 : 1,
           ),
           boxShadow: studied
-              ? [BoxShadow(color: AppDesignSystem.gold.withOpacity(0.35), blurRadius: 8)]
+              ? [BoxShadow(color: AppDesignSystem.gold.withValues(alpha: 0.35), blurRadius: 8)]
               : null,
         ),
         child: Column(

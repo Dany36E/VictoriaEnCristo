@@ -101,7 +101,7 @@ class BibleStatsScreen extends StatelessWidget {
                                 child: LinearProgressIndicator(
                                   value: pct / 100,
                                   minHeight: 8,
-                                  backgroundColor: t.textSecondary.withOpacity(0.1),
+                                  backgroundColor: t.textSecondary.withValues(alpha: 0.1),
                                   color: t.accent,
                                 ),
                               ),
@@ -109,7 +109,7 @@ class BibleStatsScreen extends StatelessWidget {
                               Text(
                                 '$chaptersRead / ${BibleReadingStatsService.totalBibleChapters} capítulos',
                                 style: GoogleFonts.manrope(
-                                  color: t.textSecondary.withOpacity(0.5),
+                                  color: t.textSecondary.withValues(alpha: 0.5),
                                   fontSize: 12,
                                 ),
                               ),
@@ -127,7 +127,7 @@ class BibleStatsScreen extends StatelessWidget {
                               child: Text(
                                 'Comienza a leer y tu progreso aparecerá aquí',
                                 style: GoogleFonts.manrope(
-                                  color: t.textSecondary.withOpacity(0.4),
+                                  color: t.textSecondary.withValues(alpha: 0.4),
                                   fontSize: 14,
                                 ),
                                 textAlign: TextAlign.center,
@@ -199,7 +199,7 @@ class BibleStatsScreen extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: iconColor.withOpacity(0.12),
+              color: iconColor.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(12),
             ),
             child: Icon(icon, color: iconColor, size: 24),
@@ -212,7 +212,7 @@ class BibleStatsScreen extends StatelessWidget {
                 Text(
                   title,
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.6),
+                    color: t.textSecondary.withValues(alpha: 0.6),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -233,7 +233,7 @@ class BibleStatsScreen extends StatelessWidget {
                     Text(
                       subtitle,
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.4),
+                        color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 13,
                       ),
                     ),

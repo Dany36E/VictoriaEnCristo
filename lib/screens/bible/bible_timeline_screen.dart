@@ -104,8 +104,8 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: t.isDark
-                      ? Colors.white.withOpacity(0.06)
-                      : Colors.black.withOpacity(0.04),
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: TextField(
@@ -116,7 +116,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                   decoration: InputDecoration(
                     hintText: 'Buscar eventos, personajes...',
                     hintStyle: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                     ),
                     border: InputBorder.none,
@@ -167,7 +167,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
           ),
           IconButton(
             icon: Icon(Icons.search,
-                color: t.textSecondary.withOpacity(0.6), size: 20),
+                color: t.textSecondary.withValues(alpha: 0.6), size: 20),
             onPressed: () => setState(() => _searchMode = true),
           ),
         ],
@@ -205,7 +205,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                     decoration: BoxDecoration(
                       color: selected
                           ? color
-                          : color.withOpacity(0.3),
+                          : color.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(4),
                       border: selected
                           ? Border.all(color: color, width: 1.5)
@@ -217,7 +217,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                         style: GoogleFonts.manrope(
                           color: selected
                               ? Colors.white
-                              : t.textSecondary.withOpacity(0.6),
+                              : t.textSecondary.withValues(alpha: 0.6),
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
                         ),
@@ -233,7 +233,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       style: GoogleFonts.manrope(
                         color: selected
                             ? t.textPrimary
-                            : t.textSecondary.withOpacity(0.5),
+                            : t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 8,
                         fontWeight:
                             selected ? FontWeight.w700 : FontWeight.w500,
@@ -273,7 +273,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
         child: Text(
           'Sin resultados',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 14,
           ),
         ),
@@ -354,7 +354,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       Text(
                         period.description,
                         style: GoogleFonts.manrope(
-                          color: t.textSecondary.withOpacity(0.5),
+                          color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 12,
                           height: 1.4,
                         ),
@@ -367,7 +367,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                           Text(
                             '$eventCount eventos',
                             style: GoogleFonts.manrope(
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               fontSize: 11,
                             ),
                           ),
@@ -375,7 +375,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                           Text(
                             '$charCount personajes',
                             style: GoogleFonts.manrope(
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               fontSize: 11,
                             ),
                           ),
@@ -385,7 +385,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                   ),
                 ),
                 Icon(Icons.chevron_right,
-                    color: t.textSecondary.withOpacity(0.3), size: 18),
+                    color: t.textSecondary.withValues(alpha: 0.3), size: 18),
               ],
             ),
           ),
@@ -409,7 +409,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
         Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
+            color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(10),
           ),
           child: Column(
@@ -436,7 +436,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
               Text(
                 period.description,
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.7),
+                  color: t.textSecondary.withValues(alpha: 0.7),
                   fontSize: 13,
                   height: 1.5,
                 ),
@@ -452,7 +452,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
             child: Text(
               'EVENTOS',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.4),
+                color: t.textSecondary.withValues(alpha: 0.4),
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.5,
@@ -469,7 +469,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
             child: Text(
               'PERSONAJES',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.4),
+                color: t.textSecondary.withValues(alpha: 0.4),
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 1.5,
@@ -512,7 +512,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                 Container(
                   width: 1,
                   height: 40,
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha: 0.2),
                 ),
               ],
             ),
@@ -536,7 +536,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       Text(
                         event.yearFormatted,
                         style: GoogleFonts.manrope(
-                          color: color.withOpacity(0.7),
+                          color: color.withValues(alpha: 0.7),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -547,7 +547,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                   Text(
                     event.description,
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.5),
+                      color: t.textSecondary.withValues(alpha: 0.5),
                       fontSize: 12,
                       height: 1.4,
                     ),
@@ -581,7 +581,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
               width: 36,
               height: 36,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Center(
@@ -612,7 +612,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                     Text(
                       character.roles.join(' · '),
                       style: GoogleFonts.manrope(
-                        color: color.withOpacity(0.7),
+                        color: color.withValues(alpha: 0.7),
                         fontSize: 11,
                       ),
                     ),
@@ -623,7 +623,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
               Text(
                 character.lifespan,
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 10,
                 ),
               ),
@@ -653,7 +653,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                 width: 36,
                 height: 2,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(1),
                 ),
               ),
@@ -680,7 +680,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
             Text(
               event.description,
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.7),
+                color: t.textSecondary.withValues(alpha: 0.7),
                 fontSize: 14,
                 height: 1.6,
               ),
@@ -690,7 +690,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
               Text(
                 'REFERENCIAS',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.5,
@@ -710,7 +710,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: t.accent.withOpacity(0.1),
+                        color: t.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(
@@ -758,7 +758,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                 width: 36,
                 height: 2,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(1),
                 ),
               ),
@@ -770,7 +770,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.15),
+                    color: color.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
                   ),
                   child: Center(
@@ -801,7 +801,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                         Text(
                           character.roles.join(' · '),
                           style: GoogleFonts.manrope(
-                            color: color.withOpacity(0.7),
+                            color: color.withValues(alpha: 0.7),
                             fontSize: 12,
                           ),
                         ),
@@ -815,7 +815,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
               Text(
                 character.lifespan,
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5),
+                  color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 12,
                 ),
               ),
@@ -824,7 +824,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
             Text(
               character.description,
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.7),
+                color: t.textSecondary.withValues(alpha: 0.7),
                 fontSize: 14,
                 height: 1.6,
               ),
@@ -834,7 +834,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
               Text(
                 'REFERENCIAS',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.5,
@@ -854,7 +854,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 6),
                       decoration: BoxDecoration(
-                        color: t.accent.withOpacity(0.1),
+                        color: t.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(6),
                       ),
                       child: Text(

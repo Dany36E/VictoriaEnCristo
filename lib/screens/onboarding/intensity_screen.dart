@@ -305,11 +305,11 @@ class _IntensityScreenState extends State<IntensityScreen>
           height: 44,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppDesignSystem.midnight.withOpacity(0.8),
+            color: AppDesignSystem.midnight.withValues(alpha: 0.8),
             border: Border.all(
               color: isBgmEnabled 
-                  ? AppDesignSystem.gold.withOpacity(0.5)
-                  : Colors.grey.withOpacity(0.3),
+                  ? AppDesignSystem.gold.withValues(alpha: 0.5)
+                  : Colors.grey.withValues(alpha: 0.3),
               width: 1.5,
             ),
           ),
@@ -369,7 +369,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                 },
                 icon: Icon(
                   Icons.arrow_back_rounded,
-                  color: AppDesignSystem.pureWhite.withOpacity(0.7),
+                  color: AppDesignSystem.pureWhite.withValues(alpha: 0.7),
                 ),
               ),
               
@@ -378,10 +378,10 @@ class _IntensityScreenState extends State<IntensityScreen>
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.15),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(
-                    color: AppDesignSystem.gold.withOpacity(0.3),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Text(
@@ -444,7 +444,7 @@ class _IntensityScreenState extends State<IntensityScreen>
             style: GoogleFonts.manrope(
               fontSize: 15,
               fontWeight: FontWeight.w400,
-              color: AppDesignSystem.pureWhite.withOpacity(0.75),
+              color: AppDesignSystem.pureWhite.withValues(alpha: 0.75),
               height: 1.5,
             ),
           ),
@@ -497,19 +497,19 @@ class _IntensityScreenState extends State<IntensityScreen>
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
         decoration: BoxDecoration(
           color: isSelected
-              ? intensityColor.withOpacity(0.15)
-              : AppDesignSystem.midnightLight.withOpacity(0.5),
+              ? intensityColor.withValues(alpha: 0.15)
+              : AppDesignSystem.midnightLight.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
             color: isSelected
-                ? intensityColor.withOpacity(0.7)
-                : AppDesignSystem.pureWhite.withOpacity(0.1),
+                ? intensityColor.withValues(alpha: 0.7)
+                : AppDesignSystem.pureWhite.withValues(alpha: 0.1),
             width: isSelected ? 2 : 1,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: intensityColor.withOpacity(0.25),
+                    color: intensityColor.withValues(alpha: 0.25),
                     blurRadius: 16,
                     offset: const Offset(0, 6),
                   ),
@@ -538,7 +538,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                       fontWeight: FontWeight.w700,
                       color: isSelected
                           ? intensityColor
-                          : AppDesignSystem.pureWhite.withOpacity(0.9),
+                          : AppDesignSystem.pureWhite.withValues(alpha: 0.9),
                       letterSpacing: 1,
                     ),
                   ),
@@ -549,8 +549,8 @@ class _IntensityScreenState extends State<IntensityScreen>
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: isSelected
-                          ? AppDesignSystem.pureWhite.withOpacity(0.85)
-                          : AppDesignSystem.pureWhite.withOpacity(0.6),
+                          ? AppDesignSystem.pureWhite.withValues(alpha: 0.85)
+                          : AppDesignSystem.pureWhite.withValues(alpha: 0.6),
                     ),
                   ),
                 ],
@@ -568,7 +568,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                 border: Border.all(
                   color: isSelected
                       ? intensityColor
-                      : AppDesignSystem.pureWhite.withOpacity(0.3),
+                      : AppDesignSystem.pureWhite.withValues(alpha: 0.3),
                   width: 2,
                 ),
               ),
@@ -602,7 +602,7 @@ class _IntensityScreenState extends State<IntensityScreen>
           boxShadow: hasSelection
               ? [
                   BoxShadow(
-                    color: AppDesignSystem.gold.withOpacity(0.35),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.35),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -622,7 +622,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                     Icons.shield_rounded,
                     color: hasSelection
                         ? AppDesignSystem.midnight
-                        : AppDesignSystem.pureWhite.withOpacity(0.5),
+                        : AppDesignSystem.pureWhite.withValues(alpha: 0.5),
                     size: 22,
                   ),
                   const SizedBox(width: 10),
@@ -633,7 +633,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                       fontWeight: FontWeight.w700,
                       color: hasSelection
                           ? AppDesignSystem.midnight
-                          : AppDesignSystem.pureWhite.withOpacity(0.5),
+                          : AppDesignSystem.pureWhite.withValues(alpha: 0.5),
                       letterSpacing: 1.5,
                     ),
                   ),
@@ -665,8 +665,8 @@ class _IntensityScreenState extends State<IntensityScreen>
                       center: Alignment.center,
                       radius: 0.8 * _glowAnimation.value + 0.3,
                       colors: [
-                        AppDesignSystem.gold.withOpacity(0.3 * _glowAnimation.value),
-                        AppDesignSystem.gold.withOpacity(0.1 * _glowAnimation.value),
+                        AppDesignSystem.gold.withValues(alpha: 0.3 * _glowAnimation.value),
+                        AppDesignSystem.gold.withValues(alpha: 0.1 * _glowAnimation.value),
                         Colors.transparent,
                       ],
                       stops: const [0.0, 0.4, 1.0],
@@ -693,7 +693,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                             gradient: AppDesignSystem.goldShimmer,
                             boxShadow: [
                               BoxShadow(
-                                color: AppDesignSystem.gold.withOpacity(0.5 * _glowAnimation.value),
+                                color: AppDesignSystem.gold.withValues(alpha: 0.5 * _glowAnimation.value),
                                 blurRadius: 40,
                                 spreadRadius: 10,
                               ),
@@ -747,7 +747,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                         style: GoogleFonts.manrope(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
-                          color: AppDesignSystem.pureWhite.withOpacity(0.8),
+                          color: AppDesignSystem.pureWhite.withValues(alpha: 0.8),
                           height: 1.5,
                         ),
                       ),

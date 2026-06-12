@@ -190,7 +190,7 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
             color: matched
                 ? const Color(0xFF1F3A1F)
                 : highlight
-                ? AppDesignSystem.gold.withOpacity(0.1)
+                ? AppDesignSystem.gold.withValues(alpha: 0.1)
                 : t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
             border: Border.all(
@@ -233,7 +233,7 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
                 Container(
                   padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.2),
+                    color: Colors.black.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                   ),
                   child: Column(
@@ -267,7 +267,7 @@ class _ProphecyMatchScreenState extends State<ProphecyMatchScreen> {
       decoration: BoxDecoration(
         color: t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

@@ -158,9 +158,9 @@ class _HopeMessageCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.accent.withOpacity(t.isDark ? 0.08 : 0.10),
+        color: t.accent.withValues(alpha: t.isDark ? 0.08 : 0.10),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: t.accent.withOpacity(0.22), width: 1),
+        border: Border.all(color: t.accent.withValues(alpha: 0.22), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -186,7 +186,7 @@ class _HopeMessageCard extends StatelessWidget {
           Text(
             'Resume la esperanza central que Dios te muestra en este texto.',
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.65),
+              color: t.textSecondary.withValues(alpha: 0.65),
               fontSize: 11,
               height: 1.35,
             ),
@@ -205,18 +205,18 @@ class _HopeMessageCard extends StatelessWidget {
             decoration: InputDecoration(
               hintText: 'Ej. Jesús quiere sanarte y darte vida nueva.',
               hintStyle: GoogleFonts.lora(
-                color: t.textSecondary.withOpacity(0.5),
+                color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
               filled: true,
               fillColor: t.background,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+                borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+                borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -246,7 +246,7 @@ class _HopeMessageCard extends StatelessWidget {
           Text(
             'Selecciona uno o varios versículos que sostienen ese mensaje.',
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.62),
+              color: t.textSecondary.withValues(alpha: 0.62),
               fontSize: 11,
               height: 1.35,
             ),
@@ -263,15 +263,15 @@ class _HopeMessageCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              color: t.background.withOpacity(t.isDark ? 0.62 : 0.82),
+              color: t.background.withValues(alpha: t.isDark ? 0.62 : 0.82),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: t.textSecondary.withOpacity(0.10)),
+              border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
             ),
             child: Text(
               mainVerseReference,
               style: GoogleFonts.manrope(
                 color: selectedVerses.isEmpty
-                    ? t.textSecondary.withOpacity(0.65)
+                    ? t.textSecondary.withValues(alpha: 0.65)
                     : t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -304,7 +304,7 @@ class _VerseChips extends StatelessWidget {
       return Text(
         'No hay versículos cargados para seleccionar.',
         style: GoogleFonts.manrope(
-          color: t.textSecondary.withOpacity(0.62),
+          color: t.textSecondary.withValues(alpha: 0.62),
           fontSize: 12,
           fontStyle: FontStyle.italic,
         ),
@@ -352,11 +352,11 @@ class _MainVerseChip extends StatelessWidget {
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       visualDensity: VisualDensity.compact,
       backgroundColor: t.background,
-      selectedColor: t.accent.withOpacity(t.isDark ? 0.24 : 0.18),
+      selectedColor: t.accent.withValues(alpha: t.isDark ? 0.24 : 0.18),
       side: BorderSide(
         color: selected
-            ? t.accent.withOpacity(0.68)
-            : t.textSecondary.withOpacity(0.16),
+            ? t.accent.withValues(alpha: 0.68)
+            : t.textSecondary.withValues(alpha: 0.16),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       labelStyle: GoogleFonts.manrope(
@@ -434,10 +434,10 @@ class _QuestionsToolbar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 12),
       decoration: BoxDecoration(
         color: t.isDark
-            ? Colors.white.withOpacity(0.025)
-            : Colors.black.withOpacity(0.02),
+            ? Colors.white.withValues(alpha: 0.025)
+            : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,7 +450,7 @@ class _QuestionsToolbar extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.75),
+                    color: t.textSecondary.withValues(alpha: 0.75),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
@@ -550,13 +550,13 @@ class _QuestionToolChip extends StatelessWidget {
     final foreground = emphasized
         ? t.background
         : disabled
-        ? t.textSecondary.withOpacity(0.72)
+        ? t.textSecondary.withValues(alpha: 0.72)
         : t.accent;
     final background = emphasized
         ? t.accent
         : disabled
-        ? t.textSecondary.withOpacity(t.isDark ? 0.09 : 0.06)
-        : t.accent.withOpacity(t.isDark ? 0.10 : 0.07);
+        ? t.textSecondary.withValues(alpha: t.isDark ? 0.09 : 0.06)
+        : t.accent.withValues(alpha: t.isDark ? 0.10 : 0.07);
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
@@ -566,7 +566,7 @@ class _QuestionToolChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: background,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: t.accent.withOpacity(0.24)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.24)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -618,9 +618,9 @@ class _QuestionIconChip extends StatelessWidget {
           height: 34,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: t.accent.withOpacity(t.isDark ? 0.10 : 0.07),
+            color: t.accent.withValues(alpha: t.isDark ? 0.10 : 0.07),
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: t.accent.withOpacity(0.24)),
+            border: Border.all(color: t.accent.withValues(alpha: 0.24)),
           ),
           child: Icon(icon, size: 17, color: t.accent),
         ),
@@ -853,9 +853,9 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.accent.withOpacity(t.isDark ? 0.07 : 0.09),
+        color: t.accent.withValues(alpha: t.isDark ? 0.07 : 0.09),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: t.accent.withOpacity(0.18), width: 1),
+        border: Border.all(color: t.accent.withValues(alpha: 0.18), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -881,7 +881,7 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
           Text(
             'Ideas libres, resumen, observaciones, acuerdos del grupo o pendientes para revisar.',
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.65),
+              color: t.textSecondary.withValues(alpha: 0.65),
               fontSize: 11,
               height: 1.35,
             ),
@@ -896,7 +896,7 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
                     Text(
                       'Selecciona texto para darle formato.',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.66),
+                        color: t.textSecondary.withValues(alpha: 0.66),
                         fontSize: 11.5,
                       ),
                     ),
@@ -957,18 +957,18 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
             decoration: InputDecoration(
               hintText: 'Escribe notas libres de este estudio…',
               hintStyle: GoogleFonts.lora(
-                color: t.textSecondary.withOpacity(0.5),
+                color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
               filled: true,
               fillColor: t.background,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+                borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+                borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
@@ -1079,7 +1079,7 @@ class _FormatButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: t.background,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: t.accent.withOpacity(0.28)),
+            border: Border.all(color: t.accent.withValues(alpha: 0.28)),
           ),
           child: Icon(icon, color: t.accent, size: 18),
         ),
@@ -1114,7 +1114,7 @@ class _FormatSizeButton extends StatelessWidget {
           decoration: BoxDecoration(
             color: t.background,
             borderRadius: BorderRadius.circular(8),
-            border: Border.all(color: t.accent.withOpacity(0.28)),
+            border: Border.all(color: t.accent.withValues(alpha: 0.28)),
           ),
           child: Text(
             label,
@@ -1145,9 +1145,9 @@ class _StudyNotesPreview extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: t.background.withOpacity(t.isDark ? 0.62 : 0.86),
+        color: t.background.withValues(alpha: t.isDark ? 0.62 : 0.86),
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: t.textSecondary.withOpacity(0.10)),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
       ),
       child: RichText(
         text: TextSpan(
@@ -1195,7 +1195,7 @@ class _StudyRichFormatIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final color = enabled ? t.accent : t.textSecondary.withOpacity(0.45);
+    final color = enabled ? t.accent : t.textSecondary.withValues(alpha: 0.45);
     return IconButton(
       visualDensity: VisualDensity.compact,
       tooltip: tooltip,
@@ -1224,9 +1224,9 @@ class _StudySaveStatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(t.isDark ? 0.16 : 0.10),
+        color: color.withValues(alpha: t.isDark ? 0.16 : 0.10),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.24)),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
       ),
       child: Text(
         label,
@@ -1266,7 +1266,7 @@ class _StudyNotesFontSheet extends StatelessWidget {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.28),
+                  color: t.textSecondary.withValues(alpha: 0.28),
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -1284,7 +1284,7 @@ class _StudyNotesFontSheet extends StatelessWidget {
             Text(
               'Selecciona una parte de la nota y despues elige el tamano que quieras aplicar.',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.72),
+                color: t.textSecondary.withValues(alpha: 0.72),
                 fontSize: 12,
                 height: 1.35,
               ),
@@ -1332,9 +1332,9 @@ class _StudyNotesFontTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: t.background.withOpacity(t.isDark ? 0.28 : 0.60),
+          color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.60),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: t.textSecondary.withOpacity(0.10)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
         ),
         child: Row(
           children: [
@@ -1343,7 +1343,7 @@ class _StudyNotesFontTile extends StatelessWidget {
               height: 38,
               alignment: Alignment.center,
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.12),
+                color: t.accent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Text(
@@ -1372,7 +1372,7 @@ class _StudyNotesFontTile extends StatelessWidget {
                   Text(
                     'Aplicar a la seleccion actual',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.72),
+                      color: t.textSecondary.withValues(alpha: 0.72),
                       fontSize: 11.5,
                     ),
                   ),
@@ -1420,9 +1420,9 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight.withOpacity(t.isDark ? 0.16 : 0.08),
+        color: highlight.withValues(alpha: t.isDark ? 0.16 : 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: highlight.withOpacity(0.26)),
+        border: Border.all(color: highlight.withValues(alpha: 0.26)),
       ),
       child: Row(
         children: [
@@ -1430,7 +1430,7 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: highlight.withOpacity(0.12),
+              color: highlight.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.spellcheck, color: highlight, size: 17),
@@ -1454,7 +1454,7 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
                 Text(
                   'Sugerencia: $replacement',
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.76),
+                    color: t.textSecondary.withValues(alpha: 0.76),
                     fontSize: 11,
                     height: 1.25,
                   ),
@@ -1476,7 +1476,7 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
           FilledButton.tonal(
             onPressed: onReplace,
             style: FilledButton.styleFrom(
-              backgroundColor: highlight.withOpacity(t.isDark ? 0.18 : 0.10),
+              backgroundColor: highlight.withValues(alpha: t.isDark ? 0.18 : 0.10),
               foregroundColor: highlight,
               visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 34),
@@ -1502,9 +1502,9 @@ class _StudyGeneralNotesHint extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: t.background.withOpacity(t.isDark ? 0.28 : 0.65),
+        color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.65),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1515,7 +1515,7 @@ class _StudyGeneralNotesHint extends StatelessWidget {
             child: Text(
               'Ahora tus notas generales usan formato real dentro del editor. Las palabras dudosas se subrayan en rojo y puedes corregirlas desde el menu o la sugerencia contextual.',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.76),
+                color: t.textSecondary.withValues(alpha: 0.76),
                 fontSize: 11.5,
                 height: 1.35,
               ),
@@ -1549,10 +1549,10 @@ class _QuestionCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: t.isDark
-            ? Colors.white.withOpacity(0.04)
-            : Colors.black.withOpacity(0.03),
+            ? Colors.white.withValues(alpha: 0.04)
+            : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: t.textSecondary.withOpacity(0.08), width: 1),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.08), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1564,7 +1564,7 @@ class _QuestionCard extends StatelessWidget {
                 height: 24,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: t.accent.withOpacity(0.15),
+                  color: t.accent.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Text(
@@ -1596,7 +1596,7 @@ class _QuestionCard extends StatelessWidget {
             child: Text(
               question.hint,
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 11,
                 height: 1.3,
               ),
@@ -1616,18 +1616,18 @@ class _QuestionCard extends StatelessWidget {
             decoration: InputDecoration(
               hintText: 'Escribe tu respuesta…',
               hintStyle: GoogleFonts.lora(
-                color: t.textSecondary.withOpacity(0.5),
+                color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
               filled: true,
               fillColor: t.background,
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+                borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),
-                borderSide: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+                borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(8),

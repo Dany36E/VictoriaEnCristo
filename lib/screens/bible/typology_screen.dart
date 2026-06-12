@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/bible/typology.dart';
 import '../../services/bible/typology_service.dart';
@@ -99,9 +99,9 @@ class _TypologyScreenState extends State<TypologyScreen> {
                     decoration: InputDecoration(
                       hintText: 'Buscar tipología...',
                       hintStyle: GoogleFonts.manrope(
-                          color: t.textPrimary.withOpacity(0.3)),
+                          color: t.textPrimary.withValues(alpha: 0.3)),
                       prefixIcon: Icon(Icons.search,
-                          color: t.accent.withOpacity(0.5)),
+                          color: t.accent.withValues(alpha: 0.5)),
                       filled: true,
                       fillColor: t.surface,
                       border: OutlineInputBorder(
@@ -135,7 +135,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                     child: Text(
                       '${_filtered.length} tipologías',
                       style: GoogleFonts.manrope(
-                        color: t.textPrimary.withOpacity(0.3),
+                        color: t.textPrimary.withValues(alpha: 0.3),
                         fontSize: 11,
                       ),
                     ),
@@ -149,9 +149,9 @@ class _TypologyScreenState extends State<TypologyScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.search_off, size: 48, color: t.textPrimary.withOpacity(0.3)),
+                            Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withOpacity(0.5), fontSize: 14)),
+                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
                           ],
                         ),
                       )
@@ -175,7 +175,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
         selected: active,
         onSelected: (_) => setState(() => _activeTag = tag),
         labelStyle: GoogleFonts.manrope(
-          color: active ? t.background : t.textPrimary.withOpacity(0.6),
+          color: active ? t.background : t.textPrimary.withValues(alpha: 0.6),
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
@@ -204,7 +204,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
           borderRadius: BorderRadius.circular(12.0),
           border: Border(
             left: BorderSide(
-              color: const Color(0xFF26A69A).withOpacity(0.5),
+              color: const Color(0xFF26A69A).withValues(alpha: 0.5),
               width: 3,
             ),
           ),
@@ -225,14 +225,14 @@ class _TypologyScreenState extends State<TypologyScreen> {
                   ),
                 ),
                 Icon(Icons.chevron_right,
-                    color: t.textPrimary.withOpacity(0.2), size: 20),
+                    color: t.textPrimary.withValues(alpha: 0.2), size: 20),
               ],
             ),
             const SizedBox(height: 6),
             Text(
               typology.description,
               style: GoogleFonts.manrope(
-                color: t.textPrimary.withOpacity(0.5),
+                color: t.textPrimary.withValues(alpha: 0.5),
                 fontSize: 12,
                 height: 1.4,
               ),
@@ -266,13 +266,13 @@ class _TypologyScreenState extends State<TypologyScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 6, vertical: 2),
                       decoration: BoxDecoration(
-                        color: t.textPrimary.withOpacity(0.05),
+                        color: t.textPrimary.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
                         tag,
                         style: GoogleFonts.manrope(
-                          color: t.textPrimary.withOpacity(0.3),
+                          color: t.textPrimary.withValues(alpha: 0.3),
                           fontSize: 9,
                         ),
                       ),
@@ -289,7 +289,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

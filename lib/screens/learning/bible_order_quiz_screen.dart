@@ -199,18 +199,18 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
         if (_done) {
           if (isError) {
             borderColor = AppDesignSystem.struggle;
-            bgColor = AppDesignSystem.struggle.withOpacity(0.10);
+            bgColor = AppDesignSystem.struggle.withValues(alpha: 0.10);
           } else if (isPicked) {
             borderColor = AppDesignSystem.victory;
-            bgColor = AppDesignSystem.victory.withOpacity(0.10);
+            bgColor = AppDesignSystem.victory.withValues(alpha: 0.10);
           }
         } else if (isPicked) {
           if (isError) {
             borderColor = AppDesignSystem.struggle;
-            bgColor = AppDesignSystem.struggle.withOpacity(0.08);
+            bgColor = AppDesignSystem.struggle.withValues(alpha: 0.08);
           } else {
             borderColor = AppDesignSystem.gold;
-            bgColor = AppDesignSystem.gold.withOpacity(0.08);
+            bgColor = AppDesignSystem.gold.withValues(alpha: 0.08);
           }
         }
 
@@ -240,7 +240,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                           textAlign: TextAlign.center,
                           maxLines: 1,
                           style: TextStyle(
-                            color: isPicked ? textColor.withOpacity(0.85) : textColor,
+                            color: isPicked ? textColor.withValues(alpha: 0.85) : textColor,
                             fontWeight: isPicked ? FontWeight.w500 : FontWeight.w600,
                             fontSize: isHuge ? 12 : 13,
                           ),
@@ -282,7 +282,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                       '#${canonicalIdx + 1}',
                       style: TextStyle(
                         fontSize: 9,
-                        color: t.textSecondary.withOpacity(0.8),
+                        color: t.textSecondary.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -315,7 +315,7 @@ class _BibleOrderQuizScreenState extends State<BibleOrderQuizScreen> {
                 return Icon(
                   i < _stars ? Icons.star_rounded : Icons.star_border_rounded,
                   size: 32,
-                  color: i < _stars ? AppDesignSystem.gold : AppDesignSystem.gold.withOpacity(0.3),
+                  color: i < _stars ? AppDesignSystem.gold : AppDesignSystem.gold.withValues(alpha: 0.3),
                 );
               }),
             ),

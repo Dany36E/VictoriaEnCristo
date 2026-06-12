@@ -88,7 +88,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
             child: Container(
               width: 40,
               height: 1,
-              color: t.accent.withOpacity(0.2),
+              color: t.accent.withValues(alpha: 0.2),
             ),
           ),
           const SizedBox(height: 16),
@@ -97,12 +97,12 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
           Row(
             children: [
               Icon(Icons.build_outlined,
-                  size: 14, color: t.accent.withOpacity(0.5)),
+                  size: 14, color: t.accent.withValues(alpha: 0.5)),
               const SizedBox(width: 8),
               Text(
                 'HERRAMIENTAS DEL CAPÍTULO',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2.0,
@@ -137,10 +137,10 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: t.isDark
-            ? Colors.white.withOpacity(0.03)
-            : Colors.black.withOpacity(0.03),
+            ? Colors.white.withValues(alpha: 0.03)
+            : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.accent.withOpacity(0.1)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,7 +148,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
           Row(
             children: [
               Icon(Icons.info_outline,
-                  size: 16, color: t.accent.withOpacity(0.6)),
+                  size: 16, color: t.accent.withValues(alpha: 0.6)),
               const SizedBox(width: 8),
               Text(
                 'Sobre este capítulo',
@@ -164,7 +164,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
           Text(
             _chapterIntro!,
             style: GoogleFonts.manrope(
-              color: t.textPrimary.withOpacity(0.75),
+              color: t.textPrimary.withValues(alpha: 0.75),
               fontSize: 13,
               height: 1.6,
             ),
@@ -180,10 +180,10 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: t.isDark
-            ? Colors.white.withOpacity(0.03)
-            : Colors.black.withOpacity(0.03),
+            ? Colors.white.withValues(alpha: 0.03)
+            : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.accent.withOpacity(0.1)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.1)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -191,7 +191,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
           Row(
             children: [
               Icon(Icons.map_outlined,
-                  size: 16, color: t.accent.withOpacity(0.6)),
+                  size: 16, color: t.accent.withValues(alpha: 0.6)),
               const SizedBox(width: 8),
               Text(
                 'Mapas relacionados',
@@ -205,7 +205,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               Text(
                 '${_relatedMaps.length}',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 11,
                 ),
               ),
@@ -227,13 +227,13 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                       children: [
                         Icon(Icons.place,
                             size: 14,
-                            color: t.accent.withOpacity(0.4)),
+                            color: t.accent.withValues(alpha: 0.4)),
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
                             map.title,
                             style: GoogleFonts.manrope(
-                              color: t.textPrimary.withOpacity(0.7),
+                              color: t.textPrimary.withValues(alpha: 0.7),
                               fontSize: 13,
                             ),
                             overflow: TextOverflow.ellipsis,
@@ -241,7 +241,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                         ),
                         Icon(Icons.arrow_forward_ios,
                             size: 10,
-                            color: t.textSecondary.withOpacity(0.3)),
+                            color: t.textSecondary.withValues(alpha: 0.3)),
                       ],
                     ),
                   ),
@@ -268,15 +268,15 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.03)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.03)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: t.accent.withOpacity(0.1)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
             Icon(Icons.auto_stories_outlined,
-                size: 18, color: t.accent.withOpacity(0.6)),
+                size: 18, color: t.accent.withValues(alpha: 0.6)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -293,7 +293,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   Text(
                     'Autor, contexto, temas y estructura',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -301,7 +301,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               ),
             ),
             Icon(Icons.arrow_forward_ios,
-                size: 12, color: t.textSecondary.withOpacity(0.3)),
+                size: 12, color: t.textSecondary.withValues(alpha: 0.3)),
           ],
         ),
       ),
@@ -329,15 +329,15 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.03)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.03)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: t.accent.withOpacity(0.1)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
             Icon(Icons.compare_outlined,
-                size: 18, color: t.accent.withOpacity(0.6)),
+                size: 18, color: t.accent.withValues(alpha: 0.6)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -354,7 +354,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   Text(
                     'Comparar versiones lado a lado',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -362,7 +362,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               ),
             ),
             Icon(Icons.arrow_forward_ios,
-                size: 12, color: t.textSecondary.withOpacity(0.3)),
+                size: 12, color: t.textSecondary.withValues(alpha: 0.3)),
           ],
         ),
       ),
@@ -388,15 +388,15 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.03)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.03)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: t.accent.withOpacity(0.1)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [
             Icon(Icons.auto_stories_outlined,
-                size: 18, color: t.accent.withOpacity(0.6)),
+                size: 18, color: t.accent.withValues(alpha: 0.6)),
             const SizedBox(width: 12),
             Expanded(
               child: Column(
@@ -413,7 +413,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   Text(
                     'David Guzik — análisis del capítulo',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -421,7 +421,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               ),
             ),
             Icon(Icons.arrow_forward_ios,
-                size: 12, color: t.textSecondary.withOpacity(0.3)),
+                size: 12, color: t.textSecondary.withValues(alpha: 0.3)),
           ],
         ),
       ),

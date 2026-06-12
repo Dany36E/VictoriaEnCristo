@@ -43,13 +43,13 @@ class ReaderBottomNav extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(Icons.chevron_left,
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               size: 18),
                           Flexible(
                             child: Text(
                               'Cap. ${controller.currentChapter - 1}',
                               style: GoogleFonts.manrope(
-                                color: t.textSecondary.withOpacity(0.4),
+                                color: t.textSecondary.withValues(alpha: 0.4),
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -71,7 +71,7 @@ class ReaderBottomNav extends StatelessWidget {
             child: Text(
               '${controller.bookName} ${controller.currentChapter}',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.4),
+                color: t.textSecondary.withValues(alpha: 0.4),
                 fontSize: 11,
                 letterSpacing: 1.0,
               ),
@@ -93,7 +93,7 @@ class ReaderBottomNav extends StatelessWidget {
                                 child: Text(
                                   nextBook.name,
                                   style: GoogleFonts.manrope(
-                                    color: t.accent.withOpacity(0.6),
+                                    color: t.accent.withValues(alpha: 0.6),
                                     fontSize: 13,
                                   ),
                                   overflow: TextOverflow.ellipsis,
@@ -101,7 +101,7 @@ class ReaderBottomNav extends StatelessWidget {
                               ),
                               const SizedBox(width: 2),
                               Icon(Icons.chevron_right,
-                                  color: t.accent.withOpacity(0.6), size: 18),
+                                  color: t.accent.withValues(alpha: 0.6), size: 18),
                             ],
                           ),
                         ),
@@ -122,14 +122,14 @@ class ReaderBottomNav extends StatelessWidget {
                             child: Text(
                               'Cap. ${controller.currentChapter + 1}',
                               style: GoogleFonts.manrope(
-                                color: t.textSecondary.withOpacity(0.4),
+                                color: t.textSecondary.withValues(alpha: 0.4),
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           Icon(Icons.chevron_right,
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               size: 18),
                         ],
                       ),

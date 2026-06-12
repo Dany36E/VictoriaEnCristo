@@ -111,7 +111,7 @@ class _ColorPickerRowState extends State<ColorPickerRow> {
                       ? Border.all(color: Colors.white, width: 3)
                       : null,
                   boxShadow: isSelected
-                      ? [BoxShadow(color: color.withOpacity(0.4), blurRadius: 8)]
+                      ? [BoxShadow(color: color.withValues(alpha: 0.4), blurRadius: 8)]
                       : null,
                 ),
                 child: isSelected

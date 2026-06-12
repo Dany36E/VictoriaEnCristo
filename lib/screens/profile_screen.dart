@@ -72,10 +72,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               child: Container(
                                 padding: const EdgeInsets.all(8),
                                 decoration: BoxDecoration(
-                                  color: t.textPrimary.withOpacity(0.06),
+                                  color: t.textPrimary.withValues(alpha: 0.06),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: t.textPrimary.withOpacity(0.7)),
+                                child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: t.textPrimary.withValues(alpha: 0.7)),
                               ),
                             ),
                             const SizedBox(width: 14),
@@ -178,11 +178,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [t.accent.withOpacity(0.3), t.accent.withOpacity(0.1)],
+          colors: [t.accent.withValues(alpha: 0.3), t.accent.withValues(alpha: 0.1)],
         ),
-        border: Border.all(color: t.accent.withOpacity(0.4), width: 3),
+        border: Border.all(color: t.accent.withValues(alpha: 0.4), width: 3),
         boxShadow: [
-          BoxShadow(color: t.accent.withOpacity(0.15), blurRadius: 16, spreadRadius: 2),
+          BoxShadow(color: t.accent.withValues(alpha: 0.15), blurRadius: 16, spreadRadius: 2),
         ],
       ),
       child: ClipOval(
@@ -289,7 +289,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         width: 40,
         height: 40,
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha: 0.1),
           borderRadius: BorderRadius.circular(12),
         ),
         child: Icon(icon, color: color, size: 20),
@@ -306,7 +306,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         subtitle,
         style: GoogleFonts.manrope(fontSize: 12, color: t.textSecondary),
       ),
-      trailing: Icon(Icons.chevron_right_rounded, color: t.textSecondary.withOpacity(0.5), size: 20),
+      trailing: Icon(Icons.chevron_right_rounded, color: t.textSecondary.withValues(alpha: 0.5), size: 20),
       onTap: onTap,
     );
   }
@@ -324,7 +324,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: t.textSecondary,
-          side: BorderSide(color: t.textSecondary.withOpacity(0.25)),
+          side: BorderSide(color: t.textSecondary.withValues(alpha: 0.25)),
           padding: const EdgeInsets.symmetric(vertical: 14),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         ),
@@ -506,7 +506,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.blue.shade900.withOpacity(0.3) : Colors.blue.shade50,
+                        color: isDark ? Colors.blue.shade900.withValues(alpha: 0.3) : Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(

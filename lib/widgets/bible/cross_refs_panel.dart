@@ -134,12 +134,12 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
             SizedBox(
               width: 14, height: 14,
               child: CircularProgressIndicator(
-                color: t.accent.withOpacity(0.4), strokeWidth: 1.5),
+                color: t.accent.withValues(alpha: 0.4), strokeWidth: 1.5),
             ),
             const SizedBox(width: 8),
             Text('Cargando referencias...',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.4), fontSize: 12)),
+                color: t.textSecondary.withValues(alpha: 0.4), fontSize: 12)),
           ],
         ),
       );
@@ -153,10 +153,10 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
         color: t.isDark
-            ? Colors.white.withOpacity(0.03)
-            : Colors.black.withOpacity(0.02),
+            ? Colors.white.withValues(alpha: 0.03)
+            : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +181,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                   decoration: BoxDecoration(
-                    color: t.accent.withOpacity(0.12),
+                    color: t.accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Text(
@@ -215,14 +215,14 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
                           ? 'Mostrar menos'
                           : 'Ver ${_refs.length - 3} más',
                       style: GoogleFonts.manrope(
-                        color: t.accent.withOpacity(0.7),
+                        color: t.accent.withValues(alpha: 0.7),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
                     ),
                     Icon(
                       _expanded ? Icons.expand_less : Icons.expand_more,
-                      color: t.accent.withOpacity(0.7), size: 16,
+                      color: t.accent.withValues(alpha: 0.7), size: 16,
                     ),
                   ],
                 ),
@@ -252,7 +252,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
               margin: const EdgeInsets.only(top: 2),
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.1),
+                color: t.accent.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(6),
               ),
               child: Text(
@@ -272,14 +272,14 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.lora(
-                  color: t.textPrimary.withOpacity(0.7),
+                  color: t.textPrimary.withValues(alpha: 0.7),
                   fontSize: 12.5,
                   height: 1.5,
                 ),
               ),
             ),
             Icon(Icons.chevron_right,
-                size: 16, color: t.textSecondary.withOpacity(0.3)),
+                size: 16, color: t.textSecondary.withValues(alpha: 0.3)),
           ],
         ),
       ),

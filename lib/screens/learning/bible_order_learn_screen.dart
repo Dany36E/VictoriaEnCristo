@@ -265,9 +265,9 @@ class _BibleOrderLearnScreenState extends State<BibleOrderLearnScreen> {
                     vertical: AppDesignSystem.spacingS,
                   ),
                   decoration: BoxDecoration(
-                    color: AppDesignSystem.gold.withOpacity(0.10),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.10),
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                    border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+                    border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
                   ),
                   child: Row(
                     children: [
@@ -414,10 +414,10 @@ class _BibleOrderLearnScreenState extends State<BibleOrderLearnScreen> {
               if (isPicked) {
                 if (isError) {
                   borderColor = AppDesignSystem.struggle;
-                  bgColor = AppDesignSystem.struggle.withOpacity(0.08);
+                  bgColor = AppDesignSystem.struggle.withValues(alpha: 0.08);
                 } else {
                   borderColor = AppDesignSystem.gold;
-                  bgColor = AppDesignSystem.gold.withOpacity(0.08);
+                  bgColor = AppDesignSystem.gold.withValues(alpha: 0.08);
                 }
               }
 
@@ -446,7 +446,7 @@ class _BibleOrderLearnScreenState extends State<BibleOrderLearnScreen> {
                                 textAlign: TextAlign.center,
                                 maxLines: 1,
                                 style: TextStyle(
-                                  color: isPicked ? t.textPrimary.withOpacity(0.85) : t.textPrimary,
+                                  color: isPicked ? t.textPrimary.withValues(alpha: 0.85) : t.textPrimary,
                                   fontWeight: isPicked ? FontWeight.w500 : FontWeight.w600,
                                   fontSize: 13,
                                 ),
@@ -602,10 +602,10 @@ class _BookRevealCard extends StatelessWidget {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [AppDesignSystem.gold.withOpacity(0.12), AppDesignSystem.gold.withOpacity(0.04)],
+          colors: [AppDesignSystem.gold.withValues(alpha: 0.12), AppDesignSystem.gold.withValues(alpha: 0.04)],
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4), width: 1.5),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.4), width: 1.5),
       ),
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
       child: Column(
@@ -618,9 +618,9 @@ class _BookRevealCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.20),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.20),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-                  border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
+                  border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.5)),
                 ),
                 child: Text(
                   '#$position de 66',
@@ -707,10 +707,10 @@ class _PreviousBooksMini extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: isCurrent ? AppDesignSystem.gold.withOpacity(0.15) : t.cardBg,
+        color: isCurrent ? AppDesignSystem.gold.withValues(alpha: 0.15) : t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
         border: Border.all(
-          color: isCurrent ? AppDesignSystem.gold.withOpacity(0.6) : t.cardBorder,
+          color: isCurrent ? AppDesignSystem.gold.withValues(alpha: 0.6) : t.cardBorder,
           width: isCurrent ? 1.5 : 1,
         ),
       ),
@@ -762,10 +762,10 @@ class _AllNewBooksSummary extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 6),
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: isNew ? AppDesignSystem.gold.withOpacity(0.10) : t.cardBg,
+            color: isNew ? AppDesignSystem.gold.withValues(alpha: 0.10) : t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
             border: Border.all(
-              color: isNew ? AppDesignSystem.gold.withOpacity(0.5) : t.cardBorder,
+              color: isNew ? AppDesignSystem.gold.withValues(alpha: 0.5) : t.cardBorder,
               width: isNew ? 1.5 : 1,
             ),
           ),
@@ -775,7 +775,7 @@ class _AllNewBooksSummary extends StatelessWidget {
                 width: 28,
                 height: 28,
                 decoration: BoxDecoration(
-                  color: isNew ? AppDesignSystem.gold : t.textSecondary.withOpacity(0.15),
+                  color: isNew ? AppDesignSystem.gold : t.textSecondary.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Center(
@@ -803,7 +803,7 @@ class _AllNewBooksSummary extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                   decoration: BoxDecoration(
-                    color: AppDesignSystem.gold.withOpacity(0.15),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                   ),
                   child: Text(
@@ -853,13 +853,13 @@ class _CorrectOrderMini extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
               decoration: BoxDecoration(
                 color: hasError
-                    ? AppDesignSystem.struggle.withOpacity(0.10)
-                    : AppDesignSystem.victory.withOpacity(0.08),
+                    ? AppDesignSystem.struggle.withValues(alpha: 0.10)
+                    : AppDesignSystem.victory.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                 border: Border.all(
                   color: hasError
-                      ? AppDesignSystem.struggle.withOpacity(0.5)
-                      : AppDesignSystem.victory.withOpacity(0.4),
+                      ? AppDesignSystem.struggle.withValues(alpha: 0.5)
+                      : AppDesignSystem.victory.withValues(alpha: 0.4),
                 ),
               ),
               child: Row(

@@ -367,7 +367,7 @@ class _PassageHeader extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.78),
+                color: t.textSecondary.withValues(alpha: 0.78),
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.3,
@@ -428,9 +428,9 @@ class _VerseComparisonRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       decoration: BoxDecoration(
-        color: t.isDark ? Colors.white.withOpacity(0.025) : Colors.black.withOpacity(0.025),
+        color: t.isDark ? Colors.white.withValues(alpha: 0.025) : Colors.black.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -500,7 +500,7 @@ class _VersionLabel extends StatelessWidget {
     return Text(
       version.shortName,
       style: GoogleFonts.manrope(
-        color: muted ? t.textSecondary.withOpacity(0.55) : t.accent,
+        color: muted ? t.textSecondary.withValues(alpha: 0.55) : t.accent,
         fontSize: 10,
         fontWeight: FontWeight.w800,
         letterSpacing: 1.0,
@@ -528,7 +528,7 @@ class _SecondaryVerseText extends StatelessWidget {
     return RichText(
       text: TextSpan(
         style: GoogleFonts.lora(
-          color: t.textPrimary.withOpacity(0.78),
+          color: t.textPrimary.withValues(alpha: 0.78),
           fontSize: fontSize * 0.92,
           height: 1.55,
         ),
@@ -536,7 +536,7 @@ class _SecondaryVerseText extends StatelessWidget {
           TextSpan(
             text: '$verseNumber ',
             style: GoogleFonts.cinzel(
-              color: t.textSecondary.withOpacity(0.7),
+              color: t.textSecondary.withValues(alpha: 0.7),
               fontSize: fontSize * 0.62,
               fontWeight: FontWeight.w600,
             ),
@@ -590,7 +590,7 @@ class _VerseRow extends StatelessWidget {
             child: Text(
               '${verse.verse}',
               style: GoogleFonts.cinzel(
-                color: muted ? t.textSecondary.withOpacity(0.7) : t.accent,
+                color: muted ? t.textSecondary.withValues(alpha: 0.7) : t.accent,
                 fontSize: fontSize * 0.65,
                 fontWeight: FontWeight.w600,
               ),
@@ -654,9 +654,9 @@ class _VerseHelpButton extends StatelessWidget {
             height: 30,
             child: DecoratedBox(
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.10),
+                color: t.accent.withValues(alpha: 0.10),
                 shape: BoxShape.circle,
-                border: Border.all(color: t.accent.withOpacity(0.24)),
+                border: Border.all(color: t.accent.withValues(alpha: 0.24)),
               ),
               child: Icon(Icons.school_outlined, size: 16, color: t.accent),
             ),
@@ -724,9 +724,9 @@ class _ChapterContextStripState extends State<_ChapterContextStrip> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
             decoration: BoxDecoration(
-              color: widget.theme.surface.withOpacity(widget.theme.isDark ? 0.72 : 0.62),
+              color: widget.theme.surface.withValues(alpha: widget.theme.isDark ? 0.72 : 0.62),
               borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: widget.theme.textSecondary.withOpacity(0.10)),
+              border: Border.all(color: widget.theme.textSecondary.withValues(alpha: 0.10)),
             ),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
@@ -804,21 +804,21 @@ class _ContextChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
         decoration: BoxDecoration(
-          color: theme.textSecondary.withOpacity(0.07),
+          color: theme.textSecondary.withValues(alpha: 0.07),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: theme.textSecondary.withOpacity(0.10)),
+          border: Border.all(color: theme.textSecondary.withValues(alpha: 0.10)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 13, color: theme.textSecondary.withOpacity(0.82)),
+            Icon(icon, size: 13, color: theme.textSecondary.withValues(alpha: 0.82)),
             const SizedBox(width: 5),
             Flexible(
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
                 style: GoogleFonts.manrope(
-                  color: theme.textPrimary.withOpacity(0.82),
+                  color: theme.textPrimary.withValues(alpha: 0.82),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -873,7 +873,7 @@ class _ChapterContextSheet extends StatelessWidget {
         decoration: BoxDecoration(
           color: theme.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: theme.textSecondary.withOpacity(0.12)),
+          border: Border.all(color: theme.textSecondary.withValues(alpha: 0.12)),
         ),
         child: ListView(
           controller: scrollController,
@@ -885,7 +885,7 @@ class _ChapterContextSheet extends StatelessWidget {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 14),
                 decoration: BoxDecoration(
-                  color: theme.textSecondary.withOpacity(0.32),
+                  color: theme.textSecondary.withValues(alpha: 0.32),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -941,7 +941,7 @@ class _ContextDetail extends StatelessWidget {
           Text(
             body,
             style: GoogleFonts.manrope(
-              color: theme.textPrimary.withOpacity(0.84),
+              color: theme.textPrimary.withValues(alpha: 0.84),
               fontSize: 13,
               height: 1.45,
             ),
@@ -985,16 +985,16 @@ class _WordChip extends StatelessWidget {
     final ownHighlights = highlights.where((highlight) => highlight.isMine).toList();
     final friendHighlights = highlights.where((highlight) => !highlight.isMine).toList();
     final bg = selected
-        ? t.accent.withOpacity(0.35)
+        ? t.accent.withValues(alpha: 0.35)
         : ownHighlights.isNotEmpty
-        ? ownHighlights.last.color.withOpacity(0.20)
+        ? ownHighlights.last.color.withValues(alpha: 0.20)
         : friendHighlights.isNotEmpty
-        ? friendHighlights.last.color.withOpacity(0.10)
+        ? friendHighlights.last.color.withValues(alpha: 0.10)
         : Colors.transparent;
     final border = selected
         ? Border.all(color: t.accent, width: 1)
         : friendHighlights.isNotEmpty
-        ? Border.all(color: friendHighlights.last.color.withOpacity(0.65), width: 0.8)
+        ? Border.all(color: friendHighlights.last.color.withValues(alpha: 0.65), width: 0.8)
         : null;
     final chip = GestureDetector(
       onTap: onTap,
@@ -1013,7 +1013,7 @@ class _WordChip extends StatelessWidget {
             Text(
               '$text ',
               style: GoogleFonts.lora(
-                color: muted ? t.textPrimary.withOpacity(0.78) : t.textPrimary,
+                color: muted ? t.textPrimary.withValues(alpha: 0.78) : t.textPrimary,
                 fontSize: fontSize,
                 height: 1.35,
               ),
@@ -1031,11 +1031,11 @@ class _WordChip extends StatelessWidget {
                           child: Container(
                             height: highlight.isMine ? 3 : 2,
                             decoration: BoxDecoration(
-                              color: highlight.color.withOpacity(highlight.isMine ? 0.9 : 0.45),
+                              color: highlight.color.withValues(alpha: highlight.isMine ? 0.9 : 0.45),
                               borderRadius: BorderRadius.circular(2),
                               border: highlight.isMine
                                   ? null
-                                  : Border.all(color: highlight.color.withOpacity(0.8), width: 0.6),
+                                  : Border.all(color: highlight.color.withValues(alpha: 0.8), width: 0.6),
                             ),
                           ),
                         ),
@@ -1077,7 +1077,7 @@ class _ColorToolbar extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(28),
-          border: Border.all(color: t.textSecondary.withOpacity(0.12)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.12)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1088,7 +1088,7 @@ class _ColorToolbar extends StatelessWidget {
             Container(
               width: 1,
               height: 24,
-              color: t.textSecondary.withOpacity(0.15),
+              color: t.textSecondary.withValues(alpha: 0.15),
               margin: const EdgeInsets.symmetric(horizontal: 4),
             ),
             IconButton(
@@ -1135,7 +1135,7 @@ class _ReadingControlsRow extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
-                side: BorderSide(color: t.textSecondary.withOpacity(0.14)),
+                side: BorderSide(color: t.textSecondary.withValues(alpha: 0.14)),
               ),
             ),
           ),
@@ -1156,7 +1156,7 @@ class _TransparentColorButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final stroke = t.textPrimary.withOpacity(t.isDark ? 0.76 : 0.64);
+    final stroke = t.textPrimary.withValues(alpha: t.isDark ? 0.76 : 0.64);
     return Tooltip(
       message: 'Borrar color seleccionado',
       child: InkWell(
@@ -1168,10 +1168,10 @@ class _TransparentColorButton extends StatelessWidget {
             width: 26,
             height: 26,
             decoration: BoxDecoration(
-              color: t.textPrimary.withOpacity(t.isDark ? 0.08 : 0.05),
+              color: t.textPrimary.withValues(alpha: t.isDark ? 0.08 : 0.05),
               shape: BoxShape.circle,
               border: Border.all(color: stroke, width: 1.6),
-              boxShadow: [BoxShadow(color: stroke.withOpacity(0.16), blurRadius: 6)],
+              boxShadow: [BoxShadow(color: stroke.withValues(alpha: 0.16), blurRadius: 6)],
             ),
             child: CustomPaint(painter: _TransparentSwatchPainter(stroke)),
           ),
@@ -1214,13 +1214,13 @@ class _UndoRedoBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     return Material(
-      color: t.surface.withOpacity(0.92),
+      color: t.surface.withValues(alpha: 0.92),
       borderRadius: BorderRadius.circular(18),
       elevation: 0,
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: t.textSecondary.withOpacity(0.12)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.12)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -1233,7 +1233,7 @@ class _UndoRedoBar extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints.tightFor(width: 36, height: 34),
-                color: canUndo ? t.accent : t.textSecondary.withOpacity(0.35),
+                color: canUndo ? t.accent : t.textSecondary.withValues(alpha: 0.35),
                 onPressed: canUndo ? onUndo : null,
               ),
             ),
@@ -1245,7 +1245,7 @@ class _UndoRedoBar extends StatelessWidget {
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints.tightFor(width: 36, height: 34),
-                color: canRedo ? t.accent : t.textSecondary.withOpacity(0.35),
+                color: canRedo ? t.accent : t.textSecondary.withValues(alpha: 0.35),
                 onPressed: canRedo ? onRedo : null,
               ),
             ),
@@ -1278,7 +1278,7 @@ class _ColorButton extends StatelessWidget {
             decoration: BoxDecoration(
               color: color,
               shape: BoxShape.circle,
-              boxShadow: [BoxShadow(color: color.withOpacity(0.5), blurRadius: 8)],
+              boxShadow: [BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 8)],
             ),
           ),
         ),
@@ -1301,7 +1301,7 @@ class _LegendSheet extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.surface,
           borderRadius: BorderRadius.circular(18),
-          border: Border.all(color: t.textSecondary.withOpacity(0.1)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.1)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,

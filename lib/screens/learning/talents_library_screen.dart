@@ -130,16 +130,16 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
           colors: [
             AppDesignSystem.midnightLight,
             AppDesignSystem.midnightDeep,
-            AppDesignSystem.goldDark.withOpacity(0.28),
+            AppDesignSystem.goldDark.withValues(alpha: 0.28),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.4)),
         boxShadow: [
           BoxShadow(
-            color: AppDesignSystem.gold.withOpacity(0.12),
+            color: AppDesignSystem.gold.withValues(alpha: 0.12),
             blurRadius: 22,
             offset: const Offset(0, 10),
           ),
@@ -154,9 +154,9 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.18),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.18),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                  border: Border.all(color: AppDesignSystem.gold.withOpacity(0.32)),
+                  border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.32)),
                 ),
                 child: const Icon(Icons.auto_awesome_mosaic_rounded, color: AppDesignSystem.gold),
               ),
@@ -187,7 +187,7 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
             child: LinearProgressIndicator(
               value: progress,
               minHeight: 9,
-              backgroundColor: Colors.white.withOpacity(0.12),
+              backgroundColor: Colors.white.withValues(alpha: 0.12),
               valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
             ),
           ),
@@ -258,9 +258,9 @@ class _HeaderStat extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Row(
         children: [
@@ -320,13 +320,13 @@ class _BookTile extends StatelessWidget {
           border: Border.all(
             color: isComplete
                 ? AppDesignSystem.gold
-                : (hasAny ? AppDesignSystem.gold.withOpacity(0.42) : theme.cardBorder),
+                : (hasAny ? AppDesignSystem.gold.withValues(alpha: 0.42) : theme.cardBorder),
             width: isComplete ? 2 : 1,
           ),
           boxShadow: isComplete
               ? [
                   BoxShadow(
-                    color: AppDesignSystem.gold.withOpacity(0.2),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.2),
                     blurRadius: 14,
                     offset: const Offset(0, 6),
                   ),
@@ -435,9 +435,9 @@ class _OrderPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 4),
       decoration: BoxDecoration(
-        color: Colors.black.withOpacity(0.34),
+        color: Colors.black.withValues(alpha: 0.34),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: complete ? AppDesignSystem.gold : Colors.white.withOpacity(0.18)),
+        border: Border.all(color: complete ? AppDesignSystem.gold : Colors.white.withValues(alpha: 0.18)),
       ),
       child: Text(
         order.toString().padLeft(2, '0'),

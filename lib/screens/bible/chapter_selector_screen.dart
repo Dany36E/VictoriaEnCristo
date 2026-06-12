@@ -100,7 +100,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                           Text(
                             'RECIENTES',
                             style: GoogleFonts.manrope(
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.5,
@@ -137,7 +137,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 12, vertical: 6),
                                   decoration: BoxDecoration(
-                                    color: t.accent.withOpacity(0.1),
+                                    color: t.accent.withValues(alpha: 0.1),
                                     borderRadius: BorderRadius.circular(16),
                                   ),
                                   child: Text(
@@ -179,8 +179,8 @@ class ChapterSelectorScreen extends StatelessWidget {
                         color: Colors.transparent,
                         child: InkWell(
                           borderRadius: BorderRadius.circular(8),
-                          splashColor: t.accent.withOpacity(0.25),
-                          highlightColor: t.accent.withOpacity(0.1),
+                          splashColor: t.accent.withValues(alpha: 0.25),
+                          highlightColor: t.accent.withValues(alpha: 0.1),
                           onTap: () {
                             HapticFeedback.lightImpact();
                             Navigator.pushReplacement(

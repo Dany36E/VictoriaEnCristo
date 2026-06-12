@@ -84,7 +84,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -135,7 +135,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
             color: t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
-              color: stars > 0 ? AppDesignSystem.gold.withOpacity(0.6) : t.cardBorder,
+              color: stars > 0 ? AppDesignSystem.gold.withValues(alpha: 0.6) : t.cardBorder,
             ),
             boxShadow: t.cardShadow,
           ),
@@ -145,7 +145,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
                 width: 52,
                 height: 52,
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.15),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(

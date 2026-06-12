@@ -235,13 +235,13 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
                 color: t.isDark
-                    ? Colors.white.withOpacity(0.06)
-                    : Colors.black.withOpacity(0.04),
+                    ? Colors.white.withValues(alpha: 0.06)
+                    : Colors.black.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
                   color: t.isDark
-                      ? Colors.white.withOpacity(0.08)
-                      : Colors.black.withOpacity(0.06),
+                      ? Colors.white.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.06),
                   width: 1,
                 ),
               ),
@@ -256,7 +256,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 decoration: InputDecoration(
                   hintText: 'Buscar libros, capítulos o versículos...',
                   hintStyle: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 16,
                   ),
                   border: InputBorder.none,
@@ -273,7 +273,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           if (_controller.text.isNotEmpty)
             IconButton(
               icon: Icon(Icons.close,
-                  color: t.textSecondary.withOpacity(0.5), size: 20),
+                  color: t.textSecondary.withValues(alpha: 0.5), size: 20),
               onPressed: () {
                 _controller.clear();
                 _onQueryChanged('');
@@ -330,13 +330,13 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
                 color: _advancedMode
-                    ? t.accent.withOpacity(0.15)
+                    ? t.accent.withValues(alpha: 0.15)
                     : Colors.transparent,
                 borderRadius: BorderRadius.circular(12),
                 border: Border.all(
                   color: _advancedMode
-                      ? t.accent.withOpacity(0.4)
-                      : t.textSecondary.withOpacity(0.15),
+                      ? t.accent.withValues(alpha: 0.4)
+                      : t.textSecondary.withValues(alpha: 0.15),
                 ),
               ),
               child: Text(
@@ -344,7 +344,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 style: GoogleFonts.manrope(
                   color: _advancedMode
                       ? t.accent
-                      : t.textSecondary.withOpacity(0.6),
+                      : t.textSecondary.withValues(alpha: 0.6),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -359,7 +359,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               return Text(
                 version.shortName,
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5),
+                  color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -378,12 +378,12 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.search,
-                color: t.textSecondary.withOpacity(0.2), size: 48),
+                color: t.textSecondary.withValues(alpha: 0.2), size: 48),
             const SizedBox(height: 12),
             Text(
               'Busca libros, capítulos o versículos',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.4),
+                color: t.textSecondary.withValues(alpha: 0.4),
                 fontSize: 14,
               ),
             ),
@@ -391,7 +391,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             Text(
               'Ej: "Salmos 23", "Juan 3:16", "amor"',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.3),
+                color: t.textSecondary.withValues(alpha: 0.3),
                 fontSize: 12,
               ),
             ),
@@ -410,7 +410,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               Text(
                 'Recientes',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5),
+                  color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
@@ -425,7 +425,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 child: Text(
                   'Borrar',
                   style: GoogleFonts.manrope(
-                    color: t.accent.withOpacity(0.7),
+                    color: t.accent.withValues(alpha: 0.7),
                     fontSize: 12,
                   ),
                 ),
@@ -437,7 +437,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           return ListTile(
             dense: true,
             leading: Icon(Icons.history,
-                color: t.textSecondary.withOpacity(0.3), size: 18),
+                color: t.textSecondary.withValues(alpha: 0.3), size: 18),
             title: Text(
               q,
               style: GoogleFonts.manrope(
@@ -451,7 +451,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 _loadRecent();
               },
               child: Icon(Icons.close,
-                  color: t.textSecondary.withOpacity(0.3), size: 16),
+                  color: t.textSecondary.withValues(alpha: 0.3), size: 16),
             ),
             onTap: () => _selectRecent(q),
           );
@@ -486,7 +486,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         child: Text(
           'Sin resultados',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.5),
+            color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 14,
           ),
         ),
@@ -502,7 +502,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           child: Text(
             'REFERENCIA DIRECTA',
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.5),
+              color: t.textSecondary.withValues(alpha: 0.5),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
@@ -518,7 +518,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           '${result.verses.length} versículo${result.verses.length == 1 ? '' : 's'}',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.5),
+            color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 12,
             letterSpacing: 0.5,
           ),
@@ -545,7 +545,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 Text(
                   verse.reference,
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -602,8 +602,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(8),
           border: Border(
             left: BorderSide(color: t.accent, width: 2),
@@ -716,7 +716,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               Text(
                 'HISTORIAL DE BÚSQUEDA',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.5,
@@ -731,7 +731,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 child: Text(
                   'Borrar',
                   style: GoogleFonts.manrope(
-                    color: t.accent.withOpacity(0.7),
+                    color: t.accent.withValues(alpha: 0.7),
                     fontSize: 12,
                   ),
                 ),
@@ -751,24 +751,24 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                       horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
                     color: t.isDark
-                        ? Colors.white.withOpacity(0.04)
-                        : Colors.black.withOpacity(0.03),
+                        ? Colors.white.withValues(alpha: 0.04)
+                        : Colors.black.withValues(alpha: 0.03),
                     borderRadius: BorderRadius.circular(14),
                     border: Border.all(
-                      color: t.textSecondary.withOpacity(0.1),
+                      color: t.textSecondary.withValues(alpha: 0.1),
                     ),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(Icons.history,
-                          color: t.textSecondary.withOpacity(0.4),
+                          color: t.textSecondary.withValues(alpha: 0.4),
                           size: 13),
                       const SizedBox(width: 4),
                       Text(
                         h,
                         style: GoogleFonts.manrope(
-                          color: t.textPrimary.withOpacity(0.8),
+                          color: t.textPrimary.withValues(alpha: 0.8),
                           fontSize: 12,
                         ),
                       ),
@@ -785,7 +785,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'RANGO DE LIBROS',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -807,7 +807,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Icon(Icons.arrow_forward,
-                      color: t.textSecondary.withOpacity(0.3), size: 16),
+                      color: t.textSecondary.withValues(alpha: 0.3), size: 16),
                 ),
                 Expanded(child: _buildBookDropdown(
                   t, books, _endBook, 'Hasta...', (v) {
@@ -817,7 +817,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 if (_startBook != null || _endBook != null)
                   IconButton(
                     icon: Icon(Icons.close,
-                        color: t.textSecondary.withOpacity(0.5), size: 16),
+                        color: t.textSecondary.withValues(alpha: 0.5), size: 16),
                     onPressed: () =>
                         setState(() { _startBook = null; _endBook = null; }),
                   ),
@@ -832,7 +832,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'BUSCAR POR TEMA',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -851,8 +851,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
                   color: t.isDark
-                      ? Colors.white.withOpacity(0.06)
-                      : Colors.black.withOpacity(0.04),
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
@@ -873,7 +873,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'NÚMERO STRONG',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -883,7 +883,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'Escribe un número Strong (ej: H430, G2316) en el buscador',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 12,
           ),
         ),
@@ -894,7 +894,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'BUSCAR POR PERSONAJE',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -904,7 +904,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'Escribe el nombre de un personaje bíblico en el buscador',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.4),
+            color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 12,
           ),
         ),
@@ -923,8 +923,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
         color: t.isDark
-            ? Colors.white.withOpacity(0.05)
-            : Colors.black.withOpacity(0.04),
+            ? Colors.white.withValues(alpha: 0.05)
+            : Colors.black.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(8),
       ),
       child: DropdownButtonHideUnderline(
@@ -933,10 +933,10 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           isExpanded: true,
           hint: Text(hint,
               style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5), fontSize: 12)),
+                  color: t.textSecondary.withValues(alpha: 0.5), fontSize: 12)),
           dropdownColor: t.surface,
           icon: Icon(Icons.expand_more,
-              color: t.textSecondary.withOpacity(0.4), size: 18),
+              color: t.textSecondary.withValues(alpha: 0.4), size: 18),
           style: GoogleFonts.manrope(
               color: t.textPrimary, fontSize: 12),
           items: books
@@ -1006,7 +1006,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             Text(
               'Buscando...',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.5),
+                color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 13,
               ),
             ),
@@ -1049,7 +1049,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     Text(
                       result.subtitle,
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 12,
                       ),
                     ),
@@ -1060,7 +1060,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 onTap: () => setState(() => _groupByBook = !_groupByBook),
                 child: Icon(
                   _groupByBook ? Icons.view_list : Icons.list_alt,
-                  color: t.textSecondary.withOpacity(0.5),
+                  color: t.textSecondary.withValues(alpha: 0.5),
                   size: 20,
                 ),
               ),
@@ -1074,7 +1074,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   child: Text(
                     'Sin resultados',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                     ),
                   ),
@@ -1107,7 +1107,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                             Text(
                               v.reference,
                               style: GoogleFonts.manrope(
-                                color: t.textSecondary.withOpacity(0.5),
+                                color: t.textSecondary.withValues(alpha: 0.5),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1174,7 +1174,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   Text(
                     '(${entry.value.length})',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.5),
+                      color: t.textSecondary.withValues(alpha: 0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -1204,7 +1204,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                           '${v.chapter}:${v.verse}',
                           style: GoogleFonts.manrope(
                             color: t.textSecondary
-                                .withOpacity(0.5),
+                                .withValues(alpha: 0.5),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -1249,13 +1249,13 @@ class _FilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
         decoration: BoxDecoration(
           color: isSelected
-              ? theme.accent.withOpacity(0.15)
+              ? theme.accent.withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected
-                ? theme.accent.withOpacity(0.4)
-                : theme.textSecondary.withOpacity(0.15),
+                ? theme.accent.withValues(alpha: 0.4)
+                : theme.textSecondary.withValues(alpha: 0.15),
           ),
         ),
         child: Text(
@@ -1263,7 +1263,7 @@ class _FilterChip extends StatelessWidget {
           style: GoogleFonts.manrope(
             color: isSelected
                 ? theme.accent
-                : theme.textSecondary.withOpacity(0.6),
+                : theme.textSecondary.withValues(alpha: 0.6),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),

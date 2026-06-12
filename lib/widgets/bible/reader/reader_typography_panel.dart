@@ -27,10 +27,10 @@ class ReaderTypographyPanel extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.fromLTRB(24, 12, 24, 16),
           decoration: BoxDecoration(
-            color: t.surface.withOpacity(0.98),
+            color: t.surface.withValues(alpha: 0.98),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(t.isDark ? 0.3 : 0.05),
+                color: Colors.black.withValues(alpha: t.isDark ? 0.3 : 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -45,7 +45,7 @@ class ReaderTypographyPanel extends StatelessWidget {
                   Text(
                     'TIPOGRAFÍA',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.5),
+                      color: t.textSecondary.withValues(alpha: 0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2,
@@ -80,7 +80,7 @@ class ReaderTypographyPanel extends StatelessWidget {
                             max: 28,
                             divisions: 7,
                             activeColor: t.accent,
-                            inactiveColor: t.textSecondary.withOpacity(0.2),
+                            inactiveColor: t.textSecondary.withValues(alpha: 0.2),
                             onChanged: (v) =>
                                 BibleUserDataService.I.setFontSize(v),
                           ),
@@ -118,7 +118,7 @@ class ReaderTypographyPanel extends StatelessWidget {
                               border: Border.all(
                                 color: isActive
                                     ? t.accent
-                                    : t.textSecondary.withOpacity(0.2),
+                                    : t.textSecondary.withValues(alpha: 0.2),
                                 width: isActive ? 2.5 : 1,
                               ),
                             ),

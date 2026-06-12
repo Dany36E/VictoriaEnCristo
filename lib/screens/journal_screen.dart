@@ -1,4 +1,4 @@
-﻿import 'dart:math' as math;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../models/prayer_map.dart';
 import '../services/journal_service.dart';
@@ -141,15 +141,15 @@ class _JournalScreenState extends State<JournalScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            t.accent.withOpacity(isDark ? 0.2 : 0.1),
-            t.accent.withOpacity(isDark ? 0.05 : 0.02),
+            t.accent.withValues(alpha: isDark ? 0.2 : 0.1),
+            t.accent.withValues(alpha: isDark ? 0.05 : 0.02),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: t.accent.withOpacity(0.3),
+          color: t.accent.withValues(alpha: 0.3),
         ),
       ),
       child: Column(
@@ -160,7 +160,7 @@ class _JournalScreenState extends State<JournalScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: t.accent.withOpacity(0.2),
+                  color: t.accent.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Row(
@@ -189,7 +189,7 @@ class _JournalScreenState extends State<JournalScreen> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: Colors.grey.withOpacity(0.1),
+                      color: Colors.grey.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: Text(
@@ -367,7 +367,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: AppTheme.successColor.withOpacity(0.1),
+                        color: AppTheme.successColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Row(
@@ -415,7 +415,7 @@ class _JournalScreenState extends State<JournalScreen> {
                     return Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                       decoration: BoxDecoration(
-                        color: t.accent.withOpacity(0.1),
+                        color: t.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
@@ -596,8 +596,8 @@ class _JournalScreenState extends State<JournalScreen> {
                                         begin: Alignment.bottomCenter,
                                         end: Alignment.topCenter,
                                         colors: [
-                                          AppTheme.successColor.withOpacity(0.8),
-                                          Color.lerp(AppTheme.successColor, AppDesignSystem.struggle, 1.0 - vicRatio)!.withOpacity(0.6),
+                                          AppTheme.successColor.withValues(alpha: 0.8),
+                                          Color.lerp(AppTheme.successColor, AppDesignSystem.struggle, 1.0 - vicRatio)!.withValues(alpha: 0.6),
                                         ],
                                       ),
                                     ),
@@ -687,7 +687,7 @@ class _JournalScreenState extends State<JournalScreen> {
                               child: LinearProgressIndicator(
                                 value: ratio,
                                 backgroundColor: t.surface,
-                                valueColor: AlwaysStoppedAnimation(AppDesignSystem.struggle.withOpacity(0.7)),
+                                valueColor: AlwaysStoppedAnimation(AppDesignSystem.struggle.withValues(alpha: 0.7)),
                                 minHeight: 6,
                               ),
                             ),

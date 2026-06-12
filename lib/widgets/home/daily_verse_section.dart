@@ -31,10 +31,10 @@ class DailyVerseSection extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppDesignSystem.spacingS),
               decoration: BoxDecoration(
-                color: fg.withOpacity(0.1),
+                color: fg.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
                 border: Border.all(
-                  color: fg.withOpacity(0.2),
+                  color: fg.withValues(alpha: 0.2),
                   width: 0.5,
                 ),
               ),
@@ -51,7 +51,7 @@ class DailyVerseSection extends StatelessWidget {
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.2,
-                color: fg.withOpacity(0.6),
+                color: fg.withValues(alpha: 0.6),
               ),
             ),
           ],
@@ -100,13 +100,13 @@ class _ScriptureCard extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  glassOverlay.withOpacity(0.12),
-                  glassOverlay.withOpacity(0.03),
+                  glassOverlay.withValues(alpha: 0.12),
+                  glassOverlay.withValues(alpha: 0.03),
                 ],
               ),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: fg.withOpacity(0.15),
+                color: fg.withValues(alpha: 0.15),
                 width: 0.5,
               ),
             ),
@@ -116,7 +116,7 @@ class _ScriptureCard extends StatelessWidget {
                 Icon(
                   Icons.format_quote_rounded,
                   size: 32,
-                  color: t.accent.withOpacity(0.7),
+                  color: t.accent.withValues(alpha: 0.7),
                 ),
                 const SizedBox(height: AppDesignSystem.spacingM),
                 Text(
@@ -136,7 +136,7 @@ class _ScriptureCard extends StatelessWidget {
                       width: 24,
                       height: 2,
                       decoration: BoxDecoration(
-                        color: t.accent.withOpacity(0.5),
+                        color: t.accent.withValues(alpha: 0.5),
                         borderRadius: BorderRadius.circular(1),
                       ),
                     ),
@@ -146,7 +146,7 @@ class _ScriptureCard extends StatelessWidget {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w600,
-                        color: fg.withOpacity(0.8),
+                        color: fg.withValues(alpha: 0.8),
                       ),
                     ),
                   ],

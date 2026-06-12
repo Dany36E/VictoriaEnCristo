@@ -208,7 +208,7 @@ class _OutcomeTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = AppThemeData.of(context);
     return Material(
-      color: color.withOpacity(0.10),
+      color: color.withValues(alpha: 0.10),
       borderRadius: BorderRadius.circular(18),
       child: InkWell(
         onTap: onTap,
@@ -218,7 +218,7 @@ class _OutcomeTile extends StatelessWidget {
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(18),
-            border: Border.all(color: color.withOpacity(0.28)),
+            border: Border.all(color: color.withValues(alpha: 0.28)),
           ),
           child: Row(
             children: [
@@ -226,7 +226,7 @@ class _OutcomeTile extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.18),
+                  color: color.withValues(alpha: 0.18),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: 24),

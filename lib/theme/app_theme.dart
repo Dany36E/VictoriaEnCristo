@@ -240,13 +240,13 @@ class AppDesignSystem {
   /// Soft elevation for cards
   static List<BoxShadow> shadowSoft = [
     BoxShadow(
-      color: midnight.withOpacity(0.04),
+      color: midnight.withValues(alpha: 0.04),
       blurRadius: 10,
       offset: const Offset(0, 4),
       spreadRadius: 0,
     ),
     BoxShadow(
-      color: midnight.withOpacity(0.02),
+      color: midnight.withValues(alpha: 0.02),
       blurRadius: 20,
       offset: const Offset(0, 8),
       spreadRadius: -4,
@@ -256,13 +256,13 @@ class AppDesignSystem {
   /// Medium elevation for floating elements
   static List<BoxShadow> shadowMedium = [
     BoxShadow(
-      color: midnight.withOpacity(0.08),
+      color: midnight.withValues(alpha: 0.08),
       blurRadius: 20,
       offset: const Offset(0, 8),
       spreadRadius: 0,
     ),
     BoxShadow(
-      color: midnight.withOpacity(0.04),
+      color: midnight.withValues(alpha: 0.04),
       blurRadius: 40,
       offset: const Offset(0, 16),
       spreadRadius: -8,
@@ -272,13 +272,13 @@ class AppDesignSystem {
   /// Golden glow for premium elements
   static List<BoxShadow> shadowGold = [
     BoxShadow(
-      color: gold.withOpacity(0.3),
+      color: gold.withValues(alpha: 0.3),
       blurRadius: 20,
       offset: const Offset(0, 4),
       spreadRadius: -4,
     ),
     BoxShadow(
-      color: gold.withOpacity(0.15),
+      color: gold.withValues(alpha: 0.15),
       blurRadius: 40,
       offset: const Offset(0, 8),
       spreadRadius: -8,
@@ -288,7 +288,7 @@ class AppDesignSystem {
   /// Victory glow for success states
   static List<BoxShadow> shadowVictory = [
     BoxShadow(
-      color: victory.withOpacity(0.3),
+      color: victory.withValues(alpha: 0.3),
       blurRadius: 20,
       offset: const Offset(0, 4),
       spreadRadius: -4,
@@ -298,7 +298,7 @@ class AppDesignSystem {
   /// Struggle glow for emergency/alert states
   static List<BoxShadow> shadowStruggle = [
     BoxShadow(
-      color: struggle.withOpacity(0.35),
+      color: struggle.withValues(alpha: 0.35),
       blurRadius: 24,
       offset: const Offset(0, 6),
       spreadRadius: -2,
@@ -310,12 +310,12 @@ class AppDesignSystem {
   // ══════════════════════════════════════════════════════════════════════════
   
   static Border borderSubtle = Border.all(
-    color: midnight.withOpacity(0.06),
+    color: midnight.withValues(alpha: 0.06),
     width: 1,
   );
   
   static Border borderGold = Border.all(
-    color: gold.withOpacity(0.3),
+    color: gold.withValues(alpha: 0.3),
     width: 1,
   );
 
@@ -395,11 +395,11 @@ class GlassContainer extends StatelessWidget {
         child: Container(
           padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
           decoration: BoxDecoration(
-            color: backgroundColor ?? AppDesignSystem.pureWhite.withOpacity(0.7),
+            color: backgroundColor ?? AppDesignSystem.pureWhite.withValues(alpha: 0.7),
             borderRadius: BorderRadius.circular(borderRadius ?? AppDesignSystem.radiusM),
             border: hasBorder
                 ? Border.all(
-                    color: AppDesignSystem.midnight.withOpacity(0.08),
+                    color: AppDesignSystem.midnight.withValues(alpha: 0.08),
                     width: 1,
                   )
                 : null,
@@ -584,7 +584,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           side: BorderSide(
-            color: AppDesignSystem.midnight.withOpacity(0.06),
+            color: AppDesignSystem.midnight.withValues(alpha: 0.06),
             width: 1,
           ),
         ),
@@ -669,14 +669,14 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           borderSide: BorderSide(
-            color: AppDesignSystem.midnight.withOpacity(0.1),
+            color: AppDesignSystem.midnight.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           borderSide: BorderSide(
-            color: AppDesignSystem.midnight.withOpacity(0.1),
+            color: AppDesignSystem.midnight.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -692,7 +692,7 @@ class AppTheme {
           fontWeight: FontWeight.w500,
         ),
         hintStyle: GoogleFonts.manrope(
-          color: AppDesignSystem.coolGray.withOpacity(0.6),
+          color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
         ),
       ),
       
@@ -725,7 +725,7 @@ class AppTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppDesignSystem.gold.withOpacity(0.3);
+            return AppDesignSystem.gold.withValues(alpha: 0.3);
           }
           return AppDesignSystem.warmGray;
         }),
@@ -755,7 +755,7 @@ class AppTheme {
       
       // Divider
       dividerTheme: DividerThemeData(
-        color: AppDesignSystem.midnight.withOpacity(0.06),
+        color: AppDesignSystem.midnight.withValues(alpha: 0.06),
         thickness: 1,
         space: 1,
       ),
@@ -814,7 +814,7 @@ class AppTheme {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           side: BorderSide(
-            color: AppDesignSystem.pureWhite.withOpacity(0.08),
+            color: AppDesignSystem.pureWhite.withValues(alpha: 0.08),
             width: 1,
           ),
         ),
@@ -899,14 +899,14 @@ class AppTheme {
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           borderSide: BorderSide(
-            color: AppDesignSystem.pureWhite.withOpacity(0.1),
+            color: AppDesignSystem.pureWhite.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           borderSide: BorderSide(
-            color: AppDesignSystem.pureWhite.withOpacity(0.1),
+            color: AppDesignSystem.pureWhite.withValues(alpha: 0.1),
             width: 1,
           ),
         ),
@@ -922,7 +922,7 @@ class AppTheme {
           fontWeight: FontWeight.w500,
         ),
         hintStyle: GoogleFonts.manrope(
-          color: AppDesignSystem.coolGray.withOpacity(0.6),
+          color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
         ),
       ),
       
@@ -955,7 +955,7 @@ class AppTheme {
         }),
         trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return AppDesignSystem.gold.withOpacity(0.3);
+            return AppDesignSystem.gold.withValues(alpha: 0.3);
           }
           return AppDesignSystem.midnightLight;
         }),
@@ -985,7 +985,7 @@ class AppTheme {
       
       // Divider
       dividerTheme: DividerThemeData(
-        color: AppDesignSystem.pureWhite.withOpacity(0.08),
+        color: AppDesignSystem.pureWhite.withValues(alpha: 0.08),
         thickness: 1,
         space: 1,
       ),

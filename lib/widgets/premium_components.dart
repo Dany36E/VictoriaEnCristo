@@ -109,8 +109,8 @@ class _PremiumCardState extends State<PremiumCard>
                     widget.borderRadius ?? AppDesignSystem.radiusM),
                 border: Border.all(
                   color: isDark
-                      ? AppDesignSystem.pureWhite.withOpacity(0.08)
-                      : AppDesignSystem.midnight.withOpacity(0.06),
+                      ? AppDesignSystem.pureWhite.withValues(alpha: 0.08)
+                      : AppDesignSystem.midnight.withValues(alpha: 0.06),
                   width: 1,
                 ),
                 boxShadow: widget.shadow ??
@@ -158,7 +158,7 @@ class ScriptureCard extends StatelessWidget {
           // Quote mark
           Icon(
             Icons.format_quote,
-            color: AppDesignSystem.gold.withOpacity(0.4),
+            color: AppDesignSystem.gold.withValues(alpha: 0.4),
             size: 32,
           ),
           const SizedBox(height: AppDesignSystem.spacingS),
@@ -474,8 +474,8 @@ class VictoryProgressRing extends StatelessWidget {
               backgroundColor: Colors.transparent,
               valueColor: AlwaysStoppedAnimation(
                 isDark
-                    ? AppDesignSystem.pureWhite.withOpacity(0.1)
-                    : AppDesignSystem.midnight.withOpacity(0.1),
+                    ? AppDesignSystem.pureWhite.withValues(alpha: 0.1)
+                    : AppDesignSystem.midnight.withValues(alpha: 0.1),
               ),
             ),
           ),
@@ -535,8 +535,8 @@ class ShimmerLoading extends StatelessWidget {
         .shimmer(
           duration: const Duration(milliseconds: 1500),
           color: isDark
-              ? AppDesignSystem.pureWhite.withOpacity(0.1)
-              : AppDesignSystem.pureWhite.withOpacity(0.5),
+              ? AppDesignSystem.pureWhite.withValues(alpha: 0.1)
+              : AppDesignSystem.pureWhite.withValues(alpha: 0.5),
         );
   }
 }
@@ -569,12 +569,12 @@ class FloatingActionSection extends StatelessWidget {
             color: (isDark
                     ? AppDesignSystem.midnight
                     : AppDesignSystem.pureWhite)
-                .withOpacity(0.9),
+                .withValues(alpha: 0.9),
             border: Border(
               top: BorderSide(
                 color: isDark
-                    ? AppDesignSystem.pureWhite.withOpacity(0.08)
-                    : AppDesignSystem.midnight.withOpacity(0.06),
+                    ? AppDesignSystem.pureWhite.withValues(alpha: 0.08)
+                    : AppDesignSystem.midnight.withValues(alpha: 0.06),
                 width: 1,
               ),
             ),
@@ -628,7 +628,7 @@ class MoodChip extends StatelessWidget {
               ? AppDesignSystem.goldSubtle
               : (isDark
                   ? AppDesignSystem.midnightLight
-                  : AppDesignSystem.warmGray.withOpacity(0.5)),
+                  : AppDesignSystem.warmGray.withValues(alpha: 0.5)),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
           border: Border.all(
             color: isSelected
@@ -683,7 +683,7 @@ class StreakBadge extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         gradient: isActive ? AppDesignSystem.goldShimmer : null,
-        color: isActive ? null : AppDesignSystem.coolGray.withOpacity(0.3),
+        color: isActive ? null : AppDesignSystem.coolGray.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
         boxShadow: isActive ? AppDesignSystem.shadowGold : null,
       ),

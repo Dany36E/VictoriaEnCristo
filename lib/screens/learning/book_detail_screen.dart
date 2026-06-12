@@ -176,7 +176,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
           colors: [Color(0xFF3A2A10), Color(0xFF6B4E20)],
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -184,7 +184,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
             width: 56,
             height: 56,
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.2),
+              color: AppDesignSystem.gold.withValues(alpha: 0.2),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
@@ -271,7 +271,7 @@ class _BookDetailScreenState extends State<BookDetailScreen> {
       decoration: BoxDecoration(
         color: t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

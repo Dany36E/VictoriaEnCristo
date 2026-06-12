@@ -90,7 +90,7 @@ class _CollapsibleSectionState extends State<CollapsibleSection>
                   child: Text(
                     widget.title,
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.6),
+                      color: t.textSecondary.withValues(alpha: 0.6),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),
@@ -102,7 +102,7 @@ class _CollapsibleSectionState extends State<CollapsibleSection>
                   ),
                   child: Icon(
                     Icons.expand_more,
-                    color: t.textSecondary.withOpacity(0.4),
+                    color: t.textSecondary.withValues(alpha: 0.4),
                     size: 20,
                   ),
                 ),

@@ -1083,7 +1083,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
-                side: BorderSide(color: t.accent.withOpacity(0.22)),
+                side: BorderSide(color: t.accent.withValues(alpha: 0.22)),
               ),
               textStyle: GoogleFonts.manrope(
                 fontSize: 12,
@@ -1209,7 +1209,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     return Row(
       children: [
         Expanded(child: _buildReading(t)),
-        Container(width: 1, color: t.textSecondary.withOpacity(0.10)),
+        Container(width: 1, color: t.textSecondary.withValues(alpha: 0.10)),
         Expanded(child: _buildNotes(t)),
       ],
     );
@@ -1678,10 +1678,10 @@ class _PanelCard extends StatelessWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: t.isDark
-            ? Colors.white.withOpacity(0.04)
-            : Colors.black.withOpacity(0.03),
+            ? Colors.white.withValues(alpha: 0.04)
+            : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
       child: child,
     );
@@ -1740,7 +1740,7 @@ class _InfoButton extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.background,
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: t.textSecondary.withOpacity(0.12)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.12)),
         ),
         child: Row(
           children: [
@@ -1782,7 +1782,7 @@ class _HeaderChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: t.accent.withOpacity(0.12),
+        color: t.accent.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
@@ -1821,7 +1821,7 @@ class _FormatIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final color = enabled ? t.accent : t.textSecondary.withOpacity(0.45);
+    final color = enabled ? t.accent : t.textSecondary.withValues(alpha: 0.45);
     return IconButton(
       visualDensity: VisualDensity.compact,
       tooltip: tooltip,
@@ -1850,9 +1850,9 @@ class _SaveStatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(t.isDark ? 0.16 : 0.10),
+        color: color.withValues(alpha: t.isDark ? 0.16 : 0.10),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withOpacity(0.24)),
+        border: Border.all(color: color.withValues(alpha: 0.24)),
       ),
       child: Text(
         label,
@@ -1888,9 +1888,9 @@ class _ReferenceSuggestionBar extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight.withOpacity(t.isDark ? 0.16 : 0.10),
+        color: highlight.withValues(alpha: t.isDark ? 0.16 : 0.10),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: highlight.withOpacity(0.34)),
+        border: Border.all(color: highlight.withValues(alpha: 0.34)),
       ),
       child: Row(
         children: [
@@ -1898,7 +1898,7 @@ class _ReferenceSuggestionBar extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: highlight.withOpacity(0.14),
+              color: highlight.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.auto_awesome, color: highlight, size: 16),
@@ -1922,7 +1922,7 @@ class _ReferenceSuggestionBar extends StatelessWidget {
                 Text(
                   'Cita detectada. Puedes insertarla en tus apuntes o ignorarla.',
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.76),
+                    color: t.textSecondary.withValues(alpha: 0.76),
                     fontSize: 11,
                     height: 1.25,
                   ),
@@ -1944,7 +1944,7 @@ class _ReferenceSuggestionBar extends StatelessWidget {
           FilledButton.tonal(
             onPressed: onInsert,
             style: FilledButton.styleFrom(
-              backgroundColor: highlight.withOpacity(t.isDark ? 0.20 : 0.14),
+              backgroundColor: highlight.withValues(alpha: t.isDark ? 0.20 : 0.14),
               foregroundColor: highlight,
               visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 34),
@@ -1992,9 +1992,9 @@ class _SpellingSuggestionBar extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight.withOpacity(t.isDark ? 0.16 : 0.08),
+        color: highlight.withValues(alpha: t.isDark ? 0.16 : 0.08),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: highlight.withOpacity(0.26)),
+        border: Border.all(color: highlight.withValues(alpha: 0.26)),
       ),
       child: Row(
         children: [
@@ -2002,7 +2002,7 @@ class _SpellingSuggestionBar extends StatelessWidget {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: highlight.withOpacity(0.12),
+              color: highlight.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(8),
             ),
             child: const Icon(Icons.spellcheck, color: highlight, size: 17),
@@ -2026,7 +2026,7 @@ class _SpellingSuggestionBar extends StatelessWidget {
                 Text(
                   'Sugerencia: $replacement',
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.76),
+                    color: t.textSecondary.withValues(alpha: 0.76),
                     fontSize: 11,
                     height: 1.25,
                   ),
@@ -2048,7 +2048,7 @@ class _SpellingSuggestionBar extends StatelessWidget {
           FilledButton.tonal(
             onPressed: onReplace,
             style: FilledButton.styleFrom(
-              backgroundColor: highlight.withOpacity(t.isDark ? 0.18 : 0.10),
+              backgroundColor: highlight.withValues(alpha: t.isDark ? 0.18 : 0.10),
               foregroundColor: highlight,
               visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 34),
@@ -2079,9 +2079,9 @@ class _InlineEditorHint extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: t.background.withOpacity(t.isDark ? 0.28 : 0.65),
+        color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.65),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.textSecondary.withOpacity(0.08)),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -2094,7 +2094,7 @@ class _InlineEditorHint extends StatelessWidget {
                   ? 'El corrector subraya palabras dudosas en rojo. Si el cursor cae sobre una cita biblica detectada, veras aqui la sugerencia para insertarla.'
                   : 'El corrector sigue activo mientras escribes. Si colocas el cursor sobre una cita biblica detectada, podras insertarla sin salir de la nota.',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.76),
+                color: t.textSecondary.withValues(alpha: 0.76),
                 fontSize: 11.5,
                 height: 1.35,
               ),
@@ -2125,7 +2125,7 @@ class _InsertedVersesIndicator extends StatelessWidget {
         Text(
           label,
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.80),
+            color: t.textSecondary.withValues(alpha: 0.80),
             fontSize: 11.5,
             fontWeight: FontWeight.w700,
           ),
@@ -2161,7 +2161,7 @@ class _NotesFontSizeSheet extends StatelessWidget {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.28),
+                  color: t.textSecondary.withValues(alpha: 0.28),
                   borderRadius: BorderRadius.circular(999),
                 ),
               ),
@@ -2179,7 +2179,7 @@ class _NotesFontSizeSheet extends StatelessWidget {
             Text(
               'Selecciona una parte de la nota y despues elige el tamano que quieras aplicar.',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.72),
+                color: t.textSecondary.withValues(alpha: 0.72),
                 fontSize: 12,
                 height: 1.35,
               ),
@@ -2227,9 +2227,9 @@ class _NotesFontSizeTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: t.background.withOpacity(t.isDark ? 0.28 : 0.60),
+          color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.60),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: t.textSecondary.withOpacity(0.10)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
         ),
         child: Row(
           children: [
@@ -2237,7 +2237,7 @@ class _NotesFontSizeTile extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.12),
+                color: t.accent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               alignment: Alignment.center,
@@ -2267,7 +2267,7 @@ class _NotesFontSizeTile extends StatelessWidget {
                   Text(
                     'Aplicar a la seleccion actual',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.72),
+                      color: t.textSecondary.withValues(alpha: 0.72),
                       fontSize: 11.5,
                     ),
                   ),
@@ -2403,7 +2403,7 @@ class _VersionDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     return DropdownButtonFormField<BibleVersion>(
-      value: value,
+      initialValue: value,
       items: [
         for (final version in versions)
           DropdownMenuItem(
@@ -2545,7 +2545,7 @@ class _VerseDropdown extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     return DropdownButtonFormField<int>(
-      value: value,
+      initialValue: value,
       items: [
         for (final verse in verses)
           DropdownMenuItem(value: verse, child: Text('v. $verse')),
@@ -2599,7 +2599,7 @@ class _TypographySheet extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.surface,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: t.textSecondary.withOpacity(0.1)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.1)),
         ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -2608,7 +2608,7 @@ class _TypographySheet extends StatelessWidget {
             Text(
               'TEXTO Y COLORES',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
@@ -2634,7 +2634,7 @@ class _TypographySheet extends StatelessWidget {
                         max: 28,
                         divisions: 7,
                         activeColor: t.accent,
-                        inactiveColor: t.textSecondary.withOpacity(0.2),
+                        inactiveColor: t.textSecondary.withValues(alpha: 0.2),
                         onChanged: (v) => BibleUserDataService.I.setFontSize(v),
                       ),
                     ),
@@ -2653,7 +2653,7 @@ class _TypographySheet extends StatelessWidget {
             Text(
               'TEMA',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
@@ -2679,7 +2679,7 @@ class _TypographySheet extends StatelessWidget {
                           border: Border.all(
                             color: isActive
                                 ? t.accent
-                                : t.textSecondary.withOpacity(0.2),
+                                : t.textSecondary.withValues(alpha: 0.2),
                             width: isActive ? 2.5 : 1,
                           ),
                         ),
@@ -2737,7 +2737,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
                 width: 40,
                 height: 3,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -2755,7 +2755,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
             Text(
               'Elige si quieres una portada mas limpia para compartir o guardar.',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.66),
+                color: t.textSecondary.withValues(alpha: 0.66),
                 fontSize: 12,
                 height: 1.35,
               ),
@@ -2766,7 +2766,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
               onChanged: (value) => setState(() => _cleanCover = value),
               dense: true,
               contentPadding: EdgeInsets.zero,
-              activeColor: t.accent,
+              activeThumbColor: t.accent,
               title: Text(
                 'Portada limpia',
                 style: GoogleFonts.manrope(
@@ -2778,7 +2778,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
               subtitle: Text(
                 'Reduce adornos y deja un encabezado mas sobrio.',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.64),
+                  color: t.textSecondary.withValues(alpha: 0.64),
                   fontSize: 11.5,
                 ),
               ),
@@ -2842,9 +2842,9 @@ class _PdfExportTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.background.withOpacity(t.isDark ? 0.26 : 0.58),
+          color: t.background.withValues(alpha: t.isDark ? 0.26 : 0.58),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.textSecondary.withOpacity(0.10)),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
         ),
         child: Row(
           children: [
@@ -2852,7 +2852,7 @@ class _PdfExportTile extends StatelessWidget {
               width: 38,
               height: 38,
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.12),
+                color: t.accent.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: t.accent, size: 18),
@@ -2874,7 +2874,7 @@ class _PdfExportTile extends StatelessWidget {
                   Text(
                     subtitle,
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.65),
+                      color: t.textSecondary.withValues(alpha: 0.65),
                       fontSize: 12,
                     ),
                   ),
@@ -2892,7 +2892,7 @@ InputDecoration _inputDecoration(BibleReaderThemeData t, String hint) {
   return InputDecoration(
     hintText: hint,
     hintStyle: GoogleFonts.manrope(
-      color: t.textSecondary.withOpacity(0.45),
+      color: t.textSecondary.withValues(alpha: 0.45),
       fontSize: 13,
     ),
     labelStyle: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12),
@@ -2900,15 +2900,15 @@ InputDecoration _inputDecoration(BibleReaderThemeData t, String hint) {
     fillColor: t.background,
     border: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: t.textSecondary.withOpacity(0.10)),
+      borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.10)),
     ),
     enabledBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: t.textSecondary.withOpacity(0.10)),
+      borderSide: BorderSide(color: t.textSecondary.withValues(alpha: 0.10)),
     ),
     focusedBorder: OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: BorderSide(color: t.accent.withOpacity(0.55)),
+      borderSide: BorderSide(color: t.accent.withValues(alpha: 0.55)),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
   );

@@ -120,8 +120,8 @@ class PlanCover extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black.withOpacity(0.2),
-                Colors.black.withOpacity(0.5),
+                Colors.black.withValues(alpha: 0.2),
+                Colors.black.withValues(alpha: 0.5),
               ],
               stops: const [0.0, 0.6, 1.0],
             ),
@@ -262,7 +262,7 @@ class _GeneratedCoverContent extends StatelessWidget {
     // Patrón de puntos sutiles para textura
     return CustomPaint(
       painter: _NoisePainter(
-        color: Colors.white.withOpacity(0.03),
+        color: Colors.white.withValues(alpha: 0.03),
         seed: plan.id.hashCode,
       ),
     );
@@ -283,7 +283,7 @@ class _GeneratedCoverContent extends StatelessWidget {
             height: 120,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: palette.accent.withOpacity(0.1),
+              color: palette.accent.withValues(alpha: 0.1),
             ),
           ),
         ),
@@ -296,7 +296,7 @@ class _GeneratedCoverContent extends StatelessWidget {
             child: Container(
               width: 100,
               height: 2,
-              color: Colors.white.withOpacity(0.05),
+              color: Colors.white.withValues(alpha: 0.05),
             ),
           ),
         ),
@@ -310,7 +310,7 @@ class _GeneratedCoverContent extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: palette.accent.withOpacity(0.15),
+                color: palette.accent.withValues(alpha: 0.15),
                 width: 1,
               ),
             ),
@@ -325,13 +325,13 @@ class _GeneratedCoverContent extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
           shape: BoxShape.circle,
         ),
         child: Icon(
           icon,
           size: 40,
-          color: palette.accent.withOpacity(0.6),
+          color: palette.accent.withValues(alpha: 0.6),
         ),
       ),
     );
@@ -347,8 +347,8 @@ class _GeneratedCoverContent extends StatelessWidget {
             colors: [
               Colors.transparent,
               Colors.transparent,
-              Colors.black.withOpacity(0.5),
-              Colors.black.withOpacity(0.8),
+              Colors.black.withValues(alpha: 0.5),
+              Colors.black.withValues(alpha: 0.8),
             ],
             stops: const [0.0, 0.4, 0.7, 1.0],
           ),
@@ -364,7 +364,7 @@ class _GeneratedCoverContent extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: Colors.black.withOpacity(0.4),
+          color: Colors.black.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Text(

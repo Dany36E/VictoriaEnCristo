@@ -224,10 +224,10 @@ class _ProgressSeal extends StatelessWidget {
       decoration: BoxDecoration(
         shape: BoxShape.circle,
         color: complete
-            ? AppDesignSystem.gold.withOpacity(0.18)
-            : AppDesignSystem.midnight.withOpacity(0.07),
+            ? AppDesignSystem.gold.withValues(alpha: 0.18)
+            : AppDesignSystem.midnight.withValues(alpha: 0.07),
         border: Border.all(
-          color: complete ? AppDesignSystem.gold : AppDesignSystem.gold.withOpacity(0.28),
+          color: complete ? AppDesignSystem.gold : AppDesignSystem.gold.withValues(alpha: 0.28),
         ),
       ),
       child: Center(
@@ -253,9 +253,9 @@ class _CompletionBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.14),
+        color: AppDesignSystem.gold.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.36)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.36)),
       ),
       child: Row(
         children: [
@@ -306,13 +306,13 @@ class _ItemTile extends StatelessWidget {
           color: theme.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
-            color: unlocked ? AppDesignSystem.gold.withOpacity(0.78) : theme.cardBorder,
+            color: unlocked ? AppDesignSystem.gold.withValues(alpha: 0.78) : theme.cardBorder,
             width: unlocked ? 2 : 1,
           ),
           boxShadow: unlocked
               ? [
                   BoxShadow(
-                    color: AppDesignSystem.gold.withOpacity(0.16),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.16),
                     blurRadius: 12,
                     offset: const Offset(0, 4),
                   ),
@@ -403,9 +403,9 @@ class _ItemStatusPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.14),
+        color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: color.withOpacity(0.36)),
+        border: Border.all(color: color.withValues(alpha: 0.36)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -431,10 +431,10 @@ class _RewardPreview extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       decoration: BoxDecoration(
-        color: unlocked ? AppDesignSystem.gold.withOpacity(0.14) : theme.inputBg,
+        color: unlocked ? AppDesignSystem.gold.withValues(alpha: 0.14) : theme.inputBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
         border: Border.all(
-          color: unlocked ? AppDesignSystem.gold.withOpacity(0.34) : theme.cardBorder,
+          color: unlocked ? AppDesignSystem.gold.withValues(alpha: 0.34) : theme.cardBorder,
         ),
       ),
       child: Row(
@@ -478,9 +478,9 @@ class _UnlockedButton extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM, vertical: 13),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.16),
+        color: AppDesignSystem.gold.withValues(alpha: 0.16),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.4)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

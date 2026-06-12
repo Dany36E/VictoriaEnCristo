@@ -85,7 +85,7 @@ class _TalentsBadgeState extends State<TalentsBadge>
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
             boxShadow: [
               BoxShadow(
-                color: AppDesignSystem.gold.withOpacity(0.35),
+                color: AppDesignSystem.gold.withValues(alpha: 0.35),
                 blurRadius: 10,
                 offset: const Offset(0, 2),
               ),

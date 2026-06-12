@@ -186,7 +186,7 @@ class _BreathingGuideState extends State<BreathingGuide>
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: widget.color.withOpacity(0.15),
+                        color: widget.color.withValues(alpha: 0.15),
                         width: 1,
                       ),
                     ),
@@ -199,13 +199,13 @@ class _BreathingGuideState extends State<BreathingGuide>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          widget.color.withOpacity(0.55),
-                          widget.color.withOpacity(0.15),
+                          widget.color.withValues(alpha: 0.55),
+                          widget.color.withValues(alpha: 0.15),
                         ],
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: widget.color.withOpacity(0.35),
+                          color: widget.color.withValues(alpha: 0.35),
                           blurRadius: 28,
                           spreadRadius: 4,
                         ),
@@ -255,7 +255,7 @@ class _BreathingGuideState extends State<BreathingGuide>
               decoration: BoxDecoration(
                 color: isActive
                     ? widget.color
-                    : widget.color.withOpacity(0.25),
+                    : widget.color.withValues(alpha: 0.25),
                 borderRadius: BorderRadius.circular(4),
               ),
             );

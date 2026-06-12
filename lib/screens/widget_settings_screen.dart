@@ -149,7 +149,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                   Icon(
                     Icons.desktop_windows_rounded,
                     size: 56,
-                    color: AppTheme.primaryColor.withOpacity(0.9),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.9),
                   ),
                   const SizedBox(height: 16),
                   const Text(
@@ -493,7 +493,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             secondary: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: (isDiscreet ? Colors.green : AppTheme.primaryColor).withOpacity(0.1),
+                color: (isDiscreet ? Colors.green : AppTheme.primaryColor).withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -516,7 +516,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                   ? WidgetTitlePresets.defaultDiscreet
                   : WidgetTitlePresets.defaultNormal;
             },
-            activeColor: Colors.green,
+            activeThumbColor: Colors.green,
           ),
 
           if (isDiscreet)
@@ -524,9 +524,9 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: Colors.green.withOpacity(0.1),
+                color: Colors.green.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.green.withOpacity(0.3)),
+                border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
               ),
               child: Row(
                 children: [
@@ -574,7 +574,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
               decoration: InputDecoration(
                 hintText: 'Ej: ${titlePresets.first}',
                 filled: true,
-                fillColor: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade100,
+                fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide: BorderSide.none,
@@ -601,7 +601,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                   ),
                   backgroundColor: isSelected
                       ? AppTheme.primaryColor
-                      : (isDark ? Colors.white.withOpacity(0.1) : Colors.grey.shade200),
+                      : (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200),
                   onPressed: () {
                     FeedbackEngine.I.tap();
                     _titleController.text = title;
@@ -682,7 +682,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: AppTheme.primaryColor.withOpacity(0.3),
+                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
                     blurRadius: 8,
                     offset: const Offset(0, 2),
                   ),
@@ -754,7 +754,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
         Container(
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: isDark ? Colors.white.withOpacity(0.05) : Colors.grey.shade100,
+            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
             borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
@@ -806,7 +806,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),
@@ -833,7 +833,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           leading: Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: (isSelected ? AppTheme.primaryColor : Colors.grey).withOpacity(0.1),
+              color: (isSelected ? AppTheme.primaryColor : Colors.grey).withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(icon, color: isSelected ? AppTheme.primaryColor : Colors.grey),

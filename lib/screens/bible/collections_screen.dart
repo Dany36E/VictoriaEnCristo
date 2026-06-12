@@ -74,14 +74,14 @@ class CollectionsScreen extends StatelessWidget {
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(Icons.collections_bookmark_outlined,
-                                  color: t.textSecondary.withOpacity(0.3),
+                                  color: t.textSecondary.withValues(alpha: 0.3),
                                   size: 48),
                               const SizedBox(height: 12),
                               Text(
                                 'Sin colecciones',
                                 style: GoogleFonts.manrope(
                                   color:
-                                      t.textSecondary.withOpacity(0.4),
+                                      t.textSecondary.withValues(alpha: 0.4),
                                   fontSize: 14,
                                 ),
                               ),
@@ -156,7 +156,7 @@ class CollectionsScreen extends StatelessWidget {
                     Text(
                       c.description!,
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -168,7 +168,7 @@ class CollectionsScreen extends StatelessWidget {
             Text(
               '${c.verseCount}',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.4),
+                color: t.textSecondary.withValues(alpha: 0.4),
                 fontSize: 13,
               ),
             ),
@@ -230,7 +230,7 @@ class CollectionsScreen extends StatelessWidget {
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             color: selected
-                                ? t.accent.withOpacity(0.2)
+                                ? t.accent.withValues(alpha: 0.2)
                                 : Colors.transparent,
                           ),
                           alignment: Alignment.center,
@@ -249,7 +249,7 @@ class CollectionsScreen extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: 'Nombre de la colección',
                       hintStyle: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.4),
+                        color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 15,
                       ),
                       border: InputBorder.none,
@@ -262,7 +262,7 @@ class CollectionsScreen extends StatelessWidget {
                     decoration: InputDecoration(
                       hintText: 'Descripción (opcional)',
                       hintStyle: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.3),
+                        color: t.textSecondary.withValues(alpha: 0.3),
                         fontSize: 13,
                       ),
                       border: InputBorder.none,

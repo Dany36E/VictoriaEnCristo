@@ -157,13 +157,13 @@ class _VersesScreenState extends State<VersesScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
         border: Border.all(
-          color: t.accent.withOpacity(0.2),
+          color: t.accent.withValues(alpha: 0.2),
           width: 1,
         ),
       ),
@@ -190,10 +190,10 @@ class _VersesScreenState extends State<VersesScreen>
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: t.accent.withOpacity(0.1),
+                    color: t.accent.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
                     border: Border.all(
-                      color: t.accent.withOpacity(0.3),
+                      color: t.accent.withValues(alpha: 0.3),
                       width: 0.5,
                     ),
                   ),
@@ -265,7 +265,7 @@ class _VersesScreenState extends State<VersesScreen>
         color: t.surface,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.04),
+            color: Colors.black.withValues(alpha: 0.04),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -413,18 +413,18 @@ class _VersesScreenState extends State<VersesScreen>
             borderRadius: BorderRadius.circular(24),
             // Borde dorado sutil
             border: Border.all(
-              color: t.accent.withOpacity(0.3),
+              color: t.accent.withValues(alpha: 0.3),
               width: 1.5,
             ),
             // Sombra dramática
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF0D1B2A).withOpacity(0.4),
+                color: const Color(0xFF0D1B2A).withValues(alpha: 0.4),
                 blurRadius: 24,
                 offset: const Offset(0, 12),
               ),
               BoxShadow(
-                color: t.accent.withOpacity(0.1),
+                color: t.accent.withValues(alpha: 0.1),
                 blurRadius: 32,
                 offset: const Offset(0, 4),
               ),
@@ -447,8 +447,8 @@ class _VersesScreenState extends State<VersesScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          t.accent.withOpacity(0.15),
-                          t.accent.withOpacity(0),
+                          t.accent.withValues(alpha: 0.15),
+                          t.accent.withValues(alpha: 0),
                         ],
                       ),
                     ),
@@ -464,8 +464,8 @@ class _VersesScreenState extends State<VersesScreen>
                       shape: BoxShape.circle,
                       gradient: RadialGradient(
                         colors: [
-                          t.accent.withOpacity(0.1),
-                          t.accent.withOpacity(0),
+                          t.accent.withValues(alpha: 0.1),
+                          t.accent.withValues(alpha: 0),
                         ],
                       ),
                     ),
@@ -490,7 +490,7 @@ class _VersesScreenState extends State<VersesScreen>
                                 Container(
                                   padding: const EdgeInsets.all(8),
                                   decoration: BoxDecoration(
-                                    color: t.accent.withOpacity(0.15),
+                                    color: t.accent.withValues(alpha: 0.15),
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                   child: Icon(
@@ -499,7 +499,7 @@ class _VersesScreenState extends State<VersesScreen>
                                     size: 20,
                                   ),
                                 ).animate(onPlay: (c) => c.repeat(reverse: true))
-                                  .shimmer(duration: 2000.ms, color: t.accent.withOpacity(0.3)),
+                                  .shimmer(duration: 2000.ms, color: t.accent.withValues(alpha: 0.3)),
                                 const SizedBox(width: 10),
                                 Text(
                                   'NUEVO',
@@ -535,7 +535,7 @@ class _VersesScreenState extends State<VersesScreen>
                               style: GoogleFonts.manrope(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w400,
-                                color: Colors.white.withOpacity(0.7),
+                                color: Colors.white.withValues(alpha: 0.7),
                                 height: 1.5,
                               ),
                             ),
@@ -558,7 +558,7 @@ class _VersesScreenState extends State<VersesScreen>
                                 borderRadius: BorderRadius.circular(30),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: t.accent.withOpacity(0.4),
+                                    color: t.accent.withValues(alpha: 0.4),
                                     blurRadius: 16,
                                     offset: const Offset(0, 6),
                                   ),
@@ -625,10 +625,10 @@ class _VersesScreenState extends State<VersesScreen>
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              color: emotions[index].$2.withOpacity(0.15),
+              color: emotions[index].$2.withValues(alpha: 0.15),
               borderRadius: BorderRadius.circular(14),
               border: Border.all(
-                color: emotions[index].$2.withOpacity(0.3),
+                color: emotions[index].$2.withValues(alpha: 0.3),
                 width: 1,
               ),
             ),
@@ -688,13 +688,13 @@ class _PremiumVerseCard extends StatelessWidget {
         // Sombra suave y difusa (soft shadow)
         boxShadow: [
           BoxShadow(
-            color: const Color(0xFF0D1B2A).withOpacity(0.04),
+            color: const Color(0xFF0D1B2A).withValues(alpha: 0.04),
             blurRadius: 16,
             offset: const Offset(0, 6),
             spreadRadius: 0,
           ),
           BoxShadow(
-            color: const Color(0xFF0D1B2A).withOpacity(0.02),
+            color: const Color(0xFF0D1B2A).withValues(alpha: 0.02),
             blurRadius: 32,
             offset: const Offset(0, 12),
             spreadRadius: -8,
@@ -712,7 +712,7 @@ class _PremiumVerseCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.08),
+                color: t.accent.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Text(

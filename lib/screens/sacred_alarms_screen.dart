@@ -284,7 +284,7 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                           children: [
                             SwitchListTile.adaptive(
                               value: config.enabled,
-                              activeColor: t.accent,
+                              activeThumbColor: t.accent,
                               title: const Text('Activar Campanas Sagradas'),
                               subtitle: Text(
                                 config.enabled
@@ -300,7 +300,7 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                             const Divider(height: 1),
                             SwitchListTile.adaptive(
                               value: config.strictMode,
-                              activeColor: t.accent,
+                              activeThumbColor: t.accent,
                               title: const Text('Modo pacto'),
                               subtitle: const Text(
                                 'Lo ya programado permanece bloqueado hasta completarse.',
@@ -472,7 +472,7 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
                           children: [
                             SwitchListTile.adaptive(
                               value: config.enforceMinimumVolume,
-                              activeColor: t.accent,
+                              activeThumbColor: t.accent,
                               title: const Text('Forzar volumen minimo'),
                               subtitle: const Text(
                                 'Al sonar, Android sube el canal de alarma.',
@@ -653,7 +653,7 @@ class _HeroPanel extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.accent.withOpacity(0.22)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.22)),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,7 +662,7 @@ class _HeroPanel extends StatelessWidget {
             width: 48,
             height: 48,
             decoration: BoxDecoration(
-              color: t.accent.withOpacity(0.14),
+              color: t.accent.withValues(alpha: 0.14),
               borderRadius: BorderRadius.circular(10),
             ),
             child: Icon(
@@ -717,7 +717,7 @@ class _Card extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(t.isDark ? 0.24 : 0.05),
+            color: Colors.black.withValues(alpha: t.isDark ? 0.24 : 0.05),
             blurRadius: 12,
             offset: const Offset(0, 6),
           ),
@@ -809,7 +809,7 @@ class _OneTimeRuleTile extends StatelessWidget {
     return ListTile(
       leading: Switch.adaptive(
         value: rule.enabled,
-        activeColor: t.accent,
+        activeThumbColor: t.accent,
         onChanged: onEnabledChanged,
       ),
       title: Text(
@@ -846,7 +846,7 @@ class _RuleTile extends StatelessWidget {
     return ListTile(
       leading: Switch.adaptive(
         value: rule.enabled,
-        activeColor: t.accent,
+        activeThumbColor: t.accent,
         onChanged: onEnabledChanged,
       ),
       title: Text(_formatMinute(rule.minuteOfDay)),
@@ -993,9 +993,9 @@ class _PermissionPanel extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.amber.withOpacity(0.12),
+        color: Colors.amber.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.amber.withOpacity(0.4)),
+        border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1202,7 +1202,7 @@ class _OneTimeRuleDialogState extends State<_OneTimeRuleDialog> {
           children: [
             SwitchListTile.adaptive(
               value: _enabled,
-              activeColor: t.accent,
+              activeThumbColor: t.accent,
               contentPadding: EdgeInsets.zero,
               title: const Text('Activa'),
               onChanged: (value) => setState(() => _enabled = value),
@@ -1221,7 +1221,7 @@ class _OneTimeRuleDialogState extends State<_OneTimeRuleDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<SacredAlarmActivityType?>(
-              value: _activityType,
+              initialValue: _activityType,
               decoration: const InputDecoration(labelText: 'Actividad'),
               items: [
                 const DropdownMenuItem<SacredAlarmActivityType?>(
@@ -1299,7 +1299,7 @@ class _RuleDialogState extends State<_RuleDialog> {
           children: [
             SwitchListTile.adaptive(
               value: _enabled,
-              activeColor: t.accent,
+              activeThumbColor: t.accent,
               contentPadding: EdgeInsets.zero,
               title: const Text('Activo'),
               onChanged: (value) => setState(() => _enabled = value),
@@ -1329,7 +1329,7 @@ class _RuleDialogState extends State<_RuleDialog> {
                 return FilterChip(
                   label: Text(_weekdayShort(weekday)),
                   selected: selected,
-                  selectedColor: t.accent.withOpacity(0.22),
+                  selectedColor: t.accent.withValues(alpha: 0.22),
                   onSelected: (value) {
                     setState(() {
                       if (value) {
@@ -1344,7 +1344,7 @@ class _RuleDialogState extends State<_RuleDialog> {
             ),
             const SizedBox(height: 16),
             DropdownButtonFormField<SacredAlarmActivityType?>(
-              value: _activityType,
+              initialValue: _activityType,
               decoration: const InputDecoration(labelText: 'Actividad'),
               items: [
                 const DropdownMenuItem<SacredAlarmActivityType?>(

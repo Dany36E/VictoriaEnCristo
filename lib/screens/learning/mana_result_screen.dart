@@ -57,9 +57,9 @@ class ManaResultScreen extends StatelessWidget {
                   height: 120,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppDesignSystem.gold.withOpacity(0.15),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.15),
                     border: Border.all(
-                      color: AppDesignSystem.gold.withOpacity(0.5),
+                      color: AppDesignSystem.gold.withValues(alpha: 0.5),
                       width: 2,
                     ),
                   ),
@@ -108,12 +108,12 @@ class ManaResultScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppDesignSystem.spacingM),
                   decoration: BoxDecoration(
-                    color: AppDesignSystem.gold.withOpacity(0.08),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(
                       AppDesignSystem.radiusM,
                     ),
                     border: Border.all(
-                      color: AppDesignSystem.gold.withOpacity(0.3),
+                      color: AppDesignSystem.gold.withValues(alpha: 0.3),
                     ),
                   ),
                   child: Row(
@@ -197,7 +197,7 @@ class _Stat extends StatelessWidget {
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
             color: highlight
-                ? AppDesignSystem.gold.withOpacity(0.5)
+                ? AppDesignSystem.gold.withValues(alpha: 0.5)
                 : t.cardBorder,
           ),
         ),

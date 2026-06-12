@@ -54,7 +54,7 @@ class HomeHeader extends StatelessWidget {
             decoration: BoxDecoration(
               shape: BoxShape.circle,
               border: Border.all(
-                color: fg.withOpacity(0.3),
+                color: fg.withValues(alpha: 0.3),
                 width: 1.5,
               ),
             ),
@@ -63,7 +63,7 @@ class HomeHeader extends StatelessWidget {
               height: 46,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: fg.withOpacity(0.1),
+                color: fg.withValues(alpha: 0.1),
               ),
               child: Icon(
                 isLoggedIn ? Icons.person : Icons.shield_outlined,
@@ -91,7 +91,7 @@ class HomeHeader extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
-                  color: fg.withOpacity(0.6),
+                  color: fg.withValues(alpha: 0.6),
                 ),
               ),
               const SizedBox(height: 2),
@@ -126,7 +126,7 @@ class HomeHeader extends StatelessWidget {
             children: [
               Icon(
                 Icons.bookmark_rounded,
-                color: fg.withOpacity(0.7),
+                color: fg.withValues(alpha: 0.7),
               ),
               if (FavoritesService().count > 0)
                 Positioned(
@@ -173,7 +173,7 @@ class HomeHeader extends StatelessWidget {
           },
           icon: Icon(
             Icons.tune_rounded,
-            color: fg.withOpacity(0.7),
+            color: fg.withValues(alpha: 0.7),
           ),
         ),
       ],

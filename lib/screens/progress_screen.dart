@@ -416,8 +416,8 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
               shouldLoop: false,
               colors: [
                 t.accent,
-                t.accent.withOpacity(0.8),
-                t.accent.withOpacity(0.6),
+                t.accent.withValues(alpha: 0.8),
+                t.accent.withValues(alpha: 0.6),
                 const Color(0xFFFFE4B5),
                 const Color(0xFFFFF8DC),
               ],
@@ -550,13 +550,13 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: t.textPrimary.withOpacity(0.06),
+                    color: t.textPrimary.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.arrow_back_ios_new_rounded,
                     size: 18,
-                    color: t.textPrimary.withOpacity(0.8),
+                    color: t.textPrimary.withValues(alpha: 0.8),
                   ),
                 ),
               ),
@@ -577,7 +577,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                       _getHeaderSubtitle(),
                       style: GoogleFonts.manrope(
                         fontSize: 13,
-                        color: t.textSecondary.withOpacity(0.7),
+                        color: t.textSecondary.withValues(alpha: 0.7),
                       ),
                     ),
                   ],
@@ -592,13 +592,13 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: t.textPrimary.withOpacity(0.06),
+                    color: t.textPrimary.withValues(alpha: 0.06),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
                     Icons.share_rounded,
                     size: 18,
-                    color: t.textPrimary.withOpacity(0.8),
+                    color: t.textPrimary.withValues(alpha: 0.8),
                   ),
                 ),
               ),
@@ -665,10 +665,10 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
       margin: const EdgeInsets.only(top: 10),
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: c.withOpacity(0.06),
+        color: c.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
-          color: c.withOpacity(0.12),
+          color: c.withValues(alpha: 0.12),
         ),
       ),
       child: Row(
@@ -681,7 +681,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
               style: GoogleFonts.manrope(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w500,
-                color: t.textSecondary.withOpacity(0.8),
+                color: t.textSecondary.withValues(alpha: 0.8),
               ),
             ),
           ),
@@ -689,7 +689,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
             Icon(
               Icons.chevron_right_rounded,
               size: 18,
-              color: c.withOpacity(0.4),
+              color: c.withValues(alpha: 0.4),
             ),
         ],
       ),

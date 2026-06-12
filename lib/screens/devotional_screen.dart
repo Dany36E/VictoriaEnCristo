@@ -379,7 +379,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
-                colors: [themeData.accent.withOpacity(0.15), themeData.scaffoldBg],
+                colors: [themeData.accent.withValues(alpha: 0.15), themeData.scaffoldBg],
               ),
             ),
             child: SafeArea(
@@ -553,13 +553,13 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
           color: _challengeCompleted
-              ? const Color(0xFF27AE60).withOpacity(0.15)
-              : themeData.textSecondary.withOpacity(0.08),
+              ? const Color(0xFF27AE60).withValues(alpha: 0.15)
+              : themeData.textSecondary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
           border: Border.all(
             color: _challengeCompleted
-                ? const Color(0xFF27AE60).withOpacity(0.4)
-                : themeData.textSecondary.withOpacity(0.15),
+                ? const Color(0xFF27AE60).withValues(alpha: 0.4)
+                : themeData.textSecondary.withValues(alpha: 0.15),
           ),
         ),
         child: Row(
@@ -600,9 +600,9 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: themeData.accent.withOpacity(0.10),
+          color: themeData.accent.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          border: Border.all(color: themeData.accent.withOpacity(0.25)),
+          border: Border.all(color: themeData.accent.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -651,8 +651,8 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
         child: Container(
           padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
           decoration: BoxDecoration(
-            color: themeData.scaffoldBg.withOpacity(0.94),
-            border: Border(top: BorderSide(color: themeData.textSecondary.withOpacity(0.10))),
+            color: themeData.scaffoldBg.withValues(alpha: 0.94),
+            border: Border(top: BorderSide(color: themeData.textSecondary.withValues(alpha: 0.10))),
           ),
           child: SizedBox(
             width: double.infinity,
@@ -749,9 +749,9 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       decoration: BoxDecoration(
-        color: themeData.cardBg.withOpacity(isDark ? 0.5 : 0.85),
+        color: themeData.cardBg.withValues(alpha: isDark ? 0.5 : 0.85),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: accentColor.withOpacity(0.15)),
+        border: Border.all(color: accentColor.withValues(alpha: 0.15)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,7 +763,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                 height: 32,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [accentColor.withOpacity(0.25), accentColor.withOpacity(0.10)],
+                    colors: [accentColor.withValues(alpha: 0.25), accentColor.withValues(alpha: 0.10)],
                   ),
                   borderRadius: BorderRadius.circular(8),
                 ),
@@ -807,9 +807,9 @@ class _ContextChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: themeData.accent.withOpacity(0.10),
+          color: themeData.accent.withValues(alpha: 0.10),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: themeData.accent.withOpacity(0.25)),
+          border: Border.all(color: themeData.accent.withValues(alpha: 0.25)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -828,7 +828,7 @@ class _ContextChip extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 4),
-            Icon(Icons.info_outline_rounded, size: 14, color: themeData.accent.withOpacity(0.7)),
+            Icon(Icons.info_outline_rounded, size: 14, color: themeData.accent.withValues(alpha: 0.7)),
           ],
         ),
       ),
@@ -860,10 +860,10 @@ class _LengthSelector extends StatelessWidget {
               duration: const Duration(milliseconds: 200),
               padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
               decoration: BoxDecoration(
-                color: selected ? themeData.accent : themeData.cardBg.withOpacity(0.4),
+                color: selected ? themeData.accent : themeData.cardBg.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(14),
                 border: Border.all(
-                  color: selected ? themeData.accent : themeData.textSecondary.withOpacity(0.15),
+                  color: selected ? themeData.accent : themeData.textSecondary.withValues(alpha: 0.15),
                 ),
               ),
               child: Text(
@@ -966,10 +966,10 @@ class _GiantPickerSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: selected ? themeData.accent.withOpacity(0.12) : themeData.cardBg.withOpacity(0.5),
+          color: selected ? themeData.accent.withValues(alpha: 0.12) : themeData.cardBg.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
-            color: selected ? themeData.accent : themeData.textSecondary.withOpacity(0.12),
+            color: selected ? themeData.accent : themeData.textSecondary.withValues(alpha: 0.12),
           ),
         ),
         child: Row(

@@ -61,8 +61,8 @@ class _DailyChecklistCardState extends State<DailyChecklistCard> {
                   BorderRadius.circular(AppDesignSystem.radiusM),
               border: Border.all(
                 color: complete
-                    ? AppDesignSystem.gold.withOpacity(0.55)
-                    : t.textSecondary.withOpacity(0.1),
+                    ? AppDesignSystem.gold.withValues(alpha: 0.55)
+                    : t.textSecondary.withValues(alpha: 0.1),
               ),
             ),
             child: Column(
@@ -159,7 +159,7 @@ class _DailyChecklistCardState extends State<DailyChecklistCard> {
           )
               .animate(target: complete ? 1 : 0)
               .tint(
-                color: AppDesignSystem.gold.withOpacity(0.05),
+                color: AppDesignSystem.gold.withValues(alpha: 0.05),
                 duration: 400.ms,
               ),
         );
@@ -224,12 +224,12 @@ class _Item extends StatelessWidget {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: done
-                        ? AppDesignSystem.gold.withOpacity(0.18)
-                        : t.textSecondary.withOpacity(0.06),
+                        ? AppDesignSystem.gold.withValues(alpha: 0.18)
+                        : t.textSecondary.withValues(alpha: 0.06),
                     border: Border.all(
                       color: done
-                          ? AppDesignSystem.gold.withOpacity(0.7)
-                          : t.textSecondary.withOpacity(0.18),
+                          ? AppDesignSystem.gold.withValues(alpha: 0.7)
+                          : t.textSecondary.withValues(alpha: 0.18),
                     ),
                   ),
                   child: Icon(

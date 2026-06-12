@@ -29,10 +29,10 @@ class BibleReadingStreak extends StatelessWidget {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             decoration: BoxDecoration(
-              color: t.cardBg.withOpacity(0.85),
+              color: t.cardBg.withValues(alpha: 0.85),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: t.accent.withOpacity(0.15),
+                color: t.accent.withValues(alpha: 0.15),
               ),
             ),
             child: Row(
@@ -42,7 +42,7 @@ class BibleReadingStreak extends StatelessWidget {
                   width: 40,
                   height: 40,
                   decoration: BoxDecoration(
-                    color: t.accent.withOpacity(0.12),
+                    color: t.accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Icon(
@@ -78,7 +78,7 @@ class BibleReadingStreak extends StatelessWidget {
                               child: LinearProgressIndicator(
                                 value: (percentRead / 100).clamp(0.0, 1.0),
                                 minHeight: 4,
-                                backgroundColor: t.textSecondary.withOpacity(0.12),
+                                backgroundColor: t.textSecondary.withValues(alpha: 0.12),
                                 valueColor: AlwaysStoppedAnimation(t.accent),
                               ),
                             ),
@@ -89,7 +89,7 @@ class BibleReadingStreak extends StatelessWidget {
                             style: GoogleFonts.manrope(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
-                              color: t.textSecondary.withOpacity(0.7),
+                              color: t.textSecondary.withValues(alpha: 0.7),
                             ),
                           ),
                         ],
@@ -101,7 +101,7 @@ class BibleReadingStreak extends StatelessWidget {
                 const SizedBox(width: 8),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   size: 20,
                 ),
               ],

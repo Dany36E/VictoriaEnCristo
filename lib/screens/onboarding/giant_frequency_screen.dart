@@ -306,12 +306,12 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
           color: isComplete 
-              ? AppDesignSystem.midnightLight.withOpacity(0.8)
+              ? AppDesignSystem.midnightLight.withValues(alpha: 0.8)
               : AppDesignSystem.midnightLight,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isComplete 
-                ? AppDesignSystem.gold.withOpacity(0.5) 
+                ? AppDesignSystem.gold.withValues(alpha: 0.5) 
                 : Colors.white12,
             width: isComplete ? 2 : 1,
           ),
@@ -404,7 +404,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: isSelected 
-                  ? AppDesignSystem.gold.withOpacity(0.15) 
+                  ? AppDesignSystem.gold.withValues(alpha: 0.15) 
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
@@ -446,7 +446,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppDesignSystem.midnight.withOpacity(0),
+            AppDesignSystem.midnight.withValues(alpha: 0),
             AppDesignSystem.midnight,
           ],
         ),
@@ -472,7 +472,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                 boxShadow: _isComplete
                     ? [
                         BoxShadow(
-                          color: AppDesignSystem.gold.withOpacity(0.4),
+                          color: AppDesignSystem.gold.withValues(alpha: 0.4),
                           blurRadius: 20,
                           offset: const Offset(0, 8),
                         ),

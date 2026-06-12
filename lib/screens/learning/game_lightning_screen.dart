@@ -221,12 +221,12 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppDesignSystem.gold.withOpacity(0.15),
-                AppDesignSystem.gold.withOpacity(0.03),
+                AppDesignSystem.gold.withValues(alpha: 0.15),
+                AppDesignSystem.gold.withValues(alpha: 0.03),
               ],
             ),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-            border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+            border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -299,7 +299,7 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
       decoration: BoxDecoration(
         color: t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: color.withOpacity(0.4), width: 1.5),
+        border: Border.all(color: color.withValues(alpha: 0.4), width: 1.5),
       ),
       child: TextField(
         controller: c,
@@ -341,7 +341,7 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
             width: 120,
             height: 120,
             decoration: BoxDecoration(
-              color: color.withOpacity(0.15),
+              color: color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
               border: Border.all(color: color, width: 3),
             ),
@@ -395,9 +395,9 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-                  border: Border.all(color: color.withOpacity(0.5)),
+                  border: Border.all(color: color.withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -454,7 +454,7 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
             decoration: BoxDecoration(
               color: t.cardBg,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-              border: Border.all(color: color.withOpacity(0.3)),
+              border: Border.all(color: color.withValues(alpha: 0.3)),
             ),
             child: Text(
               q.prompt,
@@ -471,10 +471,10 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
                 if (_locked) {
                   if (i == q.correctIndex) {
                     border = AppDesignSystem.victory;
-                    bg = AppDesignSystem.victory.withOpacity(0.10);
+                    bg = AppDesignSystem.victory.withValues(alpha: 0.10);
                   } else if (i == _selected) {
                     border = AppDesignSystem.struggle;
-                    bg = AppDesignSystem.struggle.withOpacity(0.10);
+                    bg = AppDesignSystem.struggle.withValues(alpha: 0.10);
                   }
                 }
                 return Padding(
@@ -520,9 +520,9 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
                   vertical: AppDesignSystem.spacingS,
                 ),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.struggle.withOpacity(0.10),
+                  color: AppDesignSystem.struggle.withValues(alpha: 0.10),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                  border: Border.all(color: AppDesignSystem.struggle.withOpacity(0.4)),
+                  border: Border.all(color: AppDesignSystem.struggle.withValues(alpha: 0.4)),
                 ),
                 child: Row(
                   children: [

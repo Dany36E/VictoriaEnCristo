@@ -73,8 +73,8 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: t.isDark
-                      ? Colors.white.withOpacity(0.06)
-                      : Colors.black.withOpacity(0.04),
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: TextField(
@@ -85,7 +85,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                   decoration: InputDecoration(
                     hintText: 'Buscar en notas de capítulo...',
                     hintStyle: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                     ),
                     border: InputBorder.none,
@@ -136,7 +136,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
           ),
           IconButton(
             icon: Icon(Icons.search,
-                color: t.textSecondary.withOpacity(0.6), size: 20),
+                color: t.textSecondary.withValues(alpha: 0.6), size: 20),
             onPressed: () {
               setState(() => _searchMode = true);
               _searchFocus.requestFocus();
@@ -166,7 +166,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(Icons.description_outlined,
-                      color: t.textSecondary.withOpacity(0.2), size: 48),
+                      color: t.textSecondary.withValues(alpha: 0.2), size: 48),
                   const SizedBox(height: 16),
                   Text(
                     _searchQuery.isNotEmpty
@@ -174,7 +174,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                         : 'Tus notas de estudio por\ncapítulo aparecerán aquí',
                     textAlign: TextAlign.center,
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                       height: 1.6,
                     ),
@@ -230,7 +230,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
               Text(
                 '${notes.length}',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 11,
                 ),
               ),
@@ -255,7 +255,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
         child: Text(
           'Eliminar',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.5),
+            color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -342,7 +342,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                         Text(
                           'Cap. ${note.chapter}',
                           style: GoogleFonts.manrope(
-                            color: t.textSecondary.withOpacity(0.5),
+                            color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -351,7 +351,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                         Text(
                           _timeAgo(note.updatedAt),
                           style: GoogleFonts.manrope(
-                            color: t.textSecondary.withOpacity(0.3),
+                            color: t.textSecondary.withValues(alpha: 0.3),
                             fontSize: 11,
                           ),
                         ),
@@ -373,7 +373,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                       Text(
                         note.content,
                         style: GoogleFonts.lora(
-                          color: t.textSecondary.withOpacity(0.5),
+                          color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 13,
                           height: 1.4,
                         ),
@@ -389,7 +389,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                           return Text(
                             '#$tag',
                             style: GoogleFonts.manrope(
-                              color: noteColor.withOpacity(0.7),
+                              color: noteColor.withValues(alpha: 0.7),
                               fontSize: 11,
                             ),
                           );

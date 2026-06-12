@@ -181,10 +181,10 @@ class _HeroDetailScreenState extends State<HeroDetailScreen> {
               padding: const EdgeInsets.symmetric(
                   horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
-                color: AppDesignSystem.struggle.withOpacity(0.15),
+                color: AppDesignSystem.struggle.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(999),
                 border: Border.all(
-                    color: AppDesignSystem.struggle.withOpacity(0.35)),
+                    color: AppDesignSystem.struggle.withValues(alpha: 0.35)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
@@ -244,7 +244,7 @@ class _HeroDetailScreenState extends State<HeroDetailScreen> {
                     colors: [t.surface, t.cardBg],
                   ),
                   border: Border.all(
-                      color: AppDesignSystem.gold.withOpacity(0.35)),
+                      color: AppDesignSystem.gold.withValues(alpha: 0.35)),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -366,10 +366,10 @@ class _HeroDetailScreenState extends State<HeroDetailScreen> {
               if (_answered) {
                 if (isCorrect) {
                   borderColor = AppDesignSystem.victory;
-                  bg = AppDesignSystem.victory.withOpacity(0.12);
+                  bg = AppDesignSystem.victory.withValues(alpha: 0.12);
                 } else if (isSelected) {
                   borderColor = AppDesignSystem.struggle;
-                  bg = AppDesignSystem.struggle.withOpacity(0.12);
+                  bg = AppDesignSystem.struggle.withValues(alpha: 0.12);
                 }
               } else if (isSelected) {
                 borderColor = AppDesignSystem.gold;
@@ -413,10 +413,10 @@ class _HeroDetailScreenState extends State<HeroDetailScreen> {
           Container(
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.10),
+              color: AppDesignSystem.gold.withValues(alpha: 0.10),
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
               border:
-                  Border.all(color: AppDesignSystem.gold.withOpacity(0.35)),
+                  Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.35)),
             ),
             child: Text(
               q.explanation!,

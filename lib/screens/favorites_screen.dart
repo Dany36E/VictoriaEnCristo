@@ -86,7 +86,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              t.accent.withOpacity(0.15),
+                              t.accent.withValues(alpha: 0.15),
                               Colors.transparent,
                             ],
                           ),
@@ -105,7 +105,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
-                              color: t.accent.withOpacity(0.15),
+                              color: t.accent.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(14),
                             ),
                             child: Icon(
@@ -189,13 +189,13 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: t.accent.withOpacity(0.1),
+                color: t.accent.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(
                 Icons.bookmark_outline_rounded,
                 size: 64,
-                color: t.accent.withOpacity(0.5),
+                color: t.accent.withValues(alpha: 0.5),
               ),
             ),
             const SizedBox(height: 24),
@@ -229,7 +229,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
-                      color: t.accent.withOpacity(0.4),
+                      color: t.accent.withValues(alpha: 0.4),
                       blurRadius: 16,
                       offset: const Offset(0, 6),
                     ),
@@ -342,7 +342,7 @@ class _FavoriteVerseCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFF0D1B2A).withOpacity(0.04),
+              color: const Color(0xFF0D1B2A).withValues(alpha: 0.04),
               blurRadius: 16,
               offset: const Offset(0, 6),
             ),
@@ -357,7 +357,7 @@ class _FavoriteVerseCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                 decoration: BoxDecoration(
-                  color: t.accent.withOpacity(0.1),
+                  color: t.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(

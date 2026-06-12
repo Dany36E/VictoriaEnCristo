@@ -44,7 +44,7 @@ class PlansSection extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: t.accent.withOpacity(0.15),
+                      color: t.accent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Icon(Icons.auto_awesome, color: t.accent, size: 18),
@@ -56,7 +56,7 @@ class PlansSection extends StatelessWidget {
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
                       letterSpacing: 1.5,
-                      color: t.textPrimary.withOpacity(0.8),
+                      color: t.textPrimary.withValues(alpha: 0.8),
                     ),
                   ),
                 ],
@@ -151,12 +151,12 @@ class _ActivePlanCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              t.accent.withOpacity(0.2),
-              t.accent.withOpacity(0.05),
+              t.accent.withValues(alpha: 0.2),
+              t.accent.withValues(alpha: 0.05),
             ],
           ),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: t.accent.withOpacity(0.3)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.3)),
         ),
         child: Row(
           children: [
@@ -170,7 +170,7 @@ class _ActivePlanCard extends StatelessWidget {
                   CircularProgressIndicator(
                     value: progressPercent,
                     strokeWidth: 4,
-                    backgroundColor: t.surface.withOpacity(0.3),
+                    backgroundColor: t.surface.withValues(alpha: 0.3),
                     valueColor: AlwaysStoppedAnimation(t.accent),
                   ),
                   Column(
@@ -185,7 +185,7 @@ class _ActivePlanCard extends StatelessWidget {
                         'de ${plan.durationDays}',
                         style: TextStyle(
                           fontSize: 9,
-                          color: t.textSecondary.withOpacity(0.8),
+                          color: t.textSecondary.withValues(alpha: 0.8),
                         ),
                       ),
                     ],

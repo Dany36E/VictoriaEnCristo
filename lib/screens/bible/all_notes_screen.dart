@@ -72,8 +72,8 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 12),
                 decoration: BoxDecoration(
                   color: t.isDark
-                      ? Colors.white.withOpacity(0.06)
-                      : Colors.black.withOpacity(0.04),
+                      ? Colors.white.withValues(alpha: 0.06)
+                      : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: TextField(
@@ -84,7 +84,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                   decoration: InputDecoration(
                     hintText: 'Buscar en notas...',
                     hintStyle: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.4),
+                      color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                     ),
                     border: InputBorder.none,
@@ -136,7 +136,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
           ),
           IconButton(
             icon: Icon(Icons.search,
-                color: t.textSecondary.withOpacity(0.6), size: 20),
+                color: t.textSecondary.withValues(alpha: 0.6), size: 20),
             onPressed: () {
               setState(() => _searchMode = true);
               _searchFocus.requestFocus();
@@ -172,7 +172,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     : 'Tus reflexiones sobre los\nversículos aparecerán aquí',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -205,7 +205,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
         child: Text(
           'Eliminar',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.5),
+            color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -254,7 +254,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     child: Text(
                       note.reference.toUpperCase(),
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.5,
@@ -264,7 +264,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                   Text(
                     _relativeDate(note.updatedAt),
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.3),
+                      color: t.textSecondary.withValues(alpha: 0.3),
                       fontSize: 11,
                     ),
                   ),

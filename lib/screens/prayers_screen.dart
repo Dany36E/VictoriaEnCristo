@@ -186,7 +186,7 @@ class _PrayersScreenState extends State<PrayersScreen> {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              t.accent.withOpacity(0.15),
+                              t.accent.withValues(alpha: 0.15),
                               Colors.transparent,
                             ],
                           ),
@@ -269,12 +269,12 @@ class _PersonalizedSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            accent.withOpacity(themeData.isDark ? 0.18 : 0.12),
-            accent.withOpacity(themeData.isDark ? 0.06 : 0.04),
+            accent.withValues(alpha: themeData.isDark ? 0.18 : 0.12),
+            accent.withValues(alpha: themeData.isDark ? 0.06 : 0.04),
           ],
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: accent.withOpacity(0.35), width: 1),
+        border: Border.all(color: accent.withValues(alpha: 0.35), width: 1),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -361,13 +361,13 @@ class _CategoryBlock extends StatelessWidget {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      category.accent.withOpacity(0.35),
-                      category.accent.withOpacity(0.15),
+                      category.accent.withValues(alpha: 0.35),
+                      category.accent.withValues(alpha: 0.15),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusS + 2),
                   border: Border.all(
-                    color: category.accent.withOpacity(0.4),
+                    color: category.accent.withValues(alpha: 0.4),
                     width: 1,
                   ),
                 ),
@@ -406,7 +406,7 @@ class _CategoryBlock extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: category.accent.withOpacity(0.15),
+                  color: category.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                 ),
                 child: Text(
@@ -475,7 +475,7 @@ class _PrayerCard extends StatelessWidget {
             color: themeData.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
             border: Border.all(
-              color: accent.withOpacity(themeData.isDark ? 0.22 : 0.14),
+              color: accent.withValues(alpha: themeData.isDark ? 0.22 : 0.14),
               width: 1,
             ),
           ),
@@ -485,7 +485,7 @@ class _PrayerCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: accent.withOpacity(themeData.isDark ? 0.18 : 0.12),
+                  color: accent.withValues(alpha: themeData.isDark ? 0.18 : 0.12),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusS + 2),
                 ),
                 alignment: Alignment.center,
@@ -505,7 +505,7 @@ class _PrayerCard extends StatelessWidget {
                             vertical: 2,
                           ),
                           decoration: BoxDecoration(
-                            color: accent.withOpacity(0.15),
+                            color: accent.withValues(alpha: 0.15),
                             borderRadius: BorderRadius.circular(
                               AppDesignSystem.radiusFull,
                             ),
@@ -555,7 +555,7 @@ class _PrayerCard extends StatelessWidget {
               ),
               Icon(
                 Icons.arrow_forward_ios_rounded,
-                color: accent.withOpacity(0.6),
+                color: accent.withValues(alpha: 0.6),
                 size: 14,
               ),
             ],
@@ -614,7 +614,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      widget.color.withOpacity(t.isDark ? 0.30 : 0.18),
+                      widget.color.withValues(alpha: t.isDark ? 0.30 : 0.18),
                       t.scaffoldBg,
                     ],
                   ),
@@ -631,7 +631,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              widget.color.withOpacity(0.25),
+                              widget.color.withValues(alpha: 0.25),
                               Colors.transparent,
                             ],
                           ),
@@ -655,13 +655,13 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                                   end: Alignment.bottomRight,
                                   colors: [
                                     widget.color,
-                                    widget.color.withOpacity(0.7),
+                                    widget.color.withValues(alpha: 0.7),
                                   ],
                                 ),
                                 borderRadius: BorderRadius.circular(16),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: widget.color.withOpacity(0.4),
+                                    color: widget.color.withValues(alpha: 0.4),
                                     blurRadius: 16,
                                     offset: const Offset(0, 6),
                                   ),
@@ -728,7 +728,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                     color: t.cardBg,
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
                     border: Border.all(
-                      color: widget.color.withOpacity(t.isDark ? 0.22 : 0.15),
+                      color: widget.color.withValues(alpha: t.isDark ? 0.22 : 0.15),
                       width: 1,
                     ),
                   ),

@@ -160,7 +160,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                   width: 36,
                   height: 2,
                   decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
+                    color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(1),
                   ),
                 ),
@@ -187,7 +187,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                       Text(
                         '${filtered.length} resultados',
                         style: GoogleFonts.manrope(
-                          color: t.textSecondary.withOpacity(0.5),
+                          color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 11,
                         ),
                       ),
@@ -203,8 +203,8 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
                     color: t.isDark
-                        ? Colors.white.withOpacity(0.06)
-                        : Colors.black.withOpacity(0.04),
+                        ? Colors.white.withValues(alpha: 0.06)
+                        : Colors.black.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: TextField(
@@ -215,7 +215,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                     decoration: InputDecoration(
                       hintText: 'Buscar palabra en toda la Biblia...',
                       hintStyle: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.4),
+                        color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 14,
                       ),
                       border: InputBorder.none,
@@ -236,7 +236,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
               Container(
                 height: 0.5,
                 margin: const EdgeInsets.symmetric(horizontal: 20),
-                color: t.textSecondary.withOpacity(0.1),
+                color: t.textSecondary.withValues(alpha: 0.1),
               ),
               // Results
               Expanded(
@@ -251,7 +251,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                                   ? 'Sin resultados'
                                   : 'Escribe una palabra para buscar',
                               style: GoogleFonts.manrope(
-                                color: t.textSecondary.withOpacity(0.4),
+                                color: t.textSecondary.withValues(alpha: 0.4),
                                 fontSize: 13,
                               ),
                             ),
@@ -305,7 +305,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(
@@ -362,13 +362,13 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
                   color: _bookFilter != null
-                      ? t.accent.withOpacity(0.15)
+                      ? t.accent.withValues(alpha: 0.15)
                       : Colors.transparent,
                   borderRadius: BorderRadius.circular(6),
                   border: Border.all(
                     color: _bookFilter != null
-                        ? t.accent.withOpacity(0.4)
-                        : t.textSecondary.withOpacity(0.15),
+                        ? t.accent.withValues(alpha: 0.4)
+                        : t.textSecondary.withValues(alpha: 0.15),
                   ),
                 ),
                 child: Row(
@@ -377,14 +377,14 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                     Icon(Icons.menu_book, size: 11,
                         color: _bookFilter != null
                             ? t.accent
-                            : t.textSecondary.withOpacity(0.5)),
+                            : t.textSecondary.withValues(alpha: 0.5)),
                     const SizedBox(width: 3),
                     Text(
                       _bookFilter ?? 'Libro',
                       style: GoogleFonts.manrope(
                         color: _bookFilter != null
                             ? t.accent
-                            : t.textSecondary.withOpacity(0.5),
+                            : t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -405,13 +405,13 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                       ? Icons.sort_by_alpha
                       : Icons.bar_chart,
                   size: 14,
-                  color: t.accent.withOpacity(0.7),
+                  color: t.accent.withValues(alpha: 0.7),
                 ),
                 const SizedBox(width: 4),
                 Text(
                   _groupMode == 0 ? 'Libro' : 'Frecuencia',
                   style: GoogleFonts.manrope(
-                    color: t.accent.withOpacity(0.7),
+                    color: t.accent.withValues(alpha: 0.7),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
@@ -480,7 +480,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                                 : FontWeight.w400)),
                     trailing: Text('$count',
                         style: GoogleFonts.manrope(
-                            color: t.textSecondary.withOpacity(0.5),
+                            color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 11)),
                     onTap: () {
                       Navigator.pop(ctx);
@@ -503,18 +503,18 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          color: selected ? t.accent.withOpacity(0.15) : Colors.transparent,
+          color: selected ? t.accent.withValues(alpha: 0.15) : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           border: Border.all(
             color: selected
-                ? t.accent.withOpacity(0.4)
-                : t.textSecondary.withOpacity(0.15),
+                ? t.accent.withValues(alpha: 0.4)
+                : t.textSecondary.withValues(alpha: 0.15),
           ),
         ),
         child: Text(
           label,
           style: GoogleFonts.manrope(
-            color: selected ? t.accent : t.textSecondary.withOpacity(0.5),
+            color: selected ? t.accent : t.textSecondary.withValues(alpha: 0.5),
             fontSize: 11,
             fontWeight: FontWeight.w600,
           ),
@@ -532,9 +532,9 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
             decoration: BoxDecoration(
-              color: t.accent.withOpacity(0.1),
+              color: t.accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: t.accent.withOpacity(0.3)),
+              border: Border.all(color: t.accent.withValues(alpha: 0.3)),
             ),
             child: Text(
               'Ver todos los resultados (${_filteredResults.length})',
@@ -571,7 +571,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
               Text(
                 '${items.length}',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 11,
                 ),
               ),
@@ -611,7 +611,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
             Text(
               '${r.chapter}:${r.verse}',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.5),
+                color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),

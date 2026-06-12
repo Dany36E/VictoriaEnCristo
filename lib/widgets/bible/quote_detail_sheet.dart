@@ -29,7 +29,7 @@ class QuoteDetailSheet extends StatelessWidget {
             color: t.background,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
-              BoxShadow(color: Colors.black.withOpacity(0.3), blurRadius: 20),
+              BoxShadow(color: Colors.black.withValues(alpha: 0.3), blurRadius: 20),
             ],
           ),
           child: ListView(
@@ -43,7 +43,7 @@ class QuoteDetailSheet extends StatelessWidget {
                   width: 36,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
+                    color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -62,7 +62,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         Text(
                           'Cita del Antiguo Testamento',
                           style: GoogleFonts.cinzel(
-                            color: t.textSecondary.withOpacity(0.5),
+                            color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -75,7 +75,7 @@ class QuoteDetailSheet extends StatelessWidget {
                   ],
                 ),
               ),
-              Divider(height: 1, color: t.textSecondary.withOpacity(0.1)),
+              Divider(height: 1, color: t.textSecondary.withValues(alpha: 0.1)),
               // Two-column comparison
               Padding(
                 padding: const EdgeInsets.all(16),
@@ -98,7 +98,7 @@ class QuoteDetailSheet extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 8, vertical: 30),
                       child: Icon(Icons.arrow_forward,
-                          color: t.textSecondary.withOpacity(0.3), size: 20),
+                          color: t.textSecondary.withValues(alpha: 0.3), size: 20),
                     ),
                     // NT side
                     Expanded(
@@ -123,13 +123,13 @@ class QuoteDetailSheet extends StatelessWidget {
                     children: [
                       Divider(
                           height: 1,
-                          color: t.textSecondary.withOpacity(0.1)),
+                          color: t.textSecondary.withValues(alpha: 0.1)),
                       const SizedBox(height: 12),
                       if (quote.context.isNotEmpty) ...[
                         Text(
                           'Contexto',
                           style: GoogleFonts.cinzel(
-                            color: t.textSecondary.withOpacity(0.5),
+                            color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
@@ -149,7 +149,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         Text(
                           'Significado',
                           style: GoogleFonts.cinzel(
-                            color: t.textSecondary.withOpacity(0.5),
+                            color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
@@ -196,9 +196,9 @@ class QuoteDetailSheet extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.06),
+          color: color.withValues(alpha: 0.06),
           borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: color.withOpacity(0.15)),
+          border: Border.all(color: color.withValues(alpha: 0.15)),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -238,13 +238,13 @@ class QuoteDetailSheet extends StatelessWidget {
                 Text(
                   'Ir al pasaje',
                   style: GoogleFonts.manrope(
-                    color: color.withOpacity(0.6),
+                    color: color.withValues(alpha: 0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 const SizedBox(width: 2),
-                Icon(Icons.chevron_right, color: color.withOpacity(0.4), size: 14),
+                Icon(Icons.chevron_right, color: color.withValues(alpha: 0.4), size: 14),
               ],
             ),
           ],
@@ -273,7 +273,7 @@ class QuoteDetailSheet extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(6),
       ),
       child: Text(

@@ -90,7 +90,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
             boxShadow: [
               // Glow exterior dorado sutil
               BoxShadow(
-                color: _accentColor.withOpacity(0.15 + (glowValue * 0.1)),
+                color: _accentColor.withValues(alpha: 0.15 + (glowValue * 0.1)),
                 blurRadius: 30,
                 spreadRadius: 0,
               ),
@@ -106,14 +106,14 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFF0A0A12).withOpacity(0.85),
-                      const Color(0xFF121225).withOpacity(0.80),
-                      const Color(0xFF0A0A12).withOpacity(0.85),
+                      const Color(0xFF0A0A12).withValues(alpha: 0.85),
+                      const Color(0xFF121225).withValues(alpha: 0.80),
+                      const Color(0xFF0A0A12).withValues(alpha: 0.85),
                     ],
                     stops: const [0.0, 0.5, 1.0],
                   ),
                   border: Border.all(
-                    color: _accentColor.withOpacity(0.3),
+                    color: _accentColor.withValues(alpha: 0.3),
                     width: 1.5,
                   ),
                   borderRadius: BorderRadius.circular(24),
@@ -131,7 +131,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
                           shape: BoxShape.circle,
                           gradient: RadialGradient(
                             colors: [
-                              _accentColor.withOpacity(0.08),
+                              _accentColor.withValues(alpha: 0.08),
                               Colors.transparent,
                             ],
                           ),
@@ -216,7 +216,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
                                         fontSize: 14,
                                         fontWeight: FontWeight.w700,
                                         letterSpacing: 1.5,
-                                        color: Colors.white.withOpacity(0.9),
+                                        color: Colors.white.withValues(alpha: 0.9),
                                       ),
                                     ),
                                     
@@ -232,7 +232,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
                                           style: TextStyle(
                                             fontSize: 12,
                                             fontWeight: FontWeight.w500,
-                                            color: _accentColor.withOpacity(0.8),
+                                            color: _accentColor.withValues(alpha: 0.8),
                                           ),
                                         ),
                                         if (widget.loggedToday) ...[
@@ -243,10 +243,10 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
                                               vertical: 2,
                                             ),
                                             decoration: BoxDecoration(
-                                              color: const Color(0xFF4CAF50).withOpacity(0.2),
+                                              color: const Color(0xFF4CAF50).withValues(alpha: 0.2),
                                               borderRadius: BorderRadius.circular(8),
                                               border: Border.all(
-                                                color: const Color(0xFF4CAF50).withOpacity(0.4),
+                                                color: const Color(0xFF4CAF50).withValues(alpha: 0.4),
                                               ),
                                             ),
                                             child: Row(
@@ -263,7 +263,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
                                                   style: TextStyle(
                                                     fontSize: 9,
                                                     fontWeight: FontWeight.w600,
-                                                    color: const Color(0xFF4CAF50).withOpacity(0.9),
+                                                    color: const Color(0xFF4CAF50).withValues(alpha: 0.9),
                                                   ),
                                                 ),
                                               ],
@@ -312,13 +312,13 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
         shape: BoxShape.circle,
         gradient: RadialGradient(
           colors: [
-            _accentColor.withOpacity(0.2),
-            _accentColor.withOpacity(0.05),
+            _accentColor.withValues(alpha: 0.2),
+            _accentColor.withValues(alpha: 0.05),
           ],
         ),
         boxShadow: [
           BoxShadow(
-            color: _accentColor.withOpacity(0.3 + (glowValue * 0.2)),
+            color: _accentColor.withValues(alpha: 0.3 + (glowValue * 0.2)),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -331,7 +331,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
           size: 36,
           shadows: [
             Shadow(
-              color: _accentColor.withOpacity(0.5),
+              color: _accentColor.withValues(alpha: 0.5),
               blurRadius: 10,
             ),
           ],
@@ -352,7 +352,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w500,
-                color: Colors.white.withOpacity(0.6),
+                color: Colors.white.withValues(alpha: 0.6),
               ),
             ),
             Text(
@@ -360,7 +360,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
               style: TextStyle(
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
-                color: _accentColor.withOpacity(0.8),
+                color: _accentColor.withValues(alpha: 0.8),
               ),
             ),
           ],
@@ -374,7 +374,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
               children: [
                 // Fondo
                 Container(
-                  color: Colors.white.withOpacity(0.1),
+                  color: Colors.white.withValues(alpha: 0.1),
                 ),
                 // Progreso
                 FractionallySizedBox(
@@ -389,7 +389,7 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: _accentColor.withOpacity(0.5),
+                          color: _accentColor.withValues(alpha: 0.5),
                           blurRadius: 4,
                         ),
                       ],
@@ -419,15 +419,15 @@ class _VictoryHeroCardState extends State<VictoryHeroCard> with SingleTickerProv
               gradient: widget.loggedToday
                   ? null
                   : LinearGradient(
-                      colors: [_accentColor, _accentColor.withOpacity(0.8)],
+                      colors: [_accentColor, _accentColor.withValues(alpha: 0.8)],
                     ),
               color: widget.loggedToday 
-                  ? Colors.white.withOpacity(0.08) 
+                  ? Colors.white.withValues(alpha: 0.08) 
                   : null,
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
                 color: widget.loggedToday 
-                    ? const Color(0xFF4CAF50).withOpacity(0.4)
+                    ? const Color(0xFF4CAF50).withValues(alpha: 0.4)
                     : Colors.transparent,
                 width: 1,
               ),

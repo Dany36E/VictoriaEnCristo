@@ -190,7 +190,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             child: Text(
               '${widget.bookName} ${widget.chapter}',
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.6),
+                color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 13,
               ),
               textAlign: TextAlign.center,
@@ -199,7 +199,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           if (widget.existingNote != null)
             IconButton(
               icon: Icon(Icons.delete_outline,
-                  color: t.textSecondary.withOpacity(0.5), size: 20),
+                  color: t.textSecondary.withValues(alpha: 0.5), size: 20),
               onPressed: _delete,
             ),
           _saving
@@ -214,7 +214,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                 )
               : IconButton(
                   icon: Icon(Icons.check,
-                      color: _hasChanges ? t.accent : t.textSecondary.withOpacity(0.3),
+                      color: _hasChanges ? t.accent : t.textSecondary.withValues(alpha: 0.3),
                       size: 22),
                   onPressed: _hasChanges ? _save : null,
                 ),
@@ -240,7 +240,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             decoration: InputDecoration(
               hintText: 'Título de la nota...',
               hintStyle: GoogleFonts.cinzel(
-                color: t.textSecondary.withOpacity(0.3),
+                color: t.textSecondary.withValues(alpha: 0.3),
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
               ),
@@ -268,7 +268,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                   height: 28,
                   margin: const EdgeInsets.only(right: 10),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(selected ? 1.0 : 0.4),
+                    color: color.withValues(alpha: selected ? 1.0 : 0.4),
                     shape: BoxShape.circle,
                     border: selected
                         ? Border.all(color: color, width: 2)
@@ -302,8 +302,8 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: t.isDark
-                            ? Colors.white.withOpacity(0.08)
-                            : Colors.black.withOpacity(0.05),
+                            ? Colors.white.withValues(alpha: 0.08)
+                            : Colors.black.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -318,7 +318,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                           ),
                           const SizedBox(width: 4),
                           Icon(Icons.close,
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               size: 12),
                         ],
                       ),
@@ -334,13 +334,13 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
               color: t.isDark
-                  ? Colors.white.withOpacity(0.04)
-                  : Colors.black.withOpacity(0.03),
+                  ? Colors.white.withValues(alpha: 0.04)
+                  : Colors.black.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Row(
               children: [
-                Icon(Icons.tag, color: t.textSecondary.withOpacity(0.3),
+                Icon(Icons.tag, color: t.textSecondary.withValues(alpha: 0.3),
                     size: 14),
                 const SizedBox(width: 8),
                 Expanded(
@@ -351,7 +351,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                     decoration: InputDecoration(
                       hintText: 'Agregar etiqueta...',
                       hintStyle: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.3),
+                        color: t.textSecondary.withValues(alpha: 0.3),
                         fontSize: 13,
                       ),
                       border: InputBorder.none,
@@ -364,7 +364,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                 GestureDetector(
                   onTap: _addTag,
                   child: Icon(Icons.add,
-                      color: t.accent.withOpacity(0.6), size: 18),
+                      color: t.accent.withValues(alpha: 0.6), size: 18),
                 ),
               ],
             ),
@@ -375,7 +375,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           // Divider
           Container(
             height: 0.5,
-            color: t.textSecondary.withOpacity(0.1),
+            color: t.textSecondary.withValues(alpha: 0.1),
           ),
 
           const SizedBox(height: 24),
@@ -392,7 +392,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
               hintText:
                   'Escribe tus reflexiones sobre este capítulo...',
               hintStyle: GoogleFonts.lora(
-                color: t.textSecondary.withOpacity(0.25),
+                color: t.textSecondary.withValues(alpha: 0.25),
                 fontSize: 16,
                 height: 1.8,
               ),

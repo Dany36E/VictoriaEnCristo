@@ -193,7 +193,7 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
         // Banco de etiquetas arrastrables
         Expanded(
           flex: 1,
-          child: Container(color: t.surface.withOpacity(0.5), child: _buildLabelBank(t)),
+          child: Container(color: t.surface.withValues(alpha: 0.5), child: _buildLabelBank(t)),
         ),
       ],
     );
@@ -277,7 +277,7 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
                   child: Icon(
                     filled ? Icons.star_rounded : Icons.star_outline_rounded,
                     size: 52,
-                    color: filled ? AppDesignSystem.gold : t.textSecondary.withOpacity(0.3),
+                    color: filled ? AppDesignSystem.gold : t.textSecondary.withValues(alpha: 0.3),
                   ),
                 );
               }),
@@ -302,7 +302,7 @@ class _BibleMapChallengeScreenState extends State<BibleMapChallengeScreen>
               Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppDesignSystem.gold.withOpacity(0.15),
+                      color: AppDesignSystem.gold.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                     ),
                     child: Row(
@@ -439,20 +439,20 @@ class _MapArea extends StatelessWidget {
                     color: isHovering
                         ? AppDesignSystem.gold
                         : selectedPlaceId != null
-                        ? AppDesignSystem.gold.withOpacity(0.6)
-                        : Colors.white.withOpacity(0.35),
+                        ? AppDesignSystem.gold.withValues(alpha: 0.6)
+                        : Colors.white.withValues(alpha: 0.35),
                     width: isHovering ? 2.0 : 1.5,
                     strokeAlign: BorderSide.strokeAlignCenter,
                   ),
                   color: isHovering
-                      ? AppDesignSystem.gold.withOpacity(0.15)
-                      : Colors.white.withOpacity(0.06),
+                      ? AppDesignSystem.gold.withValues(alpha: 0.15)
+                      : Colors.white.withValues(alpha: 0.06),
                 ),
                 child: Center(
                   child: Text(
                     '?',
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                       fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
@@ -478,7 +478,7 @@ class _MapArea extends StatelessWidget {
         height: 32,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-          color: AppDesignSystem.gold.withOpacity(0.2),
+          color: AppDesignSystem.gold.withValues(alpha: 0.2),
           border: Border.all(color: AppDesignSystem.gold, width: 1.5),
         ),
         child: Center(
@@ -603,7 +603,7 @@ class _MapPainter extends CustomPainter {
 
   void _paintDesert(Canvas canvas, double cx, double cy, String label, Size size) {
     final paint = Paint()
-      ..color = const Color(0xFF1A1A10).withOpacity(0.4)
+      ..color = const Color(0xFF1A1A10).withValues(alpha: 0.4)
       ..style = PaintingStyle.fill;
     canvas.drawCircle(Offset(cx, cy), 20, paint);
     // Dots for sand
@@ -658,9 +658,9 @@ class _PlaceLabel extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
         color: isSelected
-            ? AppDesignSystem.gold.withOpacity(0.25)
+            ? AppDesignSystem.gold.withValues(alpha: 0.25)
             : isDragging
-            ? AppDesignSystem.gold.withOpacity(0.3)
+            ? AppDesignSystem.gold.withValues(alpha: 0.3)
             : const Color(0xFF1A2A3A),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
         border: Border.all(
@@ -674,7 +674,7 @@ class _PlaceLabel extends StatelessWidget {
         boxShadow: isDragging
             ? [
                 BoxShadow(
-                  color: AppDesignSystem.gold.withOpacity(0.3),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.3),
                   blurRadius: 12,
                   spreadRadius: 2,
                 ),
@@ -684,7 +684,7 @@ class _PlaceLabel extends StatelessWidget {
       child: Text(
         name,
         style: TextStyle(
-          color: isSelected || isDragging ? AppDesignSystem.gold : Colors.white.withOpacity(0.9),
+          color: isSelected || isDragging ? AppDesignSystem.gold : Colors.white.withValues(alpha: 0.9),
           fontWeight: FontWeight.w600,
           fontSize: 13,
         ),

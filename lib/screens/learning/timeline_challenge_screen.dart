@@ -140,7 +140,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                   decoration: BoxDecoration(
-                    color: Colors.redAccent.withOpacity(0.15),
+                    color: Colors.redAccent.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                   ),
                   child: Text(
@@ -175,7 +175,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
                           end: Alignment.bottomCenter,
                           colors: [
                             Colors.transparent,
-                            AppDesignSystem.gold.withOpacity(0.4),
+                            AppDesignSystem.gold.withValues(alpha: 0.4),
                             Colors.transparent,
                           ],
                         ),
@@ -226,7 +226,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: highlighted ? AppDesignSystem.gold.withOpacity(0.12) : t.cardBg,
+            color: highlighted ? AppDesignSystem.gold.withValues(alpha: 0.12) : t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
               color: highlighted ? AppDesignSystem.gold : t.cardBorder,
@@ -270,10 +270,10 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
                                   margin: const EdgeInsets.only(bottom: 6),
                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                                   decoration: BoxDecoration(
-                                    color: AppDesignSystem.gold.withOpacity(0.18),
+                                    color: AppDesignSystem.gold.withValues(alpha: 0.18),
                                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                                     border: Border.all(
-                                      color: AppDesignSystem.gold.withOpacity(0.5),
+                                      color: AppDesignSystem.gold.withValues(alpha: 0.5),
                                     ),
                                   ),
                                   child: Row(
@@ -323,7 +323,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
             boxShadow: [
               BoxShadow(
-                color: AppDesignSystem.gold.withOpacity(0.5),
+                color: AppDesignSystem.gold.withValues(alpha: 0.5),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -347,7 +347,7 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
         color: selected ? AppDesignSystem.gold : t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
         border: Border.all(
-          color: selected ? AppDesignSystem.gold : AppDesignSystem.gold.withOpacity(0.4),
+          color: selected ? AppDesignSystem.gold : AppDesignSystem.gold.withValues(alpha: 0.4),
         ),
       ),
       child: Text(
@@ -407,9 +407,9 @@ class _TimelineChallengeScreenState extends State<TimelineChallengeScreen> {
               Container(
                     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     decoration: BoxDecoration(
-                      color: AppDesignSystem.gold.withOpacity(0.18),
+                      color: AppDesignSystem.gold.withValues(alpha: 0.18),
                       borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-                      border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
+                      border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.5)),
                     ),
                     child: Text(
                       '+$_xpEarned XP',

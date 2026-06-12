@@ -407,7 +407,7 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
             Icon(
               Icons.search_off,
               size: 64,
-              color: t.textSecondary.withOpacity(0.5),
+              color: t.textSecondary.withValues(alpha: 0.5),
             ),
             const SizedBox(height: 16),
             Text(
@@ -506,9 +506,9 @@ class _PlanLibraryScreenState extends State<PlanLibraryScreen>
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: t.accent.withOpacity(0.15),
+          color: t.accent.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: t.accent.withOpacity(0.3)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.3)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

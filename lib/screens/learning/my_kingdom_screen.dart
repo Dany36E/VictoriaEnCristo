@@ -219,7 +219,7 @@ class MyKingdomScreen extends StatelessWidget {
               width: 48,
               height: 48,
               decoration: BoxDecoration(
-                color: color.withOpacity(0.15),
+                color: color.withValues(alpha: 0.15),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 26),
@@ -277,14 +277,14 @@ class _LevelHeader extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            AppDesignSystem.gold.withOpacity(0.18),
-            AppDesignSystem.gold.withOpacity(0.04),
+            AppDesignSystem.gold.withValues(alpha: 0.18),
+            AppDesignSystem.gold.withValues(alpha: 0.04),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [

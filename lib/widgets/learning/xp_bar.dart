@@ -45,7 +45,7 @@ class XpBar extends StatelessWidget {
           child: LinearProgressIndicator(
             value: p,
             minHeight: compact ? 4 : 6,
-            backgroundColor: t.textSecondary.withOpacity(0.15),
+            backgroundColor: t.textSecondary.withValues(alpha: 0.15),
             valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
           ),
         ),
@@ -80,7 +80,7 @@ class HeartsDisplay extends StatelessWidget {
           child: Icon(
             filled ? Icons.favorite_rounded : Icons.favorite_border_rounded,
             size: 20,
-            color: filled ? const Color(0xFFE57373) : t.textSecondary.withOpacity(0.4),
+            color: filled ? const Color(0xFFE57373) : t.textSecondary.withValues(alpha: 0.4),
           ),
         );
       }),

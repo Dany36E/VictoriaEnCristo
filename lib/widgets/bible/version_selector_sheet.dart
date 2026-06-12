@@ -39,7 +39,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                     width: 36,
                     height: 2,
                     decoration: BoxDecoration(
-                      color: t.textSecondary.withOpacity(0.3),
+                      color: t.textSecondary.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),
@@ -50,7 +50,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                   child: Text(
                     'VERSIÓN',
                     style: GoogleFonts.manrope(
-                      color: t.textSecondary.withOpacity(0.5),
+                      color: t.textSecondary.withValues(alpha: 0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2.0,
@@ -110,7 +110,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                                     style: GoogleFonts.manrope(
                                       color: isCurrent
                                           ? t.accent
-                                          : t.textSecondary.withOpacity(0.6),
+                                          : t.textSecondary.withValues(alpha: 0.6),
                                       fontSize: 13,
                                     ),
                                   ),

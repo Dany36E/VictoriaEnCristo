@@ -210,7 +210,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   color: isCurrent
                       ? t.accent
                       : (isOtherSide
-                            ? t.textSecondary.withOpacity(0.3)
+                            ? t.textSecondary.withValues(alpha: 0.3)
                             : t.textSecondary),
                   size: 20,
                 ),
@@ -218,7 +218,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   v.displayName,
                   style: GoogleFonts.manrope(
                     color: isOtherSide
-                        ? t.textSecondary.withOpacity(0.3)
+                        ? t.textSecondary.withValues(alpha: 0.3)
                         : t.textPrimary,
                     fontSize: 14,
                     fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
@@ -227,7 +227,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 subtitle: Text(
                   v.shortName,
                   style: GoogleFonts.manrope(
-                    color: t.textSecondary.withOpacity(0.5),
+                    color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
                 ),
@@ -316,7 +316,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     trailing: Text(
                       '${book.totalChapters} cap.',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 11,
                       ),
                     ),
@@ -374,7 +374,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(8),
-                          color: t.textSecondary.withOpacity(0.06),
+                          color: t.textSecondary.withValues(alpha: 0.06),
                         ),
                         child: Text(
                           '$ch',
@@ -506,7 +506,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           Text(
             '${_parallelFontSize.toInt()}',
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.6),
+              color: t.textSecondary.withValues(alpha: 0.6),
               fontSize: 11,
             ),
           ),
@@ -555,7 +555,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       height: 34,
       decoration: BoxDecoration(
         border: Border(
-          bottom: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+          bottom: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
         ),
       ),
       child: Row(
@@ -566,10 +566,10 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: t.accent.withOpacity(0.06),
+                  color: t.accent.withValues(alpha: 0.06),
                   border: Border(
                     bottom: BorderSide(color: t.accent, width: 2),
-                    right: BorderSide(color: t.textSecondary.withOpacity(0.15)),
+                    right: BorderSide(color: t.textSecondary.withValues(alpha: 0.15)),
                   ),
                 ),
                 child: Text(
@@ -589,7 +589,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               child: Container(
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: t.accent.withOpacity(0.06),
+                  color: t.accent.withValues(alpha: 0.06),
                   border: Border(bottom: BorderSide(color: t.accent, width: 2)),
                 ),
                 child: Text(
@@ -620,7 +620,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
         child: Text(
           'No se pudieron cargar los versículos',
           style: GoogleFonts.manrope(
-            color: t.textSecondary.withOpacity(0.5),
+            color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 14,
           ),
         ),
@@ -630,7 +630,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     return Row(
       children: [
         Expanded(child: _buildColumn(t, _leftVerses, _leftScroll, true)),
-        Container(width: 1, color: t.textSecondary.withOpacity(0.12)),
+        Container(width: 1, color: t.textSecondary.withValues(alpha: 0.12)),
         Expanded(child: _buildColumn(t, _rightVerses, _rightScroll, false)),
       ],
     );
@@ -652,7 +652,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 : 'Descarga otra versión en Ajustes de Biblia para comparar.',
             textAlign: TextAlign.center,
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.55),
+              color: t.textSecondary.withValues(alpha: 0.55),
               fontSize: 13,
               height: 1.4,
             ),
@@ -689,7 +689,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 4),
                 decoration: isSelected
                     ? BoxDecoration(
-                        color: t.accent.withOpacity(0.08),
+                        color: t.accent.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(6),
                       )
                     : null,
@@ -699,7 +699,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       TextSpan(
                         text: '${verse.verse} ',
                         style: GoogleFonts.manrope(
-                          color: t.accent.withOpacity(isSelected ? 0.9 : 0.5),
+                          color: t.accent.withValues(alpha: isSelected ? 0.9 : 0.5),
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                         ),
@@ -751,7 +751,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     height: 4,
                     margin: const EdgeInsets.only(bottom: 14),
                     decoration: BoxDecoration(
-                      color: t.textSecondary.withOpacity(0.2),
+                      color: t.textSecondary.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -831,9 +831,9 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
-          color: t.accent.withOpacity(0.08),
+          color: t.accent.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.accent.withOpacity(0.15)),
+          border: Border.all(color: t.accent.withValues(alpha: 0.15)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -890,7 +890,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 height: 4,
                 margin: const EdgeInsets.only(bottom: 14),
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.2),
+                  color: t.textSecondary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -996,7 +996,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         border: Border(
-          top: BorderSide(color: t.textSecondary.withOpacity(0.1)),
+          top: BorderSide(color: t.textSecondary.withValues(alpha: 0.1)),
         ),
       ),
       child: Row(
@@ -1024,7 +1024,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           Text(
             '$_bookName $_currentChapter',
             style: GoogleFonts.manrope(
-              color: t.textSecondary.withOpacity(0.5),
+              color: t.textSecondary.withValues(alpha: 0.5),
               fontSize: 12,
             ),
           ),

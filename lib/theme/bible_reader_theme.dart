@@ -35,11 +35,11 @@ class BibleReaderThemeData {
 
   /// Highlight underline alpha
   Color highlightOverlay(Color highlightColor) =>
-      highlightColor.withOpacity(isDark ? 0.18 : 0.25);
+      highlightColor.withValues(alpha: isDark ? 0.18 : 0.25);
 
   /// Subtle selection background
   Color get selectionBg =>
-      isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04);
+      isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04);
 
   /// Color para palabras de Cristo en rojo.
   Color get redLetterColor =>

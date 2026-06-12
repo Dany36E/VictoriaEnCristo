@@ -184,10 +184,10 @@ class _BibleHomeOnboardingOverlayState
             width: 84,
             height: 84,
             decoration: BoxDecoration(
-              color: const Color(0xFFD4A853).withOpacity(0.12),
+              color: const Color(0xFFD4A853).withValues(alpha: 0.12),
               shape: BoxShape.circle,
               border: Border.all(
-                color: const Color(0xFFD4A853).withOpacity(0.35),
+                color: const Color(0xFFD4A853).withValues(alpha: 0.35),
                 width: 1,
               ),
             ),

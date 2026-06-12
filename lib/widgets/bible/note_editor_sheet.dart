@@ -70,7 +70,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
     final fieldBg = t.isDark
         ? Color.lerp(t.surface, Colors.white, 0.08)!
         : Color.lerp(t.surface, t.accent, 0.06)!;
-    final fieldBorder = t.accent.withOpacity(t.isDark ? 0.52 : 0.34);
+    final fieldBorder = t.accent.withValues(alpha: t.isDark ? 0.52 : 0.34);
     return Container(
       decoration: BoxDecoration(
         color: t.surface,
@@ -89,7 +89,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -140,7 +140,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                   data: Theme.of(context).copyWith(
                     textSelectionTheme: TextSelectionThemeData(
                       cursorColor: t.accent,
-                      selectionColor: t.accent.withOpacity(0.24),
+                      selectionColor: t.accent.withValues(alpha: 0.24),
                       selectionHandleColor: t.accent,
                     ),
                   ),
@@ -158,7 +158,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                     decoration: InputDecoration(
                       hintText: 'Escribe tu reflexión...',
                       hintStyle: GoogleFonts.lora(
-                        color: t.textSecondary.withOpacity(0.70),
+                        color: t.textSecondary.withValues(alpha: 0.70),
                         fontSize: noteFontSize,
                       ),
                       border: InputBorder.none,
@@ -174,7 +174,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                 child: ElevatedButton(
                   onPressed: _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: t.accent.withOpacity(0.2),
+                    backgroundColor: t.accent.withValues(alpha: 0.2),
                     foregroundColor: t.accent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),

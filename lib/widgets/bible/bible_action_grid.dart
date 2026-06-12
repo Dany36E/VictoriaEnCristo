@@ -52,7 +52,7 @@ class BibleActionGrid extends StatelessWidget {
               width: 36,
               height: 2,
               decoration: BoxDecoration(
-                color: t.textSecondary.withOpacity(0.3),
+                color: t.textSecondary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(1),
               ),
             ),
@@ -62,7 +62,7 @@ class BibleActionGrid extends StatelessWidget {
             Text(
               title!.toUpperCase(),
               style: GoogleFonts.manrope(
-                color: t.textSecondary.withOpacity(0.5),
+                color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.5,
@@ -103,8 +103,8 @@ class _ActionCell extends StatelessWidget {
         button: true,
         child: InkWell(
         borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusS),
-        splashColor: theme.accent.withOpacity(0.10),
-        highlightColor: theme.accent.withOpacity(0.05),
+        splashColor: theme.accent.withValues(alpha: 0.10),
+        highlightColor: theme.accent.withValues(alpha: 0.05),
         onTap: () {
           HapticFeedback.lightImpact();
           action.onTap();

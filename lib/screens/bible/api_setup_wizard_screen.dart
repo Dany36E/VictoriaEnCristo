@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../services/bible/iq_bible_service.dart';
@@ -277,7 +277,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide:
-                    BorderSide(color: const Color(0xFFD4AF37).withOpacity(0.3)),
+                    BorderSide(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
@@ -355,7 +355,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF4CAF50).withOpacity(0.15),
+              color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
             ),
             child: const Icon(Icons.check_circle,
                 color: Color(0xFF4CAF50), size: 64),
@@ -417,7 +417,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFD4AF37).withOpacity(0.15),
+              color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Center(

@@ -119,7 +119,7 @@ class PlanCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.4),
+              color: Colors.black.withValues(alpha: 0.4),
               blurRadius: 12,
               offset: const Offset(0, 6),
             ),
@@ -187,7 +187,7 @@ class PlanCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.3),
+              color: Colors.black.withValues(alpha: 0.3),
               blurRadius: 10,
               offset: const Offset(0, 4),
             ),
@@ -246,7 +246,7 @@ class PlanCard extends StatelessWidget {
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         height: 1.2,
-                        shadows: [Shadow(color: Colors.black.withOpacity(0.8), blurRadius: 4)],
+                        shadows: [Shadow(color: Colors.black.withValues(alpha: 0.8), blurRadius: 4)],
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
@@ -291,7 +291,7 @@ class PlanCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isCompleted 
-              ? AppDesignSystem.victory.withOpacity(0.3) 
+              ? AppDesignSystem.victory.withValues(alpha: 0.3) 
               : AppDesignSystem.goldSubtle,
             width: 1,
           ),
@@ -313,7 +313,7 @@ class PlanCard extends StatelessWidget {
                     _buildCoverImage(),
                     if (isCompleted)
                       Container(
-                        color: AppDesignSystem.victory.withOpacity(0.3),
+                        color: AppDesignSystem.victory.withValues(alpha: 0.3),
                         child: const Center(
                           child: Icon(Icons.check_circle, color: AppDesignSystem.victory, size: 32),
                         ),
@@ -389,7 +389,7 @@ class PlanCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       LinearProgressIndicator(
                         value: progressPercent,
-                        backgroundColor: AppDesignSystem.midnight.withOpacity(0.5),
+                        backgroundColor: AppDesignSystem.midnight.withValues(alpha: 0.5),
                         valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
                         minHeight: 3,
                         borderRadius: BorderRadius.circular(2),
@@ -482,9 +482,9 @@ class PlanCard extends StatelessWidget {
           begin: Alignment(cos(angle), sin(angle)),
           end: Alignment(-cos(angle), -sin(angle)),
           colors: [
-            colors[0].withOpacity(0.9),
-            colors[1].withOpacity(0.7),
-            colors[0].withOpacity(0.6),
+            colors[0].withValues(alpha: 0.9),
+            colors[1].withValues(alpha: 0.7),
+            colors[0].withValues(alpha: 0.6),
           ],
           stops: const [0.0, 0.5, 1.0],
         ),
@@ -498,7 +498,7 @@ class PlanCard extends StatelessWidget {
             bottom: -20,
             child: Icon(
               _getPlanTypeIcon(),
-              color: Colors.white.withOpacity(0.08),
+              color: Colors.white.withValues(alpha: 0.08),
               size: 120,
             ),
           ),
@@ -510,7 +510,7 @@ class PlanCard extends StatelessWidget {
                   height: 24,
                   child: CircularProgressIndicator(
                     strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation(AppDesignSystem.gold.withOpacity(0.7)),
+                    valueColor: AlwaysStoppedAnimation(AppDesignSystem.gold.withValues(alpha: 0.7)),
                   ),
                 )
               : Column(
@@ -518,7 +518,7 @@ class PlanCard extends StatelessWidget {
                   children: [
                     Icon(
                       _getPlanTypeIcon(),
-                      color: Colors.white.withOpacity(0.6),
+                      color: Colors.white.withValues(alpha: 0.6),
                       size: 36,
                     ),
                     if (style == PlanCardStyle.poster) ...[
@@ -526,7 +526,7 @@ class PlanCard extends StatelessWidget {
                       Text(
                         '${plan.durationDays} días',
                         style: TextStyle(
-                          color: Colors.white.withOpacity(0.5),
+                          color: Colors.white.withValues(alpha: 0.5),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -567,8 +567,8 @@ class PlanCard extends StatelessWidget {
             colors: [
               Colors.transparent,
               Colors.transparent,
-              AppDesignSystem.midnightDeep.withOpacity(intensified ? 0.6 : 0.5),
-              AppDesignSystem.midnightDeep.withOpacity(intensified ? 0.85 : 0.75),
+              AppDesignSystem.midnightDeep.withValues(alpha: intensified ? 0.6 : 0.5),
+              AppDesignSystem.midnightDeep.withValues(alpha: intensified ? 0.85 : 0.75),
             ],
             stops: const [0.0, 0.35, 0.75, 1.0],
           ),
@@ -585,7 +585,7 @@ class PlanCard extends StatelessWidget {
       child: Container(
         height: 3,
         decoration: BoxDecoration(
-          color: AppDesignSystem.midnightDeep.withOpacity(0.5),
+          color: AppDesignSystem.midnightDeep.withValues(alpha: 0.5),
           borderRadius: const BorderRadius.only(
             topLeft: Radius.circular(12),
             topRight: Radius.circular(12),
@@ -617,7 +617,7 @@ class PlanCard extends StatelessWidget {
           CircularProgressIndicator(
             value: progressPercent.clamp(0.0, 1.0),
             strokeWidth: 3,
-            backgroundColor: AppDesignSystem.midnight.withOpacity(0.5),
+            backgroundColor: AppDesignSystem.midnight.withValues(alpha: 0.5),
             valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
           ),
           Text(
@@ -659,9 +659,9 @@ class PlanCard extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: color.withOpacity(0.4)),
+        border: Border.all(color: color.withValues(alpha: 0.4)),
       ),
       child: Icon(icon, size: iconSize, color: color),
     );
@@ -679,7 +679,7 @@ class PlanCard extends StatelessWidget {
           shape: BoxShape.circle,
           boxShadow: [
             BoxShadow(
-              color: AppDesignSystem.victory.withOpacity(0.5),
+              color: AppDesignSystem.victory.withValues(alpha: 0.5),
               blurRadius: 8,
             ),
           ],
@@ -716,7 +716,7 @@ class PlanCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: giantColors[plan.metadata.giants[i]] ?? AppDesignSystem.gold,
                 shape: BoxShape.circle,
-                border: Border.all(color: Colors.white.withOpacity(0.3), width: 1),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.3), width: 1),
               ),
             ),
           ),
@@ -724,7 +724,7 @@ class PlanCard extends StatelessWidget {
           Text(
             '+${plan.metadata.giants.length - 2}',
             style: TextStyle(
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
               fontSize: 8,
               fontWeight: FontWeight.bold,
             ),
@@ -745,7 +745,7 @@ class PlanCard extends StatelessWidget {
             fontSize: 13,
             fontWeight: FontWeight.w700,
             height: 1.2,
-            shadows: [Shadow(color: Colors.black.withOpacity(0.8), blurRadius: 4)],
+            shadows: [Shadow(color: Colors.black.withValues(alpha: 0.8), blurRadius: 4)],
           ),
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
@@ -768,7 +768,7 @@ class PlanCard extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.2),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(
@@ -792,8 +792,8 @@ class PlanCard extends StatelessWidget {
         color: Colors.transparent,
         child: InkWell(
           onTap: onTap,
-          splashColor: AppDesignSystem.gold.withOpacity(0.15),
-          highlightColor: AppDesignSystem.gold.withOpacity(0.05),
+          splashColor: AppDesignSystem.gold.withValues(alpha: 0.15),
+          highlightColor: AppDesignSystem.gold.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
         ),
       ),

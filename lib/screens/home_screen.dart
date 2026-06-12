@@ -328,10 +328,10 @@ class _HomeScreenState extends State<HomeScreen>
                     begin: Alignment.bottomCenter,
                     end: Alignment.topCenter,
                     colors: [
-                      t.scaffoldBg.withOpacity(0.95),
-                      t.scaffoldBg.withOpacity(0.7),
-                      t.scaffoldBg.withOpacity(0.3),
-                      t.scaffoldBg.withOpacity(0.1),
+                      t.scaffoldBg.withValues(alpha: 0.95),
+                      t.scaffoldBg.withValues(alpha: 0.7),
+                      t.scaffoldBg.withValues(alpha: 0.3),
+                      t.scaffoldBg.withValues(alpha: 0.1),
                       Colors.transparent,
                     ],
                     stops: const [0.0, 0.15, 0.35, 0.55, 1.0],
@@ -681,9 +681,9 @@ class _HomeScreenState extends State<HomeScreen>
             Container(
               padding: const EdgeInsets.all(AppDesignSystem.spacingS),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-                border: Border.all(color: color.withOpacity(0.25), width: 0.5),
+                border: Border.all(color: color.withValues(alpha: 0.25), width: 0.5),
               ),
               child: Icon(icon, color: color, size: 20),
             ),
@@ -895,12 +895,12 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                           end: Alignment.bottomCenter,
                           colors: _isPressed || _isHovered
                               ? [
-                                  widget.accentColor.withOpacity(0.15),
-                                  widget.accentColor.withOpacity(0.05),
+                                  widget.accentColor.withValues(alpha: 0.15),
+                                  widget.accentColor.withValues(alpha: 0.05),
                                 ]
                               : [
-                                  Colors.white.withOpacity(0.10),
-                                  Colors.white.withOpacity(0.02),
+                                  Colors.white.withValues(alpha: 0.10),
+                                  Colors.white.withValues(alpha: 0.02),
                                 ],
                         ),
                         borderRadius: BorderRadius.circular(20),
@@ -943,7 +943,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                                           widget.subtitle,
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: Colors.white.withOpacity(
+                                            color: Colors.white.withValues(alpha: 
                                               0.6,
                                             ),
                                             fontWeight: FontWeight.w500,
@@ -955,7 +955,7 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                                       Icon(
                                         Icons.arrow_forward_ios_rounded,
                                         size: 11,
-                                        color: Colors.white.withOpacity(0.5),
+                                        color: Colors.white.withValues(alpha: 0.5),
                                       ),
                                     ],
                                   ),
@@ -995,12 +995,12 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
         boxShadow: [
           // Micro-glow LED detrás del icono
           BoxShadow(
-            color: widget.accentColor.withOpacity(0.6),
+            color: widget.accentColor.withValues(alpha: 0.6),
             blurRadius: 12,
             spreadRadius: 1,
           ),
           BoxShadow(
-            color: widget.accentColor.withOpacity(0.3),
+            color: widget.accentColor.withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -1018,12 +1018,12 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: widget.accentColor.withOpacity(0.6),
+                    color: widget.accentColor.withValues(alpha: 0.6),
                     blurRadius: 12,
                     spreadRadius: 1,
                   ),
                   BoxShadow(
-                    color: widget.accentColor.withOpacity(0.3),
+                    color: widget.accentColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -1129,12 +1129,12 @@ class _NeonGradientBorderPainter extends CustomPainter {
       startAngle: 0,
       endAngle: math.pi * 2,
       colors: [
-        accentColor.withOpacity(isHovered ? 0.9 : 0.65),
-        accentColor.withOpacity(isHovered ? 0.55 : 0.35),
-        accentColor.withOpacity(isHovered ? 0.30 : 0.18),
-        accentColor.withOpacity(isHovered ? 0.22 : 0.12),
-        accentColor.withOpacity(isHovered ? 0.30 : 0.18),
-        accentColor.withOpacity(isHovered ? 0.45 : 0.28),
+        accentColor.withValues(alpha: isHovered ? 0.9 : 0.65),
+        accentColor.withValues(alpha: isHovered ? 0.55 : 0.35),
+        accentColor.withValues(alpha: isHovered ? 0.30 : 0.18),
+        accentColor.withValues(alpha: isHovered ? 0.22 : 0.12),
+        accentColor.withValues(alpha: isHovered ? 0.30 : 0.18),
+        accentColor.withValues(alpha: isHovered ? 0.45 : 0.28),
       ],
       stops: const [0.0, 0.12, 0.28, 0.5, 0.78, 1.0],
     );
@@ -1185,9 +1185,9 @@ class _QuickGlanceChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.12),
+          color: color.withValues(alpha: 0.12),
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withOpacity(0.25), width: 0.5),
+          border: Border.all(color: color.withValues(alpha: 0.25), width: 0.5),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

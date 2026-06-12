@@ -67,7 +67,7 @@ class JournalEntryDetail extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: AppTheme.successColor.withOpacity(0.1),
+                      color: AppTheme.successColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.emoji_events, color: AppTheme.successColor),
@@ -94,7 +94,7 @@ class JournalEntryDetail extends StatelessWidget {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
-                      color: AppTheme.emergencyColor.withOpacity(0.1),
+                      color: AppTheme.emergencyColor.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(16),
                     ),
                     child: Text(
@@ -123,7 +123,7 @@ class JournalEntryDetail extends StatelessWidget {
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withOpacity(0.05),
+                        color: Colors.black.withValues(alpha: 0.05),
                         blurRadius: 10,
                       ),
                     ],
@@ -152,7 +152,7 @@ class JournalEntryDetail extends StatelessWidget {
                           color: t.cardBg,
                           borderRadius: BorderRadius.circular(14),
                           border: Border.all(
-                              color: t.accent.withOpacity(0.12)),
+                              color: t.accent.withValues(alpha: 0.12)),
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -183,7 +183,7 @@ class JournalEntryDetail extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(14),
                     decoration: BoxDecoration(
-                      color: t.accent.withOpacity(0.08),
+                      color: t.accent.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Text(

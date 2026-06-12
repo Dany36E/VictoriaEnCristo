@@ -117,7 +117,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 20,
               ),
             ],
@@ -130,7 +130,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                 width: 36,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -155,7 +155,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                       Text(
                         '${_allRefs.length} refs',
                         style: GoogleFonts.manrope(
-                          color: t.textSecondary.withOpacity(0.5),
+                          color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 12,
                         ),
                       ),
@@ -226,7 +226,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
-        backgroundColor: t.isDark ? Colors.white10 : Colors.black.withOpacity(0.05),
+        backgroundColor: t.isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
         selectedColor: t.accent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         side: BorderSide.none,
@@ -247,8 +247,8 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           color: t.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(10),
           border: Border(
             left: BorderSide(color: typeColor, width: 3),
@@ -272,7 +272,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                   decoration: BoxDecoration(
-                    color: typeColor.withOpacity(0.15),
+                    color: typeColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
@@ -290,7 +290,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                   child: Text('¿Por qué?',
                     style: GoogleFonts.manrope(
                       fontSize: 10,
-                      color: t.accent.withOpacity(0.6),
+                      color: t.accent.withValues(alpha: 0.6),
                       decoration: TextDecoration.underline,
                     ),
                   ),
@@ -302,7 +302,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
               Text(
                 ref.preview,
                 style: GoogleFonts.crimsonPro(
-                  color: t.textSecondary.withOpacity(0.7),
+                  color: t.textSecondary.withValues(alpha: 0.7),
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
                   height: 1.4,

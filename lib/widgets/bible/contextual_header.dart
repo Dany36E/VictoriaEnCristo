@@ -104,7 +104,7 @@ class _ContextualHeaderState extends State<ContextualHeader>
         Container(
           height: BibleReaderThemeData.toolbarHeight,
           padding: const EdgeInsets.symmetric(horizontal: 4),
-          color: t.background.withOpacity(0.95),
+          color: t.background.withValues(alpha: 0.95),
           child: Row(
             children: [
               IconButton(
@@ -150,7 +150,7 @@ class _ContextualHeaderState extends State<ContextualHeader>
           child: Container(
             height: BibleReaderThemeData.toolbarHeight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
-            color: t.surface.withOpacity(0.98),
+            color: t.surface.withValues(alpha: 0.98),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: widget.contextualActions.map((action) {
@@ -170,7 +170,7 @@ class _ContextualHeaderState extends State<ContextualHeader>
   Widget _buildMoreButton(BibleReaderThemeData t) {
     return PopupMenuButton<int>(
       icon: Icon(Icons.more_horiz,
-          color: t.textSecondary.withOpacity(0.6), size: 20),
+          color: t.textSecondary.withValues(alpha: 0.6), size: 20),
       color: t.surface,
       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
       padding: EdgeInsets.zero,
@@ -274,7 +274,7 @@ class _ContextualActionButton extends StatelessWidget {
               style: GoogleFonts.manrope(
                 color: action.isActive
                     ? theme.accent
-                    : theme.textSecondary.withOpacity(0.6),
+                    : theme.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
               ),

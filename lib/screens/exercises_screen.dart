@@ -209,13 +209,13 @@ class _CrisisQuickCta extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppDesignSystem.struggle.withOpacity(0.18),
-                AppDesignSystem.struggle.withOpacity(0.08),
+                AppDesignSystem.struggle.withValues(alpha: 0.18),
+                AppDesignSystem.struggle.withValues(alpha: 0.08),
               ],
             ),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
             border: Border.all(
-              color: AppDesignSystem.struggle.withOpacity(0.4),
+              color: AppDesignSystem.struggle.withValues(alpha: 0.4),
               width: 1.2,
             ),
           ),
@@ -279,10 +279,10 @@ class _CompletionsBanner extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: AppDesignSystem.victory.withOpacity(0.10),
+        color: AppDesignSystem.victory.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: AppDesignSystem.victory.withOpacity(0.3),
+          color: AppDesignSystem.victory.withValues(alpha: 0.3),
         ),
       ),
       child: Row(
@@ -436,9 +436,9 @@ class _ExerciseCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
                 border: Border.all(
                   color: doneToday
-                      ? AppDesignSystem.victory.withOpacity(0.5)
+                      ? AppDesignSystem.victory.withValues(alpha: 0.5)
                       : reason != null
-                          ? accentColor.withOpacity(0.4)
+                          ? accentColor.withValues(alpha: 0.4)
                           : t.cardBorder,
                 ),
                 boxShadow: AppDesignSystem.shadowSoft,
@@ -450,7 +450,7 @@ class _ExerciseCard extends StatelessWidget {
                     width: 48,
                     height: 48,
                     decoration: BoxDecoration(
-                      color: accentColor.withOpacity(0.15),
+                      color: accentColor.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Icon(
@@ -475,7 +475,7 @@ class _ExerciseCard extends StatelessWidget {
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 2),
                                   decoration: BoxDecoration(
-                                    color: accentColor.withOpacity(0.12),
+                                    color: accentColor.withValues(alpha: 0.12),
                                     borderRadius: BorderRadius.circular(6),
                                   ),
                                   child: Text(
@@ -495,7 +495,7 @@ class _ExerciseCard extends StatelessWidget {
                                 padding: const EdgeInsets.symmetric(
                                     horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: AppDesignSystem.victory.withOpacity(0.18),
+                                  color: AppDesignSystem.victory.withValues(alpha: 0.18),
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: const Row(
@@ -548,7 +548,7 @@ class _ExerciseCard extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 8, vertical: 4),
                         decoration: BoxDecoration(
-                          color: accentColor.withOpacity(0.1),
+                          color: accentColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Text(
@@ -563,7 +563,7 @@ class _ExerciseCard extends StatelessWidget {
                       const SizedBox(height: 6),
                       Icon(
                         Icons.chevron_right,
-                        color: t.textSecondary.withOpacity(0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                         size: 20,
                       ),
                     ],
@@ -792,7 +792,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
                   padding: const EdgeInsets.symmetric(
                       horizontal: 10, vertical: 4),
                   decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
+                    color: color.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -846,7 +846,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
                               width: 44,
                               height: 44,
                               decoration: BoxDecoration(
-                                color: color.withOpacity(0.15),
+                                color: color.withValues(alpha: 0.15),
                                 shape: BoxShape.circle,
                               ),
                               child: Center(
@@ -1063,7 +1063,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
             height: 48,
             child: Material(
               color: _timerRunning
-                  ? color.withOpacity(0.15)
+                  ? color.withValues(alpha: 0.15)
                   : color,
               shape: const CircleBorder(),
               child: InkWell(
@@ -1103,9 +1103,9 @@ class _ScriptureAnchorCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.08),
+        color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: color.withOpacity(0.3)),
+        border: Border.all(color: color.withValues(alpha: 0.3)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

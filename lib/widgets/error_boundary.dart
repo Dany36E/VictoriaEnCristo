@@ -90,14 +90,14 @@ class _DefaultErrorWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.error_outline, size: 48, color: Colors.white.withOpacity(0.4)),
+            Icon(Icons.error_outline, size: 48, color: Colors.white.withValues(alpha: 0.4)),
             const SizedBox(height: 16),
             Text(
               'Algo salió mal',
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
-                color: Colors.white.withOpacity(0.7),
+                color: Colors.white.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 8),
@@ -105,7 +105,7 @@ class _DefaultErrorWidget extends StatelessWidget {
               'Hubo un error al mostrar esta sección.',
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
               ),
               textAlign: TextAlign.center,
             ),

@@ -750,7 +750,7 @@ class _Hero extends StatelessWidget {
           end: Alignment.bottomRight,
           colors: [t.surface, t.cardBg],
         ),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.22)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.22)),
         boxShadow: t.cardShadow,
       ),
       child: Column(
@@ -826,7 +826,7 @@ class _KingdomNavigationRail extends StatelessWidget {
         onDestinationSelected: onSelected,
         labelType: NavigationRailLabelType.all,
         backgroundColor: Colors.transparent,
-        indicatorColor: AppDesignSystem.gold.withOpacity(0.18),
+        indicatorColor: AppDesignSystem.gold.withValues(alpha: 0.18),
         selectedIconTheme: const IconThemeData(color: AppDesignSystem.gold),
         unselectedIconTheme: IconThemeData(color: t.textSecondary),
         selectedLabelTextStyle: AppDesignSystem.labelLarge(
@@ -869,7 +869,7 @@ class _KingdomBottomBar extends StatelessWidget {
       selectedIndex: selectedIndex,
       onDestinationSelected: onSelected,
       backgroundColor: t.surface,
-      indicatorColor: AppDesignSystem.gold.withOpacity(0.2),
+      indicatorColor: AppDesignSystem.gold.withValues(alpha: 0.2),
       destinations: items
           .map(
             (item) => NavigationDestination(
@@ -958,7 +958,7 @@ class _QuickActionCard extends StatelessWidget {
         decoration: BoxDecoration(
           color: t.cardBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-          border: Border.all(color: color.withOpacity(0.3)),
+          border: Border.all(color: color.withValues(alpha: 0.3)),
           boxShadow: t.cardShadow,
         ),
         child: Row(
@@ -1011,11 +1011,11 @@ class _TodayCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppDesignSystem.gold.withOpacity(t.isDark ? 0.18 : 0.13),
+            AppDesignSystem.gold.withValues(alpha: t.isDark ? 0.18 : 0.13),
             t.cardBg,
           ],
         ),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.38)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.38)),
         boxShadow: t.cardShadow,
       ),
       child: Column(
@@ -1448,9 +1448,9 @@ class KingdomPathNode extends StatelessWidget {
                   height: size + 18,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: AppDesignSystem.gold.withOpacity(0.16),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.16),
                     border: Border.all(
-                      color: AppDesignSystem.gold.withOpacity(0.35),
+                      color: AppDesignSystem.gold.withValues(alpha: 0.35),
                     ),
                   ),
                 )
@@ -1467,18 +1467,18 @@ class KingdomPathNode extends StatelessWidget {
             height: size,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: locked ? color.withOpacity(0.22) : color,
+              color: locked ? color.withValues(alpha: 0.22) : color,
               border: Border.all(
                 color: mastered
                     ? AppDesignSystem.goldLight
-                    : Colors.white.withOpacity(0.56),
+                    : Colors.white.withValues(alpha: 0.56),
                 width: mastered ? 3 : 2,
               ),
               boxShadow: locked
                   ? const []
                   : [
                       BoxShadow(
-                        color: color.withOpacity(0.28),
+                        color: color.withValues(alpha: 0.28),
                         blurRadius: recommended ? 22 : 14,
                         offset: const Offset(0, 8),
                       ),
@@ -1570,10 +1570,10 @@ class KingdomUnitBand extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
       decoration: BoxDecoration(
-        color: unlocked ? color.withOpacity(0.11) : t.cardBg,
+        color: unlocked ? color.withValues(alpha: 0.11) : t.cardBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: unlocked ? color.withOpacity(0.36) : t.cardBorder,
+          color: unlocked ? color.withValues(alpha: 0.36) : t.cardBorder,
         ),
       ),
       child: Row(
@@ -1650,14 +1650,14 @@ class ProgressRail extends StatelessWidget {
     return Container(
           width: 8,
           decoration: BoxDecoration(
-            color: color.withOpacity(active ? 0.78 : 0.52),
+            color: color.withValues(alpha: active ? 0.78 : 0.52),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
           ),
         )
         .animate(target: active ? 1 : 0)
         .shimmer(
           duration: 900.ms,
-          color: AppDesignSystem.gold.withOpacity(0.35),
+          color: AppDesignSystem.gold.withValues(alpha: 0.35),
         );
   }
 }
@@ -1718,12 +1718,12 @@ class DailyMissionRow extends StatelessWidget {
       ),
       decoration: BoxDecoration(
         color: mission.completed
-            ? AppDesignSystem.victory.withOpacity(0.09)
+            ? AppDesignSystem.victory.withValues(alpha: 0.09)
             : t.inputBg,
         borderRadius: BorderRadius.circular(14),
         border: Border.all(
           color: mission.completed
-              ? AppDesignSystem.victory.withOpacity(0.32)
+              ? AppDesignSystem.victory.withValues(alpha: 0.32)
               : t.cardBorder,
         ),
       ),
@@ -1786,9 +1786,9 @@ class StreakPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.12),
+        color: AppDesignSystem.gold.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.28)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -1876,11 +1876,11 @@ class BadgeMedal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingS),
       decoration: BoxDecoration(
-        color: unlocked ? AppDesignSystem.gold.withOpacity(0.11) : t.inputBg,
+        color: unlocked ? AppDesignSystem.gold.withValues(alpha: 0.11) : t.inputBg,
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
           color: unlocked
-              ? AppDesignSystem.gold.withOpacity(0.32)
+              ? AppDesignSystem.gold.withValues(alpha: 0.32)
               : t.cardBorder,
         ),
       ),
@@ -1919,9 +1919,9 @@ class _IconOrb extends StatelessWidget {
       width: size,
       height: size,
       decoration: BoxDecoration(
-        color: color.withOpacity(0.16),
+        color: color.withValues(alpha: 0.16),
         shape: BoxShape.circle,
-        border: Border.all(color: color.withOpacity(0.35)),
+        border: Border.all(color: color.withValues(alpha: 0.35)),
       ),
       child: Icon(icon, color: color, size: size * 0.52),
     );
@@ -1938,9 +1938,9 @@ class _MiniPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.13),
+        color: AppDesignSystem.gold.withValues(alpha: 0.13),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.28)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.28)),
       ),
       child: Text(
         text,
@@ -2270,7 +2270,7 @@ class _ModuleCard extends StatelessWidget {
                     width: 52,
                     height: 52,
                     decoration: BoxDecoration(
-                      color: iconColor.withOpacity(0.15),
+                      color: iconColor.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(icon, color: iconColor, size: 27),

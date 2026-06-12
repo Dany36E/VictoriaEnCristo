@@ -163,7 +163,7 @@ class _WallScreenState extends State<WallScreen> {
         children: [
           // ── Giant filter chips ──
           _buildGiantFilter(),
-          Divider(height: 1, color: t.accent.withOpacity(0.13)),
+          Divider(height: 1, color: t.accent.withValues(alpha: 0.13)),
           // ── Feed ──
           Expanded(child: _buildFeedContent()),
         ],

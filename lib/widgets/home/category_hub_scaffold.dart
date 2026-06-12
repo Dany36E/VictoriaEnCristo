@@ -54,9 +54,9 @@ class CategoryHubScaffold extends StatelessWidget {
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                     colors: [
-                      AppDesignSystem.midnightDeep.withOpacity(0.80),
-                      AppDesignSystem.midnight.withOpacity(0.68),
-                      AppDesignSystem.midnightDeep.withOpacity(0.92),
+                      AppDesignSystem.midnightDeep.withValues(alpha: 0.80),
+                      AppDesignSystem.midnight.withValues(alpha: 0.68),
+                      AppDesignSystem.midnightDeep.withValues(alpha: 0.92),
                     ],
                     stops: const [0.0, 0.45, 1.0],
                   ),

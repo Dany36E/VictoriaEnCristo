@@ -120,7 +120,7 @@ class _BibleMapsScreenState extends State<BibleMapsScreen> {
           end: Alignment.bottomRight,
           colors: [Color(0xFF0A1628), Color(0xFF122040)],
         ),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.2)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -211,7 +211,7 @@ class _MapCard extends StatelessWidget {
             color: t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
-              color: completed ? AppDesignSystem.gold.withOpacity(0.3) : t.cardBorder,
+              color: completed ? AppDesignSystem.gold.withValues(alpha: 0.3) : t.cardBorder,
             ),
             boxShadow: t.cardShadow,
           ),
@@ -224,16 +224,16 @@ class _MapCard extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: unlocked
                       ? (completed
-                            ? AppDesignSystem.gold.withOpacity(0.15)
+                            ? AppDesignSystem.gold.withValues(alpha: 0.15)
                             : const Color(0xFF1A2A3A))
-                      : Colors.white.withOpacity(0.05),
+                      : Colors.white.withValues(alpha: 0.05),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
                   unlocked ? _iconForName(bibleMap.icon) : Icons.lock_rounded,
                   color: unlocked
                       ? (completed ? AppDesignSystem.gold : const Color(0xFF5A8ABB))
-                      : Colors.white.withOpacity(0.3),
+                      : Colors.white.withValues(alpha: 0.3),
                   size: 26,
                 ),
               ),
@@ -262,7 +262,7 @@ class _MapCard extends StatelessWidget {
                             size: 16,
                             color: i < stars
                                 ? AppDesignSystem.gold
-                                : t.textSecondary.withOpacity(0.3),
+                                : t.textSecondary.withValues(alpha: 0.3),
                           );
                         }),
                       ),
@@ -297,7 +297,7 @@ class _ProgressChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.12),
+        color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
       ),
       child: Row(

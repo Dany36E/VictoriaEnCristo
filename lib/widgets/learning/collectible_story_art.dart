@@ -39,19 +39,19 @@ class CollectibleStoryArt extends StatelessWidget {
           ),
           if (!unlocked)
             ColoredBox(
-              color: Colors.black.withOpacity(0.16),
+              color: Colors.black.withValues(alpha: 0.16),
               child: Center(
                 child: Container(
                   width: compact ? 28 : 42,
                   height: compact ? 28 : 42,
                   decoration: BoxDecoration(
-                    color: Colors.black.withOpacity(0.34),
+                    color: Colors.black.withValues(alpha: 0.34),
                     shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withOpacity(0.26)),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.26)),
                   ),
                   child: Icon(
                     Icons.lock_rounded,
-                    color: Colors.white.withOpacity(0.82),
+                    color: Colors.white.withValues(alpha: 0.82),
                     size: compact ? 15 : 22,
                   ),
                 ),
@@ -168,14 +168,14 @@ class _CollectibleStoryPainter extends CustomPainter {
       ..shader = RadialGradient(
         center: Alignment(-0.36 + (book.order % 7) * 0.12, -0.48),
         radius: 0.9,
-        colors: [palette.light.withOpacity(0.72), Colors.transparent],
+        colors: [palette.light.withValues(alpha: 0.72), Colors.transparent],
       ).createShader(bounds);
     canvas.drawRect(bounds, glowPaint);
   }
 
   void _paintBookFingerprint(Canvas canvas, Size size, _StoryPalette palette) {
     final count = 4 + (book.chapters % 7);
-    final dotPaint = Paint()..color = palette.light.withOpacity(unlocked ? 0.36 : 0.18);
+    final dotPaint = Paint()..color = palette.light.withValues(alpha: unlocked ? 0.36 : 0.18);
     for (var index = 0; index < count; index++) {
       final seed = book.order * 37 + kind.index * 19 + index * 11;
       final dx = (0.12 + ((_wave(seed) + 1) / 2) * 0.76) * size.width;
@@ -190,10 +190,10 @@ class _CollectibleStoryPainter extends CustomPainter {
     final width = size.width * (compact ? 0.52 : 0.46);
     final height = size.height * 0.56;
     final bookRect = Rect.fromCenter(center: center, width: width, height: height);
-    final pagePaint = Paint()..color = palette.paper.withOpacity(unlocked ? 0.96 : 0.42);
-    final coverPaint = Paint()..color = palette.primary.withOpacity(unlocked ? 0.72 : 0.3);
+    final pagePaint = Paint()..color = palette.paper.withValues(alpha: unlocked ? 0.96 : 0.42);
+    final coverPaint = Paint()..color = palette.primary.withValues(alpha: unlocked ? 0.72 : 0.3);
     final linePaint = Paint()
-      ..color = palette.dark.withOpacity(unlocked ? 0.52 : 0.24)
+      ..color = palette.dark.withValues(alpha: unlocked ? 0.52 : 0.24)
       ..strokeWidth = math.max(1, size.shortestSide * 0.012);
 
     canvas.drawRRect(
@@ -220,7 +220,7 @@ class _CollectibleStoryPainter extends CustomPainter {
 
   void _paintScene(Canvas canvas, Size size, _StoryPalette palette) {
     final horizon = size.height * 0.63;
-    final mountainPaint = Paint()..color = palette.dark.withOpacity(unlocked ? 0.58 : 0.34);
+    final mountainPaint = Paint()..color = palette.dark.withValues(alpha: unlocked ? 0.58 : 0.34);
     final mountainPath = Path()
       ..moveTo(0, horizon)
       ..lineTo(size.width * 0.2, size.height * 0.38)
@@ -232,7 +232,7 @@ class _CollectibleStoryPainter extends CustomPainter {
       ..close();
     canvas.drawPath(mountainPath, mountainPaint);
 
-    final sunPaint = Paint()..color = palette.gold.withOpacity(unlocked ? 0.9 : 0.42);
+    final sunPaint = Paint()..color = palette.gold.withValues(alpha: unlocked ? 0.9 : 0.42);
     canvas.drawCircle(
       Offset(size.width * 0.72, size.height * 0.24),
       size.shortestSide * 0.13,
@@ -240,7 +240,7 @@ class _CollectibleStoryPainter extends CustomPainter {
     );
 
     final pathPaint = Paint()
-      ..color = palette.paper.withOpacity(unlocked ? 0.54 : 0.2)
+      ..color = palette.paper.withValues(alpha: unlocked ? 0.54 : 0.2)
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = size.shortestSide * 0.035;
@@ -259,7 +259,7 @@ class _CollectibleStoryPainter extends CustomPainter {
 
   void _paintRoute(Canvas canvas, Size size, _StoryPalette palette) {
     final routePaint = Paint()
-      ..color = palette.paper.withOpacity(unlocked ? 0.78 : 0.36)
+      ..color = palette.paper.withValues(alpha: unlocked ? 0.78 : 0.36)
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round
       ..strokeWidth = math.max(2, size.shortestSide * 0.038);
@@ -275,9 +275,9 @@ class _CollectibleStoryPainter extends CustomPainter {
       );
     canvas.drawPath(route, routePaint);
 
-    final nodePaint = Paint()..color = palette.gold.withOpacity(unlocked ? 0.94 : 0.46);
+    final nodePaint = Paint()..color = palette.gold.withValues(alpha: unlocked ? 0.94 : 0.46);
     final nodeBorderPaint = Paint()
-      ..color = palette.paper.withOpacity(unlocked ? 0.92 : 0.38)
+      ..color = palette.paper.withValues(alpha: unlocked ? 0.92 : 0.38)
       ..style = PaintingStyle.stroke
       ..strokeWidth = math.max(1, size.shortestSide * 0.012);
     final nodes = [
@@ -292,7 +292,7 @@ class _CollectibleStoryPainter extends CustomPainter {
   }
 
   void _paintDevotional(Canvas canvas, Size size, _StoryPalette palette) {
-    final tablePaint = Paint()..color = palette.dark.withOpacity(unlocked ? 0.54 : 0.3);
+    final tablePaint = Paint()..color = palette.dark.withValues(alpha: unlocked ? 0.54 : 0.3);
     final tableRect = Rect.fromLTWH(
       size.width * 0.18,
       size.height * 0.68,
@@ -305,8 +305,8 @@ class _CollectibleStoryPainter extends CustomPainter {
     );
 
     final flameBase = Offset(size.width * 0.5, size.height * 0.55);
-    final flamePaint = Paint()..color = palette.gold.withOpacity(unlocked ? 0.95 : 0.48);
-    final innerFlamePaint = Paint()..color = palette.paper.withOpacity(unlocked ? 0.86 : 0.38);
+    final flamePaint = Paint()..color = palette.gold.withValues(alpha: unlocked ? 0.95 : 0.48);
+    final innerFlamePaint = Paint()..color = palette.paper.withValues(alpha: unlocked ? 0.86 : 0.38);
     final flame = Path()
       ..moveTo(flameBase.dx, flameBase.dy - size.height * 0.28)
       ..cubicTo(
@@ -340,9 +340,9 @@ class _CollectibleStoryPainter extends CustomPainter {
       width: size.width * 0.64,
       height: size.height * 0.46,
     );
-    final scrollPaint = Paint()..color = palette.paper.withOpacity(unlocked ? 0.94 : 0.42);
+    final scrollPaint = Paint()..color = palette.paper.withValues(alpha: unlocked ? 0.94 : 0.42);
     final strokePaint = Paint()
-      ..color = palette.dark.withOpacity(unlocked ? 0.48 : 0.22)
+      ..color = palette.dark.withValues(alpha: unlocked ? 0.48 : 0.22)
       ..strokeCap = StrokeCap.round
       ..strokeWidth = math.max(1, size.shortestSide * 0.014);
     canvas.drawRRect(
@@ -360,7 +360,7 @@ class _CollectibleStoryPainter extends CustomPainter {
       );
     }
 
-    final sealPaint = Paint()..color = palette.gold.withOpacity(unlocked ? 0.9 : 0.44);
+    final sealPaint = Paint()..color = palette.gold.withValues(alpha: unlocked ? 0.9 : 0.44);
     canvas.drawCircle(
       Offset(
         scrollRect.right - scrollRect.width * 0.18,
@@ -374,7 +374,7 @@ class _CollectibleStoryPainter extends CustomPainter {
   void _paintCategoryEmblem(Canvas canvas, Size size, _StoryPalette palette) {
     final center = Offset(size.width * 0.22, size.height * 0.23);
     final emblemPaint = Paint()
-      ..color = palette.paper.withOpacity(unlocked ? 0.52 : 0.22)
+      ..color = palette.paper.withValues(alpha: unlocked ? 0.52 : 0.22)
       ..style = PaintingStyle.stroke
       ..strokeWidth = math.max(1.2, size.shortestSide * 0.022)
       ..strokeCap = StrokeCap.round
@@ -461,7 +461,7 @@ class _CollectibleStoryPainter extends CustomPainter {
 
   void _paintFrame(Canvas canvas, Rect bounds, _StoryPalette palette) {
     final framePaint = Paint()
-      ..color = palette.paper.withOpacity(unlocked ? 0.22 : 0.12)
+      ..color = palette.paper.withValues(alpha: unlocked ? 0.22 : 0.12)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.2;
     canvas.drawRect(bounds.deflate(0.6), framePaint);

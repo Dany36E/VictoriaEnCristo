@@ -160,7 +160,7 @@ class _ActivityHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: t.cardBg,
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.accent.withOpacity(0.25)),
+        border: Border.all(color: t.accent.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
@@ -251,7 +251,7 @@ class _ResolutionCard extends StatelessWidget {
           LinearProgressIndicator(
             value: (secondsPresent / _requiredPresenceSeconds).clamp(0, 1),
             color: t.accent,
-            backgroundColor: t.textSecondary.withOpacity(0.16),
+            backgroundColor: t.textSecondary.withValues(alpha: 0.16),
           ),
           const SizedBox(height: 12),
           CheckboxListTile(

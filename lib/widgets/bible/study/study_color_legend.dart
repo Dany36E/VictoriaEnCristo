@@ -33,9 +33,9 @@ class StudyColorLegend extends StatelessWidget {
             vertical: compact ? 4 : 6,
           ),
           decoration: BoxDecoration(
-            color: color.withOpacity(t.isDark ? 0.18 : 0.18),
+            color: color.withValues(alpha: t.isDark ? 0.18 : 0.18),
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: color.withOpacity(0.65), width: 1),
+            border: Border.all(color: color.withValues(alpha: 0.65), width: 1),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,

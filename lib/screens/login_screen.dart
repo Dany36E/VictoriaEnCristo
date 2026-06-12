@@ -89,9 +89,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
                   colors: [
-                    Colors.black.withOpacity(0.3),
-                    Colors.black.withOpacity(0.5),
-                    Colors.black.withOpacity(0.7),
+                    Colors.black.withValues(alpha: 0.3),
+                    Colors.black.withValues(alpha: 0.5),
+                    Colors.black.withValues(alpha: 0.7),
                   ],
                   stops: const [0.0, 0.5, 1.0],
                 ),
@@ -185,19 +185,19 @@ class _LoginScreenState extends State<LoginScreen> {
                 boxShadow: [
                   // Glow dorado exterior difuso
                   BoxShadow(
-                    color: const Color(0xFFFFD700).withOpacity(0.4),
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.4),
                     blurRadius: glowBlur,
                     spreadRadius: compact ? 6 : 10,
                   ),
                   // Glow dorado medio
                   BoxShadow(
-                    color: const Color(0xFFFFD700).withOpacity(0.3),
+                    color: const Color(0xFFFFD700).withValues(alpha: 0.3),
                     blurRadius: 25,
                     spreadRadius: 5,
                   ),
                   // Glow interno intenso
                   BoxShadow(
-                    color: const Color(0xFFFFA500).withOpacity(0.2),
+                    color: const Color(0xFFFFA500).withValues(alpha: 0.2),
                     blurRadius: 15,
                     spreadRadius: 2,
                   ),
@@ -211,8 +211,8 @@ class _LoginScreenState extends State<LoginScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      const Color(0xFFFFD700).withOpacity(0.8),
-                      const Color(0xFFFFA500).withOpacity(0.6),
+                      const Color(0xFFFFD700).withValues(alpha: 0.8),
+                      const Color(0xFFFFA500).withValues(alpha: 0.6),
                     ],
                   ),
                 ),
@@ -220,8 +220,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   padding: EdgeInsets.all(innerPadding),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.black.withOpacity(0.6),
-                    border: Border.all(color: Colors.white.withOpacity(0.2), width: 1),
+                    color: Colors.black.withValues(alpha: 0.6),
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.2), width: 1),
                   ),
                   child: Icon(Icons.shield_outlined, size: iconSize, color: Colors.white),
                 ),
@@ -248,7 +248,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   shadows: [
                     // Sombra base para legibilidad
                     Shadow(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.black.withValues(alpha: 0.6),
                       blurRadius: 8,
                       offset: const Offset(0, 2),
                     ),
@@ -256,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const Shadow(color: Color(0xFFFFD700), blurRadius: 15, offset: Offset(0, 0)),
                     // Glow dorado secundario más difuso
                     Shadow(
-                      color: const Color(0xFFFFD700).withOpacity(0.5),
+                      color: const Color(0xFFFFD700).withValues(alpha: 0.5),
                       blurRadius: 30,
                       offset: const Offset(0, 0),
                     ),
@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             fontSize: 15,
             fontWeight: FontWeight.w400,
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             letterSpacing: 0.5,
           ),
           textAlign: TextAlign.center,
@@ -303,7 +303,7 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFD700).withOpacity(0.35),
+                color: const Color(0xFFFFD700).withValues(alpha: 0.35),
                 blurRadius: 20,
                 spreadRadius: 0,
                 offset: const Offset(0, 6),
@@ -331,7 +331,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
+                            color: Colors.black.withValues(alpha: 0.1),
                             blurRadius: 4,
                             offset: const Offset(0, 2),
                           ),
@@ -371,7 +371,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             height: 1,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.transparent, Colors.white.withOpacity(0.4)]),
+              gradient: LinearGradient(colors: [Colors.transparent, Colors.white.withValues(alpha: 0.4)]),
             ),
           ),
         ),
@@ -380,7 +380,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Text(
             '— o usa tu correo —',
             style: GoogleFonts.lato(
-              color: Colors.white.withOpacity(0.7),
+              color: Colors.white.withValues(alpha: 0.7),
               fontSize: 14,
               fontWeight: FontWeight.w500,
               letterSpacing: 0.5,
@@ -391,7 +391,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: Container(
             height: 1,
             decoration: BoxDecoration(
-              gradient: LinearGradient(colors: [Colors.white.withOpacity(0.4), Colors.transparent]),
+              gradient: LinearGradient(colors: [Colors.white.withValues(alpha: 0.4), Colors.transparent]),
             ),
           ),
         ),
@@ -414,9 +414,9 @@ class _LoginScreenState extends State<LoginScreen> {
               padding: const EdgeInsets.all(14),
               margin: const EdgeInsets.only(bottom: 16),
               decoration: BoxDecoration(
-                color: Colors.red.withOpacity(0.15),
+                color: Colors.red.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: Colors.redAccent.withOpacity(0.5), width: 1),
+                border: Border.all(color: Colors.redAccent.withValues(alpha: 0.5), width: 1),
               ),
               child: Row(
                 children: [
@@ -560,7 +560,7 @@ class _LoginScreenState extends State<LoginScreen> {
             activeColor: const Color(0xFFD4AF37),
             checkColor: Colors.black,
             side: BorderSide(
-              color: _acceptedTerms ? const Color(0xFFD4AF37) : Colors.white.withOpacity(0.5),
+              color: _acceptedTerms ? const Color(0xFFD4AF37) : Colors.white.withValues(alpha: 0.5),
               width: 1.5,
             ),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(4)),
@@ -577,7 +577,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: RichText(
               text: TextSpan(
                 style: GoogleFonts.lato(
-                  color: Colors.white.withOpacity(0.8),
+                  color: Colors.white.withValues(alpha: 0.8),
                   fontSize: 13,
                   fontWeight: FontWeight.w400,
                   height: 1.4,
@@ -626,12 +626,12 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: InputDecoration(
         // CRUCIAL: Relleno oscuro, NO blanco
         filled: true,
-        fillColor: Colors.black.withOpacity(0.6),
+        fillColor: Colors.black.withValues(alpha: 0.6),
 
         // Label style: BLANCO 90% - MÁXIMA LEGIBILIDAD
         labelText: hintText,
         labelStyle: TextStyle(
-          color: Colors.white.withOpacity(0.9),
+          color: Colors.white.withValues(alpha: 0.9),
           fontSize: 15,
           fontWeight: FontWeight.w400,
         ),
@@ -642,7 +642,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
 
         // Hint style: Blanco 50%
-        hintStyle: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 15),
+        hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5), fontSize: 15),
 
         // Iconos BLANCOS 70%
         prefixIcon: Icon(icon, color: Colors.white70, size: 22),
@@ -651,7 +651,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // Bordes con OutlineInputBorder
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.white.withOpacity(0.2), width: 1),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.2), width: 1),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -662,7 +662,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(color: Colors.redAccent.withOpacity(0.7), width: 1),
+          borderSide: BorderSide(color: Colors.redAccent.withValues(alpha: 0.7), width: 1),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -685,13 +685,13 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(16),
             // Fondo oscuro semitransparente
-            color: Colors.black.withOpacity(0.3),
+            color: Colors.black.withValues(alpha: 0.3),
             // Borde dorado visible
             border: Border.all(color: const Color(0xFFFFD700), width: 1.5),
             // Sutil glow dorado
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFFD700).withOpacity(0.15),
+                color: const Color(0xFFFFD700).withValues(alpha: 0.15),
                 blurRadius: 15,
                 spreadRadius: 0,
                 offset: const Offset(0, 4),
@@ -703,8 +703,8 @@ class _LoginScreenState extends State<LoginScreen> {
             child: InkWell(
               onTap: _isLoading ? null : _handleSubmit,
               borderRadius: BorderRadius.circular(16),
-              splashColor: const Color(0xFFFFD700).withOpacity(0.2),
-              highlightColor: const Color(0xFFFFD700).withOpacity(0.1),
+              splashColor: const Color(0xFFFFD700).withValues(alpha: 0.2),
+              highlightColor: const Color(0xFFFFD700).withValues(alpha: 0.1),
               child: Center(
                 child: _isLoading
                     ? const SizedBox(
@@ -743,7 +743,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Text(
           _isLogin ? '¿No tienes cuenta?' : '¿Ya tienes cuenta?',
           style: GoogleFonts.lato(
-            color: Colors.white.withOpacity(0.85),
+            color: Colors.white.withValues(alpha: 0.85),
             fontSize: 15,
             fontWeight: FontWeight.w400,
           ),
@@ -786,25 +786,25 @@ class _LoginScreenState extends State<LoginScreen> {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(14),
         color: Colors.transparent,
-        border: Border.all(color: Colors.white.withOpacity(0.35), width: 1),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.35), width: 1),
       ),
       child: Material(
         color: Colors.transparent,
         child: InkWell(
           onTap: _isLoading ? null : _handleGuestSignIn,
           borderRadius: BorderRadius.circular(14),
-          splashColor: Colors.white.withOpacity(0.1),
-          highlightColor: Colors.white.withOpacity(0.05),
+          splashColor: Colors.white.withValues(alpha: 0.1),
+          highlightColor: Colors.white.withValues(alpha: 0.05),
           child: Center(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.person_outline, color: Colors.white.withOpacity(0.7), size: 20),
+                Icon(Icons.person_outline, color: Colors.white.withValues(alpha: 0.7), size: 20),
                 const SizedBox(width: 10),
                 Text(
                   'Continuar sin cuenta',
                   style: GoogleFonts.lato(
-                    color: Colors.white.withOpacity(0.85),
+                    color: Colors.white.withValues(alpha: 0.85),
                     fontSize: 14,
                     fontWeight: FontWeight.w500,
                     letterSpacing: 0.3,

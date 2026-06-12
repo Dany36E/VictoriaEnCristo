@@ -65,8 +65,8 @@ class ShareCardRenderer extends StatelessWidget {
                     center: Alignment.center,
                     radius: 0.85,
                     colors: [
-                      Colors.black.withOpacity(0.05),
-                      Colors.black.withOpacity(0.35),
+                      Colors.black.withValues(alpha: 0.05),
+                      Colors.black.withValues(alpha: 0.35),
                     ],
                   ),
                 ),
@@ -131,7 +131,7 @@ class ShareCardRenderer extends StatelessWidget {
             '\u201C',
             style: TextStyle(
               fontSize: _scale(72),
-              color: ts.referenceColor.withOpacity(0.35),
+              color: ts.referenceColor.withValues(alpha: 0.35),
               fontFamily: 'Georgia',
               height: 0.6,
             ),
@@ -150,7 +150,7 @@ class ShareCardRenderer extends StatelessWidget {
           Container(
             width: _scale(48),
             height: _scale(1.5),
-            color: ts.referenceColor.withOpacity(0.5),
+            color: ts.referenceColor.withValues(alpha: 0.5),
           ),
           SizedBox(height: _scale(12)),
           // REFERENCIA
@@ -164,7 +164,7 @@ class ShareCardRenderer extends StatelessWidget {
               version,
               style: TextStyle(
                 fontSize: _scale(18),
-                color: ts.referenceColor.withOpacity(0.5),
+                color: ts.referenceColor.withValues(alpha: 0.5),
                 fontFamily: 'Manrope',
                 letterSpacing: _scale(2),
               ),
@@ -193,7 +193,7 @@ class ShareCardRenderer extends StatelessWidget {
               end: Alignment.bottomCenter,
               colors: [
                 Colors.transparent,
-                Colors.black.withOpacity(template.isDark ? 0.6 : 0.4),
+                Colors.black.withValues(alpha: template.isDark ? 0.6 : 0.4),
               ],
             ),
           ),
@@ -206,7 +206,7 @@ class ShareCardRenderer extends StatelessWidget {
                   color: Colors.white,
                   shadows: [
                     Shadow(
-                      color: Colors.black.withOpacity(0.9),
+                      color: Colors.black.withValues(alpha: 0.9),
                       blurRadius: 12,
                     ),
                   ],
@@ -219,13 +219,13 @@ class ShareCardRenderer extends StatelessWidget {
               Container(
                 width: _scale(32),
                 height: _scale(1.5),
-                color: ts.referenceColor.withOpacity(0.7),
+                color: ts.referenceColor.withValues(alpha: 0.7),
               ),
               SizedBox(height: _scale(10)),
               Text(
                 reference.toUpperCase(),
                 style: _referenceStyle(ts).copyWith(
-                  color: Colors.white.withOpacity(0.9),
+                  color: Colors.white.withValues(alpha: 0.9),
                 ),
               ),
             ],
@@ -292,7 +292,7 @@ class ShareCardRenderer extends StatelessWidget {
               shadows: template.isDark
                   ? [
                       Shadow(
-                        color: Colors.black.withOpacity(0.9),
+                        color: Colors.black.withValues(alpha: 0.9),
                         blurRadius: 12,
                       ),
                     ]
@@ -306,7 +306,7 @@ class ShareCardRenderer extends StatelessWidget {
           Container(
             width: _scale(60),
             height: _scale(2.5),
-            color: ts.referenceColor.withOpacity(0.6),
+            color: ts.referenceColor.withValues(alpha: 0.6),
           ),
           SizedBox(height: _scale(24)),
           // Versículo pequeño
@@ -357,7 +357,7 @@ class ShareCardRenderer extends StatelessWidget {
                 Container(
                   width: _scale(40),
                   height: _scale(1.5),
-                  color: ts.referenceColor.withOpacity(0.5),
+                  color: ts.referenceColor.withValues(alpha: 0.5),
                 ),
                 SizedBox(height: _scale(12)),
                 Text(
@@ -373,7 +373,7 @@ class ShareCardRenderer extends StatelessWidget {
                     version,
                     style: TextStyle(
                       fontSize: _scale(18),
-                      color: ts.referenceColor.withOpacity(0.5),
+                      color: ts.referenceColor.withValues(alpha: 0.5),
                       fontFamily: 'Manrope',
                       letterSpacing: _scale(2),
                     ),
@@ -400,7 +400,7 @@ class ShareCardRenderer extends StatelessWidget {
       shadows: template.isDark
           ? [
               Shadow(
-                color: Colors.black.withOpacity(0.8),
+                color: Colors.black.withValues(alpha: 0.8),
                 blurRadius: 8,
               ),
             ]
@@ -418,7 +418,7 @@ class ShareCardRenderer extends StatelessWidget {
       shadows: template.isDark
           ? [
               Shadow(
-                color: Colors.black.withOpacity(0.9),
+                color: Colors.black.withValues(alpha: 0.9),
                 blurRadius: 4,
               ),
             ]
@@ -564,7 +564,7 @@ class _FallbackBackgroundPainter extends CustomPainter {
         radius: 0.8,
         colors: [
           (isDark ? const Color(0xFF1A1A3E) : const Color(0xFFFFE0B2))
-              .withOpacity(0.3),
+              .withValues(alpha: 0.3),
           Colors.transparent,
         ],
       ).createShader(rect);

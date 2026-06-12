@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../models/bible/harmony_section.dart';
 import '../../services/bible/gospel_harmony_service.dart';
@@ -94,9 +94,9 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                     decoration: InputDecoration(
                       hintText: 'Buscar evento...',
                       hintStyle: GoogleFonts.manrope(
-                          color: t.textPrimary.withOpacity(0.3)),
+                          color: t.textPrimary.withValues(alpha: 0.3)),
                       prefixIcon: Icon(Icons.search,
-                          color: t.accent.withOpacity(0.5)),
+                          color: t.accent.withValues(alpha: 0.5)),
                       filled: true,
                       fillColor: t.surface,
                       border: OutlineInputBorder(
@@ -119,7 +119,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                         child: Text(
                           'Evento',
                           style: GoogleFonts.manrope(
-                            color: t.textPrimary.withOpacity(0.4),
+                            color: t.textPrimary.withValues(alpha: 0.4),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
@@ -143,7 +143,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                 const SizedBox(height: 8),
                 Divider(
                     height: 1,
-                    color: t.textPrimary.withOpacity(0.08)),
+                    color: t.textPrimary.withValues(alpha: 0.08)),
                 // Categories list
                 Expanded(
                   child: _categories.where((c) => _getFilteredSections(c).isNotEmpty).isEmpty && _searchQuery.isNotEmpty
@@ -151,9 +151,9 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.search_off, size: 48, color: t.textPrimary.withOpacity(0.3)),
+                            Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withOpacity(0.5), fontSize: 14)),
+                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
                           ],
                         ),
                       )
@@ -180,7 +180,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
         Container(
           width: double.infinity,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          color: t.accent.withOpacity(0.06),
+          color: t.accent.withValues(alpha: 0.06),
           child: Text(
             category.toUpperCase(),
             style: GoogleFonts.cinzel(
@@ -205,7 +205,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
         decoration: BoxDecoration(
           border: Border(
             bottom: BorderSide(
-              color: t.textPrimary.withOpacity(0.04),
+              color: t.textPrimary.withValues(alpha: 0.04),
             ),
           ),
         ),
@@ -216,7 +216,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
               child: Text(
                 section.title,
                 style: GoogleFonts.manrope(
-                  color: t.textPrimary.withOpacity(0.85),
+                  color: t.textPrimary.withValues(alpha: 0.85),
                   fontSize: 13,
                   height: 1.3,
                 ),
@@ -235,7 +235,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                             width: 24,
                             height: 24,
                             decoration: BoxDecoration(
-                              color: t.accent.withOpacity(0.15),
+                              color: t.accent.withValues(alpha: 0.15),
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: Center(
@@ -254,7 +254,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                           '—',
                           style: TextStyle(
                             color:
-                                t.textPrimary.withOpacity(0.12),
+                                t.textPrimary.withValues(alpha: 0.12),
                             fontSize: 14,
                           ),
                         ),
@@ -292,7 +292,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                   height: 4,
                   margin: const EdgeInsets.only(bottom: 16),
                   decoration: BoxDecoration(
-                    color: t.textPrimary.withOpacity(0.2),
+                    color: t.textPrimary.withValues(alpha: 0.2),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -329,12 +329,12 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                           horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
                         color: has
-                            ? t.accent.withOpacity(0.08)
-                            : t.textPrimary.withOpacity(0.03),
+                            ? t.accent.withValues(alpha: 0.08)
+                            : t.textPrimary.withValues(alpha: 0.03),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
                           color: has
-                              ? t.accent.withOpacity(0.2)
+                              ? t.accent.withValues(alpha: 0.2)
                               : Colors.transparent,
                         ),
                       ),
@@ -345,7 +345,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                             style: GoogleFonts.cinzel(
                               color: has
                                   ? t.accent
-                                  : t.textPrimary.withOpacity(0.2),
+                                  : t.textPrimary.withValues(alpha: 0.2),
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                             ),
@@ -356,7 +356,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                               _formatOsisDisplay(ref),
                               style: GoogleFonts.manrope(
                                 color: t.textPrimary
-                                    .withOpacity(0.6),
+                                    .withValues(alpha: 0.6),
                                 fontSize: 12,
                               ),
                             )
@@ -365,7 +365,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                               'No registrado',
                               style: GoogleFonts.manrope(
                                 color: t.textPrimary
-                                    .withOpacity(0.15),
+                                    .withValues(alpha: 0.15),
                                 fontSize: 12,
                               ),
                             ),
@@ -373,7 +373,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                             Padding(
                               padding: const EdgeInsets.only(left: 8),
                               child: Icon(Icons.chevron_right,
-                                  color: t.accent.withOpacity(0.4),
+                                  color: t.accent.withValues(alpha: 0.4),
                                   size: 18),
                             ),
                         ],

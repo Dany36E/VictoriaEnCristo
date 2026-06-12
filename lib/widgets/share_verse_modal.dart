@@ -92,7 +92,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                   Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: _goldAccent.withOpacity(0.15),
+                      color: _goldAccent.withValues(alpha: 0.15),
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: const Icon(
@@ -173,12 +173,12 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                   borderRadius: BorderRadius.circular(16),
                   boxShadow: [
                     BoxShadow(
-                      color: _goldAccent.withOpacity(0.15),
+                      color: _goldAccent.withValues(alpha: 0.15),
                       blurRadius: 30,
                       spreadRadius: 0,
                     ),
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.4),
+                      color: Colors.black.withValues(alpha: 0.4),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -388,7 +388,7 @@ class _QuoteCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      accentColor.withOpacity(0.08),
+                      accentColor.withValues(alpha: 0.08),
                       Colors.transparent,
                     ],
                   ),
@@ -405,7 +405,7 @@ class _QuoteCard extends StatelessWidget {
                   shape: BoxShape.circle,
                   gradient: RadialGradient(
                     colors: [
-                      accentColor.withOpacity(0.06),
+                      accentColor.withValues(alpha: 0.06),
                       Colors.transparent,
                     ],
                   ),
@@ -424,7 +424,7 @@ class _QuoteCard extends StatelessWidget {
                   // Comillas
                   Icon(
                     Icons.format_quote_rounded,
-                    color: accentColor.withOpacity(0.4),
+                    color: accentColor.withValues(alpha: 0.4),
                     size: 48,
                   ),
                   
@@ -453,9 +453,9 @@ class _QuoteCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          accentColor.withOpacity(0.3),
+                          accentColor.withValues(alpha: 0.3),
                           accentColor,
-                          accentColor.withOpacity(0.3),
+                          accentColor.withValues(alpha: 0.3),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(1),
@@ -483,7 +483,7 @@ class _QuoteCard extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.church_rounded,
-                        color: Colors.white.withOpacity(0.4),
+                        color: Colors.white.withValues(alpha: 0.4),
                         size: 16,
                       ),
                       const SizedBox(width: 8),
@@ -492,7 +492,7 @@ class _QuoteCard extends StatelessWidget {
                         style: GoogleFonts.manrope(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white.withOpacity(0.4),
+                          color: Colors.white.withValues(alpha: 0.4),
                           letterSpacing: 1,
                         ),
                       ),
@@ -541,13 +541,13 @@ class _FormatChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected 
-              ? const Color(0xFFD4A853).withOpacity(0.15)
-              : Colors.white.withOpacity(0.05),
+              ? const Color(0xFFD4A853).withValues(alpha: 0.15)
+              : Colors.white.withValues(alpha: 0.05),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
             color: isSelected 
                 ? const Color(0xFFD4A853)
-                : Colors.white.withOpacity(0.1),
+                : Colors.white.withValues(alpha: 0.1),
             width: 1.5,
           ),
         ),
@@ -558,8 +558,8 @@ class _FormatChip extends StatelessWidget {
               height: isSelected ? 28 : 35,
               decoration: BoxDecoration(
                 color: isSelected 
-                    ? const Color(0xFFD4A853).withOpacity(0.3)
-                    : Colors.white.withOpacity(0.1),
+                    ? const Color(0xFFD4A853).withValues(alpha: 0.3)
+                    : Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(4),
               ),
             ),
@@ -618,7 +618,7 @@ class _PrimaryShareButton extends StatelessWidget {
           borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: const Color(0xFFD4A853).withOpacity(0.4),
+              color: const Color(0xFFD4A853).withValues(alpha: 0.4),
               blurRadius: 20,
               offset: const Offset(0, 8),
             ),
@@ -674,10 +674,10 @@ class _SecondaryButton extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 14),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.08),
+          color: Colors.white.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             width: 1,
           ),
         ),
@@ -716,7 +716,7 @@ class _StarfieldPainter extends CustomPainter {
       final radius = random.nextDouble() * 1.5 + 0.5;
       final opacity = random.nextDouble() * 0.4 + 0.1;
       
-      paint.color = Colors.white.withOpacity(opacity);
+      paint.color = Colors.white.withValues(alpha: opacity);
       canvas.drawCircle(Offset(x, y), radius, paint);
     }
   }

@@ -72,7 +72,7 @@ class CollectionDetailScreen extends StatelessWidget {
                                 child: Text(
                                   collection.description!,
                                   style: GoogleFonts.manrope(
-                                    color: t.textSecondary.withOpacity(0.5),
+                                    color: t.textSecondary.withValues(alpha: 0.5),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -101,7 +101,7 @@ class CollectionDetailScreen extends StatelessWidget {
                           child: Text(
                             'Colección vacía',
                             style: GoogleFonts.manrope(
-                              color: t.textSecondary.withOpacity(0.4),
+                              color: t.textSecondary.withValues(alpha: 0.4),
                               fontSize: 14,
                             ),
                           ),
@@ -171,7 +171,7 @@ class CollectionDetailScreen extends StatelessWidget {
               Text(
                 '${v.reference} — ${v.version}',
                 style: GoogleFonts.manrope(
-                  color: t.textSecondary.withOpacity(0.5),
+                  color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.0,

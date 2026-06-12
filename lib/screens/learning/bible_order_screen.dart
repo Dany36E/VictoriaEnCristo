@@ -272,7 +272,7 @@ class _CategoryCard extends StatelessWidget {
         color: t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
         border: Border.all(
-          color: completed ? AppDesignSystem.gold.withOpacity(0.5) : t.cardBorder,
+          color: completed ? AppDesignSystem.gold.withValues(alpha: 0.5) : t.cardBorder,
           width: completed ? 1.5 : 1,
         ),
         boxShadow: completed ? AppDesignSystem.shadowVictory : t.cardShadow,
@@ -286,7 +286,7 @@ class _CategoryCard extends StatelessWidget {
                 width: 40,
                 height: 40,
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.15),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: AppDesignSystem.gold, size: 22),
@@ -342,7 +342,7 @@ class _CategoryCard extends StatelessWidget {
                       label: const Text('Aprender'),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppDesignSystem.gold,
-                        side: BorderSide(color: AppDesignSystem.gold.withOpacity(0.7)),
+                        side: BorderSide(color: AppDesignSystem.gold.withValues(alpha: 0.7)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
                         ),
@@ -380,7 +380,7 @@ class _CategoryCard extends StatelessWidget {
         return Icon(
           i < stars ? Icons.star_rounded : Icons.star_border_rounded,
           size: 20,
-          color: i < stars ? AppDesignSystem.gold : AppDesignSystem.gold.withOpacity(0.3),
+          color: i < stars ? AppDesignSystem.gold : AppDesignSystem.gold.withValues(alpha: 0.3),
         );
       }),
     );

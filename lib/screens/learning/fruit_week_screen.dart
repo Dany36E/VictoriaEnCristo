@@ -221,12 +221,12 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [color.withOpacity(0.25), color.withOpacity(0.05)],
+          colors: [color.withValues(alpha: 0.25), color.withValues(alpha: 0.05)],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: color.withOpacity(0.5)),
+        border: Border.all(color: color.withValues(alpha: 0.5)),
       ),
       child: Row(
         children: [
@@ -334,7 +334,7 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
         child: Container(
           padding: const EdgeInsets.all(AppDesignSystem.spacingM),
           decoration: BoxDecoration(
-            color: done ? color.withOpacity(0.12) : t.cardBg,
+            color: done ? color.withValues(alpha: 0.12) : t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
             border: Border.all(
               color: done ? color : t.cardBorder,
@@ -367,7 +367,7 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
                     context,
                     color: done
                         ? t.textPrimary
-                        : t.textPrimary.withOpacity(0.85),
+                        : t.textPrimary.withValues(alpha: 0.85),
                   ),
                 ),
               ),
@@ -384,8 +384,8 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            color.withOpacity(0.3),
-            AppDesignSystem.gold.withOpacity(0.25),
+            color.withValues(alpha: 0.3),
+            AppDesignSystem.gold.withValues(alpha: 0.25),
           ],
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),

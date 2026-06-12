@@ -63,7 +63,7 @@ class CrisisExercisesSheet extends StatelessWidget {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
+                    color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -77,7 +77,7 @@ class CrisisExercisesSheet extends StatelessWidget {
                       width: 44,
                       height: 44,
                       decoration: BoxDecoration(
-                        color: AppDesignSystem.struggle.withOpacity(0.15),
+                        color: AppDesignSystem.struggle.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                       ),
                       child: const Icon(Icons.shield_moon,
@@ -174,7 +174,7 @@ class _BigCrisisCard extends StatelessWidget {
           decoration: BoxDecoration(
             color: t.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-            border: Border.all(color: color.withOpacity(0.4), width: 1.2),
+            border: Border.all(color: color.withValues(alpha: 0.4), width: 1.2),
             boxShadow: AppDesignSystem.shadowSoft,
           ),
           child: Row(
@@ -183,7 +183,7 @@ class _BigCrisisCard extends StatelessWidget {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.15),
+                  color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(_icon(), color: color, size: 28),

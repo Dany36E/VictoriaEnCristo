@@ -63,7 +63,7 @@ class ErrorRetryWidget extends StatelessWidget {
             Icon(
               icon,
               size: compact ? 40 : 64,
-              color: t.textSecondary.withOpacity(0.6),
+              color: t.textSecondary.withValues(alpha: 0.6),
             ),
             const SizedBox(height: AppDesignSystem.spacingM),
             if (title != null)
@@ -132,7 +132,7 @@ class EmptyStateWidget extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 56, color: AppDesignSystem.gold.withOpacity(0.8)),
+            Icon(icon, size: 56, color: AppDesignSystem.gold.withValues(alpha: 0.8)),
             const SizedBox(height: AppDesignSystem.spacingM),
             Text(
               title,

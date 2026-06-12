@@ -52,8 +52,8 @@ class RelapseRecoveryScreen extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                       colors: [
-                        AppDesignSystem.gold.withOpacity(0.28),
-                        AppDesignSystem.goldLight.withOpacity(0.10),
+                        AppDesignSystem.gold.withValues(alpha: 0.28),
+                        AppDesignSystem.goldLight.withValues(alpha: 0.10),
                       ],
                     ),
                   ),
@@ -143,7 +143,7 @@ class RelapseRecoveryScreen extends StatelessWidget {
                     Container(
                       width: 1,
                       height: 48,
-                      color: t.textSecondary.withOpacity(0.15),
+                      color: t.textSecondary.withValues(alpha: 0.15),
                     ),
                     Expanded(
                       child: _StatBlock(
@@ -167,7 +167,7 @@ class RelapseRecoveryScreen extends StatelessWidget {
                   borderRadius:
                       BorderRadius.circular(AppDesignSystem.radiusM),
                   border: Border.all(
-                    color: AppDesignSystem.gold.withOpacity(0.2),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.2),
                   ),
                 ),
                 child: Column(
@@ -262,7 +262,7 @@ class _GraceCard extends StatelessWidget {
         color: t.surface,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
         border: Border.all(
-          color: AppDesignSystem.gold.withOpacity(0.12),
+          color: AppDesignSystem.gold.withValues(alpha: 0.12),
         ),
       ),
       child: child,
@@ -337,14 +337,14 @@ class _ChoiceTile extends StatelessWidget {
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
             decoration: BoxDecoration(
               color: emphasized
-                  ? AppDesignSystem.gold.withOpacity(0.10)
+                  ? AppDesignSystem.gold.withValues(alpha: 0.10)
                   : t.surface,
               borderRadius:
                   BorderRadius.circular(AppDesignSystem.radiusM),
               border: Border.all(
                 color: emphasized
-                    ? AppDesignSystem.gold.withOpacity(0.45)
-                    : t.textSecondary.withOpacity(0.10),
+                    ? AppDesignSystem.gold.withValues(alpha: 0.45)
+                    : t.textSecondary.withValues(alpha: 0.10),
               ),
             ),
             child: Row(
@@ -381,7 +381,7 @@ class _ChoiceTile extends StatelessWidget {
                 ),
                 Icon(
                   Icons.chevron_right_rounded,
-                  color: t.textSecondary.withOpacity(0.6),
+                  color: t.textSecondary.withValues(alpha: 0.6),
                 ),
               ],
             ),

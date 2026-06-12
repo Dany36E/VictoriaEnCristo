@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -39,7 +39,7 @@ class BibleVerseTile extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 6, horizontal: 8),
         decoration: highlight != null
             ? BoxDecoration(
-                color: highlight!.color.withOpacity(0.2),
+                color: highlight!.color.withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(4),
               )
             : null,
@@ -51,7 +51,7 @@ class BibleVerseTile extends StatelessWidget {
               child: Text(
                 '${verse.verse}',
                 style: GoogleFonts.manrope(
-                  color: t.accent.withOpacity(0.6),
+                  color: t.accent.withValues(alpha: 0.6),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                 ),
@@ -62,7 +62,7 @@ class BibleVerseTile extends StatelessWidget {
                 TextSpan(
                   text: verse.text,
                   style: GoogleFonts.crimsonPro(
-                    color: Colors.white.withOpacity(0.9),
+                    color: Colors.white.withValues(alpha: 0.9),
                     fontSize: fontSize,
                     height: 1.7,
                   ),

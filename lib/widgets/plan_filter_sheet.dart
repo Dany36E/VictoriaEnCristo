@@ -137,7 +137,7 @@ class _PlanFilterSheetState extends State<PlanFilterSheet> {
             width: 40,
             height: 4,
             decoration: BoxDecoration(
-              color: AppDesignSystem.coolGray.withOpacity(0.3),
+              color: AppDesignSystem.coolGray.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(2),
             ),
           ),
@@ -573,13 +573,13 @@ class _FilterChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
         decoration: BoxDecoration(
           color: isSelected 
-            ? chipColor.withOpacity(0.2) 
-            : AppDesignSystem.midnight.withOpacity(0.4),
+            ? chipColor.withValues(alpha: 0.2) 
+            : AppDesignSystem.midnight.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected 
               ? chipColor 
-              : AppDesignSystem.coolGray.withOpacity(0.2),
+              : AppDesignSystem.coolGray.withValues(alpha: 0.2),
             width: isSelected ? 1.5 : 1,
           ),
         ),

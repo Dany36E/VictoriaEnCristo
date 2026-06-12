@@ -100,7 +100,7 @@ class _HeroHeader extends StatelessWidget {
                   value: 1.0,
                   strokeWidth: 6,
                   backgroundColor: Colors.transparent,
-                  color: theme.textSecondary.withOpacity(0.12),
+                  color: theme.textSecondary.withValues(alpha: 0.12),
                 ),
               ),
               SizedBox.expand(
@@ -196,7 +196,7 @@ class _HeroHeader extends StatelessWidget {
                   child: LinearProgressIndicator(
                     value: nearest!.progressToNext,
                     minHeight: 4,
-                    backgroundColor: theme.textSecondary.withOpacity(0.12),
+                    backgroundColor: theme.textSecondary.withValues(alpha: 0.12),
                     color: nearestColor,
                   ),
                 ),
@@ -238,7 +238,7 @@ class _BadgeRow extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: (hasUnlocked ? levelColor : theme.textSecondary)
-                      .withOpacity(theme.isDark ? 0.18 : 0.12),
+                      .withValues(alpha: theme.isDark ? 0.18 : 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 alignment: Alignment.center,
@@ -263,7 +263,7 @@ class _BadgeRow extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: levelColor.withOpacity(theme.isDark ? 0.22 : 0.15),
+                    color: levelColor.withValues(alpha: theme.isDark ? 0.22 : 0.15),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(
@@ -291,7 +291,7 @@ class _BadgeRow extends StatelessWidget {
                   style: GoogleFonts.manrope(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
-                    color: theme.textSecondary.withOpacity(0.7),
+                    color: theme.textSecondary.withValues(alpha: 0.7),
                   ),
                 ),
             ],
@@ -319,13 +319,13 @@ class _BadgeRow extends StatelessWidget {
                         color: isUnlocked
                             ? dotColor
                             : isNext
-                                ? dotColor.withOpacity(0.28)
-                                : theme.textSecondary.withOpacity(0.10),
+                                ? dotColor.withValues(alpha: 0.28)
+                                : theme.textSecondary.withValues(alpha: 0.10),
                         borderRadius: BorderRadius.circular(6),
                         boxShadow: isUnlocked
                             ? [
                                 BoxShadow(
-                                  color: dotColor.withOpacity(0.5),
+                                  color: dotColor.withValues(alpha: 0.5),
                                   blurRadius: 6,
                                   offset: const Offset(0, 1),
                                 ),
@@ -364,7 +364,7 @@ class _BadgeRow extends StatelessWidget {
                     'para ${progress.nextLevel!.displayName} ${progress.nextLevel!.emoji}',
                     style: GoogleFonts.manrope(
                       fontSize: 11,
-                      color: theme.textSecondary.withOpacity(0.85),
+                      color: theme.textSecondary.withValues(alpha: 0.85),
                     ),
                   ),
                 ),

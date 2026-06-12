@@ -184,7 +184,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                   radius: 1.2,
                   colors: [
                     Colors.transparent,
-                    const Color(0xFF0A0E14).withOpacity(0.8),
+                    const Color(0xFF0A0E14).withValues(alpha: 0.8),
                   ],
                 ),
               ),
@@ -224,7 +224,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
             icon: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.1),
+                color: Colors.white.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Icon(
@@ -348,15 +348,15 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                 return Container(
                   padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   decoration: BoxDecoration(
-                    color: _selectedEmotion!.color.withOpacity(0.15),
+                    color: _selectedEmotion!.color.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(
-                      color: _selectedEmotion!.color.withOpacity(0.5 * _glowAnimation.value),
+                      color: _selectedEmotion!.color.withValues(alpha: 0.5 * _glowAnimation.value),
                       width: 1,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: _selectedEmotion!.color.withOpacity(0.2 * _glowAnimation.value),
+                        color: _selectedEmotion!.color.withValues(alpha: 0.2 * _glowAnimation.value),
                         blurRadius: 20,
                         spreadRadius: 2,
                       ),
@@ -454,10 +454,10 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                 child: Container(
                   padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.08),
+                    color: Colors.white.withValues(alpha: 0.08),
                     borderRadius: BorderRadius.circular(30),
                     border: Border.all(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       width: 1,
                     ),
                   ),
@@ -514,13 +514,13 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
         boxShadow: [
           // Glow del color de la emoción
           BoxShadow(
-            color: _selectedEmotion!.color.withOpacity(0.3),
+            color: _selectedEmotion!.color.withValues(alpha: 0.3),
             blurRadius: 30,
             spreadRadius: 0,
           ),
           // Sombra suave
           BoxShadow(
-            color: Colors.black.withOpacity(0.2),
+            color: Colors.black.withValues(alpha: 0.2),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -546,7 +546,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                   // Icono decorativo
                   Icon(
                     Icons.format_quote_rounded,
-                    color: _selectedEmotion!.color.withOpacity(0.3),
+                    color: _selectedEmotion!.color.withValues(alpha: 0.3),
                     size: 40,
                   ),
                   
@@ -575,9 +575,9 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          _selectedEmotion!.color.withOpacity(0.3),
+                          _selectedEmotion!.color.withValues(alpha: 0.3),
                           _selectedEmotion!.color,
-                          _selectedEmotion!.color.withOpacity(0.3),
+                          _selectedEmotion!.color.withValues(alpha: 0.3),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(1),
@@ -738,26 +738,26 @@ class _EmotionCardState extends State<_EmotionCard> {
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                widget.emotion.color.withOpacity(0.12),
-                widget.emotion.color.withOpacity(0.06),
+                widget.emotion.color.withValues(alpha: 0.12),
+                widget.emotion.color.withValues(alpha: 0.06),
               ],
             ),
             borderRadius: BorderRadius.circular(20),
             // Borde brillante del color de la emoción
             border: Border.all(
-              color: widget.emotion.color.withOpacity(0.5),
+              color: widget.emotion.color.withValues(alpha: 0.5),
               width: 1.5,
             ),
             // Sombra sutil con el color de la emoción
             boxShadow: [
               BoxShadow(
-                color: widget.emotion.color.withOpacity(0.2),
+                color: widget.emotion.color.withValues(alpha: 0.2),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
                 spreadRadius: -2,
               ),
               BoxShadow(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 blurRadius: 12,
                 offset: const Offset(0, 4),
               ),
@@ -774,7 +774,7 @@ class _EmotionCardState extends State<_EmotionCard> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Colors.white.withOpacity(0.08),
+                      Colors.white.withValues(alpha: 0.08),
                       Colors.transparent,
                     ],
                   ),
@@ -788,15 +788,15 @@ class _EmotionCardState extends State<_EmotionCard> {
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: widget.emotion.color.withOpacity(0.15),
+                        color: widget.emotion.color.withValues(alpha: 0.15),
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: widget.emotion.color.withOpacity(0.4),
+                          color: widget.emotion.color.withValues(alpha: 0.4),
                           width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: widget.emotion.color.withOpacity(0.4),
+                            color: widget.emotion.color.withValues(alpha: 0.4),
                             blurRadius: 16,
                             spreadRadius: 0,
                           ),
@@ -819,7 +819,7 @@ class _EmotionCardState extends State<_EmotionCard> {
                       style: GoogleFonts.manrope(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
-                        color: Colors.white.withOpacity(0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         letterSpacing: 1.5,
                       ),
                     ),
@@ -870,10 +870,10 @@ class _ActionButton extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: isActive ? color.withOpacity(0.3) : color.withOpacity(0.15),
+              color: isActive ? color.withValues(alpha: 0.3) : color.withValues(alpha: 0.15),
               shape: BoxShape.circle,
               border: Border.all(
-                color: isActive ? color : color.withOpacity(0.3),
+                color: isActive ? color : color.withValues(alpha: 0.3),
                 width: isActive ? 2 : 1,
               ),
             ),
@@ -913,7 +913,7 @@ class _StarfieldPainter extends CustomPainter {
       final radius = random.nextDouble() * 1.5 + 0.5;
       final opacity = random.nextDouble() * 0.3 + 0.1;
       
-      paint.color = Colors.white.withOpacity(opacity);
+      paint.color = Colors.white.withValues(alpha: opacity);
       canvas.drawCircle(Offset(x, y), radius, paint);
     }
   }
@@ -935,7 +935,7 @@ class _PaperTexturePainter extends CustomPainter {
     final random = Random(123);
     final paint = Paint()
       ..style = PaintingStyle.fill
-      ..color = color.withOpacity(0.03);
+      ..color = color.withValues(alpha: 0.03);
     
     // Puntos sutiles de textura
     for (int i = 0; i < 200; i++) {
@@ -952,7 +952,7 @@ class _PaperTexturePainter extends CustomPainter {
         center: Alignment.topRight,
         radius: 0.8,
         colors: [
-          color.withOpacity(0.08),
+          color.withValues(alpha: 0.08),
           Colors.transparent,
         ],
       ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));

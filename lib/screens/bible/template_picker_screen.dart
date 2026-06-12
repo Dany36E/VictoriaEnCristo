@@ -88,7 +88,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             // ── Bottom controls ──
             Container(
               decoration: BoxDecoration(
-                color: t.surface.withOpacity(0.6),
+                color: t.surface.withValues(alpha: 0.6),
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(20)),
               ),
@@ -161,7 +161,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 border: isSelected
                     ? Border.all(color: t.accent, width: 2.5)
                     : Border.all(
-                        color: t.textSecondary.withOpacity(0.15)),
+                        color: t.textSecondary.withValues(alpha: 0.15)),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -231,13 +231,13 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             child: Row(
               children: [
                 Icon(Icons.tune,
-                    size: 16, color: t.textSecondary.withOpacity(0.5)),
+                    size: 16, color: t.textSecondary.withValues(alpha: 0.5)),
                 const SizedBox(width: 8),
                 Text(
                   'Personalizar',
                   style: GoogleFonts.manrope(
                     fontSize: 13,
-                    color: t.textSecondary.withOpacity(0.6),
+                    color: t.textSecondary.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -247,7 +247,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                       ? Icons.keyboard_arrow_up
                       : Icons.keyboard_arrow_down,
                   size: 20,
-                  color: t.textSecondary.withOpacity(0.4),
+                  color: t.textSecondary.withValues(alpha: 0.4),
                 ),
               ],
             ),
@@ -268,7 +268,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'TAMAÑO',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.4),
+                        color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
@@ -288,9 +288,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 SliderTheme(
                   data: SliderThemeData(
                     activeTrackColor: t.accent,
-                    inactiveTrackColor: t.textSecondary.withOpacity(0.12),
+                    inactiveTrackColor: t.textSecondary.withValues(alpha: 0.12),
                     thumbColor: t.accent,
-                    overlayColor: t.accent.withOpacity(0.1),
+                    overlayColor: t.accent.withValues(alpha: 0.1),
                     trackHeight: 2,
                     thumbShape:
                         const RoundSliderThumbShape(enabledThumbRadius: 6),
@@ -311,7 +311,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'PROPORCIÓN',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.4),
+                        color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
@@ -332,7 +332,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'ALINEACIÓN',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.4),
+                        color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
@@ -350,7 +350,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'Logo',
                       style: GoogleFonts.manrope(
-                        color: t.textSecondary.withOpacity(0.5),
+                        color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 12,
                       ),
                     ),
@@ -360,9 +360,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                       child: Switch(
                         value: _showLogo,
                         onChanged: (v) => setState(() => _showLogo = v),
-                        activeColor: t.accent,
+                        activeThumbColor: t.accent,
                         inactiveTrackColor:
-                            t.textSecondary.withOpacity(0.12),
+                            t.textSecondary.withValues(alpha: 0.12),
                       ),
                     ),
                   ],
@@ -387,12 +387,12 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
         decoration: BoxDecoration(
           color: isSelected
-              ? t.accent.withOpacity(0.15)
+              ? t.accent.withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(8),
           border: isSelected
               ? Border.all(color: t.accent, width: 1.5)
-              : Border.all(color: t.textSecondary.withOpacity(0.15)),
+              : Border.all(color: t.textSecondary.withValues(alpha: 0.15)),
         ),
         child: Text(
           _aspects[index].label,
@@ -401,7 +401,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             fontWeight: FontWeight.w700,
             color: isSelected
                 ? t.accent
-                : t.textSecondary.withOpacity(0.45),
+                : t.textSecondary.withValues(alpha: 0.45),
           ),
         ),
       ),
@@ -416,17 +416,17 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
           color: isSelected
-              ? t.accent.withOpacity(0.15)
+              ? t.accent.withValues(alpha: 0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(6),
           border: isSelected
               ? Border.all(color: t.accent, width: 1)
-              : Border.all(color: t.textSecondary.withOpacity(0.12)),
+              : Border.all(color: t.textSecondary.withValues(alpha: 0.12)),
         ),
         child: Icon(icon,
             color: isSelected
                 ? t.accent
-                : t.textSecondary.withOpacity(0.4),
+                : t.textSecondary.withValues(alpha: 0.4),
             size: 16),
       ),
     );
@@ -454,7 +454,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: t.accent,
-                  side: BorderSide(color: t.accent.withOpacity(0.5)),
+                  side: BorderSide(color: t.accent.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),

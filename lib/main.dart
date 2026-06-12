@@ -1239,7 +1239,7 @@ class _UpdateRequiredScreen extends StatelessWidget {
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      color: gold.withOpacity(0.12),
+                      color: gold.withValues(alpha: 0.12),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -1264,7 +1264,7 @@ class _UpdateRequiredScreen extends StatelessWidget {
                     'Para seguir usando Victoria en Cristo necesitas instalar la última versión de la app.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      color: Colors.white.withOpacity(0.65),
+                      color: Colors.white.withValues(alpha: 0.65),
                       fontSize: 15,
                       height: 1.5,
                     ),

@@ -217,7 +217,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: AppDesignSystem.midnight.withOpacity(0.2),
+                          color: AppDesignSystem.midnight.withValues(alpha: 0.2),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -228,7 +228,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                         // Icono decorativo
                         Icon(
                           Icons.format_quote,
-                          color: AppDesignSystem.gold.withOpacity(0.5),
+                          color: AppDesignSystem.gold.withValues(alpha: 0.5),
                           size: 32,
                         ),
                         const SizedBox(height: 16),
@@ -249,7 +249,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                           decoration: BoxDecoration(
-                            color: AppDesignSystem.gold.withOpacity(0.2),
+                            color: AppDesignSystem.gold.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -275,9 +275,9 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppDesignSystem.gold.withOpacity(0.2),
+                            AppDesignSystem.gold.withValues(alpha: 0.2),
                             AppDesignSystem.gold,
-                            AppDesignSystem.gold.withOpacity(0.2),
+                            AppDesignSystem.gold.withValues(alpha: 0.2),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(2),
@@ -444,7 +444,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
         style: GoogleFonts.manrope(
           fontSize: 17,
           fontWeight: FontWeight.w400,
-          color: AppDesignSystem.midnight.withOpacity(0.85),
+          color: AppDesignSystem.midnight.withValues(alpha: 0.85),
           height: 1.7,
           letterSpacing: 0.2,
         ),
@@ -487,7 +487,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
         color: const Color(0xFFF8F9FC), // Gris muy claro azulado
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppDesignSystem.midnight.withOpacity(0.08),
+          color: AppDesignSystem.midnight.withValues(alpha: 0.08),
         ),
       ),
       child: Column(
@@ -499,7 +499,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
               Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withOpacity(0.15),
+                  color: AppDesignSystem.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: const Icon(
@@ -529,7 +529,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
               gradient: LinearGradient(
                 colors: [
                   AppDesignSystem.gold,
-                  AppDesignSystem.gold.withOpacity(0.3),
+                  AppDesignSystem.gold.withValues(alpha: 0.3),
                 ],
               ),
               borderRadius: BorderRadius.circular(1),
@@ -542,7 +542,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
             style: GoogleFonts.manrope(
               fontSize: 16,
               fontWeight: FontWeight.w400,
-              color: AppDesignSystem.midnight.withOpacity(0.8),
+              color: AppDesignSystem.midnight.withValues(alpha: 0.8),
               height: 1.7,
             ),
           ),
@@ -559,11 +559,11 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
         color: const Color(0xFFFFFBF5), // Crema cálido muy suave
         borderRadius: BorderRadius.circular(16),
         border: Border.all(
-          color: AppDesignSystem.gold.withOpacity(0.2),
+          color: AppDesignSystem.gold.withValues(alpha: 0.2),
         ),
         boxShadow: [
           BoxShadow(
-            color: AppDesignSystem.gold.withOpacity(0.08),
+            color: AppDesignSystem.gold.withValues(alpha: 0.08),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -597,7 +597,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppDesignSystem.gold.withOpacity(0.2),
+                            color: AppDesignSystem.gold.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: const Text(
@@ -626,7 +626,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                         gradient: LinearGradient(
                           colors: [
                             AppDesignSystem.gold,
-                            AppDesignSystem.gold.withOpacity(0.2),
+                            AppDesignSystem.gold.withValues(alpha: 0.2),
                           ],
                         ),
                         borderRadius: BorderRadius.circular(1),
@@ -640,7 +640,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                         fontSize: 17,
                         fontWeight: FontWeight.w400,
                         fontStyle: FontStyle.italic,
-                        color: AppDesignSystem.midnight.withOpacity(0.85),
+                        color: AppDesignSystem.midnight.withValues(alpha: 0.85),
                         height: 1.7,
                       ),
                     ),
@@ -663,7 +663,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppDesignSystem.gold.withOpacity(0.4),
+            color: AppDesignSystem.gold.withValues(alpha: 0.4),
             blurRadius: 20,
             offset: const Offset(0, 8),
           ),
@@ -706,9 +706,9 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: AppDesignSystem.victory.withOpacity(0.1),
+        color: AppDesignSystem.victory.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppDesignSystem.victory.withOpacity(0.3)),
+        border: Border.all(color: AppDesignSystem.victory.withValues(alpha: 0.3)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -762,7 +762,7 @@ class _CompletionDialog extends StatelessWidget {
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: AppDesignSystem.gold.withOpacity(0.2),
+              color: AppDesignSystem.gold.withValues(alpha: 0.2),
               blurRadius: 30,
               spreadRadius: 5,
             ),

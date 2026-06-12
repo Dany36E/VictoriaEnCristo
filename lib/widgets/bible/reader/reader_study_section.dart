@@ -15,10 +15,10 @@ class ReaderStudyBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFD4AF37).withOpacity(0.08),
+          color: const Color(0xFFD4AF37).withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color(0xFFD4AF37).withOpacity(0.2),
+            color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
           ),
         ),
         child: Row(
@@ -30,7 +30,7 @@ class ReaderStudyBanner extends StatelessWidget {
               child: Text(
                 'Modo Estudio · David Guzik · Enduring Word',
                 style: GoogleFonts.manrope(
-                  color: const Color(0xFFD4AF37).withOpacity(0.8),
+                  color: const Color(0xFFD4AF37).withValues(alpha: 0.8),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.3,
@@ -73,11 +73,11 @@ class ReaderAnnotationBlock extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           color: theme.isDark
-              ? Colors.white.withOpacity(0.04)
-              : Colors.black.withOpacity(0.03),
+              ? Colors.white.withValues(alpha: 0.04)
+              : Colors.black.withValues(alpha: 0.03),
           border: Border(
             left: BorderSide(
-              color: const Color(0xFFD4AF37).withOpacity(0.6),
+              color: const Color(0xFFD4AF37).withValues(alpha: 0.6),
               width: 3,
             ),
           ),
@@ -109,7 +109,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                     ),
                     Icon(
                       isCollapsed ? Icons.expand_more : Icons.expand_less,
-                      color: theme.textSecondary.withOpacity(0.3),
+                      color: theme.textSecondary.withValues(alpha: 0.3),
                       size: 18,
                     ),
                   ],
@@ -122,7 +122,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                     child: Text(
                       p,
                       style: GoogleFonts.lora(
-                        color: theme.textPrimary.withOpacity(0.88),
+                        color: theme.textPrimary.withValues(alpha: 0.88),
                         fontSize: (fontSize - 1).clamp(10.0, 27.0),
                         height: 1.7,
                       ),
@@ -152,11 +152,11 @@ class ReaderGuzikAttribution extends StatelessWidget {
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
             color: theme.isDark
-                ? Colors.white.withOpacity(0.03)
-                : Colors.black.withOpacity(0.02),
+                ? Colors.white.withValues(alpha: 0.03)
+                : Colors.black.withValues(alpha: 0.02),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: const Color(0xFFD4AF37).withOpacity(0.15),
+              color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
             ),
           ),
           child: Column(
@@ -166,7 +166,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
                 'by David Guzik – enduringword.com',
                 textAlign: TextAlign.center,
                 style: GoogleFonts.manrope(
-                  color: theme.textSecondary.withOpacity(0.5),
+                  color: theme.textSecondary.withValues(alpha: 0.5),
                   fontSize: 10,
                   height: 1.5,
                 ),
@@ -175,7 +175,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
               Text(
                 'Used with permission.',
                 style: GoogleFonts.manrope(
-                  color: theme.textSecondary.withOpacity(0.35),
+                  color: theme.textSecondary.withValues(alpha: 0.35),
                   fontSize: 9,
                   fontStyle: FontStyle.italic,
                 ),

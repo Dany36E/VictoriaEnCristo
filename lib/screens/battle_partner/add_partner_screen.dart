@@ -92,7 +92,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                   height: 1.5,
                 ),
               ),
@@ -118,9 +118,9 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
   Widget _buildCodeInput() {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.06),
+        color: Colors.white.withValues(alpha: 0.06),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.1)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: _codeController,
@@ -139,7 +139,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
           hintStyle: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w300,
-            color: Colors.white.withOpacity(0.15),
+            color: Colors.white.withValues(alpha: 0.15),
             letterSpacing: 4,
           ),
           counterText: '',
@@ -164,8 +164,8 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
     return FilledButton(
       onPressed: codeReady && !_searching ? _lookup : null,
       style: FilledButton.styleFrom(
-        backgroundColor: AppDesignSystem.gold.withOpacity(codeReady ? 0.25 : 0.08),
-        foregroundColor: codeReady ? AppDesignSystem.gold : Colors.white.withOpacity(0.3),
+        backgroundColor: AppDesignSystem.gold.withValues(alpha: codeReady ? 0.25 : 0.08),
+        foregroundColor: codeReady ? AppDesignSystem.gold : Colors.white.withValues(alpha: 0.3),
         padding: const EdgeInsets.symmetric(vertical: 14),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
@@ -208,9 +208,9 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppDesignSystem.victory.withOpacity(0.08),
+        color: AppDesignSystem.victory.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppDesignSystem.victory.withOpacity(0.25)),
+        border: Border.all(color: AppDesignSystem.victory.withValues(alpha: 0.25)),
       ),
       child: Column(
         children: [
@@ -220,8 +220,8 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
             height: 56,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppDesignSystem.gold.withOpacity(0.15),
-              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.4)),
+              color: AppDesignSystem.gold.withValues(alpha: 0.15),
+              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.4)),
             ),
             child: Center(
               child: Text(
@@ -250,7 +250,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
             '¿Enviar solicitud de compañero?',
             style: TextStyle(
               fontSize: 13,
-              color: Colors.white.withOpacity(0.6),
+              color: Colors.white.withValues(alpha: 0.6),
             ),
           ),
           const SizedBox(height: 14),
@@ -265,7 +265,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
                 : const Icon(Icons.handshake, size: 18),
             label: Text(_sending ? 'Enviando...' : 'Enviar solicitud'),
             style: FilledButton.styleFrom(
-              backgroundColor: AppDesignSystem.gold.withOpacity(0.3),
+              backgroundColor: AppDesignSystem.gold.withValues(alpha: 0.3),
               foregroundColor: AppDesignSystem.gold,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
@@ -280,9 +280,9 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: Colors.white.withOpacity(0.08)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
       ),
       child: Column(
         children: [
@@ -302,7 +302,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 13,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
               height: 1.4,
             ),
           ),

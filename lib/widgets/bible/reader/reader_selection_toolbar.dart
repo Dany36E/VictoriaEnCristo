@@ -31,7 +31,7 @@ class ReaderSelectionToolbar extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(t.isDark ? 0.3 : 0.08),
+            color: Colors.black.withValues(alpha: t.isDark ? 0.3 : 0.08),
             blurRadius: 8,
             offset: const Offset(0, 2),
           ),

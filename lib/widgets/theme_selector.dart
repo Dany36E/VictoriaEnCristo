@@ -53,14 +53,14 @@ class ThemeSelectorWidget extends StatelessWidget {
                         color: isActive
                             ? theme.accent
                             : (theme.isDark
-                                ? Colors.white.withOpacity(0.2)
-                                : Colors.black.withOpacity(0.12)),
+                                ? Colors.white.withValues(alpha: 0.2)
+                                : Colors.black.withValues(alpha: 0.12)),
                         width: isActive ? 2.5 : 1,
                       ),
                       boxShadow: isActive
                           ? [
                               BoxShadow(
-                                color: theme.accent.withOpacity(0.3),
+                                color: theme.accent.withValues(alpha: 0.3),
                                 blurRadius: 8,
                                 spreadRadius: 1,
                               ),

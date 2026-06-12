@@ -80,7 +80,7 @@ class _PostExerciseReflectionSheetState
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: t.textSecondary.withOpacity(0.3),
+                color: t.textSecondary.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -126,7 +126,7 @@ class _PostExerciseReflectionSheetState
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     decoration: BoxDecoration(
                       color: isSelected
-                          ? color.withOpacity(0.18)
+                          ? color.withValues(alpha: 0.18)
                           : t.cardBg,
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
@@ -191,7 +191,7 @@ class _PostExerciseReflectionSheetState
                   style: ElevatedButton.styleFrom(
                     backgroundColor: color,
                     foregroundColor: Colors.white,
-                    disabledBackgroundColor: color.withOpacity(0.3),
+                    disabledBackgroundColor: color.withValues(alpha: 0.3),
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),

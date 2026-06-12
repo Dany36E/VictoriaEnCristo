@@ -36,7 +36,7 @@ class BadgeCelebration {
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(14),
-          side: BorderSide(color: color.withOpacity(0.3)),
+          side: BorderSide(color: color.withValues(alpha: 0.3)),
         ),
         content: Row(
           children: [
@@ -107,7 +107,7 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
             shouldLoop: false,
             colors: [
               color,
-              color.withOpacity(0.7),
+              color.withValues(alpha: 0.7),
               Colors.white,
               AppThemeData.of(context).accent,
             ],
@@ -130,7 +130,7 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: AppThemeData.of(context).textSecondary.withOpacity(0.3),
+                  color: AppThemeData.of(context).textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -142,8 +142,8 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
                 height: 90,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: color.withOpacity(0.15),
-                  border: Border.all(color: color.withOpacity(0.4), width: 3),
+                  color: color.withValues(alpha: 0.15),
+                  border: Border.all(color: color.withValues(alpha: 0.4), width: 3),
                 ),
                 child: Center(
                   child: Text(
@@ -201,12 +201,12 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(context),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: color.withOpacity(0.2),
+                    backgroundColor: color.withValues(alpha: 0.2),
                     foregroundColor: color,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(14),
-                      side: BorderSide(color: color.withOpacity(0.3)),
+                      side: BorderSide(color: color.withValues(alpha: 0.3)),
                     ),
                     elevation: 0,
                   ),

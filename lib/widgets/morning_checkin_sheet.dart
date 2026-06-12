@@ -123,7 +123,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: td.textSecondary.withOpacity(0.2),
+                  color: td.textSecondary.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -305,7 +305,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
           },
           child: Text(
             'Saltar',
-            style: GoogleFonts.manrope(color: td.textSecondary.withOpacity(0.5), fontSize: 13),
+            style: GoogleFonts.manrope(color: td.textSecondary.withValues(alpha: 0.5), fontSize: 13),
           ),
         ),
         const Spacer(),
@@ -319,7 +319,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
               margin: const EdgeInsets.symmetric(horizontal: 3),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: i == _step ? AppDesignSystem.gold : td.textSecondary.withOpacity(0.15),
+                color: i == _step ? AppDesignSystem.gold : td.textSecondary.withValues(alpha: 0.15),
               ),
             ),
           ),

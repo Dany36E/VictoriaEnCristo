@@ -186,9 +186,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: AppDesignSystem.gold.withOpacity(0.08),
+        color: AppDesignSystem.gold.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.25)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.25)),
       ),
       child: Row(
         children: [
@@ -198,7 +198,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             height: 40,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: AppDesignSystem.gold.withOpacity(0.15),
+              color: AppDesignSystem.gold.withValues(alpha: 0.15),
             ),
             child: Center(
               child: Text(
@@ -233,7 +233,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   'Quiere ser tu compañero de batalla',
                   style: TextStyle(
                     fontSize: 11,
-                    color: Colors.white.withOpacity(0.5),
+                    color: Colors.white.withValues(alpha: 0.5),
                   ),
                 ),
               ],
@@ -272,7 +272,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withOpacity(0.15),
+            color: color.withValues(alpha: 0.15),
           ),
           child: Icon(icon, color: color, size: 22),
         ),
@@ -336,9 +336,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.04),
+        color: Colors.white.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.white.withOpacity(0.06)),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
       ),
       child: Row(
         children: [
@@ -361,7 +361,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   sticker?.text ?? msg.messageKey,
                   style: TextStyle(
                     fontSize: 13,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -392,7 +392,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                     '${partners.length}/$kMaxBattlePartners',
                     style: TextStyle(
                       fontSize: 12,
-                      color: Colors.white.withOpacity(0.4),
+                      color: Colors.white.withValues(alpha: 0.4),
                     ),
                   ),
                 ),
@@ -431,7 +431,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             'Cargando compañeros…',
             style: TextStyle(
               fontSize: 13,
-              color: Colors.white.withOpacity(0.5),
+              color: Colors.white.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -447,12 +447,12 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppDesignSystem.gold.withOpacity(0.08),
-            Colors.white.withOpacity(0.02),
+            AppDesignSystem.gold.withValues(alpha: 0.08),
+            Colors.white.withValues(alpha: 0.02),
           ],
         ),
         borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.18)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.18)),
       ),
       child: Column(
         children: [
@@ -471,9 +471,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
-              color: Colors.black.withOpacity(0.2),
+              color: Colors.black.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.15)),
+              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.15)),
             ),
             child: Column(
               children: [
@@ -483,7 +483,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   style: TextStyle(
                     fontSize: 12.5,
                     fontStyle: FontStyle.italic,
-                    color: Colors.white.withOpacity(0.82),
+                    color: Colors.white.withValues(alpha: 0.82),
                     height: 1.5,
                   ),
                 ),
@@ -505,7 +505,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,
-              color: Colors.white.withOpacity(0.55),
+              color: Colors.white.withValues(alpha: 0.55),
               height: 1.5,
             ),
           ),
@@ -543,7 +543,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           'No recibirás notificaciones. Podrás reconectar en cualquier '
           'momento volviendo a intercambiar códigos.',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.75),
+            color: Colors.white.withValues(alpha: 0.75),
             fontSize: 13.5,
             height: 1.45,
           ),
@@ -582,12 +582,12 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            AppDesignSystem.gold.withOpacity(0.08),
-            AppDesignSystem.goldDark.withOpacity(0.04),
+            AppDesignSystem.gold.withValues(alpha: 0.08),
+            AppDesignSystem.goldDark.withValues(alpha: 0.04),
           ],
         ),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.2)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.2)),
       ),
       child: Column(
         children: [
@@ -618,10 +618,10 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.06),
+                  color: Colors.white.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                    color: AppDesignSystem.gold.withOpacity(0.3),
+                    color: AppDesignSystem.gold.withValues(alpha: 0.3),
                   ),
                 ),
                 child: Row(
@@ -640,7 +640,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                     const SizedBox(width: 10),
                     Icon(
                       Icons.copy,
-                      color: AppDesignSystem.gold.withOpacity(0.6),
+                      color: AppDesignSystem.gold.withValues(alpha: 0.6),
                       size: 18,
                     ),
                   ],
@@ -653,7 +653,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 11,
-                color: Colors.white.withOpacity(0.4),
+                color: Colors.white.withValues(alpha: 0.4),
               ),
             ),
             const SizedBox(height: 12),
@@ -674,7 +674,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               'Error generando código',
               style: TextStyle(
                 fontSize: 13,
-                color: Colors.white.withOpacity(0.5),
+                color: Colors.white.withValues(alpha: 0.5),
               ),
             ),
         ],
@@ -738,7 +738,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                 'Que tu compañero lo escanee con otra app escáner',
                 style: TextStyle(
                   fontSize: 12,
-                  color: Colors.white.withOpacity(0.5),
+                  color: Colors.white.withValues(alpha: 0.5),
                 ),
               ),
               const SizedBox(height: 20),
@@ -787,7 +787,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
-            color: Colors.white.withOpacity(0.8),
+            color: Colors.white.withValues(alpha: 0.8),
           ),
         ),
         if (badge != null && badge > 0) ...[
@@ -795,7 +795,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.2),
+              color: AppDesignSystem.gold.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
@@ -854,9 +854,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
-            color: Colors.orange.withOpacity(0.1),
+            color: Colors.orange.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: Colors.orange.withOpacity(0.3)),
+            border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
           ),
           child: const Row(
             children: [
@@ -892,13 +892,13 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  AppDesignSystem.struggle.withOpacity(0.15),
-                  AppDesignSystem.struggle.withOpacity(0.05),
+                  AppDesignSystem.struggle.withValues(alpha: 0.15),
+                  AppDesignSystem.struggle.withValues(alpha: 0.05),
                 ],
               ),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppDesignSystem.struggle.withOpacity(0.35),
+                color: AppDesignSystem.struggle.withValues(alpha: 0.35),
               ),
             ),
             child: Column(
@@ -925,7 +925,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   'Envía una alerta urgente a todos tus compañeros de batalla para que oren por ti en este momento.',
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.7),
+                    color: Colors.white.withValues(alpha: 0.7),
                     height: 1.4,
                   ),
                 ),
@@ -958,7 +958,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     fontSize: 10,
-                    color: Colors.white.withOpacity(0.4),
+                    color: Colors.white.withValues(alpha: 0.4),
                   ),
                 ),
               ],
@@ -982,7 +982,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
         content: Text(
           'Se notificará a todos tus compañeros de batalla que necesitas oración ahora. Solo puedes hacerlo 1 vez al día.',
           style: TextStyle(
-            color: Colors.white.withOpacity(0.7),
+            color: Colors.white.withValues(alpha: 0.7),
             fontSize: 14,
             height: 1.4,
           ),

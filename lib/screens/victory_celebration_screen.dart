@@ -240,8 +240,8 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
               center: const Alignment(0, -0.2),
               radius: 1.2,
               colors: [
-                streakColor.withOpacity(pulse),
-                AppDesignSystem.midnightDeep.withOpacity(0.95),
+                streakColor.withValues(alpha: pulse),
+                AppDesignSystem.midnightDeep.withValues(alpha: 0.95),
                 Colors.black,
               ],
               stops: const [0.0, 0.5, 1.0],
@@ -265,7 +265,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.15),
+            color: Colors.black.withValues(alpha: 0.15),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),
@@ -310,8 +310,8 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
                     shape: BoxShape.circle,
                     gradient: RadialGradient(
                       colors: [
-                        streakColor.withOpacity(opacity),
-                        streakColor.withOpacity(opacity * 0.5),
+                        streakColor.withValues(alpha: opacity),
+                        streakColor.withValues(alpha: opacity * 0.5),
                         Colors.transparent,
                       ],
                       stops: const [0.0, 0.5, 1.0],
@@ -332,7 +332,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
             errorBuilder: (_, error, stack) => Icon(
               Icons.person,
               size: 100,
-              color: streakColor.withOpacity(0.5),
+              color: streakColor.withValues(alpha: 0.5),
             ),
           ),
         ],
@@ -406,10 +406,10 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
       margin: const EdgeInsets.symmetric(horizontal: 32),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.07),
+        color: Colors.white.withValues(alpha: 0.07),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: AppDesignSystem.gold.withOpacity(0.2),
+          color: AppDesignSystem.gold.withValues(alpha: 0.2),
           width: 0.5,
         ),
       ),
@@ -453,10 +453,10 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
       circleColor = streakColor;
       centerWidget = const Icon(Icons.check, color: Colors.white, size: 16);
     } else if (isFuture) {
-      circleColor = Colors.white.withOpacity(0.08);
+      circleColor = Colors.white.withValues(alpha: 0.08);
       centerWidget = null;
     } else {
-      circleColor = Colors.white.withOpacity(0.12);
+      circleColor = Colors.white.withValues(alpha: 0.12);
       centerWidget = null;
     }
 
@@ -470,7 +470,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
             fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
             color: isToday
                 ? streakColor
-                : Colors.white.withOpacity(0.6),
+                : Colors.white.withValues(alpha: 0.6),
           ),
         ),
         const SizedBox(height: 6),

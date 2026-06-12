@@ -51,13 +51,13 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                   horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
                 color: t.isDark
-                    ? Colors.white.withOpacity(0.04)
-                    : Colors.black.withOpacity(0.03),
+                    ? Colors.white.withValues(alpha: 0.04)
+                    : Colors.black.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(10),
                 border: note != null
                     ? Border.all(
                         color:
-                            Color(note.colorValue).withOpacity(0.3),
+                            Color(note.colorValue).withValues(alpha: 0.3),
                         width: 0.5,
                       )
                     : null,
@@ -70,7 +70,7 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                         : Icons.description_outlined,
                     color: note != null
                         ? Color(note.colorValue)
-                        : t.textSecondary.withOpacity(0.3),
+                        : t.textSecondary.withValues(alpha: 0.3),
                     size: 18,
                   ),
                   const SizedBox(width: 10),
@@ -95,7 +95,7 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                                   note.content,
                                   style: GoogleFonts.manrope(
                                     color: t.textSecondary
-                                        .withOpacity(0.4),
+                                        .withValues(alpha: 0.4),
                                     fontSize: 12,
                                   ),
                                   maxLines: 1,
@@ -107,13 +107,13 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                             'Agregar nota de estudio...',
                             style: GoogleFonts.manrope(
                               color:
-                                  t.textSecondary.withOpacity(0.3),
+                                  t.textSecondary.withValues(alpha: 0.3),
                               fontSize: 13,
                             ),
                           ),
                   ),
                   Icon(Icons.chevron_right,
-                      color: t.textSecondary.withOpacity(0.3),
+                      color: t.textSecondary.withValues(alpha: 0.3),
                       size: 18),
                 ],
               ),

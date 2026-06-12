@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_verse.dart';
@@ -74,7 +74,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
               Container(
                 width: 40, height: 4,
                 decoration: BoxDecoration(
-                  color: t.textSecondary.withOpacity(0.3),
+                  color: t.textSecondary.withValues(alpha: 0.3),
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -115,13 +115,13 @@ class _PrayerSheetState extends State<PrayerSheet> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: t.isDark ? Colors.white.withOpacity(0.03) : Colors.black.withOpacity(0.03),
+                  color: t.isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
                   '"${widget.verse.text}"',
                   style: GoogleFonts.crimsonPro(
-                    color: t.textSecondary.withOpacity(0.6),
+                    color: t.textSecondary.withValues(alpha: 0.6),
                     fontSize: 14,
                     fontStyle: FontStyle.italic,
                     height: 1.5,
@@ -135,7 +135,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 decoration: BoxDecoration(
-                  color: t.isDark ? Colors.white.withOpacity(0.06) : Colors.black.withOpacity(0.04),
+                  color: t.isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: TextField(
@@ -146,7 +146,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
                   style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14, height: 1.5),
                   decoration: InputDecoration(
                     hintText: 'Señor, con este versículo te pido...',
-                    hintStyle: GoogleFonts.manrope(color: t.textSecondary.withOpacity(0.5), fontSize: 14),
+                    hintStyle: GoogleFonts.manrope(color: t.textSecondary.withValues(alpha: 0.5), fontSize: 14),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                   ),
@@ -158,7 +158,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
                 child: ElevatedButton(
                   onPressed: _save,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: t.accent.withOpacity(0.2),
+                    backgroundColor: t.accent.withValues(alpha: 0.2),
                     foregroundColor: t.accent,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),

@@ -192,11 +192,11 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
                           colors: _isPressed || _isHovered
                               ? [
                                   Color.alphaBlend(
-                                    widget.accentColor.withOpacity(0.22),
+                                    widget.accentColor.withValues(alpha: 0.22),
                                     _surfaceTop,
                                   ),
                                   Color.alphaBlend(
-                                    widget.accentColor.withOpacity(0.10),
+                                    widget.accentColor.withValues(alpha: 0.10),
                                     _surfaceBottom,
                                   ),
                                 ]
@@ -238,7 +238,7 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
                                           widget.subtitle,
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: Colors.white.withOpacity(
+                                            color: Colors.white.withValues(alpha: 
                                               0.6,
                                             ),
                                             fontWeight: FontWeight.w500,
@@ -250,7 +250,7 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
                                       Icon(
                                         Icons.arrow_forward_ios_rounded,
                                         size: 11,
-                                        color: Colors.white.withOpacity(0.5),
+                                        color: Colors.white.withValues(alpha: 0.5),
                                       ),
                                     ],
                                   ),
@@ -286,12 +286,12 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
       decoration: BoxDecoration(
         boxShadow: [
           BoxShadow(
-            color: widget.accentColor.withOpacity(0.6),
+            color: widget.accentColor.withValues(alpha: 0.6),
             blurRadius: 12,
             spreadRadius: 1,
           ),
           BoxShadow(
-            color: widget.accentColor.withOpacity(0.3),
+            color: widget.accentColor.withValues(alpha: 0.3),
             blurRadius: 20,
             spreadRadius: 2,
           ),
@@ -308,12 +308,12 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
               decoration: BoxDecoration(
                 boxShadow: [
                   BoxShadow(
-                    color: widget.accentColor.withOpacity(0.6),
+                    color: widget.accentColor.withValues(alpha: 0.6),
                     blurRadius: 12,
                     spreadRadius: 1,
                   ),
                   BoxShadow(
-                    color: widget.accentColor.withOpacity(0.3),
+                    color: widget.accentColor.withValues(alpha: 0.3),
                     blurRadius: 20,
                     spreadRadius: 2,
                   ),
@@ -408,12 +408,12 @@ class NeonGradientBorderPainter extends CustomPainter {
       startAngle: 0,
       endAngle: math.pi * 2,
       colors: [
-        accentColor.withOpacity(isHovered ? 0.9 : 0.65),
-        accentColor.withOpacity(isHovered ? 0.55 : 0.35),
-        accentColor.withOpacity(isHovered ? 0.30 : 0.18),
-        accentColor.withOpacity(isHovered ? 0.22 : 0.12),
-        accentColor.withOpacity(isHovered ? 0.30 : 0.18),
-        accentColor.withOpacity(isHovered ? 0.45 : 0.28),
+        accentColor.withValues(alpha: isHovered ? 0.9 : 0.65),
+        accentColor.withValues(alpha: isHovered ? 0.55 : 0.35),
+        accentColor.withValues(alpha: isHovered ? 0.30 : 0.18),
+        accentColor.withValues(alpha: isHovered ? 0.22 : 0.12),
+        accentColor.withValues(alpha: isHovered ? 0.30 : 0.18),
+        accentColor.withValues(alpha: isHovered ? 0.45 : 0.28),
       ],
       stops: const [0.0, 0.12, 0.28, 0.5, 0.78, 1.0],
     );

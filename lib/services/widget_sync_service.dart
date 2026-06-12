@@ -217,7 +217,10 @@ class WidgetSyncService {
       );
       await HomeWidget.saveWidgetData(_keyJesusBadgeText, finalBadgeText);
       await HomeWidget.saveWidgetData(_keyJesusBadgeColor, badgeColor);
-      await HomeWidget.saveWidgetData(_keyJesusStreakColor, streakColor.value);
+      await HomeWidget.saveWidgetData(
+        _keyJesusStreakColor,
+        streakColor.toARGB32(),
+      );
 
       // Guardar imágenes de sprite y fondo para el widget nativo
       final spritePath = JesusWidgetService.I.getSprite(

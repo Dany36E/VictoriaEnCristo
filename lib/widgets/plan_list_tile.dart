@@ -40,7 +40,7 @@ class PlanListTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: _isCompleted 
-              ? AppDesignSystem.gold.withOpacity(0.3) 
+              ? AppDesignSystem.gold.withValues(alpha: 0.3) 
               : Colors.transparent,
           width: 1,
         ),
@@ -176,7 +176,7 @@ class PlanListTile extends StatelessWidget {
               width: 4,
               height: 4,
               decoration: BoxDecoration(
-                color: AppDesignSystem.coolGray.withOpacity(0.5),
+                color: AppDesignSystem.coolGray.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
             ),
@@ -235,7 +235,7 @@ class PlanListTile extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppDesignSystem.gold.withOpacity(0.15),
+          color: AppDesignSystem.gold.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
@@ -265,7 +265,7 @@ class PlanListTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        border: Border.all(color: AppDesignSystem.gold.withOpacity(0.5)),
+        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(

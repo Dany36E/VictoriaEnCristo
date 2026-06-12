@@ -65,7 +65,7 @@ class JesusStreakWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(24),
             boxShadow: [
               BoxShadow(
-                color: streakColor.withOpacity(0.3),
+                color: streakColor.withValues(alpha: 0.3),
                 blurRadius: 20,
                 spreadRadius: 0,
                 offset: const Offset(0, 4),
@@ -87,7 +87,7 @@ class JesusStreakWidget extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [streakColor.withOpacity(0.3), const Color(0xFF0A0A12)],
+                        colors: [streakColor.withValues(alpha: 0.3), const Color(0xFF0A0A12)],
                       ),
                     ),
                   ),
@@ -100,9 +100,9 @@ class JesusStreakWidget extends StatelessWidget {
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                       colors: [
-                        Colors.black.withOpacity(0.45),
-                        Colors.black.withOpacity(0.1),
-                        Colors.black.withOpacity(0.3),
+                        Colors.black.withValues(alpha: 0.45),
+                        Colors.black.withValues(alpha: 0.1),
+                        Colors.black.withValues(alpha: 0.3),
                       ],
                       stops: const [0.0, 0.5, 1.0],
                     ),
@@ -157,7 +157,7 @@ class JesusStreakWidget extends StatelessWidget {
                               style: GoogleFonts.manrope(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
-                                color: Colors.white.withOpacity(0.9),
+                                color: Colors.white.withValues(alpha: 0.9),
                                 height: 1.3,
                               ),
                               maxLines: 3,
@@ -180,7 +180,7 @@ class JesusStreakWidget extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: streakColor.withOpacity(0.3), width: 1.5),
+                      border: Border.all(color: streakColor.withValues(alpha: 0.3), width: 1.5),
                     ),
                   ),
                 ),
@@ -264,7 +264,7 @@ class JesusStreakWidget extends StatelessWidget {
                       style: GoogleFonts.manrope(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
-                        color: Colors.white.withOpacity(0.6),
+                        color: Colors.white.withValues(alpha: 0.6),
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -281,9 +281,9 @@ class JesusStreakWidget extends StatelessWidget {
           Container(
                 padding: EdgeInsets.symmetric(horizontal: streakDays >= 100 ? 6 : 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF4CAF50).withOpacity(0.25),
+                  color: const Color(0xFF4CAF50).withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF4CAF50).withOpacity(0.5)),
+                  border: Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.5)),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -352,9 +352,9 @@ class JesusStreakWidget extends StatelessWidget {
         margin: const EdgeInsets.only(top: 8),
         padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
         decoration: BoxDecoration(
-          color: const Color(0xFFD4AF37).withOpacity(0.15),
+          color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFFD4AF37).withOpacity(0.5), width: 0.8),
+          border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.5), width: 0.8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

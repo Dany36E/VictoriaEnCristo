@@ -277,7 +277,7 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
                   width: 40,
                   height: 4,
                   decoration: BoxDecoration(
-                    color: t.textSecondary.withOpacity(0.3),
+                    color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -448,7 +448,7 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
                   decoration: BoxDecoration(
                     color: filled
                         ? AppDesignSystem.gold
-                        : t.textSecondary.withOpacity(0.15),
+                        : t.textSecondary.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(2),
                   ),
                 ),
@@ -507,9 +507,9 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
           Container(
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
             decoration: BoxDecoration(
-              color: AppDesignSystem.gold.withOpacity(0.08),
+              color: AppDesignSystem.gold.withValues(alpha: 0.08),
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-              border: Border.all(color: AppDesignSystem.gold.withOpacity(0.3)),
+              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
             ),
             child: Row(
               children: [
@@ -664,11 +664,11 @@ class _PlacedChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: highlight
-                ? AppDesignSystem.gold.withOpacity(0.25)
-                : AppDesignSystem.gold.withOpacity(0.12),
+                ? AppDesignSystem.gold.withValues(alpha: 0.25)
+                : AppDesignSystem.gold.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
             border: Border.all(
-              color: AppDesignSystem.gold.withOpacity(highlight ? 0.8 : 0.4),
+              color: AppDesignSystem.gold.withValues(alpha: highlight ? 0.8 : 0.4),
             ),
           ),
           child: Text(
@@ -705,7 +705,7 @@ class _BankChip extends StatelessWidget {
     final chip = Container(
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: wrong ? AppDesignSystem.struggle.withOpacity(0.15) : t.cardBg,
+        color: wrong ? AppDesignSystem.struggle.withValues(alpha: 0.15) : t.cardBg,
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
         border: Border.all(
           color: wrong ? AppDesignSystem.struggle : t.cardBorder,
