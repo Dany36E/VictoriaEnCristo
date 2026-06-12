@@ -76,6 +76,13 @@ Future<T> _timedStartup<T>(String label, Future<T> Function() action) async {
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
+  // En release, silenciar debugPrint por completo: los ~570 logs del código
+  // incluyen uids y nombres de usuario que no deben llegar a logcat en
+  // producción. Crashlytics sigue capturando errores con stacktrace.
+  if (kReleaseMode) {
+    debugPrint = (String? message, {int? wrapWidth}) {};
+  }
+
   // google_fonts: desactivar descargas en runtime. Las fuentes están
   // bundled en `google_fonts/` y declaradas como fonts nativas en pubspec,
   // así evitamos tráfico de red y latencia al pintar texto.

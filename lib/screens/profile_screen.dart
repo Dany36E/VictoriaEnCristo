@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/auth_service.dart';
+import '../services/connectivity_service.dart';
+import '../services/learning/learning_cloud_sync.dart';
+import '../services/learning/talents_service.dart';
+import '../services/user_pref_cloud_sync_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
@@ -337,7 +341,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// `true` si hay cambios locales aún no sincronizados con el cloud.
+  bool get _hasUnsyncedChanges =>
+      LearningCloudSync.I.hasPendingChanges ||
+      UserPrefCloudSyncService.I.hasPendingChanges ||
+      TalentsService.I.hasPendingChanges;
+
   Future<void> _handleLogout() async {
+    // Guard de logout offline: al cerrar sesión se purga el cache local
+    // (AccountSessionManager). Si estamos sin conexión y hay cambios
+    // pendientes de subir, esos cambios se perderían. Advertir primero.
+    if (!ConnectivityService.I.hasInternet && _hasUnsyncedChanges) {
+      final proceed = await showDialog<bool>(
+        context: context,
+        builder: (ctx) => AlertDialog(
+          title: const Text('Sin conexión'),
+          content: const Text(
+            'Tienes cambios que aún no se han guardado en la nube. '
+            'Si cierras sesión ahora, podrías perderlos.\n\n'
+            'Te recomendamos conectarte a internet antes de cerrar sesión.',
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(ctx).pop(true),
+              child: const Text('Cerrar sesión igualmente'),
+            ),
+          ],
+        ),
+      );
+      if (proceed != true || !mounted) return;
+    }
+
     await _authService.signOut();
     
     // Notificar callback si existe

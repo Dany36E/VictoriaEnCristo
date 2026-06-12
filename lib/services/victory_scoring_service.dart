@@ -664,6 +664,30 @@ class VictoryScoringService {
   // DEBUG
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /// Reset completo del estado en memoria para poder re-inicializar el
+  /// singleton entre tests. NO toca SharedPreferences.
+  @visibleForTesting
+  void resetForTesting() {
+    _prefs = null;
+    _isInitialized = false;
+    _victoryByGiant = {};
+    _selectedGiants = [];
+    _threshold = defaultThreshold;
+    _lastBrokenStreak = 0;
+    _lastBreakDateISO = null;
+    _relapseAckDateISO = null;
+    _graceTokens = 0;
+    _graceDaysUsed = {};
+    _journeyStartISO = null;
+    currentStreakNotifier.value = 0;
+    loggedTodayNotifier.value = false;
+    totalYearNotifier.value = 0;
+    bestStreakNotifier.value = 0;
+    relapseEventNotifier.value = null;
+    graceTokensNotifier.value = 0;
+    onDayChanged = null;
+  }
+
   String debugDayStatus(DateTime date) {
     final states = getDayGiantStates(date);
     final victories = getDayVictoriesCount(date);

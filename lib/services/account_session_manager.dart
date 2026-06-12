@@ -90,6 +90,11 @@ class AccountSessionManager {
   String? _currentSessionUid;
   StreamSubscription<User?>? _authSubscription;
 
+  /// Cola que serializa los eventos de auth: cada login/logout espera a que
+  /// termine el anterior. Sin esto, un logout seguido de un login rápido
+  /// puede intercalar la purga de cache con el bootstrap del nuevo usuario.
+  Future<void> _authEventQueue = Future.value();
+
   /// Estado actual de la sesión
   final ValueNotifier<SessionState> stateNotifier = ValueNotifier(
     SessionState.idle,
@@ -126,10 +131,12 @@ class AccountSessionManager {
         },
       );
 
-      // Procesar usuario actual si existe
+      // Procesar usuario actual si existe (vía la cola, para no competir
+      // con el primer evento del stream que emite el mismo usuario)
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
-        await _handleUserLogin(currentUser.uid);
+        _onAuthStateChanged(currentUser);
+        await _authEventQueue;
       }
 
       _isInitialized = true;
@@ -145,12 +152,22 @@ class AccountSessionManager {
   // MANEJO DE CAMBIOS DE AUTH
   // ═══════════════════════════════════════════════════════════════════════════
 
-  void _onAuthStateChanged(User? user) async {
-    if (user != null) {
-      await _handleUserLogin(user.uid);
-    } else {
-      await _handleUserLogout();
-    }
+  void _onAuthStateChanged(User? user) {
+    _authEventQueue = _authEventQueue.then((_) async {
+      try {
+        // Timeout de seguridad: si un handler se cuelga (red, Firestore),
+        // la cola se libera para no bloquear todos los eventos siguientes.
+        // El timeout NO cancela el trabajo en curso, solo desbloquea la cola.
+        if (user != null) {
+          await _handleUserLogin(user.uid).timeout(const Duration(seconds: 90));
+        } else {
+          await _handleUserLogout().timeout(const Duration(seconds: 90));
+        }
+      } catch (e) {
+        debugPrint('🔐 [SESSION] ⚠️ Auth event handler falló: $e');
+        lastError = e.toString();
+      }
+    });
   }
 
   /// Manejar login de usuario - DETECTA CAMBIO DE CUENTA

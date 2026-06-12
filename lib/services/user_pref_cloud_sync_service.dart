@@ -82,6 +82,10 @@ class UserPrefCloudSyncService {
   String? _bootstrappedUid;
   bool _dirty = false;
 
+  /// `true` si hay cambios locales aún no subidos al cloud. Usado por el
+  /// guard de logout offline para advertir antes de purgar el cache local.
+  bool get hasPendingChanges => _dirty;
+
   Future<void> bootstrap(String uid, {bool force = false}) async {
     if (!force && _bootstrappedUid == uid) return;
     _prefs ??= await SharedPreferences.getInstance();

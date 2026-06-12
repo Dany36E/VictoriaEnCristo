@@ -137,6 +137,10 @@ class TalentsService {
   Timer? _syncTimer;
   bool _dirty = false;
 
+  /// `true` si hay cambios locales aún no subidos al cloud. Usado por el
+  /// guard de logout offline para advertir antes de purgar el cache local.
+  bool get hasPendingChanges => _dirty;
+
   /// Notificador de balance. Las UIs pequeñas (badge, modales) escuchan esto.
   final ValueNotifier<TalentsState> stateNotifier = ValueNotifier(const TalentsState.initial());
 

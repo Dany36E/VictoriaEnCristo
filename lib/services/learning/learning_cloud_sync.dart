@@ -79,6 +79,10 @@ class LearningCloudSync {
   SharedPreferences? _prefs;
   Timer? _timer;
   bool _dirty = false;
+
+  /// `true` si hay cambios locales aún no subidos al cloud. Usado por el
+  /// guard de logout offline para advertir antes de purgar el cache local.
+  bool get hasPendingChanges => _dirty;
   String? _bootstrappedUid;
   bool _listenersAttached = false;
   final List<VoidCallback> _detachers = [];

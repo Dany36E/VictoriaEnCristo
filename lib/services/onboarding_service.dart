@@ -28,8 +28,14 @@ class OnboardingService {
   
   /// Getter para verificar si hay un usuario autenticado
   bool get _hasCloudProfile {
-    final user = FirebaseAuth.instance.currentUser;
-    return user != null && ProfileRepository.I.currentProfile != null;
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      return user != null && ProfileRepository.I.currentProfile != null;
+    } catch (_) {
+      // Firebase aún no inicializado (tests o arranque muy temprano):
+      // usar el fallback local de SharedPreferences.
+      return false;
+    }
   }
   
   /// Inicializar el servicio
