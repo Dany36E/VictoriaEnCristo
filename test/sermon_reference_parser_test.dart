@@ -87,4 +87,27 @@ void main() {
     expect(refs.first.startVerse, 1);
     expect(refs.first.endVerse, 2);
   });
+
+  test('detecta completo el rango de Apocalipsis sin texto extra', () {
+    const books = [
+      BibleBook(
+        number: 66,
+        name: 'Apocalipsis',
+        testament: 'NT',
+        totalChapters: 22,
+        versesPerChapter: {22: 21},
+      ),
+    ];
+
+    const text = 'Agregar (Apocalipsis 22:18-19) a mis notas';
+    final refs = detectSermonReferences(text, books);
+
+    expect(refs, hasLength(1));
+    expect(refs.single.label, 'Apocalipsis 22:18-19');
+    expect(refs.single.rawText, 'Apocalipsis 22:18-19');
+    expect(
+      text.substring(refs.single.start, refs.single.end),
+      refs.single.rawText,
+    );
+  });
 }

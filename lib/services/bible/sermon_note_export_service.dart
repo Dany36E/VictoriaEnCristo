@@ -38,16 +38,29 @@ class SermonNoteExportService {
       author: 'Victoria en Cristo',
       creator: 'Victoria en Cristo',
     );
+    final pdfTheme = pw.ThemeData.withFont(
+      base: fontRegular,
+      bold: fontBold,
+      italic: fontItalic,
+    );
+
+    if (cleanCover) {
+      doc.addPage(
+        pw.Page(
+          pageTheme: pw.PageTheme(
+            margin: const pw.EdgeInsets.fromLTRB(42, 42, 42, 42),
+            theme: pdfTheme,
+          ),
+          build: (_) => _coverPage(note),
+        ),
+      );
+    }
 
     doc.addPage(
       pw.MultiPage(
         pageTheme: pw.PageTheme(
           margin: const pw.EdgeInsets.fromLTRB(36, 34, 36, 42),
-          theme: pw.ThemeData.withFont(
-            base: fontRegular,
-            bold: fontBold,
-            italic: fontItalic,
-          ),
+          theme: pdfTheme,
         ),
         footer: (context) => pw.Align(
           alignment: pw.Alignment.centerRight,
@@ -57,8 +70,10 @@ class SermonNoteExportService {
           ),
         ),
         build: (_) => [
-          _header(note, cleanCover: cleanCover),
-          pw.SizedBox(height: 18),
+          if (!cleanCover) ...[
+            _header(note, cleanCover: false),
+            pw.SizedBox(height: 18),
+          ],
           if (note.centralPassage != null) ...[
             _sectionTitle('Pasaje central'),
             pw.SizedBox(height: 8),
@@ -116,6 +131,72 @@ class SermonNoteExportService {
   String _pdfTitle(SermonNote note) {
     final title = note.title.trim();
     return title.isEmpty ? 'Apunte de predicacion' : title;
+  }
+
+  pw.Widget _coverPage(SermonNote note) {
+    return pw.Container(
+      width: double.infinity,
+      height: double.infinity,
+      decoration: pw.BoxDecoration(
+        color: const PdfColor(0.70, 0.58, 0.24),
+        borderRadius: pw.BorderRadius.circular(4),
+      ),
+      padding: const pw.EdgeInsets.fromLTRB(42, 54, 42, 44),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Spacer(flex: 2),
+          pw.Text(
+            _pdfTitle(note),
+            style: pw.TextStyle(
+              fontSize: 28,
+              lineSpacing: 4,
+              fontWeight: pw.FontWeight.bold,
+              color: const PdfColor(0.16, 0.13, 0.09),
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Text(
+            note.centralPassage?.label ?? 'Sin pasaje central',
+            style: pw.TextStyle(
+              fontSize: 13,
+              color: const PdfColor(0.24, 0.19, 0.12),
+              fontWeight: pw.FontWeight.bold,
+            ),
+          ),
+          pw.SizedBox(height: 22),
+          pw.Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _metaChip('Fecha', _formatDate(note.sermonDate)),
+              _metaChip(
+                'Predicador',
+                note.speaker.trim().isEmpty
+                    ? 'No especificado'
+                    : note.speaker.trim(),
+              ),
+              _metaChip('Principal', note.primaryVersionId),
+              _metaChip('Secundaria', note.secondaryVersionId),
+            ],
+          ),
+          pw.Spacer(flex: 5),
+          pw.Container(
+            width: 56,
+            height: 5,
+            decoration: pw.BoxDecoration(
+              color: PdfColors.white,
+              borderRadius: pw.BorderRadius.circular(999),
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Text(
+            'Victoria en Cristo',
+            style: const pw.TextStyle(fontSize: 10, color: PdfColors.white),
+          ),
+        ],
+      ),
+    );
   }
 
   pw.Widget _header(SermonNote note, {required bool cleanCover}) {

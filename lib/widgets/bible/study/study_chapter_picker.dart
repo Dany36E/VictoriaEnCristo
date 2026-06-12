@@ -77,6 +77,13 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
     setState(() => _searching = true);
     final hits = <_StudySearchHit>[];
     hits.addAll(_referenceHits(query));
+    if (hits.isNotEmpty) {
+      setState(() {
+        _searchHits = _uniqueHits(hits);
+        _searching = false;
+      });
+      return;
+    }
     if (query.length >= 3) {
       final verses = await BibleParserService.I.search(
         version: widget.version,
@@ -88,9 +95,8 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
       }
     }
     if (!mounted || token != _searchToken) return;
-    final seen = <String>{};
     setState(() {
-      _searchHits = hits.where((hit) => seen.add(hit.key)).toList();
+      _searchHits = _uniqueHits(hits);
       _searching = false;
     });
   }
@@ -98,7 +104,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
   List<_StudySearchHit> _referenceHits(String query) {
     final normalized = _normalize(query).replaceAll(RegExp(r'\s+'), ' ');
     final match = RegExp(r'^(.+?)\s+(\d{1,3})$').firstMatch(normalized);
-    if (match == null) return const [];
+    if (match == null) return _bookHits(normalized);
     final bookPart = match.group(1)!.trim();
     final chapter = int.tryParse(match.group(2)!);
     if (chapter == null) return const [];
@@ -121,12 +127,46 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
     return hits;
   }
 
+  List<_StudySearchHit> _bookHits(String query) {
+    if (query.length < 2) return const [];
+    final hits = <_StudySearchHit>[];
+    for (final book in widget.books) {
+      if (_matchesBook(book, query)) {
+        hits.add(
+          _StudySearchHit(
+            bookNumber: book.number,
+            bookName: book.name,
+            chapter: 1,
+            verse: null,
+            preview: 'Elegir libro (${book.totalChapters} capitulos)',
+            source: 'Libro',
+          ),
+        );
+      }
+    }
+    return hits;
+  }
+
+  List<_StudySearchHit> _uniqueHits(List<_StudySearchHit> hits) {
+    final seen = <String>{};
+    return hits.where((hit) => seen.add(hit.key)).toList();
+  }
+
   bool _matchesBook(BibleBook book, String query) {
     final name = _normalize(book.name);
+    final abbreviation = _normalize(book.abbreviation);
     final compact = name.replaceAll(' ', '');
     final q = query.replaceAll(' ', '');
-    if (name.startsWith(query) || compact.startsWith(q)) return true;
-    final initials = name.split(' ').where((part) => part.isNotEmpty).map((part) => part[0]).join();
+    if (name.startsWith(query) ||
+        compact.startsWith(q) ||
+        abbreviation.startsWith(q)) {
+      return true;
+    }
+    final initials = name
+        .split(' ')
+        .where((part) => part.isNotEmpty)
+        .map((part) => part[0])
+        .join();
     return initials.startsWith(q);
   }
 
@@ -153,7 +193,9 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value),
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
     );
     final book = widget.books.firstWhere(
       (b) => b.number == _selectedBookNumber,
@@ -196,11 +238,18 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                   TextButton(
                     onPressed: () => Navigator.pop(
                       context,
-                      StudyPickerResult(_selectedBookNumber, _selectedBookName, _selectedChapter),
+                      StudyPickerResult(
+                        _selectedBookNumber,
+                        _selectedBookName,
+                        _selectedChapter,
+                      ),
                     ),
                     child: Text(
                       'Abrir',
-                      style: GoogleFonts.manrope(color: t.accent, fontWeight: FontWeight.w600),
+                      style: GoogleFonts.manrope(
+                        color: t.accent,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -218,11 +267,19 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                     color: t.textSecondary.withOpacity(0.45),
                     fontSize: 12,
                   ),
-                  prefixIcon: Icon(Icons.search, color: t.textSecondary, size: 18),
+                  prefixIcon: Icon(
+                    Icons.search,
+                    color: t.textSecondary,
+                    size: 18,
+                  ),
                   suffixIcon: _searchController.text.isEmpty
                       ? null
                       : IconButton(
-                          icon: Icon(Icons.close, color: t.textSecondary, size: 18),
+                          icon: Icon(
+                            Icons.close,
+                            color: t.textSecondary,
+                            size: 18,
+                          ),
                           onPressed: () {
                             _searchController.clear();
                             _runSearch('');
@@ -232,11 +289,15 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                   fillColor: t.background,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: t.textSecondary.withOpacity(0.12)),
+                    borderSide: BorderSide(
+                      color: t.textSecondary.withOpacity(0.12),
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
-                    borderSide: BorderSide(color: t.textSecondary.withOpacity(0.12)),
+                    borderSide: BorderSide(
+                      color: t.textSecondary.withOpacity(0.12),
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -254,7 +315,10 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                         child: SizedBox(
                           width: 22,
                           height: 22,
-                          child: CircularProgressIndicator(color: t.accent, strokeWidth: 1.7),
+                          child: CircularProgressIndicator(
+                            color: t.accent,
+                            strokeWidth: 1.7,
+                          ),
                         ),
                       )
                     : ListView.builder(
@@ -265,7 +329,9 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                           return ListTile(
                             dense: true,
                             leading: Icon(
-                              hit.verse == null ? Icons.menu_book_outlined : Icons.notes_outlined,
+                              hit.verse == null
+                                  ? Icons.menu_book_outlined
+                                  : Icons.notes_outlined,
                               color: t.accent,
                               size: 18,
                             ),
@@ -281,7 +347,10 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                               hit.preview,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 11),
+                              style: GoogleFonts.manrope(
+                                color: t.textSecondary,
+                                fontSize: 11,
+                              ),
                             ),
                             trailing: Text(
                               hit.source,
@@ -314,7 +383,9 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                             b.name,
                             style: GoogleFonts.lora(
                               color: selected ? t.accent : t.textPrimary,
-                              fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
+                              fontWeight: selected
+                                  ? FontWeight.w700
+                                  : FontWeight.w400,
                               fontSize: 14,
                             ),
                           ),
@@ -333,12 +404,13 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                     flex: 4,
                     child: GridView.builder(
                       padding: const EdgeInsets.all(12),
-                      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
-                        mainAxisSpacing: 6,
-                        crossAxisSpacing: 6,
-                        childAspectRatio: 1,
-                      ),
+                      gridDelegate:
+                          const SliverGridDelegateWithFixedCrossAxisCount(
+                            crossAxisCount: 4,
+                            mainAxisSpacing: 6,
+                            crossAxisSpacing: 6,
+                            childAspectRatio: 1,
+                          ),
                       itemCount: book.totalChapters,
                       itemBuilder: (_, i) {
                         final n = i + 1;
@@ -348,7 +420,9 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                           onTap: () => setState(() => _selectedChapter = n),
                           child: Container(
                             decoration: BoxDecoration(
-                              color: selected ? t.accent : t.textSecondary.withOpacity(0.08),
+                              color: selected
+                                  ? t.accent
+                                  : t.textSecondary.withOpacity(0.08),
                               borderRadius: BorderRadius.circular(8),
                             ),
                             alignment: Alignment.center,

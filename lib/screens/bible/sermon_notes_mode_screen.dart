@@ -28,6 +28,7 @@ enum _SermonHeaderAction {
   passage,
   versions,
   centralPassage,
+  addVerses,
   savedNotes,
   exportPdf,
   text,
@@ -67,6 +68,8 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   late int _bookNumber;
   late String _bookName;
   late int _chapter;
+  int? _readingStartVerse;
+  int? _readingEndVerse;
   late BibleVersion _primaryVersion;
   late BibleVersion _secondaryVersion;
   late TabController _tabController;
@@ -212,14 +215,18 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   Future<void> _changeChapter(
     int bookNumber,
     String bookName,
-    int chapter,
-  ) async {
+    int chapter, {
+    int? startVerse,
+    int? endVerse,
+  }) async {
     await _flushNote();
     if (!mounted) return;
     setState(() {
       _bookNumber = bookNumber;
       _bookName = bookName;
       _chapter = chapter;
+      _readingStartVerse = startVerse;
+      _readingEndVerse = endVerse;
     });
     await _loadChapter();
   }
@@ -237,7 +244,30 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       ),
     );
     if (result == null) return;
-    await _changeChapter(result.bookNumber, result.bookName, result.chapter);
+    final chapterVerses = await BibleParserService.I.getChapter(
+      version: _primaryVersion,
+      bookNumber: result.bookNumber,
+      chapter: result.chapter,
+    );
+    if (!mounted) return;
+    final range = await showModalBottomSheet<_VerseRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _VerseRangeSheet(
+        theme: _theme(),
+        verses: chapterVerses,
+        title: '${result.bookName} ${result.chapter}',
+        actionLabel: 'Usar lectura',
+      ),
+    );
+    if (range == null) return;
+    await _changeChapter(
+      result.bookNumber,
+      result.bookName,
+      result.chapter,
+      startVerse: range.start,
+      endVerse: range.end,
+    );
   }
 
   Future<void> _openVersionPicker() async {
@@ -658,6 +688,52 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     if (mounted) setState(() {});
   }
 
+  Future<void> _openAddVersesPicker() async {
+    final picked = await showModalBottomSheet<StudyPickerResult>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => StudyChapterPicker(
+        books: _books,
+        version: _primaryVersion,
+        currentBookNumber: _bookNumber,
+        currentChapter: _chapter,
+      ),
+    );
+    if (picked == null || !mounted) return;
+    final chapterVerses = await BibleParserService.I.getChapter(
+      version: _primaryVersion,
+      bookNumber: picked.bookNumber,
+      chapter: picked.chapter,
+    );
+    if (!mounted) return;
+    final range = await showModalBottomSheet<_VerseRangeResult>(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _VerseRangeSheet(
+        theme: _theme(),
+        verses: chapterVerses,
+        title: '${picked.bookName} ${picked.chapter}',
+        actionLabel: 'Agregar versiculos',
+      ),
+    );
+    if (range == null) return;
+    final selected = chapterVerses
+        .where(
+          (verse) => verse.verse >= range.start && verse.verse <= range.end,
+        )
+        .toList(growable: false);
+    setState(() {
+      _bookNumber = picked.bookNumber;
+      _bookName = picked.bookName;
+      _chapter = picked.chapter;
+      _readingStartVerse = range.start;
+      _readingEndVerse = range.end;
+    });
+    await _loadChapter();
+    await _insertVersesIntoNotes(selected);
+  }
+
   Future<void> _insertDetectedVerse(DetectedSermonReference reference) async {
     final loaded = <BibleVerse>[];
     for (
@@ -674,14 +750,44 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       if (verse != null) loaded.add(verse);
     }
     if (loaded.isEmpty || !mounted) return;
-    final verses = List<SermonVerseReference>.from(_note.verses);
-    for (final verse in loaded) {
-      final saved = SermonVerseReference.fromVerse(verse);
-      if (!verses.any((v) => v.key == saved.key)) {
-        verses.add(saved);
-      }
+    await _insertVersesIntoNotes(
+      loaded,
+      replaceRange: _expandedReferenceReplacementRange(
+        _notesController.text,
+        reference,
+      ),
+    );
+  }
+
+  TextRange _expandedReferenceReplacementRange(
+    String text,
+    DetectedSermonReference reference,
+  ) {
+    var start = reference.start.clamp(0, text.length).toInt();
+    var end = reference.end.clamp(start, text.length).toInt();
+
+    while (start > 0 && text[start - 1] == ' ') {
+      start--;
     }
-    final buffer = StringBuffer('\n\n');
+    while (end < text.length && text[end] == ' ') {
+      end++;
+    }
+
+    final isWrappedInParentheses =
+        start > 0 &&
+        end < text.length &&
+        text[start - 1] == '(' &&
+        text[end] == ')';
+    if (isWrappedInParentheses) {
+      start--;
+      end++;
+    }
+
+    return TextRange(start: start, end: end);
+  }
+
+  String _verseInsertionText(List<BibleVerse> loaded) {
+    final buffer = StringBuffer();
     for (var i = 0; i < loaded.length; i++) {
       final verse = loaded[i];
       if (i > 0) buffer.writeln();
@@ -689,17 +795,50 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         ..writeln('${verse.reference} (${_primaryVersion.shortName})')
         ..write(verse.text);
     }
-    final insertion = buffer.toString();
+    return buffer.toString();
+  }
+
+  Future<void> _insertVersesIntoNotes(
+    List<BibleVerse> loaded, {
+    TextRange? replaceRange,
+  }) async {
+    if (loaded.isEmpty || !mounted) return;
+    final verses = List<SermonVerseReference>.from(_note.verses);
+    for (final verse in loaded) {
+      final saved = SermonVerseReference.fromVerse(verse);
+      if (!verses.any((v) => v.key == saved.key)) {
+        verses.add(saved);
+      }
+    }
     final text = _notesController.text;
     final selection = _notesController.selection;
-    final offset = selection.isValid ? selection.end : text.length;
-    final next =
-        '${text.substring(0, offset)}$insertion${text.substring(offset)}';
+    final useReplacement =
+        replaceRange != null &&
+        replaceRange.start >= 0 &&
+        replaceRange.end >= replaceRange.start &&
+        replaceRange.end <= text.length;
+    final start = useReplacement
+        ? replaceRange.start
+        : selection.isValid
+        ? selection.end
+        : text.length;
+    final end = useReplacement ? replaceRange.end : start;
+    final before = text.substring(0, start);
+    final after = text.substring(end);
+    var insertion = _verseInsertionText(loaded);
+    if (before.isNotEmpty && !before.endsWith('\n')) {
+      insertion = '\n\n$insertion';
+    }
+    if (after.isNotEmpty && !after.startsWith('\n')) {
+      insertion = '$insertion\n\n';
+    }
+    final next = '$before$insertion$after';
+    final nextOffset = start + insertion.length;
     setState(() {
       _note = _note.copyWith(verses: verses);
       _notesController.value = TextEditingValue(
         text: next,
-        selection: TextSelection.collapsed(offset: offset + insertion.length),
+        selection: TextSelection.collapsed(offset: nextOffset),
       );
     });
     HapticFeedback.selectionClick();
@@ -884,7 +1023,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                   _HeaderChip(
                     theme: t,
                     icon: Icons.menu_book_outlined,
-                    label: '$_bookName $_chapter',
+                    label: _readingLabel(),
                   ),
                 ],
               ),
@@ -912,6 +1051,11 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
             tooltip: 'Pasaje central',
             icon: Icon(Icons.my_location, color: t.accent, size: 21),
             onPressed: _openCentralPassagePicker,
+          ),
+          IconButton(
+            tooltip: 'Agregar versiculos',
+            icon: Icon(Icons.playlist_add, color: t.accent, size: 22),
+            onPressed: _openAddVersesPicker,
           ),
           IconButton(
             tooltip: 'Apuntes guardados',
@@ -1014,6 +1158,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                 case _SermonHeaderAction.centralPassage:
                   await _openCentralPassagePicker();
                   break;
+                case _SermonHeaderAction.addVerses:
+                  await _openAddVersesPicker();
+                  break;
                 case _SermonHeaderAction.savedNotes:
                   await _openSavedNotes();
                   break;
@@ -1033,6 +1180,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                 _SermonHeaderAction.centralPassage,
                 'Pasaje central',
               ),
+              _menuItem(t, _SermonHeaderAction.addVerses, 'Agregar versiculos'),
               _menuItem(t, _SermonHeaderAction.savedNotes, 'Apuntes guardados'),
               _menuItem(t, _SermonHeaderAction.exportPdf, 'Exportar PDF'),
               _menuItem(t, _SermonHeaderAction.text, 'Texto y colores'),
@@ -1093,13 +1241,32 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   Widget _buildReading(BibleReaderThemeData t) {
     return StudyReadingPanel(
       theme: t,
-      verses: _verses,
-      secondaryVerses: _secondaryVerses,
+      verses: _visibleReadingVerses(_verses),
+      secondaryVerses: _visibleReadingVerses(_secondaryVerses),
       primaryVersion: _primaryVersion,
       secondaryVersion: _secondaryVersion,
       bookNumber: _bookNumber,
       chapter: _chapter,
     );
+  }
+
+  String _readingLabel() {
+    final start = _readingStartVerse;
+    final end = _readingEndVerse;
+    if (start == null || end == null) return '$_bookName $_chapter';
+    if (start == end) return '$_bookName $_chapter:$start';
+    return '$_bookName $_chapter:$start-$end';
+  }
+
+  List<BibleVerse> _visibleReadingVerses(List<BibleVerse> source) {
+    final start = _readingStartVerse;
+    final end = _readingEndVerse;
+    if (start == null || end == null) return source;
+    final lo = start < end ? start : end;
+    final hi = start < end ? end : start;
+    return source
+        .where((verse) => verse.verse >= lo && verse.verse <= hi)
+        .toList(growable: false);
   }
 
   Widget _buildNotes(BibleReaderThemeData t) {
@@ -2263,11 +2430,13 @@ class _VerseRangeSheet extends StatefulWidget {
   final BibleReaderThemeData theme;
   final List<BibleVerse> verses;
   final String title;
+  final String actionLabel;
 
   const _VerseRangeSheet({
     required this.theme,
     required this.verses,
     required this.title,
+    this.actionLabel = 'Usar pasaje',
   });
 
   @override
@@ -2347,7 +2516,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                     _start < _end ? _end : _start,
                   ),
                 ),
-                child: const Text('Usar pasaje'),
+                child: Text(widget.actionLabel),
               ),
             ),
           ],
