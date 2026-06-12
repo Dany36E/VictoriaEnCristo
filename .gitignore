@@ -37,6 +37,16 @@ build_*.txt
 analyze_output.txt
 test_out.txt
 
+# Capturas y logs de depuración en la raíz (artefactos de desarrollo)
+/screen*.png
+/*_full.png
+/flutter_log.txt
+/fb_deploy*.txt
+/firebase_deploy*.txt
+/fn_build*.txt
+/functions_build*.txt
+*.dart.bak
+
 # Symbolication related
 app.*.symbols
 
