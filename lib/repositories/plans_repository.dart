@@ -51,6 +51,8 @@ class PlansRepository {
   /// Cola de operaciones pendientes
   List<String> _pendingWrites = [];
 
+  bool get hasPendingChanges => _pendingWrites.isNotEmpty;
+
   /// Suscripción a cambios
   StreamSubscription<QuerySnapshot>? _realtimeSubscription;
 

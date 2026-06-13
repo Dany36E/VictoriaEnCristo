@@ -50,6 +50,8 @@ class ProgressRepository {
   /// Cola de escrituras pendientes (offline)
   List<String> _pendingWrites = [];
 
+  bool get hasPendingChanges => _pendingWrites.isNotEmpty;
+
   /// Suscripción a cambios en tiempo real
   StreamSubscription<QuerySnapshot>? _realtimeSubscription;
 
