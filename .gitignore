@@ -91,6 +91,10 @@ android/.kotlin/
 # Node modules (Cloud Functions)
 functions/node_modules/
 
+# Scripts de generación de assets (artefactos de desarrollo, no son parte del app)
+generate_*.py
+convert_*.py
+
 # Temporary data / scraping artifacts
 temp_bible_data/
 temp_data/
