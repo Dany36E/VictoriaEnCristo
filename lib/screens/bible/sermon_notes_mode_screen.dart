@@ -89,6 +89,10 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   List<BibleBook> _books = const [];
   List<BibleVerse> _verses = const [];
   List<BibleVerse> _secondaryVerses = const [];
+  // Versiculos agregados a la lectura (independientes de las Notas). Derivados
+  // de _note.verses; se muestran en el panel izquierdo bajo la lectura actual.
+  List<BibleVerse> _addedPrimary = const [];
+  List<BibleVerse> _addedSecondary = const [];
   bool _loading = true;
 
   late SermonNote _note;
@@ -101,6 +105,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   DateTime? _lastSavedAt;
   final Set<String> _ignoredReferenceKeys = <String>{};
   final Set<String> _ignoredSpellTokens = <String>{};
+  // Claves de versiculos cuyo TEXTO ya se inserto en las Notas (via deteccion
+  // inline de citas). Independiente de _note.verses (panel izquierdo).
+  final Set<String> _notesInsertedKeys = <String>{};
   late final _SpellBridge _spellBridge;
   List<DetectedSermonReference> _detectedReferences =
       const <DetectedSermonReference>[];
@@ -224,6 +231,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         _loading = false;
       });
       _syncReferenceDecorations();
+      await _rebuildAddedVerses();
     } catch (e) {
       debugPrint('[SERMON-NOTES] load chapter error: $e');
       if (mounted) setState(() => _loading = false);
@@ -388,23 +396,16 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   }
 
   bool _hasInsertedReference(DetectedSermonReference reference) {
-    final requiredVerses = <int>{
-      for (
-        var verse = reference.startVerse;
-        verse <= reference.endVerse;
-        verse++
-      )
-        verse,
-    };
-    final insertedVerses = _note.verses
-        .where(
-          (verse) =>
-              verse.bookNumber == reference.book.number &&
-              verse.chapter == reference.chapter,
-        )
-        .map((verse) => verse.verse)
-        .toSet();
-    return requiredVerses.every(insertedVerses.contains);
+    for (
+      var verse = reference.startVerse;
+      verse <= reference.endVerse;
+      verse++
+    ) {
+      final key =
+          '${_primaryVersion.id}:${reference.book.number}:${reference.chapter}:$verse';
+      if (!_notesInsertedKeys.contains(key)) return false;
+    }
+    return true;
   }
 
   DetectedSermonReference? _activeReferenceAtCursor(
@@ -700,11 +701,84 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           (verse) => verse.verse >= range.start && verse.verse <= range.end,
         )
         .toList(growable: false);
-    // Agregar versiculos solo los inserta (acumulando) en las notas: no
-    // reemplaza la lectura actual ni los versiculos ya agregados en la sesion.
-    await _insertVersesIntoNotes(selected);
-    // En vista compacta, mostrar la pestana de Apuntes para que se vean.
-    if (mounted) _tabController.animateTo(1);
+    // "Agregar versiculos" agrega a la coleccion del panel izquierdo (la
+    // lectura), de forma acumulativa e independiente de las Notas.
+    await _addVersesToCollection(selected);
+  }
+
+  /// Agrega versiculos a la coleccion de la lectura (panel izquierdo).
+  /// Acumula sin reemplazar y es independiente del texto de las Notas.
+  Future<void> _addVersesToCollection(List<BibleVerse> loaded) async {
+    if (loaded.isEmpty || !mounted) return;
+    final verses = List<SermonVerseReference>.from(_note.verses);
+    var changed = false;
+    for (final verse in loaded) {
+      final saved = SermonVerseReference.fromVerse(verse);
+      if (!verses.any((v) => v.key == saved.key)) {
+        verses.add(saved);
+        changed = true;
+      }
+    }
+    if (!changed) {
+      _showSnack('Esos versiculos ya estan agregados a la lectura.');
+      return;
+    }
+    setState(() => _note = _note.copyWith(verses: verses));
+    HapticFeedback.selectionClick();
+    await _rebuildAddedVerses();
+    _scheduleSave();
+    // En vista compacta, mostrar la pestana de Lectura para que se vean.
+    if (mounted) _tabController.animateTo(0);
+  }
+
+  /// Reconstruye las listas de versiculos agregados (primaria y secundaria)
+  /// a partir de _note.verses, cargando el texto de las versiones actuales.
+  Future<void> _rebuildAddedVerses() async {
+    if (_note.verses.isEmpty) {
+      if (mounted &&
+          (_addedPrimary.isNotEmpty || _addedSecondary.isNotEmpty)) {
+        setState(() {
+          _addedPrimary = const [];
+          _addedSecondary = const [];
+        });
+      }
+      return;
+    }
+    final primary = <BibleVerse>[];
+    final secondary = <BibleVerse>[];
+    for (final ref in _note.verses) {
+      final pv = await BibleParserService.I.getVerse(
+        version: _primaryVersion,
+        bookNumber: ref.bookNumber,
+        chapter: ref.chapter,
+        verse: ref.verse,
+      );
+      primary.add(
+        pv ??
+            BibleVerse(
+              bookName: ref.bookName,
+              bookNumber: ref.bookNumber,
+              chapter: ref.chapter,
+              verse: ref.verse,
+              text: ref.text,
+              version: _primaryVersion.id,
+            ),
+      );
+      if (_secondaryVersion != _primaryVersion) {
+        final sv = await BibleParserService.I.getVerse(
+          version: _secondaryVersion,
+          bookNumber: ref.bookNumber,
+          chapter: ref.chapter,
+          verse: ref.verse,
+        );
+        if (sv != null) secondary.add(sv);
+      }
+    }
+    if (!mounted) return;
+    setState(() {
+      _addedPrimary = primary;
+      _addedSecondary = secondary;
+    });
   }
 
   Future<void> _insertDetectedVerse(DetectedSermonReference reference) async {
@@ -776,13 +850,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     TextRange? replaceRange,
   }) async {
     if (loaded.isEmpty || !mounted) return;
-    final verses = List<SermonVerseReference>.from(_note.verses);
-    for (final verse in loaded) {
-      final saved = SermonVerseReference.fromVerse(verse);
-      if (!verses.any((v) => v.key == saved.key)) {
-        verses.add(saved);
-      }
-    }
     final text = _notesController.text;
     final selection = _notesController.selection;
     final useReplacement =
@@ -808,12 +875,16 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     final next = '$before$insertion$after';
     final nextOffset = start + insertion.length;
     setState(() {
-      _note = _note.copyWith(verses: verses);
       _notesController.value = TextEditingValue(
         text: next,
         selection: TextSelection.collapsed(offset: nextOffset),
       );
     });
+    for (final verse in loaded) {
+      _notesInsertedKeys.add(
+        '${_primaryVersion.id}:${verse.bookNumber}:${verse.chapter}:${verse.verse}',
+      );
+    }
     HapticFeedback.selectionClick();
     await _flushNote();
   }
@@ -1011,10 +1082,22 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   }
 
   Widget _buildReading(BibleReaderThemeData t) {
+    final reading = _visibleReadingVerses(_verses);
+    final readingSecondary = _visibleReadingVerses(_secondaryVerses);
+    // Lectura actual + versiculos agregados (abajo), evitando duplicados.
+    final seen = <String>{for (final v in reading) v.uniqueKey};
+    final combined = List<BibleVerse>.from(reading);
+    for (final v in _addedPrimary) {
+      if (seen.add(v.uniqueKey)) combined.add(v);
+    }
+    final combinedSecondary = <BibleVerse>[
+      ...readingSecondary,
+      ..._addedSecondary,
+    ];
     return StudyReadingPanel(
       theme: t,
-      verses: _visibleReadingVerses(_verses),
-      secondaryVerses: _visibleReadingVerses(_secondaryVerses),
+      verses: combined,
+      secondaryVerses: combinedSecondary,
       primaryVersion: _primaryVersion,
       secondaryVersion: _secondaryVersion,
       bookNumber: _bookNumber,
@@ -1856,8 +1939,8 @@ class _InsertedVersesIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     final label = count == 1
-        ? '1 versiculo insertado'
-        : '$count versiculos insertados';
+        ? '1 versiculo agregado a la lectura'
+        : '$count versiculos agregados a la lectura';
     return Row(
       children: [
         Icon(Icons.library_books_outlined, color: t.accent, size: 16),
