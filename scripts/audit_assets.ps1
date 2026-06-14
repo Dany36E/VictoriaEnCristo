@@ -20,8 +20,10 @@ Write-Host ""
 Write-Host "Largest $Top assets"
 $files |
     Sort-Object Length -Descending |
-    Select-Object -First $Top @{Name = "MB"; Expression = { [math]::Round($_.Length / 1MB, 2) } }, FullName |
-    Format-Table -AutoSize
+    Select-Object -First $Top |
+    ForEach-Object {
+        "{0,8:N2} MB  {1}" -f ($_.Length / 1MB), $_.FullName
+    }
 
 Write-Host ""
 Write-Host "Size by top-level asset folder"
@@ -34,9 +36,11 @@ $files |
         $sum = ($_.Group | Measure-Object Length -Sum).Sum
         [PSCustomObject]@{
             Folder = $_.Name
-            Files = $_.Count
-            MB = [math]::Round($sum / 1MB, 2)
+            Files  = $_.Count
+            MB     = [math]::Round($sum / 1MB, 2)
         }
     } |
     Sort-Object MB -Descending |
-    Format-Table -AutoSize
+    ForEach-Object {
+        "{0,8:N2} MB  ({1,3} files)  {2}" -f $_.MB, $_.Files, $_.Folder
+    }
