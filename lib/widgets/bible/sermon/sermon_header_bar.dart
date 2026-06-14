@@ -7,7 +7,6 @@ import '../../../theme/bible_reader_theme.dart';
 enum _SermonHeaderAction {
   passage,
   versions,
-  centralPassage,
   addVerses,
   savedNotes,
   exportPdf,
@@ -27,7 +26,6 @@ class SermonHeaderBar extends StatelessWidget {
     required this.onBack,
     required this.onOpenPassagePicker,
     required this.onOpenVersionPicker,
-    required this.onOpenCentralPassagePicker,
     required this.onOpenAddVersesPicker,
     required this.onOpenSavedNotes,
     required this.onExportPdf,
@@ -44,7 +42,6 @@ class SermonHeaderBar extends StatelessWidget {
   final VoidCallback onBack;
   final VoidCallback onOpenPassagePicker;
   final VoidCallback onOpenVersionPicker;
-  final VoidCallback onOpenCentralPassagePicker;
   final VoidCallback onOpenAddVersesPicker;
   final VoidCallback onOpenSavedNotes;
   final VoidCallback onExportPdf;
@@ -102,11 +99,6 @@ class SermonHeaderBar extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               textStyle: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
             ),
-          ),
-          IconButton(
-            tooltip: 'Pasaje central',
-            icon: Icon(Icons.my_location, color: t.accent, size: 21),
-            onPressed: onOpenCentralPassagePicker,
           ),
           IconButton(
             tooltip: 'Agregar versiculos',
@@ -199,8 +191,6 @@ class SermonHeaderBar extends StatelessWidget {
                   onOpenPassagePicker();
                 case _SermonHeaderAction.versions:
                   onOpenVersionPicker();
-                case _SermonHeaderAction.centralPassage:
-                  onOpenCentralPassagePicker();
                 case _SermonHeaderAction.addVerses:
                   onOpenAddVersesPicker();
                 case _SermonHeaderAction.savedNotes:
@@ -214,7 +204,6 @@ class SermonHeaderBar extends StatelessWidget {
             itemBuilder: (_) => [
               _menuItem(t, _SermonHeaderAction.passage, 'Cambiar lectura'),
               _menuItem(t, _SermonHeaderAction.versions, 'Versiones'),
-              _menuItem(t, _SermonHeaderAction.centralPassage, 'Pasaje central'),
               _menuItem(t, _SermonHeaderAction.addVerses, 'Agregar versiculos'),
               _menuItem(t, _SermonHeaderAction.savedNotes, 'Apuntes guardados'),
               _menuItem(t, _SermonHeaderAction.exportPdf, 'Exportar PDF'),

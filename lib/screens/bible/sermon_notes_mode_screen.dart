@@ -700,15 +700,11 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           (verse) => verse.verse >= range.start && verse.verse <= range.end,
         )
         .toList(growable: false);
-    setState(() {
-      _bookNumber = picked.bookNumber;
-      _bookName = picked.bookName;
-      _chapter = picked.chapter;
-      _readingStartVerse = range.start;
-      _readingEndVerse = range.end;
-    });
-    await _loadChapter();
+    // Agregar versiculos solo los inserta (acumulando) en las notas: no
+    // reemplaza la lectura actual ni los versiculos ya agregados en la sesion.
     await _insertVersesIntoNotes(selected);
+    // En vista compacta, mostrar la pestana de Apuntes para que se vean.
+    if (mounted) _tabController.animateTo(1);
   }
 
   Future<void> _insertDetectedVerse(DetectedSermonReference reference) async {
@@ -963,7 +959,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                             onBack: () => Navigator.maybePop(context),
                             onOpenPassagePicker: _openPassagePicker,
                             onOpenVersionPicker: _openVersionPicker,
-                            onOpenCentralPassagePicker: _openCentralPassagePicker,
                             onOpenAddVersesPicker: _openAddVersesPicker,
                             onOpenSavedNotes: _openSavedNotes,
                             onExportPdf: _exportPdf,
@@ -2216,7 +2211,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Pasaje central · ${widget.title}',
+              widget.title,
               style: GoogleFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 17,

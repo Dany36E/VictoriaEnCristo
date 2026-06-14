@@ -82,7 +82,7 @@ function computeNextSwapAt(lastSwapAt, swapIntervalMinutes) {
 // ═══════════════════════════════════════════════════════════════════════════
 // CREATE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
-exports.createStudyRoom = functions.https.onCall(async (data, context) => {
+exports.createStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
     var _a, _b, _c, _d;
     try {
         if (!context.auth) {
@@ -176,7 +176,7 @@ exports.createStudyRoom = functions.https.onCall(async (data, context) => {
 // ═══════════════════════════════════════════════════════════════════════════
 // JOIN ROOM
 // ═══════════════════════════════════════════════════════════════════════════
-exports.joinStudyRoom = functions.https.onCall(async (data, context) => {
+exports.joinStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
     var _a, _b, _c;
     try {
         if (!context.auth) {
@@ -239,7 +239,7 @@ exports.joinStudyRoom = functions.https.onCall(async (data, context) => {
 // ═══════════════════════════════════════════════════════════════════════════
 // LEAVE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
-exports.leaveStudyRoom = functions.https.onCall(async (data, context) => {
+exports.leaveStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
     var _a;
     try {
         if (!context.auth) {
@@ -329,7 +329,7 @@ async function rotateRoomVersions(code, force) {
         return Object.assign(Object.assign({}, room), { members: Object.fromEntries(memberOrder.map((u, i) => [u, Object.assign(Object.assign({}, room.members[u]), { versionId: rotated[i] })])) });
     });
 }
-exports.startStudyRoomSwapTimer = functions.https.onCall(async (data, context) => {
+exports.startStudyRoomSwapTimer = functions.region("us-central1").https.onCall(async (data, context) => {
     var _a;
     try {
         if (!context.auth) {
@@ -370,7 +370,7 @@ exports.startStudyRoomSwapTimer = functions.https.onCall(async (data, context) =
         rethrow(err);
     }
 });
-exports.rotateStudyVersions = functions.https.onCall(async (data, context) => {
+exports.rotateStudyVersions = functions.region("us-central1").https.onCall(async (data, context) => {
     var _a, _b, _c;
     try {
         if (!context.auth) {
@@ -402,7 +402,7 @@ exports.rotateStudyVersions = functions.https.onCall(async (data, context) => {
 // Filtra el query con `where(nextSwapAt <= now)` y `where(memberCount >= 2)`
 // para no escanear toda la colección. Además, limpia salas huérfanas
 // (sin actividad por más de 24h) para evitar acumulación de basura.
-exports.studyRoomAutoSwap = functions.pubsub
+exports.studyRoomAutoSwap = functions.region("us-central1").pubsub
     .schedule("every 5 minutes")
     .onRun(async () => {
     const now = admin.firestore.Timestamp.now();
