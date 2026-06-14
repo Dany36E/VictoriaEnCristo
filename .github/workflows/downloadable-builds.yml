@@ -90,7 +90,7 @@ jobs:
 
   windows:
     name: Windows ZIP artifact
-    runs-on: windows-latest
+    runs-on: windows-2022
     env:
       GOOGLE_DESKTOP_CLIENT_ID: ${{ secrets.GOOGLE_DESKTOP_CLIENT_ID }}
       GOOGLE_DESKTOP_CLIENT_SECRET: ${{ secrets.GOOGLE_DESKTOP_CLIENT_SECRET }}
