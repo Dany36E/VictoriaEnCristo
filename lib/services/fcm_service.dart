@@ -25,6 +25,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'notification_service.dart';
 import '../utils/platform_capabilities.dart';
+import '../utils/safe_log.dart';
 
 class FcmService {
   FcmService._();
@@ -56,7 +57,7 @@ class FcmService {
     if (_initialized) return;
     _initialized = true;
     if (!PlatformCapabilities.supportsFcm) {
-      debugPrint('🔔 [FCM] skipped on ${PlatformCapabilities.currentLabel}');
+      safeLog('FCM', 'skipped on ${PlatformCapabilities.currentLabel}');
       return;
     }
     try {
@@ -86,12 +87,12 @@ class FcmService {
 
       _foregroundSub = FirebaseMessaging.onMessage.listen(
         _handleForegroundMessage,
-        onError: (e) => debugPrint('⚠️ [FCM] foreground message error: $e'),
+        onError: (e) => safeError('FCM', 'foreground message error', e),
       );
 
-      debugPrint('🔔 [FCM] init OK (token len=${_token?.length ?? 0})');
+      safeLog('FCM', 'init OK (token len=${_token?.length ?? 0})');
     } catch (e) {
-      debugPrint('⚠️ [FCM] init error: $e');
+      safeError('FCM', 'init error', e);
     }
   }
 
@@ -191,7 +192,7 @@ class FcmService {
         await prefs.remove(_kLegacyTokenUidKey);
       }
     } catch (e) {
-      debugPrint('⚠️ [FCM] persist error: $e');
+      safeError('FCM', 'persist error', e);
     }
   }
 
@@ -226,9 +227,9 @@ class FcmService {
           .collection('fcmTokens')
           .doc(deviceId)
           .delete();
-      debugPrint('🔔 [FCM] Token doc deleted (user=${user.uid.substring(0, 6)}…)');
+      safeLog('FCM', 'Token doc deleted (user=${user.uid.substring(0, 6)}…)');
     } catch (e) {
-      debugPrint('⚠️ [FCM] clearTokenForUser error: $e');
+      safeError('FCM', 'clearTokenForUser error', e);
     }
   }
 

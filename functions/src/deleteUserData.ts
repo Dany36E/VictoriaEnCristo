@@ -128,23 +128,42 @@ export const deleteUserData = functions
     }
 
     // Borrar usuario de Auth
+    // Los datos de Firestore ya fueron eliminados. Si auth.deleteUser falla
+    // por user-not-found, es idempotente (OK). Si falla por otro motivo,
+    // retornamos éxito parcial para que el cliente informe al usuario y
+    // permita reintentar — no es un error total porque los datos ya no existen.
+    let authDeletionFailed = false;
     try {
       await auth.deleteUser(uid);
       deletionStats["authUser"] = 1;
       console.log(`🗑️ [DELETE] Auth deleted ${uidShort}…`);
     } catch (err: any) {
       if (err?.code === "auth/user-not-found") {
+        // Ya eliminado previamente — idempotente, OK.
         deletionStats["authUser"] = 0;
       } else {
-        console.error(`❌ [DELETE] Auth deletion failed:`, err);
+        console.error(`❌ [DELETE] Auth deletion failed for ${uidShort}:`, err);
         deletionStats["authUser"] = -1;
+        authDeletionFailed = true;
       }
     }
 
     console.log(`✅ [DELETE] Done ${uidShort}… stats:`, deletionStats);
 
+    if (authDeletionFailed) {
+      return {
+        success: false,
+        partialSuccess: true,
+        message:
+          "Tus datos fueron eliminados, pero no se pudo cerrar tu cuenta de autenticación. " +
+          "Puedes intentarlo de nuevo desde Ajustes → Eliminar cuenta.",
+        deletedSubcollections: deletionStats,
+      };
+    }
+
     return {
       success: true,
+      partialSuccess: false,
       message: "Cuenta y datos eliminados correctamente",
       deletedSubcollections: deletionStats,
     };

@@ -6,6 +6,8 @@ import 'package:http/http.dart' as http;
 import 'package:path_provider/path_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_version.dart';
+import '../../models/bible/content_pack.dart';
+import '../../utils/safe_log.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE DOWNLOAD SERVICE - Singleton
@@ -44,7 +46,13 @@ class BibleDownloadService {
   /// `Content-Length`; caso contrario se queda en `null`).
   final ValueNotifier<double?> progressNotifier = ValueNotifier(null);
 
-  /// Caché en memoria de URLs remotas por versión, pobladas en init().
+  late String _contentPackDirPath;
+
+  /// Estado de descarga de cada content pack (reactivo).
+  final ValueNotifier<Map<ContentPack, DownloadState>> packStateNotifier =
+      ValueNotifier({});
+
+  /// Caché en memoria de URLs remotas por versión/pack, pobladas en init().
   /// Si una versión no base no tiene URL, se marca como no disponible para no
   /// obligar a empaquetar todos los XML en el bundle inicial.
   final Map<String, String> _remoteUrls = {};
@@ -64,9 +72,14 @@ class BibleDownloadService {
 
   Future<void> init() async {
     if (_initialized) return;
-    if (_initFuture != null) return _initFuture!;
-    _initFuture = _initInternal();
-    await _initFuture;
+    _initFuture ??= _initInternal();
+    try {
+      await _initFuture!;
+    } catch (_) {
+      // Si _initInternal falla, limpiar para permitir reintento en la próxima llamada.
+      _initFuture = null;
+      rethrow;
+    }
   }
 
   Future<void> _initInternal() async {
@@ -74,6 +87,7 @@ class BibleDownloadService {
 
     final dir = await getApplicationDocumentsDirectory();
     _bibleDirPath = '${dir.path}/bible_offline';
+    _contentPackDirPath = '${dir.path}/content_packs';
 
     // Crear directorio si no existe
     final bibleDir = Directory(_bibleDirPath);
@@ -83,6 +97,7 @@ class BibleDownloadService {
 
     // Cargar estado de descargas desde SharedPreferences
     await _loadStates();
+    await _loadPackStates();
 
     // Cargar URLs remotas opcionales desde Firestore /config/bibleDownloads.
     // Si falla (offline, sin permiso, etc.) caemos al asset bundle.
@@ -95,7 +110,7 @@ class BibleDownloadService {
     }
 
     _initialized = true;
-    debugPrint('📥 [BIBLE-DL] BibleDownloadService initialized');
+    safeLog('BIBLE-DL', 'BibleDownloadService initialized');
   }
 
   Future<void> ensureInitialized() => init();
@@ -118,9 +133,9 @@ class BibleDownloadService {
           }
         }
       }
-      debugPrint('📥 [BIBLE-DL] Remote URLs loaded: ${_remoteUrls.length}');
+      safeLog('BIBLE-DL', 'Remote URLs loaded: ${_remoteUrls.length}');
     } catch (e) {
-      debugPrint('📥 [BIBLE-DL] No remote URLs (fallback to assets): $e');
+      safeWarn('BIBLE-DL', 'No remote URLs (fallback to assets): $e');
     }
   }
 
@@ -221,32 +236,34 @@ class BibleDownloadService {
 
       if (remoteUrl != null) {
         // Descarga HTTP con progreso si el servidor expone Content-Length.
-        final req = http.Request('GET', Uri.parse(remoteUrl));
-        final resp = await http.Client()
-            .send(req)
-            .timeout(const Duration(seconds: 60));
-        if (resp.statusCode != 200) {
-          throw HttpException(
-            'HTTP ${resp.statusCode} al descargar ${version.id}',
-          );
+        final client = http.Client();
+        try {
+          final req = http.Request('GET', Uri.parse(remoteUrl));
+          final resp =
+              await client.send(req).timeout(const Duration(seconds: 60));
+          if (resp.statusCode != 200) {
+            throw HttpException(
+              'HTTP ${resp.statusCode} al descargar ${version.id}',
+            );
+          }
+          final total = resp.contentLength ?? 0;
+          final sink = file.openWrite();
+          var received = 0;
+          await resp.stream.listen((chunk) {
+            received += chunk.length;
+            sink.add(chunk);
+            if (total > 0) progressNotifier.value = received / total;
+          }).asFuture<void>();
+          await sink.flush();
+          await sink.close();
+          byteLength = received;
+          sourceLabel = 'remote';
+        } finally {
+          client.close();
         }
-        final total = resp.contentLength ?? 0;
-        final sink = file.openWrite();
-        var received = 0;
-        await resp.stream.listen((chunk) {
-          received += chunk.length;
-          sink.add(chunk);
-          if (total > 0) progressNotifier.value = received / total;
-        }).asFuture<void>();
-        await sink.flush();
-        await sink.close();
-        byteLength = received;
-        sourceLabel = 'remote';
       } else {
         if (!isBundled(version)) {
-          debugPrint(
-            '📥 [BIBLE-DL] ${version.id} has no remote URL and is not bundled',
-          );
+          safeWarn('BIBLE-DL', '${version.id} has no remote URL and is not bundled');
           _updateState(version, DownloadState.notDownloaded);
           downloadingNotifier.value = null;
           progressNotifier.value = null;
@@ -270,15 +287,13 @@ class BibleDownloadService {
 
       downloadingNotifier.value = null;
       progressNotifier.value = null;
-      debugPrint(
-        '📥 [BIBLE-DL] ${version.id} downloaded from $sourceLabel ($byteLength bytes)',
-      );
+      safeLog('BIBLE-DL', '${version.id} downloaded from $sourceLabel ($byteLength bytes)');
       return true;
     } catch (e) {
       _updateState(version, DownloadState.notDownloaded);
       downloadingNotifier.value = null;
       progressNotifier.value = null;
-      debugPrint('📥 [BIBLE-DL] Error downloading ${version.id}: $e');
+      safeError('BIBLE-DL', 'Error downloading ${version.id}', e);
       return false;
     }
   }
@@ -298,10 +313,41 @@ class BibleDownloadService {
       _updateState(version, DownloadState.notDownloaded);
       await _saveState(version, false);
 
-      debugPrint('📥 [BIBLE-DL] ${version.id} deleted');
+      safeLog('BIBLE-DL', '${version.id} deleted');
       return true;
     } catch (e) {
-      debugPrint('📥 [BIBLE-DL] Error deleting ${version.id}: $e');
+      safeError('BIBLE-DL', 'Error deleting ${version.id}', e);
+      return false;
+    }
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // CONTENT PACKS
+  // ══════════════════════════════════════════════════════════════════════════
+
+  /// ¿Está descargado este content pack?
+  bool isPackDownloaded(ContentPack pack) =>
+      packStateNotifier.value[pack] == DownloadState.downloaded;
+
+  /// Ruta local del directorio del pack (null si no descargado o no inicializado).
+  String? getPackLocalPath(ContentPack pack) {
+    if (!_initialized) return null;
+    if (!isPackDownloaded(pack)) return null;
+    return '$_contentPackDirPath/${pack.subdirectory}';
+  }
+
+  /// Eliminar un pack descargado para liberar espacio.
+  Future<bool> deletePack(ContentPack pack) async {
+    await ensureInitialized();
+    try {
+      final dir = Directory('$_contentPackDirPath/${pack.subdirectory}');
+      if (await dir.exists()) await dir.delete(recursive: true);
+      _updatePackState(pack, DownloadState.notDownloaded);
+      await _savePackState(pack, false);
+      safeLog('BIBLE-DL', 'Pack ${pack.id} deleted');
+      return true;
+    } catch (e) {
+      safeError('BIBLE-DL', 'Error deleting pack ${pack.id}', e);
       return false;
     }
   }
@@ -355,6 +401,39 @@ class BibleDownloadService {
   Future<void> _saveState(BibleVersion version, bool downloaded) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool('$_prefsKeyPrefix${version.id}', downloaded);
+  }
+
+  static const _packPrefsKeyPrefix = 'content_pack_downloaded_';
+
+  Future<void> _loadPackStates() async {
+    final prefs = await SharedPreferences.getInstance();
+    final map = <ContentPack, DownloadState>{};
+    for (final pack in ContentPack.values) {
+      final saved = prefs.getBool('$_packPrefsKeyPrefix${pack.id}') ?? false;
+      if (saved) {
+        final dir = Directory('$_contentPackDirPath/${pack.subdirectory}');
+        if (await dir.exists()) {
+          map[pack] = DownloadState.downloaded;
+        } else {
+          map[pack] = DownloadState.notDownloaded;
+          await prefs.remove('$_packPrefsKeyPrefix${pack.id}');
+        }
+      } else {
+        map[pack] = DownloadState.notDownloaded;
+      }
+    }
+    packStateNotifier.value = Map.unmodifiable(map);
+  }
+
+  void _updatePackState(ContentPack pack, DownloadState state) {
+    final map = Map<ContentPack, DownloadState>.from(packStateNotifier.value);
+    map[pack] = state;
+    packStateNotifier.value = Map.unmodifiable(map);
+  }
+
+  Future<void> _savePackState(ContentPack pack, bool downloaded) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('$_packPrefsKeyPrefix${pack.id}', downloaded);
   }
 }
 

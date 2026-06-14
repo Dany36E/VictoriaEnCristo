@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+
+import 'pdf_file_writer.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
@@ -151,7 +152,12 @@ class StudyExportService {
       ),
     );
 
-    return _writePdf(await doc.save(), study, saveToDownloads: saveToDownloads);
+    return PdfFileWriter.write(
+      bytes: await doc.save(),
+      fileName: '${_fileName(study)}.pdf',
+      appSubfolder: 'estudios',
+      saveToDownloads: saveToDownloads,
+    );
   }
 
   Future<File> exportAndShareStudy({
@@ -255,7 +261,12 @@ class StudyExportService {
       ),
     );
 
-    return _writePdf(await doc.save(), study, saveToDownloads: saveToDownloads);
+    return PdfFileWriter.write(
+      bytes: await doc.save(),
+      fileName: '${_fileName(study)}.pdf',
+      appSubfolder: 'estudios',
+      saveToDownloads: saveToDownloads,
+    );
   }
 
   Future<File> exportAndShareRoomStudy({
@@ -540,87 +551,6 @@ class StudyExportService {
         return verse;
       }
     }
-    return null;
-  }
-
-  Future<File> _writePdf(
-    List<int> bytes,
-    StudyChapterAnswers study, {
-    required bool saveToDownloads,
-  }) async {
-    final fileName = '${_fileName(study)}.pdf';
-    if (saveToDownloads) {
-      final downloads = await _downloadsDirectory();
-      if (downloads != null) {
-        try {
-          return await _writeInDirectory(downloads, fileName, bytes);
-        } catch (_) {
-          // En algunos celulares Android la carpeta pública existe pero el
-          // sistema bloquea la escritura directa; caemos al espacio de la app.
-        }
-      }
-    }
-    return _writeInDirectory(
-      await _appDocumentsExportDirectory(),
-      fileName,
-      bytes,
-    );
-  }
-
-  Future<File> _writeInDirectory(
-    Directory directory,
-    String fileName,
-    List<int> bytes,
-  ) async {
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-    final file = File('${directory.path}${Platform.pathSeparator}$fileName');
-    await file.writeAsBytes(bytes, flush: true);
-    return file;
-  }
-
-  Future<Directory> _appDocumentsExportDirectory() async {
-    final dir = await getApplicationDocumentsDirectory();
-    return Directory('${dir.path}${Platform.pathSeparator}estudios');
-  }
-
-  Future<Directory?> _downloadsDirectory() async {
-    try {
-      final downloads = await getDownloadsDirectory();
-      if (downloads != null) return downloads;
-    } catch (_) {}
-
-    if (Platform.isWindows) {
-      final userProfile = Platform.environment['USERPROFILE'];
-      if (userProfile != null && userProfile.trim().isNotEmpty) {
-        return Directory('$userProfile${Platform.pathSeparator}Downloads');
-      }
-      final drive = Platform.environment['HOMEDRIVE'];
-      final path = Platform.environment['HOMEPATH'];
-      if (drive != null && path != null) {
-        return Directory('$drive$path${Platform.pathSeparator}Downloads');
-      }
-    }
-
-    if (Platform.isAndroid) {
-      final publicDownloads = Directory('/storage/emulated/0/Download');
-      if (await publicDownloads.exists()) return publicDownloads;
-      try {
-        final external = await getExternalStorageDirectory();
-        if (external != null) {
-          return Directory(
-            '${external.path}${Platform.pathSeparator}Descargas',
-          );
-        }
-      } catch (_) {}
-    }
-
-    if (Platform.isIOS) {
-      final documents = await getApplicationDocumentsDirectory();
-      return Directory('${documents.path}${Platform.pathSeparator}Descargas');
-    }
-
     return null;
   }
 

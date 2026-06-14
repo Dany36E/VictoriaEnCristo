@@ -2,8 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, debugPrint;
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'data_bootstrapper.dart';
+import '../utils/safe_log.dart';
 import 'account_session_manager.dart';
 import 'auth/windows_google_oauth.dart';
 import '../utils/platform_capabilities.dart';
@@ -223,13 +224,13 @@ class AuthService {
   /// ⚠️ IMPORTANTE: NO borra datos del usuario - solo termina la sesión
   /// Los datos se mantienen en la nube y en cache local
   Future<void> signOut() async {
-    debugPrint('🔐 [AUTH] Signing out (data preserved)...');
+    safeLog('AUTH', 'Signing out (data preserved)...');
 
     if (PlatformCapabilities.supportsGoogleSignInPlugin) {
       try {
         await googleSignIn.signOut();
       } catch (e) {
-        debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+        safeWarn('AUTH', 'Google sign-out error (non-critical): $e');
       }
     }
 
@@ -237,7 +238,7 @@ class AuthService {
     // los repositorios SIN borrar datos
     await _auth.signOut();
 
-    debugPrint('🔐 [AUTH] ✅ Signed out (data preserved for next login)');
+    safeLog('AUTH', 'Signed out (data preserved for next login)');
   }
 
   /// Cerrar sesión en TODOS los dispositivos del usuario actual.
@@ -255,10 +256,10 @@ class AuthService {
           .httpsCallable('signOutAllDevices');
       await callable.call();
     } on FirebaseFunctionsException catch (e) {
-      debugPrint('🔐 [AUTH] signOutAllDevices error: ${e.code} ${e.message}');
+      safeError('AUTH', 'signOutAllDevices error: ${e.code} ${e.message}');
       // Continuamos cerrando sesión local aunque la revocación remota falle.
     } catch (e) {
-      debugPrint('🔐 [AUTH] signOutAllDevices exception: $e');
+      safeError('AUTH', 'signOutAllDevices exception', e);
     }
     await signOut();
     return true;
@@ -267,9 +268,9 @@ class AuthService {
   /// Borrar solo cache local del dispositivo
   /// Los datos en la nube se mantienen intactos
   Future<void> clearLocalCache() async {
-    debugPrint('🔐 [AUTH] ⚠️ Clearing local cache only...');
+    safeWarn('AUTH', 'Clearing local cache only...');
     await DataBootstrapper.I.clearLocalCacheOnly();
-    debugPrint('🔐 [AUTH] ✅ Local cache cleared');
+    safeLog('AUTH', 'Local cache cleared');
   }
 
   /// Eliminar cuenta y TODOS los datos del usuario
@@ -295,29 +296,29 @@ class AuthService {
     }
 
     final uid = user.uid;
-    debugPrint('🔐 [AUTH] ⚠️⚠️⚠️ DELETING ACCOUNT AND ALL DATA ⚠️⚠️⚠️');
-    debugPrint('🔐 [AUTH] User: $uid');
+    safeWarn('AUTH', 'DELETING ACCOUNT AND ALL DATA');
+    safeLog('AUTH', 'User: $uid');
 
     try {
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 1: Re-autenticar si se proporcionaron credenciales
       // ═══════════════════════════════════════════════════════════════════════
       if (passwordForReauth != null && user.email != null) {
-        debugPrint('🔐 [AUTH] Re-authenticating with email/password...');
+        safeLog('AUTH', 'Re-authenticating with email/password...');
         try {
           final credential = EmailAuthProvider.credential(
             email: user.email!,
             password: passwordForReauth,
           );
           await user.reauthenticateWithCredential(credential);
-          debugPrint('🔐 [AUTH] ✅ Re-authenticated with password');
+          safeLog('AUTH', 'Re-authenticated with password');
         } on FirebaseAuthException catch (e) {
           return DeleteAccountResult.error(_getErrorMessage(e.code));
         }
       }
 
       if (forceGoogleReauth) {
-        debugPrint('🔐 [AUTH] Re-authenticating with Google...');
+        safeLog('AUTH', 'Re-authenticating with Google...');
         try {
           final reauthResult = await _reauthenticateWithGoogle();
           if (!reauthResult.isSuccess) {
@@ -325,7 +326,7 @@ class AuthService {
               reauthResult.errorMessage ?? 'Error al re-autenticar con Google',
             );
           }
-          debugPrint('🔐 [AUTH] ✅ Re-authenticated with Google');
+          safeLog('AUTH', 'Re-authenticated with Google');
         } catch (e) {
           return DeleteAccountResult.error('Error al re-autenticar con Google: $e');
         }
@@ -334,26 +335,24 @@ class AuthService {
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 2: Detener TODOS los listeners (evita spam de realtime updates)
       // ═══════════════════════════════════════════════════════════════════════
-      debugPrint('🔐 [AUTH] Stopping all Firestore listeners...');
+      safeLog('AUTH', 'Stopping all Firestore listeners...');
       await AccountSessionManager.I.stopAllSubscriptions();
-      debugPrint('🔐 [AUTH] ✅ All listeners stopped');
+      safeLog('AUTH', 'All listeners stopped');
 
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 3: Hard reset inmediato de UI/memoria/widget
       // Esto SIEMPRE se hace para que la UI no muestre datos del usuario
       // incluso si el delete falla después
       // ═══════════════════════════════════════════════════════════════════════
-      debugPrint('🔐 [AUTH] Hard resetting memory and widget...');
+      safeLog('AUTH', 'Hard resetting memory and widget...');
       await AccountSessionManager.I.hardResetForAccountDeletion();
-      debugPrint('🔐 [AUTH] ✅ Memory and widget reset');
+      safeLog('AUTH', 'Memory and widget reset');
 
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 4: Llamar Cloud Function para borrar datos
       // CRÍTICO: Especificar región correcta para evitar NOT_FOUND
       // ═══════════════════════════════════════════════════════════════════════
-      debugPrint(
-        '🔐 [AUTH] Calling Cloud Function deleteUserData (region: $kCloudFunctionRegion)...',
-      );
+      safeLog('AUTH', 'Calling Cloud Function deleteUserData (region: $kCloudFunctionRegion)...');
 
       bool cloudFunctionSuccess = false;
       String? cloudFunctionError;
@@ -369,15 +368,23 @@ class AuthService {
         final data = result.data;
 
         if (data['success'] == true) {
-          debugPrint('🔐 [AUTH] ✅ Cloud Function success: ${data['message']}');
-          debugPrint('🔐 [AUTH] Deleted subcollections: ${data['deletedSubcollections']}');
+          safeLog('AUTH', 'Cloud Function success: ${data['message']}');
+          safeLog('AUTH', 'Deleted subcollections: ${data['deletedSubcollections']}');
+          cloudFunctionSuccess = true;
+        } else if (data['partialSuccess'] == true) {
+          // Datos de Firestore eliminados; auth.deleteUser falló por error de servidor.
+          // Los datos sensibles ya no existen. El usuario podría re-autenticarse pero
+          // vería la app como nueva instalación (sin perfil). Tratamos como éxito del
+          // flujo principal y lo registramos para monitoreo.
+          safeWarn('AUTH', 'Cloud Function partial success: ${data['message']}');
+          safeLog('AUTH', 'Deleted subcollections: ${data['deletedSubcollections']}');
           cloudFunctionSuccess = true;
         } else {
-          debugPrint('🔐 [AUTH] ⚠️ Cloud Function returned unexpected: $data');
+          safeWarn('AUTH', 'Cloud Function returned unexpected: $data');
           cloudFunctionError = data['error']?.toString() ?? 'Respuesta inesperada del servidor';
         }
       } on FirebaseFunctionsException catch (e) {
-        debugPrint('🔐 [AUTH] ❌ Cloud Function error: ${e.code} - ${e.message}');
+        safeError('AUTH', 'Cloud Function error: ${e.code} - ${e.message}');
 
         // NOT_FOUND significa que la función no existe o región incorrecta
         if (e.code == 'not-found') {
@@ -402,7 +409,7 @@ class AuthService {
           cloudFunctionError = 'Error al eliminar datos: ${e.message ?? e.code}';
         }
       } catch (e) {
-        debugPrint('🔐 [AUTH] ❌ Unexpected error calling Cloud Function: $e');
+        safeError('AUTH', 'Unexpected error calling Cloud Function', e);
         cloudFunctionError = 'Error de conexión. Verifica tu internet.';
       }
 
@@ -410,7 +417,7 @@ class AuthService {
       // PASO 5: Si Cloud Function falló, NO afirmar éxito
       // ═══════════════════════════════════════════════════════════════════════
       if (!cloudFunctionSuccess) {
-        debugPrint('🔐 [AUTH] ❌ Cloud Function failed - NOT showing success');
+        safeError('AUTH', 'Cloud Function failed - NOT showing success');
 
         // SignOut para dejar la app en estado limpio
         // pero el usuario sigue existiendo en Firebase Auth
@@ -418,7 +425,7 @@ class AuthService {
           try {
             await googleSignIn.signOut();
           } catch (e) {
-            debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+            safeWarn('AUTH', 'Google sign-out error (non-critical): $e');
           }
         }
         await _auth.signOut();
@@ -431,7 +438,7 @@ class AuthService {
       // ═══════════════════════════════════════════════════════════════════════
       // PASO 6: Cloud Function OK - limpiar cache local
       // ═══════════════════════════════════════════════════════════════════════
-      debugPrint('🔐 [AUTH] Cloud Function succeeded, clearing local cache...');
+      safeLog('AUTH', 'Cloud Function succeeded, clearing local cache...');
       await DataBootstrapper.I.clearLocalCacheOnly();
 
       // ═══════════════════════════════════════════════════════════════════════
@@ -441,7 +448,7 @@ class AuthService {
         try {
           await googleSignIn.signOut();
         } catch (e) {
-          debugPrint('🔐 [AUTH] Google sign-out error (non-critical): $e');
+          safeWarn('AUTH', 'Google sign-out error (non-critical): $e');
         }
       }
 
@@ -450,10 +457,10 @@ class AuthService {
       try {
         await _auth.signOut();
       } catch (e) {
-        debugPrint('🔐 [AUTH] Sign-out error (user may not exist): $e');
+        safeWarn('AUTH', 'Sign-out error (user may not exist): $e');
       }
 
-      debugPrint('🔐 [AUTH] ✅ Account deletion TRULY complete');
+      safeLog('AUTH', 'Account deletion TRULY complete');
       return DeleteAccountResult.success();
     } on FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
@@ -465,7 +472,7 @@ class AuthService {
       }
       return DeleteAccountResult.error(_getErrorMessage(e.code));
     } catch (e) {
-      debugPrint('🔐 [AUTH] ❌ Unexpected error: $e');
+      safeError('AUTH', 'Unexpected error', e);
       return DeleteAccountResult.error('Error al eliminar cuenta: $e');
     }
   }

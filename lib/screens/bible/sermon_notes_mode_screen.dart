@@ -23,16 +23,7 @@ import 'study_mode_screen.dart' show StudyPickerResult;
 import '../../widgets/bible/sermon/sermon_rich_text_controller.dart';
 import '../../widgets/bible/study/study_chapter_picker.dart';
 import '../../widgets/bible/study/study_reading_panel.dart';
-
-enum _SermonHeaderAction {
-  passage,
-  versions,
-  centralPassage,
-  addVerses,
-  savedNotes,
-  exportPdf,
-  text,
-}
+import '../../widgets/bible/sermon/sermon_header_bar.dart';
 
 enum _PdfExportAction { share, save }
 
@@ -976,7 +967,23 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                       final isWide = constraints.maxWidth >= 900;
                       return Column(
                         children: [
-                          _buildHeader(t, isWide),
+                          SermonHeaderBar(
+                            theme: t,
+                            isWide: isWide,
+                            bookName: _bookName,
+                            chapter: _chapter,
+                            primaryVersion: _primaryVersion,
+                            secondaryVersion: _secondaryVersion,
+                            readingLabel: _readingLabel(),
+                            onBack: () => Navigator.maybePop(context),
+                            onOpenPassagePicker: _openPassagePicker,
+                            onOpenVersionPicker: _openVersionPicker,
+                            onOpenCentralPassagePicker: _openCentralPassagePicker,
+                            onOpenAddVersesPicker: _openAddVersesPicker,
+                            onOpenSavedNotes: _openSavedNotes,
+                            onExportPdf: _exportPdf,
+                            onOpenTypographySheet: _openTypographySheet,
+                          ),
                           Expanded(
                             child: isWide ? _buildSplit(t) : _buildTabbed(t),
                           ),
@@ -987,221 +994,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           ),
         );
       },
-    );
-  }
-
-  Widget _buildHeader(BibleReaderThemeData t, bool isWide) {
-    if (!isWide) return _buildCompactHeader(t);
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
-            onPressed: () => Navigator.maybePop(context),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: _openPassagePicker,
-              behavior: HitTestBehavior.opaque,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Modo Predicacion',
-                    style: GoogleFonts.cinzel(
-                      color: t.textPrimary,
-                      fontSize: 18,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  _HeaderChip(
-                    theme: t,
-                    icon: Icons.menu_book_outlined,
-                    label: _readingLabel(),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          TextButton.icon(
-            onPressed: _openVersionPicker,
-            icon: Icon(Icons.compare_arrows, color: t.accent, size: 17),
-            label: Text(
-              '${_primaryVersion.shortName} / ${_secondaryVersion.shortName}',
-            ),
-            style: TextButton.styleFrom(
-              foregroundColor: t.accent,
-              visualDensity: VisualDensity.compact,
-              minimumSize: const Size(0, 34),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              textStyle: GoogleFonts.manrope(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Pasaje central',
-            icon: Icon(Icons.my_location, color: t.accent, size: 21),
-            onPressed: _openCentralPassagePicker,
-          ),
-          IconButton(
-            tooltip: 'Agregar versiculos',
-            icon: Icon(Icons.playlist_add, color: t.accent, size: 22),
-            onPressed: _openAddVersesPicker,
-          ),
-          IconButton(
-            tooltip: 'Apuntes guardados',
-            icon: Icon(Icons.folder_open_outlined, color: t.accent, size: 20),
-            onPressed: _openSavedNotes,
-          ),
-          IconButton(
-            tooltip: 'Exportar PDF',
-            icon: Icon(
-              Icons.picture_as_pdf_outlined,
-              color: t.accent,
-              size: 21,
-            ),
-            onPressed: _exportPdf,
-          ),
-          TextButton.icon(
-            onPressed: () => _openTypographySheet(t),
-            icon: Icon(Icons.text_fields, color: t.accent, size: 17),
-            label: const Text('Texto y colores'),
-            style: TextButton.styleFrom(
-              foregroundColor: t.accent,
-              visualDensity: VisualDensity.compact,
-              minimumSize: const Size(0, 34),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-                side: BorderSide(color: t.accent.withValues(alpha: 0.22)),
-              ),
-              textStyle: GoogleFonts.manrope(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompactHeader(BibleReaderThemeData t) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 6, 6, 2),
-      child: Row(
-        children: [
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
-            onPressed: () => Navigator.maybePop(context),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: _openPassagePicker,
-              behavior: HitTestBehavior.opaque,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Modo Predicacion',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.cinzel(
-                      color: t.textPrimary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$_bookName $_chapter · ${_primaryVersion.shortName}/${_secondaryVersion.shortName}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(
-                      color: t.accent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          PopupMenuButton<_SermonHeaderAction>(
-            tooltip: 'Opciones de apuntes',
-            color: t.surface,
-            icon: Icon(Icons.more_vert, color: t.textSecondary, size: 22),
-            onSelected: (action) async {
-              switch (action) {
-                case _SermonHeaderAction.passage:
-                  await _openPassagePicker();
-                  break;
-                case _SermonHeaderAction.versions:
-                  await _openVersionPicker();
-                  break;
-                case _SermonHeaderAction.centralPassage:
-                  await _openCentralPassagePicker();
-                  break;
-                case _SermonHeaderAction.addVerses:
-                  await _openAddVersesPicker();
-                  break;
-                case _SermonHeaderAction.savedNotes:
-                  await _openSavedNotes();
-                  break;
-                case _SermonHeaderAction.exportPdf:
-                  await _exportPdf();
-                  break;
-                case _SermonHeaderAction.text:
-                  await _openTypographySheet(t);
-                  break;
-              }
-            },
-            itemBuilder: (_) => [
-              _menuItem(t, _SermonHeaderAction.passage, 'Cambiar lectura'),
-              _menuItem(t, _SermonHeaderAction.versions, 'Versiones'),
-              _menuItem(
-                t,
-                _SermonHeaderAction.centralPassage,
-                'Pasaje central',
-              ),
-              _menuItem(t, _SermonHeaderAction.addVerses, 'Agregar versiculos'),
-              _menuItem(t, _SermonHeaderAction.savedNotes, 'Apuntes guardados'),
-              _menuItem(t, _SermonHeaderAction.exportPdf, 'Exportar PDF'),
-              _menuItem(t, _SermonHeaderAction.text, 'Texto y colores'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  PopupMenuItem<_SermonHeaderAction> _menuItem(
-    BibleReaderThemeData t,
-    _SermonHeaderAction value,
-    String label,
-  ) {
-    return PopupMenuItem(
-      value: value,
-      child: Text(
-        label,
-        style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
-      ),
     );
   }
 
@@ -1760,44 +1552,6 @@ class _InfoButton extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-}
-
-class _HeaderChip extends StatelessWidget {
-  final BibleReaderThemeData theme;
-  final IconData icon;
-  final String label;
-
-  const _HeaderChip({
-    required this.theme,
-    required this.icon,
-    required this.label,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-      decoration: BoxDecoration(
-        color: t.accent.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: t.accent, size: 14),
-          const SizedBox(width: 5),
-          Text(
-            label,
-            style: GoogleFonts.lora(
-              color: t.accent,
-              fontSize: 13,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
       ),
     );
   }

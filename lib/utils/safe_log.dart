@@ -1,17 +1,31 @@
 import 'package:flutter/foundation.dart';
 
-/// Helper de logging seguro: solo emite en `kDebugMode` y trunca cualquier
-/// `uid` o token a un prefijo corto para evitar fugas en builds release y en
-/// `adb logcat` capturado por terceros.
+/// Helpers de logging seguros: solo emiten en `kDebugMode` (el no-op de
+/// `debugPrint` en release cubre todo internamente) y truncan uid/tokens.
 ///
-/// Uso:
-/// ```dart
-/// safeLog('FCM', 'token=${shortToken(token)}');
-/// safeLog('AUTH', 'uid=${shortUid(uid)} login OK');
-/// ```
+/// Niveles:
+///   `safeLog`   → info:  `[TAG] mensaje`
+///   `safeWarn`  → warn:  `[WARN][TAG] mensaje`
+///   `safeError` → error: `[ERROR][TAG] mensaje — error`
+///
+/// Migración: reemplazar `debugPrint('🔐 [AUTH] msg $e')` por
+/// `safeError('AUTH', 'msg', e)`. No migrar en masa — sólo al tocar el archivo.
 void safeLog(String tag, String message) {
   if (kDebugMode) {
     debugPrint('[$tag] $message');
+  }
+}
+
+void safeWarn(String tag, String message) {
+  if (kDebugMode) {
+    debugPrint('[WARN][$tag] $message');
+  }
+}
+
+void safeError(String tag, String message, [Object? error]) {
+  if (kDebugMode) {
+    final suffix = error != null ? ' — $error' : '';
+    debugPrint('[ERROR][$tag] $message$suffix');
   }
 }
 

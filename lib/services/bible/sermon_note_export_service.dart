@@ -1,8 +1,9 @@
 import 'dart:io';
 
 import 'package:flutter/services.dart' show rootBundle;
-import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+
+import 'pdf_file_writer.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
@@ -105,7 +106,12 @@ class SermonNoteExportService {
       ),
     );
 
-    return _writePdf(await doc.save(), note, saveToDownloads: saveToDownloads);
+    return PdfFileWriter.write(
+      bytes: await doc.save(),
+      fileName: '${_safeFileBaseName(note)}.pdf',
+      appSubfolder: 'exports',
+      saveToDownloads: saveToDownloads,
+    );
   }
 
   Future<File> exportAndShareSermonNote({
@@ -549,43 +555,6 @@ class SermonNoteExportService {
         .replaceAll(RegExp(r'[\\/:*?"<>|]'), '')
         .replaceAll(RegExp(r'\s+'), '_');
     return sanitized.isEmpty ? 'ApuntePredicacion' : sanitized;
-  }
-
-  Future<File> _writePdf(
-    List<int> bytes,
-    SermonNote note, {
-    required bool saveToDownloads,
-  }) async {
-    final fileName = '${_safeFileBaseName(note)}.pdf';
-    if (saveToDownloads) {
-      final downloads = await getDownloadsDirectory();
-      if (downloads != null) {
-        return _writeInDirectory(downloads, fileName, bytes);
-      }
-    }
-    return _writeInDirectory(
-      await _appDocumentsExportDirectory(),
-      fileName,
-      bytes,
-    );
-  }
-
-  Future<Directory> _appDocumentsExportDirectory() async {
-    final docs = await getApplicationDocumentsDirectory();
-    return Directory('${docs.path}${Platform.pathSeparator}exports');
-  }
-
-  Future<File> _writeInDirectory(
-    Directory directory,
-    String fileName,
-    List<int> bytes,
-  ) async {
-    if (!await directory.exists()) {
-      await directory.create(recursive: true);
-    }
-    final file = File('${directory.path}${Platform.pathSeparator}$fileName');
-    await file.writeAsBytes(bytes, flush: true);
-    return file;
   }
 
   String _formatDate(DateTime date) {

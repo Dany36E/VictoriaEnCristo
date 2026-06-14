@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 
+import '../utils/safe_log.dart';
+
 /// Servicio singleton para monitorear conectividad de red.
 class ConnectivityService {
   ConnectivityService._();
@@ -21,7 +23,7 @@ class ConnectivityService {
     _sub = Connectivity().onConnectivityChanged.listen((results) {
       isOnline.value = !results.contains(ConnectivityResult.none);
     });
-    debugPrint('🌐 [CONNECTIVITY] init → online=${isOnline.value}');
+    safeLog('CONNECTIVITY', 'init → online=${isOnline.value}');
   }
 
   bool get hasInternet => isOnline.value;

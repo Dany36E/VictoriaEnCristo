@@ -1,11 +1,14 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
+import '../../models/bible/content_pack.dart';
 import '../../models/bible/interlinear_word.dart';
 import '../../utils/morph_decoder.dart';
+import 'bible_download_service.dart';
 
 /// Servicio para datos interlineales griego/hebreo.
 /// Carga lazy por libro – mantiene un solo libro en cache.
@@ -86,15 +89,19 @@ class InterlinearService {
 
     final ot = isOT(bookNumber);
     final dir = ot ? 'hebrew' : 'greek';
-    final path = 'assets/bible/interlinear/$dir/$code.json';
+    final pack = ot ? ContentPack.interlinearHebrew : ContentPack.interlinearGreek;
+    final localDir = BibleDownloadService.I.getPackLocalPath(pack);
+    final localFile = localDir != null ? File('$localDir/$code.json') : null;
 
     try {
-      final raw = await rootBundle.loadString(path);
+      final raw = (localFile != null && await localFile.exists())
+          ? await localFile.readAsString()
+          : await rootBundle.loadString('assets/bible/interlinear/$dir/$code.json');
       final parsed = await compute(_parseBookData, _ParseArgs(raw, code, ot));
       _cachedBookCode = code;
       _cachedVerses = parsed;
     } catch (e) {
-      debugPrint('InterlinearService: Error cargando $path: $e');
+      debugPrint('InterlinearService: Error cargando $code ($dir): $e');
       _cachedBookCode = code;
       _cachedVerses = {};
     }

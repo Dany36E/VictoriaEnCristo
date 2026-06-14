@@ -33,11 +33,13 @@ import 'services/content_repository.dart';
 import 'services/widget_sync_service.dart';
 import 'services/victory_scoring_service.dart';
 import 'services/jesus_widget_service.dart';
+import 'services/remote_config_service.dart';
 import 'services/data_bootstrapper.dart';
 import 'services/account_session_manager.dart';
 import 'services/daily_verse_service.dart';
 import 'repositories/profile_repository.dart';
 import 'models/user_profile.dart';
+import 'utils/safe_log.dart';
 import 'utils/time_utils.dart';
 import 'utils/platform_capabilities.dart';
 import 'utils/daily_outcome_registration.dart';
@@ -63,12 +65,10 @@ Future<T> _timedStartup<T>(String label, Future<T> Function() action) async {
   final sw = Stopwatch()..start();
   try {
     final result = await action();
-    debugPrint('⏱️ [STARTUP] $label listo en ${sw.elapsedMilliseconds}ms');
+    safeLog('STARTUP', '$label listo en ${sw.elapsedMilliseconds}ms');
     return result;
   } catch (e) {
-    debugPrint(
-      '⏱️ [STARTUP] $label falló tras ${sw.elapsedMilliseconds}ms: $e',
-    );
+    safeError('STARTUP', '$label falló tras ${sw.elapsedMilliseconds}ms', e);
     rethrow;
   }
 }
@@ -130,9 +130,9 @@ Future<StartupServices> _initializeStartupServices() async {
         ),
       ),
     );
-    debugPrint('✅ [STARTUP] App Check activado');
+    safeLog('STARTUP', 'App Check activado');
   } catch (e) {
-    debugPrint('⚠️ [STARTUP] App Check no se activó: $e');
+    safeWarn('STARTUP', 'App Check no se activó: $e');
   }
 
   // Crashlytics: capturar errores no manejados.
@@ -234,6 +234,7 @@ Future<void> _startDeferredServices() async {
   try {
     final notificationService = NotificationService();
     await Future.wait([
+      RemoteConfigService.I.init(),
       FeedbackEngine.I.init(),
       ExerciseLogService.I.init(),
       if (PlatformCapabilities.supportsHomeWidgets) WidgetSyncService.I.init(),
@@ -255,9 +256,7 @@ Future<void> _startDeferredServices() async {
     if (PlatformCapabilities.supportsHomeWidgets) {
       WidgetSyncService.I.syncWidget();
     }
-    debugPrint(
-      '🚀 [MAIN] Deferred services ready in ${sw.elapsedMilliseconds}ms',
-    );
+    safeLog('MAIN', 'Deferred services ready in ${sw.elapsedMilliseconds}ms');
   } catch (e, st) {
     AppErrorHandler.I.report(
       e,
@@ -620,12 +619,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     );
   }
 
-  void _handleThemeChange() {
-    setState(() {
-      _isDarkMode = widget.themeService.isDarkMode;
-    });
-    _updateSystemUI();
-  }
+  void _handleThemeChange() => _onThemeChanged();
 
   @override
   Widget build(BuildContext context) {
@@ -729,6 +723,7 @@ enum _ProfileGateStatus {
 class _ProfileGateState extends State<_ProfileGate> {
   _ProfileGateStatus _status = _ProfileGateStatus.loading;
   String? _errorMessage;
+  bool _verifyScheduled = false;
 
   @override
   void initState() {
@@ -1078,14 +1073,18 @@ class _ProfileGateState extends State<_ProfileGate> {
           );
         }
 
-        // Safety check 2: Verificar desde cloud en caso de que el cache esté desactualizado
-        // Esto se ejecuta en background y si detecta que el onboarding está completo,
-        // _onProfileChanged lo manejará automáticamente
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted && _status == _ProfileGateStatus.needsOnboarding) {
-            _verifyStillNeedsOnboarding();
-          }
-        });
+        // Safety check 2: Verificar desde cloud si el cache está desactualizado.
+        // El flag _verifyScheduled evita encolar múltiples callbacks en rebuilds
+        // rápidos — solo uno puede estar pendiente a la vez.
+        if (!_verifyScheduled) {
+          _verifyScheduled = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _verifyScheduled = false;
+            if (mounted && _status == _ProfileGateStatus.needsOnboarding) {
+              _verifyStillNeedsOnboarding();
+            }
+          });
+        }
 
         return const OnboardingWelcomeScreen();
 

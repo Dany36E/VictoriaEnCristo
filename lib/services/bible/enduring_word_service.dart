@@ -1,8 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+
+import '../../models/bible/content_pack.dart';
+import 'bible_download_service.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // ENDURING WORD — TERMS OF USE
@@ -92,9 +96,15 @@ class EnduringWordService {
     _loadCompleters[bookNumber] = Completer<void>();
 
     try {
-      final jsonStr = await rootBundle.loadString(
-        'assets/bible/commentaries/guzik/$bookNumber.json',
-      );
+      final localDir =
+          BibleDownloadService.I.getPackLocalPath(ContentPack.guzikCommentary);
+      final localFile =
+          localDir != null ? File('$localDir/$bookNumber.json') : null;
+      final jsonStr = (localFile != null && await localFile.exists())
+          ? await localFile.readAsString()
+          : await rootBundle.loadString(
+              'assets/bible/commentaries/guzik/$bookNumber.json',
+            );
       final data = await compute(_parseBookJson, jsonStr);
       _cache[bookNumber] = data;
     } catch (e) {

@@ -29,8 +29,7 @@ import '../../widgets/bible/study/study_questions_panel.dart';
 import '../../widgets/bible/study/study_room_banner.dart';
 import '../../widgets/bible/study/study_room_dialogs.dart';
 import '../../widgets/bible/sermon/sermon_rich_text_controller.dart';
-
-enum _StudyHeaderAction { passage, range, addPassage, text, tutorial, room }
+import '../../widgets/bible/study/study_header_bar.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// MODO ESTUDIO — Pantalla principal
@@ -776,6 +775,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   @override
   void dispose() {
     _saveDebounce?.cancel();
+    _saveStatusTicker?.cancel();
     _flushAnswers(); // sin await — se ejecutará en background
     StudyRoomService.I.currentRoomNotifier.removeListener(_onRoomChanged);
     for (final c in _controllers.values) {
@@ -813,7 +813,21 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                       final isWide = c.maxWidth >= 900;
                       return Column(
                         children: [
-                          _buildHeader(t, isWide),
+                          StudyHeaderBar(
+                            theme: t,
+                            isWide: isWide,
+                            bookName: _bookName,
+                            chapter: _chapter,
+                            rangeLabel: _rangeLabel(),
+                            answersNotifier: StudyModeService.I.answersNotifier,
+                            resolveCurrentStudy: _resolveCurrentStudy,
+                            onBack: () => Navigator.maybePop(context),
+                            onOpenPicker: _openPicker,
+                            onOpenRangePicker: _openRangePicker,
+                            onOpenAddPassagePicker: _openAddPassagePicker,
+                            onOpenTypographySheet: _openTypographySheet,
+                            onOpenRoomDialog: _openRoomDialog,
+                          ),
                           ValueListenableBuilder<StudyRoom?>(
                             valueListenable:
                                 StudyRoomService.I.currentRoomNotifier,
@@ -836,298 +850,6 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                       );
                     },
                   ),
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildHeader(BibleReaderThemeData t, bool isWide) {
-    if (!isWide) return _buildCompactHeader(t);
-
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(8, 8, 8, 0),
-      child: Row(
-        children: [
-          IconButton(
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
-            onPressed: () => Navigator.maybePop(context),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: _openPicker,
-              behavior: HitTestBehavior.opaque,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    'Modo Estudio',
-                    style: GoogleFonts.cinzel(
-                      color: t.textPrimary,
-                      fontSize: isWide ? 18 : 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    decoration: BoxDecoration(
-                      color: t.accent.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Row(
-                      children: [
-                        Text(
-                          '$_bookName $_chapter',
-                          style: GoogleFonts.lora(
-                            color: t.accent,
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(Icons.expand_more, color: t.accent, size: 16),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          IconButton(
-            tooltip: 'Tutorial',
-            icon: Icon(
-              Icons.help_outline,
-              color: t.textSecondary.withValues(alpha: 0.6),
-              size: 20,
-            ),
-            onPressed: () => showDialog(
-              context: context,
-              builder: (_) => const StudyOnboardingOverlay(),
-            ),
-          ),
-          TextButton.icon(
-            onPressed: () => _openTypographySheet(t),
-            icon: Icon(Icons.text_fields, color: t.accent, size: 17),
-            label: const Text('Texto y colores'),
-            style: TextButton.styleFrom(
-              foregroundColor: t.accent,
-              visualDensity: VisualDensity.compact,
-              minimumSize: const Size(0, 34),
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
-                side: BorderSide(color: t.accent.withValues(alpha: 0.22)),
-              ),
-              textStyle: GoogleFonts.manrope(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ),
-          const SizedBox(width: 4),
-          IconButton(
-            tooltip: 'Estudiar con amigos',
-            icon: Icon(Icons.groups_outlined, color: t.accent, size: 22),
-            onPressed: _openRoomDialog,
-          ),
-          _buildRangeChip(t),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCompactHeader(BibleReaderThemeData t) {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(4, 6, 6, 2),
-      child: Row(
-        children: [
-          IconButton(
-            visualDensity: VisualDensity.compact,
-            icon: Icon(
-              Icons.arrow_back_ios_new,
-              color: t.textSecondary,
-              size: 18,
-            ),
-            onPressed: () => Navigator.maybePop(context),
-          ),
-          Expanded(
-            child: GestureDetector(
-              onTap: _openPicker,
-              behavior: HitTestBehavior.opaque,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Modo Estudio',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.cinzel(
-                      color: t.textPrimary,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    '$_bookName $_chapter · ${_rangeLabel()}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(
-                      color: t.accent,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          InkWell(
-            borderRadius: BorderRadius.circular(18),
-            onTap: () => _openTypographySheet(t),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
-              decoration: BoxDecoration(
-                color: t.accent.withValues(alpha: 0.10),
-                borderRadius: BorderRadius.circular(18),
-                border: Border.all(color: t.accent.withValues(alpha: 0.22)),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.text_fields, color: t.accent, size: 16),
-                  const SizedBox(width: 5),
-                  Text(
-                    'Texto',
-                    style: GoogleFonts.manrope(
-                      color: t.accent,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          PopupMenuButton<_StudyHeaderAction>(
-            tooltip: 'Opciones de estudio',
-            color: t.surface,
-            icon: Icon(Icons.more_vert, color: t.textSecondary, size: 22),
-            onSelected: (action) async {
-              switch (action) {
-                case _StudyHeaderAction.passage:
-                  await _openPicker();
-                  break;
-                case _StudyHeaderAction.range:
-                  await _openRangePicker();
-                  break;
-                case _StudyHeaderAction.addPassage:
-                  await _openAddPassagePicker();
-                  break;
-                case _StudyHeaderAction.text:
-                  await _openTypographySheet(t);
-                  break;
-                case _StudyHeaderAction.tutorial:
-                  if (!mounted) return;
-                  await showDialog(
-                    context: context,
-                    builder: (_) => const StudyOnboardingOverlay(),
-                  );
-                  break;
-                case _StudyHeaderAction.room:
-                  await _openRoomDialog();
-                  break;
-              }
-            },
-            itemBuilder: (_) => [
-              _headerMenuItem(t, _StudyHeaderAction.passage, 'Cambiar pasaje'),
-              _headerMenuItem(t, _StudyHeaderAction.range, 'Elegir rango'),
-              _headerMenuItem(
-                t,
-                _StudyHeaderAction.addPassage,
-                'Añadir pasaje',
-              ),
-              _headerMenuItem(t, _StudyHeaderAction.text, 'Texto y colores'),
-              _headerMenuItem(t, _StudyHeaderAction.tutorial, 'Tutorial'),
-              _headerMenuItem(t, _StudyHeaderAction.room, 'Sala de estudio'),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  PopupMenuItem<_StudyHeaderAction> _headerMenuItem(
-    BibleReaderThemeData t,
-    _StudyHeaderAction value,
-    String label,
-  ) {
-    return PopupMenuItem(
-      value: value,
-      child: Text(
-        label,
-        style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
-      ),
-    );
-  }
-
-  Widget _buildRangeChip(BibleReaderThemeData t) {
-    return ValueListenableBuilder<Map<String, StudyChapterAnswers>>(
-      valueListenable: StudyModeService.I.answersNotifier,
-      builder: (_, map, _) {
-        final answers = _resolveCurrentStudy();
-        final s = answers?.studyStartVerse;
-        final e = answers?.studyEndVerse;
-        final hasExtras = answers?.additionalPassages.isNotEmpty == true;
-        final label = hasExtras
-            ? answers!.reference
-            : (s != null && e != null)
-            ? (s == e ? 'v. $s' : 'v. $s–$e')
-            : 'Capítulo';
-        return GestureDetector(
-          onTap: _openRangePicker,
-          behavior: HitTestBehavior.opaque,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 8),
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: t.textSecondary.withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: (s != null && e != null) || hasExtras
-                    ? t.accent.withValues(alpha: 0.5)
-                    : t.textSecondary.withValues(alpha: 0.15),
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.format_list_numbered,
-                  color: t.textSecondary,
-                  size: 14,
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  label,
-                  style: GoogleFonts.manrope(
-                    color: t.textPrimary,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ],
-            ),
           ),
         );
       },

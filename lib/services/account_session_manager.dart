@@ -42,6 +42,7 @@ import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 import 'notification_service.dart';
+import '../utils/safe_log.dart';
 import 'exercise_log_service.dart';
 import 'fcm_service.dart';
 import 'learning/learning_cloud_sync.dart';
@@ -118,7 +119,7 @@ class AccountSessionManager {
     if (_isInitialized) return;
 
     try {
-      debugPrint('🔐 [SESSION] Initializing AccountSessionManager...');
+      safeLog('SESSION', 'Initializing AccountSessionManager...');
 
       _prefs = await SharedPreferences.getInstance();
 
@@ -126,7 +127,7 @@ class AccountSessionManager {
       _authSubscription = FirebaseAuth.instance.authStateChanges().listen(
         _onAuthStateChanged,
         onError: (e) {
-          debugPrint('🔐 [SESSION] Auth stream error: $e');
+          safeError('SESSION', 'Auth stream error', e);
           lastError = e.toString();
         },
       );
@@ -140,9 +141,9 @@ class AccountSessionManager {
       }
 
       _isInitialized = true;
-      debugPrint('🔐 [SESSION] ✅ Initialized');
+      safeLog('SESSION', 'Initialized');
     } catch (e) {
-      debugPrint('🔐 [SESSION] ❌ Init error: $e');
+      safeError('SESSION', 'Init error', e);
       lastError = e.toString();
       _isInitialized = true;
     }
@@ -164,7 +165,7 @@ class AccountSessionManager {
           await _handleUserLogout().timeout(const Duration(seconds: 90));
         }
       } catch (e) {
-        debugPrint('🔐 [SESSION] ⚠️ Auth event handler falló: $e');
+        safeError('SESSION', 'Auth event handler falló', e);
         lastError = e.toString();
       }
     });
@@ -172,23 +173,19 @@ class AccountSessionManager {
 
   /// Manejar login de usuario - DETECTA CAMBIO DE CUENTA
   Future<void> _handleUserLogin(String newUid) async {
-    debugPrint('🔐 [SESSION] User login detected: $newUid');
+    safeLog('SESSION', 'User login detected: $newUid');
 
     final lastKnownUid = _prefs?.getString(_keyLastKnownUid);
     final isAccountChange = lastKnownUid != null && lastKnownUid != newUid;
 
     if (isAccountChange) {
-      debugPrint('🔐 [SESSION] ⚠️ ACCOUNT CHANGE DETECTED!');
-      debugPrint('   Previous: $lastKnownUid');
-      debugPrint('   New: $newUid');
+      safeWarn('SESSION', 'ACCOUNT CHANGE DETECTED! Previous: $lastKnownUid → New: $newUid');
 
       // CRITICAL: Limpiar TODO el estado del usuario anterior
       await _performAccountSwitch(lastKnownUid, newUid);
     } else if (_currentSessionUid == newUid) {
       // Mismo usuario, ya activo o bootstrapping - no duplicar
-      debugPrint(
-        '🔐 [SESSION] Same user already active/bootstrapping, skipping',
-      );
+      safeLog('SESSION', 'Same user already active/bootstrapping, skipping');
       return;
     }
 
@@ -203,7 +200,7 @@ class AccountSessionManager {
 
   /// Manejar logout
   Future<void> _handleUserLogout() async {
-    debugPrint('🔐 [SESSION] User logout detected');
+    safeLog('SESSION', 'User logout detected');
 
     // 0. Flush de sincronización de Escuela del Reino + Talentos para no
     // perder cambios pendientes antes de desconectar.
@@ -212,13 +209,14 @@ class AccountSessionManager {
       await UserPrefCloudSyncService.I.flush();
       await TalentsService.I.flushSync();
     } catch (e) {
-      debugPrint('🔐 [SESSION] flush learning sync falló: $e');
+      safeError('SESSION', 'flush learning sync falló', e);
     }
     LearningCloudSync.I.resetForSignOut();
     UserPrefCloudSyncService.I.resetForSignOut();
     _detachRepositoryHydrationListeners();
 
-    // 1. Cancelar listeners de Firestore
+    // 1. Cancelar listeners de Firestore y conectividad
+    _detachConnectivityRetry();
     await _disconnectAllRepositories();
     BattlePartnerService.I.stop();
     BibleUserDataService.I.stop();
@@ -240,7 +238,7 @@ class AccountSessionManager {
         const Duration(seconds: 5),
       );
     } catch (e) {
-      debugPrint('⚠️ [SESSION] clearTokenForUser falló o timeout: $e');
+      safeError('SESSION', 'clearTokenForUser falló o timeout', e);
     }
 
     // 2. Reset estado en memoria
@@ -254,9 +252,7 @@ class AccountSessionManager {
     _currentSessionUid = null;
     stateNotifier.value = SessionState.idle;
 
-    debugPrint(
-      '🔐 [SESSION] ✅ Logout complete (local cache purged, cloud untouched)',
-    );
+    safeLog('SESSION', 'Logout complete (local cache purged, cloud untouched)');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -265,29 +261,29 @@ class AccountSessionManager {
 
   /// Realizar cambio de cuenta - LIMPIA TODO del usuario anterior
   Future<void> _performAccountSwitch(String oldUid, String newUid) async {
-    debugPrint('🔐 [SESSION] 🔄 Performing account switch...');
+    safeLog('SESSION', 'Performing account switch...');
     stateNotifier.value = SessionState.switching;
 
     try {
       // 1. Cancelar TODOS los listeners de Firestore del usuario anterior
-      debugPrint('🔐 [SESSION] Step 1: Canceling Firestore listeners...');
+      safeLog('SESSION', 'Step 1: Canceling Firestore listeners...');
       await _disconnectAllRepositories();
 
       // 2. Limpiar estado en memoria (controllers, notifiers, caches)
-      debugPrint('🔐 [SESSION] Step 2: Resetting in-memory state...');
+      safeLog('SESSION', 'Step 2: Resetting in-memory state...');
       _resetInMemoryState();
 
       // 3. PURGAR cache local completo (evita mezcla de datos)
-      debugPrint('🔐 [SESSION] Step 3: Purging local cache...');
+      safeLog('SESSION', 'Step 3: Purging local cache...');
       await _purgeAllLocalCache();
 
       // 4. Limpiar widget a valores por defecto (discretos)
-      debugPrint('🔐 [SESSION] Step 4: Resetting widget to defaults...');
+      safeLog('SESSION', 'Step 4: Resetting widget to defaults...');
       await _resetWidgetToDefaults();
 
-      debugPrint('🔐 [SESSION] ✅ Account switch preparation complete');
+      safeLog('SESSION', 'Account switch preparation complete');
     } catch (e) {
-      debugPrint('🔐 [SESSION] ❌ Account switch error: $e');
+      safeError('SESSION', 'Account switch error', e);
       lastError = e.toString();
       // Continuar de todos modos - mejor tener algunos errores que mezclar datos
     }
@@ -341,7 +337,7 @@ class AccountSessionManager {
     BibleReadingStatsService.I.stop();
     UserScopedServices.I.reset();
 
-    debugPrint('🔐 [SESSION] In-memory state reset complete');
+    safeLog('SESSION', 'In-memory state reset complete');
   }
 
   /// Purgar TODO el cache local (SharedPreferences)
@@ -397,9 +393,9 @@ class AccountSessionManager {
 
       // NO borrar _keyLastKnownUid - lo necesitamos para detectar cambios
 
-      debugPrint('🔐 [SESSION] ✅ Local cache purged');
+      safeLog('SESSION', 'Local cache purged');
     } catch (e) {
-      debugPrint('🔐 [SESSION] ⚠️ Purge error (continuing): $e');
+      safeError('SESSION', 'Purge error (continuing)', e);
     }
   }
 
@@ -409,7 +405,7 @@ class AccountSessionManager {
       await WidgetSyncService.I.init();
       await WidgetSyncService.I.clearToDefaults();
     } catch (e) {
-      debugPrint('🔐 [SESSION] ⚠️ Widget reset error: $e');
+      safeError('SESSION', 'Widget reset error', e);
     }
   }
 
@@ -419,7 +415,7 @@ class AccountSessionManager {
 
   /// Cargar datos del nuevo usuario desde la nube
   Future<UserProfile?> _bootstrapNewUser(String uid) async {
-    debugPrint('🔐 [SESSION] 🚀 Bootstrapping user: $uid');
+    safeLog('SESSION', 'Bootstrapping user: $uid');
     stateNotifier.value = SessionState.bootstrapping;
     lastError = null;
 
@@ -438,7 +434,7 @@ class AccountSessionManager {
       final profile = await ProfileRepository.I.connectUser(uid);
 
       if (profile == null) {
-        debugPrint('🔐 [SESSION] No profile found, new user');
+        safeLog('SESSION', 'No profile found, new user');
         await UserPrefCloudSyncService.I.bootstrap(uid, force: true);
         await Future.wait([
           ThemeService().initialize(),
@@ -525,13 +521,11 @@ class AccountSessionManager {
 
       stateNotifier.value = SessionState.ready;
 
-      debugPrint('🔐 [SESSION] ✅ Bootstrap complete for: $uid');
-      debugPrint('   - Onboarding: ${profile.onboardingCompleted}');
-      debugPrint('   - Giants: ${profile.selectedGiants}');
+      safeLog('SESSION', 'Bootstrap complete for: $uid (onboarding=${profile.onboardingCompleted} giants=${profile.selectedGiants})');
 
       return profile;
     } catch (e) {
-      debugPrint('🔐 [SESSION] ❌ Bootstrap error: $e');
+      safeError('SESSION', 'Bootstrap error', e);
       lastError = e.toString();
       stateNotifier.value = SessionState.error;
       return null;
@@ -543,9 +537,9 @@ class AccountSessionManager {
     try {
       await WidgetSyncService.I.init();
       await WidgetSyncService.I.syncWidget();
-      debugPrint('🔐 [SESSION] Widget synced for user: $uid');
+      safeLog('SESSION', 'Widget synced for user: $uid');
     } catch (e) {
-      debugPrint('🔐 [SESSION] ⚠️ Widget sync error: $e');
+      safeError('SESSION', 'Widget sync error', e);
     }
   }
 
@@ -559,6 +553,12 @@ class AccountSessionManager {
     if (ConnectivityService.I.hasInternet) {
       unawaited(_retryPendingCloudSaves());
     }
+  }
+
+  void _detachConnectivityRetry() {
+    if (!_connectivityRetryAttached) return;
+    ConnectivityService.I.isOnline.removeListener(_onConnectivityChangedForSync);
+    _connectivityRetryAttached = false;
   }
 
   void _onConnectivityChangedForSync() {
@@ -580,11 +580,9 @@ class AccountSessionManager {
         LearningCloudSync.I.flush(),
         TalentsService.I.flushSync(),
       ]);
-      debugPrint(
-        '🔐 [SESSION] Pending cloud sync retried after connectivity restore',
-      );
+      safeLog('SESSION', 'Pending cloud sync retried after connectivity restore');
     } catch (e) {
-      debugPrint('🔐 [SESSION] Pending cloud sync retry failed: $e');
+      safeError('SESSION', 'Pending cloud sync retry failed', e);
     }
   }
 
@@ -641,7 +639,7 @@ class AccountSessionManager {
     double threshold,
   ) async {
     try {
-      debugPrint('🔐 [SESSION] Hydrating local services from cloud...');
+      safeLog('SESSION', 'Hydrating local services from cloud...');
 
       // --- Victory/Progress ---
       final cachedDays = ProgressRepository.I.cachedDays;
@@ -653,9 +651,7 @@ class AccountSessionManager {
       final scoring = VictoryScoringService.I;
       await scoring.init();
       await scoring.restoreFromCloud(victoryData);
-      debugPrint(
-        '🔐 [SESSION]   ✅ Progress: ${cachedDays.length} days hydrated',
-      );
+      safeLog('SESSION', '  Progress: ${cachedDays.length} days hydrated');
 
       // --- Journal ---
       final cachedEntries = JournalRepository.I.cachedEntries;
@@ -676,42 +672,35 @@ class AccountSessionManager {
       final journalService = JournalService();
       await journalService.initialize();
       await journalService.restoreFromCloud(localEntries);
-      debugPrint(
-        '🔐 [SESSION]   ✅ Journal: ${cachedEntries.length} entries hydrated',
-      );
+      safeLog('SESSION', '  Journal: ${cachedEntries.length} entries hydrated');
 
       // --- Favorites ---
       final cachedFavorites = FavoritesRepository.I.cachedFavorites;
       final favService = FavoritesService();
       await favService.init();
       await favService.restoreFromCloud(cachedFavorites);
-      debugPrint(
-        '🔐 [SESSION]   ✅ Favorites: ${cachedFavorites.length} restored',
-      );
+      safeLog('SESSION', '  Favorites: ${cachedFavorites.length} restored');
 
       // --- Plan Progress ---
       final cachedPlans = PlansRepository.I.getAll();
       final planService = PlanProgressService.I;
       await planService.init();
       await planService.restoreFromCloud(cachedPlans);
-      debugPrint('🔐 [SESSION]   ✅ Plans: ${cachedPlans.length} restored');
+      safeLog('SESSION', '  Plans: ${cachedPlans.length} restored');
 
       // --- Badges ---
       final cachedBadges = BadgeRepository.I.cachedLevels;
       if (cachedBadges.isNotEmpty) {
         await BadgeService.I.init();
         await BadgeService.I.restoreFromCloud(cachedBadges);
-
-        debugPrint(
-          '🔐 [SESSION]   ✅ Badges: ${cachedBadges.length} levels restored',
-        );
+        safeLog('SESSION', '  Badges: ${cachedBadges.length} levels restored');
       } else {
-        debugPrint('🔐 [SESSION]   ℹ️ Badges: cloud empty');
+        safeLog('SESSION', '  Badges: cloud empty');
       }
 
-      debugPrint('🔐 [SESSION] ✅ Local services hydrated');
+      safeLog('SESSION', 'Local services hydrated');
     } catch (e) {
-      debugPrint('🔐 [SESSION] ⚠️ Hydration error: $e');
+      safeError('SESSION', 'Hydration error', e);
     }
   }
 
@@ -740,7 +729,7 @@ class AccountSessionManager {
   /// Detener TODAS las suscripciones de Firestore
   /// CRÍTICO: Llamar ANTES de eliminar datos para evitar spam de realtime updates
   Future<void> stopAllSubscriptions() async {
-    debugPrint('🔐 [SESSION] Stopping all Firestore subscriptions...');
+    safeLog('SESSION', 'Stopping all Firestore subscriptions...');
 
     try {
       // Cancelar nuestra suscripción de auth temporalmente
@@ -748,15 +737,16 @@ class AccountSessionManager {
       await _authSubscription?.cancel();
       _authSubscription = null;
 
-      // Desconectar todos los repositorios (cancela sus listeners)
+      // Desconectar conectividad y repositorios (cancela todos los listeners)
+      _detachConnectivityRetry();
       await _disconnectAllRepositories();
 
       // Reset estado en memoria para evitar escrituras basadas en datos viejos
       _resetInMemoryState();
 
-      debugPrint('🔐 [SESSION] ✅ All subscriptions stopped');
+      safeLog('SESSION', 'All subscriptions stopped');
     } catch (e) {
-      debugPrint('🔐 [SESSION] ⚠️ Error stopping subscriptions: $e');
+      safeError('SESSION', 'Error stopping subscriptions', e);
     }
   }
 
@@ -768,14 +758,15 @@ class AccountSessionManager {
   /// - Delete: ELIMINA TODO porque la cuenta ya no existe
   /// ════════════════════════════════════════════════════════════════════════════
   Future<void> hardResetForAccountDeletion() async {
-    debugPrint('🔐 [SESSION] 🗑️ HARD RESET FOR ACCOUNT DELETION');
+    safeWarn('SESSION', 'HARD RESET FOR ACCOUNT DELETION');
 
     try {
       // 1. Cancelar suscripción de auth (si no se hizo ya)
       await _authSubscription?.cancel();
       _authSubscription = null;
 
-      // 2. Desconectar repositorios (cancela listeners Firestore)
+      // 2. Desconectar conectividad y repositorios (cancela todos los listeners)
+      _detachConnectivityRetry();
       await _disconnectAllRepositories();
       BattlePartnerService.I.stop();
 
@@ -795,9 +786,9 @@ class AccountSessionManager {
       // 7. Estado a idle
       stateNotifier.value = SessionState.idle;
 
-      debugPrint('🔐 [SESSION] ✅ Hard reset complete - all data cleared');
+      safeLog('SESSION', 'Hard reset complete - all data cleared');
     } catch (e) {
-      debugPrint('🔐 [SESSION] ⚠️ Hard reset error (continuing): $e');
+      safeError('SESSION', 'Hard reset error (continuing)', e);
       // Continuar de todos modos - mejor tener errores que dejar datos
     }
   }
@@ -806,11 +797,11 @@ class AccountSessionManager {
   Future<void> reactivateAuthListener() async {
     if (_authSubscription != null) return; // Ya activo
 
-    debugPrint('🔐 [SESSION] Reactivating auth listener...');
+    safeLog('SESSION', 'Reactivating auth listener...');
     _authSubscription = FirebaseAuth.instance.authStateChanges().listen(
       _onAuthStateChanged,
       onError: (e) {
-        debugPrint('🔐 [SESSION] Auth stream error: $e');
+        safeError('SESSION', 'Auth stream error', e);
         lastError = e.toString();
       },
     );
@@ -835,12 +826,12 @@ class AccountSessionManager {
         TreasuryService.instance.getCrossReferences(1, 1, 1), // warm cache
         MapEventsService.I.preload(),
       ]);
-      debugPrint('📖 [BIBLE] All offline assets preloaded');
+      safeLog('BIBLE', 'All offline assets preloaded');
 
       // Pre-caché de imágenes compartibles (no bloquea)
       unawaited(ShareCacheService.I.warmUp());
     } catch (e) {
-      debugPrint('📖 [BIBLE] Preload error (non-blocking): $e');
+      safeWarn('BIBLE', 'Preload error (non-blocking): $e');
     }
   }
 
@@ -850,16 +841,15 @@ class AccountSessionManager {
       final ns = NotificationService();
       await ns.initialize();
       await ns.scheduleAllNotifications();
-      debugPrint('🔔 [SESSION] Notifications rescheduled');
+      safeLog('SESSION', 'Notifications rescheduled');
     } catch (e) {
-      debugPrint(
-        '🔔 [SESSION] Notification reschedule error (non-blocking): $e',
-      );
+      safeWarn('SESSION', 'Notification reschedule error (non-blocking): $e');
     }
   }
 
   /// Dispose resources
   void dispose() {
+    _detachConnectivityRetry();
     _authSubscription?.cancel();
     _authSubscription = null;
   }
