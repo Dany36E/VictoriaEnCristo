@@ -128,7 +128,7 @@ function computeNextSwapAt(
 // CREATE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const createStudyRoom = functions.https.onCall(async (data, context) => {
+export const createStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
   try {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -236,7 +236,7 @@ export const createStudyRoom = functions.https.onCall(async (data, context) => {
 // JOIN ROOM
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const joinStudyRoom = functions.https.onCall(async (data, context) => {
+export const joinStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
   try {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -314,7 +314,7 @@ export const joinStudyRoom = functions.https.onCall(async (data, context) => {
 // LEAVE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const leaveStudyRoom = functions.https.onCall(async (data, context) => {
+export const leaveStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
   try {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -402,7 +402,7 @@ async function rotateRoomVersions(code: string, force: boolean): Promise<RoomDoc
   });
 }
 
-export const startStudyRoomSwapTimer = functions.https.onCall(
+export const startStudyRoomSwapTimer = functions.region("us-central1").https.onCall(
   async (data, context) => {
     try {
       if (!context.auth) {
@@ -453,7 +453,7 @@ export const startStudyRoomSwapTimer = functions.https.onCall(
     }
   });
 
-export const rotateStudyVersions = functions.https.onCall(
+export const rotateStudyVersions = functions.region("us-central1").https.onCall(
   async (data, context) => {
     try {
       if (!context.auth) {
@@ -489,7 +489,7 @@ export const rotateStudyVersions = functions.https.onCall(
 // Filtra el query con `where(nextSwapAt <= now)` y `where(memberCount >= 2)`
 // para no escanear toda la colección. Además, limpia salas huérfanas
 // (sin actividad por más de 24h) para evitar acumulación de basura.
-export const studyRoomAutoSwap = functions.pubsub
+export const studyRoomAutoSwap = functions.region("us-central1").pubsub
   .schedule("every 5 minutes")
   .onRun(async () => {
     const now = admin.firestore.Timestamp.now();

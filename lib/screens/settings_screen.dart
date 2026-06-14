@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../config/app_version.dart';
 import '../services/audio_engine.dart';
 import '../services/theme_service.dart';
 import '../services/notification_service.dart';
@@ -440,7 +441,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  'Versión 1.0.0',
+                  'Versión $kAppVersion',
                   style: TextStyle(
                     color: AppThemeData.of(context).textSecondary,
                   ),

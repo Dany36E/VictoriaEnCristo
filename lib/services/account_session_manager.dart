@@ -228,7 +228,13 @@ class AccountSessionManager {
     BibleReadingStatsService.I.stop();
     UserScopedServices.I.reset();
 
-    // 1b. Eliminar el token FCM de este dispositivo del user doc de Firestore
+    // 1b. Cancelar notificación de re-engagement del usuario saliente para que
+    // el siguiente usuario no la reciba en este dispositivo.
+    try {
+      await NotificationService().cancelReengagementNotification();
+    } catch (_) {}
+
+    // 1c. Eliminar el token FCM de este dispositivo del user doc de Firestore
     // para que la Cloud Function deje de enviar push a este device para un
     // usuario que ya no está autenticado. Esperamos hasta 5s para que se
     // complete (best-effort): así evitamos que el siguiente usuario reciba

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../constants/image_urls.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
@@ -593,6 +595,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       decoration: TextDecoration.underline,
                       decorationColor: const Color(0xFFFFD700),
                     ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () => launchUrl(
+                        Uri.parse('https://victoriaencristo.app/terminos'),
+                        mode: LaunchMode.externalApplication,
+                      ),
                   ),
                 ],
               ),
@@ -848,16 +855,17 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     }
 
+    if (!mounted) return;
     setState(() => _isLoading = false);
 
     if (result.isSuccess) {
       HapticFeedback.heavyImpact();
       // NO navegar manualmente - el StreamBuilder en main.dart detectará
       // el cambio de auth y mostrará ProfileGate (que decide Home vs Onboarding)
-      setState(() => _isLoading = true); // Mostrar loading mientras ProfileGate carga
+      if (mounted) setState(() => _isLoading = true);
     } else {
       HapticFeedback.heavyImpact();
-      setState(() => _errorMessage = result.errorMessage);
+      if (mounted) setState(() => _errorMessage = result.errorMessage);
     }
   }
 

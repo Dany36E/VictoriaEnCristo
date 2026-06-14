@@ -113,8 +113,11 @@ function containsBlockedContent(text: string): boolean {
   return BLOCKED_PATTERNS.some((pat) => pat.test(lower));
 }
 
-async function isUserAdmin(uid: string): Promise<boolean> {
+async function isUserAdmin(uid: string, context?: functions.https.CallableContext): Promise<boolean> {
   try {
+    // Custom claims son la fuente de verdad (no falsificables desde cliente).
+    if (context?.auth?.token?.admin === true) return true;
+    // Fallback a Firestore para admins migrados antes de setAdminClaim.
     const doc = await db.collection("users").doc(uid).get();
     return doc.exists && doc.data()?.isAdmin === true;
   } catch {
@@ -501,7 +504,7 @@ export const moderateContent = functions
 
     try {
       const adminUid = context.auth.uid;
-      if (!(await isUserAdmin(adminUid))) {
+      if (!(await isUserAdmin(adminUid, context))) {
         throw new functions.https.HttpsError(
           "permission-denied",
           "No tienes permisos de administrador."
@@ -764,7 +767,7 @@ export const banAbuseHash = functions
 
     try {
       const adminUid = context.auth.uid;
-      if (!(await isUserAdmin(adminUid))) {
+      if (!(await isUserAdmin(adminUid, context))) {
         throw new functions.https.HttpsError(
           "permission-denied",
           "No tienes permisos de administrador."

@@ -489,6 +489,14 @@ class NotificationService {
     }
   }
 
+  /// Cancela la notificación de re-engagement programada. Llamar en logout
+  /// para que el siguiente usuario no reciba la notificación del anterior.
+  Future<void> cancelReengagementNotification() async {
+    try {
+      await _flnp.cancel(_reengagementId);
+    } catch (_) {}
+  }
+
   /// Cancelar notificación matutina
   Future<void> _cancelMorningNotification() async {
     try {

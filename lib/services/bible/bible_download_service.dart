@@ -249,13 +249,16 @@ class BibleDownloadService {
           final total = resp.contentLength ?? 0;
           final sink = file.openWrite();
           var received = 0;
-          await resp.stream.listen((chunk) {
-            received += chunk.length;
-            sink.add(chunk);
-            if (total > 0) progressNotifier.value = received / total;
-          }).asFuture<void>();
-          await sink.flush();
-          await sink.close();
+          try {
+            await resp.stream.listen((chunk) {
+              received += chunk.length;
+              sink.add(chunk);
+              if (total > 0) progressNotifier.value = received / total;
+            }).asFuture<void>();
+            await sink.flush();
+          } finally {
+            await sink.close();
+          }
           byteLength = received;
           sourceLabel = 'remote';
         } finally {

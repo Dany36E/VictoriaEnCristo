@@ -258,8 +258,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
           _buildOptionTile(
             icon: Icons.download_rounded,
             title: 'Exportar mi progreso',
-            subtitle: 'Descargar mis datos',
-            onTap: () {},
+            subtitle: 'Disponible próximamente',
+            onTap: () {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Esta función estará disponible próximamente.')),
+              );
+            },
           ),
           Divider(height: 1, indent: 60, endIndent: 16, color: t.divider),
           _buildOptionTile(
@@ -335,12 +339,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _syncData() async {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Datos sincronizados ✓'),
-        backgroundColor: AppTheme.successColor,
-      ),
-    );
+    if (!mounted) return;
+    try {
+      await Future.wait([
+        LearningCloudSync.I.flush(),
+        UserPrefCloudSyncService.I.flush(),
+        TalentsService.I.flushSync(),
+      ]);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Datos sincronizados ✓'),
+            backgroundColor: AppTheme.successColor,
+          ),
+        );
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error al sincronizar. Verifica tu conexión.'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
   /// `true` si hay cambios locales aún no sincronizados con el cloud.

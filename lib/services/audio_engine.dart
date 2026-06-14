@@ -113,6 +113,9 @@ class AudioEngine {
   // CONTROL INTERNO
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /// Estado para reanudar BGM tras interrupción del sistema (llamada, ducking)
+  bool _wasPlayingBeforeInterruption = false;
+
   /// Mutex para serializar operaciones BGM
   Completer<void>? _bgmOpLock;
 
@@ -209,6 +212,28 @@ class AudioEngine {
         ),
       );
       _log('INIT', 'AudioSession configured ✓');
+
+      // ─────────────────────────────────────────────────────────────────────
+      // 1b) INTERRUPCIONES DEL SISTEMA (llamadas, auriculares)
+      // Android revoca el audio focus en llamadas entrantes: el OS silencia
+      // el player pero el estado interno sigue en "playing". Sin este handler
+      // el usuario ve el botón de pausa activo con silencio total al colgar.
+      // becomingNoisyEvent = auriculares desconectados → pausar (estándar).
+      // ─────────────────────────────────────────────────────────────────────
+      session.interruptionEventStream.listen((event) {
+        if (event.begin) {
+          _wasPlayingBeforeInterruption =
+              bgmState.value == BgmPlaybackState.playing;
+          if (_wasPlayingBeforeInterruption) pauseBgm();
+        } else if (_wasPlayingBeforeInterruption) {
+          _wasPlayingBeforeInterruption = false;
+          resumeBgm();
+        }
+      });
+      session.becomingNoisyEventStream.listen((_) {
+        _wasPlayingBeforeInterruption = false;
+        pauseBgm();
+      });
 
       // ─────────────────────────────────────────────────────────────────────
       // 2) CREAR PLAYERS SEPARADOS
