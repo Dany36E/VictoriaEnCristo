@@ -629,6 +629,26 @@ class _QuestionIconChip extends StatelessWidget {
   }
 }
 
+// Routes Flutter's native spell check lifecycle to the custom suggestion bar.
+// Without this, DefaultSpellCheckService returns null on Android because the
+// TextServicesManager session is never initialized.
+class _SpellBridge implements SpellCheckService {
+  _SpellBridge({required this.onResults});
+
+  final void Function(List<SuggestionSpan> results, String forText) onResults;
+  final _inner = DefaultSpellCheckService();
+
+  @override
+  Future<List<SuggestionSpan>?> fetchSpellCheckSuggestions(
+    Locale locale,
+    String text,
+  ) async {
+    final results = await _inner.fetchSpellCheckSuggestions(locale, text);
+    if (results != null) onResults(results, text);
+    return results;
+  }
+}
+
 class _GeneralNotesCard extends StatefulWidget {
   final SermonRichTextController controller;
   final ValueChanged<String> onChanged;
@@ -655,9 +675,8 @@ class _GeneralNotesCard extends StatefulWidget {
 }
 
 class _GeneralNotesCardState extends State<_GeneralNotesCard> {
-  final _spellCheckService = DefaultSpellCheckService();
+  late final _SpellBridge _spellBridge;
   final Set<String> _ignoredTokens = <String>{};
-  Timer? _spellCheckDebounce;
   List<SuggestionSpan> _spellSuggestions = const <SuggestionSpan>[];
   String _lastText = '';
   TextSelection _lastSelection = const TextSelection.collapsed(offset: -1);
@@ -665,10 +684,22 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
   @override
   void initState() {
     super.initState();
+    _spellBridge = _SpellBridge(
+      onResults: (results, forText) {
+        if (!mounted || forText != widget.controller.text) return;
+        final filtered = results
+            .where((s) {
+              final token = _normalizedSuggestionToken(s);
+              return token.isNotEmpty && !_ignoredTokens.contains(token);
+            })
+            .toList(growable: false);
+        setState(() => _spellSuggestions = filtered);
+        widget.controller.updateSpellSuggestions(filtered);
+      },
+    );
     _lastText = widget.controller.text;
     _lastSelection = widget.controller.selection;
     widget.controller.addListener(_onControllerChanged);
-    _scheduleSpellCheck();
   }
 
   @override
@@ -679,12 +710,10 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
     _lastText = widget.controller.text;
     _lastSelection = widget.controller.selection;
     widget.controller.addListener(_onControllerChanged);
-    _scheduleSpellCheck();
   }
 
   @override
   void dispose() {
-    _spellCheckDebounce?.cancel();
     widget.controller.removeListener(_onControllerChanged);
     super.dispose();
   }
@@ -697,46 +726,8 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
     _lastSelection = widget.controller.selection;
     if (textChanged) {
       widget.onChanged(widget.controller.text);
-      _scheduleSpellCheck();
     }
     if (mounted) setState(() {});
-  }
-
-  void _scheduleSpellCheck() {
-    _spellCheckDebounce?.cancel();
-    _spellCheckDebounce = Timer(
-      const Duration(milliseconds: 420),
-      _runSpellCheck,
-    );
-  }
-
-  Future<void> _runSpellCheck() async {
-    final text = widget.controller.text;
-    if (text.trim().isEmpty) {
-      _spellSuggestions = const <SuggestionSpan>[];
-      widget.controller.updateSpellSuggestions(const <SuggestionSpan>[]);
-      if (mounted) setState(() {});
-      return;
-    }
-    try {
-      final results = await _spellCheckService.fetchSpellCheckSuggestions(
-        const Locale('es'),
-        text,
-      );
-      if (!mounted || text != widget.controller.text) return;
-      _spellSuggestions = (results ?? const <SuggestionSpan>[])
-          .where((suggestion) {
-            final token = _normalizedSuggestionToken(suggestion);
-            return token.isNotEmpty && !_ignoredTokens.contains(token);
-          })
-          .toList(growable: false);
-      widget.controller.updateSpellSuggestions(_spellSuggestions);
-      setState(() {});
-    } catch (_) {
-      _spellSuggestions = const <SuggestionSpan>[];
-      widget.controller.updateSpellSuggestions(const <SuggestionSpan>[]);
-      if (mounted) setState(() {});
-    }
   }
 
   String _normalizedSuggestionToken(SuggestionSpan suggestion) {
@@ -775,7 +766,6 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
       selection: TextSelection.collapsed(offset: start + replacement.length),
     );
     widget.onChanged(next);
-    _scheduleSpellCheck();
   }
 
   void _ignoreSuggestion(SuggestionSpan suggestion) {
@@ -948,6 +938,9 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
             maxLines: null,
             minLines: 3,
             hintLocales: const [Locale('es')],
+            spellCheckConfiguration: SpellCheckConfiguration(
+              spellCheckService: _spellBridge,
+            ),
             contextMenuBuilder: _buildContextMenu,
             style: GoogleFonts.lora(
               color: t.textPrimary,

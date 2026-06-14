@@ -116,6 +116,7 @@ class AudioEngine {
   /// Estado para reanudar BGM tras interrupción del sistema (llamada, ducking)
   bool _wasPlayingBeforeInterruption = false;
 
+
   /// Mutex para serializar operaciones BGM
   Completer<void>? _bgmOpLock;
 
@@ -220,6 +221,7 @@ class AudioEngine {
       // el usuario ve el botón de pausa activo con silencio total al colgar.
       // becomingNoisyEvent = auriculares desconectados → pausar (estándar).
       // ─────────────────────────────────────────────────────────────────────
+      // ignore: cancel_subscriptions — singleton, las subscriptions viven para siempre
       session.interruptionEventStream.listen((event) {
         if (event.begin) {
           _wasPlayingBeforeInterruption =
@@ -230,6 +232,7 @@ class AudioEngine {
           resumeBgm();
         }
       });
+      // ignore: cancel_subscriptions
       session.becomingNoisyEventStream.listen((_) {
         _wasPlayingBeforeInterruption = false;
         pauseBgm();
