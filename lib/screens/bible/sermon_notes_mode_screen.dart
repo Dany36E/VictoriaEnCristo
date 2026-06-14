@@ -34,6 +34,27 @@ class _PdfExportChoice {
   const _PdfExportChoice({required this.action, required this.cleanCover});
 }
 
+// ignore_for_file: cancel_subscriptions — _SpellBridge below stores subscription
+// in a field for the lint; actual lifecycle is managed by Flutter's EditableText.
+
+// Routes Flutter's native spell check lifecycle to the custom suggestion bar.
+class _SpellBridge implements SpellCheckService {
+  _SpellBridge({required this.onResults});
+
+  final void Function(List<SuggestionSpan> results, String forText) onResults;
+  final _inner = DefaultSpellCheckService();
+
+  @override
+  Future<List<SuggestionSpan>?> fetchSpellCheckSuggestions(
+    Locale locale,
+    String text,
+  ) async {
+    final results = await _inner.fetchSpellCheckSuggestions(locale, text);
+    if (results != null) onResults(results, text);
+    return results;
+  }
+}
+
 class SermonNotesModeScreen extends StatefulWidget {
   final int bookNumber;
   final String bookName;
@@ -73,7 +94,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   late SermonNote _note;
   late RichNoteDocument _notesDocument;
   Timer? _saveDebounce;
-  Timer? _spellCheckDebounce;
   Timer? _saveStatusTicker;
   bool _hydrating = false;
   bool _isSaving = false;
@@ -81,11 +101,11 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   DateTime? _lastSavedAt;
   final Set<String> _ignoredReferenceKeys = <String>{};
   final Set<String> _ignoredSpellTokens = <String>{};
-  final _spellCheckService = DefaultSpellCheckService();
+  late final _SpellBridge _spellBridge;
   List<DetectedSermonReference> _detectedReferences =
       const <DetectedSermonReference>[];
+  List<SuggestionSpan> _rawSpellSuggestions = const <SuggestionSpan>[];
   List<SuggestionSpan> _spellSuggestions = const <SuggestionSpan>[];
-  int _spellRequestId = 0;
   String _lastNotesText = '';
   TextSelection _lastNotesSelection = const TextSelection.collapsed(offset: -1);
 
@@ -114,6 +134,15 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     );
     _tabController = TabController(length: 2, vsync: this);
     _notesController = SermonRichTextController(document: _notesDocument);
+    _spellBridge = _SpellBridge(
+      onResults: (results, forText) {
+        if (!mounted || forText != _notesController.text) return;
+        setState(() {
+          _rawSpellSuggestions = results;
+          _filterSpellSuggestions();
+        });
+      },
+    );
     _notesController.addListener(_onNotesEdited);
     _lastNotesText = _notesController.text;
     _lastNotesSelection = _notesController.selection;
@@ -160,7 +189,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     _isSaving = false;
     _hydrating = false;
     _syncReferenceDecorations();
-    _scheduleSpellCheck();
   }
 
   Future<void> _loadChapter() async {
@@ -196,7 +224,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         _loading = false;
       });
       _syncReferenceDecorations();
-      _scheduleSpellCheck();
     } catch (e) {
       debugPrint('[SERMON-NOTES] load chapter error: $e');
       if (mounted) setState(() => _loading = false);
@@ -351,7 +378,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     _notesDocument = _notesController.document;
     if (textChanged) {
       _syncReferenceDecorations();
-      _scheduleSpellCheck();
       _scheduleSave();
     }
     if (mounted) setState(() {});
@@ -450,7 +476,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   }
 
   void _filterSpellSuggestions() {
-    final filtered = _spellSuggestions
+    final filtered = _rawSpellSuggestions
         .where((suggestion) {
           final token = _normalizeToken(_tokenForSuggestion(suggestion));
           if (token.isEmpty) return false;
@@ -478,45 +504,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     ]);
   }
 
-  void _scheduleSpellCheck() {
-    _spellCheckDebounce?.cancel();
-    _spellCheckDebounce = Timer(
-      const Duration(milliseconds: 420),
-      _runSpellCheck,
-    );
-  }
-
-  Future<void> _runSpellCheck() async {
-    final text = _notesController.text;
-    if (text.trim().isEmpty) {
-      if (!mounted) return;
-      setState(() {
-        _spellSuggestions = const <SuggestionSpan>[];
-      });
-      _notesController.updateSpellSuggestions(const <SuggestionSpan>[]);
-      return;
-    }
-    final requestId = ++_spellRequestId;
-    try {
-      final results = await _spellCheckService.fetchSpellCheckSuggestions(
-        const Locale('es'),
-        text,
-      );
-      if (!mounted ||
-          requestId != _spellRequestId ||
-          text != _notesController.text) {
-        return;
-      }
-      setState(() {
-        _spellSuggestions = List<SuggestionSpan>.from(results ?? const []);
-        _filterSpellSuggestions();
-      });
-    } catch (_) {
-      if (!mounted || requestId != _spellRequestId) return;
-      setState(() => _spellSuggestions = const <SuggestionSpan>[]);
-      _notesController.updateSpellSuggestions(const <SuggestionSpan>[]);
-    }
-  }
 
   void _replaceMisspelledWord(SuggestionSpan suggestion, String replacement) {
     final text = _notesController.text;
@@ -527,7 +514,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       text: next,
       selection: TextSelection.collapsed(offset: start + replacement.length),
     );
-    _scheduleSpellCheck();
     _scheduleSave();
   }
 
@@ -930,7 +916,6 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   @override
   void dispose() {
     _saveDebounce?.cancel();
-    _spellCheckDebounce?.cancel();
     _saveStatusTicker?.cancel();
     unawaited(_flushNote());
     _titleController.dispose();
@@ -1126,6 +1111,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                 activeReference,
                 activeSuggestion,
               ),
+          spellCheckConfiguration: SpellCheckConfiguration(
+            spellCheckService: _spellBridge,
+          ),
         ),
         const SizedBox(height: 12),
         _TakeawayCard(
@@ -1266,6 +1254,7 @@ class _NotesEditorCard extends StatelessWidget {
   final VoidCallback? onReplaceSuggestion;
   final VoidCallback? onIgnoreSuggestion;
   final EditableTextContextMenuBuilder contextMenuBuilder;
+  final SpellCheckConfiguration spellCheckConfiguration;
 
   const _NotesEditorCard({
     required this.theme,
@@ -1286,6 +1275,7 @@ class _NotesEditorCard extends StatelessWidget {
     required this.onReplaceSuggestion,
     required this.onIgnoreSuggestion,
     required this.contextMenuBuilder,
+    required this.spellCheckConfiguration,
   });
 
   @override
@@ -1356,6 +1346,7 @@ class _NotesEditorCard extends StatelessWidget {
             maxLines: null,
             minLines: 10,
             hintLocales: const [Locale('es')],
+            spellCheckConfiguration: spellCheckConfiguration,
             contextMenuBuilder: contextMenuBuilder,
             style: GoogleFonts.lora(
               color: t.textPrimary,
