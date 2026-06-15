@@ -20,6 +20,7 @@ import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
 import 'sermon_notes_saved_screen.dart';
 import 'study_mode_screen.dart' show StudyPickerResult;
+import '../../widgets/bible/sermon/sermon_highlight_controller.dart';
 import '../../widgets/bible/sermon/sermon_rich_text_controller.dart';
 import '../../widgets/bible/study/study_chapter_picker.dart';
 import '../../widgets/bible/study/study_reading_panel.dart';
@@ -109,6 +110,8 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   // inline de citas). Independiente de _note.verses (panel izquierdo).
   final Set<String> _notesInsertedKeys = <String>{};
   late final _SpellBridge _spellBridge;
+  // Resaltados POR APUNTE (independientes del Modo Estudio).
+  late final SermonHighlightController _highlightController;
   List<DetectedSermonReference> _detectedReferences =
       const <DetectedSermonReference>[];
   List<SuggestionSpan> _rawSpellSuggestions = const <SuggestionSpan>[];
@@ -140,6 +143,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       secondaryVersionId: _secondaryVersion.id,
     );
     _tabController = TabController(length: 2, vsync: this);
+    _highlightController = SermonHighlightController(
+      onChanged: _onHighlightsChanged,
+    );
     _notesController = SermonRichTextController(document: _notesDocument);
     _spellBridge = _SpellBridge(
       onResults: (results, forText) {
@@ -165,6 +171,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     final existing = SermonNoteService.I.noteById(widget.noteId);
     if (existing != null) {
       _note = existing;
+      _highlightController.seed(existing.highlights);
       _primaryVersion = BibleDownloadService.I.bestAvailableVersion(
         BibleVersion.fromId(existing.primaryVersionId),
       );
@@ -176,6 +183,8 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         _bookNumber = central.bookNumber;
         _bookName = central.bookName;
         _chapter = central.chapter;
+        _readingStartVerse = central.startVerse;
+        _readingEndVerse = central.endVerse;
       }
       _hydrateControllers(existing);
     }
@@ -253,8 +262,22 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       _chapter = chapter;
       _readingStartVerse = startVerse;
       _readingEndVerse = endVerse;
+      // Persistir el pasaje elegido para que la nota lo recuerde al reabrir
+      // (consistente con _openCentralPassagePicker).
+      if (startVerse != null && endVerse != null) {
+        _note = _note.copyWith(
+          centralPassage: SermonCentralPassage(
+            bookNumber: bookNumber,
+            bookName: bookName,
+            chapter: chapter,
+            startVerse: startVerse,
+            endVerse: endVerse,
+          ),
+        );
+      }
     });
     await _loadChapter();
+    _scheduleSave();
   }
 
   Future<void> _openPassagePicker() async {
@@ -316,6 +339,24 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       _note = _note.copyWith(
         primaryVersionId: result.primary.id,
         secondaryVersionId: result.secondary.id,
+      );
+    });
+    await _loadChapter();
+    await _flushNote();
+  }
+
+  /// Intercambia la version principal por la secundaria (y viceversa).
+  Future<void> _swapVersions() async {
+    await _flushNote();
+    if (!mounted) return;
+    final newPrimary = _secondaryVersion;
+    final newSecondary = _primaryVersion;
+    setState(() {
+      _primaryVersion = newPrimary;
+      _secondaryVersion = newSecondary;
+      _note = _note.copyWith(
+        primaryVersionId: newPrimary.id,
+        secondaryVersionId: newSecondary.id,
       );
     });
     await _loadChapter();
@@ -713,6 +754,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     final verses = List<SermonVerseReference>.from(_note.verses);
     var changed = false;
     for (final verse in loaded) {
+      if (verse.text.trim().isEmpty) continue;
       final saved = SermonVerseReference.fromVerse(verse);
       if (!verses.any((v) => v.key == saved.key)) {
         verses.add(saved);
@@ -729,6 +771,24 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     _scheduleSave();
     // En vista compacta, mostrar la pestana de Lectura para que se vean.
     if (mounted) _tabController.animateTo(0);
+  }
+
+  /// Persiste en la nota los resaltados (por apunte) cuando cambian.
+  void _onHighlightsChanged() {
+    _note = _note.copyWith(highlights: _highlightController.value);
+    if (mounted) setState(() {});
+    _scheduleSave();
+  }
+
+  /// Quita un versiculo de la coleccion de la lectura.
+  Future<void> _removeAddedVerse(SermonVerseReference verse) async {
+    final verses = _note.verses
+        .where((v) => v.key != verse.key)
+        .toList(growable: false);
+    setState(() => _note = _note.copyWith(verses: verses));
+    HapticFeedback.selectionClick();
+    await _rebuildAddedVerses();
+    _scheduleSave();
   }
 
   /// Reconstruye las listas de versiculos agregados (primaria y secundaria)
@@ -923,17 +983,20 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       }
       final choice = await _pickPdfExportAction();
       if (choice == null) return;
+      final highlights = _highlightController.value;
       final File file = choice.action == _PdfExportAction.share
           ? await SermonNoteExportService.I.exportAndShareSermonNote(
               note: _note,
               chapterVerses: _verses,
               secondaryChapterVerses: _secondaryVerses,
+              highlights: highlights,
               cleanCover: choice.cleanCover,
             )
           : await SermonNoteExportService.I.exportSermonNoteToPdf(
               note: _note,
               chapterVerses: _verses,
               secondaryChapterVerses: _secondaryVerses,
+              highlights: highlights,
               saveToDownloads: true,
               cleanCover: choice.cleanCover,
             );
@@ -990,6 +1053,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     _notesController.dispose();
     _takeawayController.dispose();
     _tabController.dispose();
+    _highlightController.dispose();
     super.dispose();
   }
 
@@ -1030,6 +1094,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                             onBack: () => Navigator.maybePop(context),
                             onOpenPassagePicker: _openPassagePicker,
                             onOpenVersionPicker: _openVersionPicker,
+                            onSwapVersions: _swapVersions,
                             onOpenAddVersesPicker: _openAddVersesPicker,
                             onOpenSavedNotes: _openSavedNotes,
                             onExportPdf: _exportPdf,
@@ -1102,6 +1167,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       secondaryVersion: _secondaryVersion,
       bookNumber: _bookNumber,
       chapter: _chapter,
+      highlightStore: _highlightController,
     );
   }
 
@@ -1142,6 +1208,14 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           onClearCentralPassage: _clearCentralPassage,
         ),
         const SizedBox(height: 12),
+        if (_note.verses.isNotEmpty) ...[
+          _AddedVersesCard(
+            theme: t,
+            verses: _note.verses,
+            onRemove: _removeAddedVerse,
+          ),
+          const SizedBox(height: 12),
+        ],
         _NotesEditorCard(
           theme: t,
           controller: _notesController,
@@ -1470,6 +1544,106 @@ class _NotesEditorCard extends StatelessWidget {
             const SizedBox(height: 10),
             _InsertedVersesIndicator(theme: t, count: insertedVerseCount),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+class _AddedVersesCard extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final List<SermonVerseReference> verses;
+  final ValueChanged<SermonVerseReference> onRemove;
+
+  const _AddedVersesCard({
+    required this.theme,
+    required this.verses,
+    required this.onRemove,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return _PanelCard(
+      theme: t,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(Icons.library_books_outlined, color: t.accent, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                'Versiculos agregados',
+                style: GoogleFonts.cinzel(
+                  color: t.textPrimary,
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            'Aparecen en la lectura (izquierda) y en el PDF. Quitalos con la X.',
+            style: GoogleFonts.manrope(
+              color: t.textSecondary.withValues(alpha: 0.72),
+              fontSize: 11,
+              height: 1.3,
+            ),
+          ),
+          const SizedBox(height: 10),
+          for (final verse in verses)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Container(
+                padding: const EdgeInsets.fromLTRB(10, 6, 4, 6),
+                decoration: BoxDecoration(
+                  color: t.background,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: t.textSecondary.withValues(alpha: 0.12),
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${verse.reference} · ${verse.versionId}',
+                            style: GoogleFonts.manrope(
+                              color: t.accent,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                          if (verse.text.trim().isNotEmpty) ...[
+                            const SizedBox(height: 2),
+                            Text(
+                              verse.text.trim(),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.lora(
+                                color: t.textSecondary.withValues(alpha: 0.85),
+                                fontSize: 11.5,
+                              ),
+                            ),
+                          ],
+                        ],
+                      ),
+                    ),
+                    IconButton(
+                      tooltip: 'Quitar de la lectura',
+                      visualDensity: VisualDensity.compact,
+                      onPressed: () => onRemove(verse),
+                      icon: Icon(Icons.close, color: t.textSecondary, size: 18),
+                    ),
+                  ],
+                ),
+              ),
+            ),
         ],
       ),
     );

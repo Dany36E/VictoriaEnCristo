@@ -73,6 +73,7 @@ void main() {
               'Ahora, pues, ninguna condenacion hay para los que estan en Cristo Jesus.',
         ),
       ],
+      highlights: const [],
       createdAt: DateTime(2026, 6, 6),
       updatedAt: DateTime(2026, 6, 6),
     );

@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +14,7 @@ import '../../../services/bible/book_intro_service.dart';
 import '../../../services/bible/study_mode_service.dart';
 import '../../../services/bible/study_room_service.dart';
 import '../../../theme/bible_reader_theme.dart';
+import '../reading_highlight_store.dart';
 import '../verse_study_sheet.dart';
 import 'study_color_legend.dart';
 
@@ -34,6 +36,11 @@ class StudyReadingPanel extends StatefulWidget {
   final int chapter;
   final bool showSecondary;
 
+  /// Almacen de resaltados a usar. Si es null (Modo Estudio), se usa el almacen
+  /// global [StudyModeService]. Si se provee (Modo Predicacion), los resaltados
+  /// son por apunte e independientes del Modo Estudio.
+  final ReadingHighlightStore? highlightStore;
+
   const StudyReadingPanel({
     super.key,
     required this.theme,
@@ -44,6 +51,7 @@ class StudyReadingPanel extends StatefulWidget {
     required this.bookNumber,
     required this.chapter,
     this.showSecondary = true,
+    this.highlightStore,
   });
 
   @override
@@ -126,15 +134,28 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     final s = _startWord!;
     final e = _endWord!;
     _clearSelection();
-    await StudyModeService.I.addHighlight(
-      versionId: versionId,
-      bookNumber: bookNumber,
-      chapter: chapter,
-      verse: verse,
-      startWord: s,
-      endWord: e,
-      code: code,
-    );
+    final store = widget.highlightStore;
+    if (store != null) {
+      await store.addHighlight(
+        versionId: versionId,
+        bookNumber: bookNumber,
+        chapter: chapter,
+        verse: verse,
+        startWord: s,
+        endWord: e,
+        code: code,
+      );
+    } else {
+      await StudyModeService.I.addHighlight(
+        versionId: versionId,
+        bookNumber: bookNumber,
+        chapter: chapter,
+        verse: verse,
+        startWord: s,
+        endWord: e,
+        code: code,
+      );
+    }
   }
 
   Future<void> _clearSelectedWords() async {
@@ -147,19 +168,33 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
     final e = _endWord;
     if (s == null || e == null) return;
     _clearSelection();
-    await StudyModeService.I.clearHighlightRange(
-      versionId: versionId,
-      bookNumber: bookNumber,
-      chapter: chapter,
-      verse: verse,
-      startWord: s,
-      endWord: e,
-    );
+    final store = widget.highlightStore;
+    if (store != null) {
+      await store.clearRange(
+        versionId: versionId,
+        bookNumber: bookNumber,
+        chapter: chapter,
+        verse: verse,
+        startWord: s,
+        endWord: e,
+      );
+    } else {
+      await StudyModeService.I.clearHighlightRange(
+        versionId: versionId,
+        bookNumber: bookNumber,
+        chapter: chapter,
+        verse: verse,
+        startWord: s,
+        endWord: e,
+      );
+    }
   }
 
-  Future<void> _undo() => StudyModeService.I.undoHighlightChange();
+  Future<void> _undo() =>
+      widget.highlightStore?.undo() ?? StudyModeService.I.undoHighlightChange();
 
-  Future<void> _redo() => StudyModeService.I.redoHighlightChange();
+  Future<void> _redo() =>
+      widget.highlightStore?.redo() ?? StudyModeService.I.redoHighlightChange();
 
   void _openVerseHelp(BibleVerse verse) {
     HapticFeedback.selectionClick();
@@ -183,16 +218,20 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
       valueListenable: StudyRoomService.I.currentRoomNotifier,
       builder: (_, room, _) {
         return ValueListenableBuilder<List<StudyWordHighlight>>(
-          valueListenable: StudyModeService.I.highlightsNotifier,
+          valueListenable:
+              widget.highlightStore?.highlightsListenable ??
+              StudyModeService.I.highlightsNotifier,
           builder: (_, personalHighlights, _) {
             return ValueListenableBuilder<List<StudyWordHighlight>>(
               valueListenable: StudyRoomService.I.roomHighlightsNotifier,
               builder: (_, roomHighlights, _) {
-                final allHighlights = _effectiveHighlights(
-                  personalHighlights: personalHighlights,
-                  roomHighlights: roomHighlights,
-                  inRoom: room != null,
-                );
+                final allHighlights = widget.highlightStore != null
+                    ? personalHighlights
+                    : _effectiveHighlights(
+                        personalHighlights: personalHighlights,
+                        roomHighlights: roomHighlights,
+                        inRoom: room != null,
+                      );
                 return ValueListenableBuilder<double>(
                   valueListenable: BibleUserDataService.I.fontSizeNotifier,
                   builder: (_, fontSize, _) {
@@ -211,6 +250,12 @@ class _StudyReadingPanelState extends State<StudyReadingPanel> {
                                     onShowLegend: () => _openLegendSheet(t),
                                     onUndo: _undo,
                                     onRedo: _redo,
+                                    canUndo:
+                                        widget.highlightStore?.canUndoListenable ??
+                                        StudyModeService.I.canUndoHighlightsNotifier,
+                                    canRedo:
+                                        widget.highlightStore?.canRedoListenable ??
+                                        StudyModeService.I.canRedoHighlightsNotifier,
                                   ),
                                   _ChapterContextStrip(
                                     theme: t,
@@ -1108,12 +1153,16 @@ class _ReadingControlsRow extends StatelessWidget {
   final VoidCallback onShowLegend;
   final VoidCallback onUndo;
   final VoidCallback onRedo;
+  final ValueListenable<bool> canUndo;
+  final ValueListenable<bool> canRedo;
 
   const _ReadingControlsRow({
     required this.theme,
     required this.onShowLegend,
     required this.onUndo,
     required this.onRedo,
+    required this.canUndo,
+    required this.canRedo,
   });
 
   @override
@@ -1140,7 +1189,13 @@ class _ReadingControlsRow extends StatelessWidget {
             ),
           ),
           const Spacer(),
-          _UndoRedoBar(theme: t, onUndo: onUndo, onRedo: onRedo),
+          _UndoRedoBar(
+            theme: t,
+            onUndo: onUndo,
+            onRedo: onRedo,
+            canUndo: canUndo,
+            canRedo: canRedo,
+          ),
         ],
       ),
     );
@@ -1207,8 +1262,16 @@ class _UndoRedoBar extends StatelessWidget {
   final BibleReaderThemeData theme;
   final VoidCallback onUndo;
   final VoidCallback onRedo;
+  final ValueListenable<bool> canUndo;
+  final ValueListenable<bool> canRedo;
 
-  const _UndoRedoBar({required this.theme, required this.onUndo, required this.onRedo});
+  const _UndoRedoBar({
+    required this.theme,
+    required this.onUndo,
+    required this.onRedo,
+    required this.canUndo,
+    required this.canRedo,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1226,27 +1289,27 @@ class _UndoRedoBar extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ValueListenableBuilder<bool>(
-              valueListenable: StudyModeService.I.canUndoHighlightsNotifier,
-              builder: (_, canUndo, _) => IconButton(
+              valueListenable: canUndo,
+              builder: (_, enabled, _) => IconButton(
                 tooltip: 'Deshacer',
                 icon: const Icon(Icons.undo, size: 18),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints.tightFor(width: 36, height: 34),
-                color: canUndo ? t.accent : t.textSecondary.withValues(alpha: 0.35),
-                onPressed: canUndo ? onUndo : null,
+                color: enabled ? t.accent : t.textSecondary.withValues(alpha: 0.35),
+                onPressed: enabled ? onUndo : null,
               ),
             ),
             ValueListenableBuilder<bool>(
-              valueListenable: StudyModeService.I.canRedoHighlightsNotifier,
-              builder: (_, canRedo, _) => IconButton(
+              valueListenable: canRedo,
+              builder: (_, enabled, _) => IconButton(
                 tooltip: 'Rehacer',
                 icon: const Icon(Icons.redo, size: 18),
                 visualDensity: VisualDensity.compact,
                 padding: EdgeInsets.zero,
                 constraints: const BoxConstraints.tightFor(width: 36, height: 34),
-                color: canRedo ? t.accent : t.textSecondary.withValues(alpha: 0.35),
-                onPressed: canRedo ? onRedo : null,
+                color: enabled ? t.accent : t.textSecondary.withValues(alpha: 0.35),
+                onPressed: enabled ? onRedo : null,
               ),
             ),
           ],

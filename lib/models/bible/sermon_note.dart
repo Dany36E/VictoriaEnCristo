@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'bible_verse.dart';
+import 'study_word_highlight.dart';
 
 class SermonVerseReference {
   final int bookNumber;
@@ -106,6 +107,7 @@ class SermonNote {
   final String notes;
   final String takeaway;
   final List<SermonVerseReference> verses;
+  final List<StudyWordHighlight> highlights;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -120,6 +122,7 @@ class SermonNote {
     required this.notes,
     required this.takeaway,
     required this.verses,
+    required this.highlights,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -141,6 +144,7 @@ class SermonNote {
       notes: '',
       takeaway: '',
       verses: const [],
+      highlights: const [],
       createdAt: now,
       updatedAt: now,
     );
@@ -152,7 +156,8 @@ class SermonNote {
       notes.trim().isNotEmpty ||
       takeaway.trim().isNotEmpty ||
       centralPassage != null ||
-      verses.isNotEmpty;
+      verses.isNotEmpty ||
+      highlights.isNotEmpty;
 
   Map<String, dynamic> toMap() => {
     'title': title,
@@ -164,6 +169,7 @@ class SermonNote {
     'notes': notes,
     'takeaway': takeaway,
     'verses': verses.map((v) => v.toMap()).toList(),
+    'highlights': highlights.map(_highlightToMap).toList(),
     'createdAt': Timestamp.fromDate(createdAt),
     'updatedAt': Timestamp.fromDate(updatedAt),
   };
@@ -192,6 +198,20 @@ class SermonNote {
               )
               .toList() ??
           const [],
+      highlights:
+          (map['highlights'] as List?)
+              ?.whereType<Map>()
+              .toList()
+              .asMap()
+              .entries
+              .map(
+                (entry) => _highlightFromMap(
+                  'sh${entry.key}',
+                  Map<String, dynamic>.from(entry.value),
+                ),
+              )
+              .toList() ??
+          const [],
       createdAt: _dateFromAny(map['createdAt'] ?? map['createdAtMs']),
       updatedAt: _dateFromAny(map['updatedAt'] ?? map['updatedAtMs']),
     );
@@ -208,6 +228,7 @@ class SermonNote {
     String? notes,
     String? takeaway,
     List<SermonVerseReference>? verses,
+    List<StudyWordHighlight>? highlights,
   }) {
     return SermonNote(
       id: id,
@@ -222,10 +243,38 @@ class SermonNote {
       notes: notes ?? this.notes,
       takeaway: takeaway ?? this.takeaway,
       verses: verses ?? this.verses,
+      highlights: highlights ?? this.highlights,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );
   }
+}
+
+/// Serializa un resaltado dentro de la nota usando `createdAt` en int (ms),
+/// para que sea seguro tanto en Firestore como en la cache JSON local.
+Map<String, dynamic> _highlightToMap(StudyWordHighlight h) => {
+  'versionId': h.versionId,
+  'bookNumber': h.bookNumber,
+  'chapter': h.chapter,
+  'verse': h.verse,
+  'startWord': h.startWord,
+  'endWord': h.endWord,
+  'code': h.code,
+  'createdAtMs': h.createdAt.millisecondsSinceEpoch,
+};
+
+StudyWordHighlight _highlightFromMap(String id, Map<String, dynamic> map) {
+  return StudyWordHighlight(
+    id: id,
+    versionId: map['versionId'] as String? ?? 'RVR1960',
+    bookNumber: _asInt(map['bookNumber']),
+    chapter: _asInt(map['chapter']),
+    verse: _asInt(map['verse']),
+    startWord: _asInt(map['startWord']),
+    endWord: _asInt(map['endWord']),
+    code: map['code'] as String? ?? 'yellow',
+    createdAt: _dateFromAny(map['createdAtMs'] ?? map['createdAt']),
+  );
 }
 
 int _asInt(dynamic value) {
