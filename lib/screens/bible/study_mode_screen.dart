@@ -30,6 +30,7 @@ import '../../widgets/bible/study/study_room_banner.dart';
 import '../../widgets/bible/study/study_room_dialogs.dart';
 import '../../widgets/bible/sermon/sermon_rich_text_controller.dart';
 import '../../widgets/bible/study/study_header_bar.dart';
+import 'study_results_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// MODO ESTUDIO — Pantalla principal
@@ -839,6 +840,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                                 onLeave: _confirmLeaveRoom,
                                 onRotate: () => StudyRoomService.I.rotateNow(),
                                 onStartTimer: _startRoomSwapTimer,
+                                onEndStudy: () => _endStudyFlow(t),
                                 onVersionAssigned: _onAssignedVersionChanged,
                               );
                             },
@@ -1281,20 +1283,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     if (action == null || !mounted) return;
 
     if (action == StudyRoomDialogAction.create) {
-      try {
-        final current = _resolveCurrentStudy();
-        final room = await StudyRoomService.I.createRoom(
-          bookNumber: _bookNumber,
-          bookName: _bookName,
-          chapter: _chapter,
-          versionId: _version.id,
-          startVerse: current?.studyStartVerse,
-          endVerse: current?.studyEndVerse,
-        );
-        _showSnack('Sala creada: ${room.code}');
-      } catch (e) {
-        _showSnack('No se pudo crear la sala: $e');
-      }
+      await _createRoomFlow();
     } else if (action == StudyRoomDialogAction.join) {
       final form = await showDialog<JoinRoomFormResult>(
         context: context,
@@ -1310,6 +1299,143 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       } catch (e) {
         _showSnack('No se pudo unir: $e');
       }
+    }
+  }
+
+  /// Flujo de creación de sala: el host elige pasaje, su versión y el
+  /// intervalo de swap. El sheet puede pedir cambiar el pasaje (reabre los
+  /// selectores y vuelve a mostrarse).
+  Future<void> _createRoomFlow() async {
+    while (true) {
+      if (!mounted) return;
+      final result = await showModalBottomSheet<CreateRoomFormResult>(
+        context: context,
+        isScrollControlled: true,
+        backgroundColor: Colors.transparent,
+        builder: (_) => CreateRoomSheet(
+          passageLabel: '$_bookName $_chapter · ${_rangeLabel()}',
+          currentVersionId: _version.id,
+        ),
+      );
+      if (result == null || !mounted) return; // cancelar
+      if (result.changePassage) {
+        await _openPicker();
+        if (!mounted) return;
+        await _openRangePicker();
+        if (!mounted) return;
+        continue; // reabrir el sheet con el pasaje actualizado
+      }
+      try {
+        final current = _resolveCurrentStudy();
+        final room = await StudyRoomService.I.createRoom(
+          bookNumber: _bookNumber,
+          bookName: _bookName,
+          chapter: _chapter,
+          versionId: result.versionId,
+          startVerse: current?.studyStartVerse,
+          endVerse: current?.studyEndVerse,
+          swapIntervalMinutes: result.swapIntervalMinutes,
+        );
+        if (mounted) _showSnack('Sala creada: ${room.code}');
+      } catch (e) {
+        if (mounted) _showSnack('No se pudo crear la sala: $e');
+      }
+      return;
+    }
+  }
+
+  /// Etiquetas de pasajes (principal + añadidos) para la pantalla de resultados.
+  List<String> _passageLabelsForResults(StudyChapterAnswers study) {
+    final labels = <String>[];
+    final s = study.studyStartVerse;
+    final e = study.studyEndVerse;
+    if (s != null && e != null) {
+      labels.add(
+        s == e
+            ? '${study.bookName} ${study.chapter}:$s'
+            : '${study.bookName} ${study.chapter}:$s-$e',
+      );
+    } else {
+      labels.add('${study.bookName} ${study.chapter}');
+    }
+    labels.addAll(study.additionalPassages.map((p) => p.reference));
+    return labels;
+  }
+
+  /// "Terminar estudio": genera el PDF combinado (mismos datos de la sala para
+  /// todos) y abre la pantalla de resultados / tiempo de compartir.
+  Future<void> _endStudyFlow(BibleReaderThemeData t) async {
+    final room = StudyRoomService.I.currentRoomNotifier.value;
+    if (room == null) return;
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('¿Terminar el estudio?'),
+        content: const Text(
+          'Generaremos los resultados (un PDF combinado) para compartir lo '
+          'que Dios les habló. Cada quien verá el mismo documento. Podrás '
+          'seguir en la sala o salir después.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Terminar'),
+          ),
+        ],
+      ),
+    );
+    if (confirm != true || !mounted) return;
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Center(
+        child: CircularProgressIndicator(color: t.accent, strokeWidth: 2),
+      ),
+    );
+
+    try {
+      await _flushAnswers();
+      final study = _currentStudySnapshot();
+      await StudyRoomService.I.publishAnswerSnapshot(study);
+      await StudyRoomService.I.publishHighlights(
+        StudyModeService.I.highlightsNotifier.value,
+      );
+      final participants = await _buildRoomParticipantBundles(room, study);
+      final roomAnswers = StudyRoomService.I.roomAnswerSnapshotsNotifier.value;
+      final saveToDownloads =
+          StudyExportService.I.shouldSaveToDownloadsByDefault;
+      final file = await StudyExportService.I.exportRoomStudyToPdf(
+        study: study,
+        participants: participants,
+        roomAnswerSnapshots: roomAnswers,
+        saveToDownloads: saveToDownloads,
+        cleanCover: true,
+      );
+      if (!mounted) return;
+      Navigator.pop(context); // cierra el loader
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => StudyResultsScreen(
+            room: room,
+            participants: participants,
+            passageLabels: _passageLabelsForResults(study),
+            pdfFile: file,
+            savedToDownloads: saveToDownloads,
+            theme: t,
+            onLeaveRoom: () => unawaited(StudyRoomService.I.leaveRoom()),
+          ),
+        ),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // cierra el loader
+      _showSnack('No se pudieron generar los resultados: $e');
     }
   }
 

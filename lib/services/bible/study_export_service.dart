@@ -207,21 +207,28 @@ class StudyExportService {
       await rootBundle.load('google_fonts/Lato-Italic.ttf'),
     );
 
+    final theme = pw.ThemeData.withFont(
+      base: fontRegular,
+      bold: fontBold,
+      italic: fontItalic,
+    );
+
     final doc = pw.Document(
       title: 'Estudio en grupo ${study.reference}',
       author: 'Victoria en Cristo',
       creator: 'Victoria en Cristo',
     );
 
+    // Hoja de portada dedicada (participantes, versiones, pasajes + añadidos).
+    doc.addPage(
+      _roomCoverPage(study: study, participants: participants, theme: theme),
+    );
+
     doc.addPage(
       pw.MultiPage(
         pageTheme: pw.PageTheme(
           margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42),
-          theme: pw.ThemeData.withFont(
-            base: fontRegular,
-            bold: fontBold,
-            italic: fontItalic,
-          ),
+          theme: theme,
         ),
         footer: (context) => pw.Align(
           alignment: pw.Alignment.centerRight,
@@ -231,8 +238,8 @@ class StudyExportService {
           ),
         ),
         build: (context) => [
-          _header(study, cleanCover: cleanCover),
-          pw.SizedBox(height: 8),
+          _sectionTitle('Detalle por participante'),
+          pw.SizedBox(height: 4),
           pw.Text(
             'Estudio colaborativo · ${participants.length} '
             '${participants.length == 1 ? 'participante' : 'participantes'}',
@@ -554,6 +561,163 @@ class StudyExportService {
     return null;
   }
 
+  /// Etiquetas de los pasajes estudiados: el principal (con rango si lo hay)
+  /// más los pasajes añadidos.
+  List<String> _passageLabels(StudyChapterAnswers study) {
+    final labels = <String>[];
+    final s = study.studyStartVerse;
+    final e = study.studyEndVerse;
+    if (s != null && e != null) {
+      labels.add(
+        s == e
+            ? '${study.bookName} ${study.chapter}:$s'
+            : '${study.bookName} ${study.chapter}:$s-$e',
+      );
+    } else {
+      labels.add('${study.bookName} ${study.chapter}');
+    }
+    labels.addAll(study.additionalPassages.map((p) => p.reference));
+    return labels;
+  }
+
+  /// Hoja de portada para el PDF de sala: participantes, versiones usadas y
+  /// los pasajes estudiados (incluyendo los añadidos).
+  pw.Page _roomCoverPage({
+    required StudyChapterAnswers study,
+    required List<StudyParticipantBundle> participants,
+    required pw.ThemeData theme,
+  }) {
+    const gold = PdfColor(0.72, 0.58, 0.20);
+    const ink = PdfColor(0.12, 0.16, 0.20);
+    final passages = _passageLabels(study);
+    final versionsUsed =
+        <String>{
+          for (final p in participants)
+            if (p.currentVersionId.trim().isNotEmpty) p.currentVersionId,
+          if (study.versionId.trim().isNotEmpty) study.versionId,
+        }.toList()..sort();
+
+    pw.Widget sectionLabel(String text) => pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 8, top: 18),
+      child: pw.Text(
+        text.toUpperCase(),
+        style: pw.TextStyle(
+          fontSize: 11,
+          fontWeight: pw.FontWeight.bold,
+          letterSpacing: 1.4,
+          color: gold,
+        ),
+      ),
+    );
+
+    return pw.Page(
+      pageTheme: pw.PageTheme(
+        theme: theme,
+        margin: const pw.EdgeInsets.fromLTRB(48, 56, 48, 48),
+      ),
+      build: (context) => pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Container(
+            width: 56,
+            height: 4,
+            decoration: pw.BoxDecoration(
+              color: gold,
+              borderRadius: pw.BorderRadius.circular(2),
+            ),
+          ),
+          pw.SizedBox(height: 22),
+          pw.Text(
+            'VICTORIA EN CRISTO',
+            style: pw.TextStyle(
+              fontSize: 11,
+              fontWeight: pw.FontWeight.bold,
+              letterSpacing: 3,
+              color: gold,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Text(
+            'Estudio en grupo',
+            style: pw.TextStyle(
+              fontSize: 32,
+              fontWeight: pw.FontWeight.bold,
+              color: ink,
+            ),
+          ),
+          pw.SizedBox(height: 6),
+          pw.Text(
+            study.reference,
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: gold,
+            ),
+          ),
+          pw.Divider(color: const PdfColor(0.86, 0.82, 0.72), height: 36),
+          sectionLabel('Pasajes estudiados'),
+          for (final p in passages)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 4),
+              child: pw.Text(
+                '•  $p',
+                style: const pw.TextStyle(fontSize: 13, color: ink),
+              ),
+            ),
+          sectionLabel('Versiones usadas'),
+          pw.Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              for (final v in versionsUsed) _metaChip('Versión', v),
+            ],
+          ),
+          sectionLabel('Participantes (${participants.length})'),
+          for (final p in participants)
+            pw.Padding(
+              padding: const pw.EdgeInsets.only(bottom: 6),
+              child: pw.Row(
+                crossAxisAlignment: pw.CrossAxisAlignment.center,
+                children: [
+                  pw.Container(
+                    width: 6,
+                    height: 6,
+                    margin: const pw.EdgeInsets.only(right: 10),
+                    decoration: const pw.BoxDecoration(
+                      color: gold,
+                      shape: pw.BoxShape.circle,
+                    ),
+                  ),
+                  pw.Expanded(
+                    child: pw.Text(
+                      p.displayName,
+                      style: pw.TextStyle(
+                        fontSize: 13,
+                        fontWeight: pw.FontWeight.bold,
+                        color: ink,
+                      ),
+                    ),
+                  ),
+                  pw.Text(
+                    p.currentVersionId,
+                    style: const pw.TextStyle(
+                      fontSize: 11,
+                      color: PdfColors.grey700,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          pw.Spacer(),
+          pw.Text(
+            'Generado el ${_date(study.updatedAt)} · Victoria en Cristo',
+            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+          ),
+        ],
+      ),
+    );
+  }
+
   pw.Widget _header(
     StudyChapterAnswers study, {
     String? secondaryVersionId,
@@ -582,7 +746,7 @@ class StudyExportService {
               height: 4,
               decoration: pw.BoxDecoration(
                 color: const PdfColor(0.72, 0.58, 0.20),
-                borderRadius: pw.BorderRadius.circular(999),
+                borderRadius: pw.BorderRadius.circular(2),
               ),
             ),
             pw.SizedBox(height: 14),

@@ -20,6 +20,7 @@ class StudyRoomBanner extends StatefulWidget {
   final VoidCallback onLeave;
   final VoidCallback onRotate;
   final VoidCallback onStartTimer;
+  final VoidCallback onEndStudy;
   final ValueChanged<String> onVersionAssigned;
 
   const StudyRoomBanner({
@@ -29,6 +30,7 @@ class StudyRoomBanner extends StatefulWidget {
     required this.onLeave,
     required this.onRotate,
     required this.onStartTimer,
+    required this.onEndStudy,
     required this.onVersionAssigned,
   });
 
@@ -171,6 +173,29 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
                 ),
               );
             }).toList(),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: widget.onEndStudy,
+              style: OutlinedButton.styleFrom(
+                foregroundColor: t.accent,
+                side: BorderSide(color: t.accent.withValues(alpha: 0.45)),
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              icon: const Icon(Icons.flag_outlined, size: 17),
+              label: Text(
+                'Terminar y ver resultados',
+                style: GoogleFonts.manrope(
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12.5,
+                ),
+              ),
+            ),
           ),
         ],
       ),

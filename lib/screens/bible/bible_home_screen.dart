@@ -616,6 +616,9 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       case _StudyEntryAction.savedStudies:
         _openStudyMode(openSetupOnStart: false, openSavedStudiesOnStart: true);
         break;
+      case _StudyEntryAction.friendsStudy:
+        _openStudyMode(openSetupOnStart: false, openRoomDialogOnStart: true);
+        break;
     }
   }
 
@@ -1182,7 +1185,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   }
 }
 
-enum _StudyEntryAction { newStudy, savedStudies }
+enum _StudyEntryAction { newStudy, savedStudies, friendsStudy }
 
 enum _SermonEntryAction { newNote, savedNotes }
 
@@ -1241,6 +1244,16 @@ class _StudyEntrySheet extends StatelessWidget {
               theme: t,
               onTap: () =>
                   Navigator.pop(context, _StudyEntryAction.savedStudies),
+            ),
+            const SizedBox(height: 8),
+            _StudyEntryTile(
+              icon: Icons.groups_outlined,
+              title: 'Estudio con amigos',
+              subtitle: 'Crear o unirte a una sala. Lean juntos en '
+                  'distintas versiones y rotándolas.',
+              theme: t,
+              onTap: () =>
+                  Navigator.pop(context, _StudyEntryAction.friendsStudy),
             ),
           ],
         ),
