@@ -8,7 +8,11 @@
     "answerText": "amó",
     "explanation": "Juan 3:16 es el evangelio en miniatura: el amor de Dios es la razón del envío del Hijo.",
     "reference": "Juan 3:16",
-    "tags": ["amor", "evangelio", "identidad"],
+    "tags": [
+      "amor",
+      "evangelio",
+      "identidad"
+    ],
     "difficulty": 1
   },
   {
@@ -20,7 +24,10 @@
     "answerText": "fortalece",
     "explanation": "Pablo escribe desde la cárcel: la fuerza no es suya, viene de Cristo.",
     "reference": "Filipenses 4:13",
-    "tags": ["fe", "fuerza"],
+    "tags": [
+      "fe",
+      "fuerza"
+    ],
     "difficulty": 1
   },
   {
@@ -32,7 +39,10 @@
     "answerText": "pastor",
     "explanation": "David se ve como oveja: depende, no compite.",
     "reference": "Salmos 23:1",
-    "tags": ["confianza", "provision"],
+    "tags": [
+      "confianza",
+      "provision"
+    ],
     "difficulty": 1
   },
   {
@@ -44,7 +54,10 @@
     "answerText": "veredas",
     "explanation": "Proverbios 3:6 — la confianza en Dios se traduce en decisiones claras.",
     "reference": "Proverbios 3:6",
-    "tags": ["decisiones", "sabiduria"],
+    "tags": [
+      "decisiones",
+      "sabiduria"
+    ],
     "difficulty": 2
   },
   {
@@ -56,7 +69,10 @@
     "answerText": "bien",
     "explanation": "Romanos 8:28 no promete que todo sea bueno, sino que Dios lo integra para bien.",
     "reference": "Romanos 8:28",
-    "tags": ["proposito", "sufrimiento"],
+    "tags": [
+      "proposito",
+      "sufrimiento"
+    ],
     "difficulty": 2
   },
   {
@@ -68,205 +84,332 @@
     "answerText": "fuerzas",
     "explanation": "Isaías 40:31 — esperar es una postura activa de confianza.",
     "reference": "Isaías 40:31",
-    "tags": ["esperanza", "fuerza"],
+    "tags": [
+      "esperanza",
+      "fuerza"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_ws_yosoypan",
     "type": "who_said",
     "prompt": "¿Quién dijo: «Yo soy el pan de vida»?",
-    "options": ["Moisés", "Juan el Bautista", "Jesús", "Pablo"],
+    "options": [
+      "Moisés",
+      "Juan el Bautista",
+      "Jesús",
+      "Pablo"
+    ],
     "correctIndex": 2,
     "explanation": "Jesús, tras alimentar a los 5000, explica que él mismo es el sustento verdadero (Juan 6:35).",
     "reference": "Juan 6:35",
-    "tags": ["identidad_cristo"],
+    "tags": [
+      "identidad_cristo"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_ws_sigueme",
     "type": "who_said",
     "prompt": "¿Quién dijo a sus discípulos: «Sígueme, y haré que seáis pescadores de hombres»?",
-    "options": ["Juan el Bautista", "Pedro", "Jesús", "Andrés"],
+    "options": [
+      "Juan el Bautista",
+      "Pedro",
+      "Jesús",
+      "Andrés"
+    ],
     "correctIndex": 2,
     "explanation": "Jesús llamó así a Pedro y Andrés junto al mar de Galilea (Mateo 4:19).",
     "reference": "Mateo 4:19",
-    "tags": ["llamado"],
+    "tags": [
+      "llamado"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_ws_hagase",
     "type": "who_said",
     "prompt": "¿Quién dijo: «He aquí la sierva del Señor; hágase conmigo conforme a tu palabra»?",
-    "options": ["Sara", "María madre de Jesús", "Ana", "María Magdalena"],
+    "options": [
+      "Sara",
+      "María madre de Jesús",
+      "Ana",
+      "María Magdalena"
+    ],
     "correctIndex": 1,
     "explanation": "María responde al ángel Gabriel con fe y rendición (Lucas 1:38).",
     "reference": "Lucas 1:38",
-    "tags": ["fe", "rendicion"],
+    "tags": [
+      "fe",
+      "rendicion"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_ws_aquiestoy",
     "type": "who_said",
     "prompt": "¿Quién dijo: «Heme aquí, envíame a mí»?",
-    "options": ["Moisés", "Isaías", "Jeremías", "Jonás"],
+    "options": [
+      "Moisés",
+      "Isaías",
+      "Jeremías",
+      "Jonás"
+    ],
     "correctIndex": 1,
     "explanation": "Isaías, tras ver la gloria de Dios y ser limpio, responde al llamado (Isaías 6:8).",
     "reference": "Isaías 6:8",
-    "tags": ["mision", "llamado"],
+    "tags": [
+      "mision",
+      "llamado"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_ws_novolveras",
     "type": "who_said",
     "prompt": "¿Quién dijo: «Donde tú fueres, iré yo»?",
-    "options": ["Rebeca", "Rut", "Ester", "Débora"],
+    "options": [
+      "Rebeca",
+      "Rut",
+      "Ester",
+      "Débora"
+    ],
     "correctIndex": 1,
     "explanation": "Rut a Noemí; un pacto de lealtad que la lleva al linaje de Cristo (Rut 1:16).",
     "reference": "Rut 1:16",
-    "tags": ["lealtad", "pacto"],
+    "tags": [
+      "lealtad",
+      "pacto"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_ws_consumado",
     "type": "who_said",
     "prompt": "¿Quién dijo en la cruz: «Consumado es»?",
-    "options": ["Pedro", "Jesús", "Esteban", "Juan"],
+    "options": [
+      "Pedro",
+      "Jesús",
+      "Esteban",
+      "Juan"
+    ],
     "correctIndex": 1,
     "explanation": "Jesús declara terminada la obra de la redención (Juan 19:30).",
     "reference": "Juan 19:30",
-    "tags": ["cruz", "redencion"],
+    "tags": [
+      "cruz",
+      "redencion"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_tf_davidjefe",
     "type": "true_false",
     "prompt": "David escribió todos los Salmos.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "David escribió muchos (≈73), pero también Asaf, Coré, Moisés (Sal 90) y otros.",
     "reference": null,
-    "tags": ["salmos", "autores"],
+    "tags": [
+      "salmos",
+      "autores"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_tf_jonas",
     "type": "true_false",
     "prompt": "Jonás fue enviado a Nínive, no a Tarsis.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Dios lo envió a Nínive; él huyó hacia Tarsis (Jonás 1:2-3).",
     "reference": "Jonás 1:2",
-    "tags": ["obediencia", "mision"],
+    "tags": [
+      "obediencia",
+      "mision"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_tf_pentecostes",
     "type": "true_false",
     "prompt": "El Espíritu Santo descendió en Pentecostés sobre los apóstoles reunidos.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Hechos 2: lenguas de fuego y don de idiomas; nace la iglesia.",
     "reference": "Hechos 2:1-4",
-    "tags": ["iglesia", "espiritu"],
+    "tags": [
+      "iglesia",
+      "espiritu"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_tf_pablo12",
     "type": "true_false",
     "prompt": "Pablo fue uno de los doce discípulos originales de Jesús.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "Pablo fue llamado después de la resurrección (Hechos 9); reemplazo de Judas fue Matías.",
     "reference": "Hechos 9:3-6",
-    "tags": ["apostoles"],
+    "tags": [
+      "apostoles"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_tf_abra100",
     "type": "true_false",
     "prompt": "Abraham tenía 100 años cuando nació Isaac.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Génesis 21:5 — «era Abraham de cien años, cuando nació Isaac su hijo».",
     "reference": "Génesis 21:5",
-    "tags": ["abraham", "promesa"],
+    "tags": [
+      "abraham",
+      "promesa"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_tf_diezman",
     "type": "true_false",
     "prompt": "Los Diez Mandamientos fueron entregados en el Monte Sinaí.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Éxodo 19-20 — Dios se manifiesta a Moisés en Sinaí.",
     "reference": "Éxodo 20",
-    "tags": ["ley"],
+    "tags": [
+      "ley"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_mc_primerrey",
     "type": "multiple_choice",
     "prompt": "¿Quién fue el primer rey de Israel?",
-    "options": ["David", "Saúl", "Samuel", "Salomón"],
+    "options": [
+      "David",
+      "Saúl",
+      "Samuel",
+      "Salomón"
+    ],
     "correctIndex": 1,
     "explanation": "Saúl fue ungido por Samuel (1 Samuel 10), antes de David.",
     "reference": "1 Samuel 10:1",
-    "tags": ["reyes"],
+    "tags": [
+      "reyes"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_mc_librocapt",
     "type": "multiple_choice",
     "prompt": "¿En qué libro está la historia del valle de los huesos secos?",
-    "options": ["Isaías", "Jeremías", "Ezequiel", "Daniel"],
+    "options": [
+      "Isaías",
+      "Jeremías",
+      "Ezequiel",
+      "Daniel"
+    ],
     "correctIndex": 2,
     "explanation": "Ezequiel 37 — visión de restauración del pueblo en el exilio.",
     "reference": "Profeta del exilio",
-    "tags": ["profetas", "restauracion"],
+    "tags": [
+      "profetas",
+      "restauracion"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_mc_betel",
     "type": "multiple_choice",
     "prompt": "¿Quién soñó con una escalera que llegaba al cielo?",
-    "options": ["Abraham", "Isaac", "Jacob", "José"],
+    "options": [
+      "Abraham",
+      "Isaac",
+      "Jacob",
+      "José"
+    ],
     "correctIndex": 2,
     "explanation": "Jacob en Betel (Génesis 28); Dios confirma el pacto.",
     "reference": "Génesis 28:12",
-    "tags": ["patriarcas"],
+    "tags": [
+      "patriarcas"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_mc_cuantasplagas",
     "type": "multiple_choice",
     "prompt": "¿Cuántas plagas cayeron sobre Egipto?",
-    "options": ["Siete", "Nueve", "Diez", "Doce"],
+    "options": [
+      "Siete",
+      "Nueve",
+      "Diez",
+      "Doce"
+    ],
     "correctIndex": 2,
     "explanation": "Éxodo 7-12 registra diez plagas; la última es la muerte de los primogénitos.",
     "reference": "Éxodo 7-12",
-    "tags": ["exodo"],
+    "tags": [
+      "exodo"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_mc_frutoespiritu",
     "type": "multiple_choice",
     "prompt": "¿Cuál NO forma parte del fruto del Espíritu?",
-    "options": ["Gozo", "Paz", "Riqueza", "Templanza"],
+    "options": [
+      "Gozo",
+      "Paz",
+      "Riqueza",
+      "Templanza"
+    ],
     "correctIndex": 2,
     "explanation": "Gálatas 5:22-23: amor, gozo, paz, paciencia, benignidad, bondad, fe, mansedumbre, templanza.",
     "reference": "Gálatas 5:22-23",
-    "tags": ["espiritu", "caracter"],
+    "tags": [
+      "espiritu",
+      "caracter"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_mc_bienaventuranza",
     "type": "multiple_choice",
     "prompt": "Según las bienaventuranzas, ¿quiénes heredarán la tierra?",
-    "options": ["Los pobres de espíritu", "Los que lloran", "Los mansos", "Los misericordiosos"],
+    "options": [
+      "Los pobres de espíritu",
+      "Los que lloran",
+      "Los mansos",
+      "Los misericordiosos"
+    ],
     "correctIndex": 2,
     "explanation": "Mateo 5:5 — «Bienaventurados los mansos».",
     "reference": "Mateo 5:5",
-    "tags": ["sermon_monte"],
+    "tags": [
+      "sermon_monte"
+    ],
     "difficulty": 2
   },
   {
@@ -278,7 +421,10 @@
     "answerText": "Dios",
     "explanation": "Salmos 46:10 — invita a descansar en la soberanía de Dios.",
     "reference": "Salmos 46:10",
-    "tags": ["descanso", "soberania"],
+    "tags": [
+      "descanso",
+      "soberania"
+    ],
     "difficulty": 1
   },
   {
@@ -290,29 +436,45 @@
     "answerText": "trabajados",
     "explanation": "Mateo 11:28 — Jesús ofrece descanso al alma cansada.",
     "reference": "Mateo 11:28",
-    "tags": ["descanso", "invitacion"],
+    "tags": [
+      "descanso",
+      "invitacion"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_ws_temevid",
     "type": "who_said",
     "prompt": "¿Quién dijo: «No temas, cree solamente»?",
-    "options": ["Jesús", "Pedro", "Juan el Bautista", "Elías"],
+    "options": [
+      "Jesús",
+      "Pedro",
+      "Juan el Bautista",
+      "Elías"
+    ],
     "correctIndex": 0,
     "explanation": "Jesús a Jairo cuando su hija murió (Marcos 5:36).",
     "reference": "Marcos 5:36",
-    "tags": ["fe", "temor"],
+    "tags": [
+      "fe",
+      "temor"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_tf_beren",
     "type": "true_false",
     "prompt": "Los bereanos examinaban diariamente las Escrituras para ver si lo predicado era así.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Hechos 17:11 los llama «más nobles» por esa actitud.",
     "reference": "Hechos 17:11",
-    "tags": ["escrituras"],
+    "tags": [
+      "escrituras"
+    ],
     "difficulty": 2
   },
   {
@@ -328,7 +490,10 @@
     "correctIndex": 2,
     "explanation": "Mateo 22:37-38; el segundo es amar al prójimo como a uno mismo.",
     "reference": "Mateo 22:37-38",
-    "tags": ["amor", "ley"],
+    "tags": [
+      "amor",
+      "ley"
+    ],
     "difficulty": 1
   },
   {
@@ -344,7 +509,9 @@
     "correctIndex": 1,
     "explanation": "Mateo 6:9 — la oración empieza reconociendo a Dios antes que nuestras necesidades.",
     "reference": "Mateo 6:9",
-    "tags": ["oracion"],
+    "tags": [
+      "oracion"
+    ],
     "difficulty": 2
   },
   {
@@ -357,11 +524,19 @@
       "Cruce del Mar Rojo",
       "Entrega de los Diez Mandamientos"
     ],
-    "correctOrder": [0, 1, 2, 3],
+    "correctOrder": [
+      0,
+      1,
+      2,
+      3
+    ],
     "correctIndex": 0,
     "explanation": "Éxodo 3→12→14→20: llamado, juicio, liberación y pacto.",
     "reference": "Éxodo 3—20",
-    "tags": ["historia", "exodo"],
+    "tags": [
+      "historia",
+      "exodo"
+    ],
     "difficulty": 2
   },
   {
@@ -374,11 +549,19 @@
       "Crucifixión",
       "Resurrección"
     ],
-    "correctOrder": [0, 1, 2, 3],
+    "correctOrder": [
+      0,
+      1,
+      2,
+      3
+    ],
     "correctIndex": 0,
     "explanation": "Del domingo de ramos al domingo de resurrección.",
     "reference": "Mateo 21—28",
-    "tags": ["jesus", "pasion"],
+    "tags": [
+      "jesus",
+      "pasion"
+    ],
     "difficulty": 1
   },
   {
@@ -388,14 +571,28 @@
     "options": [],
     "correctIndex": 0,
     "pairs": [
-      {"left": "Isaías", "right": "El Siervo Sufriente"},
-      {"left": "Jeremías", "right": "Nuevo pacto en el corazón"},
-      {"left": "Ezequiel", "right": "Huesos secos revividos"},
-      {"left": "Jonás", "right": "Misión a Nínive"}
+      {
+        "left": "Isaías",
+        "right": "El Siervo Sufriente"
+      },
+      {
+        "left": "Jeremías",
+        "right": "Nuevo pacto en el corazón"
+      },
+      {
+        "left": "Ezequiel",
+        "right": "Huesos secos revividos"
+      },
+      {
+        "left": "Jonás",
+        "right": "Misión a Nínive"
+      }
     ],
     "explanation": "Cada profeta lleva un mensaje distintivo del corazón de Dios.",
     "reference": "Profetas Mayores y Menores",
-    "tags": ["profetas"],
+    "tags": [
+      "profetas"
+    ],
     "difficulty": 2
   },
   {
@@ -405,14 +602,28 @@
     "options": [],
     "correctIndex": 0,
     "pairs": [
-      {"left": "Pablo", "right": "Romanos"},
-      {"left": "Juan", "right": "Apocalipsis"},
-      {"left": "Pedro", "right": "1 Pedro"},
-      {"left": "Santiago", "right": "Santiago"}
+      {
+        "left": "Pablo",
+        "right": "Romanos"
+      },
+      {
+        "left": "Juan",
+        "right": "Apocalipsis"
+      },
+      {
+        "left": "Pedro",
+        "right": "1 Pedro"
+      },
+      {
+        "left": "Santiago",
+        "right": "Santiago"
+      }
     ],
     "explanation": "Identifica la voz pastoral detrás de cada libro.",
     "reference": "Nuevo Testamento",
-    "tags": ["apostoles"],
+    "tags": [
+      "apostoles"
+    ],
     "difficulty": 2
   },
   {
@@ -429,7 +640,9 @@
     "ttsEnabled": true,
     "explanation": "El versículo más citado del Nuevo Testamento.",
     "reference": "Juan 3:16",
-    "tags": ["evangelio"],
+    "tags": [
+      "evangelio"
+    ],
     "difficulty": 1
   },
   {
@@ -446,7 +659,9 @@
     "ttsEnabled": true,
     "explanation": "Apertura del salmo pastoral de David.",
     "reference": "Salmos 23:1",
-    "tags": ["confianza"],
+    "tags": [
+      "confianza"
+    ],
     "difficulty": 1
   },
   {
@@ -462,7 +677,10 @@
     "correctIndex": 1,
     "explanation": "«Huye también de las pasiones juveniles, y sigue la justicia» — escapar + buscar comunión.",
     "reference": "2 Timoteo 2:22",
-    "tags": ["tentacion", "victoria"],
+    "tags": [
+      "tentacion",
+      "victoria"
+    ],
     "difficulty": 2
   },
   {
@@ -478,957 +696,1587 @@
     "correctIndex": 2,
     "explanation": "Mateo 18:15 — la reconciliación empieza en privado, con humildad.",
     "reference": "Mateo 18:15",
-    "tags": ["relaciones", "perdon"],
+    "tags": [
+      "relaciones",
+      "perdon"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_mc_zacarias",
     "type": "multiple_choice",
     "prompt": "¿Quién fue el padre de Juan el Bautista?",
-    "options": ["Zacarías", "Simeón", "José", "Elí"],
+    "options": [
+      "Zacarías",
+      "Simeón",
+      "José",
+      "Elí"
+    ],
     "correctIndex": 0,
     "explanation": "Lucas 1 presenta a Zacarías y Elisabet como los padres de Juan el Bautista.",
     "reference": "Lucas 1:5-13",
-    "tags": ["evangelios", "juan_bautista"],
+    "tags": [
+      "evangelios",
+      "juan_bautista"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_cana",
     "type": "multiple_choice",
     "prompt": "¿Cuál fue la primera señal pública de Jesús registrada por Juan?",
-    "options": ["Sanar a un ciego", "Convertir agua en vino", "Multiplicar panes", "Caminar sobre el mar"],
+    "options": [
+      "Sanar a un ciego",
+      "Convertir agua en vino",
+      "Multiplicar panes",
+      "Caminar sobre el mar"
+    ],
     "correctIndex": 1,
     "explanation": "En Caná de Galilea Jesús convirtió el agua en vino, manifestando su gloria.",
     "reference": "Juan 2:1-11",
-    "tags": ["jesus", "milagros"],
+    "tags": [
+      "jesus",
+      "milagros"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_jerico",
     "type": "multiple_choice",
     "prompt": "¿Qué ciudad cayó después de que Israel marchara alrededor de sus muros?",
-    "options": ["Ai", "Jerusalén", "Jericó", "Betel"],
+    "options": [
+      "Ai",
+      "Jerusalén",
+      "Jericó",
+      "Betel"
+    ],
     "correctIndex": 2,
     "explanation": "Jericó cayó cuando Israel obedeció las instrucciones dadas a Josué.",
     "reference": "Josué 6",
-    "tags": ["historia", "obediencia"],
+    "tags": [
+      "historia",
+      "obediencia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_rahab",
     "type": "multiple_choice",
     "prompt": "¿Quién escondió a los espías israelitas en Jericó?",
-    "options": ["Débora", "Rahab", "Jael", "Rut"],
+    "options": [
+      "Débora",
+      "Rahab",
+      "Jael",
+      "Rut"
+    ],
     "correctIndex": 1,
     "explanation": "Rahab protegió a los espías y fue preservada por su fe.",
     "reference": "Josué 2; Hebreos 11:31",
-    "tags": ["fe", "josue"],
+    "tags": [
+      "fe",
+      "josue"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_esteban",
     "type": "multiple_choice",
     "prompt": "¿Quién fue el primer mártir cristiano mencionado en Hechos?",
-    "options": ["Esteban", "Jacobo", "Felipe", "Bernabé"],
+    "options": [
+      "Esteban",
+      "Jacobo",
+      "Felipe",
+      "Bernabé"
+    ],
     "correctIndex": 0,
     "explanation": "Esteban dio testimonio de Cristo y fue apedreado mientras oraba por sus enemigos.",
     "reference": "Hechos 7",
-    "tags": ["iglesia", "testimonio"],
+    "tags": [
+      "iglesia",
+      "testimonio"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_mc_mateo",
     "type": "multiple_choice",
     "prompt": "¿Qué discípulo era cobrador de impuestos antes de seguir a Jesús?",
-    "options": ["Tomás", "Mateo", "Andrés", "Natanael"],
+    "options": [
+      "Tomás",
+      "Mateo",
+      "Andrés",
+      "Natanael"
+    ],
     "correctIndex": 1,
     "explanation": "Mateo, también llamado Leví, dejó el banco de los tributos para seguir a Jesús.",
     "reference": "Mateo 9:9",
-    "tags": ["discipulos", "llamado"],
+    "tags": [
+      "discipulos",
+      "llamado"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_josue",
     "type": "multiple_choice",
     "prompt": "¿Quién lideró a Israel para entrar en la tierra prometida después de Moisés?",
-    "options": ["Caleb", "Josué", "Aarón", "Samuel"],
+    "options": [
+      "Caleb",
+      "Josué",
+      "Aarón",
+      "Samuel"
+    ],
     "correctIndex": 1,
     "explanation": "Josué fue comisionado para guiar al pueblo tras la muerte de Moisés.",
     "reference": "Josué 1:1-9",
-    "tags": ["liderazgo", "promesa"],
+    "tags": [
+      "liderazgo",
+      "promesa"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_ana",
     "type": "multiple_choice",
     "prompt": "¿Quién fue la madre de Samuel?",
-    "options": ["Ana", "Penina", "Mical", "Abigail"],
+    "options": [
+      "Ana",
+      "Penina",
+      "Mical",
+      "Abigail"
+    ],
     "correctIndex": 0,
     "explanation": "Ana oró con amargura de alma y dedicó a Samuel al Señor.",
     "reference": "1 Samuel 1",
-    "tags": ["oracion", "samuel"],
+    "tags": [
+      "oracion",
+      "samuel"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_lazaro",
     "type": "multiple_choice",
     "prompt": "¿A quién resucitó Jesús después de cuatro días en la tumba?",
-    "options": ["Jairo", "Lázaro", "Esteban", "Eutico"],
+    "options": [
+      "Jairo",
+      "Lázaro",
+      "Esteban",
+      "Eutico"
+    ],
     "correctIndex": 1,
     "explanation": "Jesús llamó a Lázaro fuera del sepulcro en Betania.",
     "reference": "Juan 11",
-    "tags": ["jesus", "resurreccion"],
+    "tags": [
+      "jesus",
+      "resurreccion"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_carmelo",
     "type": "multiple_choice",
     "prompt": "¿Qué profeta confrontó a los profetas de Baal en el monte Carmelo?",
-    "options": ["Eliseo", "Elías", "Isaías", "Amós"],
+    "options": [
+      "Eliseo",
+      "Elías",
+      "Isaías",
+      "Amós"
+    ],
     "correctIndex": 1,
     "explanation": "Elías oró y Dios respondió con fuego, mostrando que Él es Dios.",
     "reference": "1 Reyes 18",
-    "tags": ["profetas", "idolatria"],
+    "tags": [
+      "profetas",
+      "idolatria"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_zaqueo",
     "type": "multiple_choice",
     "prompt": "¿Quién subió a un sicómoro para ver a Jesús?",
-    "options": ["Nicodemo", "Zaqueo", "Bartimeo", "Felipe"],
+    "options": [
+      "Nicodemo",
+      "Zaqueo",
+      "Bartimeo",
+      "Felipe"
+    ],
     "correctIndex": 1,
     "explanation": "Zaqueo buscó ver a Jesús y recibió una visita que transformó su casa.",
     "reference": "Lucas 19:1-10",
-    "tags": ["conversion", "jesus"],
+    "tags": [
+      "conversion",
+      "jesus"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_pedro_niega",
     "type": "multiple_choice",
     "prompt": "¿Qué discípulo negó a Jesús tres veces antes de que cantara el gallo?",
-    "options": ["Juan", "Pedro", "Tomás", "Judas Tadeo"],
+    "options": [
+      "Juan",
+      "Pedro",
+      "Tomás",
+      "Judas Tadeo"
+    ],
     "correctIndex": 1,
     "explanation": "Pedro negó conocer a Jesús, pero luego fue restaurado por gracia.",
     "reference": "Lucas 22:54-62; Juan 21",
-    "tags": ["pedro", "restauracion"],
+    "tags": [
+      "pedro",
+      "restauracion"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_jose_egipto",
     "type": "multiple_choice",
     "prompt": "¿Qué hijo de Jacob fue vendido por sus hermanos y llegó a gobernar en Egipto?",
-    "options": ["Rubén", "Judá", "José", "Benjamín"],
+    "options": [
+      "Rubén",
+      "Judá",
+      "José",
+      "Benjamín"
+    ],
     "correctIndex": 2,
     "explanation": "Dios usó el sufrimiento de José para preservar a muchas vidas.",
     "reference": "Génesis 37—50",
-    "tags": ["providencia", "jose"],
+    "tags": [
+      "providencia",
+      "jose"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_jonas",
     "type": "multiple_choice",
     "prompt": "¿Qué profeta huyó rumbo a Tarsis cuando Dios lo envió a Nínive?",
-    "options": ["Jonás", "Oseas", "Nahúm", "Habacuc"],
+    "options": [
+      "Jonás",
+      "Oseas",
+      "Nahúm",
+      "Habacuc"
+    ],
     "correctIndex": 0,
     "explanation": "Jonás huyó, pero Dios lo redirigió para llevar misericordia a Nínive.",
     "reference": "Jonás 1",
-    "tags": ["mision", "misericordia"],
+    "tags": [
+      "mision",
+      "misericordia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_ester",
     "type": "multiple_choice",
     "prompt": "¿Qué reina arriesgó su vida para interceder por su pueblo?",
-    "options": ["Vasti", "Ester", "Jezabel", "Atalía"],
+    "options": [
+      "Vasti",
+      "Ester",
+      "Jezabel",
+      "Atalía"
+    ],
     "correctIndex": 1,
     "explanation": "Ester se presentó ante el rey para pedir salvación para los judíos.",
     "reference": "Ester 4—7",
-    "tags": ["intercesion", "valentia"],
+    "tags": [
+      "intercesion",
+      "valentia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_proverbios",
     "type": "multiple_choice",
     "prompt": "¿Qué libro bíblico reúne muchas enseñanzas breves de sabiduría práctica?",
-    "options": ["Proverbios", "Levítico", "Miqueas", "Filemón"],
+    "options": [
+      "Proverbios",
+      "Levítico",
+      "Miqueas",
+      "Filemón"
+    ],
     "correctIndex": 0,
     "explanation": "Proverbios enseña sabiduría para vivir delante de Dios en lo cotidiano.",
     "reference": "Proverbios 1:1-7",
-    "tags": ["sabiduria"],
+    "tags": [
+      "sabiduria"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_tabernaculo",
     "type": "multiple_choice",
     "prompt": "¿Cómo se llamaba el santuario portátil de Israel en el desierto?",
-    "options": ["Templo", "Tabernáculo", "Sinagoga", "Palacio"],
+    "options": [
+      "Templo",
+      "Tabernáculo",
+      "Sinagoga",
+      "Palacio"
+    ],
     "correctIndex": 1,
     "explanation": "El tabernáculo era el lugar de encuentro con Dios antes del templo.",
     "reference": "Éxodo 25—40",
-    "tags": ["adoracion", "exodo"],
+    "tags": [
+      "adoracion",
+      "exodo"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_mc_pablo_roma",
     "type": "multiple_choice",
     "prompt": "¿Qué apóstol llegó preso a Roma para dar testimonio de Cristo?",
-    "options": ["Pablo", "Pedro", "Santiago", "Andrés"],
+    "options": [
+      "Pablo",
+      "Pedro",
+      "Santiago",
+      "Andrés"
+    ],
     "correctIndex": 0,
     "explanation": "Hechos termina con Pablo en Roma predicando el reino de Dios.",
     "reference": "Hechos 28",
-    "tags": ["mision", "pablo"],
+    "tags": [
+      "mision",
+      "pablo"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_mc_fruto_paciencia",
     "type": "multiple_choice",
     "prompt": "¿Cuál de estas virtudes aparece en el fruto del Espíritu?",
-    "options": ["Venganza", "Paciencia", "Orgullo", "Envidia"],
+    "options": [
+      "Venganza",
+      "Paciencia",
+      "Orgullo",
+      "Envidia"
+    ],
     "correctIndex": 1,
     "explanation": "La paciencia forma parte del fruto que el Espíritu produce en el creyente.",
     "reference": "Gálatas 5:22-23",
-    "tags": ["caracter", "espiritu"],
+    "tags": [
+      "caracter",
+      "espiritu"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_moises_nilo",
     "type": "multiple_choice",
     "prompt": "¿Qué bebé fue colocado en una canasta en el río Nilo?",
-    "options": ["Samuel", "Moisés", "Isaac", "Juan"],
+    "options": [
+      "Samuel",
+      "Moisés",
+      "Isaac",
+      "Juan"
+    ],
     "correctIndex": 1,
     "explanation": "Moisés fue preservado por Dios aun bajo el decreto de Faraón.",
     "reference": "Éxodo 2:1-10",
-    "tags": ["moises", "providencia"],
+    "tags": [
+      "moises",
+      "providencia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_rut_booz",
     "type": "multiple_choice",
     "prompt": "¿Con quién se casó Rut, entrando en el linaje del rey David?",
-    "options": ["Booz", "Elimelec", "Obed", "Salmon"],
+    "options": [
+      "Booz",
+      "Elimelec",
+      "Obed",
+      "Salmon"
+    ],
     "correctIndex": 0,
     "explanation": "Booz redimió a Rut; de esa familia vino David y, finalmente, Cristo.",
     "reference": "Rut 4:13-22",
-    "tags": ["redencion", "rut"],
+    "tags": [
+      "redencion",
+      "rut"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_mc_horno",
     "type": "multiple_choice",
     "prompt": "¿Quiénes fueron librados del horno de fuego en Babilonia?",
-    "options": ["Daniel, Ananías y Misael", "Sadrac, Mesac y Abed-nego", "Elías y Eliseo", "Pedro y Juan"],
+    "options": [
+      "Daniel, Ananías y Misael",
+      "Sadrac, Mesac y Abed-nego",
+      "Elías y Eliseo",
+      "Pedro y Juan"
+    ],
     "correctIndex": 1,
     "explanation": "Los tres amigos de Daniel se negaron a adorar la estatua y Dios los libró.",
     "reference": "Daniel 3",
-    "tags": ["fidelidad", "daniel"],
+    "tags": [
+      "fidelidad",
+      "daniel"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_mc_noe_arca",
     "type": "multiple_choice",
     "prompt": "¿Quién construyó el arca antes del diluvio?",
-    "options": ["Noé", "Enoc", "Set", "Matusalén"],
+    "options": [
+      "Noé",
+      "Enoc",
+      "Set",
+      "Matusalén"
+    ],
     "correctIndex": 0,
     "explanation": "Noé obedeció a Dios y preparó el arca para salvación de su casa.",
     "reference": "Génesis 6—9",
-    "tags": ["fe", "obediencia"],
+    "tags": [
+      "fe",
+      "obediencia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_sermon_monte",
     "type": "multiple_choice",
     "prompt": "¿En qué sección enseña Jesús las bienaventuranzas?",
-    "options": ["Sermón del Monte", "Discurso del aposento alto", "Concilio de Jerusalén", "Viaje a Emaús"],
+    "options": [
+      "Sermón del Monte",
+      "Discurso del aposento alto",
+      "Concilio de Jerusalén",
+      "Viaje a Emaús"
+    ],
     "correctIndex": 0,
     "explanation": "Las bienaventuranzas abren el Sermón del Monte en Mateo 5.",
     "reference": "Mateo 5:1-12",
-    "tags": ["sermon_monte"],
+    "tags": [
+      "sermon_monte"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_mc_buen_samaritano",
     "type": "multiple_choice",
     "prompt": "En la parábola, ¿quién mostró misericordia al hombre herido?",
-    "options": ["El sacerdote", "El levita", "El samaritano", "El posadero"],
+    "options": [
+      "El sacerdote",
+      "El levita",
+      "El samaritano",
+      "El posadero"
+    ],
     "correctIndex": 2,
     "explanation": "Jesús muestra que el prójimo se ama con misericordia práctica.",
     "reference": "Lucas 10:25-37",
-    "tags": ["misericordia", "projimo"],
+    "tags": [
+      "misericordia",
+      "projimo"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_noe_arca",
     "type": "true_false",
     "prompt": "Noé construyó el arca por obediencia a la palabra de Dios.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Hebreos 11:7 presenta a Noé actuando por fe ante lo que aún no se veía.",
     "reference": "Hebreos 11:7",
-    "tags": ["fe", "obediencia"],
+    "tags": [
+      "fe",
+      "obediencia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_rut_moabita",
     "type": "true_false",
     "prompt": "Rut era moabita y decidió permanecer con Noemí.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Rut 1 muestra su lealtad a Noemí y al Dios de Israel.",
     "reference": "Rut 1:16-17",
-    "tags": ["lealtad", "rut"],
+    "tags": [
+      "lealtad",
+      "rut"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_ester_nombre_dios",
     "type": "true_false",
     "prompt": "El libro de Ester menciona explícitamente el nombre de Dios muchas veces.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "Ester no menciona explícitamente el nombre de Dios, aunque su providencia atraviesa todo el relato.",
     "reference": "Ester",
-    "tags": ["providencia"],
+    "tags": [
+      "providencia"
+    ],
     "difficulty": 3
   },
   {
     "id": "q_add_tf_moises_canaan",
     "type": "true_false",
     "prompt": "Moisés entró con Israel a la tierra prometida.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "Moisés vio la tierra desde lejos, pero Josué guió al pueblo para entrar.",
     "reference": "Deuteronomio 34; Josué 1",
-    "tags": ["moises", "josue"],
+    "tags": [
+      "moises",
+      "josue"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_tf_josue_sol",
     "type": "true_false",
     "prompt": "Josué pidió que el sol se detuviera durante una batalla.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Josué 10 registra ese día extraordinario de intervención divina.",
     "reference": "Josué 10:12-14",
-    "tags": ["josue", "milagros"],
+    "tags": [
+      "josue",
+      "milagros"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_tf_lucas_hechos",
     "type": "true_false",
     "prompt": "Lucas escribió también el libro de Hechos.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Lucas y Hechos están dirigidos a Teófilo y forman una obra en dos partes.",
     "reference": "Lucas 1:1-4; Hechos 1:1",
-    "tags": ["nuevo_testamento"],
+    "tags": [
+      "nuevo_testamento"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_tf_apocalipsis_pablo",
     "type": "true_false",
     "prompt": "Apocalipsis fue escrito por el apóstol Pablo.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "Apocalipsis se presenta como revelación recibida por Juan.",
     "reference": "Apocalipsis 1:1-2",
-    "tags": ["apocalipsis"],
+    "tags": [
+      "apocalipsis"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_belen",
     "type": "true_false",
     "prompt": "Jesús nació en Belén.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Mateo y Lucas ubican el nacimiento de Jesús en Belén.",
     "reference": "Mateo 2:1; Lucas 2:4-7",
-    "tags": ["navidad", "jesus"],
+    "tags": [
+      "navidad",
+      "jesus"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_nicodemo_noche",
     "type": "true_false",
     "prompt": "Nicodemo visitó a Jesús de noche.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Juan 3 introduce a Nicodemo viniendo a Jesús de noche.",
     "reference": "Juan 3:1-2",
-    "tags": ["nuevo_nacimiento"],
+    "tags": [
+      "nuevo_nacimiento"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_pascua_egipto",
     "type": "true_false",
     "prompt": "La Pascua recuerda la liberación de Israel de Egipto.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Éxodo 12 establece la Pascua como memorial de la salida de Egipto.",
     "reference": "Éxodo 12",
-    "tags": ["pascua", "exodo"],
+    "tags": [
+      "pascua",
+      "exodo"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_gedeon_300",
     "type": "true_false",
     "prompt": "Gedeón venció a los madianitas con un ejército reducido a 300 hombres.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Dios redujo el ejército para que la victoria no se atribuyera a la fuerza humana.",
     "reference": "Jueces 7",
-    "tags": ["fe", "jueces"],
+    "tags": [
+      "fe",
+      "jueces"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_tf_samaritano_sacerdote",
     "type": "true_false",
     "prompt": "En la parábola, el sacerdote fue quien finalmente ayudó al hombre herido.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "El sacerdote y el levita pasaron de largo; el samaritano mostró misericordia.",
     "reference": "Lucas 10:31-34",
-    "tags": ["misericordia"],
+    "tags": [
+      "misericordia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_eliseo_doble",
     "type": "true_false",
     "prompt": "Eliseo pidió una doble porción del espíritu que había en Elías.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Eliseo pidió herencia espiritual para continuar el ministerio profético.",
     "reference": "2 Reyes 2:9",
-    "tags": ["profetas"],
+    "tags": [
+      "profetas"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_tf_pedro_agua",
     "type": "true_false",
     "prompt": "Pedro caminó sobre el agua hacia Jesús.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Pedro caminó mientras miraba a Jesús, pero comenzó a hundirse al temer.",
     "reference": "Mateo 14:28-31",
-    "tags": ["fe", "pedro"],
+    "tags": [
+      "fe",
+      "pedro"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_zebedeo",
     "type": "true_false",
     "prompt": "Santiago y Juan eran hijos de Zebedeo.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Los evangelios los presentan como hermanos, hijos de Zebedeo.",
     "reference": "Mateo 4:21",
-    "tags": ["discipulos"],
+    "tags": [
+      "discipulos"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_maria_magdalena_marta",
     "type": "true_false",
     "prompt": "María Magdalena era la hermana de Marta y Lázaro.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "La hermana de Marta y Lázaro es María de Betania; no se identifica como María Magdalena.",
     "reference": "Juan 11:1-2",
-    "tags": ["evangelios"],
+    "tags": [
+      "evangelios"
+    ],
     "difficulty": 3
   },
   {
     "id": "q_add_tf_job_falta_fe",
     "type": "true_false",
     "prompt": "Job sufrió porque no tenía fe.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 1,
     "explanation": "Job es presentado como íntegro; el libro explora sufrimiento, soberanía y fe probada.",
     "reference": "Job 1:1, 1:8",
-    "tags": ["sufrimiento", "fe"],
+    "tags": [
+      "sufrimiento",
+      "fe"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_tf_mana_desierto",
     "type": "true_false",
     "prompt": "Dios alimentó a Israel con maná en el desierto.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "El maná enseñaba dependencia diaria del Señor.",
     "reference": "Éxodo 16",
-    "tags": ["provision", "exodo"],
+    "tags": [
+      "provision",
+      "exodo"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_tf_priscila_aquila",
     "type": "true_false",
     "prompt": "Priscila y Aquila trabajaron junto a Pablo.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "Hechos 18 muestra su colaboración con Pablo y su ayuda a Apolos.",
     "reference": "Hechos 18",
-    "tags": ["iglesia", "servicio"],
+    "tags": [
+      "iglesia",
+      "servicio"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_tf_matias_judas",
     "type": "true_false",
     "prompt": "Matías fue elegido para ocupar el lugar de Judas entre los apóstoles.",
-    "options": ["Verdadero", "Falso"],
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
     "correctIndex": 0,
     "explanation": "En Hechos 1, Matías fue contado con los once apóstoles.",
     "reference": "Hechos 1:23-26",
-    "tags": ["apostoles"],
+    "tags": [
+      "apostoles"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_cain",
     "type": "who_said",
     "prompt": "¿Quién dijo: «¿Soy yo acaso guarda de mi hermano?»",
-    "options": ["Caín", "Abel", "Esaú", "Rubén"],
+    "options": [
+      "Caín",
+      "Abel",
+      "Esaú",
+      "Rubén"
+    ],
     "correctIndex": 0,
     "explanation": "Caín respondió así después de matar a Abel.",
     "reference": "Génesis 4:9",
-    "tags": ["pecado", "genesis"],
+    "tags": [
+      "pecado",
+      "genesis"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_samuel",
     "type": "who_said",
     "prompt": "¿Quién respondió: «Habla, porque tu siervo oye»?",
-    "options": ["Samuel", "Elí", "David", "Natán"],
+    "options": [
+      "Samuel",
+      "Elí",
+      "David",
+      "Natán"
+    ],
     "correctIndex": 0,
     "explanation": "Samuel aprendió a reconocer la voz de Dios siendo joven.",
     "reference": "1 Samuel 3:10",
-    "tags": ["llamado", "escucha"],
+    "tags": [
+      "llamado",
+      "escucha"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ws_jose_tentacion",
     "type": "who_said",
     "prompt": "¿Quién dijo: «¿Cómo haría yo este grande mal, y pecaría contra Dios?»",
-    "options": ["Daniel", "José", "Nehemías", "Moisés"],
+    "options": [
+      "Daniel",
+      "José",
+      "Nehemías",
+      "Moisés"
+    ],
     "correctIndex": 1,
     "explanation": "José resistió la tentación en casa de Potifar por temor de Dios.",
     "reference": "Génesis 39:9",
-    "tags": ["tentacion", "integridad"],
+    "tags": [
+      "tentacion",
+      "integridad"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_rut",
     "type": "who_said",
     "prompt": "¿Quién dijo: «Tu pueblo será mi pueblo, y tu Dios mi Dios»?",
-    "options": ["Rut", "Ester", "Ana", "Rebeca"],
+    "options": [
+      "Rut",
+      "Ester",
+      "Ana",
+      "Rebeca"
+    ],
     "correctIndex": 0,
     "explanation": "Rut expresó lealtad a Noemí y fe en el Dios de Israel.",
     "reference": "Rut 1:16",
-    "tags": ["lealtad", "fe"],
+    "tags": [
+      "lealtad",
+      "fe"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ws_josue_casa",
     "type": "who_said",
     "prompt": "¿Quién dijo: «Yo y mi casa serviremos a Jehová»?",
-    "options": ["Josué", "Moisés", "Caleb", "Samuel"],
+    "options": [
+      "Josué",
+      "Moisés",
+      "Caleb",
+      "Samuel"
+    ],
     "correctIndex": 0,
     "explanation": "Josué llamó al pueblo a escoger fidelidad al Señor.",
     "reference": "Josué 24:15",
-    "tags": ["familia", "decision"],
+    "tags": [
+      "familia",
+      "decision"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ws_david_sal51",
     "type": "who_said",
     "prompt": "¿Quién confesó: «Contra ti, contra ti solo he pecado»?",
-    "options": ["Saúl", "David", "Salomón", "Acab"],
+    "options": [
+      "Saúl",
+      "David",
+      "Salomón",
+      "Acab"
+    ],
     "correctIndex": 1,
     "explanation": "David ora el Salmo 51 después de ser confrontado por Natán.",
     "reference": "Salmos 51:4",
-    "tags": ["arrepentimiento", "david"],
+    "tags": [
+      "arrepentimiento",
+      "david"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_pedro_cristo",
     "type": "who_said",
     "prompt": "¿Quién declaró a Jesús: «Tú eres el Cristo, el Hijo del Dios viviente»?",
-    "options": ["Pedro", "Juan", "Tomás", "Natanael"],
+    "options": [
+      "Pedro",
+      "Juan",
+      "Tomás",
+      "Natanael"
+    ],
     "correctIndex": 0,
     "explanation": "Pedro confesó la identidad de Jesús en Cesarea de Filipo.",
     "reference": "Mateo 16:16",
-    "tags": ["identidad_cristo", "pedro"],
+    "tags": [
+      "identidad_cristo",
+      "pedro"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ws_tomas",
     "type": "who_said",
     "prompt": "¿Quién dijo a Jesús resucitado: «¡Señor mío, y Dios mío!»?",
-    "options": ["Tomás", "Pedro", "Jacobo", "Felipe"],
+    "options": [
+      "Tomás",
+      "Pedro",
+      "Jacobo",
+      "Felipe"
+    ],
     "correctIndex": 0,
     "explanation": "Tomás respondió con adoración al ver al Cristo resucitado.",
     "reference": "Juan 20:28",
-    "tags": ["resurreccion", "fe"],
+    "tags": [
+      "resurreccion",
+      "fe"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ws_plata_oro",
     "type": "who_said",
     "prompt": "¿Quién dijo: «No tengo plata ni oro; pero lo que tengo te doy»?",
-    "options": ["Pedro", "Pablo", "Esteban", "Bernabé"],
+    "options": [
+      "Pedro",
+      "Pablo",
+      "Esteban",
+      "Bernabé"
+    ],
     "correctIndex": 0,
     "explanation": "Pedro habló así al hombre cojo en la puerta del templo.",
     "reference": "Hechos 3:6",
-    "tags": ["sanidad", "iglesia"],
+    "tags": [
+      "sanidad",
+      "iglesia"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_incredulidad",
     "type": "who_said",
     "prompt": "¿Quién clamó: «Creo; ayuda mi incredulidad»?",
-    "options": ["El padre de un muchacho afligido", "Nicodemo", "Zaqueo", "Jairo"],
+    "options": [
+      "El padre de un muchacho afligido",
+      "Nicodemo",
+      "Zaqueo",
+      "Jairo"
+    ],
     "correctIndex": 0,
     "explanation": "Un padre expresa una fe honesta y necesitada ante Jesús.",
     "reference": "Marcos 9:24",
-    "tags": ["fe", "oracion"],
+    "tags": [
+      "fe",
+      "oracion"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_aumenta_fe",
     "type": "who_said",
     "prompt": "¿Quiénes dijeron a Jesús: «Auméntanos la fe»?",
-    "options": ["Los apóstoles", "Los fariseos", "Los magos", "Los samaritanos"],
+    "options": [
+      "Los apóstoles",
+      "Los fariseos",
+      "Los magos",
+      "Los samaritanos"
+    ],
     "correctIndex": 0,
     "explanation": "Los apóstoles pidieron fe para obedecer enseñanzas difíciles.",
     "reference": "Lucas 17:5",
-    "tags": ["fe", "discipulado"],
+    "tags": [
+      "fe",
+      "discipulado"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_getsemani",
     "type": "who_said",
     "prompt": "¿Quién oró: «No se haga mi voluntad, sino la tuya»?",
-    "options": ["Jesús", "Pablo", "Jeremías", "Moisés"],
+    "options": [
+      "Jesús",
+      "Pablo",
+      "Jeremías",
+      "Moisés"
+    ],
     "correctIndex": 0,
     "explanation": "Jesús se sometió al Padre en Getsemaní antes de la cruz.",
     "reference": "Lucas 22:42",
-    "tags": ["jesus", "obediencia"],
+    "tags": [
+      "jesus",
+      "obediencia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ws_marta_resurreccion",
     "type": "who_said",
     "prompt": "¿Quién dijo sobre Lázaro: «Yo sé que resucitará en la resurrección»?",
-    "options": ["Marta", "María Magdalena", "María madre de Jesús", "Elisabet"],
+    "options": [
+      "Marta",
+      "María Magdalena",
+      "María madre de Jesús",
+      "Elisabet"
+    ],
     "correctIndex": 0,
     "explanation": "Marta habló con Jesús antes de que Lázaro fuera levantado.",
     "reference": "Juan 11:24",
-    "tags": ["resurreccion", "fe"],
+    "tags": [
+      "resurreccion",
+      "fe"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_raboni",
     "type": "who_said",
     "prompt": "¿Quién llamó a Jesús resucitado «Raboni» en el huerto?",
-    "options": ["María Magdalena", "Juana", "Salomé", "Marta"],
+    "options": [
+      "María Magdalena",
+      "Juana",
+      "Salomé",
+      "Marta"
+    ],
     "correctIndex": 0,
     "explanation": "María Magdalena reconoció a Jesús cuando Él la llamó por nombre.",
     "reference": "Juan 20:16",
-    "tags": ["resurreccion", "jesus"],
+    "tags": [
+      "resurreccion",
+      "jesus"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ws_vivir_cristo",
     "type": "who_said",
     "prompt": "¿Quién escribió: «Para mí el vivir es Cristo, y el morir es ganancia»?",
-    "options": ["Pablo", "Pedro", "Juan", "Santiago"],
+    "options": [
+      "Pablo",
+      "Pedro",
+      "Juan",
+      "Santiago"
+    ],
     "correctIndex": 0,
     "explanation": "Pablo expresa una vida centrada totalmente en Cristo.",
     "reference": "Filipenses 1:21",
-    "tags": ["pablo", "identidad"],
+    "tags": [
+      "pablo",
+      "identidad"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ref_amor_sufrido",
     "type": "choose_reference",
     "prompt": "«El amor es sufrido, es benigno...»",
-    "options": ["1 Corintios 13:4", "Romanos 12:1", "Efesios 4:32", "1 Juan 1:9"],
+    "options": [
+      "1 Corintios 13:4",
+      "Romanos 12:1",
+      "Efesios 4:32",
+      "1 Juan 1:9"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "1 Corintios 13 describe el amor que refleja el carácter de Cristo.",
     "reference": "1 Corintios 13:4",
-    "tags": ["amor"],
+    "tags": [
+      "amor"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_lampara",
     "type": "choose_reference",
     "prompt": "«Lámpara es a mis pies tu palabra, y lumbrera a mi camino.»",
-    "options": ["Salmos 119:105", "Salmos 23:4", "Proverbios 4:23", "Isaías 55:11"],
+    "options": [
+      "Salmos 119:105",
+      "Salmos 23:4",
+      "Proverbios 4:23",
+      "Isaías 55:11"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "El Salmo 119 celebra la Palabra de Dios como guía segura.",
     "reference": "Salmos 119:105",
-    "tags": ["palabra", "guia"],
+    "tags": [
+      "palabra",
+      "guia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_reino_primero",
     "type": "choose_reference",
     "prompt": "«Mas buscad primeramente el reino de Dios y su justicia...»",
-    "options": ["Mateo 6:33", "Mateo 7:7", "Lucas 15:10", "Juan 15:5"],
+    "options": [
+      "Mateo 6:33",
+      "Mateo 7:7",
+      "Lucas 15:10",
+      "Juan 15:5"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Jesús enseña a priorizar el reino sobre la ansiedad por las necesidades.",
     "reference": "Mateo 6:33",
-    "tags": ["prioridades", "reino"],
+    "tags": [
+      "prioridades",
+      "reino"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_fe_certeza",
     "type": "choose_reference",
     "prompt": "«Es, pues, la fe la certeza de lo que se espera...»",
-    "options": ["Hebreos 11:1", "Romanos 5:1", "Santiago 2:17", "Gálatas 3:11"],
+    "options": [
+      "Hebreos 11:1",
+      "Romanos 5:1",
+      "Santiago 2:17",
+      "Gálatas 3:11"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Hebreos 11 introduce ejemplos de fe perseverante.",
     "reference": "Hebreos 11:1",
-    "tags": ["fe"],
+    "tags": [
+      "fe"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_justo_fe",
     "type": "choose_reference",
     "prompt": "«El justo por su fe vivirá.»",
-    "options": ["Habacuc 2:4", "Miqueas 6:8", "Nahúm 1:7", "Sofonías 3:17"],
+    "options": [
+      "Habacuc 2:4",
+      "Miqueas 6:8",
+      "Nahúm 1:7",
+      "Sofonías 3:17"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Habacuc aprende a confiar en Dios aun cuando no entiende todo.",
     "reference": "Habacuc 2:4",
-    "tags": ["fe", "profetas"],
+    "tags": [
+      "fe",
+      "profetas"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_ref_crea_mi",
     "type": "choose_reference",
     "prompt": "«Crea en mí, oh Dios, un corazón limpio...»",
-    "options": ["Salmos 51:10", "Salmos 19:14", "Salmos 34:18", "Salmos 91:1"],
+    "options": [
+      "Salmos 51:10",
+      "Salmos 19:14",
+      "Salmos 34:18",
+      "Salmos 91:1"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "David pide limpieza interior y renovación espiritual.",
     "reference": "Salmos 51:10",
-    "tags": ["arrepentimiento", "pureza"],
+    "tags": [
+      "arrepentimiento",
+      "pureza"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_luz_sal27",
     "type": "choose_reference",
     "prompt": "«Jehová es mi luz y mi salvación; ¿de quién temeré?»",
-    "options": ["Salmos 27:1", "Salmos 46:1", "Salmos 121:1", "Salmos 139:14"],
+    "options": [
+      "Salmos 27:1",
+      "Salmos 46:1",
+      "Salmos 121:1",
+      "Salmos 139:14"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "El Salmo 27 afirma confianza valiente en medio de oposición.",
     "reference": "Salmos 27:1",
-    "tags": ["confianza", "temor"],
+    "tags": [
+      "confianza",
+      "temor"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_ansiedad",
     "type": "choose_reference",
     "prompt": "«Echando toda vuestra ansiedad sobre él, porque él tiene cuidado de vosotros.»",
-    "options": ["1 Pedro 5:7", "Filipenses 2:5", "Hebreos 4:12", "Judas 1:24"],
+    "options": [
+      "1 Pedro 5:7",
+      "Filipenses 2:5",
+      "Hebreos 4:12",
+      "Judas 1:24"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Pedro llama a descansar la ansiedad en el cuidado real de Dios.",
     "reference": "1 Pedro 5:7",
-    "tags": ["ansiedad", "cuidado"],
+    "tags": [
+      "ansiedad",
+      "cuidado"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_armadura",
     "type": "choose_reference",
     "prompt": "«Vestíos de toda la armadura de Dios...»",
-    "options": ["Efesios 6:11", "Colosenses 3:12", "Romanos 8:1", "2 Corintios 5:17"],
+    "options": [
+      "Efesios 6:11",
+      "Colosenses 3:12",
+      "Romanos 8:1",
+      "2 Corintios 5:17"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Efesios 6 enseña la batalla espiritual y la armadura de Dios.",
     "reference": "Efesios 6:11",
-    "tags": ["batalla", "armadura"],
+    "tags": [
+      "batalla",
+      "armadura"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_fruto",
     "type": "choose_reference",
     "prompt": "«Mas el fruto del Espíritu es amor, gozo, paz...»",
-    "options": ["Gálatas 5:22-23", "Efesios 2:8-9", "Romanos 3:23", "Tito 2:11"],
+    "options": [
+      "Gálatas 5:22-23",
+      "Efesios 2:8-9",
+      "Romanos 3:23",
+      "Tito 2:11"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Pablo describe el carácter que el Espíritu produce.",
     "reference": "Gálatas 5:22-23",
-    "tags": ["espiritu", "caracter"],
+    "tags": [
+      "espiritu",
+      "caracter"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_vida_abundante",
     "type": "choose_reference",
     "prompt": "«Yo he venido para que tengan vida, y para que la tengan en abundancia.»",
-    "options": ["Juan 10:10", "Juan 1:1", "Juan 14:6", "Juan 17:3"],
+    "options": [
+      "Juan 10:10",
+      "Juan 1:1",
+      "Juan 14:6",
+      "Juan 17:3"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Jesús contrasta su misión de vida con la obra destructiva del ladrón.",
     "reference": "Juan 10:10",
-    "tags": ["vida", "jesus"],
+    "tags": [
+      "vida",
+      "jesus"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_limpio_corazon",
     "type": "choose_reference",
     "prompt": "«Bienaventurados los de limpio corazón, porque ellos verán a Dios.»",
-    "options": ["Mateo 5:8", "Mateo 6:21", "Lucas 6:38", "Marcos 10:45"],
+    "options": [
+      "Mateo 5:8",
+      "Mateo 6:21",
+      "Lucas 6:38",
+      "Marcos 10:45"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Una bienaventuranza que conecta pureza interior con visión de Dios.",
     "reference": "Mateo 5:8",
-    "tags": ["pureza", "sermon_monte"],
+    "tags": [
+      "pureza",
+      "sermon_monte"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_hacedores",
     "type": "choose_reference",
     "prompt": "«Sed hacedores de la palabra, y no tan solamente oidores...»",
-    "options": ["Santiago 1:22", "1 Pedro 1:16", "Hebreos 10:24", "Romanos 10:17"],
+    "options": [
+      "Santiago 1:22",
+      "1 Pedro 1:16",
+      "Hebreos 10:24",
+      "Romanos 10:17"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Santiago insiste en una fe que se convierte en obediencia concreta.",
     "reference": "Santiago 1:22",
-    "tags": ["obediencia", "palabra"],
+    "tags": [
+      "obediencia",
+      "palabra"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_transformacion",
     "type": "choose_reference",
     "prompt": "«No os conforméis a este siglo, sino transformaos...»",
-    "options": ["Romanos 12:2", "Romanos 8:28", "1 Corintios 10:13", "2 Corintios 12:9"],
+    "options": [
+      "Romanos 12:2",
+      "Romanos 8:28",
+      "1 Corintios 10:13",
+      "2 Corintios 12:9"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "La renovación de la mente permite discernir la voluntad de Dios.",
     "reference": "Romanos 12:2",
-    "tags": ["mente", "transformacion"],
+    "tags": [
+      "mente",
+      "transformacion"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_ref_escritura_inspirada",
     "type": "choose_reference",
     "prompt": "«Toda la Escritura es inspirada por Dios...»",
-    "options": ["2 Timoteo 3:16", "1 Timoteo 4:12", "Tito 3:5", "Filemón 1:6"],
+    "options": [
+      "2 Timoteo 3:16",
+      "1 Timoteo 4:12",
+      "Tito 3:5",
+      "Filemón 1:6"
+    ],
     "correctIndex": 0,
     "ttsEnabled": true,
     "explanation": "Pablo afirma la utilidad de la Escritura para enseñar, corregir e instruir.",
     "reference": "2 Timoteo 3:16",
-    "tags": ["escrituras", "doctrina"],
+    "tags": [
+      "escrituras",
+      "doctrina"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_sit_ansiedad",
     "type": "situational",
     "prompt": "Te despiertas con ansiedad por el futuro. ¿Qué respuesta bíblica conviene practicar primero?",
-    "options": ["Imaginar todos los escenarios", "Entregar la ansiedad en oración", "Evitar hablar con nadie", "Buscar distracción sin límite"],
+    "options": [
+      "Imaginar todos los escenarios",
+      "Entregar la ansiedad en oración",
+      "Evitar hablar con nadie",
+      "Buscar distracción sin límite"
+    ],
     "correctIndex": 1,
     "explanation": "1 Pedro 5:7 y Filipenses 4:6 llaman a llevar la ansiedad a Dios con confianza.",
     "reference": "1 Pedro 5:7; Filipenses 4:6",
-    "tags": ["ansiedad", "oracion"],
+    "tags": [
+      "ansiedad",
+      "oracion"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_sit_enojo",
     "type": "situational",
     "prompt": "Alguien te responde mal y quieres explotar. ¿Qué opción refleja mejor Proverbios?",
-    "options": ["Responder igual de fuerte", "Dar una respuesta blanda", "Callar para guardar rencor", "Humillarlo con sarcasmo"],
+    "options": [
+      "Responder igual de fuerte",
+      "Dar una respuesta blanda",
+      "Callar para guardar rencor",
+      "Humillarlo con sarcasmo"
+    ],
     "correctIndex": 1,
     "explanation": "La blanda respuesta quita la ira; la palabra áspera aumenta el furor.",
     "reference": "Proverbios 15:1",
-    "tags": ["ira", "sabiduria"],
+    "tags": [
+      "ira",
+      "sabiduria"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_sit_perdon",
     "type": "situational",
     "prompt": "Te cuesta perdonar a alguien. ¿Qué verdad debe guiar tu decisión?",
-    "options": ["Perdono sólo si lo merece", "Dios me perdonó primero en Cristo", "Perdonar es negar el daño", "La venganza me dará paz"],
+    "options": [
+      "Perdono sólo si lo merece",
+      "Dios me perdonó primero en Cristo",
+      "Perdonar es negar el daño",
+      "La venganza me dará paz"
+    ],
     "correctIndex": 1,
     "explanation": "Efesios 4:32 conecta nuestro perdón con el perdón recibido en Cristo.",
     "reference": "Efesios 4:32",
-    "tags": ["perdon", "gracia"],
+    "tags": [
+      "perdon",
+      "gracia"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_sit_decision",
     "type": "situational",
     "prompt": "Debes tomar una decisión importante. ¿Qué patrón bíblico es más sabio?",
-    "options": ["Decidir por impulso", "Buscar sabiduría de Dios y consejo prudente", "Copiar lo que todos hacen", "Esperar a que otro decida"],
+    "options": [
+      "Decidir por impulso",
+      "Buscar sabiduría de Dios y consejo prudente",
+      "Copiar lo que todos hacen",
+      "Esperar a que otro decida"
+    ],
     "correctIndex": 1,
     "explanation": "Santiago 1:5 invita a pedir sabiduría; Proverbios valora el consejo prudente.",
     "reference": "Santiago 1:5; Proverbios 11:14",
-    "tags": ["decisiones", "sabiduria"],
+    "tags": [
+      "decisiones",
+      "sabiduria"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_sit_orgullo",
     "type": "situational",
     "prompt": "Recibiste reconocimiento y notas orgullo creciendo. ¿Qué actitud protege tu corazón?",
-    "options": ["Recordar que todo don viene de Dios", "Compararte con otros", "Exigir más aplausos", "Ocultar tus errores"],
+    "options": [
+      "Recordar que todo don viene de Dios",
+      "Compararte con otros",
+      "Exigir más aplausos",
+      "Ocultar tus errores"
+    ],
     "correctIndex": 0,
     "explanation": "La humildad reconoce a Dios como fuente y evita construir identidad sobre aplausos.",
     "reference": "Santiago 1:17; 1 Pedro 5:5",
-    "tags": ["humildad", "identidad"],
+    "tags": [
+      "humildad",
+      "identidad"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_sit_envidia",
     "type": "situational",
     "prompt": "Ves que otra persona prospera y sientes envidia. ¿Qué práctica bíblica ayuda?",
-    "options": ["Celebrar el bien del otro y agradecer lo recibido", "Hablar mal de esa persona", "Medirte por sus logros", "Alejarte de Dios"],
+    "options": [
+      "Celebrar el bien del otro y agradecer lo recibido",
+      "Hablar mal de esa persona",
+      "Medirte por sus logros",
+      "Alejarte de Dios"
+    ],
     "correctIndex": 0,
     "explanation": "El amor no tiene envidia; la gratitud reordena el corazón delante de Dios.",
     "reference": "1 Corintios 13:4; 1 Tesalonicenses 5:18",
-    "tags": ["envidia", "gratitud"],
+    "tags": [
+      "envidia",
+      "gratitud"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_sit_cansancio",
     "type": "situational",
     "prompt": "Estás agotado espiritualmente. ¿Qué invitación de Jesús debes recordar?",
-    "options": ["Rinde más para ser amado", "Ven a mí y descansa", "Aíslate hasta poder solo", "Ignora tu cansancio"],
+    "options": [
+      "Rinde más para ser amado",
+      "Ven a mí y descansa",
+      "Aíslate hasta poder solo",
+      "Ignora tu cansancio"
+    ],
     "correctIndex": 1,
     "explanation": "Jesús llama a los trabajados y cargados a venir a Él para hallar descanso.",
     "reference": "Mateo 11:28-30",
-    "tags": ["descanso", "jesus"],
+    "tags": [
+      "descanso",
+      "jesus"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_sit_presion_grupo",
     "type": "situational",
     "prompt": "Tus amigos te presionan a hacer algo que sabes que está mal. ¿Qué decisión refleja Romanos 12?",
-    "options": ["Conformarte para no quedar solo", "Renovar tu mente y obedecer a Dios", "Hacerlo pero sentir culpa", "Culpar a los demás"],
+    "options": [
+      "Conformarte para no quedar solo",
+      "Renovar tu mente y obedecer a Dios",
+      "Hacerlo pero sentir culpa",
+      "Culpar a los demás"
+    ],
     "correctIndex": 1,
     "explanation": "Romanos 12:2 llama a no conformarse al molde del mundo.",
     "reference": "Romanos 12:2",
-    "tags": ["santidad", "presion"],
+    "tags": [
+      "santidad",
+      "presion"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_sit_servicio",
     "type": "situational",
     "prompt": "Alguien necesita ayuda y nadie te verá servir. ¿Qué motivación bíblica es correcta?",
-    "options": ["Servir sólo si hay reconocimiento", "Servir como para el Señor", "Esperar a que otro lo haga", "Ayudar para controlar a la persona"],
+    "options": [
+      "Servir sólo si hay reconocimiento",
+      "Servir como para el Señor",
+      "Esperar a que otro lo haga",
+      "Ayudar para controlar a la persona"
+    ],
     "correctIndex": 1,
     "explanation": "El servicio cristiano se hace delante de Dios, no para la aprobación humana.",
     "reference": "Colosenses 3:23",
-    "tags": ["servicio", "integridad"],
+    "tags": [
+      "servicio",
+      "integridad"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_sit_conflicto",
     "type": "situational",
     "prompt": "Hay conflicto en tu grupo. ¿Qué actitud corresponde a un pacificador?",
-    "options": ["Avivar rumores", "Buscar paz con verdad y humildad", "Tomar partido sin escuchar", "Ridiculizar al más débil"],
+    "options": [
+      "Avivar rumores",
+      "Buscar paz con verdad y humildad",
+      "Tomar partido sin escuchar",
+      "Ridiculizar al más débil"
+    ],
     "correctIndex": 1,
     "explanation": "Jesús llama bienaventurados a los pacificadores; la paz bíblica no niega la verdad.",
     "reference": "Mateo 5:9; Romanos 12:18",
-    "tags": ["paz", "relaciones"],
+    "tags": [
+      "paz",
+      "relaciones"
+    ],
     "difficulty": 2
   },
   {
@@ -1440,7 +2288,9 @@
     "answerText": "temor",
     "explanation": "El temor reverente a Dios es la raíz de la verdadera sabiduría.",
     "reference": "Proverbios 1:7",
-    "tags": ["sabiduria"],
+    "tags": [
+      "sabiduria"
+    ],
     "difficulty": 1
   },
   {
@@ -1452,7 +2302,10 @@
     "answerText": "justicia",
     "explanation": "Jesús enseña a ordenar deseos y prioridades bajo el reino de Dios.",
     "reference": "Mateo 6:33",
-    "tags": ["reino", "prioridades"],
+    "tags": [
+      "reino",
+      "prioridades"
+    ],
     "difficulty": 1
   },
   {
@@ -1464,7 +2317,10 @@
     "answerText": "cuidado",
     "explanation": "La ansiedad se entrega a Dios porque su cuidado es personal y constante.",
     "reference": "1 Pedro 5:7",
-    "tags": ["ansiedad", "confianza"],
+    "tags": [
+      "ansiedad",
+      "confianza"
+    ],
     "difficulty": 1
   },
   {
@@ -1476,7 +2332,10 @@
     "answerText": "ira",
     "explanation": "Proverbios enseña que el tono puede apagar o encender un conflicto.",
     "reference": "Proverbios 15:1",
-    "tags": ["ira", "sabiduria"],
+    "tags": [
+      "ira",
+      "sabiduria"
+    ],
     "difficulty": 1
   },
   {
@@ -1488,67 +2347,135 @@
     "answerText": "Dios",
     "explanation": "La pureza interior está ligada a la comunión y esperanza de ver a Dios.",
     "reference": "Mateo 5:8",
-    "tags": ["pureza", "esperanza"],
+    "tags": [
+      "pureza",
+      "esperanza"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_order_historia_base",
     "type": "order_events",
     "prompt": "Ordena estos grandes eventos del inicio bíblico:",
-    "options": ["Creación", "Caída", "Diluvio", "Torre de Babel"],
-    "correctOrder": [0, 1, 2, 3],
+    "options": [
+      "Creación",
+      "Caída",
+      "Diluvio",
+      "Torre de Babel"
+    ],
+    "correctOrder": [
+      0,
+      1,
+      2,
+      3
+    ],
     "correctIndex": 0,
     "explanation": "Génesis avanza de creación a caída, juicio por diluvio y dispersión en Babel.",
     "reference": "Génesis 1—11",
-    "tags": ["genesis", "historia"],
+    "tags": [
+      "genesis",
+      "historia"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_order_vida_jesus",
     "type": "order_events",
     "prompt": "Ordena estos momentos de la vida de Jesús:",
-    "options": ["Nacimiento en Belén", "Bautismo en el Jordán", "Crucifixión", "Resurrección"],
-    "correctOrder": [0, 1, 2, 3],
+    "options": [
+      "Nacimiento en Belén",
+      "Bautismo en el Jordán",
+      "Crucifixión",
+      "Resurrección"
+    ],
+    "correctOrder": [
+      0,
+      1,
+      2,
+      3
+    ],
     "correctIndex": 0,
     "explanation": "Los evangelios presentan nacimiento, ministerio público, cruz y resurrección.",
     "reference": "Evangelios",
-    "tags": ["jesus", "evangelios"],
+    "tags": [
+      "jesus",
+      "evangelios"
+    ],
     "difficulty": 1
   },
   {
     "id": "q_add_order_abraham",
     "type": "order_events",
     "prompt": "Ordena estos eventos de Abraham:",
-    "options": ["Dios llama a Abram", "Nace Isaac", "Dios prueba a Abraham en Moriah", "Isaac se casa con Rebeca"],
-    "correctOrder": [0, 1, 2, 3],
+    "options": [
+      "Dios llama a Abram",
+      "Nace Isaac",
+      "Dios prueba a Abraham en Moriah",
+      "Isaac se casa con Rebeca"
+    ],
+    "correctOrder": [
+      0,
+      1,
+      2,
+      3
+    ],
     "correctIndex": 0,
     "explanation": "El relato muestra llamado, promesa cumplida, prueba y continuidad del pacto.",
     "reference": "Génesis 12—24",
-    "tags": ["abraham", "pacto"],
+    "tags": [
+      "abraham",
+      "pacto"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_order_pablo",
     "type": "order_events",
     "prompt": "Ordena estos momentos del ministerio de Pablo:",
-    "options": ["Encuentro con Jesús camino a Damasco", "Viajes misioneros", "Arresto en Jerusalén", "Llegada a Roma"],
-    "correctOrder": [0, 1, 2, 3],
+    "options": [
+      "Encuentro con Jesús camino a Damasco",
+      "Viajes misioneros",
+      "Arresto en Jerusalén",
+      "Llegada a Roma"
+    ],
+    "correctOrder": [
+      0,
+      1,
+      2,
+      3
+    ],
     "correctIndex": 0,
     "explanation": "Hechos narra la conversión, misión, arresto y testimonio de Pablo en Roma.",
     "reference": "Hechos 9—28",
-    "tags": ["pablo", "mision"],
+    "tags": [
+      "pablo",
+      "mision"
+    ],
     "difficulty": 2
   },
   {
     "id": "q_add_order_exilio_retorno",
     "type": "order_events",
     "prompt": "Ordena estos momentos del exilio y retorno:",
-    "options": ["Caída de Jerusalén", "Exilio en Babilonia", "Decreto de Ciro", "Reconstrucción del templo"],
-    "correctOrder": [0, 1, 2, 3],
+    "options": [
+      "Caída de Jerusalén",
+      "Exilio en Babilonia",
+      "Decreto de Ciro",
+      "Reconstrucción del templo"
+    ],
+    "correctOrder": [
+      0,
+      1,
+      2,
+      3
+    ],
     "correctIndex": 0,
     "explanation": "Tras el juicio del exilio, Dios abrió camino para el retorno y la restauración.",
     "reference": "2 Reyes 25; Esdras 1—6",
-    "tags": ["exilio", "restauracion"],
+    "tags": [
+      "exilio",
+      "restauracion"
+    ],
     "difficulty": 3
   },
   {
@@ -1558,14 +2485,29 @@
     "options": [],
     "correctIndex": 0,
     "pairs": [
-      {"left": "Génesis", "right": "Pentateuco"},
-      {"left": "Salmos", "right": "Poesía"},
-      {"left": "Isaías", "right": "Profeta mayor"},
-      {"left": "Romanos", "right": "Carta de Pablo"}
+      {
+        "left": "Génesis",
+        "right": "Pentateuco"
+      },
+      {
+        "left": "Salmos",
+        "right": "Poesía"
+      },
+      {
+        "left": "Isaías",
+        "right": "Profeta mayor"
+      },
+      {
+        "left": "Romanos",
+        "right": "Carta de Pablo"
+      }
     ],
     "explanation": "Reconocer categorías ayuda a leer cada libro según su forma y propósito.",
     "reference": "Biblia completa",
-    "tags": ["libros", "estructura"],
+    "tags": [
+      "libros",
+      "estructura"
+    ],
     "difficulty": 2
   },
   {
@@ -1575,14 +2517,29 @@
     "options": [],
     "correctIndex": 0,
     "pairs": [
-      {"left": "Ester", "right": "Intercedió ante el rey"},
-      {"left": "Rut", "right": "Fue leal a Noemí"},
-      {"left": "Ana", "right": "Oró por un hijo"},
-      {"left": "María", "right": "Respondió al llamado de Dios"}
+      {
+        "left": "Ester",
+        "right": "Intercedió ante el rey"
+      },
+      {
+        "left": "Rut",
+        "right": "Fue leal a Noemí"
+      },
+      {
+        "left": "Ana",
+        "right": "Oró por un hijo"
+      },
+      {
+        "left": "María",
+        "right": "Respondió al llamado de Dios"
+      }
     ],
     "explanation": "Cada historia muestra fe expresada en decisiones concretas.",
     "reference": "Rut; 1 Samuel; Lucas 1; Ester",
-    "tags": ["mujeres", "fe"],
+    "tags": [
+      "mujeres",
+      "fe"
+    ],
     "difficulty": 2
   },
   {
@@ -1592,14 +2549,29 @@
     "options": [],
     "correctIndex": 0,
     "pairs": [
-      {"left": "Buen samaritano", "right": "Misericordia al prójimo"},
-      {"left": "Hijo pródigo", "right": "Gracia del padre"},
-      {"left": "Sembrador", "right": "Respuestas a la palabra"},
-      {"left": "Talentos", "right": "Fidelidad con lo recibido"}
+      {
+        "left": "Buen samaritano",
+        "right": "Misericordia al prójimo"
+      },
+      {
+        "left": "Hijo pródigo",
+        "right": "Gracia del padre"
+      },
+      {
+        "left": "Sembrador",
+        "right": "Respuestas a la palabra"
+      },
+      {
+        "left": "Talentos",
+        "right": "Fidelidad con lo recibido"
+      }
     ],
     "explanation": "Las parábolas enseñan el reino con imágenes memorables.",
     "reference": "Evangelios",
-    "tags": ["parabolas", "jesus"],
+    "tags": [
+      "parabolas",
+      "jesus"
+    ],
     "difficulty": 2
   },
   {
@@ -1609,14 +2581,29 @@
     "options": [],
     "correctIndex": 0,
     "pairs": [
-      {"left": "Cinto", "right": "Verdad"},
-      {"left": "Coraza", "right": "Justicia"},
-      {"left": "Escudo", "right": "Fe"},
-      {"left": "Espada", "right": "Palabra de Dios"}
+      {
+        "left": "Cinto",
+        "right": "Verdad"
+      },
+      {
+        "left": "Coraza",
+        "right": "Justicia"
+      },
+      {
+        "left": "Escudo",
+        "right": "Fe"
+      },
+      {
+        "left": "Espada",
+        "right": "Palabra de Dios"
+      }
     ],
     "explanation": "Efesios 6 describe recursos espirituales para resistir firmes.",
     "reference": "Efesios 6:13-17",
-    "tags": ["armadura", "batalla"],
+    "tags": [
+      "armadura",
+      "batalla"
+    ],
     "difficulty": 2
   },
   {
@@ -1626,14 +2613,1109 @@
     "options": [],
     "correctIndex": 0,
     "pairs": [
-      {"left": "Pedro", "right": "Predicó en Pentecostés"},
-      {"left": "Pablo", "right": "Misionero a los gentiles"},
-      {"left": "Bernabé", "right": "Hijo de consolación"},
-      {"left": "Timoteo", "right": "Colaborador joven de Pablo"}
+      {
+        "left": "Pedro",
+        "right": "Predicó en Pentecostés"
+      },
+      {
+        "left": "Pablo",
+        "right": "Misionero a los gentiles"
+      },
+      {
+        "left": "Bernabé",
+        "right": "Hijo de consolación"
+      },
+      {
+        "left": "Timoteo",
+        "right": "Colaborador joven de Pablo"
+      }
     ],
     "explanation": "La iglesia creció con distintos dones trabajando juntos para Cristo.",
     "reference": "Hechos; Cartas pastorales",
-    "tags": ["iglesia", "servicio"],
+    "tags": [
+      "iglesia",
+      "servicio"
+    ],
     "difficulty": 2
+  },
+  {
+    "id": "q_g1_arca",
+    "type": "multiple_choice",
+    "prompt": "¿Qué construyó Noé por mandato de Dios?",
+    "options": [
+      "Una torre",
+      "Un arca",
+      "Un altar",
+      "Un templo"
+    ],
+    "correctIndex": 1,
+    "explanation": "Dios mandó a Noé construir un arca para salvar a su familia y a los animales del diluvio.",
+    "reference": "Génesis 6:14",
+    "tags": [
+      "noe",
+      "obediencia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_diluvio_dias",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos días y noches llovió durante el diluvio?",
+    "options": [
+      "7",
+      "12",
+      "40",
+      "100"
+    ],
+    "correctIndex": 2,
+    "explanation": "Llovió cuarenta días y cuarenta noches sobre la tierra.",
+    "reference": "Génesis 7:12",
+    "tags": [
+      "noe",
+      "diluvio"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_jonas_pez",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue tragado por un gran pez?",
+    "options": [
+      "Pedro",
+      "Jonás",
+      "Elías",
+      "Pablo"
+    ],
+    "correctIndex": 1,
+    "explanation": "Jonás huyó de Dios y un gran pez lo tragó por tres días y tres noches.",
+    "reference": "Jonás 1:17",
+    "tags": [
+      "jonas",
+      "obediencia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_david_honda",
+    "type": "true_false",
+    "prompt": "David venció a Goliat usando una espada.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 1,
+    "explanation": "David venció a Goliat con una honda y una piedra, no con espada.",
+    "reference": "1 Samuel 17:50",
+    "tags": [
+      "david",
+      "fe"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_luz_mundo",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Yo soy la luz del mundo»?",
+    "options": [
+      "Moisés",
+      "Juan el Bautista",
+      "Jesús",
+      "Salomón"
+    ],
+    "correctIndex": 2,
+    "explanation": "Jesús se presenta como la luz que guía a quien lo sigue.",
+    "reference": "Juan 8:12",
+    "tags": [
+      "identidad_cristo"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_doce",
+    "type": "true_false",
+    "prompt": "Jesús escogió a doce discípulos.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Jesús eligió a doce apóstoles para acompañarlo y enviarlos a predicar.",
+    "reference": "Marcos 3:14",
+    "tags": [
+      "discipulos"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_sinai",
+    "type": "multiple_choice",
+    "prompt": "¿Qué recibió Moisés en el monte Sinaí?",
+    "options": [
+      "El arca del pacto",
+      "Los Diez Mandamientos",
+      "El maná",
+      "La vara"
+    ],
+    "correctIndex": 1,
+    "explanation": "En el Sinaí Dios entregó a Moisés los Diez Mandamientos.",
+    "reference": "Éxodo 20",
+    "tags": [
+      "moises",
+      "ley"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_primer_libro",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál es el primer libro de la Biblia?",
+    "options": [
+      "Éxodo",
+      "Salmos",
+      "Génesis",
+      "Mateo"
+    ],
+    "correctIndex": 2,
+    "explanation": "Génesis, que significa «principio», narra la creación y los patriarcas.",
+    "reference": "Génesis 1:1",
+    "tags": [
+      "biblia",
+      "libros"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_eden",
+    "type": "true_false",
+    "prompt": "Adán y Eva vivieron en el huerto del Edén.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Dios puso al hombre en el huerto del Edén para que lo cultivara y guardara.",
+    "reference": "Génesis 2:8",
+    "tags": [
+      "creacion",
+      "adan"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_creacion_dias",
+    "type": "multiple_choice",
+    "prompt": "¿En cuántos días creó Dios la creación antes de descansar?",
+    "options": [
+      "3",
+      "6",
+      "7",
+      "12"
+    ],
+    "correctIndex": 1,
+    "explanation": "Dios creó en seis días y reposó el séptimo.",
+    "reference": "Génesis 2:2",
+    "tags": [
+      "creacion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g1_dejair",
+    "type": "who_said",
+    "prompt": "¿Quién dijo a Faraón: «Deja ir a mi pueblo»?",
+    "options": [
+      "Aarón",
+      "José",
+      "Moisés",
+      "Josué"
+    ],
+    "correctIndex": 2,
+    "explanation": "Moisés, enviado por Dios, exigió a Faraón liberar a Israel.",
+    "reference": "Éxodo 5:1",
+    "tags": [
+      "moises",
+      "exodo"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_g2_desierto40",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años anduvo Israel por el desierto?",
+    "options": [
+      "7",
+      "12",
+      "40",
+      "70"
+    ],
+    "correctIndex": 2,
+    "explanation": "Por su incredulidad, Israel vagó cuarenta años hasta entrar a la tierra prometida.",
+    "reference": "Números 14:33-34",
+    "tags": [
+      "exodo",
+      "desierto"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_cain",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «¿Acaso soy yo guarda de mi hermano?»?",
+    "options": [
+      "Esaú",
+      "Caín",
+      "Judas",
+      "Faraón"
+    ],
+    "correctIndex": 1,
+    "explanation": "Caín respondió así a Dios tras matar a su hermano Abel.",
+    "reference": "Génesis 4:9",
+    "tags": [
+      "cain",
+      "pecado"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_jose_suenos",
+    "type": "multiple_choice",
+    "prompt": "¿Quién interpretó los sueños de Faraón en Egipto?",
+    "options": [
+      "Daniel",
+      "José",
+      "Moisés",
+      "Aarón"
+    ],
+    "correctIndex": 1,
+    "explanation": "José interpretó los sueños de Faraón sobre los años de abundancia y hambre.",
+    "reference": "Génesis 41",
+    "tags": [
+      "jose",
+      "sabiduria"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_salomon_sab",
+    "type": "true_false",
+    "prompt": "Salomón pidió sabiduría a Dios en lugar de riquezas.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Salomón pidió un corazón entendido para juzgar al pueblo, y Dios le agregó riquezas.",
+    "reference": "1 Reyes 3:9",
+    "tags": [
+      "salomon",
+      "sabiduria"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_pedro_nego",
+    "type": "multiple_choice",
+    "prompt": "¿Quién negó a Jesús tres veces antes de que cantara el gallo?",
+    "options": [
+      "Juan",
+      "Tomás",
+      "Pedro",
+      "Judas"
+    ],
+    "correctIndex": 2,
+    "explanation": "Pedro negó conocer a Jesús tres veces, y luego lloró amargamente.",
+    "reference": "Mateo 26:75",
+    "tags": [
+      "pedro",
+      "arrepentimiento"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_elias_carro",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta fue llevado al cielo en un torbellino con carro de fuego?",
+    "options": [
+      "Eliseo",
+      "Isaías",
+      "Elías",
+      "Enoc"
+    ],
+    "correctIndex": 2,
+    "explanation": "Elías fue arrebatado al cielo en un torbellino, ante los ojos de Eliseo.",
+    "reference": "2 Reyes 2:11",
+    "tags": [
+      "elias",
+      "profeta"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_nt_libros",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos libros tiene el Nuevo Testamento?",
+    "options": [
+      "12",
+      "27",
+      "39",
+      "66"
+    ],
+    "correctIndex": 1,
+    "explanation": "El Nuevo Testamento tiene 27 libros; toda la Biblia, 66.",
+    "tags": [
+      "biblia",
+      "libros"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_pablo_romanos",
+    "type": "true_false",
+    "prompt": "El apóstol Pablo escribió la carta a los Romanos.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Pablo escribió Romanos, una de las cartas más profundas sobre el evangelio.",
+    "reference": "Romanos 1:1",
+    "tags": [
+      "pablo",
+      "cartas"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_buena_batalla",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «He peleado la buena batalla, he acabado la carrera, he guardado la fe»?",
+    "options": [
+      "Pedro",
+      "Pablo",
+      "Juan",
+      "Esteban"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pablo lo escribió cerca del fin de su vida, fiel hasta el final.",
+    "reference": "2 Timoteo 4:7",
+    "tags": [
+      "pablo",
+      "perseverancia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_antioquia",
+    "type": "multiple_choice",
+    "prompt": "¿En qué ciudad fueron llamados «cristianos» por primera vez los discípulos?",
+    "options": [
+      "Jerusalén",
+      "Roma",
+      "Antioquía",
+      "Éfeso"
+    ],
+    "correctIndex": 2,
+    "explanation": "En Antioquía se les llamó cristianos por primera vez.",
+    "reference": "Hechos 11:26",
+    "tags": [
+      "iglesia",
+      "historia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_bautizo_jesus",
+    "type": "multiple_choice",
+    "prompt": "¿Quién bautizó a Jesús en el río Jordán?",
+    "options": [
+      "Pedro",
+      "Juan el Bautista",
+      "Elías",
+      "Andrés"
+    ],
+    "correctIndex": 1,
+    "explanation": "Juan el Bautista bautizó a Jesús, y el Espíritu descendió como paloma.",
+    "reference": "Mateo 3:13-16",
+    "tags": [
+      "juan_bautista",
+      "jesus"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_goliat_gat",
+    "type": "true_false",
+    "prompt": "Goliat era un gigante de la ciudad de Gat.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Goliat, el campeón filisteo, era de Gat y medía seis codos y un palmo.",
+    "reference": "1 Samuel 17:4",
+    "tags": [
+      "goliat",
+      "david"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_palabras_vida",
+    "type": "who_said",
+    "prompt": "¿Quién dijo a Jesús: «Señor, ¿a quién iremos? Tú tienes palabras de vida eterna»?",
+    "options": [
+      "Juan",
+      "Pedro",
+      "Tomás",
+      "Felipe"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pedro confesó así su fe cuando muchos dejaron de seguir a Jesús.",
+    "reference": "Juan 6:68",
+    "tags": [
+      "pedro",
+      "fe"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_plagas",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas plagas envió Dios sobre Egipto?",
+    "options": [
+      "7",
+      "10",
+      "12",
+      "3"
+    ],
+    "correctIndex": 1,
+    "explanation": "Fueron diez plagas, culminando con la muerte de los primogénitos.",
+    "reference": "Éxodo 7-12",
+    "tags": [
+      "exodo",
+      "plagas"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_judas_plata",
+    "type": "multiple_choice",
+    "prompt": "¿Por cuántas piezas de plata traicionó Judas a Jesús?",
+    "options": [
+      "Diez",
+      "Veinte",
+      "Treinta",
+      "Cien"
+    ],
+    "correctIndex": 2,
+    "explanation": "Judas entregó a Jesús por treinta piezas de plata.",
+    "reference": "Mateo 26:15",
+    "tags": [
+      "judas",
+      "traicion"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_mana",
+    "type": "true_false",
+    "prompt": "El maná fue el alimento que Dios dio a Israel en el desierto.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Cada mañana Dios proveía maná del cielo para alimentar al pueblo.",
+    "reference": "Éxodo 16",
+    "tags": [
+      "exodo",
+      "provision"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_pastor_ref",
+    "type": "choose_reference",
+    "prompt": "«Jehová es mi pastor; nada me faltará.» ¿De qué salmo es?",
+    "options": [
+      "Salmos 1:1",
+      "Salmos 23:1",
+      "Salmos 91:1",
+      "Salmos 100:1"
+    ],
+    "correctIndex": 1,
+    "explanation": "Es la apertura del Salmo 23, el salmo del pastor.",
+    "reference": "Salmos 23:1",
+    "tags": [
+      "salmos",
+      "confianza"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g2_reino_buscar",
+    "type": "situational",
+    "prompt": "Te preocupa el dinero y el futuro. ¿Qué principio enseñó Jesús?",
+    "options": [
+      "Acumular para no faltar nada",
+      "Buscar primero el reino de Dios y su justicia",
+      "Trabajar sin descanso",
+      "No pensar en el mañana ignorando todo"
+    ],
+    "correctIndex": 1,
+    "explanation": "Jesús enseñó a buscar primero el reino, confiando en que Dios añade lo necesario.",
+    "reference": "Mateo 6:33",
+    "tags": [
+      "confianza",
+      "provision"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_g3_matusalen",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años vivió Matusalén, el hombre más longevo de la Biblia?",
+    "options": [
+      "777",
+      "800",
+      "912",
+      "969"
+    ],
+    "correctIndex": 3,
+    "explanation": "Matusalén vivió 969 años, la mayor edad registrada en la Escritura.",
+    "reference": "Génesis 5:27",
+    "tags": [
+      "genealogia",
+      "genesis"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_sucesor_moises",
+    "type": "multiple_choice",
+    "prompt": "¿Quién sucedió a Moisés como líder de Israel?",
+    "options": [
+      "Aarón",
+      "Caleb",
+      "Josué",
+      "Eleazar"
+    ],
+    "correctIndex": 2,
+    "explanation": "Josué, lleno del espíritu de sabiduría, guió a Israel a la tierra prometida.",
+    "reference": "Josué 1:1-2",
+    "tags": [
+      "josue",
+      "liderazgo"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_dos_pensamientos",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «¿Hasta cuándo claudicaréis vosotros entre dos pensamientos?»?",
+    "options": [
+      "Samuel",
+      "Elías",
+      "Josué",
+      "Eliseo"
+    ],
+    "correctIndex": 1,
+    "explanation": "Elías confrontó a Israel en el monte Carmelo a decidirse por Dios o por Baal.",
+    "reference": "1 Reyes 18:21",
+    "tags": [
+      "elias",
+      "decision"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_hijos_jacob",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos hijos varones tuvo Jacob, padres de las tribus de Israel?",
+    "options": [
+      "7",
+      "10",
+      "12",
+      "13"
+    ],
+    "correctIndex": 2,
+    "explanation": "Jacob tuvo doce hijos, cabezas de las doce tribus de Israel.",
+    "reference": "Génesis 35:22-26",
+    "tags": [
+      "jacob",
+      "tribus"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_padre_matusalen",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue el padre de Matusalén, que caminó con Dios y no murió?",
+    "options": [
+      "Set",
+      "Enoc",
+      "Lamec",
+      "Jared"
+    ],
+    "correctIndex": 1,
+    "explanation": "Enoc caminó con Dios y desapareció, porque Dios lo llevó.",
+    "reference": "Génesis 5:21-24",
+    "tags": [
+      "enoc",
+      "genesis"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_ararat",
+    "type": "multiple_choice",
+    "prompt": "¿Sobre qué montes reposó el arca de Noé?",
+    "options": [
+      "Sinaí",
+      "Ararat",
+      "Carmelo",
+      "Nebo"
+    ],
+    "correctIndex": 1,
+    "explanation": "El arca reposó sobre los montes de Ararat al bajar las aguas.",
+    "reference": "Génesis 8:4",
+    "tags": [
+      "noe",
+      "arca"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_job",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Aunque él me matare, en él esperaré»?",
+    "options": [
+      "David",
+      "Job",
+      "Jeremías",
+      "Daniel"
+    ],
+    "correctIndex": 1,
+    "explanation": "Job expresó su confianza en Dios en medio de un sufrimiento extremo.",
+    "reference": "Job 13:15",
+    "tags": [
+      "job",
+      "confianza"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_eli",
+    "type": "multiple_choice",
+    "prompt": "¿Qué sacerdote crió y enseñó al joven Samuel en el templo?",
+    "options": [
+      "Aarón",
+      "Elí",
+      "Sadoc",
+      "Abiatar"
+    ],
+    "correctIndex": 1,
+    "explanation": "Elí, sacerdote en Silo, instruyó a Samuel a responder al llamado de Dios.",
+    "reference": "1 Samuel 3:1-9",
+    "tags": [
+      "samuel",
+      "eli"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_jerico_siete",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas veces rodearon los israelitas Jericó el séptimo día?",
+    "options": [
+      "1",
+      "3",
+      "7",
+      "12"
+    ],
+    "correctIndex": 2,
+    "explanation": "El séptimo día marcharon siete veces, y al toque de trompetas cayó el muro.",
+    "reference": "Josué 6:15-20",
+    "tags": [
+      "josue",
+      "jerico"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_madre_samuel",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue la madre de Samuel, que oró por un hijo?",
+    "options": [
+      "Ana",
+      "Penina",
+      "Noemí",
+      "Rebeca"
+    ],
+    "correctIndex": 0,
+    "explanation": "Ana oró angustiada por un hijo y dedicó a Samuel al servicio de Dios.",
+    "reference": "1 Samuel 1:20",
+    "tags": [
+      "ana",
+      "oracion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_belsasar",
+    "type": "multiple_choice",
+    "prompt": "¿Qué rey vio una mano escribir en la pared durante un banquete?",
+    "options": [
+      "Nabucodonosor",
+      "Belsasar",
+      "Darío",
+      "Ciro"
+    ],
+    "correctIndex": 1,
+    "explanation": "Belsasar vio la escritura misteriosa; Daniel la interpretó esa misma noche.",
+    "reference": "Daniel 5",
+    "tags": [
+      "daniel",
+      "reyes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_quien_soy_faraon",
+    "type": "who_said",
+    "prompt": "¿Quién dijo a Dios: «¿Quién soy yo para que vaya a Faraón?»?",
+    "options": [
+      "Aarón",
+      "Moisés",
+      "Josué",
+      "Gedeón"
+    ],
+    "correctIndex": 1,
+    "explanation": "Moisés dudó de sí mismo, pero Dios prometió estar con él.",
+    "reference": "Éxodo 3:11",
+    "tags": [
+      "moises",
+      "llamado"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_gedeon_300",
+    "type": "multiple_choice",
+    "prompt": "¿Con cuántos hombres venció Gedeón a los madianitas?",
+    "options": [
+      "100",
+      "300",
+      "600",
+      "1000"
+    ],
+    "correctIndex": 1,
+    "explanation": "Dios redujo el ejército a 300 para que la victoria fuera claramente suya.",
+    "reference": "Jueces 7:7",
+    "tags": [
+      "gedeon",
+      "fe"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_oseas",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta se casó con Gomer por mandato de Dios, como señal a Israel?",
+    "options": [
+      "Amós",
+      "Oseas",
+      "Joel",
+      "Miqueas"
+    ],
+    "correctIndex": 1,
+    "explanation": "El matrimonio de Oseas ilustró el amor fiel de Dios hacia un pueblo infiel.",
+    "reference": "Oseas 1:2-3",
+    "tags": [
+      "oseas",
+      "profeta"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_esteban",
+    "type": "true_false",
+    "prompt": "Esteban fue el primer mártir de la iglesia cristiana.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Esteban murió apedreado por testificar de Cristo, perdonando a sus verdugos.",
+    "reference": "Hechos 7:59-60",
+    "tags": [
+      "esteban",
+      "martir"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_reino_david",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años reinó el rey David sobre Israel?",
+    "options": [
+      "20",
+      "33",
+      "40",
+      "50"
+    ],
+    "correctIndex": 2,
+    "explanation": "David reinó cuarenta años: siete en Hebrón y treinta y tres en Jerusalén.",
+    "reference": "2 Samuel 5:4-5",
+    "tags": [
+      "david",
+      "reyes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_habla_siervo",
+    "type": "who_said",
+    "prompt": "¿Quién respondió: «Habla, Jehová, porque tu siervo oye»?",
+    "options": [
+      "David",
+      "Samuel",
+      "Elías",
+      "Isaías"
+    ],
+    "correctIndex": 1,
+    "explanation": "El joven Samuel respondió así al ser llamado por Dios en la noche.",
+    "reference": "1 Samuel 3:10",
+    "tags": [
+      "samuel",
+      "obediencia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_simon_cirene",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue obligado a llevar la cruz de Jesús camino al Calvario?",
+    "options": [
+      "José de Arimatea",
+      "Simón de Cirene",
+      "Nicodemo",
+      "Barrabás"
+    ],
+    "correctIndex": 1,
+    "explanation": "Simón de Cirene cargó la cruz de Jesús de camino a la crucifixión.",
+    "reference": "Marcos 15:21",
+    "tags": [
+      "cruz",
+      "jesus"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_primera_plaga",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue la primera de las diez plagas de Egipto?",
+    "options": [
+      "Las ranas",
+      "El agua convertida en sangre",
+      "Las langostas",
+      "La oscuridad"
+    ],
+    "correctIndex": 1,
+    "explanation": "El agua del Nilo se convirtió en sangre como primera señal de juicio.",
+    "reference": "Éxodo 7:20",
+    "tags": [
+      "exodo",
+      "plagas"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_malta",
+    "type": "multiple_choice",
+    "prompt": "¿En qué isla naufragó Pablo durante su viaje a Roma?",
+    "options": [
+      "Chipre",
+      "Creta",
+      "Malta",
+      "Patmos"
+    ],
+    "correctIndex": 2,
+    "explanation": "Tras la tormenta, Pablo y los demás llegaron a salvo a la isla de Malta.",
+    "reference": "Hechos 28:1",
+    "tags": [
+      "pablo",
+      "viajes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_foso_leones",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue arrojado al foso de los leones por orar a Dios?",
+    "options": [
+      "Sadrac",
+      "Daniel",
+      "Jeremías",
+      "Mardoqueo"
+    ],
+    "correctIndex": 1,
+    "explanation": "Daniel fue echado a los leones, pero Dios cerró sus bocas.",
+    "reference": "Daniel 6:16-22",
+    "tags": [
+      "daniel",
+      "fe"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_tomas_dudo",
+    "type": "multiple_choice",
+    "prompt": "¿Qué apóstol dijo que no creería sin ver las heridas de Jesús?",
+    "options": [
+      "Felipe",
+      "Tomás",
+      "Bartolomé",
+      "Mateo"
+    ],
+    "correctIndex": 1,
+    "explanation": "Tomás dudó hasta ver al Cristo resucitado, y entonces creyó.",
+    "reference": "Juan 20:25",
+    "tags": [
+      "tomas",
+      "fe"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_zaqueo",
+    "type": "multiple_choice",
+    "prompt": "¿Qué recaudador de impuestos subió a un sicómoro para ver a Jesús?",
+    "options": [
+      "Mateo",
+      "Zaqueo",
+      "Leví",
+      "Nicodemo"
+    ],
+    "correctIndex": 1,
+    "explanation": "Zaqueo, jefe de publicanos, subió al árbol y Jesús se hospedó en su casa.",
+    "reference": "Lucas 19:2-5",
+    "tags": [
+      "zaqueo",
+      "arrepentimiento"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_gracia_ref",
+    "type": "choose_reference",
+    "prompt": "«Porque por gracia sois salvos por medio de la fe.» ¿Dónde se encuentra?",
+    "options": [
+      "Romanos 6:23",
+      "Efesios 2:8",
+      "Gálatas 2:16",
+      "Tito 3:5"
+    ],
+    "correctIndex": 1,
+    "explanation": "Pablo enseña que la salvación es don de Dios, no por obras.",
+    "reference": "Efesios 2:8",
+    "tags": [
+      "gracia",
+      "salvacion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_primer_milagro",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue el primer milagro de Jesús según el evangelio de Juan?",
+    "options": [
+      "Sanar a un leproso",
+      "Convertir agua en vino en Caná",
+      "Caminar sobre el agua",
+      "Multiplicar los panes"
+    ],
+    "correctIndex": 1,
+    "explanation": "En las bodas de Caná, Jesús convirtió el agua en vino, su primera señal.",
+    "reference": "Juan 2:11",
+    "tags": [
+      "jesus",
+      "milagros"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_hechos_lucas",
+    "type": "true_false",
+    "prompt": "El libro de los Hechos fue escrito por Lucas.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "explanation": "Lucas escribió el evangelio que lleva su nombre y el libro de los Hechos.",
+    "reference": "Hechos 1:1",
+    "tags": [
+      "lucas",
+      "biblia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_matias",
+    "type": "multiple_choice",
+    "prompt": "¿Quién reemplazó a Judas Iscariote entre los doce apóstoles?",
+    "options": [
+      "Bernabé",
+      "Esteban",
+      "Matías",
+      "Silas"
+    ],
+    "correctIndex": 2,
+    "explanation": "Tras echar suertes, Matías fue contado con los once apóstoles.",
+    "reference": "Hechos 1:26",
+    "tags": [
+      "apostoles",
+      "iglesia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_setenta",
+    "type": "multiple_choice",
+    "prompt": "Además de los doce, ¿a cuántos discípulos envió Jesús de dos en dos?",
+    "options": [
+      "Treinta",
+      "Cuarenta",
+      "Setenta",
+      "Cien"
+    ],
+    "correctIndex": 2,
+    "explanation": "Jesús envió a otros setenta delante de él a cada ciudad y lugar.",
+    "reference": "Lucas 10:1",
+    "tags": [
+      "jesus",
+      "mision"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_g3_verbo_ref",
+    "type": "choose_reference",
+    "prompt": "«En el principio era el Verbo, y el Verbo era con Dios.» ¿De qué libro es?",
+    "options": [
+      "Génesis 1:1",
+      "Juan 1:1",
+      "Colosenses 1:15",
+      "Hebreos 1:1"
+    ],
+    "correctIndex": 1,
+    "explanation": "El evangelio de Juan abre presentando a Cristo como el Verbo eterno.",
+    "reference": "Juan 1:1",
+    "tags": [
+      "jesus",
+      "doctrina"
+    ],
+    "difficulty": 3
   }
 ]

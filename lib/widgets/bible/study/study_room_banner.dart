@@ -21,6 +21,7 @@ class StudyRoomBanner extends StatefulWidget {
   final VoidCallback onRotate;
   final VoidCallback onStartTimer;
   final VoidCallback onEndStudy;
+  final Future<void> Function() onSync;
   final ValueChanged<String> onVersionAssigned;
 
   const StudyRoomBanner({
@@ -31,6 +32,7 @@ class StudyRoomBanner extends StatefulWidget {
     required this.onRotate,
     required this.onStartTimer,
     required this.onEndStudy,
+    required this.onSync,
     required this.onVersionAssigned,
   });
 
@@ -140,6 +142,12 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
                 visualDensity: VisualDensity.compact,
                 icon: Icon(Icons.swap_horiz, color: t.accent, size: 18),
                 onPressed: widget.onRotate,
+              ),
+              IconButton(
+                tooltip: 'Sincronizar mis respuestas',
+                visualDensity: VisualDensity.compact,
+                icon: Icon(Icons.cloud_upload_outlined, color: t.textSecondary, size: 18),
+                onPressed: widget.onSync,
               ),
               IconButton(
                 tooltip: 'Salir',

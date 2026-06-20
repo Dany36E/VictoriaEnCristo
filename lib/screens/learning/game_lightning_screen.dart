@@ -13,12 +13,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../models/learning/game_difficulty.dart';
 import '../../models/learning/learning_models.dart';
 import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/question_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../widgets/learning/game_difficulty_selector.dart';
 
 const int _matchSeconds = 60;
 const int _penaltyMs = 1500;
@@ -35,6 +37,8 @@ enum _Phase { setup, intro, playing, between, finished }
 class _GameLightningScreenState extends State<GameLightningScreen> {
   final _nameCtrl1 = TextEditingController(text: 'Jugador 1');
   final _nameCtrl2 = TextEditingController(text: 'Jugador 2');
+
+  GameDifficulty _difficulty = GameDifficulty.facil;
 
   _Phase _phase = _Phase.setup;
   List<String> _names = [];
@@ -53,16 +57,35 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
   List<LearningQuestion> _pool = [];
   int _poolIdx = 0;
 
+  bool _isGameType(LearningQuestion q) {
+    return q.type == QuestionType.multipleChoice ||
+        q.type == QuestionType.whoSaid ||
+        q.type == QuestionType.trueFalse ||
+        q.type == QuestionType.chooseReference ||
+        q.type == QuestionType.situational;
+  }
+
   List<LearningQuestion> _buildPool() {
-    final all = QuestionRepository.I.all.where((q) {
-      return q.type == QuestionType.multipleChoice ||
-          q.type == QuestionType.whoSaid ||
-          q.type == QuestionType.trueFalse ||
-          q.type == QuestionType.chooseReference ||
-          q.type == QuestionType.situational;
-    }).toList();
+    final byDifficulty = QuestionRepository.I.all
+        .where((q) => _isGameType(q) && q.difficulty == _difficulty.level)
+        .toList();
+    // Salvaguarda: si una dificultad no tuviera preguntas, usar todas.
+    final all = byDifficulty.isNotEmpty
+        ? byDifficulty
+        : QuestionRepository.I.all.where(_isGameType).toList();
     all.shuffle(Random());
     return all;
+  }
+
+  Map<GameDifficulty, int> _countsByDifficulty() {
+    final counts = {for (final d in GameDifficulty.values) d: 0};
+    for (final q in QuestionRepository.I.all) {
+      if (!_isGameType(q)) continue;
+      for (final d in GameDifficulty.values) {
+        if (q.difficulty == d.level) counts[d] = counts[d]! + 1;
+      }
+    }
+    return counts;
   }
 
   void _startMatch() {
@@ -253,6 +276,12 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
               _rule(t, '🏆', 'Más puntos al final gana'),
             ],
           ),
+        ),
+        const SizedBox(height: AppDesignSystem.spacingL),
+        GameDifficultySelector(
+          selected: _difficulty,
+          counts: _countsByDifficulty(),
+          onSelected: (d) => setState(() => _difficulty = d),
         ),
         const SizedBox(height: AppDesignSystem.spacingL),
         _nameField(t, _nameCtrl1, 'Jugador 1', const Color(0xFFE89E5C)),

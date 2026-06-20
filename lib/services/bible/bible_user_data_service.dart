@@ -127,7 +127,7 @@ class BibleUserDataService {
     // existiendo en Firestore (no se borra) pero no se descarga.
     final sub = _col('bibleHighlights')
         .orderBy('createdAt', descending: true)
-        .limit(300)
+        .limit(150)
         .snapshots()
         .listen((snap) {
           if (snap.docs.isEmpty &&
@@ -218,7 +218,7 @@ class BibleUserDataService {
   void _listenNotes() {
     final sub = _col('bibleNotes')
         .orderBy('updatedAt', descending: true)
-        .limit(500)
+        .limit(200)
         .snapshots()
         .listen((snap) {
           if (snap.docs.isEmpty &&
@@ -308,7 +308,7 @@ class BibleUserDataService {
   void _listenSavedVerses() {
     final sub = _col('savedVerses')
         .orderBy('savedAt', descending: true)
-        .limit(500)
+        .limit(200)
         .snapshots()
         .listen((snap) {
           if (snap.docs.isEmpty &&
@@ -395,7 +395,7 @@ class BibleUserDataService {
   void _listenPrayers() {
     final sub = _col('versePrayers')
         .orderBy('createdAt', descending: true)
-        .limit(500)
+        .limit(150)
         .snapshots()
         .listen((snap) {
           if (snap.docs.isEmpty &&

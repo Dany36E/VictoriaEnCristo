@@ -15,12 +15,14 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../models/learning/game_difficulty.dart';
 import '../../models/learning/learning_models.dart';
 import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
 import '../../services/learning/question_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../widgets/learning/game_difficulty_selector.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
 // PERSONAJES BÍBLICOS
@@ -139,6 +141,9 @@ const int _finishLine = 20;
 const int _timePerQuestion = 15;
 
 class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStateMixin {
+  // ── Dificultad ──
+  GameDifficulty _difficulty = GameDifficulty.facil;
+
   // ── Selección de personaje ──
   int _runner1Idx = 0;
   int _runner2Idx = 1;
@@ -210,16 +215,35 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
     setState(() => _phase = _Phase.turnIntro);
   }
 
+  bool _isGameType(LearningQuestion q) {
+    return q.type == QuestionType.multipleChoice ||
+        q.type == QuestionType.whoSaid ||
+        q.type == QuestionType.trueFalse ||
+        q.type == QuestionType.chooseReference ||
+        q.type == QuestionType.situational;
+  }
+
   List<LearningQuestion> _buildPool() {
-    final all = QuestionRepository.I.all.where((q) {
-      return q.type == QuestionType.multipleChoice ||
-          q.type == QuestionType.whoSaid ||
-          q.type == QuestionType.trueFalse ||
-          q.type == QuestionType.chooseReference ||
-          q.type == QuestionType.situational;
-    }).toList();
+    final byDifficulty = QuestionRepository.I.all
+        .where((q) => _isGameType(q) && q.difficulty == _difficulty.level)
+        .toList();
+    // Salvaguarda: si una dificultad no tuviera preguntas, usar todas.
+    final all = byDifficulty.isNotEmpty
+        ? byDifficulty
+        : QuestionRepository.I.all.where(_isGameType).toList();
     all.shuffle(Random());
     return all;
+  }
+
+  Map<GameDifficulty, int> _countsByDifficulty() {
+    final counts = {for (final d in GameDifficulty.values) d: 0};
+    for (final q in QuestionRepository.I.all) {
+      if (!_isGameType(q)) continue;
+      for (final d in GameDifficulty.values) {
+        if (q.difficulty == d.level) counts[d] = counts[d]! + 1;
+      }
+    }
+    return counts;
   }
 
   LearningQuestion _nextQuestion() {
@@ -412,6 +436,15 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
             ],
           ),
         ).animate().fadeIn(duration: 400.ms).slideY(begin: -0.1, duration: 400.ms),
+
+        const SizedBox(height: AppDesignSystem.spacingL),
+
+        // ── Dificultad ──
+        GameDifficultySelector(
+          selected: _difficulty,
+          counts: _countsByDifficulty(),
+          onSelected: (d) => setState(() => _difficulty = d),
+        ),
 
         const SizedBox(height: AppDesignSystem.spacingL),
 

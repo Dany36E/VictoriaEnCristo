@@ -85,6 +85,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   late final TabController _tabController;
   Timer? _saveDebounce;
   Timer? _saveStatusTicker;
+  Timer? _roomSyncTimer;
   bool _applyingRoomState = false;
   bool _isSaving = false;
   bool _hasPendingChanges = false;
@@ -431,7 +432,26 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       _isSaving = false;
       _hasPendingChanges = false;
     }
-    unawaited(StudyRoomService.I.publishAnswerSnapshot(updated));
+  }
+
+  /// Sube manualmente las respuestas actuales a la sala.
+  /// También es llamado por el timer periódico de 3 min.
+  Future<void> _syncRoomNow() async {
+    if (StudyRoomService.I.currentRoomNotifier.value == null) return;
+    final study = _currentStudySnapshot();
+    await StudyRoomService.I.publishAnswerSnapshot(study);
+  }
+
+  void _startRoomSyncTimer() {
+    if (_roomSyncTimer != null) return;
+    _roomSyncTimer = Timer.periodic(const Duration(minutes: 3), (_) {
+      unawaited(_syncRoomNow());
+    });
+  }
+
+  void _stopRoomSyncTimer() {
+    _roomSyncTimer?.cancel();
+    _roomSyncTimer = null;
   }
 
   Map<String, String> _answersFromControllers() {
@@ -641,11 +661,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   void _onRoomChanged() {
     final room = StudyRoomService.I.currentRoomNotifier.value;
     if (room == null) {
+      _stopRoomSyncTimer();
       _lastRoomStateKey = null;
       _lastSwapStartPromptKey = null;
       if (mounted) setState(() {});
       return;
     }
+    _startRoomSyncTimer();
     final uid = FirebaseAuth.instance.currentUser?.uid;
     final assignedVersionId = uid == null ? null : room.versionForUid(uid);
     final key = [
@@ -777,6 +799,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   void dispose() {
     _saveDebounce?.cancel();
     _saveStatusTicker?.cancel();
+    _stopRoomSyncTimer();
     _flushAnswers(); // sin await — se ejecutará en background
     StudyRoomService.I.currentRoomNotifier.removeListener(_onRoomChanged);
     for (final c in _controllers.values) {
@@ -841,6 +864,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
                                 onRotate: () => StudyRoomService.I.rotateNow(),
                                 onStartTimer: _startRoomSwapTimer,
                                 onEndStudy: () => _endStudyFlow(t),
+                                onSync: _syncRoomNow,
                                 onVersionAssigned: _onAssignedVersionChanged,
                               );
                             },
