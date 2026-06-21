@@ -1350,11 +1350,9 @@ class _SermonMetaCard extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               Expanded(
-                child: _LabeledField(
+                child: _SpeakerAutocompleteField(
                   theme: t,
                   controller: speakerController,
-                  label: 'Predicador',
-                  hint: 'Pastor / maestro',
                   onChanged: onChanged,
                 ),
               ),
@@ -1746,6 +1744,138 @@ class _LabeledField extends StatelessWidget {
       onChanged: onChanged,
       style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
       decoration: _inputDecoration(t, hint).copyWith(labelText: label),
+    );
+  }
+}
+
+/// Campo "Predicador" con autocompletado a partir de los predicadores ya
+/// usados en apuntes previos. Coincide por subcadena (insensible a
+/// mayúsculas/acentos) para que escribir "Ja", "Vi" o "Pa" sugiera
+/// "Pastor Victor Jabes". Así los nombres quedan homologados para filtrar
+/// después sin duplicados.
+class _SpeakerAutocompleteField extends StatefulWidget {
+  final BibleReaderThemeData theme;
+  final TextEditingController controller;
+  final ValueChanged<String> onChanged;
+
+  const _SpeakerAutocompleteField({
+    required this.theme,
+    required this.controller,
+    required this.onChanged,
+  });
+
+  @override
+  State<_SpeakerAutocompleteField> createState() =>
+      _SpeakerAutocompleteFieldState();
+}
+
+class _SpeakerAutocompleteFieldState extends State<_SpeakerAutocompleteField> {
+  final FocusNode _focusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _focusNode.dispose();
+    super.dispose();
+  }
+
+  /// Normaliza para comparar: minúsculas, sin acentos, sin espacios extra.
+  static String _normalize(String s) {
+    var r = s.toLowerCase().trim();
+    const from = 'áàäâãéèëêíìïîóòöôõúùüûñ';
+    const to = 'aaaaaeeeeiiiiooooouuuun';
+    for (var i = 0; i < from.length; i++) {
+      r = r.replaceAll(from[i], to[i]);
+    }
+    return r;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final t = widget.theme;
+    return RawAutocomplete<String>(
+      textEditingController: widget.controller,
+      focusNode: _focusNode,
+      optionsBuilder: (TextEditingValue value) {
+        final query = _normalize(value.text);
+        if (query.isEmpty) return const Iterable<String>.empty();
+        final all = SermonNoteService.I.speakers;
+        return all.where((s) {
+          final ns = _normalize(s);
+          // Coincidencia por subcadena, pero ocultar el exacto ya escrito.
+          return ns != query && ns.contains(query);
+        });
+      },
+      onSelected: (selection) {
+        widget.onChanged(selection);
+        _focusNode.unfocus();
+      },
+      fieldViewBuilder: (context, textController, focusNode, onFieldSubmitted) {
+        return TextField(
+          controller: textController,
+          focusNode: focusNode,
+          onChanged: widget.onChanged,
+          onSubmitted: (_) => onFieldSubmitted(),
+          textCapitalization: TextCapitalization.words,
+          style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+          decoration: _inputDecoration(t, 'Pastor / maestro').copyWith(
+            labelText: 'Predicador',
+            suffixIcon: Icon(
+              Icons.person_search_rounded,
+              color: t.textSecondary.withValues(alpha: 0.6),
+              size: 18,
+            ),
+          ),
+        );
+      },
+      optionsViewBuilder: (context, onSelected, options) {
+        return Align(
+          alignment: Alignment.topLeft,
+          child: Material(
+            elevation: 4,
+            borderRadius: BorderRadius.circular(8),
+            color: t.surface,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxHeight: 220, maxWidth: 320),
+              child: ListView.builder(
+                padding: EdgeInsets.zero,
+                shrinkWrap: true,
+                itemCount: options.length,
+                itemBuilder: (context, index) {
+                  final option = options.elementAt(index);
+                  return InkWell(
+                    onTap: () => onSelected(option),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 11,
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(Icons.person_rounded,
+                              size: 16, color: t.accent),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              option,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: GoogleFonts.manrope(
+                                color: t.textPrimary,
+                                fontSize: 13,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        );
+      },
     );
   }
 }

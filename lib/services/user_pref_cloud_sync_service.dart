@@ -60,6 +60,11 @@ class UserPrefCloudSyncService {
     'victory_reminder_enabled',
     'victory_reminder_times',
     'reengagement_enabled',
+    'devotional_reminder_enabled',
+    'devotional_reminder_per_weekday',
+    'devotional_reminder_time',
+    'devotional_reminder_weekday_times',
+    'devotional_reminder_prompt_seen',
     'battle.acceptingInvites',
     'battle.trustedPartnerUid',
     'active_plan_id',
@@ -70,6 +75,7 @@ class UserPrefCloudSyncService {
     'devotional_challenge_',
     'devotional_v2_challenge_',
     'devotional_v2_override_giant_',
+    'devotional_reflection_',
     'daily_practice_v1:',
   ];
 

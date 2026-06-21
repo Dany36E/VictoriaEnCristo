@@ -1,76 +1,57 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../models/content_enums.dart';
-import '../models/devotional_entry.dart';
+import '../models/devotional/faith_checkbook_entry.dart';
 import '../services/audio_engine.dart';
-import '../services/audio_service.dart';
 import '../services/daily_practice_service.dart';
-import '../services/devotional_picker.dart';
-import '../services/devotional_repository.dart';
-import '../services/devotional_rollout_service.dart';
-import '../services/devotional_telemetry.dart';
+import '../services/devotional/faith_checkbook_repository.dart';
 import '../services/feedback_engine.dart';
-import '../services/personalization_engine.dart';
+import '../services/notification_service.dart';
 import '../services/user_pref_cloud_sync_service.dart';
-import '../theme/app_theme.dart';
-import '../theme/app_theme_data.dart';
+import '../services/bible/bible_user_data_service.dart';
+import '../theme/bible_reader_theme.dart';
+import '../utils/bible_navigation_helper.dart';
+import '../widgets/bible/reader/reader_typography_panel.dart';
+import '../widgets/devotional/devotional_reminder_sheet.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
-/// DEVOTIONAL SCREEN v2 — "Hoy para ti"
+/// DEVOTIONAL SCREEN — "La Chequera del Banco de la Fe" (Charles H. Spurgeon)
 ///
-/// Cambios respecto a v1:
-/// - Una entrada por día, personalizada por gigante × etapa.
-/// - Selector manual de gigante (chip → bottom sheet).
-/// - Modos de lectura: 2 min / 8 min / 15 min.
-/// - Completado solo al pulsar "Terminé" o ≥80% scroll + ≥60s dwell.
-/// - Telemetría completa (RFC-003).
+/// Único devocional de la app. Lectura diaria por fecha del calendario, con la
+/// misma experiencia de lectura de "La Biblia": 9 temas de color y tamaño de
+/// letra ajustable (compartidos vía BibleUserDataService).
+///
+/// Contenido reproducido verbatim desde Gospel Translations (Traducciones
+/// Evangelio), traducción al español por Allan Aviles, Dominio Público.
 /// ═══════════════════════════════════════════════════════════════════════════
-
 class DevotionalScreen extends StatefulWidget {
-  const DevotionalScreen({super.key, this.source = DevotionalSource.unknown});
-
-  final DevotionalSource source;
+  const DevotionalScreen({super.key});
 
   @override
   State<DevotionalScreen> createState() => _DevotionalScreenState();
 }
 
 class _DevotionalScreenState extends State<DevotionalScreen> {
-  static const _prefKeyChallengePrefix = 'devotional_v2_challenge_';
-  static const _prefKeyLength = 'devotional_v2_length';
-  static const _prefKeyOverrideGiantPrefix = 'devotional_v2_override_giant_';
+  static const String _notePrefix = 'devotional_reflection_';
 
-  // ───────────── Estado ─────────────
-  DevotionalSelection? _selection;
-  DevotionalRolloutAssignment? _rollout;
-  DevotionalLength _length = DevotionalLength.standard;
+  FaithCheckbookEntry? _entry;
   bool _loading = true;
-  bool _challengeCompleted = false;
-  bool _markedAsCompleted = false;
-  bool _ttsPlaying = false;
-  bool _ttsPaused = false;
+  bool _showTypography = false;
+  bool _completed = false;
+
+  SharedPreferences? _prefs;
+  final TextEditingController _noteCtrl = TextEditingController();
+  String _savedNote = '';
 
   final ScrollController _scrollCtl = ScrollController();
-  final AudioService _audioService = AudioService();
-  StreamSubscription<TtsState>? _ttsSub;
-  late final DateTime _openedAt;
-  DateTime? _audioStartedAt;
-  double _maxScrollFraction = 0;
-
-  String get _todayKey {
-    final d = DateTime.now();
-    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-  }
 
   @override
   void initState() {
     super.initState();
-    _openedAt = DateTime.now();
-    _scrollCtl.addListener(_onScroll);
-    _ttsSub = _audioService.stateStream.listen(_onTtsState);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       AudioEngine.I.switchBgmContext(BgmContext.prayer);
       _bootstrap();
@@ -79,656 +60,507 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
 
   @override
   void dispose() {
-    _scrollCtl.removeListener(_onScroll);
+    _persistNoteIfChanged();
+    _noteCtrl.dispose();
     _scrollCtl.dispose();
-    _ttsSub?.cancel();
-    unawaited(_audioService.stop());
     AudioEngine.I.switchBgmContext(BgmContext.home);
-    if (!_markedAsCompleted && _selection != null) {
-      DevotionalTelemetry.I.skipped(
-        entryId: _selection!.entry.id,
-        lastSection: 'unknown',
-        dwellMs: DateTime.now().difference(_openedAt).inMilliseconds,
-      );
-    }
     super.dispose();
   }
 
   Future<void> _bootstrap() async {
-    final prefs = await SharedPreferences.getInstance();
-    final lengthIdx = prefs.getInt(_prefKeyLength) ?? DevotionalLength.standard.index;
-    _length = DevotionalLength.values[lengthIdx.clamp(0, DevotionalLength.values.length - 1)];
-
-    final overrideId = prefs.getString('$_prefKeyOverrideGiantPrefix$_todayKey');
-    GiantId? overrideGiant;
-    if (overrideId != null) {
-      for (final g in GiantId.values) {
-        if (g.id == overrideId) {
-          overrideGiant = g;
-          break;
-        }
-      }
-    }
-
-    await DevotionalRepository.I.ensureLoaded();
-    final rollout = await DevotionalRolloutService.I.assignment();
-    await _audioService.initialize();
-    final selection = await PersonalizationEngine.I.pickDevotionalForToday(
-      giantOverride: overrideGiant,
-    );
-
-    final challengeDone = prefs.getBool('$_prefKeyChallengePrefix${selection.entry.id}') ?? false;
-
+    await FaithCheckbookRepository.I.load();
+    _prefs = await SharedPreferences.getInstance();
+    final entry = FaithCheckbookRepository.I.entryForToday();
     if (!mounted) return;
     setState(() {
-      _selection = selection;
-      _rollout = rollout;
-      _challengeCompleted = challengeDone;
+      _entry = entry;
       _loading = false;
     });
-
-    DevotionalTelemetry.I.opened(
-      entryId: selection.entry.id,
-      giant: selection.matchedGiant?.id,
-      stage: selection.matchedStage.id,
-      source: widget.source,
-      mode: _modeFromLength(_length),
-    );
-    DevotionalTelemetry.I.rolloutAssigned(
-      entryId: selection.entry.id,
-      variant: rollout.variant.id,
-      bucket: rollout.bucket,
-      rolloutPercent: rollout.rolloutPercent,
-      forced: rollout.forced,
-    );
-    if (selection.reasonCode == 'crisis') {
-      DevotionalTelemetry.I.crisisVariantShown(
-        entryId: selection.entry.id,
-        primaryGiant: selection.matchedGiant?.id,
-      );
-    }
+    if (entry != null) _loadNoteFor(entry);
   }
 
-  void _onScroll() {
-    if (_markedAsCompleted) return;
-    if (!_scrollCtl.hasClients) return;
-    final pos = _scrollCtl.position;
-    if (pos.maxScrollExtent <= 0) return;
-    final frac = (pos.pixels / pos.maxScrollExtent).clamp(0.0, 1.0);
-    if (frac > _maxScrollFraction) _maxScrollFraction = frac;
-
-    if (_maxScrollFraction >= 0.8) {
-      final dwellMs = DateTime.now().difference(_openedAt).inMilliseconds;
-      if (dwellMs >= 60000) {
-        _markCompleted(trigger: 'scroll_dwell');
-      }
-    }
+  void _loadNoteFor(FaithCheckbookEntry entry) {
+    final note = _prefs?.getString('$_notePrefix${entry.id}') ?? '';
+    _savedNote = note;
+    _noteCtrl.text = note;
   }
 
-  void _onTtsState(TtsState state) {
-    if (state == TtsState.stopped && _audioStartedAt != null && _selection != null) {
-      DevotionalTelemetry.I.audioPlayed(
-        entryId: _selection!.entry.id,
-        durationMs: DateTime.now().difference(_audioStartedAt!).inMilliseconds,
-      );
-      _audioStartedAt = null;
+  /// Guarda la nota del devocional actual si cambió (local + sync a la nube).
+  void _persistNoteIfChanged() {
+    final entry = _entry;
+    if (entry == null || _prefs == null) return;
+    final text = _noteCtrl.text.trim();
+    if (text == _savedNote) return;
+    final key = '$_notePrefix${entry.id}';
+    if (text.isEmpty) {
+      _prefs!.remove(key);
+    } else {
+      _prefs!.setString(key, text);
     }
-
-    if (!mounted) return;
-    setState(() {
-      _ttsPlaying = state == TtsState.playing;
-      _ttsPaused = state == TtsState.paused;
-    });
+    _savedNote = text;
+    UserPrefCloudSyncService.I.markDirty();
   }
 
-  bool get _canUseTts =>
-      _audioService.audioEnabled &&
-      _audioService.ttsAvailable &&
-      _rollout?.variant != DevotionalRolloutVariant.controlMinimal;
-
-  Future<void> _toggleAudio() async {
-    if (_selection == null || !_canUseTts) return;
-    if (_ttsPlaying) {
-      await _audioService.pause();
-      FeedbackEngine.I.tap();
-      return;
-    }
-    if (_ttsPaused) {
-      await _audioService.resume();
-      FeedbackEngine.I.tap();
-      return;
-    }
-
-    _audioStartedAt = DateTime.now();
-    await _audioService.speak(_buildTtsText(), label: _selection!.entry.id);
+  Future<void> _saveNote() async {
+    FocusScope.of(context).unfocus();
+    _persistNoteIfChanged();
     FeedbackEngine.I.confirm();
-  }
-
-  String _buildTtsText() {
-    final selection = _selection!;
-    final entry = selection.entry.forLength(_length);
-    final buffer = StringBuffer()
-      ..writeln(entry.title)
-      ..writeln()
-      ..writeln('Versículo. ${entry.verse}')
-      ..writeln(entry.verseReference);
-
-    if (entry.reflection.isNotEmpty) {
-      buffer
-        ..writeln()
-        ..writeln('Reflexión.')
-        ..writeln(entry.reflection);
-    }
-    final challenge = selection.entry.challenge;
-    if (challenge != null && challenge.isNotEmpty) {
-      buffer
-        ..writeln()
-        ..writeln('Reto del día.')
-        ..writeln(challenge);
-    }
-    if (entry.prayer.isNotEmpty) {
-      buffer
-        ..writeln()
-        ..writeln('Oración.')
-        ..writeln(entry.prayer);
-    }
-    return buffer.toString();
-  }
-
-  DevotionalReadMode _modeFromLength(DevotionalLength len) => switch (len) {
-    DevotionalLength.quick => DevotionalReadMode.quick,
-    DevotionalLength.standard => DevotionalReadMode.standard,
-    DevotionalLength.deep => DevotionalReadMode.deep,
-  };
-
-  Future<void> _markCompleted({required String trigger}) async {
-    if (_markedAsCompleted || _selection == null) return;
-    _markedAsCompleted = true;
-    DailyPracticeService.I.mark(DailyPractice.devotional);
-    final dwellMs = DateTime.now().difference(_openedAt).inMilliseconds;
-    DevotionalTelemetry.I.completed(
-      entryId: _selection!.entry.id,
-      mode: _modeFromLength(_length),
-      totalMs: dwellMs,
-      sectionsViewed: 4,
-      trigger: trigger,
-    );
-    if (trigger == 'cta') FeedbackEngine.I.confirm();
-    if (mounted) setState(() {});
-  }
-
-  Future<void> _toggleChallenge() async {
-    if (_selection == null) return;
-    final entry = _selection!.entry;
-    final newVal = !_challengeCompleted;
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('$_prefKeyChallengePrefix${entry.id}', newVal);
-    UserPrefCloudSyncService.I.markDirty();
-    setState(() => _challengeCompleted = newVal);
-    if (newVal) {
-      FeedbackEngine.I.confirm();
-    } else {
-      FeedbackEngine.I.tap();
-    }
-  }
-
-  Future<void> _setLength(DevotionalLength len) async {
-    setState(() => _length = len);
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setInt(_prefKeyLength, len.index);
-    UserPrefCloudSyncService.I.markDirty();
-    FeedbackEngine.I.tap();
-  }
-
-  Future<void> _openGiantPicker() async {
-    final current = _selection?.matchedGiant;
-    final selected = await showModalBottomSheet<_GiantPick>(
-      context: context,
-      backgroundColor: AppThemeData.of(context).cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => _GiantPickerSheet(current: current),
-    );
-    if (selected == null) return;
-
-    final prefs = await SharedPreferences.getInstance();
-    final key = '$_prefKeyOverrideGiantPrefix$_todayKey';
-    if (selected.giant == null) {
-      await prefs.remove(key);
-    } else {
-      await prefs.setString(key, selected.giant!.id);
-    }
-    UserPrefCloudSyncService.I.markDirty();
-
-    if (_selection != null) {
-      DevotionalTelemetry.I.giantOverride(
-        entryId: _selection!.entry.id,
-        fromGiant: current?.id ?? 'auto',
-        toGiant: selected.giant?.id ?? 'auto',
+    if (mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Reflexión guardada'),
+          duration: Duration(seconds: 2),
+        ),
       );
     }
+  }
 
-    setState(() {
-      _loading = true;
-      _markedAsCompleted = false;
-      _maxScrollFraction = 0;
-    });
-    final newSelection = await PersonalizationEngine.I.pickDevotionalForToday(
-      giantOverride: selected.giant,
+  void _openPassage(FaithCheckbookEntry entry) {
+    FeedbackEngine.I.tap();
+    // El parser de la app usa "Salmos" (plural); La Chequera cita "Salmo".
+    final ref = entry.verseReference.replaceFirst(
+      RegExp(r'^Salmo\b'),
+      'Salmos',
     );
+    BibleNavigationHelper.navigateToSpanishRef(context, ref);
+  }
+
+  void _shareEntry(FaithCheckbookEntry entry) {
+    FeedbackEngine.I.tap();
+    final text =
+        '«${entry.verse}»\n— ${entry.verseReference}\n\n'
+        'La Chequera del Banco de la Fe · Charles H. Spurgeon';
+    Share.share(text);
+  }
+
+  void _goToEntry(FaithCheckbookEntry? entry) {
+    if (entry == null) return;
+    FeedbackEngine.I.tap();
+    _persistNoteIfChanged();
+    setState(() => _entry = entry);
+    _loadNoteFor(entry);
+    if (_scrollCtl.hasClients) {
+      _scrollCtl.jumpTo(0);
+    }
+  }
+
+  void _goToday() {
+    final today = FaithCheckbookRepository.I.entryForToday();
+    _goToEntry(today);
+  }
+
+  Future<void> _markDone() async {
+    if (_completed) return;
+    await DailyPracticeService.I.mark(DailyPractice.devotional);
+    FeedbackEngine.I.confirm();
+    if (mounted) setState(() => _completed = true);
+    await _maybeOfferReminder();
+  }
+
+  /// Tras leer el primer devocional, sugiere activar un recordatorio diario a
+  /// la hora actual. Se muestra una sola vez (y nunca si ya hay recordatorio).
+  Future<void> _maybeOfferReminder() async {
+    final svc = NotificationService();
+    if (svc.devotionalReminderPromptSeen || svc.devotionalReminderEnabled) {
+      return;
+    }
+    await svc.markDevotionalReminderPromptSeen();
     if (!mounted) return;
-    setState(() {
-      _selection = newSelection;
-      _loading = false;
-    });
+    final now = TimeOfDay.now();
+    await showDevotionalReminderSuggestion(
+      context,
+      palette: _sheetPalette(_currentTheme()),
+      suggestedTime: now,
+    );
+  }
+
+  BibleReaderThemeData _currentTheme() {
+    final themeId = BibleReaderThemeData.migrateId(
+      BibleUserDataService.I.readerThemeNotifier.value,
+    );
+    return BibleReaderThemeData.fromId(themeId);
+  }
+
+  DevotionalSheetPalette _sheetPalette(BibleReaderThemeData t) {
+    return DevotionalSheetPalette(
+      background: t.background,
+      surface: t.surface,
+      border: t.textSecondary.withValues(alpha: 0.2),
+      accent: t.accent,
+      textPrimary: t.textPrimary,
+      textSecondary: t.textSecondary,
+      isDark: t.isDark,
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final themeData = AppThemeData.of(context);
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    return AnimatedBuilder(
+      animation: Listenable.merge([
+        BibleUserDataService.I.readerThemeNotifier,
+        BibleUserDataService.I.fontSizeNotifier,
+      ]),
+      builder: (context, _) {
+        final themeId = BibleReaderThemeData.migrateId(
+          BibleUserDataService.I.readerThemeNotifier.value,
+        );
+        final t = BibleReaderThemeData.fromId(themeId);
+        final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
 
-    return Scaffold(
-      backgroundColor: themeData.scaffoldBg,
-      body: _loading || _selection == null
-          ? const Center(child: CircularProgressIndicator())
-          : Stack(
+        return Scaffold(
+          backgroundColor: t.background,
+          body: SafeArea(
+            child: Stack(
               children: [
-                CustomScrollView(controller: _scrollCtl, slivers: _buildSlivers(themeData, isDark)),
-                _buildStickyCta(themeData),
+                Column(
+                  children: [
+                    _toolbar(t),
+                    Expanded(
+                      child: _loading || _entry == null
+                          ? Center(
+                              child: CircularProgressIndicator(color: t.accent),
+                            )
+                          : _content(t, fontSize),
+                    ),
+                  ],
+                ),
+                if (_showTypography)
+                  ReaderTypographyPanel(
+                    theme: t,
+                    onClose: () => setState(() => _showTypography = false),
+                  ),
               ],
             ),
+          ),
+        );
+      },
     );
   }
 
-  List<Widget> _buildSlivers(AppThemeData themeData, bool isDark) {
-    final sel = _selection!;
-    final entry = sel.entry.forLength(_length);
+  // ─────────────────────────── TOOLBAR ───────────────────────────
 
-    return [
-      SliverAppBar(
-        pinned: true,
-        expandedHeight: 140,
-        backgroundColor: themeData.scaffoldBg,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: themeData.textPrimary, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        actions: [
-          if (_canUseTts)
+  Widget _toolbar(BibleReaderThemeData t) {
+    final entry = _entry;
+    final isToday = entry != null && FaithCheckbookRepository.I.isToday(entry);
+    return Container(
+      height: BibleReaderThemeData.toolbarHeight,
+      color: t.toolbarBg,
+      padding: const EdgeInsets.symmetric(horizontal: 4),
+      child: Row(
+        children: [
+          IconButton(
+            icon: Icon(Icons.arrow_back_ios_new_rounded,
+                color: t.textPrimary, size: 18),
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Volver',
+          ),
+          Expanded(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'Devocional',
+                  style: GoogleFonts.cinzel(
+                    color: t.accent,
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                Text(
+                  entry?.dateLabel ?? '',
+                  style: GoogleFonts.manrope(
+                    color: t.textPrimary,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (!isToday && entry != null)
             IconButton(
-              icon: Icon(
-                _ttsPlaying
-                    ? Icons.pause_circle_filled_rounded
-                    : (_ttsPaused ? Icons.play_circle_fill_rounded : Icons.volume_up_rounded),
-                color: themeData.textPrimary,
-              ),
-              tooltip: _ttsPlaying ? 'Pausar lectura' : 'Escuchar devocional',
-              onPressed: _toggleAudio,
+              icon: Icon(Icons.today_rounded, color: t.textSecondary, size: 20),
+              tooltip: 'Ir a hoy',
+              onPressed: _goToday,
             ),
           IconButton(
-            icon: Icon(Icons.tune_rounded, color: themeData.textPrimary),
-            tooltip: 'Cambiar enfoque',
-            onPressed: _openGiantPicker,
+            icon: Icon(Icons.text_fields_rounded, color: t.textPrimary, size: 20),
+            tooltip: 'Tipografía y tema',
+            onPressed: () => setState(() => _showTypography = !_showTypography),
           ),
         ],
-        flexibleSpace: FlexibleSpaceBar(
-          background: Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [themeData.accent.withValues(alpha: 0.15), themeData.scaffoldBg],
-              ),
-            ),
-            child: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(56, 8, 20, 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Text(
-                      'Devocional',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w700,
-                        color: themeData.textPrimary,
-                        letterSpacing: 0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Hoy para ti',
-                      style: TextStyle(fontSize: 14, color: themeData.textSecondary),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            AppDesignSystem.spacingM,
-            8,
-            AppDesignSystem.spacingM,
-            8,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _ContextChip(selection: sel, onTap: () => _showWhyThisSheet(themeData, sel)),
-              const SizedBox(height: 12),
-              _LengthSelector(current: _length, onChanged: _setLength, themeData: themeData),
-              if (_canUseTts && (_rollout?.showAudioCard ?? false)) ...[
-                const SizedBox(height: 12),
-                _audioGuideCard(themeData),
-              ],
-            ],
-          ),
-        ),
-      ),
-      const SliverToBoxAdapter(child: SizedBox(height: AppDesignSystem.spacingM)),
-      SliverToBoxAdapter(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: AppDesignSystem.spacingM),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                entry.title,
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w800,
-                  color: themeData.textPrimary,
-                  letterSpacing: 0.2,
-                  height: 1.2,
-                ),
-              ),
-              const SizedBox(height: AppDesignSystem.spacingL),
-              _section(
-                themeData: themeData,
-                isDark: isDark,
-                icon: Icons.menu_book_rounded,
-                label: 'VERSÍCULO',
-                accentColor: const Color(0xFF7B68EE),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      entry.verse,
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontStyle: FontStyle.italic,
-                        color: themeData.textPrimary,
-                        height: 1.6,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      '— ${entry.verseReference}',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: themeData.accent,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppDesignSystem.spacingM),
-              if (entry.reflection.isNotEmpty) ...[
-                _section(
-                  themeData: themeData,
-                  isDark: isDark,
-                  icon: Icons.lightbulb_outline_rounded,
-                  label: 'REFLEXIÓN',
-                  accentColor: const Color(0xFFF39C12),
-                  child: SelectableText(
-                    entry.reflection,
-                    style: TextStyle(fontSize: 16, color: themeData.textPrimary, height: 1.7),
-                  ),
-                ),
-                const SizedBox(height: AppDesignSystem.spacingM),
-              ],
-              if (sel.entry.challenge != null && sel.entry.challenge!.isNotEmpty) ...[
-                _section(
-                  themeData: themeData,
-                  isDark: isDark,
-                  icon: Icons.emoji_events_rounded,
-                  label: 'RETO DEL DÍA',
-                  accentColor: const Color(0xFF27AE60),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        sel.entry.challenge!,
-                        style: TextStyle(fontSize: 15, color: themeData.textPrimary, height: 1.6),
-                      ),
-                      const SizedBox(height: 12),
-                      _challengeChip(themeData),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppDesignSystem.spacingM),
-              ],
-              if (entry.prayer.isNotEmpty) ...[
-                _section(
-                  themeData: themeData,
-                  isDark: isDark,
-                  icon: Icons.favorite_rounded,
-                  label: 'ORACIÓN',
-                  accentColor: const Color(0xFFE74C3C),
-                  child: SelectableText(
-                    entry.prayer,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontStyle: FontStyle.italic,
-                      color: themeData.textPrimary,
-                      height: 1.7,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppDesignSystem.spacingL),
-              ],
-              SizedBox(
-                height: MediaQuery.of(context).padding.bottom + AppDesignSystem.spacingXL + 72,
-              ),
-            ],
-          ),
-        ),
-      ),
-    ];
-  }
-
-  Widget _challengeChip(AppThemeData themeData) {
-    return GestureDetector(
-      onTap: _toggleChallenge,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: _challengeCompleted
-              ? const Color(0xFF27AE60).withValues(alpha: 0.15)
-              : themeData.textSecondary.withValues(alpha: 0.08),
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-          border: Border.all(
-            color: _challengeCompleted
-                ? const Color(0xFF27AE60).withValues(alpha: 0.4)
-                : themeData.textSecondary.withValues(alpha: 0.15),
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _challengeCompleted ? Icons.check_circle_rounded : Icons.circle_outlined,
-              size: 20,
-              color: _challengeCompleted ? const Color(0xFF27AE60) : themeData.textSecondary,
-            ),
-            const SizedBox(width: 8),
-            Text(
-              _challengeCompleted ? '¡Reto completado!' : 'Marcar reto como completado',
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: _challengeCompleted ? const Color(0xFF27AE60) : themeData.textSecondary,
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }
 
-  Widget _audioGuideCard(AppThemeData themeData) {
-    final icon = _ttsPlaying
-        ? Icons.pause_rounded
-        : (_ttsPaused ? Icons.play_arrow_rounded : Icons.graphic_eq_rounded);
-    final label = _ttsPlaying
-        ? 'Pausar lectura'
-        : (_ttsPaused ? 'Continuar lectura' : 'Escuchar devocional');
+  // ─────────────────────────── CONTENIDO ───────────────────────────
 
-    return InkWell(
-      onTap: _toggleAudio,
-      borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: themeData.accent.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          border: Border.all(color: themeData.accent.withValues(alpha: 0.25)),
-        ),
-        child: Row(
+  Widget _content(BibleReaderThemeData t, double fontSize) {
+    final entry = _entry!;
+    final isToday = FaithCheckbookRepository.I.isToday(entry);
+    return ListView(
+      controller: _scrollCtl,
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 40),
+      children: [
+        // ── Encabezado de fecha ──
+        Row(
           children: [
-            Container(
-              width: 34,
-              height: 34,
-              decoration: BoxDecoration(
-                color: themeData.accent,
-                borderRadius: BorderRadius.circular(8),
+            Text(
+              entry.dateLabel,
+              style: GoogleFonts.cinzel(
+                color: t.textPrimary,
+                fontSize: 22,
+                fontWeight: FontWeight.w700,
               ),
-              child: Icon(icon, color: Colors.white, size: 20),
             ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: TextStyle(
-                  color: themeData.textPrimary,
-                  fontSize: 14,
+            const SizedBox(width: 10),
+            if (isToday)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                decoration: BoxDecoration(
+                  color: t.accent.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(color: t.accent.withValues(alpha: 0.4)),
+                ),
+                child: Text(
+                  'HOY',
+                  style: GoogleFonts.manrope(
+                    color: t.accent,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 20),
+
+        // ── Versículo-promesa ──
+        Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: t.surface,
+            borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusL),
+            border: Border.all(color: t.accent.withValues(alpha: 0.25)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.format_quote_rounded, color: t.accent, size: 22),
+              const SizedBox(height: 8),
+              SelectableText(
+                entry.verse,
+                style: GoogleFonts.lora(
+                  color: t.textPrimary,
+                  fontSize: fontSize + 1,
+                  fontStyle: FontStyle.italic,
+                  height: 1.6,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '— ${entry.verseReference}',
+                style: GoogleFonts.manrope(
+                  color: t.accent,
+                  fontSize: fontSize - 5,
                   fontWeight: FontWeight.w700,
                 ),
               ),
-            ),
-            Text(
-              _length.label,
-              style: TextStyle(
-                color: themeData.textSecondary,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
+              const SizedBox(height: 14),
+              Divider(color: t.textSecondary.withValues(alpha: 0.15), height: 1),
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Expanded(
+                    child: _verseAction(
+                      t,
+                      icon: Icons.menu_book_rounded,
+                      label: 'Leer el pasaje',
+                      onTap: () => _openPassage(entry),
+                    ),
+                  ),
+                  Container(
+                    width: 1,
+                    height: 22,
+                    color: t.textSecondary.withValues(alpha: 0.15),
+                  ),
+                  Expanded(
+                    child: _verseAction(
+                      t,
+                      icon: Icons.ios_share_rounded,
+                      label: 'Compartir',
+                      onTap: () => _shareEntry(entry),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 28),
+
+        // ── Meditación ──
+        ...entry.meditationParagraphs.map(
+          (p) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: SelectableText(
+              p,
+              style: GoogleFonts.lora(
+                color: t.textPrimary,
+                fontSize: fontSize,
+                height: 1.75,
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildStickyCta(AppThemeData themeData) {
-    final completed = _markedAsCompleted;
-    return Positioned(
-      left: 0,
-      right: 0,
-      bottom: 0,
-      child: SafeArea(
-        top: false,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
-          decoration: BoxDecoration(
-            color: themeData.scaffoldBg.withValues(alpha: 0.94),
-            border: Border(top: BorderSide(color: themeData.textSecondary.withValues(alpha: 0.10))),
           ),
-          child: SizedBox(
+        ),
+
+        const SizedBox(height: 16),
+
+        // ── Mi reflexión ──
+        _reflectionSection(t, fontSize),
+
+        const SizedBox(height: 12),
+
+        // ── Botón "Terminé" (solo para la lectura de hoy) ──
+        if (isToday) ...[
+          SizedBox(
             width: double.infinity,
             height: 50,
             child: ElevatedButton.icon(
-              onPressed: completed ? null : () => _markCompleted(trigger: 'cta'),
-              icon: Icon(completed ? Icons.check_circle_rounded : Icons.task_alt_rounded),
+              onPressed: _completed ? null : _markDone,
+              icon: Icon(
+                _completed
+                    ? Icons.check_circle_rounded
+                    : Icons.task_alt_rounded,
+              ),
               label: Text(
-                completed ? 'Devocional completado' : 'Terminé',
+                _completed ? 'Devocional completado' : 'Terminé',
                 style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: completed ? const Color(0xFF27AE60) : themeData.accent,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: const Color(0xFF27AE60),
+                backgroundColor:
+                    _completed ? const Color(0xFF2E7D32) : t.accent,
+                foregroundColor: t.isDark ? Colors.black : Colors.white,
+                disabledBackgroundColor: const Color(0xFF2E7D32),
                 disabledForegroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                  borderRadius:
+                      BorderRadius.circular(BibleReaderThemeData.radiusM),
                 ),
               ),
             ),
           ),
+          const SizedBox(height: 20),
+        ],
+
+        // ── Navegación día anterior / siguiente ──
+        Row(
+          children: [
+            Expanded(
+              child: _navButton(
+                t,
+                icon: Icons.chevron_left_rounded,
+                label: 'Día anterior',
+                onTap: () =>
+                    _goToEntry(FaithCheckbookRepository.I.previous(entry)),
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _navButton(
+                t,
+                icon: Icons.chevron_right_rounded,
+                label: 'Día siguiente',
+                trailing: true,
+                onTap: () =>
+                    _goToEntry(FaithCheckbookRepository.I.next(entry)),
+              ),
+            ),
+          ],
+        ),
+
+        const SizedBox(height: 28),
+        Divider(color: t.textSecondary.withValues(alpha: 0.2)),
+        const SizedBox(height: 12),
+
+        // ── Atribución (requerida por la licencia de Gospel Translations) ──
+        Text(
+          '«La Chequera del Banco de la Fe», por Charles H. Spurgeon.\n'
+          'Traducción: Allan Aviles · Gospel Translations (Dominio Público).\n'
+          'Texto bíblico: Reina-Valera.',
+          style: GoogleFonts.manrope(
+            color: t.textSecondary,
+            fontSize: 11,
+            height: 1.5,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _navButton(
+    BibleReaderThemeData t, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+    bool trailing = false,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusM),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 10),
+        decoration: BoxDecoration(
+          color: t.surface,
+          borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusM),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.2)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (!trailing) Icon(icon, color: t.accent, size: 20),
+            if (!trailing) const SizedBox(width: 4),
+            Text(
+              label,
+              style: GoogleFonts.manrope(
+                color: t.textPrimary,
+                fontSize: 12.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            if (trailing) const SizedBox(width: 4),
+            if (trailing) Icon(icon, color: t.accent, size: 20),
+          ],
         ),
       ),
     );
   }
 
-  void _showWhyThisSheet(AppThemeData themeData, DevotionalSelection selection) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: themeData.cardBg,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
-      ),
-      builder: (ctx) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+  Widget _verseAction(
+    BibleReaderThemeData t, {
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusS),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Row(
-              children: [
-                Icon(Icons.auto_awesome_rounded, color: themeData.accent, size: 22),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    '¿Por qué este devocional hoy?',
-                    style: TextStyle(
-                      fontSize: 17,
-                      fontWeight: FontWeight.w700,
-                      color: themeData.textPrimary,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 14),
+            Icon(icon, color: t.accent, size: 18),
+            const SizedBox(width: 6),
             Text(
-              selection.reasonHuman,
-              style: TextStyle(fontSize: 15, color: themeData.textPrimary, height: 1.5),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Elegimos cada lectura según tu gigante principal y tu etapa actual. Puedes cambiar el enfoque en cualquier momento.',
-              style: TextStyle(fontSize: 13, color: themeData.textSecondary, height: 1.5),
-            ),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: TextButton.icon(
-                onPressed: () {
-                  Navigator.pop(ctx);
-                  _openGiantPicker();
-                },
-                icon: const Icon(Icons.tune_rounded),
-                label: const Text('Cambiar enfoque'),
+              label,
+              style: GoogleFonts.manrope(
+                color: t.accent,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],
@@ -737,268 +569,93 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
     );
   }
 
-  Widget _section({
-    required AppThemeData themeData,
-    required bool isDark,
-    required IconData icon,
-    required String label,
-    required Color accentColor,
-    required Widget child,
-  }) {
+  Widget _reflectionSection(BibleReaderThemeData t, double fontSize) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: themeData.cardBg.withValues(alpha: isDark ? 0.5 : 0.85),
-        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: accentColor.withValues(alpha: 0.15)),
+        color: t.surface,
+        borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusL),
+        border: Border.all(color: t.textSecondary.withValues(alpha: 0.2)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [accentColor.withValues(alpha: 0.25), accentColor.withValues(alpha: 0.10)],
-                  ),
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                child: Icon(icon, size: 18, color: accentColor),
-              ),
-              const SizedBox(width: 10),
+              Icon(Icons.edit_note_rounded, color: t.accent, size: 20),
+              const SizedBox(width: 8),
               Text(
-                label,
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w800,
-                  color: accentColor,
-                  letterSpacing: 1.2,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          child,
-        ],
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CHIP DE CONTEXTO ("Para tu lucha con X · Etapa Y")
-// ═══════════════════════════════════════════════════════════════════════════
-
-class _ContextChip extends StatelessWidget {
-  const _ContextChip({required this.selection, required this.onTap});
-  final DevotionalSelection selection;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final themeData = AppThemeData.of(context);
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: themeData.accent.withValues(alpha: 0.10),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: themeData.accent.withValues(alpha: 0.25)),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.auto_awesome_rounded, size: 14, color: themeData.accent),
-            const SizedBox(width: 6),
-            Flexible(
-              child: Text(
-                selection.reasonHuman,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: FontWeight.w600,
-                  color: themeData.accent,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-            const SizedBox(width: 4),
-            Icon(Icons.info_outline_rounded, size: 14, color: themeData.accent.withValues(alpha: 0.7)),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// SELECTOR DE LONGITUD (2 / 8 / 15 min)
-// ═══════════════════════════════════════════════════════════════════════════
-
-class _LengthSelector extends StatelessWidget {
-  const _LengthSelector({required this.current, required this.onChanged, required this.themeData});
-
-  final DevotionalLength current;
-  final ValueChanged<DevotionalLength> onChanged;
-  final AppThemeData themeData;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: DevotionalLength.values.map((len) {
-        final selected = len == current;
-        return Padding(
-          padding: const EdgeInsets.only(right: 8),
-          child: GestureDetector(
-            onTap: () => onChanged(len),
-            child: AnimatedContainer(
-              duration: const Duration(milliseconds: 200),
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-              decoration: BoxDecoration(
-                color: selected ? themeData.accent : themeData.cardBg.withValues(alpha: 0.4),
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(
-                  color: selected ? themeData.accent : themeData.textSecondary.withValues(alpha: 0.15),
-                ),
-              ),
-              child: Text(
-                len.label,
-                style: TextStyle(
-                  fontSize: 12.5,
-                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
-                  color: selected ? Colors.white : themeData.textSecondary,
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
-// BOTTOM SHEET — Selector manual de gigante
-// ═══════════════════════════════════════════════════════════════════════════
-
-class _GiantPick {
-  final GiantId? giant; // null = automático
-  const _GiantPick(this.giant);
-}
-
-class _GiantPickerSheet extends StatelessWidget {
-  const _GiantPickerSheet({required this.current});
-  final GiantId? current;
-
-  @override
-  Widget build(BuildContext context) {
-    final themeData = AppThemeData.of(context);
-    return SafeArea(
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                '¿En qué quieres enfocarte hoy?',
-                style: TextStyle(
-                  fontSize: 17,
+                'Mi reflexión',
+                style: GoogleFonts.cinzel(
+                  color: t.textPrimary,
+                  fontSize: 15,
                   fontWeight: FontWeight.w700,
-                  color: themeData.textPrimary,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                'Elige un gigante o deja que la app elija por ti según tu lucha principal.',
-                style: TextStyle(fontSize: 13, color: themeData.textSecondary, height: 1.4),
-              ),
-              const SizedBox(height: 16),
-              _giantTile(
-                context,
-                themeData,
-                emoji: '✨',
-                title: 'Automático',
-                subtitle: 'Hoy para ti — según tu gigante principal',
-                selected: current == null,
-                onTap: () => Navigator.pop(context, const _GiantPick(null)),
-              ),
-              const SizedBox(height: 8),
-              ...GiantId.values.map(
-                (g) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _giantTile(
-                    context,
-                    themeData,
-                    emoji: g.emoji,
-                    title: g.displayName,
-                    subtitle: g.description,
-                    selected: current == g,
-                    onTap: () => Navigator.pop(context, _GiantPick(g)),
-                  ),
                 ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _giantTile(
-    BuildContext context,
-    AppThemeData themeData, {
-    required String emoji,
-    required String title,
-    required String subtitle,
-    required bool selected,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: selected ? themeData.accent.withValues(alpha: 0.12) : themeData.cardBg.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          border: Border.all(
-            color: selected ? themeData.accent : themeData.textSecondary.withValues(alpha: 0.12),
-          ),
-        ),
-        child: Row(
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 22)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      color: themeData.textPrimary,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 12.5, color: themeData.textSecondary, height: 1.3),
-                  ),
-                ],
+          const SizedBox(height: 10),
+          TextField(
+            controller: _noteCtrl,
+            minLines: 3,
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
+            textCapitalization: TextCapitalization.sentences,
+            onChanged: (_) => setState(() {}),
+            style: GoogleFonts.lora(
+              color: t.textPrimary,
+              fontSize: fontSize - 1,
+              height: 1.6,
+            ),
+            decoration: InputDecoration(
+              hintText: '¿Qué te habló Dios hoy? Escribe tu reflexión o una '
+                  'oración…',
+              hintStyle: GoogleFonts.lora(
+                color: t.textSecondary,
+                fontSize: fontSize - 2,
+                height: 1.5,
+              ),
+              filled: true,
+              fillColor: t.background.withValues(alpha: 0.5),
+              contentPadding: const EdgeInsets.all(12),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusM),
+                borderSide: BorderSide(
+                  color: t.textSecondary.withValues(alpha: 0.2),
+                ),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusM),
+                borderSide: BorderSide(
+                  color: t.textSecondary.withValues(alpha: 0.2),
+                ),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(BibleReaderThemeData.radiusM),
+                borderSide: BorderSide(color: t.accent),
               ),
             ),
-            if (selected) Icon(Icons.check_circle_rounded, color: themeData.accent),
-          ],
-        ),
+          ),
+          const SizedBox(height: 10),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              onPressed:
+                  _noteCtrl.text.trim() == _savedNote ? null : _saveNote,
+              icon: Icon(
+                _noteCtrl.text.trim() == _savedNote
+                    ? Icons.check_circle_rounded
+                    : Icons.save_outlined,
+                size: 18,
+              ),
+              label: Text(
+                _noteCtrl.text.trim() == _savedNote ? 'Guardada' : 'Guardar',
+              ),
+              style: TextButton.styleFrom(foregroundColor: t.accent),
+            ),
+          ),
+        ],
       ),
     );
   }

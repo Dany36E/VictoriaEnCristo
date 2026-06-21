@@ -6,6 +6,7 @@ import '../services/notification_service.dart';
 import '../services/audio_service.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme_data.dart';
+import '../widgets/devotional/devotional_reminder_sheet.dart';
 import '../widgets/theme_selector.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -224,6 +225,68 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               if (_notificationService.victoryReminderEnabled)
                 _buildVictoryReminderTimes(isDark),
+              const Divider(height: 1),
+              _buildSwitchTile(
+                title: 'Recordatorio de Devocional',
+                subtitle: 'Lee «La Chequera del Banco de la Fe» cada día',
+                icon: Icons.menu_book_rounded,
+                value: _notificationService.devotionalReminderEnabled,
+                onChanged: (value) async {
+                  if (value && !await _ensureNotificationPermission()) return;
+                  await _notificationService.setDevotionalReminderEnabled(
+                    value,
+                  );
+                  setState(() {});
+                },
+                isDark: isDark,
+              ),
+              if (_notificationService.devotionalReminderEnabled) ...[
+                _buildSwitchTile(
+                  title: 'Personalizar por día de la semana',
+                  subtitle: 'Una hora distinta para cada día',
+                  icon: Icons.calendar_view_week_rounded,
+                  value: _notificationService.devotionalReminderPerWeekday,
+                  onChanged: (value) async {
+                    if (!await _ensureNotificationPermission()) return;
+                    await _notificationService.setDevotionalReminderPerWeekday(
+                      value,
+                    );
+                    setState(() {});
+                  },
+                  isDark: isDark,
+                ),
+                if (_notificationService.devotionalReminderPerWeekday)
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(64, 0, 16, 8),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: TextButton.icon(
+                        onPressed: _openDevotionalWeekdayEditor,
+                        icon: Icon(Icons.tune_rounded, color: t.accent),
+                        label: Text(
+                          'Configurar horarios por día',
+                          style: TextStyle(
+                            color: t.accent,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                else
+                  _buildTimePicker(
+                    title: 'Hora del recordatorio',
+                    time: _notificationService.devotionalReminderTime,
+                    onChanged: (time) async {
+                      if (!await _ensureNotificationPermission()) return;
+                      await _notificationService.setDevotionalReminderTime(
+                        time,
+                      );
+                      setState(() {});
+                    },
+                    isDark: isDark,
+                  ),
+              ],
             ],
           ),
 
@@ -580,6 +643,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openDevotionalWeekdayEditor() async {
+    if (!await _ensureNotificationPermission()) return;
+    if (!mounted) return;
+    final t = AppThemeData.of(context);
+    await showDevotionalWeekdayEditor(
+      context,
+      palette: DevotionalSheetPalette(
+        background: t.scaffoldBg,
+        surface: t.cardBg,
+        border: t.cardBorder,
+        accent: t.accent,
+        textPrimary: t.textPrimary,
+        textSecondary: t.textSecondary,
+        isDark: t.isDark,
+      ),
+    );
+    if (mounted) setState(() {});
   }
 
   Widget _buildVictoryReminderTimes(bool isDark) {

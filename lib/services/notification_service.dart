@@ -18,6 +18,15 @@ class NotificationService {
   static const String _victoryReminderKey = 'victory_reminder_enabled';
   static const String _victoryReminderTimesKey = 'victory_reminder_times';
   static const String _reengagementKey = 'reengagement_enabled';
+  static const String _devotionalReminderEnabledKey =
+      'devotional_reminder_enabled';
+  static const String _devotionalReminderPerWeekdayKey =
+      'devotional_reminder_per_weekday';
+  static const String _devotionalReminderTimeKey = 'devotional_reminder_time';
+  static const String _devotionalReminderWeekdayTimesKey =
+      'devotional_reminder_weekday_times';
+  static const String _devotionalReminderPromptSeenKey =
+      'devotional_reminder_prompt_seen';
   static const List<int> _defaultVictoryReminderMinutes = <int>[
     18 * 60,
     22 * 60,
@@ -41,6 +50,14 @@ class NotificationService {
   bool _emergencyReminderEnabled = true;
   bool _victoryReminderEnabled = true;
   bool _reengagementEnabled = true;
+
+  // ── Recordatorio de devocional ──
+  bool _devotionalReminderEnabled = false;
+  bool _devotionalReminderPerWeekday = false;
+  bool _devotionalReminderPromptSeen = false;
+  TimeOfDay _devotionalReminderTime = const TimeOfDay(hour: 7, minute: 0);
+  // index 0..6 = lunes..domingo; null = sin recordatorio ese día.
+  List<TimeOfDay?> _devotionalWeekdayTimes = List<TimeOfDay?>.filled(7, null);
 
   // Notificaciones locales
   final FlutterLocalNotificationsPlugin _flnp =
@@ -82,6 +99,15 @@ class NotificationService {
   bool get emergencyReminderEnabled => _emergencyReminderEnabled;
   bool get victoryReminderEnabled => _victoryReminderEnabled;
   bool get reengagementEnabled => _reengagementEnabled;
+  bool get devotionalReminderEnabled => _devotionalReminderEnabled;
+  bool get devotionalReminderPerWeekday => _devotionalReminderPerWeekday;
+  bool get devotionalReminderPromptSeen => _devotionalReminderPromptSeen;
+  TimeOfDay get devotionalReminderTime => _devotionalReminderTime;
+
+  /// Lista de 7 horas (índice 0=lunes .. 6=domingo); `null` = sin
+  /// recordatorio ese día.
+  List<TimeOfDay?> get devotionalWeekdayTimes =>
+      List.unmodifiable(_devotionalWeekdayTimes);
 
   /// Inicializar servicio y cargar configuración
   Future<void> initialize() async {
@@ -128,6 +154,29 @@ class NotificationService {
           ? _defaultVictoryReminderMinutes
           : victoryMinutes,
     );
+
+    // ── Recordatorio de devocional ──
+    _devotionalReminderEnabled =
+        prefs.getBool(_devotionalReminderEnabledKey) ?? false;
+    _devotionalReminderPerWeekday =
+        prefs.getBool(_devotionalReminderPerWeekdayKey) ?? false;
+    _devotionalReminderPromptSeen =
+        prefs.getBool(_devotionalReminderPromptSeenKey) ?? false;
+
+    final devotionalMinutes = prefs.getInt(_devotionalReminderTimeKey);
+    if (devotionalMinutes != null) {
+      _devotionalReminderTime = _timeFromMinutes(devotionalMinutes);
+    }
+
+    final weekdayRaw =
+        prefs.getStringList(_devotionalReminderWeekdayTimesKey);
+    if (weekdayRaw != null && weekdayRaw.length == 7) {
+      _devotionalWeekdayTimes = weekdayRaw.map((s) {
+        final m = int.tryParse(s);
+        if (m == null || m < 0) return null;
+        return _timeFromMinutes(m);
+      }).toList(growable: false);
+    }
   }
 
   Future<void> _initNotifications() async {
@@ -235,6 +284,29 @@ class NotificationService {
           .map((time) => _minutesOfDay(time).toString())
           .toList(),
     );
+
+    await prefs.setBool(
+      _devotionalReminderEnabledKey,
+      _devotionalReminderEnabled,
+    );
+    await prefs.setBool(
+      _devotionalReminderPerWeekdayKey,
+      _devotionalReminderPerWeekday,
+    );
+    await prefs.setBool(
+      _devotionalReminderPromptSeenKey,
+      _devotionalReminderPromptSeen,
+    );
+    await prefs.setInt(
+      _devotionalReminderTimeKey,
+      _minutesOfDay(_devotionalReminderTime),
+    );
+    await prefs.setStringList(
+      _devotionalReminderWeekdayTimesKey,
+      _devotionalWeekdayTimes
+          .map((t) => t == null ? '-1' : _minutesOfDay(t).toString())
+          .toList(),
+    );
     UserPrefCloudSyncService.I.markDirty();
   }
 
@@ -337,7 +409,9 @@ class NotificationService {
   static const int _nightNotificationId = 1002;
   static const int _legacyVictoryReminderId = 1003;
   static const int _reengagementId = 1004;
+  static const int _devotionalReminderId = 1005;
   static const int _victoryReminderBaseId = 1100;
+  static const int _devotionalWeekdayBaseId = 1200;
 
   /// Calcular próxima hora de disparo
   tz.TZDateTime _nextInstanceOfTime(TimeOfDay time) {
@@ -538,6 +612,11 @@ class NotificationService {
       await _scheduleReengagement();
     } else {
       await _flnp.cancel(_reengagementId);
+    }
+    if (_devotionalReminderEnabled) {
+      await _scheduleDevotionalReminders();
+    } else {
+      await _cancelDevotionalReminders();
     }
   }
 
@@ -779,6 +858,166 @@ class NotificationService {
       debugPrint('🔔 Re-engagement programado para: $scheduled');
     } catch (e) {
       debugPrint('⚠️ Error programando re-engagement: $e');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // RECORDATORIO DE DEVOCIONAL (diario o personalizado por día de la semana)
+  // Invita a leer "La Chequera del Banco de la Fe". Comparte el deep-link
+  // matutino (payloadMorning → abre el devocional).
+  // ═══════════════════════════════════════════════════════════════════════
+
+  static const List<String> _devotionalReminderMessages = <String>[
+    'Comienza tu día con «La Chequera del Banco de la Fe».',
+    'Tu promesa de hoy te espera en el devocional.',
+    'Un momento con Dios antes de empezar el día.',
+    'Abre tu devocional y recibe la palabra de hoy.',
+  ];
+
+  /// Habilitar/deshabilitar el recordatorio de devocional.
+  Future<void> setDevotionalReminderEnabled(bool enabled) async {
+    _devotionalReminderEnabled = enabled;
+    await _saveSettings();
+    if (enabled) {
+      await _scheduleDevotionalReminders();
+    } else {
+      await _cancelDevotionalReminders();
+    }
+  }
+
+  /// Hora del recordatorio diario (modo "todos los días a la misma hora").
+  Future<void> setDevotionalReminderTime(TimeOfDay time) async {
+    _devotionalReminderTime = time;
+    await _saveSettings();
+    if (_devotionalReminderEnabled && !_devotionalReminderPerWeekday) {
+      await _scheduleDevotionalReminders();
+    }
+  }
+
+  /// Activar/desactivar el modo "una hora distinta por día de la semana".
+  /// Al activarlo por primera vez se siembran los 7 días con la hora diaria.
+  Future<void> setDevotionalReminderPerWeekday(bool perWeekday) async {
+    _devotionalReminderPerWeekday = perWeekday;
+    if (perWeekday && _devotionalWeekdayTimes.every((t) => t == null)) {
+      _devotionalWeekdayTimes =
+          List<TimeOfDay?>.filled(7, _devotionalReminderTime);
+    }
+    await _saveSettings();
+    if (_devotionalReminderEnabled) {
+      await _scheduleDevotionalReminders();
+    }
+  }
+
+  /// Define la hora del [weekday] (1=lunes .. 7=domingo). `null` apaga ese día.
+  Future<void> setDevotionalWeekdayTime(int weekday, TimeOfDay? time) async {
+    if (weekday < 1 || weekday > 7) return;
+    final updated = List<TimeOfDay?>.from(_devotionalWeekdayTimes);
+    updated[weekday - 1] = time;
+    _devotionalWeekdayTimes = updated;
+    await _saveSettings();
+    if (_devotionalReminderEnabled && _devotionalReminderPerWeekday) {
+      await _scheduleDevotionalReminders();
+    }
+  }
+
+  /// Marca como visto el prompt de sugerencia (se muestra una sola vez).
+  Future<void> markDevotionalReminderPromptSeen() async {
+    if (_devotionalReminderPromptSeen) return;
+    _devotionalReminderPromptSeen = true;
+    await _saveSettings();
+  }
+
+  /// Atajo usado por el prompt de "primer devocional leído": activa el
+  /// recordatorio diario a [time] en modo simple (todos los días).
+  Future<void> enableDailyDevotionalReminderAt(TimeOfDay time) async {
+    _devotionalReminderTime = time;
+    _devotionalReminderPerWeekday = false;
+    _devotionalReminderEnabled = true;
+    _devotionalReminderPromptSeen = true;
+    await _saveSettings();
+    await _scheduleDevotionalReminders();
+  }
+
+  tz.TZDateTime _nextInstanceOfWeekday(int weekday, TimeOfDay time) {
+    var scheduled = _nextInstanceOfTime(time);
+    while (scheduled.weekday != weekday) {
+      scheduled = scheduled.add(const Duration(days: 1));
+    }
+    return scheduled;
+  }
+
+  NotificationDetails get _devotionalReminderDetails =>
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'devotional_reminders',
+          'Recordatorio de devocional',
+          channelDescription: 'Te invita a leer tu devocional diario',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+        ),
+        iOS: DarwinNotificationDetails(presentSound: true),
+      );
+
+  String _devotionalReminderBody() {
+    return _devotionalReminderMessages[
+        DateTime.now().day % _devotionalReminderMessages.length];
+  }
+
+  Future<void> _scheduleDevotionalReminders() async {
+    if (!_notificationsInitialized) await _initNotifications();
+    if (!_notificationsInitialized) return;
+    try {
+      await _cancelDevotionalReminders();
+      const title = 'Tu devocional de hoy ☀️';
+      if (_devotionalReminderPerWeekday) {
+        for (var weekday = 1; weekday <= 7; weekday++) {
+          final time = _devotionalWeekdayTimes[weekday - 1];
+          if (time == null) continue;
+          await _flnp.zonedSchedule(
+            _devotionalWeekdayBaseId + (weekday - 1),
+            title,
+            _devotionalReminderBody(),
+            _nextInstanceOfWeekday(weekday, time),
+            _devotionalReminderDetails,
+            androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+            uiLocalNotificationDateInterpretation:
+                UILocalNotificationDateInterpretation.absoluteTime,
+            matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+            payload: payloadMorning,
+          );
+        }
+      } else {
+        await _flnp.zonedSchedule(
+          _devotionalReminderId,
+          title,
+          _devotionalReminderBody(),
+          _nextInstanceOfTime(_devotionalReminderTime),
+          _devotionalReminderDetails,
+          androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+          uiLocalNotificationDateInterpretation:
+              UILocalNotificationDateInterpretation.absoluteTime,
+          matchDateTimeComponents: DateTimeComponents.time,
+          payload: payloadMorning,
+        );
+      }
+      debugPrint(
+        '🔔 Recordatorio de devocional programado '
+        '(perWeekday=$_devotionalReminderPerWeekday)',
+      );
+    } catch (e) {
+      debugPrint('⚠️ Error programando recordatorio de devocional: $e');
+    }
+  }
+
+  Future<void> _cancelDevotionalReminders() async {
+    try {
+      await _flnp.cancel(_devotionalReminderId);
+      for (var i = 0; i < 7; i++) {
+        await _flnp.cancel(_devotionalWeekdayBaseId + i);
+      }
+    } catch (e) {
+      debugPrint('⚠️ Error cancelando recordatorio de devocional: $e');
     }
   }
 
