@@ -163,6 +163,36 @@ class DailyPracticeService {
   /// Permite a las pantallas pedir refresh tras eventos externos.
   void refresh() => _recomputeSnapshot();
 
+  /// Racha actual de devocionales leídos (días consecutivos hasta hoy).
+  /// 100 % local — no toca Firebase.
+  int get devotionalStreak {
+    if (!_isInitialized || _prefs == null) return 0;
+    var streak = 0;
+    var date = DateTime.now();
+    for (var i = 0; i < 366; i++) {
+      if (_readRaw(TimeUtils.dateToISO(date))['devotional'] == true) {
+        streak++;
+        date = date.subtract(const Duration(days: 1));
+      } else {
+        break;
+      }
+    }
+    return streak;
+  }
+
+  /// Conjunto de fechas ISO (YYYY-MM-DD) donde el devocional fue completado.
+  /// 100 % local — no toca Firebase.
+  Set<String> get devotionalDatesCompleted {
+    if (!_isInitialized || _prefs == null) return {};
+    final result = <String>{};
+    for (final key in _prefs!.getKeys()) {
+      if (!key.startsWith(_prefix)) continue;
+      final iso = key.substring(_prefix.length);
+      if (_readRaw(iso)['devotional'] == true) result.add(iso);
+    }
+    return result;
+  }
+
   Map<String, dynamic> _readRaw(String iso) {
     final s = _prefs?.getString(_prefix + iso);
     if (s == null || s.isEmpty) return <String, dynamic>{};
