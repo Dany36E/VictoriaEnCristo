@@ -37,14 +37,16 @@ class DailyPracticeSnapshot {
     required this.study,
   });
 
+  // Nota: `prayer` se conserva por compatibilidad de datos persistidos, pero ya
+  // no cuenta para el checklist "Hoy" (la sección Oraciones fue retirada; el
+  // chip "Oración" del card ahora corresponde al Mapa de Oración = journal).
   int get completedCount =>
       (devotional ? 1 : 0) +
-      (prayer ? 1 : 0) +
       (journal ? 1 : 0) +
       (victory ? 1 : 0) +
       (study ? 1 : 0);
 
-  int get total => 5;
+  int get total => 4;
 
   bool get isComplete => completedCount == total;
 
@@ -91,7 +93,7 @@ class DailyPracticeService {
     _prefs = await SharedPreferences.getInstance();
     _isInitialized = true;
     _recomputeSnapshot();
-    debugPrint('📋 [DailyPractice] Init snapshot: ${snapshotNotifier.value.completedCount}/5');
+    debugPrint('📋 [DailyPractice] Init snapshot: ${snapshotNotifier.value.completedCount}/${snapshotNotifier.value.total}');
   }
 
   /// Marca una práctica como hecha para hoy (idempotente).

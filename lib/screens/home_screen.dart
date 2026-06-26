@@ -20,7 +20,6 @@ import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/content_repository.dart';
 import '../widgets/jesus_streak_widget.dart';
-import 'prayers_screen.dart';
 import 'progress_screen.dart';
 import 'journal_screen.dart';
 import 'devotional_screen.dart';
@@ -461,12 +460,6 @@ class _HomeScreenState extends State<HomeScreen>
                             builder: (_) => const DevotionalScreen(),
                           ),
                         ),
-                        onTapPrayer: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const PrayersScreen(),
-                          ),
-                        ),
                         onTapJournal: () => Navigator.push(
                           context,
                           MaterialPageRoute(
@@ -545,7 +538,7 @@ class _HomeScreenState extends State<HomeScreen>
                         gmb.GlassmorphicMenuButton(
                           icon: Icons.trending_up_rounded,
                           title: 'Crecimiento Espiritual',
-                          subtitle: 'Biblia, planes y escuela del Reino',
+                          subtitle: 'Biblia y escuela del Reino',
                           accentColor: const Color(0xFFE8C97A),
                           animationType: gmb.IconAnimationType.shimmer,
                           index: 1,

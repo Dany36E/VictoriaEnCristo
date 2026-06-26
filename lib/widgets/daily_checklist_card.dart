@@ -18,7 +18,6 @@ import '../theme/app_theme_data.dart';
 class DailyChecklistCard extends StatefulWidget {
   /// Callbacks para navegar cuando el usuario toca un item no completado.
   final VoidCallback? onTapDevotional;
-  final VoidCallback? onTapPrayer;
   final VoidCallback? onTapJournal;
   final VoidCallback? onTapVictory;
   final VoidCallback? onTapStudy;
@@ -26,7 +25,6 @@ class DailyChecklistCard extends StatefulWidget {
   const DailyChecklistCard({
     super.key,
     this.onTapDevotional,
-    this.onTapPrayer,
     this.onTapJournal,
     this.onTapVictory,
     this.onTapStudy,
@@ -115,16 +113,6 @@ class _DailyChecklistCardState extends State<DailyChecklistCard> {
                     _Item(
                       icon: Icons.self_improvement_rounded,
                       label: 'Oración',
-                      done: snap.prayer,
-                      onTap: () => _handleTap(
-                        DailyPractice.prayer,
-                        widget.onTapPrayer,
-                        snap.prayer,
-                      ),
-                    ),
-                    _Item(
-                      icon: Icons.menu_book_rounded,
-                      label: 'Diario',
                       done: snap.journal,
                       onTap: () => _handleTap(
                         DailyPractice.journal,

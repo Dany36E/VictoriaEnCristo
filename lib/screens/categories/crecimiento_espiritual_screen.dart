@@ -4,13 +4,12 @@ import '../../theme/app_theme.dart';
 import '../../widgets/home/category_hub_scaffold.dart';
 import '../../widgets/home/glassmorphic_menu_button.dart';
 import '../learning/learning_home_screen.dart';
-import '../plan_library_screen.dart';
 import '../bible/bible_home_screen.dart';
 
 /// Sub-hub "Crecimiento Espiritual": antes era "CRECIMIENTO" en el Home.
 ///
 /// Incluye la Escuela del Reino (movida desde Práctica Diaria a petición del
-/// usuario), los Planes guiados y la Biblia.
+/// usuario) y la Biblia. La sección "Planes" está oculta temporalmente.
 class CrecimientoEspiritualScreen extends StatelessWidget {
   const CrecimientoEspiritualScreen({super.key});
 
@@ -42,39 +41,18 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
             const SizedBox(width: AppDesignSystem.spacingM),
             Expanded(
               child: GlassmorphicMenuButton(
-                icon: Icons.wb_sunny,
-                title: 'Planes',
-                subtitle: 'Crecimiento guiado',
-                accentColor: const Color(0xFFFFD740),
-                animationType: IconAnimationType.rotate,
-                index: 1,
-                onTap: () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const PlanLibraryScreen()),
-                ),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: AppDesignSystem.spacingM),
-        Row(
-          children: [
-            Expanded(
-              child: GlassmorphicMenuButton(
                 icon: Icons.menu_book,
                 title: 'La Biblia',
                 subtitle: 'Palabra de Dios',
                 accentColor: const Color(0xFFE8C97A),
                 animationType: IconAnimationType.shimmer,
-                index: 2,
+                index: 1,
                 onTap: () => Navigator.push(
                   context,
                   MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
                 ),
               ),
             ),
-            const SizedBox(width: AppDesignSystem.spacingM),
-            const Expanded(child: SizedBox()),
           ],
         ),
       ],
