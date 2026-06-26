@@ -3717,5 +3717,3180 @@
       "doctrina"
     ],
     "difficulty": 3
+  },
+  {
+    "id": "q_v25_001",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos días estuvo Jonás en el vientre del gran pez?",
+    "options": [
+      "Tres días y tres noches",
+      "Cuarenta días",
+      "Siete días",
+      "Un solo día"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jonás 1:17 — tres días y tres noches, figura que Jesús aplicó a su sepultura.",
+    "reference": "Jonás 1:17",
+    "tags": [
+      "jonas",
+      "obediencia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_002",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Yo soy el camino, y la verdad, y la vida»?",
+    "options": [
+      "Jesús",
+      "Pedro",
+      "Pablo",
+      "Juan el Bautista"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Juan 14:6 — Jesús se presenta como el único acceso al Padre.",
+    "reference": "Juan 14:6",
+    "tags": [
+      "identidad",
+      "jesus"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_003",
+    "type": "true_false",
+    "prompt": "Sansón perdió su fuerza cuando le cortaron el cabello.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jueces 16 — su fuerza estaba ligada a su voto de nazareo, simbolizado en el cabello.",
+    "reference": "Jueces 16:17",
+    "tags": [
+      "sanson",
+      "consagracion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_004",
+    "type": "multiple_choice",
+    "prompt": "¿Qué regalo de su padre provocó la envidia de los hermanos de José?",
+    "options": [
+      "Una túnica de muchos colores",
+      "Una corona de oro",
+      "Una espada",
+      "Un anillo real"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 37:3 — la túnica mostraba el favor de Jacob hacia José.",
+    "reference": "Génesis 37:3",
+    "tags": [
+      "jose",
+      "envidia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_005",
+    "type": "true_false",
+    "prompt": "Unos magos del oriente siguieron una estrella para hallar al niño Jesús.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 2 — los magos siguieron la estrella hasta adorar al rey nacido.",
+    "reference": "Mateo 2:1-2",
+    "tags": [
+      "navidad",
+      "jesus"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_006",
+    "type": "multiple_choice",
+    "prompt": "¿A cuántos hombres alimentó Jesús con cinco panes y dos peces?",
+    "options": [
+      "Cinco mil",
+      "Quinientos",
+      "Doce mil",
+      "Mil"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 14:21 — cinco mil hombres, sin contar mujeres y niños.",
+    "reference": "Mateo 14:21",
+    "tags": [
+      "milagros",
+      "provision"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_007",
+    "type": "multiple_choice",
+    "prompt": "¿En qué animal entró Jesús a Jerusalén el Domingo de Ramos?",
+    "options": [
+      "Un pollino (asno)",
+      "Un caballo de guerra",
+      "Un camello",
+      "A pie"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 21 — entró humilde sobre un pollino, cumpliendo Zacarías 9:9.",
+    "reference": "Mateo 21:7",
+    "tags": [
+      "pasion",
+      "humildad"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_008",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue la señal del pacto de Dios con Noé tras el diluvio?",
+    "options": [
+      "El arco iris",
+      "Una paloma",
+      "Una estrella",
+      "El sol de mediodía"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 9:13 — el arco iris como recordatorio del pacto de no destruir la tierra con diluvio.",
+    "reference": "Génesis 9:13",
+    "tags": [
+      "noe",
+      "pacto"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_009",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos mandamientos entregó Dios a Moisés en el Sinaí?",
+    "options": [
+      "Diez",
+      "Siete",
+      "Doce",
+      "Cinco"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Éxodo 20 — los Diez Mandamientos, escritos por el dedo de Dios.",
+    "reference": "Éxodo 20",
+    "tags": [
+      "ley",
+      "moises"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_010",
+    "type": "multiple_choice",
+    "prompt": "¿En qué huerto oró Jesús la noche antes de ser arrestado?",
+    "options": [
+      "Getsemaní",
+      "El Edén",
+      "Un viñedo en Caná",
+      "El desierto de Judá"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 26:36 — en Getsemaní oró: «no se haga mi voluntad, sino la tuya».",
+    "reference": "Mateo 26:36",
+    "tags": [
+      "pasion",
+      "oracion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_011",
+    "type": "choose_reference",
+    "prompt": "«Jesús lloró.» ¿Dónde se encuentra el versículo más corto de la Biblia?",
+    "options": [
+      "Juan 11:35",
+      "Salmos 23:1",
+      "Génesis 1:1",
+      "Mateo 5:9"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Juan 11:35 — Jesús lloró ante la tumba de Lázaro, mostrando su compasión.",
+    "reference": "Juan 11:35",
+    "tags": [
+      "jesus",
+      "compasion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_012",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue la primera mujer, formada por Dios?",
+    "options": [
+      "Eva",
+      "Sara",
+      "María",
+      "Raquel"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 2 — Eva, formada de la costilla de Adán, madre de todos los vivientes.",
+    "reference": "Génesis 2:22",
+    "tags": [
+      "creacion",
+      "eva"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_013",
+    "type": "true_false",
+    "prompt": "Jesús caminó sobre las aguas del mar de Galilea.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 14:25 — Jesús anduvo sobre el mar y luego sostuvo a Pedro.",
+    "reference": "Mateo 14:25",
+    "tags": [
+      "milagros",
+      "fe"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_014",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos libros tiene la Biblia completa (Antiguo y Nuevo Testamento)?",
+    "options": [
+      "66",
+      "40",
+      "27",
+      "100"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "39 del Antiguo Testamento + 27 del Nuevo = 66 libros.",
+    "reference": null,
+    "tags": [
+      "biblia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_015",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Dejad a los niños venir a mí, y no se lo impidáis»?",
+    "options": [
+      "Jesús",
+      "Pedro",
+      "Moisés",
+      "Juan"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Marcos 10:14 — Jesús valoró a los niños como modelo del reino.",
+    "reference": "Marcos 10:14",
+    "tags": [
+      "jesus",
+      "reino"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_016",
+    "type": "multiple_choice",
+    "prompt": "¿De qué se alimentaba Juan el Bautista en el desierto?",
+    "options": [
+      "Langostas y miel silvestre",
+      "Pan y vino",
+      "Pescado asado",
+      "Maná del cielo"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 3:4 — su vida sencilla reflejaba su mensaje de arrepentimiento.",
+    "reference": "Mateo 3:4",
+    "tags": [
+      "juan_bautista"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_017",
+    "type": "true_false",
+    "prompt": "Jesús tuvo once discípulos cuando comenzó su ministerio.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 1,
+    "answerText": null,
+    "explanation": "Marcos 3 — Jesús escogió a doce; quedaron once tras la traición de Judas.",
+    "reference": "Marcos 3:14",
+    "tags": [
+      "discipulos"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_018",
+    "type": "multiple_choice",
+    "prompt": "¿Qué construyó Dios el primer día de la creación?",
+    "options": [
+      "La luz",
+      "El sol",
+      "Los animales",
+      "El hombre"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 1:3 — «Sea la luz»; el sol y las estrellas vinieron el cuarto día.",
+    "reference": "Génesis 1:3",
+    "tags": [
+      "creacion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_019",
+    "type": "true_false",
+    "prompt": "Abraham estuvo dispuesto a ofrecer a su hijo Isaac en obediencia a Dios.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 22 — Dios proveyó un carnero; la fe de Abraham fue probada.",
+    "reference": "Génesis 22",
+    "tags": [
+      "abraham",
+      "fe"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_020",
+    "type": "multiple_choice",
+    "prompt": "¿Cómo se llamaba el jardín donde Dios puso a Adán y Eva?",
+    "options": [
+      "Edén",
+      "Getsemaní",
+      "Sinaí",
+      "Canaán"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 2:8 — el huerto del Edén, lugar de comunión con Dios.",
+    "reference": "Génesis 2:8",
+    "tags": [
+      "creacion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v25_021",
+    "type": "multiple_choice",
+    "prompt": "¿Cómo se llamaban los tres amigos de Daniel arrojados al horno de fuego?",
+    "options": [
+      "Sadrac, Mesac y Abed-nego",
+      "Caspar, Melchor y Baltasar",
+      "Sem, Cam y Jafet",
+      "Ananías, Eliseo y Natán"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Daniel 3 — fueron librados del horno por su fidelidad a Dios.",
+    "reference": "Daniel 3:23",
+    "tags": [
+      "daniel",
+      "fidelidad"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_022",
+    "type": "who_said",
+    "prompt": "¿Quién dijo a los doce años: «¿No sabíais que en los negocios de mi Padre me es necesario estar?»?",
+    "options": [
+      "Jesús",
+      "Samuel",
+      "David",
+      "Juan el Bautista"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Lucas 2:49 — Jesús en el templo, consciente de su misión desde niño.",
+    "reference": "Lucas 2:49",
+    "tags": [
+      "jesus",
+      "proposito"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_023",
+    "type": "multiple_choice",
+    "prompt": "¿Quién sucedió a Elías como profeta y recibió doble porción de su espíritu?",
+    "options": [
+      "Eliseo",
+      "Isaías",
+      "Samuel",
+      "Abdías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 2 — Eliseo continuó el ministerio profético tras el arrebatamiento de Elías.",
+    "reference": "2 Reyes 2:9",
+    "tags": [
+      "profetas"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_024",
+    "type": "choose_reference",
+    "prompt": "«Porque la paga del pecado es muerte, mas la dádiva de Dios es vida eterna en Cristo Jesús.» ¿Dónde está?",
+    "options": [
+      "Romanos 6:23",
+      "Juan 3:16",
+      "Salmos 1:1",
+      "Efesios 2:8"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Romanos 6:23 — contraste entre el salario del pecado y el regalo de la gracia.",
+    "reference": "Romanos 6:23",
+    "tags": [
+      "salvacion",
+      "gracia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_025",
+    "type": "complete_verse",
+    "prompt": "«Fíate de Jehová de todo tu ___, y no te apoyes en tu propia prudencia.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "corazón",
+    "explanation": "Proverbios 3:5 — confiar en Dios por encima del propio entendimiento.",
+    "reference": "Proverbios 3:5",
+    "tags": [
+      "confianza",
+      "sabiduria"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_026",
+    "type": "multiple_choice",
+    "prompt": "¿A qué edad, aproximadamente, comenzó Jesús su ministerio público?",
+    "options": [
+      "Unos treinta años",
+      "Dieciocho años",
+      "Cuarenta años",
+      "Cincuenta años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Lucas 3:23 — «era Jesús al comenzar como de treinta años».",
+    "reference": "Lucas 3:23",
+    "tags": [
+      "jesus"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_027",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Apártate de mí, Señor, porque soy hombre pecador», tras la pesca milagrosa?",
+    "options": [
+      "Pedro",
+      "Tomás",
+      "Zaqueo",
+      "Mateo"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Lucas 5:8 — Pedro reconoce su pecado ante el poder de Jesús.",
+    "reference": "Lucas 5:8",
+    "tags": [
+      "pedro",
+      "arrepentimiento"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_028",
+    "type": "true_false",
+    "prompt": "Nehemías dirigió la reconstrucción de los muros de Jerusalén.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Nehemías 2-6 — reconstruyó el muro pese a la oposición, en 52 días.",
+    "reference": "Nehemías 6:15",
+    "tags": [
+      "nehemias",
+      "perseverancia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_029",
+    "type": "multiple_choice",
+    "prompt": "¿A quién ungió Samuel como primer rey de Israel?",
+    "options": [
+      "Saúl",
+      "David",
+      "Salomón",
+      "Absalón"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Samuel 10 — Saúl fue el primer rey; David sería el segundo.",
+    "reference": "1 Samuel 10:1",
+    "tags": [
+      "reyes",
+      "samuel"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_030",
+    "type": "choose_reference",
+    "prompt": "«Todo lo puedo en Cristo que me fortalece.» ¿En qué carta de Pablo está?",
+    "options": [
+      "Filipenses 4:13",
+      "Romanos 8:28",
+      "Juan 1:1",
+      "Salmos 23:1"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Filipenses 4:13 — Pablo aprendió a contentarse en toda circunstancia por la fuerza de Cristo.",
+    "reference": "Filipenses 4:13",
+    "tags": [
+      "fe",
+      "fuerza"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_031",
+    "type": "situational",
+    "prompt": "Alguien te ofende y sientes deseo de venganza. ¿Qué enseña Romanos 12?",
+    "options": [
+      "No pagar a nadie mal por mal; vencer con el bien el mal",
+      "Devolver el golpe para que aprenda",
+      "Cortar para siempre toda relación sin hablar",
+      "Buscar que otros lo castiguen por ti"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Romanos 12:17-21 — la respuesta cristiana vence el mal con el bien.",
+    "reference": "Romanos 12:21",
+    "tags": [
+      "perdon",
+      "conflicto"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_032",
+    "type": "multiple_choice",
+    "prompt": "¿Quién derribó las columnas del templo filisteo en su último acto?",
+    "options": [
+      "Sansón",
+      "Gedeón",
+      "Saúl",
+      "Josué"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jueces 16:30 — Sansón clamó a Dios y derribó el templo de Dagón.",
+    "reference": "Jueces 16:30",
+    "tags": [
+      "sanson"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_033",
+    "type": "multiple_choice",
+    "prompt": "¿Quién interpretó la escritura «MENE, MENE, TEKEL, UPARSIN» en la pared?",
+    "options": [
+      "Daniel",
+      "José",
+      "Natán",
+      "Esdras"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Daniel 5 — interpretó el juicio anunciado al rey Belsasar.",
+    "reference": "Daniel 5:25",
+    "tags": [
+      "daniel",
+      "profecia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_034",
+    "type": "multiple_choice",
+    "prompt": "¿A quién dijo Dios: «Esfuérzate y sé valiente... yo estaré contigo»?",
+    "options": [
+      "Josué",
+      "Moisés",
+      "Gedeón",
+      "David"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Josué 1:9 — aliento de Dios al asumir el liderazgo tras Moisés.",
+    "reference": "Josué 1:9",
+    "tags": [
+      "josue",
+      "valentia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_035",
+    "type": "complete_verse",
+    "prompt": "«Lámpara es a mis pies tu ___, y lumbrera a mi camino.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "palabra",
+    "explanation": "Salmos 119:105 — la Palabra guía cada paso del creyente.",
+    "reference": "Salmos 119:105",
+    "tags": [
+      "palabra",
+      "guia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_036",
+    "type": "choose_reference",
+    "prompt": "«De tal manera amó Dios al mundo, que ha dado a su Hijo unigénito...» ¿En qué libro está?",
+    "options": [
+      "Juan",
+      "Romanos",
+      "Mateo",
+      "Hechos"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Juan 3:16 — el corazón del evangelio en el Evangelio de Juan.",
+    "reference": "Juan 3:16",
+    "tags": [
+      "evangelio",
+      "amor"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_037",
+    "type": "who_said",
+    "prompt": "¿Quién dijo: «Señor, ¿cuántas veces perdonaré a mi hermano? ¿Hasta siete?»?",
+    "options": [
+      "Pedro",
+      "Juan",
+      "Tomás",
+      "Mateo"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 18:21 — Jesús respondió «hasta setenta veces siete».",
+    "reference": "Mateo 18:21",
+    "tags": [
+      "pedro",
+      "perdon"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_038",
+    "type": "true_false",
+    "prompt": "El libro de Hechos narra el día de Pentecostés y el inicio de la iglesia.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 2 — el Espíritu Santo desciende y nace la iglesia con poder.",
+    "reference": "Hechos 2",
+    "tags": [
+      "iglesia",
+      "espiritu_santo"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v25_039",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años vivió Adán según Génesis?",
+    "options": [
+      "930 años",
+      "800 años",
+      "1000 años",
+      "600 años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 5:5 — «y murió» se repite, recordando la consecuencia del pecado.",
+    "reference": "Génesis 5:5",
+    "tags": [
+      "genealogia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_040",
+    "type": "who_said",
+    "prompt": "¿Quién escribió: «Con Cristo estoy juntamente crucificado, y ya no vivo yo, mas vive Cristo en mí»?",
+    "options": [
+      "Pablo",
+      "Pedro",
+      "Juan",
+      "Santiago"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Gálatas 2:20 — la vida cristiana es Cristo viviendo en el creyente.",
+    "reference": "Gálatas 2:20",
+    "tags": [
+      "pablo",
+      "identidad"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_041",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años reinó el rey Salomón sobre Israel?",
+    "options": [
+      "Cuarenta años",
+      "Veinte años",
+      "Setenta años",
+      "Diez años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 11:42 — cuarenta años, marcados por sabiduría y luego desvío.",
+    "reference": "1 Reyes 11:42",
+    "tags": [
+      "reyes",
+      "salomon"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_042",
+    "type": "choose_reference",
+    "prompt": "«Y conoceréis la verdad, y la verdad os hará libres.» ¿Dónde está?",
+    "options": [
+      "Juan 8:32",
+      "Romanos 8:1",
+      "Salmos 119:11",
+      "Hechos 1:8"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Juan 8:32 — la libertad nace de permanecer en la palabra de Jesús.",
+    "reference": "Juan 8:32",
+    "tags": [
+      "verdad",
+      "libertad"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_043",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue el padre del rey David?",
+    "options": [
+      "Isaí (Jesé)",
+      "Booz",
+      "Obed",
+      "Saúl"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Samuel 16 — David, el menor de los hijos de Isaí, fue ungido en Belén.",
+    "reference": "1 Samuel 16:1",
+    "tags": [
+      "david",
+      "genealogia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_044",
+    "type": "multiple_choice",
+    "prompt": "¿En cuántos días terminó Nehemías la reconstrucción del muro de Jerusalén?",
+    "options": [
+      "Cincuenta y dos días",
+      "Cuarenta días",
+      "Siete días",
+      "Cien días"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Nehemías 6:15 — la obra se acabó con notable rapidez por la mano de Dios.",
+    "reference": "Nehemías 6:15",
+    "tags": [
+      "nehemias"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_045",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue la última plaga que cayó sobre Egipto?",
+    "options": [
+      "La muerte de los primogénitos",
+      "Las langostas",
+      "Las ranas",
+      "Las tinieblas"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Éxodo 11-12 — la décima plaga llevó a la institución de la Pascua.",
+    "reference": "Éxodo 12:29",
+    "tags": [
+      "exodo",
+      "pascua"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_046",
+    "type": "multiple_choice",
+    "prompt": "¿Qué rey de Judá recibió quince años más de vida tras orar a Dios?",
+    "options": [
+      "Ezequías",
+      "Josías",
+      "Asa",
+      "Joás"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 20 — Dios añadió años a Ezequías y dio la señal de la sombra del reloj.",
+    "reference": "2 Reyes 20:6",
+    "tags": [
+      "reyes",
+      "oracion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_047",
+    "type": "true_false",
+    "prompt": "El profeta Isaías describió al Siervo sufriente que llevaría nuestros pecados.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Isaías 53 — profecía del Mesías «herido por nuestras rebeliones».",
+    "reference": "Isaías 53:5",
+    "tags": [
+      "profecia",
+      "mesias"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_048",
+    "type": "complete_verse",
+    "prompt": "«Porque por gracia sois salvos por medio de la fe; y esto no de vosotros, pues es ___ de Dios.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "don",
+    "explanation": "Efesios 2:8 — la salvación es regalo de Dios, no resultado de obras.",
+    "reference": "Efesios 2:8",
+    "tags": [
+      "gracia",
+      "salvacion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_049",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas personas se salvaron en el arca de Noé?",
+    "options": [
+      "Ocho",
+      "Dos",
+      "Doce",
+      "Cuarenta"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Pedro 3:20 — Noé, su esposa, sus tres hijos y las esposas de estos.",
+    "reference": "1 Pedro 3:20",
+    "tags": [
+      "noe"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_050",
+    "type": "who_said",
+    "prompt": "¿Quién oró: «No mires al pecado de este pueblo» e intercedió por Israel tras el becerro de oro?",
+    "options": [
+      "Moisés",
+      "Aarón",
+      "Josué",
+      "Caleb"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Éxodo 32 — Moisés intercedió para que Dios no destruyera al pueblo.",
+    "reference": "Éxodo 32:31-32",
+    "tags": [
+      "moises",
+      "intercesion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_051",
+    "type": "situational",
+    "prompt": "Sientes ansiedad por el futuro y la incertidumbre. ¿Qué práctica enseña Filipenses 4?",
+    "options": [
+      "Orar con acción de gracias y recibir la paz de Dios",
+      "Preocuparte hasta resolverlo tú solo",
+      "Evitar pensar en el asunto por completo",
+      "Confiar únicamente en tus propias fuerzas"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Filipenses 4:6-7 — la oración agradecida abre paso a la paz que guarda el corazón.",
+    "reference": "Filipenses 4:6-7",
+    "tags": [
+      "ansiedad",
+      "oracion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v25_052",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue la única mujer que reinó sobre Judá, usurpando el trono?",
+    "options": [
+      "Atalía",
+      "Jezabel",
+      "Ester",
+      "Mical"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 11 — Atalía reinó seis años hasta que Joás fue proclamado rey.",
+    "reference": "2 Reyes 11:3",
+    "tags": [
+      "reyes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_001",
+    "type": "multiple_choice",
+    "prompt": "¿Qué animal tentó a Eva en el huerto del Edén?",
+    "options": [
+      "La serpiente",
+      "El águila",
+      "El lobo",
+      "El asno"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 3:1 RV60 — «La serpiente era astuta, más que todos los animales del campo».",
+    "reference": "Génesis 3:1",
+    "tags": [
+      "creacion",
+      "pecado"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_002",
+    "type": "multiple_choice",
+    "prompt": "¿En qué río fue bautizado Jesús por Juan el Bautista?",
+    "options": [
+      "El río Jordán",
+      "El mar de Galilea",
+      "El río Nilo",
+      "El río Éufrates"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 3:13 RV60 — Jesús vino de Galilea al Jordán para ser bautizado por Juan.",
+    "reference": "Mateo 3:13",
+    "tags": [
+      "jesus",
+      "bautismo"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_003",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos días estuvo Jesús en el desierto siendo tentado por el diablo?",
+    "options": [
+      "Cuarenta",
+      "Siete",
+      "Tres",
+      "Doce"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 4:2 RV60 — ayunó cuarenta días y cuarenta noches, y después tuvo hambre.",
+    "reference": "Mateo 4:2",
+    "tags": [
+      "jesus",
+      "tentacion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_004",
+    "type": "multiple_choice",
+    "prompt": "¿Quién vendió su primogenitura a su hermano Jacob por un guiso de lentejas?",
+    "options": [
+      "Esaú",
+      "Rubén",
+      "Simeón",
+      "Leví"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 25:33 RV60 — Esaú menosprecio su primogenitura por la urgencia del hambre.",
+    "reference": "Génesis 25:33",
+    "tags": [
+      "jacob",
+      "primogenitura"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_005",
+    "type": "multiple_choice",
+    "prompt": "¿Cómo se llamaba el ángel que le anunció a María que sería madre de Jesús?",
+    "options": [
+      "Gabriel",
+      "Miguel",
+      "Rafael",
+      "Uriel"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Lucas 1:26 RV60 — el ángel Gabriel fue enviado de Dios a Nazaret, a una virgen llamada María.",
+    "reference": "Lucas 1:26",
+    "tags": [
+      "navidad",
+      "angel"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_006",
+    "type": "multiple_choice",
+    "prompt": "¿Qué instrumento tocaba David para calmar al rey Saúl?",
+    "options": [
+      "El arpa",
+      "La flauta",
+      "El tambor",
+      "La trompeta"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Samuel 16:23 RV60 — David tomaba el arpa y tocaba con su mano, y Saúl tenía alivio.",
+    "reference": "1 Samuel 16:23",
+    "tags": [
+      "david",
+      "musica"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_007",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos libros tiene el Antiguo Testamento en el canon protestante?",
+    "options": [
+      "Treinta y nueve",
+      "Veintisiete",
+      "Cuarenta",
+      "Veinticuatro"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "El Antiguo Testamento tiene 39 libros en el canon protestante, igual a la RV60.",
+    "reference": null,
+    "tags": [
+      "biblia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_008",
+    "type": "who_said",
+    "prompt": "¿Quién traicionó a Jesús con un beso en el huerto de Getsemaní?",
+    "options": [
+      "Judas Iscariote",
+      "Pedro",
+      "Tomás",
+      "Herodes"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 26:49 RV60 — Judas usó un beso como señal convenida con los que vinieron a arrestar a Jesús.",
+    "reference": "Mateo 26:49",
+    "tags": [
+      "pasion",
+      "traicion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_009",
+    "type": "multiple_choice",
+    "prompt": "¿Qué hizo Dios el séptimo día de la creación según Génesis?",
+    "options": [
+      "Descansó y santificó ese día",
+      "Creó al hombre",
+      "Separó las aguas",
+      "Creó los astros"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 2:2-3 RV60 — Dios reposó el séptimo día de toda la obra que había hecho, y lo bendijo.",
+    "reference": "Génesis 2:2",
+    "tags": [
+      "creacion",
+      "sabado"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_010",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue el primer hijo de Adán y Eva según Génesis 4?",
+    "options": [
+      "Caín",
+      "Abel",
+      "Set",
+      "Enoc"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 4:1 RV60 — Eva concibió y dio a luz a Caín, diciendo: «He adquirido varón de Jehová».",
+    "reference": "Génesis 4:1",
+    "tags": [
+      "genealogia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_011",
+    "type": "multiple_choice",
+    "prompt": "¿Quién era el padre del rey Salomón?",
+    "options": [
+      "David",
+      "Saúl",
+      "Roboam",
+      "Jesé"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Samuel 12:24 RV60 — David amó a Betsabé, y ella le dio a luz un hijo al que llamaron Salomón.",
+    "reference": "2 Samuel 12:24",
+    "tags": [
+      "salomon",
+      "david"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_012",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos salmos tiene el libro de los Salmos en la Biblia RV60?",
+    "options": [
+      "Ciento cincuenta",
+      "Cien",
+      "Ciento veinte",
+      "Ciento treinta"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "El libro de los Salmos contiene 150 salmos, desde el Salmo 1 hasta el 150.",
+    "reference": null,
+    "tags": [
+      "biblia",
+      "salmos"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_013",
+    "type": "multiple_choice",
+    "prompt": "¿Qué ciudad destruyó Dios junto con Sodoma por su gran maldad?",
+    "options": [
+      "Gomorra",
+      "Jericó",
+      "Babilonia",
+      "Nínive"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 19:24 RV60 — Jehová hizo llover sobre Sodoma y Gomorra azufre y fuego.",
+    "reference": "Génesis 19:24",
+    "tags": [
+      "juicio"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_014",
+    "type": "multiple_choice",
+    "prompt": "¿Cómo se llamaba la esposa original de Abraham, madre de Isaac?",
+    "options": [
+      "Sara",
+      "Rebeca",
+      "Raquel",
+      "Lea"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 17:15 RV60 — Dios cambió el nombre de Sarai a Sara, y le prometió un hijo.",
+    "reference": "Génesis 17:15",
+    "tags": [
+      "abraham",
+      "sara"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_015",
+    "type": "multiple_choice",
+    "prompt": "¿A cuántos leprosos sanó Jesús al mismo tiempo según Lucas 17?",
+    "options": [
+      "Diez",
+      "Cinco",
+      "Doce",
+      "Uno"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Lucas 17:12-17 RV60 — diez leprosos fueron limpiados, pero solo uno regresó a dar gracias.",
+    "reference": "Lucas 17:12",
+    "tags": [
+      "milagros",
+      "gratitud"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_016",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue la única mujer que gobernó como juez de Israel?",
+    "options": [
+      "Débora",
+      "Ester",
+      "Rut",
+      "Ana"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jueces 4:4 RV60 — Débora, profetisa, juzgaba a Israel debajo de la palmera de Débora.",
+    "reference": "Jueces 4:4",
+    "tags": [
+      "debora",
+      "jueces"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_017",
+    "type": "who_said",
+    "prompt": "¿Quién construyó el primer templo de Jerusalén para Jehová?",
+    "options": [
+      "Salomón",
+      "David",
+      "Moisés",
+      "Ezequías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 6:1 RV60 — Salomón edificó el templo a Jehová en el año cuarto de su reinado.",
+    "reference": "1 Reyes 6:1",
+    "tags": [
+      "salomon",
+      "templo"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_018",
+    "type": "multiple_choice",
+    "prompt": "¿En qué ciudad vivían Marta, María y Lázaro, amigos íntimos de Jesús?",
+    "options": [
+      "Betania",
+      "Belén",
+      "Capernaum",
+      "Jericó"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Juan 11:1 RV60 — Lázaro era de Betania, la aldea de María y de Marta su hermana.",
+    "reference": "Juan 11:1",
+    "tags": [
+      "lazaro",
+      "amistad"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_019",
+    "type": "true_false",
+    "prompt": "Moisés vio la cara de Dios directamente en el monte Sinaí.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 1,
+    "answerText": null,
+    "explanation": "Éxodo 33:20 RV60 — Dios dijo a Moisés: «No podrás ver mi rostro; porque no me verá hombre, y vivirá».",
+    "reference": "Éxodo 33:20",
+    "tags": [
+      "moises",
+      "dios"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_020",
+    "type": "multiple_choice",
+    "prompt": "¿Qué le ocurrió a la esposa de Lot cuando desobedeció y miró atrás al huir de Sodoma?",
+    "options": [
+      "Se convirtió en estatua de sal",
+      "Se convirtió en piedra",
+      "Murió de miedo",
+      "Quedó ciega"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 19:26 RV60 — la mujer de Lot miró atrás, y se volvió estatua de sal.",
+    "reference": "Génesis 19:26",
+    "tags": [
+      "lot",
+      "obediencia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_021",
+    "type": "multiple_choice",
+    "prompt": "¿En qué mar se hundió el ejército del faraón al perseguir a Israel?",
+    "options": [
+      "En el Mar Rojo",
+      "En el Mar Mediterráneo",
+      "En el río Jordán",
+      "En el Mar Muerto"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Éxodo 14:28 RV60 — las aguas volvieron y cubrieron los carros, la caballería y todo el ejército del faraón.",
+    "reference": "Éxodo 14:28",
+    "tags": [
+      "exodo",
+      "milagros"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_022",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas veces negó Pedro a Jesús en la noche de su arresto?",
+    "options": [
+      "Tres veces",
+      "Dos veces",
+      "Una vez",
+      "Cuatro veces"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 26:75 RV60 — antes que el gallo cantase, Pedro le negaría tres veces; y saliendo, lloró amargamente.",
+    "reference": "Mateo 26:75",
+    "tags": [
+      "pedro",
+      "pasion"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_023",
+    "type": "multiple_choice",
+    "prompt": "¿Qué libro narra la historia de una mujer extranjera fiel a su suegra israelita?",
+    "options": [
+      "Rut",
+      "Ester",
+      "Nehemías",
+      "Job"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Rut 1:16 RV60 — «donde tú murieres, moriré yo, y allí seré sepultada».",
+    "reference": "Rut 1:16",
+    "tags": [
+      "rut",
+      "fidelidad"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_024",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta fue llevado al cielo sin morir, en un torbellino y carro de fuego?",
+    "options": [
+      "Elías",
+      "Enoc",
+      "Moisés",
+      "Isaías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 2:11 RV60 — Elías subió al cielo en un torbellino, en medio de un carro de fuego.",
+    "reference": "2 Reyes 2:11",
+    "tags": [
+      "elias",
+      "profetas"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_025",
+    "type": "multiple_choice",
+    "prompt": "¿Qué libro de la Biblia comienza con «En el principio creó Dios los cielos y la tierra»?",
+    "options": [
+      "Génesis",
+      "Éxodo",
+      "Job",
+      "Juan"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 1:1 RV60 — primera frase de toda la Escritura.",
+    "reference": "Génesis 1:1",
+    "tags": [
+      "creacion",
+      "biblia"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_026",
+    "type": "multiple_choice",
+    "prompt": "¿En qué ciudad a orillas del Mar de Galilea vivía Jesús durante su ministerio?",
+    "options": [
+      "Capernaum",
+      "Nazaret",
+      "Belén",
+      "Jericó"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 4:13 RV60 — Jesús vino y habitó en Capernaum, que está a la orilla del mar.",
+    "reference": "Mateo 4:13",
+    "tags": [
+      "jesus"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_027",
+    "type": "true_false",
+    "prompt": "El apóstol Juan fue el único de los doce que murió de vejez y no como mártir.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Según la tradición histórica y el libro de Apocalipsis, Juan murió de vejez en Éfeso.",
+    "reference": null,
+    "tags": [
+      "apostoles",
+      "juan"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_028",
+    "type": "multiple_choice",
+    "prompt": "¿Qué hizo Dios al hombre cuando lo formó del polvo de la tierra en Génesis 2?",
+    "options": [
+      "Sopló en su nariz aliento de vida",
+      "Le habló directamente",
+      "Lo lavó en el río",
+      "Le puso vestidura"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 2:7 RV60 — Jehová Dios sopló en su nariz aliento de vida, y fue el hombre un ser viviente.",
+    "reference": "Génesis 2:7",
+    "tags": [
+      "creacion",
+      "hombre"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_029",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál es el libro más largo de la Biblia por número de capítulos?",
+    "options": [
+      "Los Salmos, con 150 capítulos",
+      "Génesis, con 50",
+      "Isaías, con 66",
+      "Jeremías, con 52"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "El libro de los Salmos tiene 150 capítulos, más que cualquier otro libro de la Biblia.",
+    "reference": null,
+    "tags": [
+      "biblia",
+      "salmos"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_030",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue el primer rey de la nación de Israel ungido por el profeta Samuel?",
+    "options": [
+      "Saúl",
+      "David",
+      "Josué",
+      "Gedeón"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Samuel 10:1 RV60 — Samuel tomó una vasija de aceite y lo derramó sobre la cabeza de Saúl.",
+    "reference": "1 Samuel 10:1",
+    "tags": [
+      "reyes",
+      "saul"
+    ],
+    "difficulty": 1
+  },
+  {
+    "id": "q_v26_031",
+    "type": "multiple_choice",
+    "prompt": "¿A qué ciudad envió Dios a Pablo en visión, diciendo «Pasa a Macedonia y ayúdanos»?",
+    "options": [
+      "Filipos, en Macedonia",
+      "Roma",
+      "Corinto",
+      "Éfeso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 16:9-12 RV60 — Pablo tuvo la visión y partió hacia Macedonia; llegó a Filipos.",
+    "reference": "Hechos 16:9",
+    "tags": [
+      "pablo",
+      "mision"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_032",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue la suegra de Rut que la acompañó de regreso a Belén desde Moab?",
+    "options": [
+      "Noemí",
+      "Orfa",
+      "Rebeca",
+      "Rahab"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Rut 1:22 RV60 — Noemí volvió, y Rut la moabita su nuera con ella.",
+    "reference": "Rut 1:22",
+    "tags": [
+      "rut",
+      "familia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_033",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta en tiempos de Acab desafió a 450 profetas de Baal en el monte Carmelo?",
+    "options": [
+      "Elías",
+      "Eliseo",
+      "Miqueas",
+      "Jeremías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 18:19-40 RV60 — Elías desafió a los profetas de Baal y cayó fuego de Jehová sobre el altar.",
+    "reference": "1 Reyes 18:38",
+    "tags": [
+      "elias",
+      "fe"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_034",
+    "type": "multiple_choice",
+    "prompt": "¿En qué lugar del tabernáculo estaba guardada el arca del pacto?",
+    "options": [
+      "En el Lugar Santísimo",
+      "En el atrio exterior",
+      "En el Lugar Santo",
+      "En la entrada"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Éxodo 26:33-34 RV60 — el arca del testimonio estaba detrás del velo, en el Lugar Santísimo.",
+    "reference": "Éxodo 26:33",
+    "tags": [
+      "tabernáculo",
+      "ley"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_035",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años anduvo Israel por el desierto antes de entrar a Canaán?",
+    "options": [
+      "Cuarenta años",
+      "Veinte años",
+      "Siete años",
+      "Cincuenta años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Números 14:33 RV60 — sus hijos andarían pastoreando cuarenta años en el desierto por la incredulidad.",
+    "reference": "Números 14:33",
+    "tags": [
+      "exodo",
+      "israel"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_036",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue el oficio de Pablo antes de convertirse en apóstol?",
+    "options": [
+      "Hacedor de tiendas",
+      "Pescador",
+      "Médico",
+      "Cobrador de impuestos"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 18:3 RV60 — Pablo era del mismo oficio que Aquila y Priscila: hacedor de tiendas.",
+    "reference": "Hechos 18:3",
+    "tags": [
+      "pablo"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_037",
+    "type": "choose_reference",
+    "prompt": "«Mas el fruto del Espíritu es amor, gozo, paz, paciencia, benignidad...» ¿Dónde está?",
+    "options": [
+      "Gálatas 5:22",
+      "Romanos 8:1",
+      "1 Corintios 13:1",
+      "Efesios 6:10"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Gálatas 5:22 RV60 — el fruto del Espíritu contrasta con las obras de la carne en el capítulo anterior.",
+    "reference": "Gálatas 5:22",
+    "tags": [
+      "espiritu_santo",
+      "fruto"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_038",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos versículos tiene el Salmo 119, el más largo de toda la Biblia?",
+    "options": [
+      "Ciento setenta y seis",
+      "Cien",
+      "Ciento cincuenta",
+      "Doscientos"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "El Salmo 119 tiene 176 versículos en la RV60, organizado en 22 secciones según el alfabeto hebreo.",
+    "reference": "Salmos 119",
+    "tags": [
+      "salmos",
+      "biblia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_039",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue el primer mártir cristiano entre los doce apóstoles, muerto a espada por Herodes?",
+    "options": [
+      "Jacobo (Santiago) hijo de Zebedeo",
+      "Pedro",
+      "Andrés",
+      "Felipe"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 12:2 RV60 — Herodes mató a espada a Jacobo, el hermano de Juan.",
+    "reference": "Hechos 12:2",
+    "tags": [
+      "apostoles",
+      "martirio"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_040",
+    "type": "who_said",
+    "prompt": "¿Quién escribió el libro del Apocalipsis mientras estaba desterrado?",
+    "options": [
+      "Juan el apóstol",
+      "Pablo",
+      "Pedro",
+      "Moisés"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Apocalipsis 1:4 RV60 — «Juan, a las siete iglesias que están en Asia».",
+    "reference": "Apocalipsis 1:4",
+    "tags": [
+      "juan",
+      "apocalipsis"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_041",
+    "type": "multiple_choice",
+    "prompt": "¿En qué isla fue desterrado Juan cuando recibió las visiones del Apocalipsis?",
+    "options": [
+      "Patmos",
+      "Chipre",
+      "Malta",
+      "Creta"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Apocalipsis 1:9 RV60 — «estaba en la isla llamada Patmos, por causa de la palabra de Dios».",
+    "reference": "Apocalipsis 1:9",
+    "tags": [
+      "juan",
+      "apocalipsis"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_042",
+    "type": "multiple_choice",
+    "prompt": "¿Qué hizo Gedeón para confirmar la voluntad de Dios antes de enfrentar a los madianitas?",
+    "options": [
+      "Puso un vellón de lana y pidió dos señales distintas",
+      "Ayunó cuarenta días",
+      "Construyó un altar de doce piedras",
+      "Pidió fuego del cielo"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jueces 6:36-40 RV60 — Gedeón probó la voluntad de Dios con el vellón mojado y luego seco.",
+    "reference": "Jueces 6:36",
+    "tags": [
+      "gedeon",
+      "fe"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_043",
+    "type": "complete_verse",
+    "prompt": "«Porque yo sé los pensamientos que tengo acerca de vosotros, dice Jehová, pensamientos de ___, y no de mal.»",
+    "options": [],
+    "correctIndex": 0,
+    "answerText": "paz",
+    "explanation": "Jeremías 29:11 RV60 — Dios tenía planes de bienestar y de futuro para su pueblo en el exilio.",
+    "reference": "Jeremías 29:11",
+    "tags": [
+      "esperanza",
+      "proposito"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_044",
+    "type": "who_said",
+    "prompt": "¿Quién fue el padre de Juan el Bautista, un sacerdote del turno de Abías?",
+    "options": [
+      "Zacarías",
+      "Eliseo",
+      "Aarón",
+      "Eli"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Lucas 1:5 RV60 — hubo en los días de Herodes un sacerdote llamado Zacarías, del turno de Abías.",
+    "reference": "Lucas 1:5",
+    "tags": [
+      "juan_bautista",
+      "genealogia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_045",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos libros escribió el apóstol Juan incluidos en el Nuevo Testamento?",
+    "options": [
+      "Cinco",
+      "Tres",
+      "Uno",
+      "Cuatro"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Juan escribió el Evangelio de Juan, 1 Juan, 2 Juan, 3 Juan y el Apocalipsis — cinco libros en total.",
+    "reference": null,
+    "tags": [
+      "juan",
+      "biblia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_046",
+    "type": "multiple_choice",
+    "prompt": "¿Qué rey de Israel provocó la división del reino al seguir a los ídolos?",
+    "options": [
+      "Salomón",
+      "Saúl",
+      "Acab",
+      "Jeroboam"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 11:11 RV60 — Dios dijo a Salomón: «quitaré de ti el reino y lo daré a tu siervo».",
+    "reference": "1 Reyes 11:11",
+    "tags": [
+      "salomon",
+      "idolatria"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_047",
+    "type": "true_false",
+    "prompt": "El apóstol Pablo nació en Tarso y poseía la ciudadanía romana.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 22:3,28 RV60 — Pablo era judío nacido en Tarso de Cilicia, y también ciudadano romano de nacimiento.",
+    "reference": "Hechos 22:3",
+    "tags": [
+      "pablo",
+      "historia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_048",
+    "type": "multiple_choice",
+    "prompt": "¿Qué significó el velo del templo que se rasgó de arriba abajo en la crucifixión?",
+    "options": [
+      "El libre acceso a Dios por la muerte de Cristo",
+      "El fin del sacerdocio aarónico",
+      "El juicio sobre Israel",
+      "El inicio del sábado"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 27:51 RV60 — el velo del templo se rasgó en dos, de arriba abajo.",
+    "reference": "Mateo 27:51",
+    "tags": [
+      "pasion",
+      "salvacion"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_049",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta fue llevado en visión al valle lleno de huesos secos y anunció su resurrección?",
+    "options": [
+      "Ezequiel",
+      "Isaías",
+      "Daniel",
+      "Jeremías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Ezequiel 37:1-3 RV60 — Dios preguntó: «¿Vivirán estos huesos?», y Ezequiel profetizó sobre ellos.",
+    "reference": "Ezequiel 37:3",
+    "tags": [
+      "ezequiel",
+      "resurreccion"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_050",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas cartas (epístolas) del apóstol Pablo están incluidas en el Nuevo Testamento?",
+    "options": [
+      "Trece",
+      "Siete",
+      "Diez",
+      "Doce"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "El canon del Nuevo Testamento incluye 13 epístolas atribuidas a Pablo, desde Romanos hasta Filemón.",
+    "reference": null,
+    "tags": [
+      "pablo",
+      "biblia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_051",
+    "type": "situational",
+    "prompt": "Tu hermano en la fe peca contra ti y no quiere reconocerlo. Según Mateo 18, ¿cuál es el primer paso?",
+    "options": [
+      "Ir a él solo y hablarle de su falta en privado",
+      "Contárselo a toda la iglesia",
+      "Ignorarlo y esperar que cambie solo",
+      "Nunca volver a hablarle"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 18:15 RV60 — «Ve y repréndele estando tú y él solos; si te oyere, has ganado a tu hermano».",
+    "reference": "Mateo 18:15",
+    "tags": [
+      "conflicto",
+      "discipulado"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_052",
+    "type": "multiple_choice",
+    "prompt": "¿Qué hecho demostró que Jesús tenía poder sobre la naturaleza según Marcos 4?",
+    "options": [
+      "Calmó la tempestad en el mar de Galilea con sus palabras",
+      "Convirtió el agua en vino",
+      "Multiplicó los peces en la red",
+      "Secó una higuera estéril"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Marcos 4:39 RV60 — «Calla, enmudece». Y el viento cesó y se hizo grande bonanza.",
+    "reference": "Marcos 4:39",
+    "tags": [
+      "milagros",
+      "jesus"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_053",
+    "type": "choose_reference",
+    "prompt": "«Porque donde esté vuestro tesoro, allí estará también vuestro corazón.» ¿Dónde está este versículo?",
+    "options": [
+      "Mateo 6:21",
+      "Lucas 12:15",
+      "Proverbios 4:23",
+      "Salmos 37:4"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 6:21 RV60 — parte del Sermón del Monte, enseñando sobre las prioridades del corazón.",
+    "reference": "Mateo 6:21",
+    "tags": [
+      "corazon",
+      "valores"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_054",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años reinó David sobre todo Israel desde Jerusalén?",
+    "options": [
+      "Treinta y tres años",
+      "Cuarenta años",
+      "Veinte años",
+      "Siete años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Samuel 5:4-5 RV60 — reinó siete años en Hebrón sobre Judá, y treinta y tres años sobre todo Israel desde Jerusalén.",
+    "reference": "2 Samuel 5:5",
+    "tags": [
+      "david",
+      "reyes"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_055",
+    "type": "multiple_choice",
+    "prompt": "¿Qué simbolizan los siete candelabros de oro en la visión inicial del Apocalipsis?",
+    "options": [
+      "Las siete iglesias de Asia",
+      "Los siete ángeles del cielo",
+      "Los siete dones del Espíritu",
+      "Los siete días de la creación"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Apocalipsis 1:20 RV60 — «los siete candeleros que has visto son las siete iglesias».",
+    "reference": "Apocalipsis 1:20",
+    "tags": [
+      "apocalipsis",
+      "iglesia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_056",
+    "type": "multiple_choice",
+    "prompt": "¿Qué apóstol escribió: «El amor nunca deja de ser»?",
+    "options": [
+      "Pablo en 1 Corintios 13",
+      "Juan en su evangelio",
+      "Pedro en su carta",
+      "Santiago en su epístola"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Corintios 13:8 RV60 — el amor (ágape) es eterno; todos los otros dones cesarán.",
+    "reference": "1 Corintios 13:8",
+    "tags": [
+      "pablo",
+      "amor"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_057",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta mayor denunció a Israel diciendo: «¿Qué más se puede hacer a mi viña, que yo no haya hecho en ella?»?",
+    "options": [
+      "Isaías",
+      "Jeremías",
+      "Ezequiel",
+      "Daniel"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Isaías 5:4 RV60 — el cántico de la viña representa la ingratitud de Israel ante el cuidado de Dios.",
+    "reference": "Isaías 5:4",
+    "tags": [
+      "isaias",
+      "israel"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_058",
+    "type": "multiple_choice",
+    "prompt": "¿Quién llevó a cabo la reconstrucción de los muros de Jerusalén en 52 días a pesar de la oposición?",
+    "options": [
+      "Nehemías",
+      "Esdras",
+      "Zorobabel",
+      "Josué"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Nehemías 6:15 RV60 — el muro fue terminado en el día veinticinco del mes de Elul, en cincuenta y dos días.",
+    "reference": "Nehemías 6:15",
+    "tags": [
+      "nehemias",
+      "perseverancia"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_059",
+    "type": "true_false",
+    "prompt": "El libro de Rut menciona a Booz como pariente redentor (goel) de Noemí y Rut.",
+    "options": [
+      "Verdadero",
+      "Falso"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Rut 2:20 RV60 — Noemí dijo: «ese varón es nuestro pariente; es uno de los que pueden redimirnos».",
+    "reference": "Rut 2:20",
+    "tags": [
+      "rut",
+      "redencion"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_060",
+    "type": "multiple_choice",
+    "prompt": "¿Qué sucedió cuando Pablo y Silas oraban y cantaban en la cárcel de Filipos a medianoche?",
+    "options": [
+      "Un terremoto abrió las puertas y se soltaron sus cadenas",
+      "Un ángel los sacó invisible",
+      "El carcelero los liberó al amanecer",
+      "Los otros presos los liberaron"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 16:25-26 RV60 — de repente hubo un gran terremoto y se abrieron todas las puertas.",
+    "reference": "Hechos 16:26",
+    "tags": [
+      "pablo",
+      "milagros"
+    ],
+    "difficulty": 2
+  },
+  {
+    "id": "q_v26_061",
+    "type": "multiple_choice",
+    "prompt": "¿En cuántos años terminó Salomón de construir el templo de Jerusalén?",
+    "options": [
+      "Siete años",
+      "Veinte años",
+      "Cuarenta años",
+      "Tres años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 6:38 RV60 — así terminó Salomón la casa de Jehová en siete años.",
+    "reference": "1 Reyes 6:38",
+    "tags": [
+      "salomon",
+      "templo"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_062",
+    "type": "who_said",
+    "prompt": "¿Quién se rebeló contra Moisés diciendo «¿No ha hablado Jehová con nosotros también?», siendo herida de lepra?",
+    "options": [
+      "Miriam",
+      "Raquel",
+      "Orfa",
+      "María Magdalena"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Números 12:2-10 RV60 — Miriam y Aarón hablaron contra Moisés; Miriam quedó leprosa.",
+    "reference": "Números 12:2",
+    "tags": [
+      "miriam",
+      "humildad"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_063",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál fue el nombre del sumo sacerdote que rasgó sus vestiduras ante Jesús diciendo «¡Ha blasfemado!»?",
+    "options": [
+      "Caifás",
+      "Anás",
+      "Abiatar",
+      "Eleazar"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 26:65 RV60 — el sumo sacerdote Caifás rasgó sus vestiduras y acusó a Jesús de blasfemia.",
+    "reference": "Mateo 26:65",
+    "tags": [
+      "pasion",
+      "sacerdotes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_064",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas veces rodearon los israelitas Jericó el séptimo día antes de que cayeran sus muros?",
+    "options": [
+      "Siete veces",
+      "Una vez",
+      "Tres veces",
+      "Doce veces"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Josué 6:15 RV60 — el séptimo día se levantaron al alba y rodearon la ciudad de la misma manera siete veces.",
+    "reference": "Josué 6:15",
+    "tags": [
+      "josue",
+      "jerico"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_065",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta menor anunció el juicio de Dios mediante una plaga de langostas y llamó al ayuno?",
+    "options": [
+      "Joel",
+      "Amós",
+      "Oseas",
+      "Habacuc"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Joel 1:4 RV60 — lo que quedó de la oruga comió el saltón, y lo que quedó del saltón comió el pulgón.",
+    "reference": "Joel 1:4",
+    "tags": [
+      "profetas",
+      "joel"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_066",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos días predicó Jonás en Nínive según Jonás 3?",
+    "options": [
+      "Cuarenta días de predicación",
+      "Siete días",
+      "Tres días",
+      "Un mes"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jonás 3:4 RV60 — Jonás comenzó a entrar por la ciudad y predicó diciendo: «De aquí a cuarenta días Nínive será destruida».",
+    "reference": "Jonás 3:4",
+    "tags": [
+      "jonas",
+      "mision"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_067",
+    "type": "multiple_choice",
+    "prompt": "¿Qué significa el nombre «Betel», lugar donde Jacob vio la escalera que llegaba al cielo?",
+    "options": [
+      "Casa de Dios",
+      "Puerta del cielo",
+      "Monte del Señor",
+      "Valle del pacto"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 28:19 RV60 — Jacob llamó el nombre de aquel lugar Bet-el (casa de Dios).",
+    "reference": "Génesis 28:19",
+    "tags": [
+      "jacob",
+      "adoracion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_068",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos sellos, trompetas y copas de ira aparecen cada uno en el libro del Apocalipsis?",
+    "options": [
+      "Siete de cada uno",
+      "Doce de cada uno",
+      "Tres de cada uno",
+      "Diez de cada uno"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Apocalipsis 6, 8-9, 16 RV60 — tres series de siete juicios estructuran la segunda parte del Apocalipsis.",
+    "reference": "Apocalipsis 6",
+    "tags": [
+      "apocalipsis"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_069",
+    "type": "multiple_choice",
+    "prompt": "¿En qué capítulo de Isaías se encuentra la profecía del Siervo sufriente que describe la pasión de Cristo?",
+    "options": [
+      "Capítulo 53",
+      "Capítulo 40",
+      "Capítulo 61",
+      "Capítulo 9"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Isaías 53 RV60 — «herido fue por nuestras rebeliones, molido por nuestros pecados».",
+    "reference": "Isaías 53",
+    "tags": [
+      "isaias",
+      "mesias"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_070",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años vivió Enoc, el hombre que «caminó con Dios» y fue llevado sin ver muerte?",
+    "options": [
+      "Trescientos sesenta y cinco años",
+      "Novecientos años",
+      "Doscientos años",
+      "Cuatrocientos años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 5:23-24 RV60 — Enoc vivió trescientos sesenta y cinco años, y le llevó Dios.",
+    "reference": "Génesis 5:23",
+    "tags": [
+      "enoc",
+      "genealogia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_071",
+    "type": "multiple_choice",
+    "prompt": "¿Qué término arameo usa Pablo en 1 Corintios 16:22 que significa «¡El Señor viene!»?",
+    "options": [
+      "Maranata",
+      "Aleluya",
+      "Amén",
+      "Hosanna"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Corintios 16:22 RV60 — «Maranata» es la transliteración del arameo «Maran ata» (el Señor viene).",
+    "reference": "1 Corintios 16:22",
+    "tags": [
+      "pablo",
+      "esperanza"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_072",
+    "type": "multiple_choice",
+    "prompt": "¿A qué rey confrontó el profeta Natán con la parábola de la ovejita robada?",
+    "options": [
+      "David",
+      "Salomón",
+      "Saúl",
+      "Acab"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Samuel 12 RV60 — Natán confrontó a David por el pecado con Betsabé y la muerte de Urías el hitita.",
+    "reference": "2 Samuel 12:1",
+    "tags": [
+      "david",
+      "pecado"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_073",
+    "type": "choose_reference",
+    "prompt": "«Santo, santo, santo, Jehová de los ejércitos; toda la tierra está llena de su gloria.» ¿Dónde está?",
+    "options": [
+      "Isaías 6:3",
+      "Apocalipsis 4:8",
+      "Salmos 99:3",
+      "Ezequiel 1:28"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Isaías 6:3 RV60 — los serafines proclamaban esta alabanza ante el trono divino en la visión de Isaías.",
+    "reference": "Isaías 6:3",
+    "tags": [
+      "adoracion",
+      "isaias"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_074",
+    "type": "multiple_choice",
+    "prompt": "¿Qué rey pagano fue instrumento de Dios para liberar a los judíos del exilio y reconstruir el templo?",
+    "options": [
+      "Ciro el Grande de Persia",
+      "Darío el Medo",
+      "Nabucodonosor",
+      "Asuero"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Esdras 1:1-2 RV60 — Jehová despertó el espíritu de Ciro rey de Persia para decretar la reconstrucción del templo.",
+    "reference": "Esdras 1:2",
+    "tags": [
+      "exilio",
+      "esdras"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_075",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años duró el exilio de Judá en Babilonia según la profecía de Jeremías?",
+    "options": [
+      "Setenta años",
+      "Cien años",
+      "Cuarenta años",
+      "Cincuenta años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jeremías 25:11 RV60 — «servirán estas naciones al rey de Babilonia setenta años».",
+    "reference": "Jeremías 25:11",
+    "tags": [
+      "exilio",
+      "jeremias"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_076",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas personas se reunieron en el aposento alto el día de Pentecostés según Hechos 1:15?",
+    "options": [
+      "Como ciento veinte",
+      "Doce",
+      "Quinientas",
+      "Setenta"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 1:15 RV60 — Pedro se puso en pie en medio de los hermanos: había como ciento veinte personas reunidas.",
+    "reference": "Hechos 1:15",
+    "tags": [
+      "pentecostes",
+      "iglesia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_077",
+    "type": "multiple_choice",
+    "prompt": "¿Qué rey pagano vio una escritura misteriosa en la pared durante un banquete y fue juzgado?",
+    "options": [
+      "Belsasar de Babilonia",
+      "Nabucodonosor",
+      "Ciro",
+      "Asuero"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Daniel 5:5 RV60 — en aquella misma hora aparecieron los dedos de una mano de hombre y escribió delante del candelero.",
+    "reference": "Daniel 5:5",
+    "tags": [
+      "daniel",
+      "juicio"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_078",
+    "type": "multiple_choice",
+    "prompt": "¿Qué ley establecía el perdón de deudas y la liberación de esclavos cada cincuenta años en Israel?",
+    "options": [
+      "El Año del Jubileo",
+      "El Año Sabático",
+      "La ley del goél",
+      "La ley del diezmo"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Levítico 25:10 RV60 — «Santificaréis el año cincuenta, y pregonaréis libertad en la tierra».",
+    "reference": "Levítico 25:10",
+    "tags": [
+      "ley",
+      "jubileo"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_079",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos capítulos tiene el libro de Isaías, el más extenso de los profetas mayores?",
+    "options": [
+      "Sesenta y seis",
+      "Cincuenta y dos",
+      "Cuarenta y ocho",
+      "Setenta"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Isaías tiene 66 capítulos en la RV60, el mismo número que los libros de toda la Biblia.",
+    "reference": null,
+    "tags": [
+      "isaias",
+      "biblia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_080",
+    "type": "multiple_choice",
+    "prompt": "¿Qué texto del Antiguo Testamento leía el eunuco etíope cuando Felipe se acercó a su carro?",
+    "options": [
+      "Isaías 53",
+      "Salmos 22",
+      "Daniel 9",
+      "Génesis 1"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 8:28-32 RV60 — el eunuco leía al profeta Isaías, específicamente Isaías 53:7-8.",
+    "reference": "Hechos 8:28",
+    "tags": [
+      "salvacion",
+      "iglesia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_081",
+    "type": "multiple_choice",
+    "prompt": "¿Cómo murió el rey Acab de Israel a pesar de haberse disfrazado para la batalla?",
+    "options": [
+      "Una flecha al azar le hirió entre las junturas de la armadura",
+      "Un soldado lo reconoció y lo mató",
+      "Murió de una enfermedad",
+      "Cayó de su caballo sin ser herido"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 22:34 RV60 — un hombre disparó su arco al azar e hirió al rey de Israel entre las junturas de la armadura.",
+    "reference": "1 Reyes 22:34",
+    "tags": [
+      "acab",
+      "reyes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_082",
+    "type": "multiple_choice",
+    "prompt": "¿A qué ángel menciona Daniel 12 como «el gran príncipe» que guarda a Israel?",
+    "options": [
+      "Miguel",
+      "Gabriel",
+      "Rafael",
+      "Uriel"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Daniel 12:1 RV60 — «se levantará Miguel, el gran príncipe que está de parte de los hijos de tu pueblo».",
+    "reference": "Daniel 12:1",
+    "tags": [
+      "daniel",
+      "angeles"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_083",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta menor pronunció la famosa exhortación: «Solamente hacer justicia, y amar misericordia, y humillarte ante tu Dios»?",
+    "options": [
+      "Miqueas",
+      "Amós",
+      "Habacuc",
+      "Sofonías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Miqueas 6:8 RV60 — respuesta a la pregunta de cómo presentarse ante Jehová.",
+    "reference": "Miqueas 6:8",
+    "tags": [
+      "miqueas",
+      "justicia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_084",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos ancianos rodeaban el trono de Dios en la visión de Juan en Apocalipsis 4?",
+    "options": [
+      "Veinticuatro",
+      "Doce",
+      "Setenta",
+      "Cien"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Apocalipsis 4:4 RV60 — veinticuatro ancianos, vestidos de ropas blancas, con coronas de oro.",
+    "reference": "Apocalipsis 4:4",
+    "tags": [
+      "apocalipsis",
+      "adoracion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_085",
+    "type": "multiple_choice",
+    "prompt": "¿Qué batalla de Josué hizo que el sol y la luna se detuvieran sobre Gabaón?",
+    "options": [
+      "La batalla de Gabaón contra los amorreos",
+      "La batalla de Jericó",
+      "La batalla de Hai",
+      "La batalla del Jordán"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Josué 10:12-13 RV60 — Josué habló a Jehová, y el sol se detuvo y la luna no se movió.",
+    "reference": "Josué 10:12",
+    "tags": [
+      "josue",
+      "milagros"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_086",
+    "type": "multiple_choice",
+    "prompt": "¿En qué libro profético aparece: «No con ejército, ni con fuerza, sino con mi Espíritu, ha dicho Jehová»?",
+    "options": [
+      "Zacarías 4:6",
+      "Isaías 40:31",
+      "Miqueas 6:8",
+      "Habacuc 2:4"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Zacarías 4:6 RV60 — palabras al gobernador Zorobabel sobre cómo se edificaría el templo restaurado.",
+    "reference": "Zacarías 4:6",
+    "tags": [
+      "espiritu",
+      "profetas"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_087",
+    "type": "multiple_choice",
+    "prompt": "¿Qué pecado de orgullo hizo que el rey Uzías contrajera lepra en el templo?",
+    "options": [
+      "Entrar al templo a quemar incienso, oficio reservado solo a los sacerdotes",
+      "Matar a un sacerdote",
+      "Tomar el arca del templo",
+      "Construir ídolos en el altar"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Crónicas 26:16-19 RV60 — Uzías se llenó de soberbia y entró al templo a quemar incienso.",
+    "reference": "2 Crónicas 26:16",
+    "tags": [
+      "reyes",
+      "uzias"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_088",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años reinó Manasés en Judá, el reinado más largo del sur?",
+    "options": [
+      "Cincuenta y cinco años",
+      "Cuarenta años",
+      "Treinta años",
+      "Sesenta años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 21:1 RV60 — «reinó Manasés cincuenta y cinco años en Jerusalén», el más largo de los reyes de Judá.",
+    "reference": "2 Reyes 21:1",
+    "tags": [
+      "reyes",
+      "manases"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_089",
+    "type": "multiple_choice",
+    "prompt": "¿Qué apóstol fue arrebatado «hasta el tercer cielo» y escuchó palabras inefables?",
+    "options": [
+      "Pablo",
+      "Pedro",
+      "Juan",
+      "Santiago"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Corintios 12:2-4 RV60 — Pablo narra haber sido arrebatado al paraíso sin saber si fue en el cuerpo o fuera del cuerpo.",
+    "reference": "2 Corintios 12:2",
+    "tags": [
+      "pablo",
+      "vision"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_090",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta usó una faja de lino escondida en las piedras del Éufrates como señal de la corrupción de Israel?",
+    "options": [
+      "Jeremías",
+      "Ezequiel",
+      "Isaías",
+      "Amós"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Jeremías 13:1-7 RV60 — la faja podrida ilustraba que Dios destruiría el orgullo de Judá.",
+    "reference": "Jeremías 13:1",
+    "tags": [
+      "jeremias",
+      "profecia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_091",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál es el Salmo que comienza con «Dios mío, Dios mío, ¿por qué me has abandonado?», citado por Jesús en la cruz?",
+    "options": [
+      "El Salmo 22",
+      "El Salmo 23",
+      "El Salmo 51",
+      "El Salmo 69"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Salmos 22:1 RV60 — Jesús citó este salmo en Mateo 27:46, cumpliendo proféticamente la pasión.",
+    "reference": "Salmos 22:1",
+    "tags": [
+      "salmos",
+      "mesias"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_092",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos libros del Antiguo Testamento corresponden a los profetas menores?",
+    "options": [
+      "Doce",
+      "Cuatro",
+      "Siete",
+      "Diez"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Los doce profetas menores van desde Oseas hasta Malaquías en el canon hebreo y cristiano.",
+    "reference": null,
+    "tags": [
+      "biblia",
+      "profetas"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_093",
+    "type": "multiple_choice",
+    "prompt": "¿Qué libro neotestamentario contiene el famoso capítulo de los «héroes de la fe»?",
+    "options": [
+      "Hebreos 11",
+      "Santiago 2",
+      "Romanos 4",
+      "1 Pedro 1"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hebreos 11 RV60 — menciona por nombre a Abel, Enoc, Noé, Abraham, Sara, Moisés, Rahab y muchos más.",
+    "reference": "Hebreos 11",
+    "tags": [
+      "fe",
+      "biblia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_094",
+    "type": "multiple_choice",
+    "prompt": "¿Qué rey de Asiria llevó cautivo al reino del norte (Israel) tras conquistar Samaria?",
+    "options": [
+      "Salmanasar V / Sargón II",
+      "Nabucodonosor",
+      "Ciro",
+      "Darío"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 17:6 RV60 — el rey de Asiria tomó Samaria y trasladó a Israel a Asiria.",
+    "reference": "2 Reyes 17:6",
+    "tags": [
+      "historia",
+      "exilio"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_095",
+    "type": "multiple_choice",
+    "prompt": "¿En qué libro del Antiguo Testamento aparece el mandamiento «Amarás a tu prójimo como a ti mismo»?",
+    "options": [
+      "Levítico 19:18",
+      "Deuteronomio 6:5",
+      "Génesis 1:1",
+      "Éxodo 20:1"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Levítico 19:18 RV60 — Jesús citó este versículo como el segundo gran mandamiento en Mateo 22:39.",
+    "reference": "Levítico 19:18",
+    "tags": [
+      "amor",
+      "ley"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_096",
+    "type": "multiple_choice",
+    "prompt": "¿Cuál es la última palabra registrada en todo el canon bíblico (Apocalipsis 22:21 RV60)?",
+    "options": [
+      "Amén",
+      "Maranata",
+      "Aleluya",
+      "Gloria"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Apocalipsis 22:21 RV60 — «La gracia de nuestro Señor Jesucristo sea con todos vosotros. Amén.»",
+    "reference": "Apocalipsis 22:21",
+    "tags": [
+      "apocalipsis",
+      "biblia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_097",
+    "type": "multiple_choice",
+    "prompt": "¿Qué ciudad fue la primera en recibir el evangelio en suelo europeo, según Hechos 16?",
+    "options": [
+      "Filipos en Macedonia",
+      "Atenas",
+      "Corinto",
+      "Roma"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Hechos 16:12 RV60 — Pablo y Silas llegaron a Filipos, ciudad principal de aquella parte de Macedonia.",
+    "reference": "Hechos 16:12",
+    "tags": [
+      "pablo",
+      "mision"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_098",
+    "type": "multiple_choice",
+    "prompt": "¿Qué significado tiene el nombre «Emmanuel» según Mateo 1:23 RV60?",
+    "options": [
+      "Dios con nosotros",
+      "El Señor salva",
+      "Dios es fiel",
+      "El ungido de Dios"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Mateo 1:23 RV60 — «le pondrás por nombre Emanuel, que traducido es: Dios con nosotros».",
+    "reference": "Mateo 1:23",
+    "tags": [
+      "mesias",
+      "profecia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_099",
+    "type": "multiple_choice",
+    "prompt": "¿Qué oración hizo Salomón al dedicar el templo que agradó a Dios?",
+    "options": [
+      "Pidió que Dios habitara y perdonara a los que se arrepintieran orando hacia el templo",
+      "Pidió riquezas para Israel",
+      "Pidió conquistar a todos los enemigos de Israel",
+      "Pidió que nadie pudiera destruir el templo"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 8:28-30 RV60 — Salomón oró para que Dios escuchara desde el cielo las súplicas del pueblo.",
+    "reference": "1 Reyes 8:28",
+    "tags": [
+      "salomon",
+      "oracion"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_100",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta menor comparó el amor de Dios con el de un padre que no puede soltar a su hijo rebelde Efraín?",
+    "options": [
+      "Oseas",
+      "Amós",
+      "Joel",
+      "Abdías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Oseas 11:8 RV60 — «¿Cómo te daré yo, oh Efraín? ¿te entregaré yo, Israel?... se conmueven en mí mis entrañas».",
+    "reference": "Oseas 11:8",
+    "tags": [
+      "oseas",
+      "amor"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_101",
+    "type": "multiple_choice",
+    "prompt": "¿Qué sacerdote encontró el libro de la ley en el templo durante el reinado de Josías?",
+    "options": [
+      "Hilcías",
+      "Aarón",
+      "Sadoc",
+      "Abiatar"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 22:8 RV60 — el sumo sacerdote Hilcías dijo al escriba Safán: «He hallado el libro de la ley».",
+    "reference": "2 Reyes 22:8",
+    "tags": [
+      "josias",
+      "ley"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_102",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años vivió Adán según el registro genealógico de Génesis 5?",
+    "options": [
+      "Novecientos treinta años",
+      "Ochocientos años",
+      "Mil años",
+      "Seiscientos años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Génesis 5:5 RV60 — «y fueron todos los días que vivió Adán novecientos treinta años; y murió».",
+    "reference": "Génesis 5:5",
+    "tags": [
+      "genealogia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_103",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años reinó Salomón sobre Israel según 1 Reyes 11:42?",
+    "options": [
+      "Cuarenta años",
+      "Veinte años",
+      "Setenta años",
+      "Diez años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Reyes 11:42 RV60 — «los días que Salomón reinó en Jerusalén sobre todo Israel fueron cuarenta años».",
+    "reference": "1 Reyes 11:42",
+    "tags": [
+      "salomon",
+      "reyes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_104",
+    "type": "multiple_choice",
+    "prompt": "¿Qué escribió Pablo sobre sí mismo habiendo sido «arrebatado»: «Con Cristo estoy juntamente crucificado»?",
+    "options": [
+      "Gálatas 2:20",
+      "Romanos 8:1",
+      "Filipenses 1:21",
+      "Colosenses 3:3"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Gálatas 2:20 RV60 — «y ya no vivo yo, mas vive Cristo en mí; y lo que ahora vivo en la carne, lo vivo en la fe del Hijo de Dios».",
+    "reference": "Gálatas 2:20",
+    "tags": [
+      "pablo",
+      "identidad"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_105",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántos años reinó el malvado rey Manasés en Judá, el reinado más largo del sur?",
+    "options": [
+      "Cincuenta y cinco años",
+      "Cuarenta años",
+      "Treinta años",
+      "Sesenta años"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "2 Reyes 21:1 RV60 — «reinó Manasés cincuenta y cinco años en Jerusalén» — el más largo de la historia del sur.",
+    "reference": "2 Reyes 21:1",
+    "tags": [
+      "reyes"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_106",
+    "type": "multiple_choice",
+    "prompt": "¿Qué promesa de nueva creación proclamó Dios por medio de Isaías 65:17?",
+    "options": [
+      "Que crearía nuevos cielos y nueva tierra, y lo pasado no vendría a la memoria",
+      "Que restauraría el templo de Salomón",
+      "Que daría la tierra a Israel para siempre",
+      "Que enviaría al Mesías inmediatamente"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Isaías 65:17 RV60 — «porque he aquí que yo crearé nuevos cielos y nueva tierra».",
+    "reference": "Isaías 65:17",
+    "tags": [
+      "isaias",
+      "esperanza"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_107",
+    "type": "multiple_choice",
+    "prompt": "¿Quién fue el escritor humano del libro de Job según la tradición rabínica y cristiana antigua?",
+    "options": [
+      "No se sabe con certeza; posiblemente Moisés o el propio Job",
+      "Salomón",
+      "Ezequiel",
+      "Samuel"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "El libro de Job no indica su autor humano; se ubica entre los libros poéticos de la RV60.",
+    "reference": null,
+    "tags": [
+      "job",
+      "biblia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_108",
+    "type": "multiple_choice",
+    "prompt": "¿Qué profeta anunció que el Mesías nacería en Belén de Judá?",
+    "options": [
+      "Miqueas",
+      "Isaías",
+      "Jeremías",
+      "Zacarías"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Miqueas 5:2 RV60 — «tú, Belén Efrata... de ti me saldrá el que será Señor en Israel».",
+    "reference": "Miqueas 5:2",
+    "tags": [
+      "mesias",
+      "profecia"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_109",
+    "type": "multiple_choice",
+    "prompt": "¿Qué Salmo comienza con «Jehová es mi luz y mi salvación; ¿de quién temeré?»?",
+    "options": [
+      "El Salmo 27",
+      "El Salmo 46",
+      "El Salmo 91",
+      "El Salmo 23"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "Salmos 27:1 RV60 — David declara la confianza en Jehová ante los enemigos y las dificultades.",
+    "reference": "Salmos 27:1",
+    "tags": [
+      "salmos",
+      "confianza"
+    ],
+    "difficulty": 3
+  },
+  {
+    "id": "q_v26_110",
+    "type": "multiple_choice",
+    "prompt": "¿Cuántas personas se salvaron en el arca de Noé según 1 Pedro 3:20?",
+    "options": [
+      "Ocho personas",
+      "Dos personas",
+      "Doce personas",
+      "Cuarenta personas"
+    ],
+    "correctIndex": 0,
+    "answerText": null,
+    "explanation": "1 Pedro 3:20 RV60 — «pocas personas, es decir, ocho, fueron salvadas por agua».",
+    "reference": "1 Pedro 3:20",
+    "tags": [
+      "noe"
+    ],
+    "difficulty": 3
   }
 ]

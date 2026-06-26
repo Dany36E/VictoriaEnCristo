@@ -74,7 +74,9 @@ class _GameLightningScreenState extends State<GameLightningScreen> {
         ? byDifficulty
         : QuestionRepository.I.all.where(_isGameType).toList();
     all.shuffle(Random());
-    return all;
+    // Baraja también el orden de las opciones para que la respuesta correcta
+    // no quede siempre en la misma posición.
+    return [for (final q in all) q.shuffledChoices()];
   }
 
   Map<GameDifficulty, int> _countsByDifficulty() {

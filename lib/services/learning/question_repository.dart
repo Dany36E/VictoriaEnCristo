@@ -48,7 +48,9 @@ class QuestionRepository {
     if (pool.isEmpty) return const [];
     final rnd = seed != null ? Random(seed) : Random();
     pool.shuffle(rnd);
-    if (pool.length <= count) return pool;
+    if (pool.length <= count) {
+      return [for (final q in pool) q.shuffledChoices(rnd)];
+    }
     // Intentar balance por tipo
     final byType = <QuestionType, List<LearningQuestion>>{};
     for (final q in pool) {
@@ -65,6 +67,6 @@ class QuestionRepository {
       }
       i++;
     }
-    return result;
+    return [for (final q in result) q.shuffledChoices(rnd)];
   }
 }

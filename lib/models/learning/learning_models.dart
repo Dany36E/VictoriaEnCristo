@@ -10,6 +10,8 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -138,6 +140,41 @@ class LearningQuestion {
                 const [],
         ttsEnabled: j['ttsEnabled'] as bool? ?? false,
       );
+
+  /// Tipos de opción cuyo orden de respuestas SÍ debe barajarse en cada
+  /// presentación (para que la respuesta correcta no quede siempre fija).
+  /// Se excluye [QuestionType.trueFalse] a propósito: conserva el orden
+  /// natural "Verdadero / Falso".
+  static const Set<QuestionType> _shuffleableTypes = {
+    QuestionType.whoSaid,
+    QuestionType.multipleChoice,
+    QuestionType.chooseReference,
+    QuestionType.situational,
+  };
+
+  /// Devuelve una copia con las opciones barajadas y [correctIndex] remapeado.
+  /// Para tipos que no se barajan (trueFalse, completeVerse, orderEvents,
+  /// matchPairs) o con menos de 2 opciones, devuelve la misma instancia.
+  LearningQuestion shuffledChoices([Random? rnd]) {
+    if (!_shuffleableTypes.contains(type) || options.length < 2) return this;
+    final r = rnd ?? Random();
+    final order = List<int>.generate(options.length, (i) => i)..shuffle(r);
+    return LearningQuestion(
+      id: id,
+      type: type,
+      prompt: prompt,
+      options: [for (final i in order) options[i]],
+      correctIndex: order.indexOf(correctIndex),
+      explanation: explanation,
+      answerText: answerText,
+      reference: reference,
+      tags: tags,
+      difficulty: difficulty,
+      pairs: pairs,
+      correctOrder: correctOrder,
+      ttsEnabled: ttsEnabled,
+    );
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
