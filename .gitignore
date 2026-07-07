@@ -109,3 +109,7 @@ scripts/*
 integration_test/
 !android/app/src/release/java/dev/flutter/plugins/integration_test/
 !android/app/src/release/java/dev/flutter/plugins/integration_test/IntegrationTestPlugin.java
+
+# Release artifacts (Windows portable builds)
+VictoriaEnCristo-windows-*.zip
+*.zip

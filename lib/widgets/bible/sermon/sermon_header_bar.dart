@@ -12,6 +12,7 @@ enum _SermonHeaderAction {
   savedNotes,
   exportPdf,
   text,
+  save,
 }
 
 class SermonHeaderBar extends StatelessWidget {
@@ -32,6 +33,7 @@ class SermonHeaderBar extends StatelessWidget {
     required this.onOpenSavedNotes,
     required this.onExportPdf,
     required this.onOpenTypographySheet,
+    required this.onSave,
   });
 
   final BibleReaderThemeData theme;
@@ -49,6 +51,7 @@ class SermonHeaderBar extends StatelessWidget {
   final VoidCallback onOpenSavedNotes;
   final VoidCallback onExportPdf;
   final void Function(BibleReaderThemeData) onOpenTypographySheet;
+  final VoidCallback onSave;
 
   @override
   Widget build(BuildContext context) {
@@ -112,6 +115,11 @@ class SermonHeaderBar extends StatelessWidget {
             tooltip: 'Agregar versiculos',
             icon: Icon(Icons.playlist_add, color: t.accent, size: 22),
             onPressed: onOpenAddVersesPicker,
+          ),
+          IconButton(
+            tooltip: 'Guardar apunte',
+            icon: Icon(Icons.save_outlined, color: t.accent, size: 21),
+            onPressed: onSave,
           ),
           IconButton(
             tooltip: 'Apuntes guardados',
@@ -189,6 +197,12 @@ class SermonHeaderBar extends StatelessWidget {
               ),
             ),
           ),
+          IconButton(
+            visualDensity: VisualDensity.compact,
+            tooltip: 'Guardar apunte',
+            icon: Icon(Icons.save_outlined, color: t.accent, size: 22),
+            onPressed: onSave,
+          ),
           PopupMenuButton<_SermonHeaderAction>(
             tooltip: 'Opciones de apuntes',
             color: t.surface,
@@ -209,9 +223,12 @@ class SermonHeaderBar extends StatelessWidget {
                   onExportPdf();
                 case _SermonHeaderAction.text:
                   onOpenTypographySheet(t);
+                case _SermonHeaderAction.save:
+                  onSave();
               }
             },
             itemBuilder: (_) => [
+              _menuItem(t, _SermonHeaderAction.save, 'Guardar apunte'),
               _menuItem(t, _SermonHeaderAction.passage, 'Cambiar lectura'),
               _menuItem(t, _SermonHeaderAction.versions, 'Versiones'),
               _menuItem(t, _SermonHeaderAction.swapVersions, 'Intercambiar versiones'),

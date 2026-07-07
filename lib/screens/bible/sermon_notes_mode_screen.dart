@@ -123,6 +123,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   final _speakerController = TextEditingController();
   late final SermonRichTextController _notesController;
   final _takeawayController = TextEditingController();
+  // Foco del editor de Notas: cuando esta activo mostramos la barra de formato
+  // flotante pegada al teclado.
+  final _notesFocusNode = FocusNode();
 
   @override
   void initState() {
@@ -157,6 +160,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       },
     );
     _notesController.addListener(_onNotesEdited);
+    _notesFocusNode.addListener(() {
+      if (mounted) setState(() {});
+    });
     _lastNotesText = _notesController.text;
     _lastNotesSelection = _notesController.selection;
     _saveStatusTicker = Timer.periodic(const Duration(seconds: 30), (_) {
@@ -577,6 +583,37 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     final items = List<ContextMenuButtonItem>.from(
       editableTextState.contextMenuButtonItems,
     );
+    // Formato inline estilo Word: al seleccionar texto, los controles de
+    // negrita, subrayado y tamaño aparecen justo en el menu de la seleccion,
+    // sin tener que subir a la barra de herramientas del encabezado.
+    final selection = editableTextState.textEditingValue.selection;
+    if (selection.isValid && !selection.isCollapsed) {
+      var insertAt = 0;
+      void addFormat(String label, VoidCallback apply) {
+        items.insert(
+          insertAt++,
+          ContextMenuButtonItem(
+            label: label,
+            onPressed: () {
+              editableTextState.hideToolbar();
+              apply();
+            },
+          ),
+        );
+      }
+
+      addFormat('Negrita', () => _applyNotesFormat(RichNoteFormat.bold));
+      addFormat('Subrayar', () => _applyNotesFormat(RichNoteFormat.underline));
+      addFormat(
+        'A-',
+        () => _applyNotesFormat(RichNoteFormat.size, fontSize: 12),
+      );
+      addFormat('A', () => _applyNotesFormat(RichNoteFormat.size, fontSize: 16));
+      addFormat(
+        'A+',
+        () => _applyNotesFormat(RichNoteFormat.size, fontSize: 22),
+      );
+    }
     if (activeSuggestion != null) {
       final replacements = activeSuggestion.suggestions.take(3).toList();
       for (var i = replacements.length - 1; i >= 0; i--) {
@@ -700,11 +737,83 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     }
   }
 
+  /// Guardado explicito desde el boton "Guardar" del encabezado. Ademas del
+  /// autoguardado por debounce, da al usuario confirmacion visible de que su
+  /// apunte quedo a salvo.
+  Future<void> _saveNow() async {
+    await _flushNote();
+    if (!mounted) return;
+    HapticFeedback.selectionClick();
+    _showSnack(
+      _note.hasContent ? 'Apunte guardado' : 'Escribe algo para guardar.',
+    );
+  }
+
   void _applyNotesFormat(RichNoteFormat format, {double? fontSize}) {
     _notesController.applyFormat(format, fontSize: fontSize);
     _notesDocument = _notesController.document;
     _scheduleSave();
     if (mounted) setState(() {});
+  }
+
+  /// Aplica formato desde la barra flotante. Estilo Word: si no hay seleccion,
+  /// toma automaticamente la palabra bajo el cursor para que un solo toque
+  /// baste; si hay seleccion la respeta. Mantiene la seleccion visible tras
+  /// aplicar (el teclado no se cierra gracias al TextFieldTapRegion de la barra).
+  void _applyFloatingFormat(RichNoteFormat format, {double? fontSize}) {
+    var selection = _notesController.selection;
+    if (!selection.isValid) return;
+    if (selection.isCollapsed) {
+      final word = _wordRangeAt(_notesController.text, selection.baseOffset);
+      if (word == null) {
+        _showSnack('Selecciona el texto que quieres cambiar.');
+        return;
+      }
+      selection = TextSelection(
+        baseOffset: word.$1,
+        extentOffset: word.$2,
+      );
+      _notesController.selection = selection;
+    }
+    _applyNotesFormat(format, fontSize: fontSize);
+  }
+
+  /// Sube o baja el tamaño de la seleccion en pasos de 2, partiendo del tamaño
+  /// EFECTIVO actual (no de un valor fijo). Asi la barra "sabe" en que tamaño
+  /// esta parada, como el selector de tamaño de Word.
+  void _bumpNotesSize(double delta) {
+    final selection = _notesController.selection;
+    final current = _notesController.document
+        .formatIn(
+          selection.isValid ? selection.start : 0,
+          selection.isValid ? selection.end : 0,
+        )
+        .fontSize;
+    // 14 es el tamaño base del editor cuando el texto no tiene formato propio.
+    final next = ((current ?? 14) + delta).clamp(10, 28).toDouble();
+    _applyFloatingFormat(RichNoteFormat.size, fontSize: next);
+  }
+
+  /// Limites de la palabra (letras/numeros/acentos) alrededor de [offset].
+  /// Devuelve null si el cursor no esta sobre una palabra (p. ej. un espacio).
+  (int, int)? _wordRangeAt(String text, int offset) {
+    if (text.isEmpty) return null;
+    final wordChar = RegExp(r'[\p{L}\p{N}]', unicode: true);
+    bool isWord(int index) {
+      if (index < 0 || index >= text.length) return false;
+      return wordChar.hasMatch(text[index]);
+    }
+
+    var start = offset.clamp(0, text.length);
+    var end = start;
+    while (start > 0 && isWord(start - 1)) {
+      start--;
+    }
+    while (end < text.length && isWord(end)) {
+      end++;
+    }
+    if (start == end) return null;
+    return (start, end);
   }
 
   Future<void> _openAddVersesPicker() async {
@@ -1051,6 +1160,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     _titleController.dispose();
     _speakerController.dispose();
     _notesController.dispose();
+    _notesFocusNode.dispose();
     _takeawayController.dispose();
     _tabController.dispose();
     _highlightController.dispose();
@@ -1099,10 +1209,12 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
                             onOpenSavedNotes: _openSavedNotes,
                             onExportPdf: _exportPdf,
                             onOpenTypographySheet: _openTypographySheet,
+                            onSave: _saveNow,
                           ),
                           Expanded(
                             child: isWide ? _buildSplit(t) : _buildTabbed(t),
                           ),
+                          _buildFloatingFormatBar(t),
                         ],
                       );
                     },
@@ -1143,6 +1255,26 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           ),
         ),
       ],
+    );
+  }
+
+  /// Barra de formato flotante. Al ir como ultimo hijo del Column, el Scaffold
+  /// (resizeToAvoidBottomInset) la empuja justo por encima del teclado. Solo se
+  /// muestra cuando el editor de Notas tiene el foco.
+  Widget _buildFloatingFormatBar(BibleReaderThemeData t) {
+    if (!_notesFocusNode.hasFocus) return const SizedBox.shrink();
+    final selection = _notesController.selection;
+    final state = _notesController.document.formatIn(
+      selection.isValid ? selection.start : 0,
+      selection.isValid ? selection.end : 0,
+    );
+    return _NotesFormatBar(
+      theme: t,
+      state: state,
+      onBold: () => _applyFloatingFormat(RichNoteFormat.bold),
+      onUnderline: () => _applyFloatingFormat(RichNoteFormat.underline),
+      onSizeDelta: _bumpNotesSize,
+      onDismiss: _notesFocusNode.unfocus,
     );
   }
 
@@ -1219,6 +1351,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         _NotesEditorCard(
           theme: t,
           controller: _notesController,
+          focusNode: _notesFocusNode,
           activeReference: activeReference,
           activeSuggestion: activeSuggestion,
           insertedVerseCount: _note.verses.length,
@@ -1388,6 +1521,7 @@ class _SermonMetaCard extends StatelessWidget {
 class _NotesEditorCard extends StatelessWidget {
   final BibleReaderThemeData theme;
   final SermonRichTextController controller;
+  final FocusNode focusNode;
   final DetectedSermonReference? activeReference;
   final SuggestionSpan? activeSuggestion;
   final int insertedVerseCount;
@@ -1409,6 +1543,7 @@ class _NotesEditorCard extends StatelessWidget {
   const _NotesEditorCard({
     required this.theme,
     required this.controller,
+    required this.focusNode,
     required this.activeReference,
     required this.activeSuggestion,
     required this.insertedVerseCount,
@@ -1493,6 +1628,7 @@ class _NotesEditorCard extends StatelessWidget {
           const SizedBox(height: 10),
           TextField(
             controller: controller,
+            focusNode: focusNode,
             maxLines: null,
             minLines: 10,
             hintLocales: const [Locale('es')],
@@ -1543,6 +1679,161 @@ class _NotesEditorCard extends StatelessWidget {
             _InsertedVersesIndicator(theme: t, count: insertedVerseCount),
           ],
         ],
+      ),
+    );
+  }
+}
+
+/// Barra de formato flotante pegada al teclado (estilo app de notas / Word).
+/// Se envuelve en [TextFieldTapRegion] para que tocar sus botones NO cierre el
+/// teclado ni pierda la seleccion del editor, y en un [Focus] no enfocable para
+/// que el foco permanezca en el campo de Notas.
+class _NotesFormatBar extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final RichNoteFormatState state;
+  final VoidCallback onBold;
+  final VoidCallback onUnderline;
+  final ValueChanged<double> onSizeDelta;
+  final VoidCallback onDismiss;
+
+  const _NotesFormatBar({
+    required this.theme,
+    required this.state,
+    required this.onBold,
+    required this.onUnderline,
+    required this.onSizeDelta,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final size = (state.fontSize ?? 14).round();
+    return TextFieldTapRegion(
+      child: Focus(
+        canRequestFocus: false,
+        descendantsAreFocusable: false,
+        child: Material(
+          color: t.surface,
+          elevation: 8,
+          child: SafeArea(
+            top: false,
+            child: Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: t.textSecondary.withValues(alpha: 0.14),
+                  ),
+                ),
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              child: Row(
+                children: [
+                  _BarButton(
+                    theme: t,
+                    icon: Icons.format_bold,
+                    tooltip: 'Negrita',
+                    active: state.bold,
+                    onTap: onBold,
+                  ),
+                  _BarButton(
+                    theme: t,
+                    icon: Icons.format_underlined,
+                    tooltip: 'Subrayar',
+                    active: state.underline,
+                    onTap: onUnderline,
+                  ),
+                  Container(
+                    width: 1,
+                    height: 24,
+                    margin: const EdgeInsets.symmetric(horizontal: 8),
+                    color: t.textSecondary.withValues(alpha: 0.14),
+                  ),
+                  _BarButton(
+                    theme: t,
+                    icon: Icons.text_decrease,
+                    tooltip: 'Reducir tamaño',
+                    onTap: () => onSizeDelta(-2),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$size',
+                        style: GoogleFonts.manrope(
+                          color: t.textPrimary,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                      Text(
+                        'tamaño',
+                        style: GoogleFonts.manrope(
+                          color: t.textSecondary,
+                          fontSize: 9,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                  _BarButton(
+                    theme: t,
+                    icon: Icons.text_increase,
+                    tooltip: 'Aumentar tamaño',
+                    onTap: () => onSizeDelta(2),
+                  ),
+                  const Spacer(),
+                  _BarButton(
+                    theme: t,
+                    icon: Icons.keyboard_hide,
+                    tooltip: 'Ocultar teclado',
+                    onTap: onDismiss,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _BarButton extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final IconData icon;
+  final String tooltip;
+  final bool active;
+  final VoidCallback onTap;
+
+  const _BarButton({
+    required this.theme,
+    required this.icon,
+    required this.tooltip,
+    required this.onTap,
+    this.active = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Tooltip(
+      message: tooltip,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Container(
+          padding: const EdgeInsets.all(8),
+          decoration: BoxDecoration(
+            color: active ? t.accent.withValues(alpha: 0.16) : Colors.transparent,
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(
+            icon,
+            size: 20,
+            color: active ? t.accent : t.textSecondary,
+          ),
+        ),
       ),
     );
   }

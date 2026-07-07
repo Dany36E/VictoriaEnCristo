@@ -4,6 +4,22 @@ import 'study_note_markup.dart';
 
 enum RichNoteFormat { bold, underline, size }
 
+/// Estado de formato "efectivo" de una seleccion (o del caret). Lo usa la barra
+/// flotante para reflejar de forma inteligente —como Word— si el texto elegido
+/// esta en negrita/subrayado y que tamaño tiene, mostrando el valor actual antes
+/// de subirlo o bajarlo.
+class RichNoteFormatState {
+  final bool bold;
+  final bool underline;
+  final double? fontSize;
+
+  const RichNoteFormatState({
+    this.bold = false,
+    this.underline = false,
+    this.fontSize,
+  });
+}
+
 class RichNoteTextSegment {
   final String text;
   final bool bold;
@@ -203,6 +219,60 @@ class RichNoteDocument {
     );
   }
 
+  /// Formato efectivo de un rango. Si el rango es un caret (colapsado) hereda
+  /// el formato del caracter a la izquierda, tal como el cursor de Word toma el
+  /// estilo del texto que le precede. Para una seleccion real, negrita/subrayado
+  /// solo se consideran activos si el rango entero los tiene, y el tamaño solo
+  /// se reporta si es uniforme (si mezcla tamaños devuelve null).
+  RichNoteFormatState formatIn(int start, int end) {
+    if (text.isEmpty) return const RichNoteFormatState();
+    final lo = start.clamp(0, text.length);
+    final hi = end.clamp(lo, text.length);
+    if (lo == hi) {
+      if (lo == 0) return const RichNoteFormatState();
+      return _effectiveAt(lo - 1);
+    }
+    var allBold = true;
+    var allUnderline = true;
+    double? uniformSize;
+    var sizeUniform = true;
+    var first = true;
+    for (var pos = lo; pos < hi; pos++) {
+      final f = _effectiveAt(pos);
+      allBold = allBold && f.bold;
+      allUnderline = allUnderline && f.underline;
+      if (first) {
+        uniformSize = f.fontSize;
+        first = false;
+      } else if (f.fontSize != uniformSize) {
+        sizeUniform = false;
+      }
+    }
+    return RichNoteFormatState(
+      bold: allBold,
+      underline: allUnderline,
+      fontSize: sizeUniform ? uniformSize : null,
+    );
+  }
+
+  RichNoteFormatState _effectiveAt(int pos) {
+    var bold = false;
+    var underline = false;
+    double? fontSize;
+    for (final span in spans) {
+      if (pos >= span.start && pos < span.end) {
+        bold = bold || span.bold;
+        underline = underline || span.underline;
+        if (span.fontSize != null) fontSize = span.fontSize;
+      }
+    }
+    return RichNoteFormatState(
+      bold: bold,
+      underline: underline,
+      fontSize: fontSize,
+    );
+  }
+
   List<RichNoteTextSegment> toSegments() {
     if (text.isEmpty) return const [];
     final breakpoints = <int>{0, text.length};
@@ -318,7 +388,11 @@ RichNoteSpan? _adjustSpanForEdit(
   required int insertedLength,
 }) {
   final delta = insertedLength - (oldEnd - changeStart);
-  if (span.end <= changeStart) return span;
+  // Al escribir JUSTO al final de un span con formato (cursor en span.end),
+  // los caracteres nuevos deben heredar ese formato —como en Word— en lugar
+  // de volver al estilo estandar. Por eso usamos `<` en vez de `<=`: una
+  // insercion exactamente en el borde final extiende el span.
+  if (span.end < changeStart) return span;
   if (span.start >= oldEnd) {
     return span.copyWith(start: span.start + delta, end: span.end + delta);
   }
