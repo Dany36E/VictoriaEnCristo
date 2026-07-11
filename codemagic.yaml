@@ -1,14 +1,17 @@
 # Codemagic — Compila un IPA SIN FIRMAR de la app iOS para instalar con
 # Sideloadly (Apple ID gratis, sin Mac, sin cuenta de Apple Developer de pago).
 #
-# Uso:
-#   1. Sube este archivo a GitHub (rama main).
-#   2. En codemagic.io conecta el repo VictoriaEnCristo.
-#   3. Corre el workflow "ios-unsigned".
-#   4. Descarga el .ipa de los artefactos y firmalo/instalalo con Sideloadly.
+# Por que xcodebuild en vez de `flutter build ios --no-codesign`:
+#   La app tiene una extension (widget VictoryWidget) y entitlements de App
+#   Groups que obligan a Flutter a pedir un "Development Team" aunque uses
+#   --no-codesign. Archivamos directo con Xcode desactivando la firma en TODOS
+#   los targets (CODE_SIGNING_ALLOWED=NO), lo que produce un .app sin firmar.
+#   Sideloadly lo firma despues en tu PC con tu Apple ID gratis.
 #
-# El IPA queda SIN firmar a proposito: Sideloadly lo firma en tu PC con tu
-# Apple ID gratis al momento de instalar en el iPad.
+# Uso:
+#   1. Este archivo ya esta en GitHub (rama main).
+#   2. En Codemagic corre el workflow "ios-unsigned".
+#   3. Descarga el .ipa de Artifacts e instalalo con Sideloadly.
 
 workflows:
   ios-unsigned:
@@ -22,18 +25,32 @@ workflows:
     scripts:
       - name: Flutter pub get
         script: flutter pub get
+      - name: Generar config de Flutter (sin compilar)
+        script: flutter build ios --release --no-codesign --config-only
       - name: CocoaPods install
         script: |
           cd ios && pod install --repo-update
-      - name: Build iOS sin firmar (.app)
+      - name: Archivar sin firma (Xcode)
         script: |
-          flutter build ios --release --no-codesign
+          set -e
+          xcodebuild \
+            -workspace ios/Runner.xcworkspace \
+            -scheme Runner \
+            -configuration Release \
+            -destination 'generic/platform=iOS' \
+            -archivePath build/Runner.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            CODE_SIGN_ENTITLEMENTS="" \
+            DEVELOPMENT_TEAM=""
       - name: Empaquetar IPA sin firmar
         script: |
           set -e
-          cd build/ios/iphoneos
+          cd build/Runner.xcarchive/Products/Applications
           mkdir -p Payload
           cp -R Runner.app Payload/Runner.app
-          zip -r9 app_quitar-unsigned.ipa Payload
+          zip -r9 "$CM_BUILD_DIR/app_quitar-unsigned.ipa" Payload
     artifacts:
-      - build/ios/iphoneos/*.ipa
+      - app_quitar-unsigned.ipa
