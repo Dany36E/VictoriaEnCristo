@@ -19,7 +19,10 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
-      flutter: stable
+      # Fijada a la misma version local que compila bien el proyecto (la que
+      # genera el AAB de Android sin errores). "stable" traia una version mas
+      # nueva que fallaba en kernel_snapshot con el toolchain de Xcode nuevo.
+      flutter: 3.41.1
       xcode: latest
       cocoapods: default
     scripts:
