@@ -39,7 +39,9 @@ target 'Runner' do
   use_modular_headers!
 
   # Firestore precompilado (evita compilar gRPC-Core / BoringSSL desde fuente).
-  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '11.6.0'
+  # Tag = version del Firebase iOS SDK que usa firebase_core segun pubspec.lock
+  # (firebase_core 3.15.x -> iOS SDK 11.15.0; ver changelog de firebase_core).
+  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '11.15.0'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
