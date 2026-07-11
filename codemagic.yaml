@@ -19,6 +19,13 @@ workflows:
     instance_type: mac_mini_m2
     max_build_duration: 60
     environment:
+      # Grupo de variables seguras definido en la UI de Codemagic. Contiene:
+      #   FIREBASE_OPTIONS_B64  (obligatoria) lib/firebase_options.dart en base64
+      #   API_CONFIG_B64        (opcional)    lib/config/api_config.dart en base64
+      # Ambos archivos estan gitignored (el repo es publico); sin ellos el
+      # kernel_snapshot de Dart falla porque el codigo los importa.
+      groups:
+        - secrets
       # Fijada a la misma version local que compila bien el proyecto (la que
       # genera el AAB de Android sin errores). "stable" traia una version mas
       # nueva que fallaba en kernel_snapshot con el toolchain de Xcode nuevo.
@@ -26,6 +33,21 @@ workflows:
       xcode: latest
       cocoapods: default
     scripts:
+      - name: Restaurar archivos secretos (gitignored)
+        script: |
+          set -e
+          if [ -z "${FIREBASE_OPTIONS_B64:-}" ]; then
+            echo "ERROR: falta FIREBASE_OPTIONS_B64 en el grupo 'secrets' de Codemagic."
+            echo "Sin lib/firebase_options.dart la app no compila (Firebase)."
+            exit 1
+          fi
+          echo "$FIREBASE_OPTIONS_B64" | base64 --decode > lib/firebase_options.dart
+          if [ -n "${API_CONFIG_B64:-}" ]; then
+            echo "$API_CONFIG_B64" | base64 --decode > lib/config/api_config.dart
+          else
+            echo "API_CONFIG_B64 no definida; usando stub sin llaves (APIs biblicas de audio deshabilitadas)."
+            cp lib/config/api_config.dart.example lib/config/api_config.dart
+          fi
       - name: Flutter pub get
         script: flutter pub get
       - name: Generar config de Flutter (sin compilar)
