@@ -48,6 +48,15 @@ workflows:
             echo "API_CONFIG_B64 no definida; usando stub sin llaves (APIs biblicas de audio deshabilitadas)."
             cp lib/config/api_config.dart.example lib/config/api_config.dart
           fi
+          # assets/config.json tambien esta gitignored (declarado en pubspec,
+          # el bundler de assets falla sin el). Localmente solo contiene una
+          # llave vacia; se genera el mismo stub, o el contenido real si se
+          # define CONFIG_JSON_B64.
+          if [ -n "${CONFIG_JSON_B64:-}" ]; then
+            echo "$CONFIG_JSON_B64" | base64 --decode > assets/config.json
+          else
+            printf '{\n  "blb_api_key": ""\n}\n' > assets/config.json
+          fi
       - name: Flutter pub get
         script: flutter pub get
       - name: Generar config de Flutter (sin compilar)
