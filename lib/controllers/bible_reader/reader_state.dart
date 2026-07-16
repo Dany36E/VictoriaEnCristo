@@ -29,14 +29,26 @@ abstract class ReaderState extends ChangeNotifier {
   List<BibleBook> allBooks = [];
 
   // ── UI ──
-  int? selectedVerseIndex;
   double headerOpacity = 1.0;
   bool showTypography = false;
 
-  // ── Multi-select ──
-  bool isSelectionMode = false;
+  // ── Selección de versículos (modelo unificado) ──
+  // Cada tap agrega/quita el versículo del set; no hay distinción entre
+  // selección simple y múltiple. Set vacío = nada seleccionado.
   final Set<int> selectedVerseNumbers = {};
-  bool multiSelectShowColors = false;
+  bool get hasSelection => selectedVerseNumbers.isNotEmpty;
+
+  // ── Selección palabra por palabra ──
+  // Cuando != null, ese versículo entra en "modo palabra": su texto se vuelve
+  // tappable token por token y [selectedWords] guarda los índices tocados.
+  // Reutiliza el sistema de StudyWordHighlight (subrayado granular) para que
+  // sea el mismo subrayado que en Modo Estudio / Apuntes.
+  int? wordSelectionVerse;
+  final Set<int> selectedWords = {};
+  bool get inWordSelection => wordSelectionVerse != null;
+
+  /// Hay algo activo que muestra una barra inferior de acciones.
+  bool get isSelecting => hasSelection || inWordSelection;
 
   // ── Search ──
   bool showSearch = false;

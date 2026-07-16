@@ -45,6 +45,9 @@ import 'utils/platform_capabilities.dart';
 import 'utils/daily_outcome_registration.dart';
 import 'services/bible/bible_parser_service.dart';
 import 'services/bible/bible_download_service.dart';
+import 'services/bible/bible_user_data_service.dart';
+import 'screens/bible/bible_reader_screen.dart';
+import 'utils/bible_navigation_helper.dart';
 import 'services/notification_service.dart';
 import 'services/emergency_sos_service.dart';
 import 'services/fcm_service.dart';
@@ -498,6 +501,28 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         // Plan deep-link: por ahora llevamos a home; el Plan Screen se abre
         // desde el dashboard. (Extender aquí cuando haya ruta específica.)
         nav.popUntil((r) => r.isFirst);
+      } else if (payload.startsWith(
+        NotificationService.payloadDailyVersePrefix,
+      )) {
+        final ref = payload.substring(
+          NotificationService.payloadDailyVersePrefix.length,
+        );
+        final parsed = BibleNavigationHelper.parseSpanishRef(ref);
+        if (parsed != null) {
+          unawaited(
+            AppNavigation.pushOn(
+              nav,
+              (_) => BibleReaderScreen(
+                bookNumber: parsed.bookNumber,
+                bookName: parsed.bookName,
+                chapter: parsed.chapter,
+                version: BibleUserDataService.I.preferredVersionNotifier.value,
+              ),
+            ),
+          );
+        } else {
+          nav.popUntil((r) => r.isFirst);
+        }
       } else {
         debugPrint('🔔 Payload de notificación desconocido: $payload');
       }
@@ -565,6 +590,11 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
           );
           // Refrescar versículo del día
           DailyVerseService.I.refreshToday();
+          // Si el recordatorio del Versículo del Día está activo, re-programar
+          // para que la próxima notificación use el versículo del día nuevo
+          // (la notificación recurrente conserva el texto capturado al
+          // programarla, no se recalcula sola).
+          unawaited(NotificationService().rescheduleDailyVerseReminderIfEnabled());
           // Refrescar scoring (streak, loggedToday)
           VictoryScoringService.I.refreshAfterDayChange();
         }

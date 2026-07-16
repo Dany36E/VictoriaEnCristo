@@ -11,7 +11,6 @@ import '../widgets/home/sos_button.dart';
 import '../widgets/home/bible_reading_streak.dart';
 import '../widgets/daily_checklist_card.dart';
 import 'learning/learning_home_screen.dart';
-import '../widgets/milestone_banner.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../data/bible_verses.dart';
@@ -422,24 +421,6 @@ class _HomeScreenState extends State<HomeScreen>
                             builder: (_) => const BibleHomeScreen(),
                           ),
                         ),
-                      ),
-                    ),
-                  ),
-
-                  // Milestone Banner (hito alcanzado / progreso / normalización)
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                        AppDesignSystem.spacingM,
-                        AppDesignSystem.spacingM,
-                        AppDesignSystem.spacingM,
-                        0,
-                      ),
-                      child: ValueListenableBuilder<int>(
-                        valueListenable:
-                            VictoryScoringService.I.currentStreakNotifier,
-                        builder: (_, streak, _) =>
-                            MilestoneBanner(streak: streak),
                       ),
                     ),
                   ),

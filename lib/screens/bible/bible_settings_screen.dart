@@ -5,6 +5,8 @@ import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_download_service.dart';
+import '../../services/notification_service.dart';
+import '../../widgets/bible/daily_verse_reminder_sheet.dart';
 import 'bible_dictionary_screen.dart';
 
 /// Pantalla de ajustes de la Biblia: versión preferida, tamaño de fuente, tema.
@@ -488,10 +490,105 @@ class BibleSettingsScreen extends StatelessWidget {
           ),
           const SizedBox(height: 24),
 
+          // ── Recordatorios ──
+          const _SettingsSection(title: 'RECORDATORIOS'),
+          const _DailyVerseReminderRow(),
+          const SizedBox(height: 24),
+
           // ── Descargas offline ──
           const _SettingsSection(title: 'DESCARGAS OFFLINE'),
           _DownloadsSection(),
         ],
+      ),
+    );
+  }
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// RECORDATORIO DEL VERSÍCULO DEL DÍA
+// ═══════════════════════════════════════════════════════════════════════════
+
+class _DailyVerseReminderRow extends StatefulWidget {
+  const _DailyVerseReminderRow();
+
+  @override
+  State<_DailyVerseReminderRow> createState() =>
+      _DailyVerseReminderRowState();
+}
+
+class _DailyVerseReminderRowState extends State<_DailyVerseReminderRow> {
+  BibleReaderThemeData get t => BibleReaderThemeData.fromId(
+    BibleReaderThemeData.migrateId(
+      BibleUserDataService.I.readerThemeNotifier.value,
+    ),
+  );
+
+  Future<void> _open() async {
+    await showDailyVerseReminderSheet(context, theme: t);
+    if (mounted) setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final svc = NotificationService();
+    final enabled = svc.dailyVerseReminderEnabled;
+    final time = svc.dailyVerseReminderTime;
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: _open,
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: t.surface.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: t.accent.withValues(alpha: 0.1)),
+          ),
+          child: Row(
+            children: [
+              Icon(
+                enabled
+                    ? Icons.notifications_active_rounded
+                    : Icons.notifications_none_rounded,
+                color: enabled
+                    ? t.accent
+                    : t.textPrimary.withValues(alpha: 0.4),
+                size: 22,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Versículo del Día',
+                      style: GoogleFonts.manrope(
+                        color: t.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    Text(
+                      enabled
+                          ? 'Recordatorio activo a las ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
+                          : 'Recibe un aviso diario con el versículo del día',
+                      style: GoogleFonts.manrope(
+                        color: t.textPrimary.withValues(alpha: 0.4),
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.chevron_right,
+                color: t.textPrimary.withValues(alpha: 0.3),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }

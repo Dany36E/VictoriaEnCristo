@@ -55,7 +55,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   void initState() {
     super.initState();
     debugPrint('🟢 [BibleReader] initState start');
-    unawaited(UserScopedServices.I.ensureBible());
+    // ensureStudyMode inicializa también StudyModeService: así los subrayados
+    // palabra-por-palabra se ven Y se pueden crear desde la lectura normal.
+    unawaited(UserScopedServices.I.ensureStudyMode());
     AudioEngine.I.switchBgmContext(BgmContext.bible);
     debugPrint('🟢 [BibleReader] after switchBgmContext');
     _ctrl = BibleReaderController(
@@ -200,7 +202,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           backgroundColor: t.background,
           body: GestureDetector(
             onTap: () {
-              if (_ctrl.selectedVerseIndex != null) {
+              if (_ctrl.inWordSelection) {
+                _ctrl.exitWordSelection();
+              } else if (_ctrl.hasSelection) {
                 _ctrl.clearSelection();
               } else if (_ctrl.showTypography) {
                 _ctrl.closeTypography();
@@ -329,24 +333,25 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         onClose: () => setState(() => _ctrl.stopAllAudio()),
                       ),
                     ),
-                  if ((_ctrl.selectedVerseIndex != null ||
-                          _ctrl.isSelectionMode) &&
-                      !_ctrl.loading)
+                  if (_ctrl.isSelecting && !_ctrl.loading)
                     ReaderToolbarOverlay(
                       theme: t,
                       controller: _ctrl,
                       onShare: () {
                         Share.share(_ctrl.buildSelectedVersesText());
-                        _ctrl.exitSelectionMode();
+                        _ctrl.clearSelection();
                       },
                     ),
-                  // Peek indicators
-                  if (!_ctrl.loading)
+                  // Navegador de capítulo fijo abajo (‹ Libro Cap › + audio),
+                  // estilo YouVersion. Se oculta durante la selección de
+                  // versículos/palabras para no chocar con la barra de
+                  // selección, que usa la misma posición (bottom: 16).
+                  if (!_ctrl.loading && !_ctrl.isSelecting)
                     Positioned(
-                      bottom: 8,
+                      bottom: 16,
                       left: 0,
                       right: 0,
-                      child: _buildPeekIndicators(t),
+                      child: _buildChapterNavigator(t),
                     ),
                 ],
               ),
@@ -357,40 +362,125 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
   }
 
-  Widget _buildPeekIndicators(BibleReaderThemeData t) {
+  /// Barra flotante fija abajo: ▶ audio | ‹ | Libro Cap (tap → selector) | ›.
+  /// Reemplaza al indicador "peek" anterior (texto tenue no interactivo) por
+  /// un control real y descubrible, como el navegador inferior de YouVersion.
+  Widget _buildChapterNavigator(BibleReaderThemeData t) {
     final hasPrev = _ctrl.currentChapter > 1;
     final hasNext =
         _ctrl.currentChapter < _ctrl.totalChapters ||
         _ctrl.allBooks.indexWhere((b) => b.number == widget.bookNumber) <
             _ctrl.allBooks.length - 1;
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        if (hasPrev)
-          Icon(
-            Icons.chevron_left,
-            color: t.textSecondary.withValues(alpha: 0.2),
-            size: 18,
-          ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 6),
-          child: Text(
-            '${_ctrl.currentChapter} / ${_ctrl.totalChapters}',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.3),
-              fontSize: 11,
-              fontWeight: FontWeight.w500,
+    return Center(
+      child: Container(
+        padding: const EdgeInsets.all(4),
+        decoration: BoxDecoration(
+          color: t.surface.withValues(alpha: 0.94),
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(color: t.textSecondary.withValues(alpha: 0.12)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: t.isDark ? 0.28 : 0.08),
+              blurRadius: 14,
+              offset: const Offset(0, 4),
             ),
+          ],
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildNavPlayButton(t),
+            const SizedBox(width: 2),
+            _buildNavArrow(t, Icons.chevron_left, hasPrev,
+                () => _ctrl.goToChapter(_ctrl.currentChapter - 1)),
+            GestureDetector(
+              onTap: () => showBookChapterSelector(
+                context,
+                _ctrl,
+                onGoToBook: _goToBook,
+                onGoToChapter: _ctrl.goToChapter,
+              ),
+              behavior: HitTestBehavior.opaque,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 10),
+                child: Text(
+                  '${widget.bookName} ${_ctrl.currentChapter}',
+                  style: GoogleFonts.manrope(
+                    color: t.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            _buildNavArrow(t, Icons.chevron_right, hasNext, () {
+              if (_ctrl.currentChapter < _ctrl.totalChapters) {
+                _ctrl.goToChapter(_ctrl.currentChapter + 1);
+              } else {
+                _goToNextBook();
+              }
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildNavArrow(
+    BibleReaderThemeData t,
+    IconData icon,
+    bool enabled,
+    VoidCallback onTap,
+  ) {
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      child: GestureDetector(
+        onTap: enabled ? onTap : null,
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Icon(
+            icon,
+            size: 22,
+            color: enabled
+                ? t.textSecondary
+                : t.textSecondary.withValues(alpha: 0.2),
           ),
         ),
-        if (hasNext)
-          Icon(
-            Icons.chevron_right,
-            color: t.textSecondary.withValues(alpha: 0.2),
-            size: 18,
-          ),
-      ],
+      ),
     );
+  }
+
+  Widget _buildNavPlayButton(BibleReaderThemeData t) {
+    return Semantics(
+      button: true,
+      label: _ctrl.ttsActive ? 'Detener audio' : 'Reproducir audio',
+      child: GestureDetector(
+        onTap: () => _handleAudioTap(t),
+        child: Container(
+          width: 34,
+          height: 34,
+          decoration: BoxDecoration(color: t.accent, shape: BoxShape.circle),
+          child: Icon(
+            _ctrl.ttsActive ? Icons.stop_rounded : Icons.play_arrow_rounded,
+            color: t.isDark ? Colors.black : Colors.white,
+            size: 20,
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Lógica compartida del botón de audio (header y navegador inferior).
+  void _handleAudioTap(BibleReaderThemeData t) {
+    if (_ctrl.ttsActive) {
+      _ctrl.toggleTts();
+    } else if (_ctrl.studyModeEnabled && _ctrl.guzikChapter != null) {
+      _showAudioModeSelector(t);
+    } else {
+      _ctrl.toggleTts();
+    }
   }
 
   void _showAudioModeSelector(BibleReaderThemeData t) {
@@ -496,6 +586,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
         onGoToBook: _goToBook,
         onGoToChapter: _ctrl.goToChapter,
       ),
+      versionLabel: _ctrl.currentVersion.shortName,
+      onVersionTap: () => showVersionSelectorSheet(
+        context,
+        onChanged: _ctrl.onVersionChanged,
+      ),
+      onTypographyTap: _ctrl.toggleTypography,
+      typographyActive: _ctrl.showTypography,
       contextualActions: [
         ContextualAction(
           icon: _ctrl.studyModeEnabled
@@ -506,33 +603,12 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           onTap: _ctrl.toggleStudyMode,
         ),
         ContextualAction(
-          icon: Icons.translate,
-          label: _ctrl.currentVersion.shortName,
-          onTap: () => showVersionSelectorSheet(
-            context,
-            onChanged: _ctrl.onVersionChanged,
-          ),
-        ),
-        ContextualAction(
-          icon: Icons.text_fields,
-          label: 'Texto',
-          onTap: _ctrl.toggleTypography,
-        ),
-        ContextualAction(
           icon: _ctrl.ttsActive
               ? Icons.stop_rounded
               : Icons.headphones_outlined,
           label: 'Audio',
           isActive: _ctrl.ttsActive,
-          onTap: () {
-            if (_ctrl.ttsActive) {
-              _ctrl.toggleTts();
-            } else if (_ctrl.studyModeEnabled && _ctrl.guzikChapter != null) {
-              _showAudioModeSelector(t);
-            } else {
-              _ctrl.toggleTts();
-            }
-          },
+          onTap: () => _handleAudioTap(t),
         ),
         ContextualAction(
           icon: Icons.search,

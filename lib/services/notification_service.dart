@@ -4,6 +4,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../data/bible_verses.dart';
+import 'daily_verse_service.dart';
 import 'user_pref_cloud_sync_service.dart';
 import 'victory_scoring_service.dart';
 
@@ -27,6 +28,9 @@ class NotificationService {
       'devotional_reminder_weekday_times';
   static const String _devotionalReminderPromptSeenKey =
       'devotional_reminder_prompt_seen';
+  static const String _dailyVerseReminderEnabledKey =
+      'daily_verse_reminder_enabled';
+  static const String _dailyVerseReminderTimeKey = 'daily_verse_reminder_time';
   static const List<int> _defaultVictoryReminderMinutes = <int>[
     18 * 60,
     22 * 60,
@@ -59,6 +63,10 @@ class NotificationService {
   // index 0..6 = lunes..domingo; null = sin recordatorio ese día.
   List<TimeOfDay?> _devotionalWeekdayTimes = List<TimeOfDay?>.filled(7, null);
 
+  // ── Recordatorio del Versículo del Día (sección Biblia) ──
+  bool _dailyVerseReminderEnabled = false;
+  TimeOfDay _dailyVerseReminderTime = const TimeOfDay(hour: 8, minute: 0);
+
   // Notificaciones locales
   final FlutterLocalNotificationsPlugin _flnp =
       FlutterLocalNotificationsPlugin();
@@ -80,6 +88,7 @@ class NotificationService {
   static const String payloadBattleInvite = 'route:battle_invite';
   static const String payloadBattleMessage = 'route:battle_message';
   static const String payloadBattleSos = 'route:battle_sos';
+  static const String payloadDailyVersePrefix = 'route:daily_verse:';
 
   /// Se alterna a `true` mientras el usuario esté viendo la pantalla de
   /// Compañero de Batalla. Si es `true`, suprimimos notificaciones locales
@@ -108,6 +117,8 @@ class NotificationService {
   /// recordatorio ese día.
   List<TimeOfDay?> get devotionalWeekdayTimes =>
       List.unmodifiable(_devotionalWeekdayTimes);
+  bool get dailyVerseReminderEnabled => _dailyVerseReminderEnabled;
+  TimeOfDay get dailyVerseReminderTime => _dailyVerseReminderTime;
 
   /// Inicializar servicio y cargar configuración
   Future<void> initialize() async {
@@ -176,6 +187,14 @@ class NotificationService {
         if (m == null || m < 0) return null;
         return _timeFromMinutes(m);
       }).toList(growable: false);
+    }
+
+    // ── Recordatorio del Versículo del Día ──
+    _dailyVerseReminderEnabled =
+        prefs.getBool(_dailyVerseReminderEnabledKey) ?? false;
+    final dailyVerseMinutes = prefs.getInt(_dailyVerseReminderTimeKey);
+    if (dailyVerseMinutes != null) {
+      _dailyVerseReminderTime = _timeFromMinutes(dailyVerseMinutes);
     }
   }
 
@@ -307,6 +326,15 @@ class NotificationService {
           .map((t) => t == null ? '-1' : _minutesOfDay(t).toString())
           .toList(),
     );
+
+    await prefs.setBool(
+      _dailyVerseReminderEnabledKey,
+      _dailyVerseReminderEnabled,
+    );
+    await prefs.setInt(
+      _dailyVerseReminderTimeKey,
+      _minutesOfDay(_dailyVerseReminderTime),
+    );
     UserPrefCloudSyncService.I.markDirty();
   }
 
@@ -410,6 +438,7 @@ class NotificationService {
   static const int _legacyVictoryReminderId = 1003;
   static const int _reengagementId = 1004;
   static const int _devotionalReminderId = 1005;
+  static const int _dailyVerseReminderId = 1006;
   static const int _victoryReminderBaseId = 1100;
   static const int _devotionalWeekdayBaseId = 1200;
 
@@ -617,6 +646,11 @@ class NotificationService {
       await _scheduleDevotionalReminders();
     } else {
       await _cancelDevotionalReminders();
+    }
+    if (_dailyVerseReminderEnabled) {
+      await _scheduleDailyVerseReminder();
+    } else {
+      await _cancelDailyVerseReminder();
     }
   }
 
@@ -1018,6 +1052,102 @@ class NotificationService {
       }
     } catch (e) {
       debugPrint('⚠️ Error cancelando recordatorio de devocional: $e');
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // RECORDATORIO DEL VERSÍCULO DEL DÍA (sección Biblia)
+  // Independiente del recordatorio de devocional: usa el mismo versículo
+  // determinístico que se muestra en la tarjeta de la home y en el widget
+  // (DailyVerseService), y al tocarlo abre el lector directo en ese
+  // versículo (ver payloadDailyVersePrefix y su manejo en main.dart).
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /// Habilitar/deshabilitar el recordatorio del Versículo del Día.
+  Future<void> setDailyVerseReminderEnabled(bool enabled) async {
+    _dailyVerseReminderEnabled = enabled;
+    await _saveSettings();
+    if (enabled) {
+      await _scheduleDailyVerseReminder();
+    } else {
+      await _cancelDailyVerseReminder();
+    }
+  }
+
+  /// Hora del recordatorio del Versículo del Día.
+  Future<void> setDailyVerseReminderTime(TimeOfDay time) async {
+    _dailyVerseReminderTime = time;
+    await _saveSettings();
+    if (_dailyVerseReminderEnabled) {
+      await _scheduleDailyVerseReminder();
+    }
+  }
+
+  /// Atajo usado por la sugerencia en la sección Biblia: activa el
+  /// recordatorio del Versículo del Día a [time] en un solo paso.
+  Future<void> enableDailyVerseReminderAt(TimeOfDay time) async {
+    _dailyVerseReminderTime = time;
+    _dailyVerseReminderEnabled = true;
+    await _saveSettings();
+    await _scheduleDailyVerseReminder();
+  }
+
+  /// Llamado por el lifecycle observer al detectar cambio de día (junto a
+  /// `DailyVerseService.refreshToday()`), para que el texto de la próxima
+  /// notificación recurrente use el versículo del nuevo día en vez de
+  /// quedarse con el capturado al programar la notificación anterior.
+  Future<void> rescheduleDailyVerseReminderIfEnabled() async {
+    if (_dailyVerseReminderEnabled) {
+      await _scheduleDailyVerseReminder();
+    }
+  }
+
+  Future<void> _scheduleDailyVerseReminder() async {
+    if (!_notificationsInitialized) await _initNotifications();
+    if (!_notificationsInitialized) return;
+    try {
+      await _cancelDailyVerseReminder();
+      final verse = await DailyVerseService.I.getForToday();
+      final preview = verse.verse.length > 80
+          ? '${verse.verse.substring(0, 80)}...'
+          : verse.verse;
+      const details = NotificationDetails(
+        android: AndroidNotificationDetails(
+          'daily_verse_reminders',
+          'Versículo del Día',
+          channelDescription: 'Te recuerda leer el versículo del día',
+          importance: Importance.high,
+          priority: Priority.high,
+          playSound: true,
+        ),
+        iOS: DarwinNotificationDetails(presentSound: true),
+      );
+      await _flnp.zonedSchedule(
+        _dailyVerseReminderId,
+        '📖 Versículo del Día',
+        '$preview — ${verse.reference}',
+        _nextInstanceOfTime(_dailyVerseReminderTime),
+        details,
+        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+        uiLocalNotificationDateInterpretation:
+            UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.time,
+        payload: '$payloadDailyVersePrefix${verse.reference}',
+      );
+      debugPrint(
+        '🔔 Recordatorio de Versículo del Día programado: '
+        '${_dailyVerseReminderTime.hour}:${_dailyVerseReminderTime.minute.toString().padLeft(2, '0')}',
+      );
+    } catch (e) {
+      debugPrint('⚠️ Error programando recordatorio de Versículo del Día: $e');
+    }
+  }
+
+  Future<void> _cancelDailyVerseReminder() async {
+    try {
+      await _flnp.cancel(_dailyVerseReminderId);
+    } catch (e) {
+      debugPrint('⚠️ Error cancelando recordatorio de Versículo del Día: $e');
     }
   }
 

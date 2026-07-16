@@ -15,11 +15,16 @@ class ReaderVerseItem extends StatelessWidget {
   final Highlight? highlight;
   final bool hasNote;
   final bool isSelected;
-  final bool isMultiSelected;
   final bool isTtsActive;
   final double fontSize;
   final BibleReaderThemeData theme;
   final BibleReaderController controller;
+
+  /// Si este versículo está en modo palabra (subrayado token por token).
+  final bool wordSelectionActive;
+
+  /// Índices de palabra seleccionados (solo relevante si wordSelectionActive).
+  final Set<int> selectedWords;
 
   const ReaderVerseItem({
     super.key,
@@ -28,11 +33,12 @@ class ReaderVerseItem extends StatelessWidget {
     required this.highlight,
     required this.hasNote,
     required this.isSelected,
-    required this.isMultiSelected,
     required this.isTtsActive,
     required this.fontSize,
     required this.theme,
     required this.controller,
+    this.wordSelectionActive = false,
+    this.selectedWords = const <int>{},
   });
 
   @override
@@ -59,24 +65,25 @@ class ReaderVerseItem extends StatelessWidget {
     BuildContext context,
     List<StudyWordHighlight> wordHighlights,
   ) {
+    // Modo palabra: el versículo se vuelve tappable token por token.
+    if (wordSelectionActive) {
+      return _buildWordSelectionBody(wordHighlights);
+    }
+
     final highlightBg = highlight != null
         ? theme.highlightOverlay(highlight!.color)
         : null;
-    final showSelected = isSelected || isMultiSelected || isTtsActive;
 
     return Semantics(
       label: 'Versículo ${verse.verse}. ${verse.text}',
-      selected: isSelected || isMultiSelected,
+      selected: isSelected,
       hint: isSelected
-          ? 'Toca de nuevo para selección múltiple'
-          : controller.isSelectionMode
-          ? (isMultiSelected
-                ? 'Toca para deseleccionar'
-                : 'Toca para seleccionar')
+          ? 'Toca para deseleccionar'
           : 'Toca para seleccionar versículo',
       child: GestureDetector(
         onTap: () => controller.tapVerse(index),
-        onLongPress: () => controller.longPressVerse(index),
+        // Mantener presionado → entra al modo palabra (atajo directo).
+        onLongPress: () => controller.enterWordSelection(verse.verse),
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           padding: EdgeInsets.only(
@@ -85,11 +92,7 @@ class ReaderVerseItem extends StatelessWidget {
             left: isTtsActive ? 8 : 0,
           ),
           decoration: BoxDecoration(
-            color: showSelected
-                ? (isMultiSelected
-                      ? theme.accent.withValues(alpha: 0.12)
-                      : theme.selectionBg)
-                : null,
+            color: isTtsActive ? theme.selectionBg : null,
             border: isTtsActive
                 ? const Border(
                     left: BorderSide(color: Color(0xFFD4AF37), width: 3),
@@ -103,44 +106,16 @@ class ReaderVerseItem extends StatelessWidget {
                   alignment: PlaceholderAlignment.top,
                   child: Transform.translate(
                     offset: const Offset(0, -2),
-                    child: isMultiSelected
-                        ? Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 14,
-                                height: 14,
-                                margin: const EdgeInsets.only(right: 2),
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFFD4AF37),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.check,
-                                  size: 9,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              Text(
-                                '${verse.verse} ',
-                                style: GoogleFonts.manrope(
-                                  color: const Color(0xFFD4AF37),
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ],
-                          )
-                        : Text(
-                            '${verse.verse} ',
-                            style: GoogleFonts.manrope(
-                              color: showSelected
-                                  ? theme.accent
-                                  : theme.textSecondary.withValues(alpha: 0.5),
-                              fontSize: 11,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
+                    child: Text(
+                      '${verse.verse} ',
+                      style: GoogleFonts.manrope(
+                        color: isSelected || isTtsActive
+                            ? theme.accent
+                            : theme.textSecondary.withValues(alpha: 0.5),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
                   ),
                 ),
                 ..._buildVerseTextSpans(
@@ -215,6 +190,88 @@ class ReaderVerseItem extends StatelessWidget {
     );
   }
 
+  // ── Modo palabra: verso como Wrap de tokens tappables ──────────────────
+
+  Widget _buildWordSelectionBody(List<StudyWordHighlight> wordHighlights) {
+    // Misma tokenización que StudyWordHighlight para que los índices coincidan.
+    final tokens =
+        verse.text.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
+    return Semantics(
+      label: 'Versículo ${verse.verse}. Modo subrayado de palabras.',
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 3),
+        padding: const EdgeInsets.fromLTRB(8, 6, 8, 6),
+        decoration: BoxDecoration(
+          color: theme.accent.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: theme.accent.withValues(alpha: 0.25)),
+        ),
+        child: Wrap(
+          crossAxisAlignment: WrapCrossAlignment.center,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(right: 6, top: 3),
+              child: Text(
+                '${verse.verse}',
+                style: GoogleFonts.manrope(
+                  color: theme.accent,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+            for (int i = 0; i < tokens.length; i++)
+              _buildWordChip(i, tokens[i], wordHighlights),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWordChip(
+    int i,
+    String word,
+    List<StudyWordHighlight> wordHighlights,
+  ) {
+    final selected = selectedWords.contains(i);
+    // Color de subrayado ya existente en esta palabra (el más reciente gana).
+    StudyWordHighlight? cover;
+    for (final h in wordHighlights) {
+      if (h.overlapsWord(i)) {
+        cover = (cover == null || h.createdAt.isAfter(cover.createdAt))
+            ? h
+            : cover;
+      }
+    }
+    final existingColor = cover?.codeEnum.color;
+    return GestureDetector(
+      onTap: () => controller.toggleWord(i),
+      behavior: HitTestBehavior.opaque,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 120),
+        margin: const EdgeInsets.symmetric(horizontal: 1, vertical: 2),
+        padding: const EdgeInsets.symmetric(horizontal: 3, vertical: 2),
+        decoration: BoxDecoration(
+          color: selected
+              ? theme.accent.withValues(alpha: 0.30)
+              : existingColor?.withValues(alpha: theme.isDark ? 0.32 : 0.28),
+          borderRadius: BorderRadius.circular(5),
+          border: selected
+              ? Border.all(color: theme.accent, width: 1.2)
+              : null,
+        ),
+        child: Text(
+          word,
+          style: GoogleFonts.lora(
+            color: theme.textPrimary,
+            fontSize: fontSize,
+            height: 1.35,
+          ),
+        ),
+      ),
+    );
+  }
+
   List<InlineSpan> _buildVerseTextSpans(
     String text, {
     required double fontSize,
@@ -225,11 +282,17 @@ class ReaderVerseItem extends StatelessWidget {
     bool isRedLetter = false,
   }) {
     final textColor = isRedLetter ? theme.redLetterColor : theme.textPrimary;
+    // Selección = subrayado punteado (estilo YouVersion): marca clara sin
+    // tapar el color de resaltado ni entorpecer la lectura.
     final baseStyle = GoogleFonts.lora(
       color: textColor,
       fontSize: fontSize,
       height: 1.8,
       backgroundColor: highlightBg,
+      decoration: isSelected ? TextDecoration.underline : TextDecoration.none,
+      decorationStyle: TextDecorationStyle.dotted,
+      decorationColor: theme.textSecondary.withValues(alpha: 0.75),
+      decorationThickness: 1.5,
     );
 
     // Si hay subrayados granulares (palabra/frase) del Modo Estudio, los

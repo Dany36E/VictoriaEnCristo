@@ -130,10 +130,9 @@ class BibleReaderController extends ReaderState
   Future<void> loadChapter() async {
     debugPrint('🟢 [BibleReader] loadChapter start: book=$bookNumber ch=$currentChapter');
     loading = true;
-    selectedVerseIndex = null;
-    isSelectionMode = false;
-    multiSelectShowColors = false;
     selectedVerseNumbers.clear();
+    wordSelectionVerse = null;
+    selectedWords.clear();
     searchMatchIndices = [];
     currentMatchIndex = -1;
     guzikChapter = null;

@@ -7,7 +7,6 @@ import '../../../services/bible/bible_user_data_service.dart';
 import '../../../services/bible/section_title_service.dart';
 import '../../../services/connectivity_service.dart';
 import '../../../theme/bible_reader_theme.dart';
-import '../cross_refs_panel.dart';
 import '../chapter_tools_section.dart';
 import 'reader_verse_item.dart';
 import 'reader_study_section.dart';
@@ -60,22 +59,6 @@ class ReaderContentView extends StatelessWidget {
                           builder: (context, _, _) =>
                               _buildVerseSliver(t, highlights, notes, fontSize, ttsVerseIdx),
                         ),
-                        if (controller.selectedVerseIndex != null &&
-                            controller.selectedVerseIndex! < controller.verses.length &&
-                            !controller.isSelectionMode)
-                          SliverToBoxAdapter(
-                            child: CrossRefsPanel(
-                              key: ValueKey(
-                                'xref_${controller.verses[controller.selectedVerseIndex!].uniqueKey}',
-                              ),
-                              verse: controller.verses[controller.selectedVerseIndex!],
-                              theme: t,
-                              onNavigate: (bookNum, bookName, chapter) {
-                                controller.clearSelection();
-                                onGoToBook(bookNum, bookName, chapter);
-                              },
-                            ),
-                          ),
                         SliverToBoxAdapter(
                           child: ReaderChapterNoteIndicator(theme: t, controller: controller),
                         ),
@@ -226,9 +209,11 @@ class ReaderContentView extends StatelessWidget {
       index: vi,
       highlight: highlights[highlightKey],
       hasNote: notes.containsKey(noteKey),
-      isSelected: controller.selectedVerseIndex == vi,
-      isMultiSelected:
-          controller.isSelectionMode && controller.selectedVerseNumbers.contains(verse.verse),
+      isSelected: controller.selectedVerseNumbers.contains(verse.verse),
+      wordSelectionActive: controller.wordSelectionVerse == verse.verse,
+      selectedWords: controller.wordSelectionVerse == verse.verse
+          ? controller.selectedWords
+          : const <int>{},
       isTtsActive: ttsVerseIdx == vi,
       fontSize: fontSize,
       theme: t,
