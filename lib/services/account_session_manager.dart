@@ -133,11 +133,13 @@ class AccountSessionManager {
       );
 
       // Procesar usuario actual si existe (vía la cola, para no competir
-      // con el primer evento del stream que emite el mismo usuario)
+      // con el primer evento del stream que emite el mismo usuario).
+      // NO esperamos la cola: el handler hace trabajo de nube/Firestore que
+      // puede tardar (hasta 90s offline) y no debe bloquear el arranque. La
+      // sesión se marca lista de forma reactiva vía stateNotifier.
       final currentUser = FirebaseAuth.instance.currentUser;
       if (currentUser != null) {
         _onAuthStateChanged(currentUser);
-        await _authEventQueue;
       }
 
       _isInitialized = true;

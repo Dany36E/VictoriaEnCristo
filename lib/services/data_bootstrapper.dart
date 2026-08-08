@@ -98,10 +98,13 @@ class DataBootstrapper {
       // Escuchar cambios de autenticación
       _authSubscription = FirebaseAuth.instance.authStateChanges().listen(_onAuthStateChanged);
 
-      // Si ya hay usuario conectado, hacer bootstrap
+      // Si ya hay usuario conectado, hacer bootstrap EN SEGUNDO PLANO.
+      // No lo esperamos: el bootstrap descarga de Firestore y no debe bloquear
+      // el primer frame ("Iniciando"). La UI arranca con la caché local y se
+      // hidrata sola cuando llega la nube (notifiers + realtime listeners).
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
-        await _bootstrapUser(user.uid);
+        unawaited(_bootstrapUser(user.uid));
       }
 
       _isInitialized = true;

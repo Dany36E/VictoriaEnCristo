@@ -12,7 +12,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/user_profile.dart';
-import '../utils/retry_utils.dart';
 
 class ProfileRepository {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -327,36 +326,36 @@ class ProfileRepository {
 
   Future<UserProfile?> _loadFromCloud(String uid) async {
     _lastCloudReadFailed = false;
+    // CACHÉ PRIMERO: instantáneo y funciona offline. El listener en tiempo real
+    // (_startRealtimeSync) entrega la versión del servidor apenas esté
+    // disponible, así que NO forzamos Source.server con reintentos (eso
+    // bloqueaba el arranque ~48s offline).
     try {
-      // FORZAR lectura desde servidor para evitar datos stale del cache
-      // del SDK de Firestore (persiste entre reinicios de app)
-      final doc = await retryWithBackoff(
-        () => _firestore
-            .collection('users')
-            .doc(uid)
-            .get(const GetOptions(source: Source.server))
-            .timeout(const Duration(seconds: 15)),
-      );
-
+      final cached = await _firestore
+          .collection('users')
+          .doc(uid)
+          .get(const GetOptions(source: Source.cache));
+      if (cached.exists) {
+        debugPrint('👤 [PROFILE_REPO] Loaded from Firestore cache (instant)');
+        return UserProfile.fromFirestore(cached);
+      }
+    } catch (e) {
+      debugPrint('👤 [PROFILE_REPO] Cache miss: $e');
+    }
+    // Sin caché local (primer login en este dispositivo): un solo intento al
+    // servidor con timeout corto. Si falla (offline), lo maneja connectUser.
+    try {
+      final doc = await _firestore
+          .collection('users')
+          .doc(uid)
+          .get(const GetOptions(source: Source.server))
+          .timeout(const Duration(seconds: 12));
       if (doc.exists) {
         return UserProfile.fromFirestore(doc);
       }
       return null;
     } catch (e) {
-      debugPrint('👤 [PROFILE_REPO] Cloud load error (server): $e');
-      // Si falla el servidor, intentar cache como fallback
-      try {
-        final doc = await _firestore
-            .collection('users')
-            .doc(uid)
-            .get(const GetOptions(source: Source.cache));
-        if (doc.exists) {
-          debugPrint('👤 [PROFILE_REPO] Using Firestore cache as fallback');
-          return UserProfile.fromFirestore(doc);
-        }
-      } catch (e) {
-        debugPrint('👤 [PROFILE_REPO] Cache fallback also failed: $e');
-      }
+      debugPrint('👤 [PROFILE_REPO] Server load failed: $e');
       _lastCloudReadFailed = true;
       return null;
     }
