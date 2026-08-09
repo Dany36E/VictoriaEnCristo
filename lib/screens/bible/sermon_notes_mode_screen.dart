@@ -1839,7 +1839,7 @@ class _BarButton extends StatelessWidget {
   }
 }
 
-class _AddedVersesCard extends StatelessWidget {
+class _AddedVersesCard extends StatefulWidget {
   final BibleReaderThemeData theme;
   final List<SermonVerseReference> verses;
   final ValueChanged<SermonVerseReference> onRemove;
@@ -1851,88 +1851,145 @@ class _AddedVersesCard extends StatelessWidget {
   });
 
   @override
+  State<_AddedVersesCard> createState() => _AddedVersesCardState();
+}
+
+class _AddedVersesCardState extends State<_AddedVersesCard> {
+  bool _expanded = true;
+
+  @override
   Widget build(BuildContext context) {
-    final t = theme;
+    final t = widget.theme;
+    final verses = widget.verses;
     return _PanelCard(
       theme: t,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            children: [
-              Icon(Icons.library_books_outlined, color: t.accent, size: 16),
-              const SizedBox(width: 6),
-              Text(
-                'Versiculos agregados',
-                style: GoogleFonts.cinzel(
-                  color: t.textPrimary,
-                  fontSize: 15,
-                  fontWeight: FontWeight.w700,
-                ),
+          InkWell(
+            onTap: () => setState(() => _expanded = !_expanded),
+            borderRadius: BorderRadius.circular(8),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 2),
+              child: Row(
+                children: [
+                  Icon(Icons.library_books_outlined, color: t.accent, size: 16),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: Text(
+                      'Versiculos agregados',
+                      style: GoogleFonts.cinzel(
+                        color: t.textPrimary,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                    decoration: BoxDecoration(
+                      color: t.accent.withValues(alpha: 0.14),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      '${verses.length}',
+                      style: GoogleFonts.manrope(
+                        color: t.accent,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  AnimatedRotation(
+                    turns: _expanded ? 0.5 : 0,
+                    duration: const Duration(milliseconds: 180),
+                    child: Icon(
+                      Icons.keyboard_arrow_down,
+                      color: t.textSecondary,
+                      size: 22,
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          Text(
-            'Aparecen en la lectura (izquierda) y en el PDF. Quitalos con la X.',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.72),
-              fontSize: 11,
-              height: 1.3,
             ),
           ),
-          const SizedBox(height: 10),
-          for (final verse in verses)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 6),
-              child: Container(
-                padding: const EdgeInsets.fromLTRB(10, 6, 4, 6),
-                decoration: BoxDecoration(
-                  color: t.background,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: t.textSecondary.withValues(alpha: 0.12),
+          AnimatedCrossFade(
+            duration: const Duration(milliseconds: 180),
+            crossFadeState: _expanded
+                ? CrossFadeState.showFirst
+                : CrossFadeState.showSecond,
+            firstChild: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 4),
+                Text(
+                  'Aparecen en la lectura (izquierda) y en el PDF. Quitalos con la X.',
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withValues(alpha: 0.72),
+                    fontSize: 11,
+                    height: 1.3,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                const SizedBox(height: 10),
+                for (final verse in verses)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 6),
+                    child: Container(
+                      padding: const EdgeInsets.fromLTRB(10, 6, 4, 6),
+                      decoration: BoxDecoration(
+                        color: t.background,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(
+                          color: t.textSecondary.withValues(alpha: 0.12),
+                        ),
+                      ),
+                      child: Row(
                         children: [
-                          Text(
-                            '${verse.reference} · ${verse.versionId}',
-                            style: GoogleFonts.manrope(
-                              color: t.accent,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  '${verse.reference} · ${verse.versionId}',
+                                  style: GoogleFonts.manrope(
+                                    color: t.accent,
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                                if (verse.text.trim().isNotEmpty) ...[
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    verse.text.trim(),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: GoogleFonts.lora(
+                                      color:
+                                          t.textSecondary.withValues(alpha: 0.85),
+                                      fontSize: 11.5,
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
-                          if (verse.text.trim().isNotEmpty) ...[
-                            const SizedBox(height: 2),
-                            Text(
-                              verse.text.trim(),
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.lora(
-                                color: t.textSecondary.withValues(alpha: 0.85),
-                                fontSize: 11.5,
-                              ),
-                            ),
-                          ],
+                          IconButton(
+                            tooltip: 'Quitar de la lectura',
+                            visualDensity: VisualDensity.compact,
+                            onPressed: () => widget.onRemove(verse),
+                            icon: Icon(Icons.close,
+                                color: t.textSecondary, size: 18),
+                          ),
                         ],
                       ),
                     ),
-                    IconButton(
-                      tooltip: 'Quitar de la lectura',
-                      visualDensity: VisualDensity.compact,
-                      onPressed: () => onRemove(verse),
-                      icon: Icon(Icons.close, color: t.textSecondary, size: 18),
-                    ),
-                  ],
-                ),
-              ),
+                  ),
+              ],
             ),
+            secondChild: const SizedBox(width: double.infinity),
+          ),
         ],
       ),
     );

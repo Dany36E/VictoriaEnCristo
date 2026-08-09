@@ -5,11 +5,13 @@ import '../../widgets/home/category_hub_scaffold.dart';
 import '../../widgets/home/glassmorphic_menu_button.dart';
 import '../learning/learning_home_screen.dart';
 import '../bible/bible_home_screen.dart';
+import '../series/series_home_screen.dart';
 
 /// Sub-hub "Crecimiento Espiritual": antes era "CRECIMIENTO" en el Home.
 ///
 /// Incluye la Escuela del Reino (movida desde Práctica Diaria a petición del
-/// usuario) y la Biblia. La sección "Planes" está oculta temporalmente.
+/// usuario), la Biblia y Series (The Chosen). La sección "Planes" está oculta
+/// temporalmente.
 class CrecimientoEspiritualScreen extends StatelessWidget {
   const CrecimientoEspiritualScreen({super.key});
 
@@ -54,6 +56,19 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+        const SizedBox(height: AppDesignSystem.spacingM),
+        GlassmorphicMenuButton(
+          icon: Icons.local_movies_rounded,
+          title: 'Series',
+          subtitle: 'The Chosen y más',
+          accentColor: const Color(0xFFE8C97A),
+          animationType: IconAnimationType.shimmer,
+          index: 2,
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const SeriesHomeScreen()),
+          ),
         ),
       ],
     );

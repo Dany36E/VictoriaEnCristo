@@ -1,0 +1,94 @@
+{
+  "series": [
+    {
+      "id": "the_chosen",
+      "title": "The Chosen",
+      "tagline": "La vida de Jesús como nunca la habías visto",
+      "description": "Serie histórica basada en los evangelios que narra la vida de Jesús a través de los ojos de quienes lo conocieron. Temporadas 1 y 2 se reproducen dentro de la app (YouTube oficial). Temporadas 3 a 5 abren la app oficial gratuita de The Chosen.",
+      "accentHex": "FFE8C97A",
+      "officialUrl": "https://watch.thechosen.tv",
+      "seasons": [
+        {
+          "number": 1,
+          "title": "Temporada 1",
+          "youtubePlaylistId": "PLgn4viMGbbmDEw-R3MoYRYuRlmsgxd2A3",
+          "officialUrl": "https://watch.thechosen.tv/page/season-1",
+          "episodes": [
+            { "number": 1, "title": "Te he llamado por tu nombre" },
+            { "number": 2, "title": "Shabat" },
+            { "number": 3, "title": "Jesús ama a los niños" },
+            { "number": 4, "title": "La roca sobre la que se edifica" },
+            { "number": 5, "title": "El regalo de bodas" },
+            { "number": 6, "title": "Compasión indescriptible" },
+            { "number": 7, "title": "Invitaciones" },
+            { "number": 8, "title": "Yo soy" }
+          ]
+        },
+        {
+          "number": 2,
+          "title": "Temporada 2",
+          "youtubePlaylistId": "PLgn4viMGbbmAgpzct6xYdwbac-lK-N-9B",
+          "officialUrl": "https://watch.thechosen.tv/page/season-2",
+          "episodes": [
+            { "number": 1, "title": "Trueno" },
+            { "number": 2, "title": "Te vi" },
+            { "number": 3, "title": "Mateo 4:24" },
+            { "number": 4, "title": "La oportunidad perfecta" },
+            { "number": 5, "title": "Espíritu" },
+            { "number": 6, "title": "Ilícito" },
+            { "number": 7, "title": "Ajuste de cuentas" },
+            { "number": 8, "title": "Más allá de las montañas" }
+          ]
+        },
+        {
+          "number": 3,
+          "title": "Temporada 3",
+          "youtubePlaylistId": null,
+          "officialUrl": "https://watch.thechosen.tv/page/season-3",
+          "episodes": [
+            { "number": 1, "title": "Regreso a casa" },
+            { "number": 2, "title": "De dos en dos" },
+            { "number": 3, "title": "Médico, cúrate a ti mismo" },
+            { "number": 4, "title": "Limpio, parte 1" },
+            { "number": 5, "title": "Limpio, parte 2" },
+            { "number": 6, "title": "Intensidad en la ciudad de tiendas" },
+            { "number": 7, "title": "Oídos para oír" },
+            { "number": 8, "title": "Sustento" }
+          ]
+        },
+        {
+          "number": 4,
+          "title": "Temporada 4",
+          "youtubePlaylistId": null,
+          "officialUrl": "https://watch.thechosen.tv/page/season-4",
+          "episodes": [
+            { "number": 1, "title": "Promesas" },
+            { "number": 2, "title": "Confesiones" },
+            { "number": 3, "title": "Luna en sangre" },
+            { "number": 4, "title": "La calma antes" },
+            { "number": 5, "title": "Sentarse, servir, conspirar" },
+            { "number": 6, "title": "Dedicación" },
+            { "number": 7, "title": "La última señal" },
+            { "number": 8, "title": "Humilde" }
+          ]
+        },
+        {
+          "number": 5,
+          "title": "Temporada 5",
+          "youtubePlaylistId": null,
+          "officialUrl": "https://watch.thechosen.tv/page/season-5",
+          "episodes": [
+            { "number": 1, "title": "Entrada" },
+            { "number": 2, "title": "Castillo de naipes" },
+            { "number": 3, "title": "Ayes" },
+            { "number": 4, "title": "La misma moneda" },
+            { "number": 5, "title": "Por mi causa" },
+            { "number": 6, "title": "Reencuentros" },
+            { "number": 7, "title": "El aposento alto: Parte I" },
+            { "number": 8, "title": "El aposento alto: Parte II" }
+          ]
+        }
+      ]
+    }
+  ]
+}

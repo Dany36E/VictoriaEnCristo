@@ -724,30 +724,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           ),
         ),
       ),
-      _ToolItem(
-        Icons.timeline,
-        'Línea',
-        () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
-        ),
-      ),
-      _ToolItem(
-        Icons.map_outlined,
-        'Mapas',
-        () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const BibleMapScreen()),
-        ),
-      ),
-      _ToolItem(
-        Icons.grid_view_rounded,
-        'Armonía',
-        () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const GospelHarmonyScreen()),
-        ),
-      ),
     ];
 
     return Padding(
@@ -827,45 +803,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         ),
       ),
       _ToolItem(
-        Icons.bookmark_outline,
-        'Guardados',
-        () => Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
-            transitionDuration: const Duration(milliseconds: 150),
-            transitionsBuilder: (ctx, a, sa, child) =>
-                FadeTransition(opacity: a, child: child),
-          ),
-        ),
-      ),
-      _ToolItem(
-        Icons.sticky_note_2_outlined,
-        'Notas',
-        () => Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (c, a1, a2) => const AllNotesScreen(),
-            transitionDuration: const Duration(milliseconds: 150),
-            transitionsBuilder: (ctx, a, sa, child) =>
-                FadeTransition(opacity: a, child: child),
-          ),
-        ),
-      ),
-      _ToolItem(
-        Icons.collections_bookmark_outlined,
-        'Colecciones',
-        () => Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (c, a1, a2) => const CollectionsScreen(),
-            transitionDuration: const Duration(milliseconds: 150),
-            transitionsBuilder: (ctx, a, sa, child) =>
-                FadeTransition(opacity: a, child: child),
-          ),
-        ),
-      ),
-      _ToolItem(
         Icons.timeline,
         'Línea de Tiempo',
         () => Navigator.push(
@@ -903,11 +840,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         ),
       ),
       _ToolItem(
-        Icons.view_column_outlined,
-        'Vista Paralela',
-        () => _openParallelReader(),
-      ),
-      _ToolItem(
         Icons.grid_view_rounded,
         'Armonía',
         () => Navigator.push(
@@ -931,8 +863,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           MaterialPageRoute(builder: (_) => const OTQuotesScreen()),
         ),
       ),
-      _ToolItem(Icons.menu_book, 'Modo Estudio', _openStudyEntryOptions),
-      _ToolItem(Icons.edit_note, 'Modo Predicacion', _openSermonEntryOptions),
     ];
 
     return GridView.count(
