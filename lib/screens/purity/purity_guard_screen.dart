@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../services/guardian_lock_service.dart';
 import '../../services/purity_guard_service.dart';
 import '../../theme/app_theme_data.dart';
 
@@ -30,6 +31,7 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
 
   Future<void> _init() async {
     await _service.refresh();
+    await GuardianLockService.I.refresh();
     final count = await _service.blocklistCount();
     final stats = await _service.blockStats();
     if (mounted) {
@@ -44,9 +46,18 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
   Future<void> _toggle(bool value) async {
     if (_busy) return;
     if (!value) {
-      // Fricción intencional: un momento de pausa antes de bajar el escudo.
-      final confirmed = await _confirmDisable();
-      if (confirmed != true) return;
+      if (GuardianLockService.I.enabled.value) {
+        // Candado del guardián: requiere el PIN que tiene el compañero.
+        final ok = await _promptGuardianPin(
+          title: 'PIN del guardián',
+          message: 'Pídele a tu compañero el PIN para desactivar el escudo.',
+        );
+        if (ok != true) return;
+      } else {
+        // Fricción intencional: un momento de pausa antes de bajar el escudo.
+        final confirmed = await _confirmDisable();
+        if (confirmed != true) return;
+      }
     }
     setState(() => _busy = true);
     if (value) {
@@ -120,6 +131,10 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
             _buildIOSGuide(t)
           else
             _buildUnsupported(t),
+          if (_service.isEngineSupported) ...[
+            const SizedBox(height: 12),
+            _buildGuardianCard(t),
+          ],
           const SizedBox(height: 20),
           _buildHowItWorks(t),
           const SizedBox(height: 20),
@@ -127,6 +142,273 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
         ],
       ),
     );
+  }
+
+  // ── Candado del guardián ────────────────────────────────────────────────
+
+  Widget _buildGuardianCard(AppThemeData t) {
+    return ValueListenableBuilder<bool>(
+      valueListenable: GuardianLockService.I.enabled,
+      builder: (context, locked, _) {
+        return Container(
+          decoration: BoxDecoration(
+            color: t.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: t.cardBorder),
+          ),
+          child: Column(
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: (locked ? Colors.green : t.textSecondary)
+                        .withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(
+                    locked ? Icons.lock : Icons.lock_open,
+                    color: locked ? Colors.green : t.textSecondary,
+                  ),
+                ),
+                title: Text(
+                  'Candado del guardián',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w700,
+                    color: t.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  locked
+                      ? 'Activo · solo tu compañero puede desactivar el escudo'
+                      : 'Opcional · un PIN que tiene tu compañero',
+                  style: TextStyle(color: t.textSecondary),
+                ),
+              ),
+              const Divider(height: 1),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+                child: locked
+                    ? Align(
+                        alignment: Alignment.centerLeft,
+                        child: TextButton.icon(
+                          onPressed: _removeGuardian,
+                          icon: const Icon(Icons.lock_open, size: 18),
+                          label: const Text('Quitar candado (requiere PIN)'),
+                        ),
+                      )
+                    : Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Actívalo solo si tienes un compañero de confianza. '
+                            'Él pondrá un PIN que tú no verás; así no podrás '
+                            'apagar el escudo por impulso.',
+                            style: TextStyle(
+                              color: t.textSecondary,
+                              fontSize: 12.5,
+                              height: 1.4,
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: _setupGuardian,
+                              icon: const Icon(Icons.person_add_alt_1, size: 18),
+                              label: const Text('Activar candado del guardián'),
+                            ),
+                          ),
+                        ],
+                      ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _setupGuardian() async {
+    final t = AppThemeData.of(context);
+    final pinC = TextEditingController();
+    final pin2C = TextEditingController();
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        String? error;
+        return StatefulBuilder(
+          builder: (ctx, setSt) {
+            return AlertDialog(
+              backgroundColor: t.cardBg,
+              title: Text(
+                'Candado del guardián',
+                style: TextStyle(color: t.textPrimary),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Pásale el teléfono a tu compañero para que escriba un PIN '
+                    '(4 a 8 dígitos) que solo él/ella sepa. No lo veas.',
+                    style: TextStyle(color: t.textSecondary, height: 1.4),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: pinC,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 8,
+                    decoration: const InputDecoration(
+                      labelText: 'PIN',
+                      counterText: '',
+                    ),
+                  ),
+                  TextField(
+                    controller: pin2C,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 8,
+                    decoration: InputDecoration(
+                      labelText: 'Repetir PIN',
+                      counterText: '',
+                      errorText: error,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () => Navigator.pop(ctx, false),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    final p = pinC.text.trim();
+                    final p2 = pin2C.text.trim();
+                    if (!RegExp(r'^\d{4,8}$').hasMatch(p)) {
+                      setSt(() => error = 'Usa 4 a 8 dígitos');
+                      return;
+                    }
+                    if (p != p2) {
+                      setSt(() => error = 'Los PIN no coinciden');
+                      return;
+                    }
+                    final done = await GuardianLockService.I.setPin(p);
+                    if (ctx.mounted) Navigator.pop(ctx, done);
+                  },
+                  child: const Text('Guardar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    pinC.dispose();
+    pin2C.dispose();
+    if (ok == true && mounted) {
+      setState(() {});
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Candado del guardián activado.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  Future<void> _removeGuardian() async {
+    final ok = await _promptGuardianPin(
+      title: 'Quitar candado',
+      message: 'Introduce el PIN del guardián para quitar el candado.',
+    );
+    if (ok == true) {
+      await GuardianLockService.I.clear();
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<bool> _promptGuardianPin({
+    required String title,
+    required String message,
+  }) async {
+    final t = AppThemeData.of(context);
+    final controller = TextEditingController();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        String? error;
+        bool busy = false;
+        return StatefulBuilder(
+          builder: (ctx, setSt) {
+            return AlertDialog(
+              backgroundColor: t.cardBg,
+              title: Text(title, style: TextStyle(color: t.textPrimary)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    message,
+                    style: TextStyle(color: t.textSecondary, height: 1.4),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 8,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      labelText: 'PIN',
+                      counterText: '',
+                      errorText: error,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: busy ? null : () => Navigator.pop(ctx, false),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: busy
+                      ? null
+                      : () async {
+                          setSt(() => busy = true);
+                          final r = await GuardianLockService.I
+                              .verify(controller.text.trim());
+                          if (r == GuardianVerifyResult.ok) {
+                            if (ctx.mounted) Navigator.pop(ctx, true);
+                            return;
+                          }
+                          if (r == GuardianVerifyResult.lockedOut) {
+                            final rem =
+                                await GuardianLockService.I.lockoutRemaining();
+                            final mins = ((rem?.inMinutes) ?? 15) + 1;
+                            setSt(() {
+                              error =
+                                  'Demasiados intentos. Espera ~$mins min.';
+                              busy = false;
+                            });
+                          } else {
+                            setSt(() {
+                              error = 'PIN incorrecto';
+                              busy = false;
+                            });
+                          }
+                        },
+                  child: const Text('Confirmar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    controller.dispose();
+    return result ?? false;
   }
 
   Widget _buildHero(AppThemeData t) {
