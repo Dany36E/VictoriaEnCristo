@@ -19,6 +19,8 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
   final _service = PurityGuardService.I;
   bool _busy = false;
   int _blocklistCount = 0;
+  int _blockedTotal = 0;
+  int _blockedToday = 0;
 
   @override
   void initState() {
@@ -29,11 +31,23 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
   Future<void> _init() async {
     await _service.refresh();
     final count = await _service.blocklistCount();
-    if (mounted) setState(() => _blocklistCount = count);
+    final stats = await _service.blockStats();
+    if (mounted) {
+      setState(() {
+        _blocklistCount = count;
+        _blockedTotal = stats.total;
+        _blockedToday = stats.today;
+      });
+    }
   }
 
   Future<void> _toggle(bool value) async {
     if (_busy) return;
+    if (!value) {
+      // Fricción intencional: un momento de pausa antes de bajar el escudo.
+      final confirmed = await _confirmDisable();
+      if (confirmed != true) return;
+    }
     setState(() => _busy = true);
     if (value) {
       final ok = await _service.enable();
@@ -51,6 +65,43 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
       await _service.disable();
     }
     if (mounted) setState(() => _busy = false);
+  }
+
+  Future<bool?> _confirmDisable() {
+    final t = AppThemeData.of(context);
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: t.cardBg,
+        icon: Icon(Icons.shield_moon_rounded, color: t.accent, size: 40),
+        title: Text(
+          '¿Bajar el escudo?',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: t.textPrimary),
+        ),
+        content: Text(
+          'Recuerda por qué empezaste. La tentación es más fuerte cuando '
+          'bajamos la guardia.\n\n"Velad y orad, para que no entréis en '
+          'tentación." — Mateo 26:41',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: t.textSecondary, height: 1.5),
+        ),
+        actionsAlignment: MainAxisAlignment.center,
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Mantener activo'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(
+              'Desactivar',
+              style: TextStyle(color: t.textSecondary.withValues(alpha: 0.7)),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -181,8 +232,32 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      '$_blocklistCount sitios en la lista de bloqueo',
+                      '$_blocklistCount sitios en la lista de bloqueo · '
+                      'SafeSearch forzado · anti DNS-over-HTTPS',
                       style: TextStyle(color: t.textSecondary, fontSize: 13),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          if (_blockedTotal > 0) ...[
+            const Divider(height: 1),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Row(
+                children: [
+                  const Icon(Icons.verified, color: Colors.green, size: 18),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      '$_blockedTotal tentaciones bloqueadas'
+                      '${_blockedToday > 0 ? '  ·  hoy: $_blockedToday' : ''}',
+                      style: TextStyle(
+                        color: t.textPrimary,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -315,8 +390,10 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
             'Se activa una VPN local en tu propio teléfono (no envía tu '
                 'tráfico a ningún servidor externo).',
             'Cuando intentas abrir una web de la lista, se bloquea en '
-                'cualquier navegador.',
-            'Además te trae de vuelta a la app, a "Necesito Ayuda".',
+                'cualquier navegador y te trae de vuelta a "Necesito Ayuda".',
+            'Fuerza SafeSearch en Google, YouTube, Bing y DuckDuckGo.',
+            'Bloquea el DNS-over-HTTPS que usan algunos navegadores para '
+                'saltarse los filtros.',
           ];
     return Container(
       decoration: BoxDecoration(

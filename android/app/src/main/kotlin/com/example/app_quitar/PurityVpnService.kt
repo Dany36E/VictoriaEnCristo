@@ -42,11 +42,73 @@ class PurityVpnService : VpnService() {
         // Subred privada del túnel. El dispositivo envía DNS a VIRTUAL_DNS.
         private const val TUN_ADDRESS = "10.111.222.1"
         private const val VIRTUAL_DNS = "10.111.222.2"
-        private const val UPSTREAM_DNS = "1.1.1.1"
+        // DNS familiar de CleanBrowsing como upstream: filtra adultos incluso
+        // dominios nuevos que no estén en la lista local (doble capa).
+        private const val UPSTREAM_DNS = "185.228.168.10"
+
+        // Resolvedores DoH/DNS públicos conocidos. Se rutean al túnel: su DNS
+        // clásico (UDP 53) se filtra y su DoH (TCP 443) se descarta, forzando al
+        // navegador a caer en el DNS filtrado local.
+        private val DOH_IPS = listOf(
+            "1.1.1.1", "1.0.0.1", "1.1.1.2", "1.1.1.3",       // Cloudflare
+            "8.8.8.8", "8.8.4.4",                               // Google
+            "9.9.9.9", "149.112.112.112",                      // Quad9
+            "208.67.222.222", "208.67.220.220",                // OpenDNS
+            "94.140.14.14", "94.140.15.15",                    // AdGuard
+            "76.76.2.0", "76.76.10.0",                         // Control D
+            "185.228.168.9", "185.228.169.9",                  // CleanBrowsing
+            "45.90.28.0", "45.90.30.0",                        // NextDNS
+        )
+
+        // Hostnames de arranque (bootstrap) de proveedores DoH. Al bloquear su
+        // resolución, el navegador no puede activar DNS-over-HTTPS.
+        private val DOH_HOSTNAMES = listOf(
+            "dns.google", "dns64.dns.google",
+            "cloudflare-dns.com", "mozilla.cloudflare-dns.com",
+            "chrome.cloudflare-dns.com", "security.cloudflare-dns.com",
+            "family.cloudflare-dns.com", "one.one.one.one",
+            "dns.quad9.net", "dns9.quad9.net", "dns.quad9.net.",
+            "doh.opendns.com", "doh.familyshield.opendns.com",
+            "dns.adguard.com", "dns-family.adguard.com", "dns.adguard-dns.com",
+            "family.adguard-dns.com", "dns.nextdns.io",
+            "doh.cleanbrowsing.org", "doh.dns.sb", "dns.dns.sb",
+            "doh.mullvad.net", "doh.controld.com", "freedns.controld.com",
+        )
+
+        // Fuerza SafeSearch: el dominio (clave) se responde con un CNAME al host
+        // seguro (valor); el cliente re-resuelve y obtiene la versión filtrada.
+        private val SAFE_SEARCH = mapOf(
+            "www.google.com" to "forcesafesearch.google.com",
+            "google.com" to "forcesafesearch.google.com",
+            "www.bing.com" to "strict.bing.com",
+            "bing.com" to "strict.bing.com",
+            "www.youtube.com" to "restrict.youtube.com",
+            "m.youtube.com" to "restrict.youtube.com",
+            "youtube.com" to "restrict.youtube.com",
+            "youtubei.googleapis.com" to "restrict.youtube.com",
+            "youtube.googleapis.com" to "restrict.youtube.com",
+            "www.youtube-nocookie.com" to "restrict.youtube.com",
+            "duckduckgo.com" to "safe.duckduckgo.com",
+            "www.duckduckgo.com" to "safe.duckduckgo.com",
+        )
 
         @Volatile
         var isRunning: Boolean = false
             private set
+
+        /** Estadísticas de bloqueos: total histórico y del día. */
+        fun blockStats(context: Context): Map<String, Int> {
+            return try {
+                val prefs = context.getSharedPreferences("purity_stats", Context.MODE_PRIVATE)
+                val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                    .format(java.util.Date())
+                val todayCount = if (prefs.getString("day", "") == today)
+                    prefs.getInt("todayCount", 0) else 0
+                mapOf("total" to prefs.getInt("total", 0), "today" to todayCount)
+            } catch (e: Exception) {
+                mapOf("total" to 0, "today" to 0)
+            }
+        }
 
         /** Cuenta los dominios en el asset de bloqueo (para la UI). */
         fun blocklistCount(context: Context): Int {
@@ -107,6 +169,8 @@ class PurityVpnService : VpnService() {
         } catch (e: Exception) {
             Log.e(TAG, "Error cargando blocklist", e)
         }
+        // Añade los hostnames DoH para impedir DNS-over-HTTPS.
+        set.addAll(DOH_HOSTNAMES)
         blocklist = set
     }
 
@@ -117,6 +181,14 @@ class PurityVpnService : VpnService() {
             .addDnsServer(VIRTUAL_DNS)
             .addRoute(VIRTUAL_DNS, 32)
             .setBlocking(true)
+        // Rutea los resolvedores DoH conocidos al túnel: su DNS clásico se
+        // filtra y su tráfico DoH (443) se descarta (no lo reenviamos).
+        for (ip in DOH_IPS) {
+            try {
+                builder.addRoute(ip, 32)
+            } catch (_: Exception) {
+            }
+        }
         // No filtrar la propia app.
         try {
             builder.addDisallowedApplication(packageName)
@@ -162,11 +234,24 @@ class PurityVpnService : VpnService() {
         val dns = packet.copyOfRange(dnsStart, length)
 
         val domain = parseDomain(dns) ?: return
+
+        // 1) Forzar SafeSearch (Google/YouTube/Bing/DuckDuckGo).
+        val safeTarget = SAFE_SEARCH[domain]
+        if (safeTarget != null) {
+            val response = buildCnameResponse(dns, safeTarget)
+            if (response != null) {
+                writeUdpPacket(output, dstIp, srcIp, dstPort, srcPort, response)
+            }
+            return
+        }
+
+        // 2) Bloquear contenido adulto.
         if (isBlocked(domain)) {
             val response = buildBlockedResponse(dns)
             if (response != null) {
                 writeUdpPacket(output, dstIp, srcIp, dstPort, srcPort, response)
             }
+            recordBlock()
             triggerRedirect()
         } else {
             forwardDns(dns) { reply ->
@@ -242,6 +327,69 @@ class PurityVpnService : VpnService() {
             out.put(0x00); out.put(0x00); out.put(0x00); out.put(0x00) // 0.0.0.0
         }
         return out.array()
+    }
+
+    /** Respuesta DNS con un CNAME que apunta al host seguro (SafeSearch). */
+    private fun buildCnameResponse(query: ByteArray, target: String): ByteArray? {
+        if (query.size < 12) return null
+        var pos = 12
+        while (pos < query.size) {
+            val len = query[pos].toInt() and 0xFF
+            if (len == 0) { pos++; break }
+            pos += len + 1
+        }
+        if (pos + 4 > query.size) return null
+        val questionEnd = pos + 4
+        val rdata = encodeDomain(target)
+
+        val out = ByteBuffer.allocate(questionEnd + 12 + rdata.size)
+        out.put(query[0]); out.put(query[1])           // ID
+        out.put(0x81.toByte()); out.put(0x80.toByte()) // flags: response + RA
+        out.put(0x00); out.put(0x01)                   // QDCOUNT
+        out.put(0x00); out.put(0x01)                   // ANCOUNT = 1
+        out.put(0x00); out.put(0x00)                   // NSCOUNT
+        out.put(0x00); out.put(0x00)                   // ARCOUNT
+        out.put(query, 12, questionEnd - 12)           // question
+        out.put(0xC0.toByte()); out.put(0x0C.toByte()) // name pointer -> 0x0C
+        out.put(0x00); out.put(0x05)                   // type CNAME
+        out.put(0x00); out.put(0x01)                   // class IN
+        out.put(0x00); out.put(0x00); out.put(0x00); out.put(0x3C) // TTL 60
+        out.put((rdata.size ushr 8).toByte()); out.put((rdata.size and 0xFF).toByte())
+        out.put(rdata)
+        return out.array()
+    }
+
+    /** Codifica un dominio a formato DNS (labels con prefijo de longitud + 0). */
+    private fun encodeDomain(domain: String): ByteArray {
+        val buf = ByteBuffer.allocate(domain.length + 2)
+        for (label in domain.split('.')) {
+            if (label.isEmpty()) continue
+            buf.put(label.length.toByte())
+            buf.put(label.toByteArray(Charsets.US_ASCII))
+        }
+        buf.put(0)
+        val arr = ByteArray(buf.position())
+        buf.flip()
+        buf.get(arr)
+        return arr
+    }
+
+    /** Registra un bloqueo (contadores total y del día) para la UI. */
+    private fun recordBlock() {
+        try {
+            val prefs = getSharedPreferences("purity_stats", Context.MODE_PRIVATE)
+            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(java.util.Date())
+            val total = prefs.getInt("total", 0) + 1
+            val lastDay = prefs.getString("day", "") ?: ""
+            val todayCount = if (lastDay == today) prefs.getInt("todayCount", 0) + 1 else 1
+            prefs.edit()
+                .putInt("total", total)
+                .putString("day", today)
+                .putInt("todayCount", todayCount)
+                .apply()
+        } catch (_: Exception) {
+        }
     }
 
     /** Reenvía la consulta DNS a un resolvedor real y entrega la respuesta. */

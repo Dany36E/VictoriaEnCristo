@@ -58,6 +58,21 @@ class PurityGuardService {
     }
   }
 
+  /// Estadísticas de bloqueos: total histórico y del día de hoy.
+  Future<({int total, int today})> blockStats() async {
+    if (!isEngineSupported) return (total: 0, today: 0);
+    try {
+      final m = await _channel.invokeMapMethod<String, dynamic>('blockStats');
+      return (
+        total: (m?['total'] as int?) ?? 0,
+        today: (m?['today'] as int?) ?? 0,
+      );
+    } catch (e) {
+      debugPrint('[PurityGuard] blockStats error: $e');
+      return (total: 0, today: 0);
+    }
+  }
+
   /// Cuántos dominios contiene la lista de bloqueo empaquetada.
   Future<int> blocklistCount() async {
     if (!isEngineSupported) return 0;

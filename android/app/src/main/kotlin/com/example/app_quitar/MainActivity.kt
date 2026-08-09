@@ -114,6 +114,8 @@ class MainActivity : FlutterActivity() {
                     "isRunning" -> result.success(PurityVpnService.isRunning)
                     "blocklistCount" ->
                         result.success(PurityVpnService.blocklistCount(this))
+                    "blockStats" ->
+                        result.success(PurityVpnService.blockStats(this))
                     else -> result.notImplemented()
                 }
             }
