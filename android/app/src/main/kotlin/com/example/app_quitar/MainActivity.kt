@@ -2,6 +2,7 @@ package com.example.app_quitar
 
 import android.content.Intent
 import android.net.Uri
+import android.net.VpnService
 import android.os.Build
 import android.provider.Settings
 import io.flutter.embedding.android.FlutterActivity
@@ -11,8 +12,11 @@ import io.flutter.plugin.common.MethodChannel
 class MainActivity : FlutterActivity() {
     private val NAVIGATION_CHANNEL = "victoria/navigation"
     private val SACRED_ALARMS_CHANNEL = "victoria/sacred_alarms"
+    private val PURITY_CHANNEL = "victoria/purity_guard"
+    private val VPN_REQUEST_CODE = 9911
     private var initialRouteConsumed = false
     private var navigationChannel: MethodChannel? = null
+    private var pendingPurityResult: MethodChannel.Result? = null
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
@@ -78,6 +82,65 @@ class MainActivity : FlutterActivity() {
                     else -> result.notImplemented()
                 }
             }
+
+        // ── Escudo de Pureza (VPN local de filtrado DNS) ──────────────────
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, PURITY_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "start" -> {
+                        val prep = VpnService.prepare(this)
+                        if (prep != null) {
+                            pendingPurityResult = result
+                            startActivityForResult(prep, VPN_REQUEST_CODE)
+                        } else {
+                            startPurityVpn()
+                            result.success(true)
+                        }
+                    }
+                    "startIfPrepared" -> {
+                        if (VpnService.prepare(this) == null) {
+                            startPurityVpn()
+                            result.success(true)
+                        } else {
+                            result.success(false)
+                        }
+                    }
+                    "stop" -> {
+                        val i = Intent(this, PurityVpnService::class.java)
+                            .setAction(PurityVpnService.ACTION_STOP)
+                        startService(i)
+                        result.success(true)
+                    }
+                    "isRunning" -> result.success(PurityVpnService.isRunning)
+                    "blocklistCount" ->
+                        result.success(PurityVpnService.blocklistCount(this))
+                    else -> result.notImplemented()
+                }
+            }
+    }
+
+    private fun startPurityVpn() {
+        val i = Intent(this, PurityVpnService::class.java)
+            .setAction(PurityVpnService.ACTION_START)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(i)
+        } else {
+            startService(i)
+        }
+    }
+
+    @Deprecated("Compat con flujo de consentimiento de VPN")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == VPN_REQUEST_CODE) {
+            if (resultCode == RESULT_OK) {
+                startPurityVpn()
+                pendingPurityResult?.success(true)
+            } else {
+                pendingPurityResult?.success(false)
+            }
+            pendingPurityResult = null
+        }
     }
 
     override fun onNewIntent(intent: Intent) {

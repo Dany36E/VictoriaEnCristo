@@ -8,6 +8,7 @@ import '../services/feedback_engine.dart';
 import '../theme/app_theme_data.dart';
 import '../widgets/devotional/devotional_reminder_sheet.dart';
 import '../widgets/theme_selector.dart';
+import 'purity/purity_guard_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onThemeChanged;
@@ -476,6 +477,44 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 onTap: () {
                   Navigator.pushNamed(context, '/widget-settings');
                 },
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Sección Protección / Pureza
+          _buildSectionHeader('🛡️ Protección', isDark),
+          _buildSettingCard(
+            isDark: isDark,
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: t.accent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.shield_moon_rounded, color: t.accent),
+                ),
+                title: Text(
+                  'Escudo de Pureza',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: t.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Bloquea páginas de contenido adulto',
+                  style: TextStyle(color: t.textSecondary),
+                ),
+                trailing: Icon(Icons.chevron_right, color: t.textSecondary),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => const PurityGuardScreen(),
+                  ),
+                ),
               ),
             ],
           ),

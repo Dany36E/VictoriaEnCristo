@@ -53,6 +53,7 @@ import 'services/emergency_sos_service.dart';
 import 'services/fcm_service.dart';
 import 'services/daily_practice_service.dart';
 import 'services/sacred_alarm_service.dart';
+import 'services/purity_guard_service.dart';
 import 'services/learning/learning_registry.dart';
 import 'services/learning/learning_cloud_sync.dart';
 import 'services/learning/talents_service.dart';
@@ -247,6 +248,7 @@ Future<void> _startDeferredServices() async {
       EmergencySosService.I.init(),
       DailyPracticeService.I.init(),
       SacredAlarmService.I.init(),
+      PurityGuardService.I.restoreIfEnabled(),
       if (PlatformCapabilities.supportsFcm) FcmService.I.init(),
       // Escuela del Reino: un único entrypoint en lugar de 18 inits sueltos.
       LearningRegistry.I.initAll(),

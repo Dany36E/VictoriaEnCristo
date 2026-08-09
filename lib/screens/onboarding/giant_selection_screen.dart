@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
+import '../purity/purity_intro_sheet.dart';
 import 'giant_frequency_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -117,7 +118,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
     });
   }
 
-  void _navigateToIntensity() {
+  Future<void> _navigateToIntensity() async {
     if (_selectedGiants.isEmpty) {
       // Mostrar mensaje si no hay selección
       ScaffoldMessenger.of(context).showSnackBar(
@@ -139,7 +140,14 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
     }
 
     FeedbackEngine.I.confirm();  // Haptic + SFX confirm
-    
+
+    // Si eligió "Pureza Sexual", sugerir el Escudo de Pureza (bloqueador)
+    // antes de continuar con la configuración de intensidad.
+    if (_selectedGiants.contains('sexual')) {
+      await showPuritySuggestionSheet(context);
+      if (!mounted) return;
+    }
+
     Navigator.push(
       context,
       PageRouteBuilder(
