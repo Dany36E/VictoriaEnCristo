@@ -26,7 +26,10 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
   }
 
   Future<void> _openEpisode(VideoSeason season, int episodeIndex) async {
-    if (season.isEmbeddable) {
+    final ep = season.episodes[episodeIndex];
+    final vid = ep.youtubeVideoId;
+    if (vid != null && vid.trim().isNotEmpty) {
+      // Episodio embebible → reproductor in-app (por ID de video, fiable).
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -37,7 +40,11 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
           ),
         ),
       );
+    } else if (season.youtubePlaylistUrl != null) {
+      // Temporada en YouTube pero sin IDs por episodio → abrir playlist oficial.
+      await _launch(season.youtubePlaylistUrl);
     } else {
+      // Temporada solo en el sitio oficial.
       await _launch(season.officialUrl ?? widget.series.officialUrl);
     }
   }
@@ -192,9 +199,11 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          season.isEmbeddable
+                          season.hasEmbeddableEpisodes
                               ? '${season.episodes.length} episodios · en la app'
-                              : '${season.episodes.length} episodios · sitio oficial',
+                              : season.youtubePlaylistUrl != null
+                                  ? '${season.episodes.length} episodios · en YouTube'
+                                  : '${season.episodes.length} episodios · sitio oficial',
                           style: TextStyle(
                             color: Colors.white.withValues(alpha: 0.45),
                             fontSize: 11,
@@ -265,7 +274,9 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               ),
             ),
             Icon(
-              season.isEmbeddable ? Icons.play_circle_outline : Icons.open_in_new,
+              (ep.youtubeVideoId != null && ep.youtubeVideoId!.trim().isNotEmpty)
+                  ? Icons.play_circle_outline
+                  : Icons.open_in_new,
               color: Colors.white.withValues(alpha: 0.4),
               size: 18,
             ),

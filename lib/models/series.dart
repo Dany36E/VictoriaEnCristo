@@ -62,6 +62,15 @@ class VideoSeason {
   bool get isEmbeddable =>
       youtubePlaylistId != null && youtubePlaylistId!.trim().isNotEmpty;
 
+  /// Al menos un episodio se puede reproducir embebido (tiene ID de video).
+  bool get hasEmbeddableEpisodes => episodes.any(
+        (e) => e.youtubeVideoId != null && e.youtubeVideoId!.trim().isNotEmpty,
+      );
+
+  /// URL de la playlist oficial en YouTube (respaldo externo).
+  String? get youtubePlaylistUrl =>
+      isEmbeddable ? 'https://www.youtube.com/playlist?list=$youtubePlaylistId' : null;
+
   factory VideoSeason.fromJson(Map<String, dynamic> json) {
     return VideoSeason(
       number: json['number'] as int,

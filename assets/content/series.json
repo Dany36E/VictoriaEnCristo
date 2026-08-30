@@ -14,14 +14,14 @@
           "youtubePlaylistId": "PLgn4viMGbbmDEw-R3MoYRYuRlmsgxd2A3",
           "officialUrl": "https://watch.thechosen.tv/page/season-1",
           "episodes": [
-            { "number": 1, "title": "Te he llamado por tu nombre" },
-            { "number": 2, "title": "Shabat" },
-            { "number": 3, "title": "Jesús ama a los niños" },
-            { "number": 4, "title": "La roca sobre la que se edifica" },
-            { "number": 5, "title": "El regalo de bodas" },
-            { "number": 6, "title": "Compasión indescriptible" },
-            { "number": 7, "title": "Invitaciones" },
-            { "number": 8, "title": "Yo soy" }
+            { "number": 1, "title": "Te he llamado por tu nombre", "youtubeVideoId": "EVqLM7hZGFg" },
+            { "number": 2, "title": "Shabat", "youtubeVideoId": "Z4ouTojkbXU" },
+            { "number": 3, "title": "Jesús ama a los niños", "youtubeVideoId": "zEcjAPs7NdY" },
+            { "number": 4, "title": "La roca sobre la que se edifica", "youtubeVideoId": "cvmwm3MZqk4" },
+            { "number": 5, "title": "El regalo de bodas", "youtubeVideoId": "Fvxg3MT0RGs" },
+            { "number": 6, "title": "Compasión indescriptible", "youtubeVideoId": "0arOKJ0BtNc" },
+            { "number": 7, "title": "Invitaciones", "youtubeVideoId": "4v3Sjw-0dYE" },
+            { "number": 8, "title": "Yo soy", "youtubeVideoId": "0ZyxEYo_6XU" }
           ]
         },
         {

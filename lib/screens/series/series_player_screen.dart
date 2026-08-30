@@ -6,11 +6,9 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../models/series.dart';
 import '../../theme/app_theme.dart';
 
-/// Reproductor de episodios de una serie.
-///
-/// En Android/iOS embebe la playlist OFICIAL de YouTube (empezando en el
-/// episodio elegido) y permite cambiar de episodio sin salir. En escritorio
-/// (Windows, donde no hay WebView) abre el contenido en YouTube/oficial.
+/// Reproductor de episodios. Embebe YouTube por ID de video (método fiable;
+/// evita el bug de loadPlaylist del paquete). Siempre ofrece "Ver en YouTube"
+/// como respaldo para que nunca quede una pantalla en blanco.
 class SeriesPlayerScreen extends StatefulWidget {
   final VideoSeries series;
   final VideoSeason season;
@@ -37,12 +35,21 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
         defaultTargetPlatform == TargetPlatform.iOS;
   }
 
+  VideoEpisode get _current => widget.season.episodes[_currentIndex];
+
+  bool _episodeEmbeddable(VideoEpisode e) =>
+      _canEmbed &&
+      e.youtubeVideoId != null &&
+      e.youtubeVideoId!.trim().isNotEmpty;
+
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialEpisodeIndex;
-    if (_canEmbed) {
-      _controller = YoutubePlayerController(
+    if (_episodeEmbeddable(_current)) {
+      _controller = YoutubePlayerController.fromVideoId(
+        videoId: _current.youtubeVideoId!,
+        autoPlay: true,
         params: const YoutubePlayerParams(
           showControls: true,
           showFullscreenButton: true,
@@ -50,30 +57,36 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
           strictRelatedVideos: true,
         ),
       );
-      WidgetsBinding.instance.addPostFrameCallback((_) => _play(_currentIndex));
     }
   }
 
-  Future<void> _play(int index) async {
-    final ctrl = _controller;
-    if (ctrl == null) return;
-    final episode = widget.season.episodes[index];
+  Future<void> _select(int index) async {
+    final ep = widget.season.episodes[index];
     setState(() => _currentIndex = index);
-
-    if (episode.youtubeVideoId != null &&
-        episode.youtubeVideoId!.trim().isNotEmpty) {
-      await ctrl.loadVideoById(videoId: episode.youtubeVideoId!);
-    } else if (widget.season.isEmbeddable) {
-      await ctrl.loadPlaylist(
-        list: [widget.season.youtubePlaylistId!],
-        listType: ListType.playlist,
-        index: index,
-      );
+    if (_episodeEmbeddable(ep)) {
+      final ctrl = _controller;
+      if (ctrl != null) {
+        await ctrl.loadVideoById(videoId: ep.youtubeVideoId!);
+      } else {
+        // No había controlador (el 1er episodio no era embebible); recrearlo
+        // no es trivial en caliente, así que abrimos externo.
+        await _openExternal(ep);
+      }
+    } else {
+      await _openExternal(ep);
     }
   }
 
-  Future<void> _openExternal() async {
-    final url = widget.season.officialUrl ?? widget.series.officialUrl;
+  Future<void> _openExternal(VideoEpisode ep) async {
+    String? url;
+    final vid = ep.youtubeVideoId;
+    if (vid != null && vid.trim().isNotEmpty) {
+      url = 'https://www.youtube.com/watch?v=$vid';
+    } else if (widget.season.youtubePlaylistId != null) {
+      url = 'https://www.youtube.com/playlist?list=${widget.season.youtubePlaylistId}';
+    } else {
+      url = widget.season.officialUrl ?? widget.series.officialUrl;
+    }
     if (url == null) return;
     final uri = Uri.tryParse(url);
     if (uri == null) return;
@@ -89,7 +102,8 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
   @override
   Widget build(BuildContext context) {
     final accent = widget.series.accentColor;
-    final episode = widget.season.episodes[_currentIndex];
+    final ep = _current;
+    final embeddable = _episodeEmbeddable(ep);
 
     return Scaffold(
       backgroundColor: AppDesignSystem.midnightDeep,
@@ -105,16 +119,12 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            // ── Reproductor / respaldo ──────────────────────────────────
-            if (_canEmbed && _controller != null)
-              YoutubePlayer(
-                controller: _controller!,
-                aspectRatio: 16 / 9,
-              )
+            if (embeddable && _controller != null)
+              YoutubePlayer(controller: _controller!, aspectRatio: 16 / 9)
             else
               _buildExternalFallback(accent),
 
-            // ── Cabecera del episodio actual ────────────────────────────
+            // Cabecera episodio + botón "Ver en YouTube" (respaldo siempre).
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
               child: Row(
@@ -127,19 +137,18 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'EP ${episode.number}',
+                      'EP ${ep.number}',
                       style: TextStyle(
                         color: accent,
                         fontSize: 11,
                         fontWeight: FontWeight.w800,
-                        letterSpacing: 0.5,
                       ),
                     ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
                     child: Text(
-                      episode.title,
+                      ep.title,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 16,
@@ -147,31 +156,27 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
                       ),
                     ),
                   ),
+                  IconButton(
+                    tooltip: 'Ver en YouTube',
+                    onPressed: () => _openExternal(ep),
+                    icon: Icon(Icons.open_in_new, color: accent, size: 20),
+                  ),
                 ],
               ),
             ),
 
-            // ── Lista de episodios de la temporada ──────────────────────
             Expanded(
               child: ListView.separated(
                 padding: const EdgeInsets.fromLTRB(16, 10, 16, 24),
                 itemCount: widget.season.episodes.length,
                 separatorBuilder: (_, _) => const SizedBox(height: 8),
                 itemBuilder: (context, index) {
-                  final ep = widget.season.episodes[index];
-                  final active = index == _currentIndex;
+                  final e = widget.season.episodes[index];
                   return _EpisodeRow(
-                    episode: ep,
+                    episode: e,
                     accent: accent,
-                    active: active,
-                    onTap: () {
-                      if (_canEmbed) {
-                        _play(index);
-                      } else {
-                        setState(() => _currentIndex = index);
-                        _openExternal();
-                      }
-                    },
+                    active: index == _currentIndex,
+                    onTap: () => _select(index),
                   );
                 },
               ),
@@ -186,29 +191,28 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
     return Container(
       width: double.infinity,
       color: Colors.black,
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 24),
+      padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 24),
       child: Column(
         children: [
-          Icon(Icons.play_circle_outline, color: accent, size: 56),
-          const SizedBox(height: 14),
+          Icon(Icons.smart_display_outlined, color: accent, size: 52),
+          const SizedBox(height: 12),
           Text(
-            'La reproducción embebida no está disponible en esta plataforma.',
+            'Este episodio se ve en YouTube.',
             textAlign: TextAlign.center,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.75),
-              fontSize: 13,
-              height: 1.4,
+              color: Colors.white.withValues(alpha: 0.8),
+              fontSize: 14,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           ElevatedButton.icon(
-            onPressed: _openExternal,
+            onPressed: () => _openExternal(_current),
             style: ElevatedButton.styleFrom(
               backgroundColor: accent,
               foregroundColor: Colors.black,
             ),
             icon: const Icon(Icons.open_in_new, size: 18),
-            label: const Text('Ver en YouTube / oficial'),
+            label: const Text('Ver en YouTube'),
           ),
         ],
       ),
@@ -265,7 +269,6 @@ class _EpisodeRow extends StatelessWidget {
                       color: accent.withValues(alpha: 0.9),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
-                      letterSpacing: 0.5,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -274,8 +277,7 @@ class _EpisodeRow extends StatelessWidget {
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: active ? 1 : 0.85),
                       fontSize: 14,
-                      fontWeight:
-                          active ? FontWeight.w700 : FontWeight.w500,
+                      fontWeight: active ? FontWeight.w700 : FontWeight.w500,
                     ),
                   ),
                 ],
