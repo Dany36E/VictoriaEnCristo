@@ -8,7 +8,9 @@ import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../models/battle_partner_data.dart';
 import '../../services/battle_partner_service.dart';
+import '../../services/remote_guardian_service.dart';
 import '../../services/user_scoped_services.dart';
+import '../purity/remote_guardian_screen.dart';
 import '../../services/audio_engine.dart';
 import '../../utils/clipboard_utils.dart';
 import '../../services/feedback_engine.dart';
@@ -123,6 +125,8 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             children: [
               // Banner de pausa (#12)
               _buildPauseBanner(),
+              // Solicitudes de "guardián de pureza" entrantes
+              _buildGuardianRequestsBanner(),
               // ═════════════════════════════════════
               // INVITACIONES PENDIENTES
               // ═════════════════════════════════════
@@ -161,6 +165,51 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
   // INVITACIONES PENDIENTES
   // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildGuardianRequestsBanner() {
+    return ValueListenableBuilder<List<GuardianRequest>>(
+      valueListenable: RemoteGuardianService.I.incomingRequests,
+      builder: (_, requests, _) {
+        if (requests.isEmpty) return const SizedBox.shrink();
+        final label = requests.length == 1
+            ? '${requests.first.protegeName} te pidió ser su guardián de pureza'
+            : 'Tienes ${requests.length} solicitudes de guardián de pureza';
+        return Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: AppDesignSystem.gold.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(14),
+            border:
+                Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
+          ),
+          child: ListTile(
+            leading: const Icon(Icons.shield_moon_rounded,
+                color: AppDesignSystem.gold),
+            title: Text(
+              label,
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+              ),
+            ),
+            subtitle: const Text(
+              'Toca para poner un PIN',
+              style: TextStyle(color: Colors.white70, fontSize: 12),
+            ),
+            trailing:
+                const Icon(Icons.chevron_right, color: Colors.white54),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const RemoteGuardianScreen(),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   Widget _buildPendingInvitesSection() {
     return ValueListenableBuilder<List<PartnerInvite>>(

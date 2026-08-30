@@ -3,7 +3,9 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/guardian_lock_service.dart';
 import '../../services/purity_guard_service.dart';
+import '../../services/remote_guardian_service.dart';
 import '../../theme/app_theme_data.dart';
+import 'remote_guardian_screen.dart';
 
 /// Pantalla "Protección / Pureza": activa el bloqueador de contenido adulto.
 ///
@@ -30,6 +32,7 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
   }
 
   Future<void> _init() async {
+    RemoteGuardianService.I.ensureStarted();
     await _service.refresh();
     await GuardianLockService.I.refresh();
     final count = await _service.blocklistCount();
@@ -46,7 +49,12 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
   Future<void> _toggle(bool value) async {
     if (_busy) return;
     if (!value) {
-      if (GuardianLockService.I.enabled.value) {
+      final remote = RemoteGuardianService.I.myLock.value;
+      if (remote != null && remote.active) {
+        // Candado remoto: verificación server-side del PIN del compañero.
+        final ok = await _promptRemotePin();
+        if (ok != true) return;
+      } else if (GuardianLockService.I.enabled.value) {
         // Candado del guardián: requiere el PIN que tiene el compañero.
         final ok = await _promptGuardianPin(
           title: 'PIN del guardián',
@@ -135,6 +143,8 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
             const SizedBox(height: 12),
             _buildGuardianCard(t),
           ],
+          const SizedBox(height: 12),
+          _buildRemoteGuardianCard(t),
           const SizedBox(height: 20),
           _buildHowItWorks(t),
           const SizedBox(height: 20),
@@ -142,6 +152,126 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
         ],
       ),
     );
+  }
+
+  // ── Candado del guardián a distancia (remoto) ────────────────────────────
+
+  Widget _buildRemoteGuardianCard(AppThemeData t) {
+    return ValueListenableBuilder<GuardianLockStatus?>(
+      valueListenable: RemoteGuardianService.I.myLock,
+      builder: (context, lock, _) {
+        final active = lock != null && lock.active;
+        final pending = lock != null && lock.pending && !active;
+        return Container(
+          decoration: BoxDecoration(
+            color: t.cardBg,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: t.cardBorder),
+          ),
+          child: ListTile(
+            leading: Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: (active ? Colors.green : t.accent).withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(
+                active ? Icons.lock_person : Icons.groups_2_outlined,
+                color: active ? Colors.green : t.accent,
+              ),
+            ),
+            title: Text(
+              'Candado del guardián a distancia',
+              style: TextStyle(fontWeight: FontWeight.w700, color: t.textPrimary),
+            ),
+            subtitle: Text(
+              active
+                  ? 'Protegido por ${lock.guardianName ?? 'tu compañero'}'
+                  : pending
+                      ? 'Esperando el PIN de ${lock.guardianName ?? 'tu compañero'}…'
+                      : 'Tu compañero pone el PIN desde su teléfono',
+              style: TextStyle(color: t.textSecondary),
+            ),
+            trailing: Icon(Icons.chevron_right, color: t.textSecondary),
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const RemoteGuardianScreen()),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<bool> _promptRemotePin() async {
+    final t = AppThemeData.of(context);
+    final controller = TextEditingController();
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) {
+        String? error;
+        bool busy = false;
+        return StatefulBuilder(
+          builder: (ctx, setSt) {
+            return AlertDialog(
+              backgroundColor: t.cardBg,
+              title: Text('PIN del guardián',
+                  style: TextStyle(color: t.textPrimary)),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Pídele a tu compañero el PIN para bajar el escudo.',
+                    style: TextStyle(color: t.textSecondary, height: 1.4),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: controller,
+                    obscureText: true,
+                    keyboardType: TextInputType.number,
+                    maxLength: 8,
+                    autofocus: true,
+                    decoration: InputDecoration(
+                      labelText: 'PIN',
+                      counterText: '',
+                      errorText: error,
+                    ),
+                  ),
+                ],
+              ),
+              actions: [
+                TextButton(
+                  onPressed: busy ? null : () => Navigator.pop(ctx, false),
+                  child: const Text('Cancelar'),
+                ),
+                TextButton(
+                  onPressed: busy
+                      ? null
+                      : () async {
+                          setSt(() => busy = true);
+                          final res = await RemoteGuardianService.I
+                              .verify(controller.text.trim());
+                          if (res.ok) {
+                            if (ctx.mounted) Navigator.pop(ctx, true);
+                            return;
+                          }
+                          setSt(() {
+                            error = res.isLockedOut
+                                ? 'Demasiados intentos. Intenta más tarde.'
+                                : 'PIN incorrecto';
+                            busy = false;
+                          });
+                        },
+                  child: const Text('Confirmar'),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+    controller.dispose();
+    return result ?? false;
   }
 
   // ── Candado del guardián ────────────────────────────────────────────────

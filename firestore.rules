@@ -120,12 +120,28 @@ service cloud.firestore {
         allow read, write: if isSignedIn() && isOwner(userId);
       }
 
+      // Candado del Guardián (remoto) — espejos legibles SIN secretos.
+      // El hash del PIN vive en /guardianLocks (deny all); estos docs solo
+      // reflejan estado para la UI y los escribe Cloud Functions.
+      match /security/{docId} {
+        allow read: if isSignedIn() && isOwner(userId);
+        allow write: if false;
+      }
+      match /guardianRequests/{fromId} {
+        allow read: if isSignedIn() && isOwner(userId);
+        allow write: if false;
+      }
+      match /guardianOf/{protegeId} {
+        allow read: if isSignedIn() && isOwner(userId);
+        allow write: if false;
+      }
+
       // Demás subcolecciones: solo owner
       match /{subCollection}/{docId} {
         allow read, write: if isSignedIn() && isOwner(userId)
           && !(subCollection in ['publicProgress', 'battlePartners', 'partnerInvites', 'battleMessages',
                                   'bibleHighlights', 'bibleNotes', 'savedVerses', 'versePrayers', 'bibleSettings',
-                                  'fcmTokens']);
+                                  'fcmTokens', 'security', 'guardianRequests', 'guardianOf']);
       }
     }
 
@@ -253,6 +269,16 @@ service cloud.firestore {
       allow read, write: if false;
     }
     match /battleRateLimits/{id} {
+      allow read, write: if false;
+    }
+
+    /* ─────────────────────────────────────────────
+       11. GUARDIAN LOCKS (server-only)
+       /guardianLocks/{protegeUid}
+       Contiene el hash+salt del PIN del guardián. NINGÚN cliente puede
+       leerlo (evita fuerza bruta offline). Solo Cloud Functions acceden.
+       ───────────────────────────────────────────── */
+    match /guardianLocks/{protegeUid} {
       allow read, write: if false;
     }
 

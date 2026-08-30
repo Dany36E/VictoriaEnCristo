@@ -59,13 +59,13 @@ function safeMessageKey(value: unknown): string {
   return value;
 }
 
-async function publicNameFor(uid: string, fallback: string): Promise<string> {
+export async function publicNameFor(uid: string, fallback: string): Promise<string> {
   const snap = await db().collection("users").doc(uid).get();
   const data = snap.data() ?? {};
   return safeText(data["publicName"] ?? data["displayName"], fallback, 48);
 }
 
-async function assertActivePartners(fromUid: string, toUid: string): Promise<void> {
+export async function assertActivePartners(fromUid: string, toUid: string): Promise<void> {
   const [senderDoc, targetDoc] = await Promise.all([
     db().collection("users").doc(fromUid).collection("battlePartners").doc(toUid).get(),
     db().collection("users").doc(toUid).collection("battlePartners").doc(fromUid).get(),
@@ -374,7 +374,7 @@ async function cleanupInvalidTokens(
 /**
  * Push helper: envía a todos los tokens del usuario.
  */
-async function pushToUser(
+export async function pushToUser(
   uid: string,
   notification: admin.messaging.Notification,
   data: Record<string, string>,

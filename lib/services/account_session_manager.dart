@@ -23,6 +23,7 @@ import 'favorites_service.dart';
 import 'plan_progress_service.dart';
 import 'badge_service.dart';
 import 'battle_partner_service.dart';
+import 'remote_guardian_service.dart';
 import 'bible/bible_user_data_service.dart';
 import 'bible/bible_reading_stats_service.dart';
 import 'bible/collection_service.dart';
@@ -221,6 +222,7 @@ class AccountSessionManager {
     _detachConnectivityRetry();
     await _disconnectAllRepositories();
     BattlePartnerService.I.stop();
+    RemoteGuardianService.I.stop();
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
     SermonNoteService.I.stop();
@@ -777,6 +779,7 @@ class AccountSessionManager {
       _detachConnectivityRetry();
       await _disconnectAllRepositories();
       BattlePartnerService.I.stop();
+      RemoteGuardianService.I.stop();
 
       // 3. Reset COMPLETO de estado en memoria
       _resetInMemoryState();

@@ -49,3 +49,11 @@ export {
   cleanStaleFcmTokens,
   signOutAllDevices,
 } from "./adminFunctions";
+
+// Candado del Guardián (remoto) — PIN del compañero para el Escudo de Pureza
+export {
+  requestGuardianLock,
+  setGuardianPin,
+  verifyGuardianPin,
+  removeGuardianPin,
+} from "./guardianFunctions";

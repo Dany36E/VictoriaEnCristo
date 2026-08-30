@@ -6,7 +6,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
+exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
 const admin = require("firebase-admin");
 // Inicializar Firebase Admin ANTES de importar otras funciones
 admin.initializeApp();
@@ -42,4 +42,10 @@ var adminFunctions_1 = require("./adminFunctions");
 Object.defineProperty(exports, "setAdminClaim", { enumerable: true, get: function () { return adminFunctions_1.setAdminClaim; } });
 Object.defineProperty(exports, "cleanStaleFcmTokens", { enumerable: true, get: function () { return adminFunctions_1.cleanStaleFcmTokens; } });
 Object.defineProperty(exports, "signOutAllDevices", { enumerable: true, get: function () { return adminFunctions_1.signOutAllDevices; } });
+// Candado del Guardián (remoto) — PIN del compañero para el Escudo de Pureza
+var guardianFunctions_1 = require("./guardianFunctions");
+Object.defineProperty(exports, "requestGuardianLock", { enumerable: true, get: function () { return guardianFunctions_1.requestGuardianLock; } });
+Object.defineProperty(exports, "setGuardianPin", { enumerable: true, get: function () { return guardianFunctions_1.setGuardianPin; } });
+Object.defineProperty(exports, "verifyGuardianPin", { enumerable: true, get: function () { return guardianFunctions_1.verifyGuardianPin; } });
+Object.defineProperty(exports, "removeGuardianPin", { enumerable: true, get: function () { return guardianFunctions_1.removeGuardianPin; } });
 //# sourceMappingURL=index.js.map

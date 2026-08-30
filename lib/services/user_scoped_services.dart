@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import 'battle_partner_service.dart';
+import 'remote_guardian_service.dart';
 import 'bible/bible_reading_stats_service.dart';
 import 'bible/bible_user_data_service.dart';
 import 'bible/chapter_note_service.dart';
@@ -32,6 +33,7 @@ class UserScopedServices {
 
     _battleInit ??= BattlePartnerService.I.init(uid);
     await _battleInit;
+    RemoteGuardianService.I.ensureStarted();
 
     if (syncPublicProgress) {
       unawaited(BattlePartnerService.I.syncPublicProgress());

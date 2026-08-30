@@ -19,6 +19,9 @@
  */
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.sendBattleSos = exports.sendBattleMessage = exports.acceptPartnerInvite = exports.sendPartnerInvite = void 0;
+exports.publicNameFor = publicNameFor;
+exports.assertActivePartners = assertActivePartners;
+exports.pushToUser = pushToUser;
 const admin = require("firebase-admin");
 const functions = require("firebase-functions");
 const db = () => admin.firestore();
