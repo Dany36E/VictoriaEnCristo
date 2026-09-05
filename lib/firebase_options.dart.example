@@ -26,24 +26,26 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'stub',
-    appId: '1:0:web:stub',
-    messagingSenderId: '0',
-    projectId: 'stub-project',
+    apiKey: 'AIzaSyDOCAbC123dEf456GhI789jKl012-MnO',
+    appId: '1:1234567890:web:321abc456def7890',
+    messagingSenderId: '1234567890',
+    projectId: 'myapp-project-123',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'stub',
-    appId: '1:0:android:stub',
-    messagingSenderId: '0',
-    projectId: 'stub-project',
+    apiKey: 'AIzaSyDOCAbC123dEf456GhI789jKl012-MnO',
+    appId: '1:1234567890:android:321abc456def7890',
+    messagingSenderId: '1234567890',
+    projectId: 'myapp-project-123',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'stub',
-    appId: '1:0:ios:stub',
-    messagingSenderId: '0',
-    projectId: 'stub-project',
+    // Public, non-production example identifiers with Firebase-valid shapes.
+    // Apple Firebase SDKs reject malformed placeholders during initialization.
+    apiKey: 'AIzaSyDOCAbC123dEf456GhI789jKl012-MnO',
+    appId: '1:1234567890:ios:321abc456def7890',
+    messagingSenderId: '1234567890',
+    projectId: 'myapp-project-123',
     // Must match Runner.xcodeproj so the CI-only stub can initialize on an
     // iOS simulator. This is not a production Firebase credential.
     iosBundleId: 'com.example.appQuitar',
