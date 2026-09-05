@@ -445,7 +445,7 @@ class BattlePartnerService {
       final doc = await _db.collection('users').doc(uid).get();
       final code = doc.data()?['inviteCode'] as String?;
       if (code == null || code.isEmpty) {
-        return ensureInviteCode();
+        return await ensureInviteCode();
       }
       return code;
     } catch (e) {

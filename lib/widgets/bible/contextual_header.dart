@@ -123,8 +123,11 @@ class _ContextualHeaderState extends State<ContextualHeader>
           child: Row(
             children: [
               IconButton(
-                icon: Icon(Icons.arrow_back_ios,
-                    color: t.textSecondary, size: 18),
+                icon: Icon(
+                  Icons.arrow_back_ios,
+                  color: t.textSecondary,
+                  size: 18,
+                ),
                 onPressed: widget.onBack,
                 tooltip: 'Volver',
                 constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
@@ -179,9 +182,15 @@ class _ContextualHeaderState extends State<ContextualHeader>
           ),
         ),
         // Expandable panel
-        SizeTransition(
-          sizeFactor: _expandAnim,
-          axisAlignment: -1.0,
+        AnimatedBuilder(
+          animation: _expandAnim,
+          builder: (context, child) => ClipRect(
+            child: Align(
+              alignment: Alignment.topCenter,
+              heightFactor: _expandAnim.value,
+              child: child,
+            ),
+          ),
           child: Container(
             height: BibleReaderThemeData.toolbarHeight,
             padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -287,8 +296,11 @@ class _ContextualHeaderState extends State<ContextualHeader>
 
   Widget _buildMoreButton(BibleReaderThemeData t) {
     return PopupMenuButton<int>(
-      icon: Icon(Icons.more_horiz,
-          color: t.textSecondary.withValues(alpha: 0.6), size: 20),
+      icon: Icon(
+        Icons.more_horiz,
+        color: t.textSecondary.withValues(alpha: 0.6),
+        size: 20,
+      ),
       color: t.surface,
       constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
       padding: EdgeInsets.zero,
@@ -330,22 +342,24 @@ class _ContextualHeaderState extends State<ContextualHeader>
         }
         for (int i = 0; i < widget.moreActions.length; i++) {
           final action = widget.moreActions[i];
-          items.add(PopupMenuItem<int>(
-            value: i,
-            child: Row(
-              children: [
-                Icon(action.icon, color: t.textSecondary, size: 18),
-                const SizedBox(width: 12),
-                Text(
-                  action.label,
-                  style: GoogleFonts.manrope(
-                    color: t.textPrimary,
-                    fontSize: 14,
+          items.add(
+            PopupMenuItem<int>(
+              value: i,
+              child: Row(
+                children: [
+                  Icon(action.icon, color: t.textSecondary, size: 18),
+                  const SizedBox(width: 12),
+                  Text(
+                    action.label,
+                    style: GoogleFonts.manrope(
+                      color: t.textPrimary,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ));
+          );
         }
         return items;
       },
@@ -371,36 +385,36 @@ class _ContextualActionButton extends StatelessWidget {
       button: true,
       toggled: action.isActive,
       child: GestureDetector(
-      onTap: () {
-        onCollapse();
-        action.onTap();
-      },
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              action.icon,
-              color: action.isActive ? theme.accent : theme.textSecondary,
-              size: 20,
-            ),
-            const SizedBox(height: 2),
-            Text(
-              action.label,
-              style: GoogleFonts.manrope(
-                color: action.isActive
-                    ? theme.accent
-                    : theme.textSecondary.withValues(alpha: 0.6),
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
+        onTap: () {
+          onCollapse();
+          action.onTap();
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(
+                action.icon,
+                color: action.isActive ? theme.accent : theme.textSecondary,
+                size: 20,
               ),
-            ),
-          ],
+              const SizedBox(height: 2),
+              Text(
+                action.label,
+                style: GoogleFonts.manrope(
+                  color: action.isActive
+                      ? theme.accent
+                      : theme.textSecondary.withValues(alpha: 0.6),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
