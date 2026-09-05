@@ -100,7 +100,9 @@ CI ejecuta auditoria de assets, analyze, tests y build de Cloud Functions en `.g
 ## Documentacion util
 
 - [CLAUDE.md](CLAUDE.md): comandos y convenciones del proyecto.
+- [docs/CODEX_GITHUB_WORKFLOW.md](docs/CODEX_GITHUB_WORKFLOW.md): flujo seguro para trabajar en la misma copia local con Codex, VS Code y GitHub.
 - [TESTING_GUIDE.md](TESTING_GUIDE.md): checklist manual de feedback/audio.
+- [docs/AUTONOMOUS_QA.md](docs/AUTONOMOUS_QA.md): matrices funcionales/visuales, ejecución nativa y límites de la evidencia.
 - [docs/desktop_offline_install.md](docs/desktop_offline_install.md): build instalable de Windows, pantalla completa y modo offline.
 - [docs/go_router_evaluation.md](docs/go_router_evaluation.md): decision sobre navegacion.
 - [functions/DEPLOY.md](functions/DEPLOY.md): despliegue de Functions.

@@ -1,0 +1,150 @@
+name: Visual and native QA
+
+on:
+  workflow_dispatch:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: visual-qa-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  viewport-matrix:
+    name: Viewport and text-scale matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.1
+          cache: true
+      - name: Prepare local-only configuration
+        shell: bash
+        run: |
+          cp lib/firebase_options.dart.example lib/firebase_options.dart
+          cp lib/config/api_config.dart.example lib/config/api_config.dart
+          cp assets/config.json.example assets/config.json
+      - run: flutter pub get
+      - name: Run visual matrices
+        run: flutter test --no-pub test/visual --reporter expanded
+      - name: Build inspection gallery
+        if: always()
+        shell: pwsh
+        run: ./scripts/build_qa_gallery.ps1
+      - name: Upload visual evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: viewport-visual-qa
+          path: build/qa
+          if-no-files-found: error
+          retention-days: 30
+
+  android-native:
+    name: Android native matrix
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.1
+          cache: true
+      - name: Prepare local-only configuration
+        shell: bash
+        run: |
+          cp lib/firebase_options.dart.example lib/firebase_options.dart
+          cp lib/config/api_config.dart.example lib/config/api_config.dart
+          cp assets/config.json.example assets/config.json
+          cat > android/app/google-services.json <<'JSON'
+          {
+            "project_info": {"project_number":"0","project_id":"victoria-en-cristo","storage_bucket":"victoria-en-cristo.appspot.com"},
+            "client": [{"client_info":{"mobilesdk_app_id":"1:0:android:0000000000000000","android_client_info":{"package_name":"com.victoriaencristo.app"}},"oauth_client":[],"api_key":[{"current_key":"placeholder"}],"services":{"appinvite_service":{"other_platform_oauth_client":[]}}}],
+            "configuration_version":"1"
+          }
+          JSON
+      - run: flutter pub get
+      - name: Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+      - name: Run small-phone and tablet suites
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 35
+          target: google_apis
+          arch: x86_64
+          profile: pixel_5
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          disable-animations: true
+          script: pwsh -File scripts/run_android_qa_matrix.ps1 -Device emulator-5554 -Flutter flutter -Adb adb
+      - name: Build inspection gallery
+        if: always()
+        shell: pwsh
+        run: ./scripts/build_qa_gallery.ps1
+      - name: Upload Android evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: android-native-qa
+          path: build/qa
+          if-no-files-found: error
+          retention-days: 30
+
+  apple-native:
+    name: ${{ matrix.family }} simulator
+    runs-on: macos-latest
+    timeout-minutes: 50
+    strategy:
+      fail-fast: false
+      matrix:
+        family: [iPhone, iPad]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.1
+          cache: true
+      - name: Prepare local-only configuration
+        run: |
+          cp lib/firebase_options.dart.example lib/firebase_options.dart
+          cp lib/config/api_config.dart.example lib/config/api_config.dart
+          cp assets/config.json.example assets/config.json
+      - run: flutter pub get
+      - name: Install iOS pods
+        run: cd ios && pod install
+      - name: Select and boot simulator
+        env:
+          FAMILY: ${{ matrix.family }}
+        run: |
+          UDID=$(xcrun simctl list devices available -j | jq -r --arg family "$FAMILY" '.devices[][] | select(.isAvailable == true and (.name | startswith($family))) | .udid' | head -1)
+          test -n "$UDID"
+          echo "SIMULATOR_UDID=$UDID" >> "$GITHUB_ENV"
+          xcrun simctl boot "$UDID" || true
+          xcrun simctl bootstatus "$UDID" -b
+      - name: Run native Series and access suites
+        env:
+          QA_DEVICE_PROFILE: ${{ matrix.family }}
+        run: |
+          flutter drive --driver=test_driver/visual_qa_driver.dart --target=integration_test/series_native_qa_test.dart -d "$SIMULATOR_UDID"
+          flutter drive --driver=test_driver/visual_qa_driver.dart --target=integration_test/access_native_qa_test.dart -d "$SIMULATOR_UDID"
+      - name: Build inspection gallery
+        if: always()
+        shell: pwsh
+        run: ./scripts/build_qa_gallery.ps1
+      - name: Upload Apple evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: apple-${{ matrix.family }}-qa
+          path: build/qa
+          if-no-files-found: error
+          retention-days: 30

@@ -44,7 +44,9 @@ class DefaultFirebaseOptions {
     appId: '1:0:ios:stub',
     messagingSenderId: '0',
     projectId: 'stub-project',
-    iosBundleId: 'com.victoriaencristo.app',
+    // Must match Runner.xcodeproj so the CI-only stub can initialize on an
+    // iOS simulator. This is not a production Firebase credential.
+    iosBundleId: 'com.example.appQuitar',
   );
 
   static const FirebaseOptions macos = ios;

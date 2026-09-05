@@ -106,6 +106,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   /// Permite tener varios estudios independientes del mismo capítulo.
   String? _currentStudyId;
 
+  /// Versículo elegido en la búsqueda del picker (p. ej. "Mateo 3:5") que debe
+  /// pre-seleccionar el rango cuando se abre el selector de versículos.
+  int? _pendingRangeStartVerse;
+  int? _pendingRangeEndVerse;
+
   /// Resuelve el estudio actualmente cargado: prioriza `_currentStudyId`.
   /// Sólo usa fallback al estudio más reciente del libro/capítulo cuando no
   /// estamos en un flujo explícito de "Nuevo estudio".
@@ -559,6 +564,17 @@ class _StudyModeScreenState extends State<StudyModeScreen>
         result.chapter,
         preserveFreshStudy: preserveFreshStudy,
       );
+      // Si se eligió un versículo concreto en la búsqueda, lo dejamos pendiente
+      // para pre-seleccionar el rango.
+      if (result.verse != null) {
+        _pendingRangeStartVerse = result.verse;
+        _pendingRangeEndVerse = result.verseEnd ?? result.verse;
+        // Fuera del arranque de configuración (que ya abre el rango después),
+        // llevamos al usuario directo a elegir versículos.
+        if (!preserveFreshStudy && mounted) {
+          await _openRangePicker();
+        }
+      }
     }
   }
 
@@ -894,14 +910,19 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   Future<void> _openRangePicker() async {
     final maxVerse = _verses.isEmpty ? 1 : _verses.last.verse;
     final current = _resolveCurrentStudy();
+    // Consume el versículo pendiente elegido en la búsqueda (si lo hay).
+    final pendingStart = _pendingRangeStartVerse;
+    final pendingEnd = _pendingRangeEndVerse;
+    _pendingRangeStartVerse = null;
+    _pendingRangeEndVerse = null;
     final result = await showModalBottomSheet<_RangeResult?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _VerseRangeSheet(
         maxVerse: maxVerse,
-        initialStart: current?.studyStartVerse,
-        initialEnd: current?.studyEndVerse,
+        initialStart: pendingStart ?? current?.studyStartVerse,
+        initialEnd: pendingEnd ?? current?.studyEndVerse,
         verses: _verses,
         bookNumber: _bookNumber,
         chapter: _chapter,
@@ -948,30 +969,74 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     );
     if (!mounted) return;
     final maxVerse = chapterVerses.isEmpty ? 1 : chapterVerses.last.verse;
+
+    // Auto-agregar desde la búsqueda (un versículo), con opción de ajustar.
+    if (picked.autoApply && picked.verse != null) {
+      final v = picked.verse!;
+      final added = await _addStudyPassages(picked, [
+        [v, v],
+      ]);
+      if (added && mounted) {
+        _showSnackAction(
+          'Agregado ${picked.bookName} ${picked.chapter}:$v',
+          actionLabel: 'Ajustar rango',
+          onAction: () =>
+              _adjustAddedPassage(picked, chapterVerses, maxVerse, v),
+        );
+      }
+      return;
+    }
+
     final range = await showModalBottomSheet<_RangeResult?>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _VerseRangeSheet(
         maxVerse: maxVerse,
-        initialStart: 1,
-        initialEnd: maxVerse,
+        initialStart: picked.verse ?? 1,
+        initialEnd: picked.verseEnd ?? picked.verse ?? maxVerse,
         verses: chapterVerses,
         bookNumber: picked.bookNumber,
         chapter: picked.chapter,
         versionId: _version.id,
+        allowMultiSelect: true,
       ),
     );
     if (range == null) return;
-    final start = range.start ?? 1;
-    final end = range.end ?? maxVerse;
-    final passage = StudyPassage(
-      bookNumber: picked.bookNumber,
-      bookName: picked.bookName,
-      chapter: picked.chapter,
-      startVerse: start,
-      endVerse: end,
-    );
+    final runs = (range.verses != null && range.verses!.isNotEmpty)
+        ? _contiguousRuns(range.verses!)
+        : [
+            [range.start ?? 1, range.end ?? maxVerse],
+          ];
+    await _addStudyPassages(picked, runs);
+  }
+
+  /// Divide un conjunto de versículos en tramos contiguos: {3,4,5,8} → [[3,5],[8,8]].
+  List<List<int>> _contiguousRuns(Set<int> verses) {
+    final sorted = verses.toList()..sort();
+    if (sorted.isEmpty) return const [];
+    final runs = <List<int>>[];
+    var start = sorted.first;
+    var prev = sorted.first;
+    for (final v in sorted.skip(1)) {
+      if (v == prev + 1) {
+        prev = v;
+      } else {
+        runs.add([start, prev]);
+        start = v;
+        prev = v;
+      }
+    }
+    runs.add([start, prev]);
+    return runs;
+  }
+
+  /// Agrega uno o varios pasajes (tramos [inicio, fin]) al estudio actual.
+  /// Devuelve `true` si al menos uno se agregó.
+  Future<bool> _addStudyPassages(
+    StudyPickerResult picked,
+    List<List<int>> runs,
+  ) async {
     final current = _resolveCurrentStudy();
     _currentStudyId ??=
         current?.studyId ??
@@ -987,9 +1052,23 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           versionId: _version.id,
         );
     final existing = base.additionalPassages.map(_passageKey).toSet();
-    if (existing.contains(_passageKey(passage))) {
+    final toAdd = <StudyPassage>[];
+    for (final run in runs) {
+      final passage = StudyPassage(
+        bookNumber: picked.bookNumber,
+        bookName: picked.bookName,
+        chapter: picked.chapter,
+        startVerse: run[0],
+        endVerse: run[1],
+      );
+      final key = _passageKey(passage);
+      if (existing.contains(key)) continue;
+      existing.add(key);
+      toAdd.add(passage);
+    }
+    if (toAdd.isEmpty) {
       _showSnack('Ese pasaje ya está en este estudio.');
-      return;
+      return false;
     }
     final updated = base.copyWith(
       answers: _answersFromControllers(),
@@ -997,14 +1076,81 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       hopeMessage: _hopeMessageController.text.trim(),
       mainVerses: _mainVerseNumbers.toList(),
       versionId: _version.id,
-      additionalPassages: [...base.additionalPassages, passage],
+      additionalPassages: [...base.additionalPassages, ...toAdd],
     );
     await StudyModeService.I.saveAnswers(updated);
     await _loadAdditionalPassagesForStudy(updated);
     if (mounted) {
       setState(() {});
-      _showSnack('Pasaje añadido: ${passage.reference}');
+      _showSnack(
+        toAdd.length == 1
+            ? 'Pasaje añadido: ${toAdd.first.reference}'
+            : '${toAdd.length} pasajes añadidos',
+      );
     }
+    return true;
+  }
+
+  /// Quita un pasaje adicional del estudio actual (por clave).
+  Future<void> _removeStudyPassage(StudyPassage passage) async {
+    final current = _resolveCurrentStudy();
+    if (current == null) return;
+    final key = _passageKey(passage);
+    final remaining = current.additionalPassages
+        .where((p) => _passageKey(p) != key)
+        .toList();
+    final updated = current.copyWith(additionalPassages: remaining);
+    await StudyModeService.I.saveAnswers(updated);
+    await _loadAdditionalPassagesForStudy(updated);
+    if (mounted) setState(() {});
+  }
+
+  /// "Ajustar rango" tras un auto-agregado: quita el versículo suelto y abre el
+  /// selector de rango para reemplazarlo con la selección elegida.
+  Future<void> _adjustAddedPassage(
+    StudyPickerResult picked,
+    List<BibleVerse> chapterVerses,
+    int maxVerse,
+    int autoVerse,
+  ) async {
+    await _removeStudyPassage(
+      StudyPassage(
+        bookNumber: picked.bookNumber,
+        bookName: picked.bookName,
+        chapter: picked.chapter,
+        startVerse: autoVerse,
+        endVerse: autoVerse,
+      ),
+    );
+    if (!mounted) return;
+    final range = await showModalBottomSheet<_RangeResult?>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => _VerseRangeSheet(
+        maxVerse: maxVerse,
+        initialStart: autoVerse,
+        initialEnd: autoVerse,
+        verses: chapterVerses,
+        bookNumber: picked.bookNumber,
+        chapter: picked.chapter,
+        versionId: _version.id,
+        allowMultiSelect: true,
+      ),
+    );
+    if (range == null) {
+      // Canceló: re-agrega el versículo original para no perderlo.
+      await _addStudyPassages(picked, [
+        [autoVerse, autoVerse],
+      ]);
+      return;
+    }
+    final runs = (range.verses != null && range.verses!.isNotEmpty)
+        ? _contiguousRuns(range.verses!)
+        : [
+            [range.start ?? 1, range.end ?? maxVerse],
+          ];
+    await _addStudyPassages(picked, runs);
   }
 
   String _rangeLabel() {
@@ -1504,6 +1650,21 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  void _showSnackAction(
+    String msg, {
+    required String actionLabel,
+    required VoidCallback onAction,
+  }) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(msg),
+        action: SnackBarAction(label: actionLabel, onPressed: onAction),
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
   Widget _buildSplit(BibleReaderThemeData t) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -1602,11 +1763,33 @@ class _StudyModeScreenState extends State<StudyModeScreen>
 }
 
 /// Resultado emitido por el bottom sheet picker (libro/capítulo).
+///
+/// [verse] es opcional: cuando el usuario elige un versículo concreto desde la
+/// búsqueda (p. ej. "Mateo 3:5"), llega aquí para pre-seleccionar el rango. Si
+/// es `null`, se eligió el capítulo completo.
 class StudyPickerResult {
   final int bookNumber;
   final String bookName;
   final int chapter;
-  const StudyPickerResult(this.bookNumber, this.bookName, this.chapter);
+  final int? verse;
+
+  /// Fin del rango cuando llega desde una referencia pegada (p. ej. "Jn 3:16-18").
+  /// Si es `null`, el rango es sólo [verse].
+  final int? verseEnd;
+
+  /// Cuando es `true`, el consumidor debe aplicar/agregar el pasaje de inmediato
+  /// (sin abrir el selector de rango), ofreciendo "Ajustar rango" como opción.
+  /// Se activa al tocar un resultado de texto de la búsqueda.
+  final bool autoApply;
+
+  const StudyPickerResult(
+    this.bookNumber,
+    this.bookName,
+    this.chapter, {
+    this.verse,
+    this.verseEnd,
+    this.autoApply = false,
+  });
 }
 
 enum _SavedStudyContentFilter { all, answered, notes, hope, mainVerse, ranged }
@@ -3128,7 +3311,12 @@ class _VersionDropdown extends StatelessWidget {
 class _RangeResult {
   final int? start;
   final int? end;
-  const _RangeResult(this.start, this.end);
+
+  /// Selección discontinua (versículos sueltos). Cuando no es `null`, tiene
+  /// prioridad sobre [start]/[end].
+  final Set<int>? verses;
+
+  const _RangeResult(this.start, this.end, {this.verses});
 }
 
 /// Bottom sheet para elegir un rango de versículos a estudiar.
@@ -3140,6 +3328,10 @@ class _VerseRangeSheet extends StatefulWidget {
   final int bookNumber;
   final int chapter;
   final String versionId;
+
+  /// Permite el modo de selección múltiple (versículos discontinuos).
+  final bool allowMultiSelect;
+
   const _VerseRangeSheet({
     required this.maxVerse,
     this.initialStart,
@@ -3148,6 +3340,7 @@ class _VerseRangeSheet extends StatefulWidget {
     this.bookNumber = 0,
     this.chapter = 0,
     this.versionId = '',
+    this.allowMultiSelect = false,
   });
 
   @override
@@ -3158,6 +3351,8 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
   late int _start;
   late int _end;
   bool _previewExpanded = false;
+  bool _multiSelect = false;
+  final Set<int> _selected = {};
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -3218,6 +3413,43 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
   }
 
   Widget _buildActionRow(BibleReaderThemeData t) {
+    if (_multiSelect) {
+      final count = _selected.length;
+      return Row(
+        children: [
+          TextButton.icon(
+            icon: const Icon(Icons.clear, size: 16),
+            label: const Text('Cancelar'),
+            style: TextButton.styleFrom(foregroundColor: t.textSecondary),
+            onPressed: () => setState(() {
+              _multiSelect = false;
+              _selected.clear();
+            }),
+          ),
+          const Spacer(),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: t.accent,
+              foregroundColor: t.background,
+              disabledBackgroundColor: t.textSecondary.withValues(alpha: 0.2),
+            ),
+            onPressed: count == 0
+                ? null
+                : () => Navigator.pop(
+                      context,
+                      _RangeResult(null, null, verses: Set<int>.from(_selected)),
+                    ),
+            child: Text(
+              count == 0
+                  ? 'Elige versículos'
+                  : count == 1
+                      ? 'Agregar 1 versículo'
+                      : 'Agregar $count versículos',
+            ),
+          ),
+        ],
+      );
+    }
     return Row(
       children: [
         TextButton.icon(
@@ -3242,6 +3474,25 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
         ),
       ],
     );
+  }
+
+  /// Alterna un versículo suelto en modo selección múltiple.
+  void _toggleSelected(int verse) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      if (!_selected.remove(verse)) _selected.add(verse);
+    });
+  }
+
+  void _enterMultiSelect() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _multiSelect = true;
+      // Sembrar con el rango actual para no perder la selección previa.
+      _selected
+        ..clear()
+        ..addAll([for (int v = _start; v <= _end; v++) v]);
+    });
   }
 
   @override
@@ -3352,41 +3603,65 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                           ),
                         ),
                         const Spacer(),
-                        TextButton.icon(
-                          icon: Icon(
-                            Icons.visibility_off_outlined,
-                            size: 15,
-                            color: t.textSecondary,
-                          ),
-                          label: Text(
-                            'Ocultar',
-                            style: GoogleFonts.manrope(
+                        if (!_multiSelect)
+                          TextButton.icon(
+                            icon: Icon(
+                              Icons.visibility_off_outlined,
+                              size: 15,
                               color: t.textSecondary,
-                              fontSize: 12,
                             ),
-                          ),
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 4,
+                            label: Text(
+                              'Ocultar',
+                              style: GoogleFonts.manrope(
+                                color: t.textSecondary,
+                                fontSize: 12,
+                              ),
                             ),
-                            minimumSize: Size.zero,
+                            style: TextButton.styleFrom(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 4,
+                              ),
+                              minimumSize: Size.zero,
+                            ),
+                            onPressed: () =>
+                                setState(() => _previewExpanded = false),
                           ),
-                          onPressed: () =>
-                              setState(() => _previewExpanded = false),
-                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
-                    _buildPickerRow(t),
+                    if (!_multiSelect) _buildPickerRow(t),
                     const SizedBox(height: 10),
-                    Text(
-                      'Toca un versículo para ajustar el rango.',
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.65),
-                        fontSize: 11,
-                        fontStyle: FontStyle.italic,
-                      ),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            _multiSelect
+                                ? 'Toca versículos sueltos para agregarlos.'
+                                : 'Toca un versículo para ajustar el rango.',
+                            style: GoogleFonts.manrope(
+                              color: t.textSecondary.withValues(alpha: 0.65),
+                              fontSize: 11,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
+                        ),
+                        if (widget.allowMultiSelect && _hasVerses && !_multiSelect)
+                          TextButton.icon(
+                            icon: const Icon(Icons.playlist_add, size: 16),
+                            label: const Text('Versículos sueltos'),
+                            style: TextButton.styleFrom(
+                              foregroundColor: t.accent,
+                              padding: const EdgeInsets.symmetric(horizontal: 6),
+                              minimumSize: Size.zero,
+                              textStyle: GoogleFonts.manrope(
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11.5,
+                              ),
+                            ),
+                            onPressed: _enterMultiSelect,
+                          ),
+                      ],
                     ),
                     const SizedBox(height: 8),
                     Divider(
@@ -3404,8 +3679,9 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                   itemCount: widget.verses.length,
                   itemBuilder: (ctx, i) {
                     final verse = widget.verses[i];
-                    final inRange =
-                        verse.verse >= _start && verse.verse <= _end;
+                    final inRange = _multiSelect
+                        ? _selected.contains(verse.verse)
+                        : verse.verse >= _start && verse.verse <= _end;
                     final sectionTitle = widget.versionId.isNotEmpty
                         ? SectionTitleService.I.titleAt(
                             widget.versionId,
@@ -3433,6 +3709,11 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                         GestureDetector(
                           behavior: HitTestBehavior.opaque,
                           onTap: () {
+                            if (_multiSelect) {
+                              _toggleSelected(verse.verse);
+                              return;
+                            }
+                            HapticFeedback.selectionClick();
                             setState(() {
                               final distToStart = (verse.verse - _start).abs();
                               final distToEnd = (verse.verse - _end).abs();

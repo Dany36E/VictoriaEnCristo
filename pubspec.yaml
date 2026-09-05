@@ -2,7 +2,7 @@ name: app_quitar
 description: "Victoria en Cristo - App cristiana para superar tentaciones y vicios"
 publish_to: 'none'
 
-version: 1.0.26+35
+version: 1.0.26+36
 
 environment:
   sdk: ^3.10.1

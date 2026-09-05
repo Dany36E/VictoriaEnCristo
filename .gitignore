@@ -33,6 +33,7 @@ migrate_working_dir/
 /build/
 /coverage/
 /dist/
+.claude/
 build_*.txt
 analyze_output.txt
 test_out.txt
@@ -106,7 +107,9 @@ scripts/*
 !scripts/*.ps1
 
 # Integration tests (contain test credentials)
-integration_test/
+integration_test/*
+!integration_test/series_native_qa_test.dart
+!integration_test/access_native_qa_test.dart
 !android/app/src/release/java/dev/flutter/plugins/integration_test/
 !android/app/src/release/java/dev/flutter/plugins/integration_test/IntegrationTestPlugin.java
 

@@ -21,10 +21,9 @@ class GiantSelectionScreen extends StatefulWidget {
 
 class _GiantSelectionScreenState extends State<GiantSelectionScreen>
     with SingleTickerProviderStateMixin {
-  
   // Set de gigantes seleccionados
   final Set<String> _selectedGiants = {};
-  
+
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
 
@@ -34,7 +33,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
   // La diferenciación es solo por icono/texto y estado seleccionado (borde dorado)
   // ═══════════════════════════════════════════════════════════════════════════
   static const Color _selectedAccent = Color(0xFFD4AF37); // Dorado (gold)
-  
+
   // Los 6 gigantes principales - COLORES NEUTRALES UNIFORMES
   static const List<Map<String, dynamic>> _giants = [
     {
@@ -79,7 +78,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
   void initState() {
     super.initState();
     _setupAnimations();
-    
+
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _animationController.forward();
     });
@@ -92,10 +91,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
     );
 
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
 
@@ -108,7 +104,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
   void _toggleGiant(String id) {
     HapticFeedback.lightImpact();
     // SFX de selección - fire and forget
-    FeedbackEngine.I.select();  // Haptic + SFX select
+    FeedbackEngine.I.select(); // Haptic + SFX select
     setState(() {
       if (_selectedGiants.contains(id)) {
         _selectedGiants.remove(id);
@@ -125,9 +121,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
         SnackBar(
           content: Text(
             'Selecciona al menos un área de batalla',
-            style: GoogleFonts.manrope(
-              fontWeight: FontWeight.w500,
-            ),
+            style: GoogleFonts.manrope(fontWeight: FontWeight.w500),
           ),
           backgroundColor: AppDesignSystem.midnightLight,
           behavior: SnackBarBehavior.floating,
@@ -139,7 +133,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
       return;
     }
 
-    FeedbackEngine.I.confirm();  // Haptic + SFX confirm
+    FeedbackEngine.I.confirm(); // Haptic + SFX confirm
 
     // Si eligió "Pureza Sexual", sugerir el Escudo de Pureza (bloqueador)
     // antes de continuar con la configuración de intensidad.
@@ -157,13 +151,16 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.1, 0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              )),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0.1, 0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
               child: child,
             ),
           );
@@ -188,34 +185,23 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                   // HEADER CON BARRA DE PROGRESO
                   // ═══════════════════════════════════════════════════════════════
                   _buildHeader(),
-                  
-                  const SizedBox(height: 24),
-                  
+
                   // ═══════════════════════════════════════════════════════════════
-                  // TÍTULO Y SUBTÍTULO
+                  // TÍTULO + GRID DESPLAZABLE
                   // ═══════════════════════════════════════════════════════════════
-                  _buildTitleSection(),
-                  
-                  const SizedBox(height: 32),
-                  
-                  // ═══════════════════════════════════════════════════════════════
-                  // GRID DE GIGANTES
-                  // ═══════════════════════════════════════════════════════════════
-                  Expanded(
-                    child: _buildGiantsGrid(),
-                  ),
-                  
+                  Expanded(child: _buildSelectionContent()),
+
                   // ═══════════════════════════════════════════════════════════════
                   // BOTÓN CONTINUAR
                   // ═══════════════════════════════════════════════════════════════
                   _buildContinueButton(),
-                  
+
                   const SizedBox(height: 24),
                 ],
               ),
             ),
           ),
-          
+
           // ═══════════════════════════════════════════════════════════════════
           // BOTÓN DE AUDIO (Toggle música)
           // ═══════════════════════════════════════════════════════════════════
@@ -241,7 +227,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
             shape: BoxShape.circle,
             color: AppDesignSystem.midnight.withValues(alpha: 0.8),
             border: Border.all(
-              color: isBgmEnabled 
+              color: isBgmEnabled
                   ? AppDesignSystem.gold.withValues(alpha: 0.5)
                   : Colors.grey.withValues(alpha: 0.3),
               width: 1.5,
@@ -257,7 +243,9 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
               },
               child: Center(
                 child: Icon(
-                  isBgmEnabled ? Icons.volume_up_rounded : Icons.volume_off_rounded,
+                  isBgmEnabled
+                      ? Icons.volume_up_rounded
+                      : Icons.volume_off_rounded,
                   color: isBgmEnabled ? AppDesignSystem.gold : Colors.grey,
                   size: 22,
                 ),
@@ -287,12 +275,15 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                   color: AppDesignSystem.pureWhite.withValues(alpha: 0.7),
                 ),
               ),
-              
+
               const Spacer(),
-              
+
               // Indicador de paso
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 decoration: BoxDecoration(
                   color: AppDesignSystem.gold.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(20),
@@ -309,11 +300,13 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                   ),
                 ),
               ),
+              // Reserve the area occupied by the floating audio control.
+              const SizedBox(width: 52),
             ],
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Barra de progreso
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
@@ -336,10 +329,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
         children: [
           ShaderMask(
             shaderCallback: (bounds) => const LinearGradient(
-              colors: [
-                AppDesignSystem.gold,
-                AppDesignSystem.goldLight,
-              ],
+              colors: [AppDesignSystem.gold, AppDesignSystem.goldLight],
             ).createShader(bounds),
             child: Text(
               '¿CUÁL ES TU GIGANTE?',
@@ -352,9 +342,9 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
               ),
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           Text(
             'Selecciona las áreas donde necesitas más victoria.\nPuedes elegir una o varias.',
             textAlign: TextAlign.center,
@@ -370,22 +360,41 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
     );
   }
 
-  Widget _buildGiantsGrid() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: GridView.builder(
-        padding: const EdgeInsets.only(bottom: 16),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 2,
-          childAspectRatio: 0.95,
-          crossAxisSpacing: 14,
-          mainAxisSpacing: 14,
-        ),
-        itemCount: _giants.length,
-        itemBuilder: (context, index) {
-          return _buildGiantCard(_giants[index], index);
-        },
-      ),
+  Widget _buildSelectionContent() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final textScale = MediaQuery.textScalerOf(context).scale(1);
+        final gridWidth = constraints.maxWidth - 40;
+        final useSingleColumn = gridWidth < 360 && textScale >= 1.4;
+        final columns = gridWidth >= 700
+            ? 3
+            : useSingleColumn
+            ? 1
+            : 2;
+        final cardHeight = textScale >= 1.4 ? 210.0 : 160.0;
+        return CustomScrollView(
+          slivers: [
+            const SliverToBoxAdapter(child: SizedBox(height: 24)),
+            SliverToBoxAdapter(child: _buildTitleSection()),
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+              sliver: SliverGrid(
+                delegate: SliverChildBuilderDelegate(
+                  (context, index) => _buildGiantCard(_giants[index], index),
+                  childCount: _giants.length,
+                ),
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: columns,
+                  mainAxisExtent: cardHeight,
+                  crossAxisSpacing: 14,
+                  mainAxisSpacing: 14,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -393,7 +402,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
     final bool isSelected = _selectedGiants.contains(giant['id']);
     // Color neutral uniforme para todos - antisesgo
     const Color accentColor = _selectedAccent;
-    
+
     // Animación escalonada de entrada
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
@@ -402,10 +411,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
       builder: (context, value, child) {
         return Transform.translate(
           offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(
-            opacity: value,
-            child: child,
-          ),
+          child: Opacity(opacity: value, child: child),
         );
       },
       child: GestureDetector(
@@ -413,20 +419,25 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 250),
           curve: Curves.easeOutCubic,
-          transform: isSelected 
-              ? (Matrix4.identity()..scaleByDouble(1.02, 1.02, 1.02, 1)) // Micro-escala al seleccionar
+          transform: isSelected
+              ? (Matrix4.identity()..scaleByDouble(
+                  1.02,
+                  1.02,
+                  1.02,
+                  1,
+                )) // Micro-escala al seleccionar
               : Matrix4.identity(),
           decoration: BoxDecoration(
             // Color de fondo uniforme para todos
             color: isSelected
-                ? const Color(0xFF1A1A2A) // Ligeramente más claro al seleccionar
+                ? const Color(
+                    0xFF1A1A2A,
+                  ) // Ligeramente más claro al seleccionar
                 : const Color(0xFF121222), // Fondo base oscuro
             borderRadius: BorderRadius.circular(20),
             border: Border.all(
               // Borde dorado solo al seleccionar, gris tenue si no
-              color: isSelected
-                  ? accentColor
-                  : const Color(0xFF2A2A3A),
+              color: isSelected ? accentColor : const Color(0xFF2A2A3A),
               width: isSelected ? 2.5 : 1,
             ),
             boxShadow: isSelected
@@ -448,13 +459,10 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     // Emoji grande
-                    Text(
-                      giant['emoji'],
-                      style: const TextStyle(fontSize: 36),
-                    ),
-                    
+                    Text(giant['emoji'], style: const TextStyle(fontSize: 36)),
+
                     const SizedBox(height: 10),
-                    
+
                     // Nombre del gigante - COLOR NEUTRAL UNIFORME
                     Text(
                       giant['name'],
@@ -468,9 +476,9 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                         letterSpacing: 0.5,
                       ),
                     ),
-                    
+
                     const SizedBox(height: 6),
-                    
+
                     // Descripción
                     Expanded(
                       child: Text(
@@ -480,7 +488,9 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                           fontWeight: FontWeight.w400,
                           color: isSelected
                               ? AppDesignSystem.pureWhite.withValues(alpha: 0.9)
-                              : AppDesignSystem.pureWhite.withValues(alpha: 0.6),
+                              : AppDesignSystem.pureWhite.withValues(
+                                  alpha: 0.6,
+                                ),
                           height: 1.4,
                         ),
                         maxLines: 3,
@@ -490,7 +500,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                   ],
                 ),
               ),
-              
+
               // Checkmark de selección - DORADO UNIFORME
               if (isSelected)
                 Positioned(
@@ -525,13 +535,13 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
 
   Widget _buildContinueButton() {
     final bool hasSelection = _selectedGiants.isNotEmpty;
-    
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 28),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 300),
         width: double.infinity,
-        height: 60,
+        constraints: const BoxConstraints(minHeight: 60),
         decoration: BoxDecoration(
           gradient: hasSelection ? AppDesignSystem.goldShimmer : null,
           color: hasSelection ? null : AppDesignSystem.midnightLight,
@@ -551,21 +561,25 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
           child: InkWell(
             borderRadius: BorderRadius.circular(18),
             onTap: _navigateToIntensity,
-            child: Center(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    hasSelection
-                        ? 'CONTINUAR (${_selectedGiants.length})'
-                        : 'SELECCIONA AL MENOS UNO',
-                    style: GoogleFonts.cinzel(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w700,
-                      color: hasSelection
-                          ? AppDesignSystem.midnight
-                          : AppDesignSystem.pureWhite.withValues(alpha: 0.5),
-                      letterSpacing: 1.5,
+                  Flexible(
+                    child: Text(
+                      hasSelection
+                          ? 'CONTINUAR (${_selectedGiants.length})'
+                          : 'SELECCIONA AL MENOS UNO',
+                      textAlign: TextAlign.center,
+                      style: GoogleFonts.cinzel(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        color: hasSelection
+                            ? AppDesignSystem.midnight
+                            : AppDesignSystem.pureWhite.withValues(alpha: 0.5),
+                        letterSpacing: 1.5,
+                      ),
                     ),
                   ),
                   if (hasSelection) ...[

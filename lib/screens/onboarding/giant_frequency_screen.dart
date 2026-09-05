@@ -14,11 +14,8 @@ import '../../repositories/profile_repository.dart';
 
 class GiantFrequencyScreen extends StatefulWidget {
   final List<String> selectedGiants;
-  
-  const GiantFrequencyScreen({
-    super.key,
-    required this.selectedGiants,
-  });
+
+  const GiantFrequencyScreen({super.key, required this.selectedGiants});
 
   @override
   State<GiantFrequencyScreen> createState() => _GiantFrequencyScreenState();
@@ -26,89 +23,85 @@ class GiantFrequencyScreen extends StatefulWidget {
 
 class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
     with SingleTickerProviderStateMixin {
-  
   // Mapa de frecuencias por gigante
   late Map<String, BattleFrequency?> _frequencies;
-  
+
   // Lista de gigantes con sus datos completos
   late List<GiantWithFrequency> _giants;
-  
+
   // Animación de entrada
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
-  
+
   // Estado de guardado
   bool _isSaving = false;
-  
+
   @override
   void initState() {
     super.initState();
     _initializeGiants();
     _setupAnimations();
-    
+
     Future.delayed(const Duration(milliseconds: 100), () {
       if (mounted) _animationController.forward();
     });
   }
-  
+
   void _initializeGiants() {
     // Cargar frecuencias existentes (si vuelve a editar)
     final existingFreqs = OnboardingService().loadGiantFrequencies();
-    
+
     _frequencies = {};
     _giants = [];
-    
+
     for (final giantId in widget.selectedGiants) {
       // Buscar frecuencia existente
       final existingFreq = existingFreqs[giantId];
       final frequency = BattleFrequencyExtension.fromId(existingFreq);
-      
+
       _frequencies[giantId] = frequency;
-      
+
       final giant = Giants.fromId(giantId, frequency: frequency);
       if (giant != null) {
         _giants.add(giant);
       }
     }
   }
-  
+
   void _setupAnimations() {
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
-    
+
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: Curves.easeOut,
-      ),
+      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
-  
+
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
   }
-  
+
   /// ¿Todas las frecuencias están asignadas?
   bool get _isComplete {
     return widget.selectedGiants.every((g) => _frequencies[g] != null);
   }
-  
+
   /// Cantidad de gigantes con frecuencia asignada
   int get _completedCount {
     return _frequencies.values.where((f) => f != null).length;
   }
-  
+
   /// Actualizar frecuencia de un gigante
   void _updateFrequency(String giantId, BattleFrequency frequency) {
     FeedbackEngine.I.select(); // SFX + Haptic al seleccionar
-    
+
     setState(() {
       _frequencies[giantId] = frequency;
-      
+
       // Actualizar lista de gigantes
       final index = _giants.indexWhere((g) => g.id == giantId);
       if (index != -1) {
@@ -116,15 +109,15 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       }
     });
   }
-  
+
   /// Guardar y continuar
   Future<void> _saveAndContinue() async {
     if (!_isComplete || _isSaving) return;
-    
+
     FeedbackEngine.I.confirm(); // SFX + Haptic de confirmación
-    
+
     setState(() => _isSaving = true);
-    
+
     try {
       // Convertir Map<String, BattleFrequency?> a Map<String, String>
       final freqMap = <String, String>{};
@@ -133,17 +126,20 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
           freqMap[entry.key] = entry.value!.id;
         }
       }
-      
-      final success = await OnboardingService().completeOnboardingWithFrequencies(
-        giants: widget.selectedGiants,
-        frequencies: freqMap,
-      );
-      
+
+      final success = await OnboardingService()
+          .completeOnboardingWithFrequencies(
+            giants: widget.selectedGiants,
+            frequencies: freqMap,
+          );
+
       if (!mounted) return;
-      
+
       if (success) {
-        debugPrint('🎯 [FREQ_SCREEN] Save successful, verifying profile state...');
-        
+        debugPrint(
+          '🎯 [FREQ_SCREEN] Save successful, verifying profile state...',
+        );
+
         // CRÍTICO: Forzar reconexión al ProfileRepository para asegurar
         // que el profileNotifier se actualizó y el ProfileGate lo detecte.
         // Esto resuelve el caso donde el realtime listener no se disparó a tiempo.
@@ -151,20 +147,24 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
         if (uid != null) {
           await ProfileRepository.I.connectUser(uid);
         }
-        
+
         // Pequeña pausa para permitir que el ProfileGate procese
         // el cambio de profileNotifier (setState → _bootstrapAndGoHome)
         await Future.delayed(const Duration(milliseconds: 200));
-        
+
         // Verificar que realmente se guardó correctamente
         final verifiedProfile = ProfileRepository.I.currentProfile;
         if (verifiedProfile != null && verifiedProfile.onboardingCompleted) {
-          debugPrint('🎯 [FREQ_SCREEN] ✅ Profile verified: onboardingCompleted=true, popping to root');
+          debugPrint(
+            '🎯 [FREQ_SCREEN] ✅ Profile verified: onboardingCompleted=true, popping to root',
+          );
           if (mounted) {
             Navigator.of(context).popUntil((route) => route.isFirst);
           }
         } else {
-          debugPrint('🎯 [FREQ_SCREEN] ⚠️ Profile NOT verified after save, forcing pop anyway');
+          debugPrint(
+            '🎯 [FREQ_SCREEN] ⚠️ Profile NOT verified after save, forcing pop anyway',
+          );
           // Pop anyway - el ProfileGate tiene safety check en build
           if (mounted) {
             Navigator.of(context).popUntil((route) => route.isFirst);
@@ -182,7 +182,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       }
     }
   }
-  
+
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -192,7 +192,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       ),
     );
   }
-  
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -204,12 +204,10 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
             children: [
               // Header
               _buildHeader(),
-              
+
               // Lista de gigantes
-              Expanded(
-                child: _buildGiantsList(),
-              ),
-              
+              Expanded(child: _buildGiantsList()),
+
               // Botón continuar
               _buildContinueButton(),
             ],
@@ -218,7 +216,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       ),
     );
   }
-  
+
   Widget _buildHeader() {
     return Padding(
       padding: const EdgeInsets.all(20),
@@ -235,21 +233,18 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
             ),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 8),
-          
+
           // Subtítulo
           Text(
             'Configura cada batalla. Puedes cambiarlo después.',
-            style: GoogleFonts.manrope(
-              fontSize: 14,
-              color: Colors.white70,
-            ),
+            style: GoogleFonts.manrope(fontSize: 14, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
-          
+
           const SizedBox(height: 16),
-          
+
           // Indicador de progreso
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -274,7 +269,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       ),
     );
   }
-  
+
   Widget _buildGiantsList() {
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -285,10 +280,10 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       },
     );
   }
-  
+
   Widget _buildGiantCard(GiantWithFrequency giant, int index) {
     final isComplete = giant.hasFrequency;
-    
+
     return TweenAnimationBuilder<double>(
       tween: Tween(begin: 0.0, end: 1.0),
       duration: Duration(milliseconds: 400 + (index * 100)),
@@ -296,22 +291,19 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       builder: (context, value, child) {
         return Transform.translate(
           offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(
-            opacity: value,
-            child: child,
-          ),
+          child: Opacity(opacity: value, child: child),
         );
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
-          color: isComplete 
+          color: isComplete
               ? AppDesignSystem.midnightLight.withValues(alpha: 0.8)
               : AppDesignSystem.midnightLight,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: isComplete 
-                ? AppDesignSystem.gold.withValues(alpha: 0.5) 
+            color: isComplete
+                ? AppDesignSystem.gold.withValues(alpha: 0.5)
                 : Colors.white12,
             width: isComplete ? 2 : 1,
           ),
@@ -339,9 +331,9 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                       ),
                     ),
                   ),
-                  
+
                   const SizedBox(width: 12),
-                  
+
                   // Nombre y descripción
                   Expanded(
                     child: Column(
@@ -368,7 +360,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                       ],
                     ),
                   ),
-                  
+
                   // Check de completado
                   if (isComplete)
                     const Icon(
@@ -378,9 +370,9 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                     ),
                 ],
               ),
-              
+
               const SizedBox(height: 16),
-              
+
               // Selector de frecuencia (chips)
               _buildFrequencySelector(giant),
             ],
@@ -389,38 +381,33 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       ),
     );
   }
-  
+
   Widget _buildFrequencySelector(GiantWithFrequency giant) {
     return Wrap(
       spacing: 8,
       runSpacing: 8,
       children: BattleFrequency.values.map((frequency) {
         final isSelected = giant.frequency == frequency;
-        
+
         return GestureDetector(
           onTap: () => _updateFrequency(giant.id, frequency),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 200),
             padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
-              color: isSelected 
-                  ? AppDesignSystem.gold.withValues(alpha: 0.15) 
+              color: isSelected
+                  ? AppDesignSystem.gold.withValues(alpha: 0.15)
                   : Colors.transparent,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isSelected 
-                    ? AppDesignSystem.gold 
-                    : Colors.white24,
+                color: isSelected ? AppDesignSystem.gold : Colors.white24,
                 width: isSelected ? 2 : 1,
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  frequency.emoji,
-                  style: const TextStyle(fontSize: 14),
-                ),
+                Text(frequency.emoji, style: const TextStyle(fontSize: 14)),
                 const SizedBox(width: 6),
                 Text(
                   frequency.displayName,
@@ -437,7 +424,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
       }).toList(),
     );
   }
-  
+
   Widget _buildContinueButton() {
     return Container(
       padding: const EdgeInsets.all(20),
@@ -493,17 +480,20 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Text(
-                          _isComplete 
-                              ? 'GUARDAR Y CONTINUAR' 
-                              : 'COMPLETA TODAS LAS OPCIONES',
-                          style: GoogleFonts.cinzel(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: _isComplete 
-                                ? AppDesignSystem.midnight 
-                                : Colors.white38,
-                            letterSpacing: 1.5,
+                        Flexible(
+                          child: Text(
+                            _isComplete
+                                ? 'GUARDAR Y CONTINUAR'
+                                : 'COMPLETA TODAS LAS OPCIONES',
+                            textAlign: TextAlign.center,
+                            style: GoogleFonts.cinzel(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: _isComplete
+                                  ? AppDesignSystem.midnight
+                                  : Colors.white38,
+                              letterSpacing: 1.5,
+                            ),
                           ),
                         ),
                         if (_isComplete) ...[

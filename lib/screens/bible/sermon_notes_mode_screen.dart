@@ -299,6 +299,30 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       ),
     );
     if (result == null) return;
+    // Auto-aplicar desde la búsqueda (un versículo), con opción de ajustar.
+    if (result.autoApply && result.verse != null) {
+      final v = result.verse!;
+      await _changeChapter(
+        result.bookNumber,
+        result.bookName,
+        result.chapter,
+        startVerse: v,
+        endVerse: v,
+      );
+      if (mounted) {
+        _showSnackAction(
+          'Lectura: ${result.bookName} ${result.chapter}:$v',
+          actionLabel: 'Ajustar rango',
+          onAction: () => _openPassageRangeFor(result),
+        );
+      }
+      return;
+    }
+    await _openPassageRangeFor(result);
+  }
+
+  /// Abre el selector de rango para la lectura y aplica el resultado.
+  Future<void> _openPassageRangeFor(StudyPickerResult result) async {
     final chapterVerses = await BibleParserService.I.getChapter(
       version: _primaryVersion,
       bookNumber: result.bookNumber,
@@ -313,6 +337,8 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         verses: chapterVerses,
         title: '${result.bookName} ${result.chapter}',
         actionLabel: 'Usar lectura',
+        initialStart: result.verse,
+        initialEnd: result.verseEnd ?? result.verse,
       ),
     );
     if (range == null) return;
@@ -382,6 +408,23 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       ),
     );
     if (picked == null || !mounted) return;
+    // Auto-aplicar desde la búsqueda (un versículo), con opción de ajustar.
+    if (picked.autoApply && picked.verse != null) {
+      final v = picked.verse!;
+      await _applyCentralPassage(picked, v, v);
+      if (mounted) {
+        _showSnackAction(
+          'Pasaje central: ${picked.bookName} ${picked.chapter}:$v',
+          actionLabel: 'Ajustar rango',
+          onAction: () => _openCentralRangeFor(picked),
+        );
+      }
+      return;
+    }
+    await _openCentralRangeFor(picked);
+  }
+
+  Future<void> _openCentralRangeFor(StudyPickerResult picked) async {
     final chapterVerses = await BibleParserService.I.getChapter(
       version: _primaryVersion,
       bookNumber: picked.bookNumber,
@@ -395,17 +438,27 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         theme: _theme(),
         verses: chapterVerses,
         title: '${picked.bookName} ${picked.chapter}',
+        initialStart: picked.verse,
+        initialEnd: picked.verseEnd ?? picked.verse,
       ),
     );
     if (range == null) return;
+    await _applyCentralPassage(picked, range.start, range.end);
+  }
+
+  Future<void> _applyCentralPassage(
+    StudyPickerResult picked,
+    int startVerse,
+    int endVerse,
+  ) async {
     setState(() {
       _note = _note.copyWith(
         centralPassage: SermonCentralPassage(
           bookNumber: picked.bookNumber,
           bookName: picked.bookName,
           chapter: picked.chapter,
-          startVerse: range.start,
-          endVerse: range.end,
+          startVerse: startVerse,
+          endVerse: endVerse,
         ),
       );
       _bookNumber = picked.bookNumber;
@@ -835,22 +888,59 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       chapter: picked.chapter,
     );
     if (!mounted) return;
+
+    // Auto-agregar desde la búsqueda (un versículo), con opción de ajustar.
+    if (picked.autoApply && picked.verse != null) {
+      final v = picked.verse!;
+      final selected = chapterVerses
+          .where((verse) => verse.verse == v)
+          .toList(growable: false);
+      await _addVersesToCollection(selected);
+      if (mounted) {
+        _showSnackAction(
+          'Agregado ${picked.bookName} ${picked.chapter}:$v',
+          actionLabel: 'Ajustar rango',
+          onAction: () => _openAddVersesRangeFor(picked, chapterVerses),
+        );
+      }
+      return;
+    }
+    await _openAddVersesRangeFor(picked, chapterVerses);
+  }
+
+  Future<void> _openAddVersesRangeFor(
+    StudyPickerResult picked,
+    List<BibleVerse> chapterVerses,
+  ) async {
     final range = await showModalBottomSheet<_VerseRangeResult>(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (_) => _VerseRangeSheet(
         theme: _theme(),
         verses: chapterVerses,
         title: '${picked.bookName} ${picked.chapter}',
         actionLabel: 'Agregar versiculos',
+        initialStart: picked.verse,
+        initialEnd: picked.verseEnd ?? picked.verse,
+        allowMultiSelect: true,
       ),
     );
     if (range == null) return;
-    final selected = chapterVerses
-        .where(
-          (verse) => verse.verse >= range.start && verse.verse <= range.end,
-        )
-        .toList(growable: false);
+    final List<BibleVerse> selected;
+    if (range.verses != null && range.verses!.isNotEmpty) {
+      // Selección discontinua (versículos sueltos).
+      final set = range.verses!;
+      selected = chapterVerses
+          .where((verse) => set.contains(verse.verse))
+          .toList(growable: false);
+    } else {
+      selected = chapterVerses
+          .where(
+            (verse) => verse.verse >= range.start && verse.verse <= range.end,
+          )
+          .toList(growable: false);
+    }
     // "Agregar versiculos" agrega a la coleccion del panel izquierdo (la
     // lectura), de forma acumulativa e independiente de las Notas.
     await _addVersesToCollection(selected);
@@ -1131,6 +1221,22 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   void _showSnack(String text) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(text), behavior: SnackBarBehavior.floating),
+    );
+  }
+
+  void _showSnackAction(
+    String text, {
+    required String actionLabel,
+    required VoidCallback onAction,
+  }) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(text),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(label: actionLabel, onPressed: onAction),
+      ),
     );
   }
 
@@ -2898,7 +3004,11 @@ class _VerseRangeResult {
   final int start;
   final int end;
 
-  const _VerseRangeResult(this.start, this.end);
+  /// Versículos sueltos (selección múltiple discontinua). Cuando no es `null`,
+  /// tiene prioridad sobre [start]/[end].
+  final Set<int>? verses;
+
+  const _VerseRangeResult(this.start, this.end, {this.verses});
 }
 
 class _VerseRangeSheet extends StatefulWidget {
@@ -2907,11 +3017,22 @@ class _VerseRangeSheet extends StatefulWidget {
   final String title;
   final String actionLabel;
 
+  /// Rango inicial. Si es `null`, se toma el capítulo completo
+  /// (del primer al último versículo).
+  final int? initialStart;
+  final int? initialEnd;
+
+  /// Habilita el modo de selección múltiple (versículos sueltos).
+  final bool allowMultiSelect;
+
   const _VerseRangeSheet({
     required this.theme,
     required this.verses,
     required this.title,
     this.actionLabel = 'Usar pasaje',
+    this.initialStart,
+    this.initialEnd,
+    this.allowMultiSelect = false,
   });
 
   @override
@@ -2921,12 +3042,34 @@ class _VerseRangeSheet extends StatefulWidget {
 class _VerseRangeSheetState extends State<_VerseRangeSheet> {
   late int _start;
   late int _end;
+  bool _multiSelect = false;
+  final Set<int> _selected = {};
 
   @override
   void initState() {
     super.initState();
-    _start = widget.verses.isEmpty ? 1 : widget.verses.first.verse;
-    _end = _start;
+    final firstVerse = widget.verses.isEmpty ? 1 : widget.verses.first.verse;
+    final lastVerse = widget.verses.isEmpty ? 1 : widget.verses.last.verse;
+    _start = widget.initialStart ?? firstVerse;
+    _end = widget.initialEnd ?? lastVerse;
+    if (_end < _start) _end = _start;
+  }
+
+  void _enterMultiSelect() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _multiSelect = true;
+      _selected
+        ..clear()
+        ..addAll([for (int v = _start; v <= _end; v++) v]);
+    });
+  }
+
+  void _toggle(int verse) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      if (!_selected.remove(verse)) _selected.add(verse);
+    });
   }
 
   @override
@@ -2945,56 +3088,186 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              widget.title,
-              style: GoogleFonts.cinzel(
-                color: t.textPrimary,
-                fontSize: 17,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 14),
             Row(
               children: [
                 Expanded(
-                  child: _VerseDropdown(
-                    theme: t,
-                    label: 'Inicio',
-                    value: _start,
-                    verses: verses,
-                    onChanged: (v) => setState(() {
-                      _start = v ?? _start;
-                      if (_end < _start) _end = _start;
-                    }),
+                  child: Text(
+                    widget.title,
+                    style: GoogleFonts.cinzel(
+                      color: t.textPrimary,
+                      fontSize: 17,
+                      fontWeight: FontWeight.w700,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: _VerseDropdown(
-                    theme: t,
-                    label: 'Fin',
-                    value: _end,
-                    verses: verses,
-                    onChanged: (v) => setState(() => _end = v ?? _end),
+                if (widget.allowMultiSelect && !_multiSelect)
+                  TextButton.icon(
+                    icon: const Icon(Icons.playlist_add, size: 16),
+                    label: const Text('Sueltos'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.accent,
+                      padding: const EdgeInsets.symmetric(horizontal: 6),
+                      minimumSize: Size.zero,
+                      textStyle: GoogleFonts.manrope(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                      ),
+                    ),
+                    onPressed: _enterMultiSelect,
+                  ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            if (_multiSelect)
+              _buildMultiSelect(t, verses)
+            else
+              Row(
+                children: [
+                  Expanded(
+                    child: _VerseDropdown(
+                      theme: t,
+                      label: 'Inicio',
+                      value: _start,
+                      verses: verses,
+                      onChanged: (v) => setState(() {
+                        _start = v ?? _start;
+                        if (_end < _start) _end = _start;
+                      }),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: _VerseDropdown(
+                      theme: t,
+                      label: 'Fin',
+                      value: _end,
+                      verses: verses,
+                      onChanged: (v) => setState(() => _end = v ?? _end),
+                    ),
+                  ),
+                ],
+              ),
+            const SizedBox(height: 16),
+            Row(
+              children: [
+                if (_multiSelect)
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      foregroundColor: t.textSecondary,
+                    ),
+                    onPressed: () => setState(() {
+                      _multiSelect = false;
+                      _selected.clear();
+                    }),
+                    child: const Text('Cancelar'),
+                  ),
+                const Spacer(),
+                ElevatedButton(
+                  onPressed: _multiSelect
+                      ? (_selected.isEmpty
+                            ? null
+                            : () => Navigator.pop(
+                                context,
+                                _VerseRangeResult(
+                                  0,
+                                  0,
+                                  verses: Set<int>.from(_selected),
+                                ),
+                              ))
+                      : () => Navigator.pop(
+                          context,
+                          _VerseRangeResult(
+                            _start < _end ? _start : _end,
+                            _start < _end ? _end : _start,
+                          ),
+                        ),
+                  child: Text(
+                    _multiSelect
+                        ? (_selected.isEmpty
+                              ? 'Elige versículos'
+                              : 'Agregar ${_selected.length}')
+                        : widget.actionLabel,
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 16),
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () => Navigator.pop(
-                  context,
-                  _VerseRangeResult(
-                    _start < _end ? _start : _end,
-                    _start < _end ? _end : _start,
-                  ),
-                ),
-                child: Text(widget.actionLabel),
-              ),
-            ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMultiSelect(BibleReaderThemeData t, List<int> verses) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          'Toca los versículos que quieras (pueden ser salteados).',
+          style: GoogleFonts.manrope(
+            color: t.textSecondary.withValues(alpha: 0.7),
+            fontSize: 11.5,
+          ),
+        ),
+        const SizedBox(height: 10),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxHeight: 240),
+          child: SingleChildScrollView(
+            child: Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                for (final v in verses)
+                  _VerseChip(
+                    theme: t,
+                    number: v,
+                    selected: _selected.contains(v),
+                    onTap: () => _toggle(v),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _VerseChip extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final int number;
+  final bool selected;
+  final VoidCallback onTap;
+
+  const _VerseChip({
+    required this.theme,
+    required this.number,
+    required this.selected,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Material(
+      color: selected
+          ? t.accent
+          : t.textSecondary.withValues(alpha: 0.08),
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: onTap,
+        child: Container(
+          width: 40,
+          height: 38,
+          alignment: Alignment.center,
+          child: Text(
+            '$number',
+            style: GoogleFonts.manrope(
+              color: selected ? t.background : t.textPrimary,
+              fontSize: 13,
+              fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+            ),
+          ),
         ),
       ),
     );

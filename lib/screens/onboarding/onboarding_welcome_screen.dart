@@ -16,12 +16,12 @@ class OnboardingWelcomeScreen extends StatefulWidget {
   const OnboardingWelcomeScreen({super.key});
 
   @override
-  State<OnboardingWelcomeScreen> createState() => _OnboardingWelcomeScreenState();
+  State<OnboardingWelcomeScreen> createState() =>
+      _OnboardingWelcomeScreenState();
 }
 
 class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
     with SingleTickerProviderStateMixin {
-  
   late AnimationController _animationController;
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
@@ -34,10 +34,10 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
   void initState() {
     super.initState();
     _setupAnimations();
-    
+
     // BGM ya inicia desde main.dart - no duplicar aquí
     // AudioEngine ya está corriendo si bgmEnabled=true
-    
+
     // Iniciar animación de entrada
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) _animationController.forward();
@@ -57,15 +57,13 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
       ),
     );
 
-    _slideAnimation = Tween<Offset>(
-      begin: const Offset(0, 0.3),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _animationController,
-        curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
-      ),
-    );
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.3), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _animationController,
+            curve: const Interval(0.2, 0.8, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _buttonScaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
       CurvedAnimation(
@@ -84,7 +82,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
   void _navigateToGiantSelection() {
     HapticFeedback.mediumImpact();
     AudioEngine.I.playTap();
-    
+
     Navigator.push(
       context,
       PageRouteBuilder(
@@ -94,13 +92,16 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           return FadeTransition(
             opacity: animation,
             child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0.1, 0),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(
-                parent: animation,
-                curve: Curves.easeOutCubic,
-              )),
+              position:
+                  Tween<Offset>(
+                    begin: const Offset(0.1, 0),
+                    end: Offset.zero,
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeOutCubic,
+                    ),
+                  ),
               child: child,
             ),
           );
@@ -124,9 +125,8 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
               imageUrl: _heroImageUrl,
               fit: BoxFit.cover,
               filterQuality: FilterQuality.high,
-              placeholder: (context, url) => Container(
-                color: AppDesignSystem.midnight,
-              ),
+              placeholder: (context, url) =>
+                  Container(color: AppDesignSystem.midnight),
               errorWidget: (context, url, error) => Container(
                 decoration: const BoxDecoration(
                   gradient: LinearGradient(
@@ -188,6 +188,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           // CONTENIDO PRINCIPAL
           // ═══════════════════════════════════════════════════════════════════
           SafeArea(
+            minimum: EdgeInsets.only(top: MediaQuery.paddingOf(context).top + 88),
             child: AnimatedBuilder(
               animation: _animationController,
               builder: (context, child) {
@@ -195,43 +196,57 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                   opacity: _fadeAnimation,
                   child: SlideTransition(
                     position: _slideAnimation,
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 28),
-                      child: Column(
-                        children: [
-                          const Spacer(flex: 3),
-                          
-                          // ═══════════════════════════════════════════════════
-                          // ICONO DECORATIVO
-                          // ═══════════════════════════════════════════════════
-                          _buildDecorativeIcon(),
-                          
-                          const SizedBox(height: 32),
-                          
-                          // ═══════════════════════════════════════════════════
-                          // TÍTULO PRINCIPAL
-                          // ═══════════════════════════════════════════════════
-                          _buildTitle(),
-                          
-                          const SizedBox(height: 24),
-                          
-                          // ═══════════════════════════════════════════════════
-                          // TEXTO EXPLICATIVO
-                          // ═══════════════════════════════════════════════════
-                          _buildDescription(),
-                          
-                          const Spacer(flex: 2),
-                          
-                          // ═══════════════════════════════════════════════════
-                          // BOTÓN PRINCIPAL
-                          // ═══════════════════════════════════════════════════
-                          ScaleTransition(
-                            scale: _buttonScaleAnimation,
-                            child: _buildMainButton(),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) => SingleChildScrollView(
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(
+                            minHeight: constraints.maxHeight,
                           ),
-                          
-                          const SizedBox(height: 40),
-                        ],
+                          child: IntrinsicHeight(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 28,
+                              ),
+                              child: Column(
+                                children: [
+                                  const Spacer(flex: 3),
+
+                                  // ═══════════════════════════════════════════════════
+                                  // ICONO DECORATIVO
+                                  // ═══════════════════════════════════════════════════
+                                  _buildDecorativeIcon(),
+
+                                  const SizedBox(height: 32),
+
+                                  // ═══════════════════════════════════════════════════
+                                  // TÍTULO PRINCIPAL
+                                  // ═══════════════════════════════════════════════════
+                                  _buildTitle(constraints.maxWidth - 56),
+
+                                  const SizedBox(height: 24),
+
+                                  // ═══════════════════════════════════════════════════
+                                  // TEXTO EXPLICATIVO
+                                  // ═══════════════════════════════════════════════════
+                                  _buildDescription(),
+
+                                  const Spacer(flex: 2),
+                                  const SizedBox(height: 24),
+
+                                  // ═══════════════════════════════════════════════════
+                                  // BOTÓN PRINCIPAL
+                                  // ═══════════════════════════════════════════════════
+                                  ScaleTransition(
+                                    scale: _buttonScaleAnimation,
+                                    child: _buildMainButton(),
+                                  ),
+
+                                  const SizedBox(height: 40),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -239,7 +254,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
               },
             ),
           ),
-          
+
           // ═══════════════════════════════════════════════════════════════════
           // BOTÓN DE AUDIO (Toggle música)
           // ═══════════════════════════════════════════════════════════════════
@@ -264,18 +279,18 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           height: 56,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: isBgmEnabled 
+            color: isBgmEnabled
                 ? AppDesignSystem.gold.withValues(alpha: 0.9)
                 : AppDesignSystem.midnight.withValues(alpha: 0.9),
             border: Border.all(
-              color: isBgmEnabled 
+              color: isBgmEnabled
                   ? AppDesignSystem.gold
                   : Colors.white.withValues(alpha: 0.5),
               width: 2,
             ),
             boxShadow: [
               BoxShadow(
-                color: isBgmEnabled 
+                color: isBgmEnabled
                     ? AppDesignSystem.gold.withValues(alpha: 0.4)
                     : Colors.black.withValues(alpha: 0.4),
                 blurRadius: 12,
@@ -296,9 +311,13 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 200),
                   child: Icon(
-                    isBgmEnabled ? Icons.music_note_rounded : Icons.music_off_rounded,
+                    isBgmEnabled
+                        ? Icons.music_note_rounded
+                        : Icons.music_off_rounded,
                     key: ValueKey(isBgmEnabled),
-                    color: isBgmEnabled ? AppDesignSystem.midnight : Colors.white,
+                    color: isBgmEnabled
+                        ? AppDesignSystem.midnight
+                        : Colors.white,
                     size: 28,
                   ),
                 ),
@@ -338,7 +357,21 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
     );
   }
 
-  Widget _buildTitle() {
+  Widget _buildTitle(double availableWidth) {
+    final style = GoogleFonts.cinzel(
+      fontSize: 36,
+      fontWeight: FontWeight.w700,
+      color: Colors.white,
+      height: 1.2,
+      letterSpacing: 3,
+    );
+    final measure = TextPainter(
+      text: TextSpan(text: 'PREPÁRATE', style: style),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+    )..layout();
+    final factor = ((availableWidth - 12) / measure.width).clamp(0.0, 1.0);
+    measure.dispose();
     return ShaderMask(
       shaderCallback: (bounds) => const LinearGradient(
         colors: [
@@ -351,13 +384,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
       child: Text(
         'PREPÁRATE\nPARA LA BATALLA',
         textAlign: TextAlign.center,
-        style: GoogleFonts.cinzel(
-          fontSize: 36,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
-          height: 1.2,
-          letterSpacing: 3,
-        ),
+        style: style.copyWith(fontSize: 36 * factor, letterSpacing: 3 * factor),
       ),
     );
   }
@@ -427,7 +454,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
   Widget _buildMainButton() {
     return Container(
       width: double.infinity,
-      height: 64,
+      constraints: const BoxConstraints(minHeight: 64),
       decoration: BoxDecoration(
         gradient: AppDesignSystem.goldShimmer,
         borderRadius: BorderRadius.circular(20),
@@ -451,17 +478,21 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
         child: InkWell(
           borderRadius: BorderRadius.circular(20),
           onTap: _navigateToGiantSelection,
-          child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
-                  'ELEGIR MIS GIGANTES',
-                  style: GoogleFonts.cinzel(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: AppDesignSystem.midnight,
-                    letterSpacing: 2,
+                Flexible(
+                  child: Text(
+                    'ELEGIR MIS GIGANTES',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.cinzel(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
+                      color: AppDesignSystem.midnight,
+                      letterSpacing: 2,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
