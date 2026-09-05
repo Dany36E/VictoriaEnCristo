@@ -15,7 +15,8 @@ class SacredAlarmActiveScreen extends StatefulWidget {
   const SacredAlarmActiveScreen({super.key, this.sessionId});
 
   @override
-  State<SacredAlarmActiveScreen> createState() => _SacredAlarmActiveScreenState();
+  State<SacredAlarmActiveScreen> createState() =>
+      _SacredAlarmActiveScreenState();
 }
 
 class _SacredAlarmActiveScreenState extends State<SacredAlarmActiveScreen> {
@@ -53,7 +54,9 @@ class _SacredAlarmActiveScreenState extends State<SacredAlarmActiveScreen> {
   }
 
   Future<void> _load() async {
-    final event = await SacredAlarmService.I.activateFromRoute(widget.sessionId);
+    final event = await SacredAlarmService.I.activateFromRoute(
+      widget.sessionId,
+    );
     if (mounted) {
       setState(() {
         _event = event;
@@ -81,9 +84,9 @@ class _SacredAlarmActiveScreenState extends State<SacredAlarmActiveScreen> {
         completedAtMs: DateTime.now().millisecondsSinceEpoch,
       );
     });
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text('Campana completada. Bien hecho.')));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Campana completada. Bien hecho.')),
+    );
     await Future<void>.delayed(const Duration(milliseconds: 250));
     if (!mounted) return;
     Navigator.of(context).pop();
@@ -117,8 +120,10 @@ class _SacredAlarmActiveScreenState extends State<SacredAlarmActiveScreen> {
                       secondsPresent: _secondsPresent,
                       readConfirmed: _readConfirmed,
                       activityConfirmed: _activityConfirmed,
-                      onReadChanged: (value) => setState(() => _readConfirmed = value),
-                      onActivityChanged: (value) => setState(() => _activityConfirmed = value),
+                      onReadChanged: (value) =>
+                          setState(() => _readConfirmed = value),
+                      onActivityChanged: (value) =>
+                          setState(() => _activityConfirmed = value),
                       instruction: event.activityType.shortInstruction,
                     ),
                     const SizedBox(height: 22),
@@ -137,7 +142,11 @@ class _SacredAlarmActiveScreenState extends State<SacredAlarmActiveScreen> {
                     Text(
                       'La campana no se apaga desde la notificacion. Este momento se cierra aqui, con presencia.',
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: t.textSecondary, fontSize: 12, height: 1.35),
+                      style: TextStyle(
+                        color: t.textSecondary,
+                        fontSize: 12,
+                        height: 1.35,
+                      ),
                     ),
                   ],
                 ),
@@ -164,7 +173,10 @@ class _ActivityHeader extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Text(event.activityType.iconGlyph, style: const TextStyle(fontSize: 38)),
+          Text(
+            event.activityType.iconGlyph,
+            style: const TextStyle(fontSize: 38),
+          ),
           const SizedBox(width: 14),
           Expanded(
             child: Column(
@@ -172,7 +184,11 @@ class _ActivityHeader extends StatelessWidget {
               children: [
                 Text(
                   event.activityType.label,
-                  style: TextStyle(color: t.textPrimary, fontSize: 22, fontWeight: FontWeight.w900),
+                  style: TextStyle(
+                    color: t.textPrimary,
+                    fontSize: 22,
+                    fontWeight: FontWeight.w900,
+                  ),
                 ),
                 const SizedBox(height: 4),
                 Text(
@@ -198,7 +214,10 @@ class _VerseCard extends StatelessWidget {
     final t = AppThemeData.of(context);
     return Container(
       padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(color: t.cardBg, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: t.cardBg,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -245,7 +264,10 @@ class _ResolutionCard extends StatelessWidget {
     final t = AppThemeData.of(context);
     return Container(
       padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(color: t.cardBg, borderRadius: BorderRadius.circular(12)),
+      decoration: BoxDecoration(
+        color: t.cardBg,
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Column(
         children: [
           LinearProgressIndicator(
@@ -254,17 +276,23 @@ class _ResolutionCard extends StatelessWidget {
             backgroundColor: t.textSecondary.withValues(alpha: 0.16),
           ),
           const SizedBox(height: 12),
-          CheckboxListTile(
-            value: readConfirmed,
-            activeColor: t.accent,
-            title: const Text('Lei el pasaje con atencion'),
-            onChanged: (value) => onReadChanged(value ?? false),
+          Material(
+            type: MaterialType.transparency,
+            child: CheckboxListTile(
+              value: readConfirmed,
+              activeColor: t.accent,
+              title: const Text('Lei el pasaje con atencion'),
+              onChanged: (value) => onReadChanged(value ?? false),
+            ),
           ),
-          CheckboxListTile(
-            value: activityConfirmed,
-            activeColor: t.accent,
-            title: Text(instruction),
-            onChanged: (value) => onActivityChanged(value ?? false),
+          Material(
+            type: MaterialType.transparency,
+            child: CheckboxListTile(
+              value: activityConfirmed,
+              activeColor: t.accent,
+              title: Text(instruction),
+              onChanged: (value) => onActivityChanged(value ?? false),
+            ),
           ),
         ],
       ),
@@ -316,7 +344,11 @@ class _NoActiveAlarmState extends State<_NoActiveAlarm> {
                   ? 'Listo. Si seguia sonando, ya esta apagada.'
                   : 'Si aun escuchas la campana, presiona el boton para apagarla.',
               textAlign: TextAlign.center,
-              style: TextStyle(color: t.textSecondary, fontSize: 13, height: 1.4),
+              style: TextStyle(
+                color: t.textSecondary,
+                fontSize: 13,
+                height: 1.4,
+              ),
             ),
             const SizedBox(height: 18),
             FilledButton.icon(
