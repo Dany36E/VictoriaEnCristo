@@ -409,12 +409,18 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
               children: [
                 Text(frequency.emoji, style: const TextStyle(fontSize: 14)),
                 const SizedBox(width: 6),
-                Text(
-                  frequency.displayName,
-                  style: GoogleFonts.manrope(
-                    fontSize: 12,
-                    fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                    color: isSelected ? AppDesignSystem.gold : Colors.white70,
+                Flexible(
+                  child: Text(
+                    frequency.displayName,
+                    style: GoogleFonts.manrope(
+                      fontSize: 12,
+                      fontWeight: isSelected
+                          ? FontWeight.bold
+                          : FontWeight.w500,
+                      color: isSelected
+                          ? AppDesignSystem.gold
+                          : Colors.white70,
+                    ),
                   ),
                 ),
               ],

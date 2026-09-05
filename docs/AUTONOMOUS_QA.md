@@ -112,8 +112,9 @@ It checks empty-form validation without submitting credentials, edits an invalid
 email, captures login/welcome at text scales 1 and 1.6, and ensures the welcome
 CTA can be scrolled into view. Editing through WidgetTester is not proof of the
 OS keyboard's visual behavior; a separate physical-keyboard/IME test is needed.
-Firebase Core uses its test transport in this suite, so the native layout run
-does not depend on production configuration or contact a Firebase project.
+The login screen creates its authentication service only when the user submits
+an authentication action. This layout-only suite does not submit one, initialize
+Firebase or contact a Firebase project.
 
 Native access/welcome iteration found actual overflow in the welcome screen at
 1.6 text scale: fixed-height content and an unbounded CTA row. The screen now
@@ -125,6 +126,9 @@ continues to respect the user's text scaling. Latest evidence resides in
 Final access run passed both text scales on the Android emulator. The final
 `welcome_action_1_6.png` was inspected: title word remains whole, privacy card
 and complete CTA are visible after scrolling, without overflow stripes.
+The 320x568 native profile also found an over-wide frequency chip at text scale
+1.6. Frequency labels now wrap within the available chip width, and the access
+runner scrolls virtualized onboarding content into a tappable position.
 
 Local full suite after the picker, access and onboarding fixes: 349 tests passed.
 This is the scope of existing unit/widget tests, not 349 end-to-end functions.
@@ -163,10 +167,10 @@ must be rechecked before concluding a later run is blocked.
 pull requests and manual dispatch it runs the viewport matrix, an Android
 emulator matrix, and separate iPhone/iPad simulator jobs. Every job uploads its
 logs, screenshots, result JSON and HTML gallery for 30 days, including failures.
-The workflow uses only checked-in example configuration, a dummy Android
-Firebase descriptor and Firebase's test transport in the access suite; it must
-never exercise production accounts or write user data. Apple execution is
-provided by GitHub's macOS runners and its current status is visible in Actions.
+The workflow uses only checked-in example configuration and a dummy Android
+Firebase descriptor; its access suite never initializes Firebase. It must never
+exercise production accounts or write user data. Apple execution is provided by
+GitHub's macOS runners and its current status is visible in Actions.
 
 GitHub documents `macos-latest` as a hosted macOS VM label; each hosted job gets
 a fresh VM. This makes it the practical simulator path when no local Mac or

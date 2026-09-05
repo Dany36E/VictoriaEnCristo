@@ -23,7 +23,8 @@ class _LoginScreenState extends State<LoginScreen> {
     'WINDOWS_AUTOLAUNCH_GOOGLE_SIGNIN',
   );
 
-  final AuthService _authService = AuthService();
+  AuthService? _authServiceInstance;
+  AuthService get _authService => _authServiceInstance ??= AuthService();
   final _formKey = GlobalKey<FormState>();
 
   final _emailController = TextEditingController();

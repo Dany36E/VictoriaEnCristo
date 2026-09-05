@@ -2,17 +2,12 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:firebase_core/firebase_core.dart';
-// Firebase's test transport keeps this layout/interaction suite offline.
-// ignore: depend_on_referenced_packages
-import 'package:firebase_core_platform_interface/test.dart';
 import 'package:app_quitar/screens/login_screen.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
-  setupFirebaseCoreMocks();
   bool converted = false;
   Future<void> capture(WidgetTester tester, String name) async {
     if (Platform.isAndroid && !converted) {
@@ -25,7 +20,6 @@ void main() {
   }
 
   setUpAll(() async {
-    await Firebase.initializeApp();
     WidgetController.hitTestWarningShouldBeFatal = true;
   });
   for (final scale in [1.0, 1.6]) {
@@ -89,6 +83,7 @@ void main() {
       expect(start.hitTestable(), findsOneWidget);
       await capture(tester, 'welcome_action_$scale');
       await tester.tap(start);
+      await tester.pump(const Duration(milliseconds: 150));
       await tester.pumpAndSettle();
       expect(find.text('¿CUÁL ES TU GIGANTE?'), findsOneWidget);
       await capture(tester, 'giant_selection_$scale');
@@ -105,15 +100,35 @@ void main() {
       ).hideCurrentSnackBar();
       await tester.pumpAndSettle();
 
-      await tester.tap(find.text('MUNDO DIGITAL'));
+      final digital = find.text('MUNDO DIGITAL');
+      final giantList = find
+          .descendant(
+            of: find.byType(CustomScrollView),
+            matching: find.byType(Scrollable),
+          )
+          .first;
+      await tester.scrollUntilVisible(
+        digital,
+        200,
+        scrollable: giantList,
+      );
       await tester.pumpAndSettle();
-      expect(find.text('CONTINUAR (1)'), findsOneWidget);
+      expect(digital.hitTestable(), findsOneWidget);
+      await tester.tap(digital);
+      await tester.pumpAndSettle();
+      final continueButton = find.text('CONTINUAR (1)');
+      expect(continueButton, findsOneWidget);
       expect(find.byIcon(Icons.check_rounded), findsOneWidget);
-      await tester.tap(find.text('CONTINUAR (1)'));
+      await tester.ensureVisible(continueButton);
+      await tester.pumpAndSettle();
+      expect(continueButton.hitTestable(), findsOneWidget);
+      await tester.tap(continueButton);
       await tester.pumpAndSettle();
       expect(find.text('¿CON QUÉ FRECUENCIA LUCHAS?'), findsOneWidget);
       final daily = find.text('Diario');
-      await tester.ensureVisible(daily);
+      await Scrollable.ensureVisible(tester.element(daily), alignment: 0.35);
+      await tester.pumpAndSettle();
+      expect(daily.hitTestable(), findsOneWidget);
       await tester.tap(daily);
       await tester.pumpAndSettle();
       expect(find.text('1 de 1 configurados'), findsOneWidget);

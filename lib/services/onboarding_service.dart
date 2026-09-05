@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -29,6 +30,7 @@ class OnboardingService {
   /// Getter para verificar si hay un usuario autenticado
   bool get _hasCloudProfile {
     try {
+      if (Firebase.apps.isEmpty) return false;
       final user = FirebaseAuth.instance.currentUser;
       return user != null && ProfileRepository.I.currentProfile != null;
     } catch (_) {
