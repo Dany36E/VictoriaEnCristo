@@ -3,13 +3,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:app_quitar/firebase_options.dart';
+// Firebase's test transport keeps this layout/interaction suite offline.
+// ignore: depend_on_referenced_packages
+import 'package:firebase_core_platform_interface/test.dart';
 import 'package:app_quitar/screens/login_screen.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
+  setupFirebaseCoreMocks();
   bool converted = false;
   Future<void> capture(WidgetTester tester, String name) async {
     if (Platform.isAndroid && !converted) {
@@ -22,9 +25,7 @@ void main() {
   }
 
   setUpAll(() async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    await Firebase.initializeApp();
     WidgetController.hitTestWarningShouldBeFatal = true;
   });
   for (final scale in [1.0, 1.6]) {

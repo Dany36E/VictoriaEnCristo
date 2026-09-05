@@ -102,15 +102,18 @@ flutter drive --driver=test_driver/visual_qa_driver.dart --target=integration_te
 ```
 
 Repeat for an iPhone and an iPad simulator; retain each run's `build/qa/native`
-directory separately. Existing iOS project targets both families (`1,2`). These
-commands are prepared, not executed or certified on macOS. Local Firebase config
-files and CocoaPods must be available; do not upload them in reports.
+directory separately. Existing iOS project targets both families (`1,2`). There
+is no local Mac, so `.github/workflows/visual-qa.yml` executes these commands on
+GitHub-hosted macOS runners. Local Firebase config files must never be uploaded
+in reports.
 
 Access runner: `./scripts/run_native_qa.ps1 -Device emulator-5554 -Suite access`.
 It checks empty-form validation without submitting credentials, edits an invalid
 email, captures login/welcome at text scales 1 and 1.6, and ensures the welcome
 CTA can be scrolled into view. Editing through WidgetTester is not proof of the
 OS keyboard's visual behavior; a separate physical-keyboard/IME test is needed.
+Firebase Core uses its test transport in this suite, so the native layout run
+does not depend on production configuration or contact a Firebase project.
 
 Native access/welcome iteration found actual overflow in the welcome screen at
 1.6 text scale: fixed-height content and an unbounded CTA row. The screen now
@@ -143,7 +146,8 @@ integration_test plugin absent from GeneratedPluginRegistrant.
   progress, settings and guardian flows.
 - Safe areas, keyboard, orientation, offline failures and larger accessibility text.
 - Native Android media, permissions, VPN and lifecycle.
-- Native iPhone/iPad: macOS/Xcode or a configured remote test service is required.
+- Native iPhone/iPad cannot run locally on Windows; GitHub Actions provides the
+  current simulator coverage.
 - Authenticated tests need isolated test accounts/backend; existing integration
   suites must be reviewed before running because some target remote accounts.
 
@@ -159,10 +163,10 @@ must be rechecked before concluding a later run is blocked.
 pull requests and manual dispatch it runs the viewport matrix, an Android
 emulator matrix, and separate iPhone/iPad simulator jobs. Every job uploads its
 logs, screenshots, result JSON and HTML gallery for 30 days, including failures.
-The workflow uses only checked-in example configuration and a dummy Android
-Firebase descriptor; it must never exercise production accounts or write user
-data. The Apple jobs are prepared but remain unverified until the workflow is
-committed and executed on GitHub's macOS runners.
+The workflow uses only checked-in example configuration, a dummy Android
+Firebase descriptor and Firebase's test transport in the access suite; it must
+never exercise production accounts or write user data. Apple execution is
+provided by GitHub's macOS runners and its current status is visible in Actions.
 
 GitHub documents `macos-latest` as a hosted macOS VM label; each hosted job gets
 a fresh VM. This makes it the practical simulator path when no local Mac or
