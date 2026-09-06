@@ -48,6 +48,12 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
 
   Future<void> _toggle(bool value) async {
     if (_busy) return;
+    if (value && !await _service.hasAcceptedDisclosure()) {
+      if (!mounted) return;
+      final accepted = await _showVpnDisclosure();
+      if (accepted != true) return;
+      await _service.acceptDisclosure();
+    }
     if (!value) {
       final remote = RemoteGuardianService.I.myLock.value;
       if (remote != null && remote.active) {
@@ -84,6 +90,91 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
       await _service.disable();
     }
     if (mounted) setState(() => _busy = false);
+  }
+
+  Future<bool?> _showVpnDisclosure() {
+    final t = AppThemeData.of(context);
+    return showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: t.cardBg,
+        icon: Icon(Icons.shield_moon_rounded, color: t.accent, size: 38),
+        title: Text(
+          'Antes de activar el escudo',
+          textAlign: TextAlign.center,
+          style: TextStyle(color: t.textPrimary, fontWeight: FontWeight.w800),
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Android mostrará una solicitud de conexión VPN. El Escudo la usa únicamente para filtrar nombres de sitios web.',
+                style: TextStyle(color: t.textPrimary, height: 1.45),
+              ),
+              const SizedBox(height: 14),
+              _disclosurePoint(
+                t,
+                Icons.phone_android_rounded,
+                'El filtro y la lista de bloqueo funcionan en tu teléfono.',
+              ),
+              _disclosurePoint(
+                t,
+                Icons.lock_outline_rounded,
+                'Las consultas DNS permitidas se envían cifradas por HTTPS al filtro familiar de CleanBrowsing.',
+              ),
+              _disclosurePoint(
+                t,
+                Icons.visibility_off_outlined,
+                'Victoria en Cristo no guarda tu historial, no inspecciona el contenido de las páginas y no vende estos datos.',
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => launchUrl(
+                  Uri.parse(
+                    'https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html',
+                  ),
+                  mode: LaunchMode.externalApplication,
+                ),
+                child: const Text('Leer política de privacidad'),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Ahora no'),
+          ),
+          FilledButton.icon(
+            onPressed: () => Navigator.pop(ctx, true),
+            icon: const Icon(Icons.shield_outlined, size: 18),
+            label: const Text('Entiendo y activar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _disclosurePoint(AppThemeData t, IconData icon, String text) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: t.accent, size: 19),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(color: t.textSecondary, height: 1.4),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<bool?> _confirmDisable() {
@@ -172,7 +263,9 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
             leading: Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: (active ? Colors.green : t.accent).withValues(alpha: 0.12),
+                color: (active ? Colors.green : t.accent).withValues(
+                  alpha: 0.12,
+                ),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(
@@ -182,14 +275,17 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
             ),
             title: Text(
               'Candado del guardián a distancia',
-              style: TextStyle(fontWeight: FontWeight.w700, color: t.textPrimary),
+              style: TextStyle(
+                fontWeight: FontWeight.w700,
+                color: t.textPrimary,
+              ),
             ),
             subtitle: Text(
               active
                   ? 'Protegido por ${lock.guardianName ?? 'tu compañero'}'
                   : pending
-                      ? 'Esperando el PIN de ${lock.guardianName ?? 'tu compañero'}…'
-                      : 'Tu compañero pone el PIN desde su teléfono',
+                  ? 'Esperando el PIN de ${lock.guardianName ?? 'tu compañero'}…'
+                  : 'Tu compañero pone el PIN desde su teléfono',
               style: TextStyle(color: t.textSecondary),
             ),
             trailing: Icon(Icons.chevron_right, color: t.textSecondary),
@@ -215,8 +311,10 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
           builder: (ctx, setSt) {
             return AlertDialog(
               backgroundColor: t.cardBg,
-              title: Text('PIN del guardián',
-                  style: TextStyle(color: t.textPrimary)),
+              title: Text(
+                'PIN del guardián',
+                style: TextStyle(color: t.textPrimary),
+              ),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -249,8 +347,9 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
                       ? null
                       : () async {
                           setSt(() => busy = true);
-                          final res = await RemoteGuardianService.I
-                              .verify(controller.text.trim());
+                          final res = await RemoteGuardianService.I.verify(
+                            controller.text.trim(),
+                          );
                           if (res.ok) {
                             if (ctx.mounted) Navigator.pop(ctx, true);
                             return;
@@ -292,8 +391,9 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
                 leading: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: (locked ? Colors.green : t.textSecondary)
-                        .withValues(alpha: 0.12),
+                    color: (locked ? Colors.green : t.textSecondary).withValues(
+                      alpha: 0.12,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -345,7 +445,10 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
                             width: double.infinity,
                             child: OutlinedButton.icon(
                               onPressed: _setupGuardian,
-                              icon: const Icon(Icons.person_add_alt_1, size: 18),
+                              icon: const Icon(
+                                Icons.person_add_alt_1,
+                                size: 18,
+                              ),
                               label: const Text('Activar candado del guardián'),
                             ),
                           ),
@@ -507,19 +610,19 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
                       ? null
                       : () async {
                           setSt(() => busy = true);
-                          final r = await GuardianLockService.I
-                              .verify(controller.text.trim());
+                          final r = await GuardianLockService.I.verify(
+                            controller.text.trim(),
+                          );
                           if (r == GuardianVerifyResult.ok) {
                             if (ctx.mounted) Navigator.pop(ctx, true);
                             return;
                           }
                           if (r == GuardianVerifyResult.lockedOut) {
-                            final rem =
-                                await GuardianLockService.I.lockoutRemaining();
+                            final rem = await GuardianLockService.I
+                                .lockoutRemaining();
                             final mins = ((rem?.inMinutes) ?? 15) + 1;
                             setSt(() {
-                              error =
-                                  'Demasiados intentos. Espera ~$mins min.';
+                              error = 'Demasiados intentos. Espera ~$mins min.';
                               busy = false;
                             });
                           } else {
@@ -606,8 +709,9 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
                 secondary: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: (active ? Colors.green : t.accent)
-                        .withValues(alpha: 0.12),
+                    color: (active ? Colors.green : t.accent).withValues(
+                      alpha: 0.12,
+                    ),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Icon(
@@ -799,10 +903,12 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
             'Con un código de Tiempo en Pantalla queda protegido.',
           ]
         : const [
-            'Se activa una VPN local en tu propio teléfono (no envía tu '
-                'tráfico a ningún servidor externo).',
+            'Se activa una VPN local en tu teléfono; sólo procesa consultas '
+                'DNS, no el contenido de las páginas.',
             'Cuando intentas abrir una web de la lista, se bloquea en '
                 'cualquier navegador y te trae de vuelta a "Necesito Ayuda".',
+            'Las consultas permitidas viajan cifradas por HTTPS al filtro '
+                'familiar de CleanBrowsing.',
             'Fuerza SafeSearch en Google, YouTube, Bing y DuckDuckGo.',
             'Bloquea el DNS-over-HTTPS que usan algunos navegadores para '
                 'saltarse los filtros.',

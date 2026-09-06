@@ -2,13 +2,13 @@
 
 Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los compliance.
 
-## ✅ Hecho en código (rama `hardening-2026-05`)
+## ✅ Hecho en código (`main`)
 
 - [x] `applicationId` definitivo: `com.victoriaencristo.app`.
 - [x] `firebase_options.dart` Android usa appId nuevo (`5b81abbc45942c48d9df8b`).
 - [x] `android:allowBackup="false"` + `dataExtractionRules` excluyendo todo.
 - [x] `usesCleartextTraffic="false"`.
-- [x] AD_ID + AdServices removidos vía `tools:node="remove"`.
+- [x] AD_ID, AdServices Attribution e Install Referrer removidos vía `tools:node="remove"`.
 - [x] Build release falla si no hay `key.properties` (no firma con debug por accidente).
 - [x] R8 + ProGuard activos en release.
 - [x] Firestore cache limitado a 50MB (no ilimitado).
@@ -18,6 +18,9 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - [x] Cloud Function `cleanStaleFcmTokens` scheduled (purga tokens >90 días).
 - [x] Cloud Function `setAdminClaim` para custom claims.
 - [x] Rate limits: wall (3/h, 5/día), studyRoom (10/día).
+- [x] UGC: filtro previo, reportes, moderación, ban administrativo y bloqueo personal de autores.
+- [x] VpnService: aviso destacado y consentimiento antes del permiso del sistema.
+- [x] VpnService: upstream cifrado con DNS-over-HTTPS (CleanBrowsing Family Filter).
 - [x] Windows Google OAuth con PKCE S256.
 - [x] Política de contraseñas en signup (8+ chars, alfanumérico).
 - [x] BLB API key migrada con flag idempotente.
@@ -25,9 +28,9 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 ## 🔧 Pendiente — Acciones manuales en Google / Firebase Console
 
 ### A. Firebase Console
-- [ ] **App Check**: registrar provider Play Integrity (Android) y DeviceCheck/AppAttest (iOS). Subir SHA-256 keystore release.
+- [x] **App Check Android**: Play Integrity configurado y SHA-256 de la keystore release registrado.
 - [ ] **App Check Enforcement**: tras 1-2 semanas en monitor sin falsos positivos, activar enforcement en Firestore, Functions y Storage.
-- [ ] **Functions secrets**: verificar `WALL_ABUSE_SALT` (≥16 chars).
+- [x] **Functions secrets**: `WALL_ABUSE_SALT` existe, está vinculado a las funciones y tiene ≥16 caracteres (verificado sin exponer el valor).
 - [ ] **Authentication**: configurar action URL personalizada para email verification.
 - [x] **Desplegado 2026-05-08**: Functions (19 actualizadas + `setAdminClaim` + `cleanStaleFcmTokens`) y Firestore rules.
   ```bash
@@ -51,10 +54,10 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - [ ] El admin podrá luego usar `setAdminClaim` callable para granjear/revocar otros.
 
 ### D. Hosting de docs
-- [ ] Hospedar `docs/privacy_policy.md` y `docs/data_deletion.md` en URL pública (sugerencia: Firebase Hosting o GitHub Pages).
-- [ ] URLs requeridas en Play Console:
-  - Política de privacidad.
-  - URL de eliminación de cuenta.
+- [x] Documentos publicados por GitHub Pages con HTTPS.
+- [x] Política: https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html
+- [x] Eliminación: https://dany36e.github.io/VictoriaEnCristo/data_deletion.html
+- [ ] Sustituir `soporte@victoriaencristo.app` por un correo público real antes de enviar a revisión.
 
 ## 🛒 Play Console — formulario de envío
 
@@ -63,6 +66,7 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - `FOREGROUND_SERVICE_MEDIA_PLAYBACK`: reproducción de audios de oración con `SacredAlarmForegroundService`.
 - `RECEIVE_BOOT_COMPLETED`: re-programar alarmas tras reinicio del dispositivo.
 - `POST_NOTIFICATIONS`: notificaciones de alarmas y compañero de batalla.
+- `FOREGROUND_SERVICE_SPECIAL_USE` + `VpnService`: filtro DNS local de contenido adulto, iniciado por el usuario, con notificación permanente, consentimiento destacado y DNS-over-HTTPS.
 
 ### Data Safety form
 - **Datos personales**: email, nombre, foto, UID. **Recolectados** y **almacenados encriptados en tránsito** (TLS).
@@ -76,7 +80,7 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - Marcar **"Sí, los usuarios pueden interactuar/intercambiar contenido"** por:
   - Muro de Batalla (publicaciones moderadas).
   - Battle Partner messages.
-- Sistema de moderación: pre-aprobación + reportes + ban por hash.
+- Sistema de moderación: pre-aprobación + reportes + bloqueo personal + ban por hash.
 
 ### Categoría
 - **Lifestyle** o **Health & Fitness** (la app es de bienestar emocional/espiritual; NO es Medical).

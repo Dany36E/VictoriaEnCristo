@@ -51,18 +51,18 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
     _commentsSub = WallService.I
         .watchApprovedComments(widget.post.id)
         .listen(
-      (comments) {
-        if (!mounted) return;
-        setState(() {
-          _comments = comments;
-          _loading = false;
-        });
-      },
-      onError: (e) {
-        debugPrint('❌ [WALL] Comments error: $e');
-        if (mounted) setState(() => _loading = false);
-      },
-    );
+          (comments) {
+            if (!mounted) return;
+            setState(() {
+              _comments = comments;
+              _loading = false;
+            });
+          },
+          onError: (e) {
+            debugPrint('❌ [WALL] Comments error: $e');
+            if (mounted) setState(() => _loading = false);
+          },
+        );
   }
 
   bool get _canSend =>
@@ -94,7 +94,9 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
           ),
           backgroundColor: AppThemeData.of(context).inputBg,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     } else {
@@ -111,8 +113,9 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
     }
   }
 
-  void _showReportDialog(WallComment comment) {
+  void _showContentActions({WallComment? comment}) {
     FeedbackEngine.I.tap();
+    final isComment = comment != null;
     showModalBottomSheet(
       context: context,
       backgroundColor: AppThemeData.of(context).inputBg,
@@ -120,12 +123,13 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) => _CommentReportSheet(
+        contentLabel: isComment ? 'comentario' : 'publicación',
         onReport: (reason) async {
           Navigator.pop(ctx);
           final res = await WallService.I.reportContent(
-            contentType: 'comment',
+            contentType: isComment ? 'comment' : 'post',
             postId: widget.post.id,
-            commentId: comment.id,
+            commentId: comment?.id,
             reason: reason.id,
           );
           if (mounted) {
@@ -141,6 +145,52 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
             );
           }
         },
+        onBlock: () async {
+          Navigator.pop(ctx);
+          final alias = comment?.alias ?? widget.post.alias;
+          final confirmed = await _confirmBlock(alias);
+          if (confirmed != true) return;
+          final res = await WallService.I.blockAuthor(
+            contentType: isComment ? 'comment' : 'post',
+            postId: widget.post.id,
+            commentId: comment?.id,
+          );
+          if (!mounted) return;
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(res.message),
+              backgroundColor: AppThemeData.of(context).inputBg,
+              behavior: SnackBarBehavior.floating,
+            ),
+          );
+          if (res.success && !isComment) Navigator.pop(context);
+        },
+      ),
+    );
+  }
+
+  Future<bool?> _confirmBlock(String alias) {
+    final t = AppThemeData.of(context);
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: t.cardBg,
+        icon: Icon(Icons.person_off_outlined, color: t.accent),
+        title: Text('¿Bloquear a $alias?'),
+        content: const Text(
+          'Dejarás de ver sus publicaciones y comentarios en el Muro de Batalla.',
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Bloquear'),
+          ),
+        ],
       ),
     );
   }
@@ -173,13 +223,20 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
             child: ListView.builder(
               controller: _scrollController,
               padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-              itemCount: 3 + (_loading ? 1 : _comments.isEmpty ? 1 : _comments.length),
+              itemCount:
+                  3 +
+                  (_loading
+                      ? 1
+                      : _comments.isEmpty
+                      ? 1
+                      : _comments.length),
               itemBuilder: (context, index) {
                 // 0: Original post
                 if (index == 0) {
                   return WallPostCard(
                     post: widget.post,
                     showFullBody: true,
+                    onReport: () => _showContentActions(),
                   ).animate().fadeIn(duration: 300.ms);
                 }
                 // 1: Spacer
@@ -235,11 +292,11 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
                 final comment = _comments[commentIdx];
                 return _CommentTile(
                   comment: comment,
-                  onLongPress: () => _showReportDialog(comment),
+                  onActions: () => _showContentActions(comment: comment),
                 ).animate().fadeIn(
-                      duration: 250.ms,
-                      delay: Duration(milliseconds: commentIdx.clamp(0, 10) * 40),
-                    );
+                  duration: 250.ms,
+                  delay: Duration(milliseconds: commentIdx.clamp(0, 10) * 40),
+                );
               },
             ),
           ),
@@ -258,15 +315,12 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
         left: AppDesignSystem.spacingM,
         right: AppDesignSystem.spacingS,
         top: AppDesignSystem.spacingS,
-        bottom: MediaQuery.of(context).padding.bottom + AppDesignSystem.spacingS,
+        bottom:
+            MediaQuery.of(context).padding.bottom + AppDesignSystem.spacingS,
       ),
       decoration: BoxDecoration(
         color: t.inputBg,
-        border: Border(
-          top: BorderSide(
-            color: t.accent.withValues(alpha: 0.1),
-          ),
-        ),
+        border: Border(top: BorderSide(color: t.accent.withValues(alpha: 0.1))),
       ),
       child: Row(
         children: [
@@ -276,10 +330,7 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
               maxLength: _kMaxCommentLength,
               maxLines: 3,
               minLines: 1,
-              style: TextStyle(
-                fontSize: 14,
-                color: t.textPrimary,
-              ),
+              style: TextStyle(fontSize: 14, color: t.textPrimary),
               decoration: InputDecoration(
                 hintText: 'Escribe un comentario...',
                 hintStyle: TextStyle(
@@ -296,10 +347,7 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(
-                    color: t.accent,
-                    width: 1.5,
-                  ),
+                  borderSide: BorderSide(color: t.accent, width: 1.5),
                 ),
                 counterText: '',
                 isDense: true,
@@ -353,63 +401,71 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
 
 class _CommentTile extends StatelessWidget {
   final WallComment comment;
-  final VoidCallback? onLongPress;
+  final VoidCallback? onActions;
 
-  const _CommentTile({required this.comment, this.onLongPress});
+  const _CommentTile({required this.comment, this.onActions});
 
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    return GestureDetector(
-      onLongPress: onLongPress,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 6),
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: t.scaffoldBg.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(
-            color: t.accent.withValues(alpha: 0.05),
-          ),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Header
-            Row(
-              children: [
-                Icon(Icons.shield_outlined, size: 12, color: t.accent),
-                const SizedBox(width: 4),
-                Text(
-                  comment.alias,
-                  style: TextStyle(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: t.accent,
-                  ),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 6),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: t.scaffoldBg.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: t.accent.withValues(alpha: 0.05)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Icon(Icons.shield_outlined, size: 12, color: t.accent),
+              const SizedBox(width: 4),
+              Text(
+                comment.alias,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: t.accent,
                 ),
-                const Spacer(),
-                Text(
-                  _formatTimeAgo(comment.approvedAt ?? comment.createdAt),
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: t.textSecondary.withValues(alpha: 0.5),
+              ),
+              const Spacer(),
+              Text(
+                _formatTimeAgo(comment.approvedAt ?? comment.createdAt),
+                style: TextStyle(
+                  fontSize: 10,
+                  color: t.textSecondary.withValues(alpha: 0.5),
+                ),
+              ),
+              if (onActions != null) ...[
+                const SizedBox(width: 4),
+                SizedBox(
+                  width: 32,
+                  height: 32,
+                  child: IconButton(
+                    tooltip: 'Opciones del comentario',
+                    padding: EdgeInsets.zero,
+                    onPressed: onActions,
+                    icon: Icon(
+                      Icons.more_horiz_rounded,
+                      size: 18,
+                      color: t.textSecondary.withValues(alpha: 0.7),
+                    ),
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: 6),
-            // Body
-            Text(
-              comment.body,
-              style: TextStyle(
-                fontSize: 13,
-                height: 1.4,
-                color: t.textPrimary,
-              ),
-            ),
-          ],
-        ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          // Body
+          Text(
+            comment.body,
+            style: TextStyle(fontSize: 13, height: 1.4, color: t.textPrimary),
+          ),
+        ],
       ),
     );
   }
@@ -429,9 +485,15 @@ class _CommentTile extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 class _CommentReportSheet extends StatelessWidget {
+  final String contentLabel;
   final void Function(ReportReason reason) onReport;
+  final VoidCallback onBlock;
 
-  const _CommentReportSheet({required this.onReport});
+  const _CommentReportSheet({
+    required this.contentLabel,
+    required this.onReport,
+    required this.onBlock,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -444,7 +506,7 @@ class _CommentReportSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Reportar comentario',
+              'Cuidar este espacio',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -453,7 +515,7 @@ class _CommentReportSheet extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Selecciona la razón:',
+              'Reporta este $contentLabel o deja de ver a su autor.',
               style: TextStyle(
                 fontSize: 13,
                 color: t.textSecondary.withValues(alpha: 0.8),
@@ -464,7 +526,11 @@ class _CommentReportSheet extends StatelessWidget {
               (reason) => ListTile(
                 contentPadding: EdgeInsets.zero,
                 dense: true,
-                leading: const Icon(Icons.flag_outlined, size: 18, color: AppDesignSystem.struggle),
+                leading: const Icon(
+                  Icons.flag_outlined,
+                  size: 18,
+                  color: AppDesignSystem.struggle,
+                ),
                 title: Text(
                   reason.displayName,
                   style: TextStyle(fontSize: 14, color: t.textPrimary),
@@ -474,6 +540,24 @@ class _CommentReportSheet extends StatelessWidget {
                   onReport(reason);
                 },
               ),
+            ),
+            Divider(color: t.divider),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                Icons.person_off_outlined,
+                size: 20,
+                color: t.textSecondary,
+              ),
+              title: Text(
+                'Bloquear a este usuario',
+                style: TextStyle(color: t.textPrimary),
+              ),
+              subtitle: Text(
+                'Oculta sus publicaciones y comentarios para ti.',
+                style: TextStyle(color: t.textSecondary, fontSize: 12),
+              ),
+              onTap: onBlock,
             ),
           ],
         ),

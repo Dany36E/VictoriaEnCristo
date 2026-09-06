@@ -9,6 +9,7 @@ library;
 import 'dart:async';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../models/wall_post.dart';
 import 'auth_service.dart'; // kCloudFunctionRegion
@@ -29,9 +30,17 @@ class WallService {
   // REFS
   // ═══════════════════════════════════════════════════════════════════════════
   final _db = FirebaseFirestore.instance;
-  final _functions = FirebaseFunctions.instanceFor(region: kCloudFunctionRegion);
+  final _functions = FirebaseFunctions.instanceFor(
+    region: kCloudFunctionRegion,
+  );
 
   CollectionReference get _postsRef => _db.collection('wallPosts');
+
+  CollectionReference<Map<String, dynamic>>? get _blockedAuthorsRef {
+    final uid = FirebaseAuth.instance.currentUser?.uid;
+    if (uid == null) return null;
+    return _db.collection('users').doc(uid).collection('blockedWallAuthors');
+  }
 
   HttpsCallable _callable(String name) => _functions.httpsCallable(
     name,
@@ -44,7 +53,10 @@ class WallService {
 
   /// Envía un nuevo post al muro. Retorna resultado con mensaje.
   /// El CF genera alias, abuseHash, y lo marca como pendiente.
-  Future<WallPostResult> submitPost({required String giantId, required String body}) async {
+  Future<WallPostResult> submitPost({
+    required String giantId,
+    required String body,
+  }) async {
     try {
       final result = await _callable(
         'createWallPost',
@@ -60,7 +72,10 @@ class WallService {
       return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
       debugPrint('❌ [WALL] submitPost unexpected: $e');
-      return const WallPostResult(success: false, message: 'Error inesperado. Intenta de nuevo.');
+      return const WallPostResult(
+        success: false,
+        message: 'Error inesperado. Intenta de nuevo.',
+      );
     }
   }
 
@@ -69,7 +84,10 @@ class WallService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Envía un comentario a un post aprobado.
-  Future<WallPostResult> submitComment({required String postId, required String body}) async {
+  Future<WallPostResult> submitComment({
+    required String postId,
+    required String body,
+  }) async {
     try {
       final result = await _callable(
         'createWallComment',
@@ -84,7 +102,10 @@ class WallService {
       debugPrint('❌ [WALL] submitComment error: ${e.code} - ${e.message}');
       return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
-      return const WallPostResult(success: false, message: 'Error inesperado. Intenta de nuevo.');
+      return const WallPostResult(
+        success: false,
+        message: 'Error inesperado. Intenta de nuevo.',
+      );
     }
   }
 
@@ -113,9 +134,10 @@ class WallService {
 
     query = query.limit(limit);
 
-    return query.snapshots().map(
+    final source = query.snapshots().map(
       (snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList(),
     );
+    return _filterBlockedPosts(source);
   }
 
   /// Fetch una sola página (para paginación manual / refresh).
@@ -138,8 +160,18 @@ class WallService {
 
     query = query.limit(limit);
 
-    final snap = await query.get();
-    return snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList();
+    final results = await Future.wait([
+      query.get(),
+      _loadBlockedAuthorHashes(),
+    ]);
+    final snap = results[0] as QuerySnapshot;
+    final blocked = results[1] as Set<String>;
+    return snap.docs
+        .map((doc) => WallPost.fromFirestore(doc))
+        .where(
+          (post) => post.abuseHash == null || !blocked.contains(post.abuseHash),
+        )
+        .toList();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -148,14 +180,18 @@ class WallService {
 
   /// Stream de comentarios aprobados de un post (limitado a los 50 más recientes).
   Stream<List<WallComment>> watchApprovedComments(String postId) {
-    return _postsRef
+    final source = _postsRef
         .doc(postId)
         .collection('comments')
         .where('status', isEqualTo: 'approved')
         .orderBy('approvedAt', descending: false)
         .limit(50)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList(),
+        );
+    return _filterBlockedComments(source);
   }
 
   /// Obtiene un post individual por ID.
@@ -177,10 +213,16 @@ class WallService {
     required String reason,
   }) async {
     try {
-      final payload = <String, dynamic>{'type': contentType, 'postId': postId, 'reason': reason};
+      final payload = <String, dynamic>{
+        'type': contentType,
+        'postId': postId,
+        'reason': reason,
+      };
       if (commentId != null) payload['commentId'] = commentId;
 
-      final result = await _callable('reportContent').call<Map<String, dynamic>>(payload);
+      final result = await _callable(
+        'reportContent',
+      ).call<Map<String, dynamic>>(payload);
       final data = result.data;
       return WallPostResult(
         success: data['success'] == true,
@@ -190,7 +232,40 @@ class WallService {
       return WallPostResult(success: false, message: _mapFunctionError(e));
     } catch (e) {
       debugPrint('🧱 [WALL] reportPost error: $e');
-      return const WallPostResult(success: false, message: 'Error al reportar.');
+      return const WallPostResult(
+        success: false,
+        message: 'Error al reportar.',
+      );
+    }
+  }
+
+  /// Bloquea al autor de una publicación o comentario para la cuenta actual.
+  /// La Cloud Function resuelve el identificador privado a partir del contenido;
+  /// el cliente nunca decide qué hash guardar.
+  Future<WallPostResult> blockAuthor({
+    required String contentType,
+    required String postId,
+    String? commentId,
+  }) async {
+    try {
+      final payload = <String, dynamic>{'type': contentType, 'postId': postId};
+      if (commentId != null) payload['commentId'] = commentId;
+      final result = await _callable(
+        'blockWallAuthor',
+      ).call<Map<String, dynamic>>(payload);
+      final data = result.data;
+      return WallPostResult(
+        success: data['success'] == true,
+        message: data['message'] as String? ?? '',
+      );
+    } on FirebaseFunctionsException catch (e) {
+      return WallPostResult(success: false, message: _mapFunctionError(e));
+    } catch (e) {
+      debugPrint('🧱 [WALL] blockAuthor error: $e');
+      return const WallPostResult(
+        success: false,
+        message: 'No se pudo bloquear al usuario.',
+      );
     }
   }
 
@@ -205,7 +280,10 @@ class WallService {
         .orderBy('createdAt', descending: false) // FIFO
         .limit(100)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Stream de posts reportados (admin).
@@ -216,7 +294,10 @@ class WallService {
         .orderBy('reportCount', descending: true)
         .limit(100)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Stream de todos los posts aprobados (admin).
@@ -226,7 +307,10 @@ class WallService {
         .orderBy('approvedAt', descending: true)
         .limit(100)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Stream de posts rechazados (admin).
@@ -236,7 +320,10 @@ class WallService {
         .orderBy('createdAt', descending: true)
         .limit(100)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Stream de comentarios pendientes de un post (admin, límite 100).
@@ -248,7 +335,10 @@ class WallService {
         .orderBy('createdAt', descending: false)
         .limit(100)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Stream de todos los comentarios de un post (admin, límite 200).
@@ -259,7 +349,10 @@ class WallService {
         .orderBy('createdAt', descending: false)
         .limit(200)
         .snapshots()
-        .map((snap) => snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList());
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList(),
+        );
   }
 
   /// Moderar contenido (aprobar/rechazar). Solo admin.
@@ -271,11 +364,17 @@ class WallService {
     String? rejectionReason,
   }) async {
     try {
-      final payload = <String, dynamic>{'type': contentType, 'postId': postId, 'action': action};
+      final payload = <String, dynamic>{
+        'type': contentType,
+        'postId': postId,
+        'action': action,
+      };
       if (commentId != null) payload['commentId'] = commentId;
       if (rejectionReason != null) payload['rejectionReason'] = rejectionReason;
 
-      final result = await _callable('moderateContent').call<Map<String, dynamic>>(payload);
+      final result = await _callable(
+        'moderateContent',
+      ).call<Map<String, dynamic>>(payload);
       final data = result.data;
       final success = data['success'] == true;
       return WallPostResult(
@@ -293,17 +392,23 @@ class WallService {
   }
 
   /// Banear un abuseHash. Solo admin.
-  Future<WallPostResult> banUser({required String abuseHash, String? reason}) async {
+  Future<WallPostResult> banUser({
+    required String abuseHash,
+    String? reason,
+  }) async {
     try {
       final payload = <String, dynamic>{'abuseHash': abuseHash};
       if (reason != null) payload['reason'] = reason;
 
-      final result = await _callable('banAbuseHash').call<Map<String, dynamic>>(payload);
+      final result = await _callable(
+        'banAbuseHash',
+      ).call<Map<String, dynamic>>(payload);
       final data = result.data;
       final success = data['success'] == true;
       return WallPostResult(
         success: success,
-        message: data['message'] as String? ?? (success ? 'Usuario baneado.' : ''),
+        message:
+            data['message'] as String? ?? (success ? 'Usuario baneado.' : ''),
       );
     } on FirebaseFunctionsException catch (e) {
       return WallPostResult(success: false, message: _mapFunctionError(e));
@@ -341,9 +446,13 @@ class WallService {
 
   String _moderationSuccessMessage(String contentType, String action) {
     if (contentType == 'comment') {
-      return action == 'approve' ? 'Comentario aprobado.' : 'Comentario rechazado.';
+      return action == 'approve'
+          ? 'Comentario aprobado.'
+          : 'Comentario rechazado.';
     }
-    return action == 'approve' ? 'Publicación aprobada.' : 'Publicación rechazada.';
+    return action == 'approve'
+        ? 'Publicación aprobada.'
+        : 'Publicación rechazada.';
   }
 
   String? _cleanFunctionMessage(String? message) {
@@ -351,5 +460,81 @@ class WallService {
     if (value == null || value.isEmpty) return null;
     if (value.toUpperCase() == 'INTERNAL') return null;
     return value;
+  }
+
+  Future<Set<String>> _loadBlockedAuthorHashes() async {
+    final ref = _blockedAuthorsRef;
+    if (ref == null) return <String>{};
+    final snap = await ref.get();
+    return snap.docs.map((doc) => doc.id).toSet();
+  }
+
+  Stream<List<WallPost>> _filterBlockedPosts(Stream<List<WallPost>> source) {
+    final ref = _blockedAuthorsRef;
+    if (ref == null) return source;
+    return _combineWithBlockedAuthors<WallPost>(
+      source: source,
+      blockedStream: ref.snapshots().map(
+        (snap) => snap.docs.map((doc) => doc.id).toSet(),
+      ),
+      authorHash: (post) => post.abuseHash,
+    );
+  }
+
+  Stream<List<WallComment>> _filterBlockedComments(
+    Stream<List<WallComment>> source,
+  ) {
+    final ref = _blockedAuthorsRef;
+    if (ref == null) return source;
+    return _combineWithBlockedAuthors<WallComment>(
+      source: source,
+      blockedStream: ref.snapshots().map(
+        (snap) => snap.docs.map((doc) => doc.id).toSet(),
+      ),
+      authorHash: (comment) => comment.abuseHash,
+    );
+  }
+
+  Stream<List<T>> _combineWithBlockedAuthors<T>({
+    required Stream<List<T>> source,
+    required Stream<Set<String>> blockedStream,
+    required String? Function(T item) authorHash,
+  }) {
+    late StreamController<List<T>> controller;
+    StreamSubscription<List<T>>? sourceSubscription;
+    StreamSubscription<Set<String>>? blockedSubscription;
+    List<T> currentItems = const [];
+    Set<String> blocked = const {};
+
+    void emit() {
+      if (controller.isClosed) return;
+      controller.add(
+        currentItems
+            .where((item) {
+              final hash = authorHash(item);
+              return hash == null || !blocked.contains(hash);
+            })
+            .toList(growable: false),
+      );
+    }
+
+    controller = StreamController<List<T>>(
+      onListen: () {
+        sourceSubscription = source.listen((items) {
+          currentItems = items;
+          emit();
+        }, onError: controller.addError);
+        blockedSubscription = blockedStream.listen((hashes) {
+          blocked = hashes;
+          emit();
+        }, onError: controller.addError);
+      },
+      onCancel: () async {
+        await sourceSubscription?.cancel();
+        await blockedSubscription?.cancel();
+        if (!controller.isClosed) unawaited(controller.close());
+      },
+    );
+    return controller.stream;
   }
 }

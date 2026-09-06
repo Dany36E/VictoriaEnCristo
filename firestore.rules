@@ -136,12 +136,20 @@ service cloud.firestore {
         allow write: if false;
       }
 
+      // Autores del Muro bloqueados por este usuario. El owner puede leer su
+      // lista para filtrar el feed; sólo Cloud Functions puede escribirla para
+      // validar que el autor provenga de contenido real.
+      match /blockedWallAuthors/{authorHash} {
+        allow read: if isSignedIn() && isOwner(userId);
+        allow write: if false;
+      }
+
       // Demás subcolecciones: solo owner
       match /{subCollection}/{docId} {
         allow read, write: if isSignedIn() && isOwner(userId)
           && !(subCollection in ['publicProgress', 'battlePartners', 'partnerInvites', 'battleMessages',
                                   'bibleHighlights', 'bibleNotes', 'savedVerses', 'versePrayers', 'bibleSettings',
-                                  'fcmTokens', 'security', 'guardianRequests', 'guardianOf']);
+                                  'fcmTokens', 'security', 'guardianRequests', 'guardianOf', 'blockedWallAuthors']);
       }
     }
 

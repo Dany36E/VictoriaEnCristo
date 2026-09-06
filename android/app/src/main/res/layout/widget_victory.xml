@@ -65,10 +65,11 @@
         android:ellipsize="end" />
 
     <!-- Spacer -->
-    <View
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1" />
+        android:layout_weight="1"
+        android:importantForAccessibility="no" />
 
     <!-- Botón CTA -->
     <TextView

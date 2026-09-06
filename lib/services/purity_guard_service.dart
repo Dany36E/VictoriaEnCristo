@@ -20,6 +20,8 @@ class PurityGuardService {
 
   static const _channel = MethodChannel('victoria/purity_guard');
   static const _prefKeyDesired = 'purityGuardDesiredOn';
+  static const _prefDisclosureVersion = 'purityGuardDisclosureVersion';
+  static const int disclosureVersion = 1;
 
   /// Estado real del bloqueador (VPN corriendo).
   final ValueNotifier<bool> active = ValueNotifier<bool>(false);
@@ -98,6 +100,19 @@ class PurityGuardService {
       debugPrint('[PurityGuard] enable error: $e');
       return false;
     }
+  }
+
+  /// El aviso debe aceptarse antes de solicitar el permiso VPN de Android.
+  /// Se versiona para volver a mostrarlo si cambia el tratamiento de datos.
+  Future<bool> hasAcceptedDisclosure() async {
+    if (!isEngineSupported) return true;
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_prefDisclosureVersion) == disclosureVersion;
+  }
+
+  Future<void> acceptDisclosure() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setInt(_prefDisclosureVersion, disclosureVersion);
   }
 
   /// Desactiva el bloqueador.

@@ -13,7 +13,8 @@ import android.os.ParcelFileDescriptor
 import android.util.Log
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.net.InetAddress
+import java.net.HttpURLConnection
+import java.net.URL
 import java.nio.ByteBuffer
 
 /**
@@ -23,8 +24,8 @@ import java.nio.ByteBuffer
  * consulta:
  *   - Si el dominio está en la lista de bloqueo → responde 0.0.0.0 (la web no
  *     carga en ningún navegador) y lanza la app en "Necesito Ayuda".
- *   - Si no → reenvía la consulta a un DNS real (Cloudflare) y devuelve la
- *     respuesta.
+ *   - Si no → la consulta viaja cifrada por DNS-over-HTTPS al filtro familiar
+ *     de CleanBrowsing y se devuelve la respuesta.
  *
  * No envía tráfico del usuario a ningún servidor propio; todo el filtrado es
  * local en el dispositivo. Sólo IPv4/UDP (suficiente para la mayoría de redes).
@@ -42,9 +43,10 @@ class PurityVpnService : VpnService() {
         // Subred privada del túnel. El dispositivo envía DNS a VIRTUAL_DNS.
         private const val TUN_ADDRESS = "10.111.222.1"
         private const val VIRTUAL_DNS = "10.111.222.2"
-        // DNS familiar de CleanBrowsing como upstream: filtra adultos incluso
-        // dominios nuevos que no estén en la lista local (doble capa).
-        private const val UPSTREAM_DNS = "185.228.168.10"
+        // DNS familiar de CleanBrowsing por HTTPS: además de filtrar dominios
+        // nuevos, cifra las consultas DNS que salen del dispositivo.
+        private const val UPSTREAM_DOH =
+            "https://doh.cleanbrowsing.org/doh/family-filter/"
 
         // Resolvedores DoH/DNS públicos conocidos. Se rutean al túnel: su DNS
         // clásico (UDP 53) se filtra y su DoH (TCP 443) se descarta, forzando al
@@ -392,24 +394,36 @@ class PurityVpnService : VpnService() {
         }
     }
 
-    /** Reenvía la consulta DNS a un resolvedor real y entrega la respuesta. */
+    /** Reenvía la consulta DNS cifrada con TLS (RFC 8484 wire format). */
     private fun forwardDns(query: ByteArray, onReply: (ByteArray) -> Unit) {
-        var socket: java.net.DatagramSocket? = null
+        var connection: HttpURLConnection? = null
         try {
-            socket = java.net.DatagramSocket()
-            protect(socket)
-            socket.soTimeout = 4000
-            val upstream = InetAddress.getByName(UPSTREAM_DNS)
-            socket.send(java.net.DatagramPacket(query, query.size, upstream, 53))
-            val respBuf = ByteArray(2048)
-            val respPacket = java.net.DatagramPacket(respBuf, respBuf.size)
-            socket.receive(respPacket)
-            val reply = respBuf.copyOfRange(0, respPacket.length)
-            onReply(reply)
+            connection = (URL(UPSTREAM_DOH).openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 5000
+                readTimeout = 5000
+                doOutput = true
+                useCaches = false
+                setRequestProperty("Content-Type", "application/dns-message")
+                setRequestProperty("Accept", "application/dns-message")
+                setFixedLengthStreamingMode(query.size)
+            }
+            connection.outputStream.use { it.write(query) }
+            if (connection.responseCode != HttpURLConnection.HTTP_OK) {
+                Log.w(TAG, "DoH respondió HTTP ${connection.responseCode}")
+                return
+            }
+            val contentType = connection.contentType.orEmpty().lowercase()
+            if (!contentType.startsWith("application/dns-message")) {
+                Log.w(TAG, "DoH respondió un tipo inesperado: $contentType")
+                return
+            }
+            val reply = connection.inputStream.use { it.readBytes() }
+            if (reply.size in 12..65535) onReply(reply)
         } catch (e: Exception) {
-            Log.w(TAG, "forward error: ${e.message}")
+            Log.w(TAG, "DoH error: ${e.message}")
         } finally {
-            try { socket?.close() } catch (_: Exception) {}
+            connection?.disconnect()
         }
     }
 

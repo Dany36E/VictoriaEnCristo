@@ -19,6 +19,7 @@ export {
   createWallComment,
   moderateContent,
   reportContent,
+  blockWallAuthor,
   banAbuseHash,
 } from "./wallFunctions";
 

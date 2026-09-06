@@ -752,7 +752,105 @@ export const reportContent = functions
   });
 
 // ═══════════════════════════════════════════════════════════════════════════
-// 5. BAN USER (admin only)
+// 5. BLOCK WALL AUTHOR (per-user safety control)
+// ═══════════════════════════════════════════════════════════════════════════
+
+/**
+ * Oculta para el usuario autenticado todo el contenido de un autor del Muro.
+ *
+ * El cliente manda la referencia del contenido, nunca el abuseHash. Así un
+ * cliente modificado no puede usar este endpoint para descubrir o escribir
+ * identificadores arbitrarios. El bloqueo se guarda dentro del árbol privado
+ * del usuario y se elimina automáticamente al borrar la cuenta.
+ */
+export const blockWallAuthor = functions
+  .runWith({secrets: ["WALL_ABUSE_SALT"]})
+  .region("us-central1")
+  .https.onCall(async (data, context) => {
+    if (!context.auth) {
+      throw new functions.https.HttpsError(
+        "unauthenticated",
+        "Debes iniciar sesión."
+      );
+    }
+
+    try {
+      const uid = context.auth.uid;
+      const payload = asPayload(data);
+      const type = stringField(payload, "type");
+      const postId = stringField(payload, "postId");
+      const commentId = stringField(payload, "commentId");
+
+      if (!postId || (type !== "post" && type !== "comment")) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "Referencia de contenido inválida."
+        );
+      }
+      if (type === "comment" && !commentId) {
+        throw new functions.https.HttpsError(
+          "invalid-argument",
+          "Comentario requerido."
+        );
+      }
+
+      const postRef = db.collection("wallPosts").doc(postId);
+      const targetRef = type === "comment" ?
+        postRef.collection("comments").doc(commentId as string) :
+        postRef;
+      const targetDoc = await targetRef.get();
+      if (!targetDoc.exists) {
+        throw new functions.https.HttpsError(
+          "not-found",
+          "El contenido ya no está disponible."
+        );
+      }
+
+      const targetHash = targetDoc.data()?.abuseHash;
+      if (typeof targetHash !== "string" || targetHash.length < 8) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "No se pudo identificar al autor."
+        );
+      }
+
+      const ownHash = computeAbuseHash(uid);
+      if (targetHash === ownHash) {
+        throw new functions.https.HttpsError(
+          "failed-precondition",
+          "No puedes bloquear tus propias publicaciones."
+        );
+      }
+
+      const alias = targetDoc.data()?.alias;
+      await db
+        .collection("users")
+        .doc(uid)
+        .collection("blockedWallAuthors")
+        .doc(targetHash)
+        .set({
+          blockedAt: admin.firestore.FieldValue.serverTimestamp(),
+          alias: typeof alias === "string" ? alias.substring(0, 40) : "Guerrero",
+          sourceType: type,
+        });
+
+      console.log(`[WALL] User ${uid.substring(0, 8)} blocked a wall author`);
+      return {
+        success: true,
+        message: "Usuario bloqueado. Ya no verás su contenido.",
+      };
+    } catch (err) {
+      rethrowHttpsError(err);
+      console.error("[WALL] blockWallAuthor unexpected error:", err);
+      throw new functions.https.HttpsError(
+        "internal",
+        "No se pudo bloquear al usuario."
+      );
+    }
+  });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 6. BAN USER (admin only)
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const banAbuseHash = functions

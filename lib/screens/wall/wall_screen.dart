@@ -79,7 +79,9 @@ class _WallScreenState extends State<WallScreen> {
           ),
           backgroundColor: AppThemeData.of(context).inputBg,
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
     }
@@ -93,7 +95,7 @@ class _WallScreenState extends State<WallScreen> {
     );
   }
 
-  void _showReportDialog(WallPost post) {
+  void _showContentActions(WallPost post) {
     FeedbackEngine.I.tap();
     showModalBottomSheet(
       context: context,
@@ -122,6 +124,51 @@ class _WallScreenState extends State<WallScreen> {
             );
           }
         },
+        onBlock: () async {
+          Navigator.pop(ctx);
+          final confirmed = await _confirmBlock(post.alias);
+          if (confirmed != true) return;
+          final res = await WallService.I.blockAuthor(
+            contentType: 'post',
+            postId: post.id,
+          );
+          if (res.success) await _loadFeed();
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(res.message),
+                backgroundColor: AppThemeData.of(context).inputBg,
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          }
+        },
+      ),
+    );
+  }
+
+  Future<bool?> _confirmBlock(String alias) {
+    final t = AppThemeData.of(context);
+    return showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: t.cardBg,
+        icon: Icon(Icons.person_off_outlined, color: t.accent),
+        title: Text('¿Bloquear a $alias?'),
+        content: const Text(
+          'Dejarás de ver sus publicaciones y comentarios en el Muro de Batalla.',
+          textAlign: TextAlign.center,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancelar'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Bloquear'),
+          ),
+        ],
       ),
     );
   }
@@ -153,10 +200,7 @@ class _WallScreenState extends State<WallScreen> {
         icon: Icon(Icons.edit_rounded, color: t.surface),
         label: Text(
           'Compartir',
-          style: TextStyle(
-            color: t.surface,
-            fontWeight: FontWeight.w700,
-          ),
+          style: TextStyle(color: t.surface, fontWeight: FontWeight.w700),
         ),
       ),
       body: Column(
@@ -186,14 +230,16 @@ class _WallScreenState extends State<WallScreen> {
             onTap: () => _onGiantChanged(null),
           ),
           const SizedBox(width: 8),
-          ...GiantId.values.map((g) => Padding(
-                padding: const EdgeInsets.only(right: 8),
-                child: _GiantChip(
-                  label: g.displayName,
-                  selected: _selectedGiant == g.id,
-                  onTap: () => _onGiantChanged(g.id),
-                ),
-              )),
+          ...GiantId.values.map(
+            (g) => Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: _GiantChip(
+                label: g.displayName,
+                selected: _selectedGiant == g.id,
+                onTap: () => _onGiantChanged(g.id),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -202,9 +248,7 @@ class _WallScreenState extends State<WallScreen> {
   Widget _buildFeedContent() {
     final t = AppThemeData.of(context);
     if (_loading) {
-      return Center(
-        child: CircularProgressIndicator(color: t.accent),
-      );
+      return Center(child: CircularProgressIndicator(color: t.accent));
     }
 
     if (_isEmpty) {
@@ -252,11 +296,11 @@ class _WallScreenState extends State<WallScreen> {
           return WallPostCard(
             post: post,
             onTap: () => _openThread(post),
-            onReport: () => _showReportDialog(post),
+            onReport: () => _showContentActions(post),
           ).animate().fadeIn(
-                duration: 300.ms,
-                delay: Duration(milliseconds: index.clamp(0, 10) * 50),
-              );
+            duration: 300.ms,
+            delay: Duration(milliseconds: index.clamp(0, 10) * 50),
+          );
         },
       ),
     );
@@ -303,9 +347,7 @@ class _GiantChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected
-                ? t.accent
-                : t.textSecondary,
+            color: selected ? t.accent : t.textSecondary,
           ),
         ),
       ),
@@ -319,8 +361,9 @@ class _GiantChip extends StatelessWidget {
 
 class _ReportSheet extends StatelessWidget {
   final void Function(ReportReason reason) onReport;
+  final VoidCallback onBlock;
 
-  const _ReportSheet({required this.onReport});
+  const _ReportSheet({required this.onReport, required this.onBlock});
 
   @override
   Widget build(BuildContext context) {
@@ -333,7 +376,7 @@ class _ReportSheet extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Reportar contenido',
+              'Cuidar este espacio',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -342,7 +385,7 @@ class _ReportSheet extends StatelessWidget {
             ),
             const SizedBox(height: 4),
             Text(
-              'Selecciona la razón del reporte:',
+              'Reporta contenido dañino o deja de ver a este usuario.',
               style: TextStyle(
                 fontSize: 13,
                 color: t.textSecondary.withValues(alpha: 0.8),
@@ -360,16 +403,31 @@ class _ReportSheet extends StatelessWidget {
                 ),
                 title: Text(
                   reason.displayName,
-                  style: TextStyle(
-                    fontSize: 14,
-                    color: t.textPrimary,
-                  ),
+                  style: TextStyle(fontSize: 14, color: t.textPrimary),
                 ),
                 onTap: () {
                   FeedbackEngine.I.select();
                   onReport(reason);
                 },
               ),
+            ),
+            Divider(color: t.divider),
+            ListTile(
+              contentPadding: EdgeInsets.zero,
+              leading: Icon(
+                Icons.person_off_outlined,
+                size: 20,
+                color: t.textSecondary,
+              ),
+              title: Text(
+                'Bloquear a este usuario',
+                style: TextStyle(color: t.textPrimary),
+              ),
+              subtitle: Text(
+                'Oculta sus publicaciones y comentarios para ti.',
+                style: TextStyle(color: t.textSecondary, fontSize: 12),
+              ),
+              onTap: onBlock,
             ),
           ],
         ),

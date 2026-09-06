@@ -6,7 +6,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
+exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.blockWallAuthor = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
 const admin = require("firebase-admin");
 // Inicializar Firebase Admin ANTES de importar otras funciones
 admin.initializeApp();
@@ -19,6 +19,7 @@ Object.defineProperty(exports, "createWallPost", { enumerable: true, get: functi
 Object.defineProperty(exports, "createWallComment", { enumerable: true, get: function () { return wallFunctions_1.createWallComment; } });
 Object.defineProperty(exports, "moderateContent", { enumerable: true, get: function () { return wallFunctions_1.moderateContent; } });
 Object.defineProperty(exports, "reportContent", { enumerable: true, get: function () { return wallFunctions_1.reportContent; } });
+Object.defineProperty(exports, "blockWallAuthor", { enumerable: true, get: function () { return wallFunctions_1.blockWallAuthor; } });
 Object.defineProperty(exports, "banAbuseHash", { enumerable: true, get: function () { return wallFunctions_1.banAbuseHash; } });
 // Compañero de Batalla - Push notifications y purga
 var battlePartnerFunctions_1 = require("./battlePartnerFunctions");

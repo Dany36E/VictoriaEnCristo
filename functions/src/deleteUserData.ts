@@ -46,6 +46,7 @@ const KNOWN_USER_SUBCOLLECTIONS = [
   "chapterNotes",
   "verseCollections",
   "learning",
+  "blockedWallAuthors",
 ];
 
 async function countSubcollection(

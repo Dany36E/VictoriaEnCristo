@@ -16,6 +16,12 @@
          formulario de Data Safety en Play Store. -->
     <uses-permission android:name="com.google.android.gms.permission.AD_ID"
         tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_AD_ID"
+        tools:node="remove" />
+    <uses-permission android:name="android.permission.ACCESS_ADSERVICES_ATTRIBUTION"
+        tools:node="remove" />
+    <uses-permission android:name="com.google.android.finsky.permission.BIND_GET_INSTALL_REFERRER_SERVICE"
+        tools:node="remove" />
     <property android:name="android.adservices.AD_SERVICES_CONFIG"
         tools:node="remove" />
 
@@ -75,7 +81,7 @@
             </intent-filter>
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Bloqueo local de contenido adulto para apoyo a la recuperación (VPN de filtrado DNS en el dispositivo)" />
+                android:value="Filtro DNS local iniciado por el usuario para bloquear contenido adulto; las consultas permitidas salen cifradas mediante DNS-over-HTTPS y la protección permanece visible con una notificación" />
         </service>
 
         <receiver
