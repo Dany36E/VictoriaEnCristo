@@ -28,7 +28,7 @@ struct VictoryWidgetData {
     
     /// Lee datos desde UserDefaults (App Group)
     static func fromUserDefaults() -> VictoryWidgetData {
-        let defaults = UserDefaults(suiteName: "group.com.example.appquitar")
+        let defaults = UserDefaults(suiteName: "group.com.victoriaecristo.app")
         
         return VictoryWidgetData(
             title: defaults?.string(forKey: "widget_title") ?? placeholder.title,

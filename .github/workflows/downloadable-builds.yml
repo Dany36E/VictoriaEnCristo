@@ -43,6 +43,20 @@ jobs:
       - name: Build unsigned iOS app
         run: flutter build ios --release --no-codesign
 
+      - name: Verify unsigned iPad bundle
+        shell: bash
+        run: |
+          APP="build/ios/iphoneos/Runner.app"
+          VERSION="$(awk '/^version:/{print $2}' pubspec.yaml)"
+          BUILD_NAME="${VERSION%%+*}"
+          BUILD_NUMBER="${VERSION##*+}"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$APP/Info.plist")" = "com.victoriaecristo.app"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = "$BUILD_NAME"
+          test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "$BUILD_NUMBER"
+          /usr/bin/lipo -info "$APP/Runner" | grep -q arm64
+          test ! -e "$APP/embedded.mobileprovision"
+          test ! -e "$APP/_CodeSignature"
+
       - name: Package unsigned IPA for sideloading
         id: package
         shell: bash

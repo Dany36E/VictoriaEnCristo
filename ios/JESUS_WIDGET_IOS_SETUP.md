@@ -14,9 +14,9 @@
 ### 2. Configurar App Group
 
 1. Seleccionar target **Runner** → Signing & Capabilities → + Capability → App Groups
-2. Agregar: `group.com.example.appquitar`
+2. Agregar: `group.com.victoriaecristo.app`
 3. Seleccionar target **JesusWidgetExtension** → Signing & Capabilities → + Capability → App Groups
-4. Agregar el mismo: `group.com.example.appquitar`
+4. Agregar el mismo: `group.com.victoriaecristo.app`
 
 ### 3. Configurar Deployment Target
 
@@ -43,7 +43,7 @@ struct JesusEntry: TimelineEntry {
 // MARK: - Provider
 
 struct JesusProvider: TimelineProvider {
-    let appGroupId = "group.com.example.appquitar"
+    let appGroupId = "group.com.victoriaecristo.app"
     
     func placeholder(in context: Context) -> JesusEntry {
         JesusEntry(date: Date(), streakDays: 7, completedToday: true, message: "¡Victoria de hoy registrada!")
@@ -218,5 +218,5 @@ extension Color {
 ### Notas
 
 - Las claves SharedPreferences (`jesus_streak_days`, `jesus_completed_today`, `jesus_widget_message`) se sincronizan desde Flutter vía `HomeWidget.saveWidgetData()` en `WidgetSyncService`
-- El App Group debe coincidir con `kIOSAppGroup` en `widget_constants.dart`: `group.com.example.appquitar`
+- El App Group debe coincidir con `kIOSAppGroup` en `widget_constants.dart`: `group.com.victoriaecristo.app`
 - El `kind` ("JesusWidget") debe coincidir con `kIOSJesusWidgetName` en `widget_constants.dart`

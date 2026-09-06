@@ -19,7 +19,7 @@ const String kAndroidWidget2x2QualifiedName =
 const String kIOSWidgetName = 'VictoryWidget';
 
 /// App Group para iOS
-const String kIOSAppGroup = 'group.com.example.appquitar';
+const String kIOSAppGroup = 'group.com.victoriaecristo.app';
 
 /// Provider del widget 4x2 de versículo del día
 const String kAndroidVerseWidgetProvider = 'VerseOfDayWidgetProvider';
