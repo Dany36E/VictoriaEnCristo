@@ -9,6 +9,59 @@ on:
       - 'v*'
 
 jobs:
+  ios:
+    name: iPad/iPhone unsigned IPA artifact
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Restore production configuration
+        shell: bash
+        env:
+          FIREBASE_OPTIONS_DART: ${{ secrets.FIREBASE_OPTIONS_DART }}
+          API_CONFIG_DART: ${{ secrets.API_CONFIG_DART }}
+          ASSETS_CONFIG_JSON: ${{ secrets.ASSETS_CONFIG_JSON }}
+        run: |
+          if [ -z "$FIREBASE_OPTIONS_DART" ] || [ -z "$API_CONFIG_DART" ] || [ -z "$ASSETS_CONFIG_JSON" ]; then
+            echo "Missing one or more iOS production configuration secrets."
+            exit 1
+          fi
+          printf '%s' "$FIREBASE_OPTIONS_DART" > lib/firebase_options.dart
+          printf '%s' "$API_CONFIG_DART" > lib/config/api_config.dart
+          printf '%s' "$ASSETS_CONFIG_JSON" > assets/config.json
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Build unsigned iOS app
+        run: flutter build ios --release --no-codesign
+
+      - name: Package unsigned IPA for sideloading
+        id: package
+        shell: bash
+        run: |
+          VERSION="$(awk '/^version:/{print $2}' pubspec.yaml)"
+          mkdir -p build/ios/ipa/Payload
+          cp -R build/ios/iphoneos/Runner.app build/ios/ipa/Payload/
+          cd build/ios/ipa
+          /usr/bin/zip -qry "VictoriaEnCristo-iOS-unsigned-v${VERSION}.ipa" Payload
+          echo "path=build/ios/ipa/VictoriaEnCristo-iOS-unsigned-v${VERSION}.ipa" >> "$GITHUB_OUTPUT"
+
+      - name: Upload iPad/iPhone IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: victoria-en-cristo-ios-unsigned-ipa
+          path: ${{ steps.package.outputs.path }}
+          if-no-files-found: error
+          retention-days: 30
+
   android:
     name: Android APK artifacts
     runs-on: ubuntu-latest
