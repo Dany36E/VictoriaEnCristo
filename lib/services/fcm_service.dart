@@ -65,18 +65,19 @@ class FcmService {
       // Permisos (en iOS/Web es obligatorio; en Android 13+ también).
       await messaging.requestPermission(alert: true, badge: true, sound: true);
 
-      // iOS necesita APNS token antes del FCM token.
-      if (!kIsWeb && Platform.isIOS) {
-        await messaging.getAPNSToken();
-      }
-
-      _token = await messaging.getToken();
-      await _persistToken();
-
+      // Registrar el listener antes de pedir el token evita perder una
+      // actualización si APNs termina de registrarse durante el arranque.
       _refreshSub = messaging.onTokenRefresh.listen((t) async {
         _token = t;
         await _persistToken();
       });
+
+      _token = await _getTokenWhenPlatformReady(messaging);
+      if (_token == null) {
+        safeWarn('FCM', 'token pendiente; se guardará al recibir onTokenRefresh');
+      } else {
+        await _persistToken();
+      }
 
       // Reintentar cuando cambie el auth (login/logout).
       _authSub = FirebaseAuth.instance.authStateChanges().listen((u) async {
@@ -203,10 +204,28 @@ class FcmService {
     if (!PlatformCapabilities.supportsFcm) return;
     if (_token == null) {
       try {
-        _token = await FirebaseMessaging.instance.getToken();
+        _token = await _getTokenWhenPlatformReady(FirebaseMessaging.instance);
       } catch (_) {}
     }
     await _persistToken();
+  }
+
+  /// Firebase en iOS exige que APNs entregue primero su token. En un arranque
+  /// limpio puede tardar algunos segundos después de aceptar el permiso.
+  Future<String?> _getTokenWhenPlatformReady(
+    FirebaseMessaging messaging,
+  ) async {
+    if (!kIsWeb && Platform.isIOS) {
+      for (var attempt = 0; attempt < 20; attempt++) {
+        final apnsToken = await messaging.getAPNSToken();
+        if (apnsToken != null && apnsToken.isNotEmpty) {
+          return messaging.getToken();
+        }
+        await Future<void>.delayed(const Duration(milliseconds: 500));
+      }
+      return null;
+    }
+    return messaging.getToken();
   }
 
   /// Elimina el documento del token FCM del dispositivo para el usuario

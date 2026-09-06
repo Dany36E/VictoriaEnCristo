@@ -19,6 +19,7 @@ dependencies:
   firebase_analytics: ^11.4.2   # Usage analytics
   firebase_app_check: ^0.3.1  # App attestation (Play Integrity / DeviceCheck)
   google_sign_in: ^6.2.2
+  sign_in_with_apple: 8.1.0  # Opción equivalente requerida por App Review
   # Premium UI Dependencies
   flutter_animate: ^4.5.0
   google_fonts: ^6.2.1

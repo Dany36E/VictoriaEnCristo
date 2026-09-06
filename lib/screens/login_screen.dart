@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import '../constants/image_urls.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
@@ -22,6 +23,9 @@ class _LoginScreenState extends State<LoginScreen> {
   static const bool _autoLaunchGoogleSignIn = bool.fromEnvironment(
     'WINDOWS_AUTOLAUNCH_GOOGLE_SIGNIN',
   );
+  static const bool _appleSignInEnabled = bool.fromEnvironment(
+    'APPLE_SIGN_IN_ENABLED',
+  );
 
   AuthService? _authServiceInstance;
   AuthService get _authService => _authServiceInstance ??= AuthService();
@@ -38,6 +42,8 @@ class _LoginScreenState extends State<LoginScreen> {
   String? _errorMessage;
 
   bool get _supportsGoogleSignIn => PlatformCapabilities.supportsGoogleSignIn;
+  bool get _supportsAppleSignIn =>
+      _appleSignInEnabled && PlatformCapabilities.supportsAppleSignIn;
 
   @override
   void initState() {
@@ -135,9 +141,14 @@ class _LoginScreenState extends State<LoginScreen> {
                           _buildHeroLogo(compact: isCompactDesktop),
                           SizedBox(height: heroSpacing),
 
-                          // 2. ACCIÓN PRINCIPAL: Google solo donde el plugin existe.
-                          if (_supportsGoogleSignIn) ...[
-                            _buildGooglePrimaryButton(),
+                          // 2. ACCIONES DE CUENTA SEGÚN LA PLATAFORMA.
+                          if (_supportsGoogleSignIn ||
+                              _supportsAppleSignIn) ...[
+                            if (_supportsGoogleSignIn)
+                              _buildGooglePrimaryButton(),
+                            if (_supportsGoogleSignIn && _supportsAppleSignIn)
+                              const SizedBox(height: 12),
+                            if (_supportsAppleSignIn) _buildAppleButton(),
                             const SizedBox(height: 24),
 
                             // 3. SEPARADOR MEJORADO: "— o usa tu correo —"
@@ -407,6 +418,19 @@ class _LoginScreenState extends State<LoginScreen> {
         .animate()
         .fadeIn(delay: 600.ms, duration: 500.ms)
         .slideY(begin: 0.3, end: 0, curve: Curves.easeOut);
+  }
+
+  Widget _buildAppleButton() {
+    return SizedBox(
+      width: double.infinity,
+      child: SignInWithAppleButton(
+        onPressed: _isLoading ? null : _handleAppleSignIn,
+        text: 'Continuar con Apple',
+        height: 56,
+        style: SignInWithAppleButtonStyle.whiteOutlined,
+        borderRadius: const BorderRadius.all(Radius.circular(16)),
+      ),
+    ).animate().fadeIn(delay: 650.ms, duration: 450.ms);
   }
 
   // ============================================================
@@ -682,7 +706,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     recognizer: TapGestureRecognizer()
                       ..onTap = () => launchUrl(
-                        Uri.parse('https://victoriaencristo.app/terminos'),
+                        Uri.parse(
+                          'https://dany36e.github.io/VictoriaEnCristo/terms.html',
+                        ),
                         mode: LaunchMode.externalApplication,
                       ),
                   ),
@@ -1023,6 +1049,27 @@ class _LoginScreenState extends State<LoginScreen> {
       if (mounted) {
         setState(() => _errorMessage = result.errorMessage);
       }
+    }
+  }
+
+  Future<void> _handleAppleSignIn() async {
+    if (!_supportsAppleSignIn) return;
+
+    HapticFeedback.mediumImpact();
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    final result = await _authService.signInWithApple();
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+
+    if (result.isSuccess) {
+      HapticFeedback.heavyImpact();
+      setState(() => _isLoading = true);
+    } else {
+      setState(() => _errorMessage = result.errorMessage);
     }
   }
 

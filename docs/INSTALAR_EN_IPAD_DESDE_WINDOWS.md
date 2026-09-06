@@ -10,7 +10,7 @@ en un iPad hay que firmarlo con un Apple ID en el momento de la instalación.
 2. Descarga e instala Sideloadly desde su sitio oficial.
 3. Conecta el iPad por USB, desbloquéalo y pulsa **Confiar** cuando lo solicite.
 4. Abre Sideloadly y arrastra el archivo
-   `VictoriaEnCristo-iOS-unsigned-v1.0.26+36.ipa`.
+   `VictoriaEnCristo-iOS-unsigned-v1.0.27+37.ipa`.
 5. Selecciona el iPad, escribe el Apple ID que se usará para firmar y pulsa
    **Start**. Apple puede pedir una contraseña específica para apps o el código de
    doble factor.
@@ -36,5 +36,11 @@ directamente a TestFlight: debe archivarse y firmarse con esas credenciales.
 - El proyecto admite iPhone y iPad con iOS/iPadOS 13 o posterior.
 - El IPA sin firma se genera en GitHub Actions y se conserva como artefacto por
   30 días.
+- El inicio con Apple se habilita únicamente en la compilación de App Store,
+  después de registrar la capacidad y el proveedor en Apple/Firebase. En el IPA
+  sin firma siguen disponibles correo, Google e invitado.
+- Los widgets de pantalla de inicio permanecen ocultos en iOS hasta que exista
+  una extensión WidgetKit firmada con un perfil compatible; la app principal no
+  anuncia una función que el IPA actual no puede instalar.
 - No compartas con otras personas la contraseña del Apple ID ni las contraseñas
   específicas para apps.

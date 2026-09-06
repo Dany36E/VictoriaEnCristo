@@ -6,23 +6,27 @@ class PlatformCapabilities {
   static bool get isDesktop {
     if (kIsWeb) return false;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.windows || TargetPlatform.macOS || TargetPlatform.linux => true,
+      TargetPlatform.windows ||
+      TargetPlatform.macOS ||
+      TargetPlatform.linux => true,
       _ => false,
     };
   }
 
   static bool get supportsHomeWidgets {
     if (kIsWeb) return false;
-    return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS => true,
-      _ => false,
-    };
+    // La extensión WidgetKit aún no forma parte del target Xcode. Mantenerla
+    // oculta en iOS evita ofrecer una configuración que el sistema no puede
+    // instalar; Android conserva sus widgets nativos completos.
+    return defaultTargetPlatform == TargetPlatform.android;
   }
 
   static bool get supportsFcm {
     if (kIsWeb) return false;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => true,
       _ => false,
     };
   }
@@ -30,7 +34,9 @@ class PlatformCapabilities {
   static bool get supportsCrashlytics {
     if (kIsWeb) return false;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => true,
       _ => false,
     };
   }
@@ -38,7 +44,9 @@ class PlatformCapabilities {
   static bool get supportsFirebaseAnalytics {
     if (kIsWeb) return true;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => true,
       _ => false,
     };
   }
@@ -46,7 +54,9 @@ class PlatformCapabilities {
   static bool get supportsCloudFunctionsPlugin {
     if (kIsWeb) return true;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => true,
       _ => false,
     };
   }
@@ -65,9 +75,17 @@ class PlatformCapabilities {
   static bool get supportsGoogleSignInPlugin {
     if (kIsWeb) return false;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => true,
       _ => false,
     };
+  }
+
+  /// Native Sign in with Apple is offered only by App Store builds on iOS.
+  static bool get supportsAppleSignIn {
+    if (kIsWeb) return false;
+    return defaultTargetPlatform == TargetPlatform.iOS;
   }
 
   static bool get supportsFirebaseAuthProviderSignIn {
@@ -86,7 +104,9 @@ class PlatformCapabilities {
   static bool get supportsAudioPlayback {
     if (kIsWeb) return true;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => true,
       _ => false,
     };
   }
@@ -95,7 +115,9 @@ class PlatformCapabilities {
   static bool get supportsLocalNotifications {
     if (kIsWeb) return false;
     return switch (defaultTargetPlatform) {
-      TargetPlatform.android || TargetPlatform.iOS || TargetPlatform.macOS => true,
+      TargetPlatform.android ||
+      TargetPlatform.iOS ||
+      TargetPlatform.macOS => true,
       _ => false,
     };
   }

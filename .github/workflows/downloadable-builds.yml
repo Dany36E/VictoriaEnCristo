@@ -11,7 +11,7 @@ on:
 jobs:
   ios:
     name: iPad/iPhone unsigned IPA artifact
-    runs-on: macos-15
+    runs-on: macos-26
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -21,6 +21,13 @@ jobs:
         with:
           flutter-version: 3.41.1
           cache: true
+
+      - name: Verify App Store toolchain
+        shell: bash
+        run: |
+          xcodebuild -version
+          SDK_VERSION="$(xcrun --sdk iphoneos --show-sdk-version)"
+          test "${SDK_VERSION%%.*}" -ge 26
 
       - name: Restore production configuration
         shell: bash
@@ -54,6 +61,8 @@ jobs:
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$APP/Info.plist")" = "$BUILD_NAME"
           test "$(/usr/libexec/PlistBuddy -c 'Print :CFBundleVersion' "$APP/Info.plist")" = "$BUILD_NUMBER"
           /usr/bin/lipo -info "$APP/Runner" | grep -q arm64
+          test -f "$APP/PrivacyInfo.xcprivacy"
+          /usr/libexec/PlistBuddy -c 'Print :UIBackgroundModes' "$APP/Info.plist" | grep -q remote-notification
           test ! -e "$APP/embedded.mobileprovision"
           test ! -e "$APP/_CodeSignature"
 

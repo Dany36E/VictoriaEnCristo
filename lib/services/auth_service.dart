@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'data_bootstrapper.dart';
 import '../utils/safe_log.dart';
 import 'account_session_manager.dart';
@@ -53,7 +57,9 @@ class AppUser {
       'photoUrl': photoUrl,
       'createdAt': Timestamp.fromDate(createdAt),
       'victoryDays': victoryDays,
-      'lastVictoryDate': lastVictoryDate != null ? Timestamp.fromDate(lastVictoryDate!) : null,
+      'lastVictoryDate': lastVictoryDate != null
+          ? Timestamp.fromDate(lastVictoryDate!)
+          : null,
     };
   }
 }
@@ -106,7 +112,11 @@ class AuthService {
   }
 
   /// Registrar nuevo usuario con email
-  Future<AuthResult> registerWithEmail(String email, String password, String name) async {
+  Future<AuthResult> registerWithEmail(
+    String email,
+    String password,
+    String name,
+  ) async {
     // Política de contraseñas: mínimo 8 caracteres con al menos una letra y
     // un número. Bloqueamos contraseñas comunes obviamente débiles.
     final passwordError = _validatePassword(password);
@@ -189,7 +199,8 @@ class AuthService {
           return AuthResult.error('Inicio de sesión cancelado');
         }
 
-        final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+        final GoogleSignInAuthentication googleAuth =
+            await googleUser.authentication;
         final credential = GoogleAuthProvider.credential(
           accessToken: googleAuth.accessToken,
           idToken: googleAuth.idToken,
@@ -201,6 +212,63 @@ class AuthService {
       }
     } catch (e) {
       return AuthResult.error('Error con Google: $e');
+    }
+  }
+
+  /// Iniciar sesión con Apple en iPhone/iPad.
+  ///
+  /// Usa nonce SHA-256 para impedir la reutilización de credenciales y sólo
+  /// conserva en Firebase los datos de perfil que Apple autoriza.
+  Future<AuthResult> signInWithApple() async {
+    if (!PlatformCapabilities.supportsAppleSignIn) {
+      return AuthResult.error('Apple no está disponible en esta plataforma.');
+    }
+
+    try {
+      final rawNonce = generateNonce();
+      final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+        nonce: hashedNonce,
+      );
+      final identityToken = appleCredential.identityToken;
+      if (identityToken == null || identityToken.isEmpty) {
+        return AuthResult.error('Apple no devolvió una credencial válida.');
+      }
+
+      final oauthCredential = OAuthProvider(
+        'apple.com',
+      ).credential(idToken: identityToken, rawNonce: rawNonce);
+      final userCredential = await _auth.signInWithCredential(oauthCredential);
+      final user = userCredential.user;
+      if (user == null) {
+        return AuthResult.error('Apple no devolvió un usuario válido.');
+      }
+
+      final suppliedName =
+          [appleCredential.givenName, appleCredential.familyName]
+              .whereType<String>()
+              .map((part) => part.trim())
+              .where((part) => part.isNotEmpty)
+              .join(' ');
+      if ((user.displayName == null || user.displayName!.trim().isEmpty) &&
+          suppliedName.isNotEmpty) {
+        await user.updateDisplayName(suppliedName);
+      }
+      await _createUserDocumentIfNotExists(user);
+      return AuthResult.success(user);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        return AuthResult.error('Inicio de sesión cancelado');
+      }
+      return AuthResult.error('Apple no pudo completar el inicio de sesión.');
+    } on FirebaseAuthException catch (e) {
+      return AuthResult.error(_getErrorMessage(e.code));
+    } catch (e) {
+      return AuthResult.error('Error con Apple: $e');
     }
   }
 
@@ -252,8 +320,9 @@ class AuthService {
   Future<bool> signOutAllDevices() async {
     if (currentUser == null) return false;
     try {
-      final callable = FirebaseFunctions.instanceFor(region: kCloudFunctionRegion)
-          .httpsCallable('signOutAllDevices');
+      final callable = FirebaseFunctions.instanceFor(
+        region: kCloudFunctionRegion,
+      ).httpsCallable('signOutAllDevices');
       await callable.call();
     } on FirebaseFunctionsException catch (e) {
       safeError('AUTH', 'signOutAllDevices error: ${e.code} ${e.message}');
@@ -289,6 +358,7 @@ class AuthService {
   Future<DeleteAccountResult> deleteAccountAndAllData({
     String? passwordForReauth,
     bool forceGoogleReauth = false,
+    bool forceAppleReauth = false,
   }) async {
     final user = currentUser;
     if (user == null) {
@@ -328,8 +398,21 @@ class AuthService {
           }
           safeLog('AUTH', 'Re-authenticated with Google');
         } catch (e) {
-          return DeleteAccountResult.error('Error al re-autenticar con Google: $e');
+          return DeleteAccountResult.error(
+            'Error al re-autenticar con Google: $e',
+          );
         }
+      }
+
+      if (forceAppleReauth) {
+        safeLog('AUTH', 'Re-authenticating with Apple...');
+        final reauthResult = await _reauthenticateWithApple();
+        if (!reauthResult.isSuccess) {
+          return DeleteAccountResult.error(
+            reauthResult.errorMessage ?? 'Error al re-autenticar con Apple',
+          );
+        }
+        safeLog('AUTH', 'Re-authenticated with Apple');
       }
 
       // ═══════════════════════════════════════════════════════════════════════
@@ -352,36 +435,54 @@ class AuthService {
       // PASO 4: Llamar Cloud Function para borrar datos
       // CRÍTICO: Especificar región correcta para evitar NOT_FOUND
       // ═══════════════════════════════════════════════════════════════════════
-      safeLog('AUTH', 'Calling Cloud Function deleteUserData (region: $kCloudFunctionRegion)...');
+      safeLog(
+        'AUTH',
+        'Calling Cloud Function deleteUserData (region: $kCloudFunctionRegion)...',
+      );
 
       bool cloudFunctionSuccess = false;
       String? cloudFunctionError;
 
       try {
         // IMPORTANTE: Usar instanceFor con región explícita
-        final callable = FirebaseFunctions.instanceFor(region: kCloudFunctionRegion).httpsCallable(
-          'deleteUserData',
-          options: HttpsCallableOptions(timeout: const Duration(seconds: 60)),
-        );
+        final callable =
+            FirebaseFunctions.instanceFor(
+              region: kCloudFunctionRegion,
+            ).httpsCallable(
+              'deleteUserData',
+              options: HttpsCallableOptions(
+                timeout: const Duration(seconds: 60),
+              ),
+            );
 
         final result = await callable.call<Map<String, dynamic>>();
         final data = result.data;
 
         if (data['success'] == true) {
           safeLog('AUTH', 'Cloud Function success: ${data['message']}');
-          safeLog('AUTH', 'Deleted subcollections: ${data['deletedSubcollections']}');
+          safeLog(
+            'AUTH',
+            'Deleted subcollections: ${data['deletedSubcollections']}',
+          );
           cloudFunctionSuccess = true;
         } else if (data['partialSuccess'] == true) {
           // Datos de Firestore eliminados; auth.deleteUser falló por error de servidor.
           // Los datos sensibles ya no existen. El usuario podría re-autenticarse pero
           // vería la app como nueva instalación (sin perfil). Tratamos como éxito del
           // flujo principal y lo registramos para monitoreo.
-          safeWarn('AUTH', 'Cloud Function partial success: ${data['message']}');
-          safeLog('AUTH', 'Deleted subcollections: ${data['deletedSubcollections']}');
+          safeWarn(
+            'AUTH',
+            'Cloud Function partial success: ${data['message']}',
+          );
+          safeLog(
+            'AUTH',
+            'Deleted subcollections: ${data['deletedSubcollections']}',
+          );
           cloudFunctionSuccess = true;
         } else {
           safeWarn('AUTH', 'Cloud Function returned unexpected: $data');
-          cloudFunctionError = data['error']?.toString() ?? 'Respuesta inesperada del servidor';
+          cloudFunctionError =
+              data['error']?.toString() ?? 'Respuesta inesperada del servidor';
         }
       } on FirebaseFunctionsException catch (e) {
         safeError('AUTH', 'Cloud Function error: ${e.code} - ${e.message}');
@@ -398,15 +499,18 @@ class AuthService {
           return DeleteAccountResult.requiresReauth(
             isGoogleAuth: providers.contains('google.com'),
             isPasswordAuth: providers.contains('password'),
+            isAppleAuth: providers.contains('apple.com'),
           );
         }
         // INTERNAL: error del servidor
         else if (e.code == 'internal') {
-          cloudFunctionError = 'Error del servidor al eliminar datos: ${e.message}';
+          cloudFunctionError =
+              'Error del servidor al eliminar datos: ${e.message}';
         }
         // Otros errores
         else {
-          cloudFunctionError = 'Error al eliminar datos: ${e.message ?? e.code}';
+          cloudFunctionError =
+              'Error al eliminar datos: ${e.message ?? e.code}';
         }
       } catch (e) {
         safeError('AUTH', 'Unexpected error calling Cloud Function', e);
@@ -468,6 +572,7 @@ class AuthService {
         return DeleteAccountResult.requiresReauth(
           isGoogleAuth: providers.contains('google.com'),
           isPasswordAuth: providers.contains('password'),
+          isAppleAuth: providers.contains('apple.com'),
         );
       }
       return DeleteAccountResult.error(_getErrorMessage(e.code));
@@ -496,7 +601,8 @@ class AuthService {
         return AuthResult.error('Re-autenticación cancelada');
       }
 
-      final GoogleSignInAuthentication googleAuth = await googleUser.authentication;
+      final GoogleSignInAuthentication googleAuth =
+          await googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
         accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
@@ -506,6 +612,39 @@ class AuthService {
       return AuthResult.success(currentUser);
     } catch (e) {
       return AuthResult.error('Error al re-autenticar con Google: $e');
+    }
+  }
+
+  /// Re-autenticar con Apple antes de una operación sensible.
+  Future<AuthResult> _reauthenticateWithApple() async {
+    if (!PlatformCapabilities.supportsAppleSignIn) {
+      return AuthResult.error('Apple no está disponible en esta plataforma.');
+    }
+    try {
+      final rawNonce = generateNonce();
+      final hashedNonce = sha256.convert(utf8.encode(rawNonce)).toString();
+      final appleCredential = await SignInWithApple.getAppleIDCredential(
+        scopes: const [AppleIDAuthorizationScopes.email],
+        nonce: hashedNonce,
+      );
+      final identityToken = appleCredential.identityToken;
+      if (identityToken == null || identityToken.isEmpty) {
+        return AuthResult.error('Apple no devolvió una credencial válida.');
+      }
+      final credential = OAuthProvider(
+        'apple.com',
+      ).credential(idToken: identityToken, rawNonce: rawNonce);
+      await currentUser!.reauthenticateWithCredential(credential);
+      return AuthResult.success(currentUser);
+    } on SignInWithAppleAuthorizationException catch (e) {
+      if (e.code == AuthorizationErrorCode.canceled) {
+        return AuthResult.error('Re-autenticación cancelada');
+      }
+      return AuthResult.error('Apple no pudo verificar tu identidad.');
+    } on FirebaseAuthException catch (e) {
+      return AuthResult.error(_getErrorMessage(e.code));
+    } catch (e) {
+      return AuthResult.error('Error al re-autenticar con Apple: $e');
     }
   }
 
@@ -543,7 +682,10 @@ class AuthService {
     if (currentUser == null) return null;
 
     try {
-      final doc = await _firestore.collection('users').doc(currentUser!.uid).get();
+      final doc = await _firestore
+          .collection('users')
+          .doc(currentUser!.uid)
+          .get();
       if (doc.exists) {
         return AppUser.fromFirestore(doc);
       }
@@ -554,12 +696,17 @@ class AuthService {
   }
 
   /// Actualizar progreso del usuario
-  Future<void> updateProgress({required int victoryDays, DateTime? lastVictoryDate}) async {
+  Future<void> updateProgress({
+    required int victoryDays,
+    DateTime? lastVictoryDate,
+  }) async {
     if (currentUser == null) return;
 
     await _firestore.collection('users').doc(currentUser!.uid).update({
       'victoryDays': victoryDays,
-      'lastVictoryDate': lastVictoryDate != null ? Timestamp.fromDate(lastVictoryDate) : null,
+      'lastVictoryDate': lastVictoryDate != null
+          ? Timestamp.fromDate(lastVictoryDate)
+          : null,
     });
   }
 
@@ -567,7 +714,11 @@ class AuthService {
   Future<void> saveJournalEntry(Map<String, dynamic> entry) async {
     if (currentUser == null) return;
 
-    await _firestore.collection('users').doc(currentUser!.uid).collection('journal').add(entry);
+    await _firestore
+        .collection('users')
+        .doc(currentUser!.uid)
+        .collection('journal')
+        .add(entry);
   }
 
   /// Obtener entradas de diario
@@ -670,7 +821,10 @@ class AuthResult {
   }
 
   /// Indica que se necesita re-autenticación
-  factory AuthResult.requiresReauth({required bool isGoogleAuth, required bool isPasswordAuth}) {
+  factory AuthResult.requiresReauth({
+    required bool isGoogleAuth,
+    required bool isPasswordAuth,
+  }) {
     return AuthResult._(
       isSuccess: false,
       requiresReauthentication: true,
@@ -705,12 +859,14 @@ class DeleteAccountResult {
   final String? errorMessage;
   final bool isGoogleAuth;
   final bool isPasswordAuth;
+  final bool isAppleAuth;
 
   const DeleteAccountResult._({
     required this.status,
     this.errorMessage,
     this.isGoogleAuth = false,
     this.isPasswordAuth = false,
+    this.isAppleAuth = false,
   });
 
   /// ✅ Eliminación exitosa (Cloud Function OK + Auth eliminado)
@@ -720,7 +876,10 @@ class DeleteAccountResult {
 
   /// ❌ Error genérico
   factory DeleteAccountResult.error(String message) {
-    return DeleteAccountResult._(status: DeleteAccountStatus.error, errorMessage: message);
+    return DeleteAccountResult._(
+      status: DeleteAccountStatus.error,
+      errorMessage: message,
+    );
   }
 
   /// ❌ Cloud Function falló - NO mostrar "eliminado correctamente"
@@ -736,18 +895,22 @@ class DeleteAccountResult {
   factory DeleteAccountResult.requiresReauth({
     required bool isGoogleAuth,
     required bool isPasswordAuth,
+    required bool isAppleAuth,
   }) {
     return DeleteAccountResult._(
       status: DeleteAccountStatus.requiresReauth,
       errorMessage: 'Se requiere re-autenticación',
       isGoogleAuth: isGoogleAuth,
       isPasswordAuth: isPasswordAuth,
+      isAppleAuth: isAppleAuth,
     );
   }
 
   // Helpers
   bool get isSuccess => status == DeleteAccountStatus.success;
   bool get isError => status == DeleteAccountStatus.error;
-  bool get isCloudFunctionFailed => status == DeleteAccountStatus.cloudFunctionFailed;
-  bool get requiresReauthentication => status == DeleteAccountStatus.requiresReauth;
+  bool get isCloudFunctionFailed =>
+      status == DeleteAccountStatus.cloudFunctionFailed;
+  bool get requiresReauthentication =>
+      status == DeleteAccountStatus.requiresReauth;
 }

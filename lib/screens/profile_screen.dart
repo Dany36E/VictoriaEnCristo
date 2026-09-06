@@ -16,7 +16,7 @@ import '../widgets/theme_selector.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onLogout;
-  
+
   const ProfileScreen({super.key, this.onLogout});
 
   @override
@@ -57,10 +57,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 // ─── Header con gradient suave ───
                 SliverToBoxAdapter(
                   child: Container(
-                    padding: EdgeInsets.fromLTRB(24, MediaQuery.of(context).padding.top + 16, 24, 28),
-                    decoration: BoxDecoration(
-                      gradient: t.headerGradient,
+                    padding: EdgeInsets.fromLTRB(
+                      24,
+                      MediaQuery.of(context).padding.top + 16,
+                      24,
+                      28,
                     ),
+                    decoration: BoxDecoration(gradient: t.headerGradient),
                     child: Column(
                       children: [
                         // Back + title row
@@ -77,13 +80,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                   color: t.textPrimary.withValues(alpha: 0.06),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Icon(Icons.arrow_back_ios_new_rounded, size: 18, color: t.textPrimary.withValues(alpha: 0.7)),
+                                child: Icon(
+                                  Icons.arrow_back_ios_new_rounded,
+                                  size: 18,
+                                  color: t.textPrimary.withValues(alpha: 0.7),
+                                ),
                               ),
                             ),
                             const SizedBox(width: 14),
                             Text(
                               'Mi Perfil',
-                              style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, color: t.textPrimary),
+                              style: GoogleFonts.manrope(
+                                fontSize: 22,
+                                fontWeight: FontWeight.w800,
+                                color: t.textPrimary,
+                              ),
                             ),
                           ],
                         ),
@@ -95,15 +106,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         // Nombre
                         Text(
-                          user?.displayName ?? _userData?.displayName ?? 'Usuario',
-                          style: GoogleFonts.manrope(fontSize: 22, fontWeight: FontWeight.w800, color: t.textPrimary),
+                          user?.displayName ??
+                              _userData?.displayName ??
+                              'Usuario',
+                          style: GoogleFonts.manrope(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w800,
+                            color: t.textPrimary,
+                          ),
                         ),
                         const SizedBox(height: 2),
 
                         // Email
                         Text(
                           user?.email ?? '',
-                          style: GoogleFonts.manrope(fontSize: 13, color: t.textSecondary),
+                          style: GoogleFonts.manrope(
+                            fontSize: 13,
+                            color: t.textSecondary,
+                          ),
                         ),
                         const SizedBox(height: 20),
 
@@ -126,7 +146,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.palette_outlined, size: 18, color: t.accent),
+                              Icon(
+                                Icons.palette_outlined,
+                                size: 18,
+                                color: t.accent,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 'Tema de la app',
@@ -163,7 +187,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 ),
 
                 SliverToBoxAdapter(
-                  child: SizedBox(height: MediaQuery.of(context).padding.bottom + 30),
+                  child: SizedBox(
+                    height: MediaQuery.of(context).padding.bottom + 30,
+                  ),
                 ),
               ],
             ),
@@ -180,27 +206,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [t.accent.withValues(alpha: 0.3), t.accent.withValues(alpha: 0.1)],
+          colors: [
+            t.accent.withValues(alpha: 0.3),
+            t.accent.withValues(alpha: 0.1),
+          ],
         ),
         border: Border.all(color: t.accent.withValues(alpha: 0.4), width: 3),
         boxShadow: [
-          BoxShadow(color: t.accent.withValues(alpha: 0.15), blurRadius: 16, spreadRadius: 2),
+          BoxShadow(
+            color: t.accent.withValues(alpha: 0.15),
+            blurRadius: 16,
+            spreadRadius: 2,
+          ),
         ],
       ),
       child: ClipOval(
         child: photoUrl != null
-            ? Image.network(photoUrl, fit: BoxFit.cover,
+            ? Image.network(
+                photoUrl,
+                fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
-                errorBuilder: (c, e, s) => _buildDefaultAvatar())
+                errorBuilder: (c, e, s) => _buildDefaultAvatar(),
+              )
             : _buildDefaultAvatar(),
       ),
     );
   }
 
   Widget _buildDefaultAvatar() {
-    return const Center(
-      child: Text('😊', style: TextStyle(fontSize: 38)),
-    );
+    return const Center(child: Text('😊', style: TextStyle(fontSize: 38)));
   }
 
   Widget _buildStatsRow() {
@@ -234,8 +268,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
           children: [
             Text(emoji, style: const TextStyle(fontSize: 20)),
             const SizedBox(height: 4),
-            Text(value, style: GoogleFonts.manrope(fontSize: 16, fontWeight: FontWeight.w800, color: t.textPrimary)),
-            Text(label, style: GoogleFonts.manrope(fontSize: 11, color: t.textSecondary)),
+            Text(
+              value,
+              style: GoogleFonts.manrope(
+                fontSize: 16,
+                fontWeight: FontWeight.w800,
+                color: t.textPrimary,
+              ),
+            ),
+            Text(
+              label,
+              style: GoogleFonts.manrope(fontSize: 11, color: t.textSecondary),
+            ),
           ],
         ),
       ),
@@ -261,7 +305,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
             subtitle: 'Disponible próximamente',
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Esta función estará disponible próximamente.')),
+                const SnackBar(
+                  content: Text('Esta función estará disponible próximamente.'),
+                ),
               );
             },
           ),
@@ -312,7 +358,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
         subtitle,
         style: GoogleFonts.manrope(fontSize: 12, color: t.textSecondary),
       ),
-      trailing: Icon(Icons.chevron_right_rounded, color: t.textSecondary.withValues(alpha: 0.5), size: 20),
+      trailing: Icon(
+        Icons.chevron_right_rounded,
+        color: t.textSecondary.withValues(alpha: 0.5),
+        size: 20,
+      ),
       onTap: onTap,
     );
   }
@@ -332,7 +382,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
           foregroundColor: t.textSecondary,
           side: BorderSide(color: t.textSecondary.withValues(alpha: 0.25)),
           padding: const EdgeInsets.symmetric(vertical: 14),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(14),
+          ),
         ),
       ),
     );
@@ -404,12 +456,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
 
     await _authService.signOut();
-    
+
     // Notificar callback si existe
     if (widget.onLogout != null) {
       widget.onLogout!();
     }
-    
+
     // IMPORTANTE: Solo volver a la raíz. El StreamBuilder en main.dart
     // detectará que el usuario ya no está autenticado y mostrará LoginScreen.
     // NO hacer pushAndRemoveUntil a LoginScreen porque eso destruye la raíz
@@ -453,19 +505,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: CircularProgressIndicator(),
-      ),
+      builder: (context) => const Center(child: CircularProgressIndicator()),
     );
 
     try {
       // Usar el nuevo método robusto de AuthService
       final result = await _authService.deleteAccountAndAllData();
-      
+
       if (mounted) {
         Navigator.pop(context); // Cerrar indicador de carga
       }
-      
+
       _handleDeleteResult(result);
     } catch (e) {
       if (mounted) {
@@ -479,14 +529,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
-  
+
   /// Mostrar diálogo de re-autenticación
   void _showReauthDialog({
     required bool isGoogleAuth,
     required bool isPasswordAuth,
+    required bool isAppleAuth,
   }) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -495,7 +546,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         bool isLoading = false;
         // Dispose controller when dialog closes
         void disposeController() => passwordController.dispose();
-        
+
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
@@ -509,7 +560,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(fontSize: 14),
                   ),
                   const SizedBox(height: 16),
-                  
+
                   // Si es usuario de contraseña, mostrar campo
                   if (isPasswordAuth) ...[
                     TextField(
@@ -527,13 +578,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                     const SizedBox(height: 8),
                   ],
-                  
+
                   // Si es usuario de Google
                   if (isGoogleAuth && !isPasswordAuth) ...[
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: isDark ? Colors.blue.shade900.withValues(alpha: 0.3) : Colors.blue.shade50,
+                        color: isDark
+                            ? Colors.blue.shade900.withValues(alpha: 0.3)
+                            : Colors.blue.shade50,
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: Row(
@@ -550,7 +603,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                   ],
-                  
+
+                  if (isAppleAuth && !isPasswordAuth) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: isDark
+                            ? Colors.grey.shade800
+                            : Colors.grey.shade100,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(Icons.apple),
+                          SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'Se abrirá Apple para verificar tu identidad.',
+                              style: TextStyle(fontSize: 13),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
                   // Usuario puede tener ambos métodos
                   if (isGoogleAuth && isPasswordAuth) ...[
                     const SizedBox(height: 12),
@@ -558,7 +636,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       'O usa tu cuenta de Google:',
                       style: TextStyle(
                         fontSize: 13,
-                        color: isDark ? Colors.grey.shade400 : Colors.grey.shade600,
+                        color: isDark
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade600,
                       ),
                     ),
                   ],
@@ -566,35 +646,55 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               actions: [
                 TextButton(
-                  onPressed: isLoading ? null : () {
-                    disposeController();
-                    Navigator.pop(dialogContext);
-                  },
+                  onPressed: isLoading
+                      ? null
+                      : () {
+                          disposeController();
+                          Navigator.pop(dialogContext);
+                        },
                   child: const Text('Cancelar'),
                 ),
-                
+
                 // Botón de Google si aplica
                 if (isGoogleAuth)
                   TextButton.icon(
-                    onPressed: isLoading 
-                        ? null 
+                    onPressed: isLoading
+                        ? null
                         : () async {
                             setState(() => isLoading = true);
                             disposeController();
                             Navigator.pop(dialogContext);
                             await _deleteWithGoogleReauth();
                           },
-                    icon: isLoading 
-                        ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                    icon: isLoading
+                        ? const SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
                         : const Icon(Icons.g_mobiledata, size: 20),
                     label: const Text('Con Google'),
                   ),
-                
+
+                if (isAppleAuth)
+                  TextButton.icon(
+                    onPressed: isLoading
+                        ? null
+                        : () async {
+                            setState(() => isLoading = true);
+                            disposeController();
+                            Navigator.pop(dialogContext);
+                            await _deleteWithAppleReauth();
+                          },
+                    icon: const Icon(Icons.apple, size: 20),
+                    label: const Text('Con Apple'),
+                  ),
+
                 // Botón de contraseña si aplica
                 if (isPasswordAuth)
                   ElevatedButton(
-                    onPressed: isLoading 
-                        ? null 
+                    onPressed: isLoading
+                        ? null
                         : () async {
                             final password = passwordController.text.trim();
                             if (password.isEmpty) {
@@ -614,11 +714,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.emergencyColor,
                     ),
-                    child: isLoading 
+                    child: isLoading
                         ? const SizedBox(
-                            width: 16, 
-                            height: 16, 
-                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
                           )
                         : const Text('Eliminar'),
                   ),
@@ -629,7 +732,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
     );
   }
-  
+
   /// Eliminar con re-autenticación de contraseña
   Future<void> _deleteWithPasswordReauth(String password) async {
     showDialog(
@@ -637,16 +740,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
-    
+
     try {
       final result = await _authService.deleteAccountAndAllData(
         passwordForReauth: password,
       );
-      
+
       if (mounted) {
         Navigator.pop(context); // Cerrar loading
       }
-      
+
       _handleDeleteResult(result);
     } catch (e) {
       if (mounted) {
@@ -660,7 +763,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
-  
+
   /// Eliminar con re-autenticación de Google
   Future<void> _deleteWithGoogleReauth() async {
     showDialog(
@@ -668,16 +771,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       barrierDismissible: false,
       builder: (context) => const Center(child: CircularProgressIndicator()),
     );
-    
+
     try {
       final result = await _authService.deleteAccountAndAllData(
         forceGoogleReauth: true,
       );
-      
+
       if (mounted) {
         Navigator.pop(context); // Cerrar loading
       }
-      
+
       _handleDeleteResult(result);
     } catch (e) {
       if (mounted) {
@@ -691,14 +794,41 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
   }
-  
+
+  /// Eliminar con re-autenticación de Apple
+  Future<void> _deleteWithAppleReauth() async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(child: CircularProgressIndicator()),
+    );
+
+    try {
+      final result = await _authService.deleteAccountAndAllData(
+        forceAppleReauth: true,
+      );
+      if (mounted) Navigator.pop(context);
+      _handleDeleteResult(result);
+    } catch (e) {
+      if (mounted) {
+        Navigator.pop(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $e'),
+            backgroundColor: AppTheme.emergencyColor,
+          ),
+        );
+      }
+    }
+  }
+
   /// Manejar resultado de eliminación
   /// CORREGIDO: Usa DeleteAccountResult en lugar de AuthResult
   /// CORREGIDO: NO muestra "éxito" si Cloud Function falló
   /// CORREGIDO: Navega con removeUntil para evitar "back" a Home
   void _handleDeleteResult(DeleteAccountResult result) {
     if (!mounted) return;
-    
+
     switch (result.status) {
       case DeleteAccountStatus.success:
         // ✅ SOLO mostrar éxito si Cloud Function realmente funcionó
@@ -708,17 +838,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: AppTheme.successColor,
           ),
         );
-        
+
         // Navegar a Login Y LIMPIAR STACK (evita "back" a Home)
         _navigateToLoginAndClearStack();
         break;
-        
+
       case DeleteAccountStatus.cloudFunctionFailed:
         // ❌ Cloud Function falló - NO mostrar "éxito"
         // La memoria ya fue limpiada, pero el usuario puede seguir en Auth
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(result.errorMessage ?? 'No se pudo eliminar la cuenta en el servidor'),
+            content: Text(
+              result.errorMessage ??
+                  'No se pudo eliminar la cuenta en el servidor',
+            ),
             backgroundColor: AppTheme.emergencyColor,
             duration: const Duration(seconds: 6),
             action: SnackBarAction(
@@ -726,26 +859,29 @@ class _ProfileScreenState extends State<ProfileScreen> {
               textColor: Colors.white,
               onPressed: () {
                 launchUrl(
-                  Uri.parse('mailto:soporte@victoriaencristo.app?subject=Problema%20al%20eliminar%20cuenta'),
+                  Uri.parse(
+                    'mailto:soporte@victoriaencristo.app?subject=Problema%20al%20eliminar%20cuenta',
+                  ),
                   mode: LaunchMode.externalApplication,
                 );
               },
             ),
           ),
         );
-        
+
         // Igual navegar a login porque la sesión quedó cerrada
         _navigateToLoginAndClearStack();
         break;
-        
+
       case DeleteAccountStatus.requiresReauth:
         // 🔐 Necesita re-autenticación
         _showReauthDialog(
           isGoogleAuth: result.isGoogleAuth,
           isPasswordAuth: result.isPasswordAuth,
+          isAppleAuth: result.isAppleAuth,
         );
         break;
-        
+
       case DeleteAccountStatus.error:
         // ❌ Error genérico
         ScaffoldMessenger.of(context).showSnackBar(
@@ -758,25 +894,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
         break;
     }
   }
-  
+
   /// Navegar a la raíz y dejar que StreamBuilder maneje la navegación
   /// Después de eliminar cuenta, el signOut causa que el StreamBuilder
   /// muestre LoginScreen automáticamente
   void _navigateToLoginAndClearStack() {
     if (!mounted) return;
-    
+
     // Llamar callback de logout si existe (para notificar a widgets padre)
     if (widget.onLogout != null) {
       widget.onLogout!();
     }
-    
+
     // Volver a la raíz - el StreamBuilder detectará signOut y mostrará Login
     Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   String _formatDate(DateTime? date) {
     if (date == null) return '-';
-    final months = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+    final months = [
+      'Ene',
+      'Feb',
+      'Mar',
+      'Abr',
+      'May',
+      'Jun',
+      'Jul',
+      'Ago',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dic',
+    ];
     return '${months[date.month - 1]} ${date.year}';
   }
 }
