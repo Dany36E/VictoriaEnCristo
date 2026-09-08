@@ -24,6 +24,7 @@ Fecha técnica: 2026-09-07. Este documento registra comprobaciones de producto; 
 5. **Prueba de eliminación:** las reglas de Firestore y la nueva función `deleteUserData` quedaron desplegadas el 7 de septiembre de 2026. Falta ejecutar una baja real con una cuenta desechable y verificar que no queden documentos vinculables en las colecciones superiores.
 6. **Público objetivo:** confirmar si la distribución será 13+, 17+ o sólo adultos y completar cuestionarios de contenido de ambas tiendas de forma coherente.
 7. **Revisión jurídica:** validar el aviso bajo la LFPDPPP vigente y las jurisdicciones adicionales donde se distribuya. Si se dirige a la UE, EE. UU. u otros países, aplicar sus reglas específicas.
+8. **Nombre y marca:** realizar una búsqueda profesional de antecedentes en IMPI/MARCia y en las tiendas antes de solicitar registro o afirmar exclusividad. “Victoria en Cristo” aparece en denominaciones de distintas asociaciones religiosas mexicanas; eso no prueba por sí solo un conflicto marcario, pero sí crea riesgo de confusión que debe revisarse.
 
 ## Declaraciones de tienda que requieren atención
 

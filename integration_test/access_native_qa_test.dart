@@ -9,6 +9,10 @@ import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   bool converted = false;
+  final requestedScale = double.tryParse(
+    Platform.environment['QA_TEXT_SCALE'] ?? '',
+  );
+  final scales = requestedScale == null ? const [1.0, 1.6] : [requestedScale];
   Future<void> capture(WidgetTester tester, String name) async {
     if (Platform.isAndroid && !converted) {
       await binding.convertFlutterSurfaceToImage();
@@ -22,7 +26,7 @@ void main() {
   setUpAll(() async {
     WidgetController.hitTestWarningShouldBeFatal = true;
   });
-  for (final scale in [1.0, 1.6]) {
+  for (final scale in scales) {
     testWidgets('Native access and welcome text $scale', (tester) async {
       converted = false;
       Widget wrap(Widget screen) => MaterialApp(

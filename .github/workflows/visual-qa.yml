@@ -48,14 +48,43 @@ jobs:
           retention-days: 30
 
   android-native:
-    name: Android ${{ matrix.profile }} / ${{ matrix.suite }}
+    name: Android ${{ matrix.label }}
     runs-on: ubuntu-latest
     timeout-minutes: 45
     strategy:
       fail-fast: false
       matrix:
-        profile: [phone_small, tablet]
-        suite: [series, access]
+        include:
+          - id: phone_small-series
+            label: phone_small / series
+            profile: phone_small
+            suite: series
+            text_scale: all
+          - id: tablet-series
+            label: tablet / series
+            profile: tablet
+            suite: series
+            text_scale: all
+          - id: phone_small-access-1_0
+            label: phone_small / access / 1.0x
+            profile: phone_small
+            suite: access
+            text_scale: '1.0'
+          - id: phone_small-access-1_6
+            label: phone_small / access / 1.6x
+            profile: phone_small
+            suite: access
+            text_scale: '1.6'
+          - id: tablet-access-1_0
+            label: tablet / access / 1.0x
+            profile: tablet
+            suite: access
+            text_scale: '1.0'
+          - id: tablet-access-1_6
+            label: tablet / access / 1.6x
+            profile: tablet
+            suite: access
+            text_scale: '1.6'
     steps:
       - uses: actions/checkout@v4
       - uses: subosito/flutter-action@v2
@@ -82,6 +111,8 @@ jobs:
           sudo udevadm control --reload-rules
           sudo udevadm trigger --name-match=kvm
       - name: Run isolated native suite
+        env:
+          QA_TEXT_SCALE: ${{ matrix.text_scale }}
         uses: reactivecircus/android-emulator-runner@v2
         with:
           api-level: 35
@@ -99,7 +130,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: android-${{ matrix.profile }}-${{ matrix.suite }}-qa
+          name: android-${{ matrix.id }}-qa
           path: build/qa
           if-no-files-found: error
           retention-days: 30
