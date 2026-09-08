@@ -21,7 +21,7 @@ Fecha técnica: 2026-09-07. Este documento registra comprobaciones de producto; 
 2. **Copyright bíblico:** archivar licencias de distribución digital completa para NVI, LBLA, NTV, TLA y RVR1960. La atribución dentro del XML no basta.
 3. **Otros activos:** documentar procedencia y licencia de cartas Headbanz, fondos para compartir, portadas, audios y bases de comentarios. Retirar cualquier archivo sin evidencia.
 4. **Tiendas:** hacer que Data Safety de Google Play y App Privacy de Apple coincidan exactamente con el binario final y todos sus SDK.
-5. **Backend:** desplegar las reglas de Firestore y la nueva función `deleteUserData`; probar la eliminación con una cuenta de ensayo y verificar colecciones superiores.
+5. **Prueba de eliminación:** las reglas de Firestore y la nueva función `deleteUserData` quedaron desplegadas el 7 de septiembre de 2026. Falta ejecutar una baja real con una cuenta desechable y verificar que no queden documentos vinculables en las colecciones superiores.
 6. **Público objetivo:** confirmar si la distribución será 13+, 17+ o sólo adultos y completar cuestionarios de contenido de ambas tiendas de forma coherente.
 7. **Revisión jurídica:** validar el aviso bajo la LFPDPPP vigente y las jurisdicciones adicionales donde se distribuya. Si se dirige a la UE, EE. UU. u otros países, aplicar sus reglas específicas.
 

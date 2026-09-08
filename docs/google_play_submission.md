@@ -1,6 +1,6 @@
 # Material de envío a Google Play — Android
 
-Versión preparada: **1.0.27 (37)**
+Versión preparada: **1.0.28 (38)**
 
 Paquete: **com.victoriaencristo.app**
 Categoría recomendada: **Estilo de vida**
