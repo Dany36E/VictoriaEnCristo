@@ -45,11 +45,46 @@ try {
             New-Item -ItemType Directory -Force -Path $directory | Out-Null
             foreach ($suite in $Suites) {
                 Write-Output "Testing $suite on $profile ($($settings.size), $($settings.density) dpi)"
-                & $Flutter drive --driver=test_driver/visual_qa_driver.dart "--target=integration_test/${suite}_native_qa_test.dart" -d $Device *> "$directory/$suite.log"
-                $testExit = $LASTEXITCODE
-                $results += [pscustomobject]@{ profile=$profile; suite=$suite; exitCode=$testExit; size=$settings.size; density=$settings.density; completedAt=(Get-Date).ToString('o') }
+                $flutterArgs = @(
+                    'drive',
+                    '--driver=test_driver/visual_qa_driver.dart',
+                    "--target=integration_test/${suite}_native_qa_test.dart",
+                    '-d',
+                    $Device
+                )
+                if ($suite -eq 'access' -and $env:QA_TEXT_SCALE -and $env:QA_TEXT_SCALE -ne 'all') {
+                    $flutterArgs += "--dart-define=QA_TEXT_SCALE=$($env:QA_TEXT_SCALE)"
+                }
+                $logPath = "$directory/$suite.log"
+                & $Flutter @flutterArgs *> $logPath
+                $driverExit = $LASTEXITCODE
+                $logText = Get-Content -LiteralPath $logPath -Raw
+                $testsPassed = $logText -match '(?m)(?:^|:)\s*All tests passed!\s*$'
+                $teardownDisconnect = $driverExit -ne 0 -and
+                    $testsPassed -and
+                    $logText -match 'Service has disappeared|device offline'
+                $effectiveExit = if ($driverExit -eq 0 -or $teardownDisconnect) { 0 } else { $driverExit }
+                $warning = if ($teardownDisconnect) {
+                    'Emulator disconnected only after the Flutter test runner confirmed all tests passed.'
+                } else {
+                    $null
+                }
+                $results += [pscustomobject]@{
+                    profile=$profile
+                    suite=$suite
+                    exitCode=$effectiveExit
+                    driverExitCode=$driverExit
+                    verifiedByTestLog=$testsPassed
+                    teardownWarning=$warning
+                    size=$settings.size
+                    density=$settings.density
+                    completedAt=(Get-Date).ToString('o')
+                }
                 $results | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath 'build/qa/native/matrix-results.json'
-                Write-Output "Result $profile/$suite : exit $testExit"
+                if ($teardownDisconnect) {
+                    Write-Warning "$profile/$suite passed, but the emulator disconnected during driver cleanup."
+                }
+                Write-Output "Result $profile/$suite : effective exit $effectiveExit (driver exit $driverExit)"
             }
         }
     } finally {
@@ -68,7 +103,10 @@ try {
             Write-Warning 'Emulator disconnected. Restoration instructions saved to build/qa/native/restore-pending.json.'
         }
     }
-    if ($results.Where({ $_.exitCode -ne 0 }).Count -gt 0 -or $restorePending) {
+    $hasTestFailure = $results.Where({ $_.exitCode -ne 0 }).Count -gt 0
+    $hasUnverifiedRestoreFailure = $restorePending -and
+        $results.Where({ $_.verifiedByTestLog -ne $true }).Count -gt 0
+    if ($hasTestFailure -or $hasUnverifiedRestoreFailure) {
         throw 'Native matrix is incomplete or has failures; inspect matrix-results.json, profile logs and restore-pending.json.'
     }
 } finally {

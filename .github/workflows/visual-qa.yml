@@ -119,7 +119,9 @@ jobs:
           target: google_apis
           arch: x86_64
           profile: pixel_5
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none -camera-front none
+          ram-size: 2048M
+          heap-size: 512M
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader -noaudio -no-boot-anim -no-metrics -camera-back none -camera-front none
           disable-animations: true
           script: pwsh -File scripts/run_android_qa_matrix.ps1 -Device emulator-5554 -Flutter flutter -Adb adb -Profiles "${{ matrix.profile }}" -Suites "${{ matrix.suite }}"
       - name: Build inspection gallery

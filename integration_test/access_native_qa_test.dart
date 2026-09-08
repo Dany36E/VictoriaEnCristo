@@ -9,8 +9,15 @@ import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
   bool converted = false;
+  // Host environment variables are not forwarded into Android/iOS app
+  // processes. CI passes QA_TEXT_SCALE with --dart-define so each emulator
+  // job really executes only its assigned scale. Keep Platform.environment as
+  // a local desktop fallback.
+  const definedScale = String.fromEnvironment('QA_TEXT_SCALE');
   final requestedScale = double.tryParse(
-    Platform.environment['QA_TEXT_SCALE'] ?? '',
+    definedScale.isNotEmpty
+        ? definedScale
+        : (Platform.environment['QA_TEXT_SCALE'] ?? ''),
   );
   final scales = requestedScale == null ? const [1.0, 1.6] : [requestedScale];
   Future<void> capture(WidgetTester tester, String name) async {
