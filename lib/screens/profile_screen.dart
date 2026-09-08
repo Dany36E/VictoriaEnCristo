@@ -224,6 +224,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         child: photoUrl != null
             ? Image.network(
                 photoUrl,
+                semanticLabel: 'Foto de perfil',
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
                 errorBuilder: (c, e, s) => _buildDefaultAvatar(),
@@ -855,12 +856,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
             backgroundColor: AppTheme.emergencyColor,
             duration: const Duration(seconds: 6),
             action: SnackBarAction(
-              label: 'Soporte',
+              label: 'Ver ayuda',
               textColor: Colors.white,
               onPressed: () {
                 launchUrl(
                   Uri.parse(
-                    'mailto:soporte@victoriaencristo.app?subject=Problema%20al%20eliminar%20cuenta',
+                    'https://dany36e.github.io/VictoriaEnCristo/data_deletion.html',
                   ),
                   mode: LaunchMode.externalApplication,
                 );

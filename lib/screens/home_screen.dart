@@ -2,9 +2,8 @@ import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import '../constants/image_urls.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../widgets/brand_backdrop.dart';
 import '../widgets/home/daily_verse_section.dart';
 import '../widgets/home/home_header.dart';
 import '../widgets/home/sos_button.dart';
@@ -299,24 +298,8 @@ class _HomeScreenState extends State<HomeScreen>
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            // CAPA 1: Imagen de fondo épica (cacheada)
-            Positioned.fill(
-              child: CachedNetworkImage(
-                imageUrl: ImageUrls.heroMountain,
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-                placeholder: (context, url) => Container(color: t.scaffoldBg),
-                errorWidget: (context, url, error) => Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [t.surface, t.scaffoldBg, t.scaffoldBg],
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // CAPA 1: Portada editorial propia (sin rastreo ni asset externo)
+            Positioned.fill(child: BrandBackdrop(accent: t.accent)),
 
             // CAPA 2: Overlay gradiente (adapta opacidad según tema)
             Positioned.fill(
@@ -657,7 +640,10 @@ class _HomeScreenState extends State<HomeScreen>
               decoration: BoxDecoration(
                 color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-                border: Border.all(color: color.withValues(alpha: 0.25), width: 0.5),
+                border: Border.all(
+                  color: color.withValues(alpha: 0.25),
+                  width: 0.5,
+                ),
               ),
               child: Icon(icon, color: color, size: 20),
             ),
@@ -917,8 +903,8 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                                           widget.subtitle,
                                           style: TextStyle(
                                             fontSize: 11,
-                                            color: Colors.white.withValues(alpha: 
-                                              0.6,
+                                            color: Colors.white.withValues(
+                                              alpha: 0.6,
                                             ),
                                             fontWeight: FontWeight.w500,
                                             letterSpacing: 0.2,
@@ -929,7 +915,9 @@ class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
                                       Icon(
                                         Icons.arrow_forward_ios_rounded,
                                         size: 11,
-                                        color: Colors.white.withValues(alpha: 0.5),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.5,
+                                        ),
                                       ),
                                     ],
                                   ),

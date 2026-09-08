@@ -80,6 +80,7 @@ class JesusStreakWidget extends StatelessWidget {
                 // ─── CAPA 1: Fondo dinámico ───
                 Image.asset(
                   bgPath,
+                  excludeFromSemantics: true,
                   fit: BoxFit.cover,
                   filterQuality: FilterQuality.high,
                   errorBuilder: (context, error, stackTrace) => Container(
@@ -87,7 +88,10 @@ class JesusStreakWidget extends StatelessWidget {
                       gradient: LinearGradient(
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
-                        colors: [streakColor.withValues(alpha: 0.3), const Color(0xFF0A0A12)],
+                        colors: [
+                          streakColor.withValues(alpha: 0.3),
+                          const Color(0xFF0A0A12),
+                        ],
                       ),
                     ),
                   ),
@@ -122,10 +126,16 @@ class JesusStreakWidget extends StatelessWidget {
                                   padding: const EdgeInsets.only(left: 8),
                                   child: Image.asset(
                                     spritePath,
+                                    semanticLabel: 'Ilustración de Jesús',
                                     fit: BoxFit.contain,
                                     filterQuality: FilterQuality.high,
-                                    errorBuilder: (context, error, stackTrace) =>
-                                        const Icon(Icons.person, size: 80, color: Colors.white24),
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            const Icon(
+                                              Icons.person,
+                                              size: 80,
+                                              color: Colors.white24,
+                                            ),
                                   ),
                                 ),
                               )
@@ -180,7 +190,10 @@ class JesusStreakWidget extends StatelessWidget {
                   child: Container(
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: streakColor.withValues(alpha: 0.3), width: 1.5),
+                      border: Border.all(
+                        color: streakColor.withValues(alpha: 0.3),
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -212,7 +225,9 @@ class JesusStreakWidget extends StatelessWidget {
         else ...[
           // Icono de fuego
           Icon(
-            streakDays > 0 ? Icons.local_fire_department : Icons.wb_sunny_rounded,
+            streakDays > 0
+                ? Icons.local_fire_department
+                : Icons.wb_sunny_rounded,
             color: streakColor,
             size: 28,
           ),
@@ -279,16 +294,25 @@ class JesusStreakWidget extends StatelessWidget {
         if (completedToday && !isLoading) ...[
           const SizedBox(width: 4),
           Container(
-                padding: EdgeInsets.symmetric(horizontal: streakDays >= 100 ? 6 : 8, vertical: 4),
+                padding: EdgeInsets.symmetric(
+                  horizontal: streakDays >= 100 ? 6 : 8,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFF4CAF50).withValues(alpha: 0.25),
                   borderRadius: BorderRadius.circular(10),
-                  border: Border.all(color: const Color(0xFF4CAF50).withValues(alpha: 0.5)),
+                  border: Border.all(
+                    color: const Color(0xFF4CAF50).withValues(alpha: 0.5),
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle, size: 12, color: Color(0xFF4CAF50)),
+                    const Icon(
+                      Icons.check_circle,
+                      size: 12,
+                      color: Color(0xFF4CAF50),
+                    ),
                     if (streakDays < 100) ...[
                       const SizedBox(width: 3),
                       const Text(
@@ -305,7 +329,11 @@ class JesusStreakWidget extends StatelessWidget {
               )
               .animate()
               .fadeIn(duration: 300.ms)
-              .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1), duration: 300.ms),
+              .scale(
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1, 1),
+                duration: 300.ms,
+              ),
         ],
       ],
     );
@@ -317,7 +345,8 @@ class JesusStreakWidget extends StatelessWidget {
 
   Widget _buildActionButton(Color streakColor) {
     final hour = DateTime.now().hour;
-    final canRegister = !completedToday && VictoryScoringService.I.canLogVictoryNow();
+    final canRegister =
+        !completedToday && VictoryScoringService.I.canLogVictoryNow();
     final badgeText = JesusWidgetService.I.getBadgeText(
       completedToday: completedToday,
       victoryToday: victoryToday,
@@ -354,7 +383,10 @@ class JesusStreakWidget extends StatelessWidget {
         decoration: BoxDecoration(
           color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: const Color(0xFFD4AF37).withValues(alpha: 0.5), width: 0.8),
+          border: Border.all(
+            color: const Color(0xFFD4AF37).withValues(alpha: 0.5),
+            width: 0.8,
+          ),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

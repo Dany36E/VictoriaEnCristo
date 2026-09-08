@@ -4,6 +4,7 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 
 import '../../models/series.dart';
+import '../../services/privacy_preferences_service.dart';
 import '../../theme/app_theme.dart';
 
 /// Reproductor de episodios. Embebe YouTube por ID de video (método fiable;
@@ -37,27 +38,40 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
 
   VideoEpisode get _current => widget.season.episodes[_currentIndex];
 
+  bool _hasYoutubeId(VideoEpisode e) =>
+      e.youtubeVideoId != null && e.youtubeVideoId!.trim().isNotEmpty;
+
   bool _episodeEmbeddable(VideoEpisode e) =>
       _canEmbed &&
-      e.youtubeVideoId != null &&
-      e.youtubeVideoId!.trim().isNotEmpty;
+      PrivacyPreferencesService.I.youtubeEmbedsEnabled.value &&
+      _hasYoutubeId(e);
+
+  void _createController({bool autoPlay = true}) {
+    if (!_episodeEmbeddable(_current)) return;
+    _controller?.close();
+    _controller = YoutubePlayerController.fromVideoId(
+      videoId: _current.youtubeVideoId!,
+      autoPlay: autoPlay,
+      params: const YoutubePlayerParams(
+        showControls: true,
+        showFullscreenButton: true,
+        enableCaption: true,
+        strictRelatedVideos: true,
+      ),
+    );
+  }
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialEpisodeIndex;
-    if (_episodeEmbeddable(_current)) {
-      _controller = YoutubePlayerController.fromVideoId(
-        videoId: _current.youtubeVideoId!,
-        autoPlay: true,
-        params: const YoutubePlayerParams(
-          showControls: true,
-          showFullscreenButton: true,
-          enableCaption: true,
-          strictRelatedVideos: true,
-        ),
-      );
-    }
+    _createController();
+  }
+
+  Future<void> _enableYoutubeEmbed() async {
+    await PrivacyPreferencesService.I.setYoutubeEmbedsEnabled(true);
+    if (!mounted) return;
+    setState(() => _createController());
   }
 
   Future<void> _select(int index) async {
@@ -72,7 +86,7 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
         // no es trivial en caliente, así que abrimos externo.
         await _openExternal(ep);
       }
-    } else {
+    } else if (!_canEmbed || !_hasYoutubeId(ep)) {
       await _openExternal(ep);
     }
   }
@@ -83,7 +97,8 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
     if (vid != null && vid.trim().isNotEmpty) {
       url = 'https://www.youtube.com/watch?v=$vid';
     } else if (widget.season.youtubePlaylistId != null) {
-      url = 'https://www.youtube.com/playlist?list=${widget.season.youtubePlaylistId}';
+      url =
+          'https://www.youtube.com/playlist?list=${widget.season.youtubePlaylistId}';
     } else {
       url = widget.season.officialUrl ?? widget.series.officialUrl;
     }
@@ -130,8 +145,10 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
               child: Row(
                 children: [
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 3,
+                    ),
                     decoration: BoxDecoration(
                       color: accent.withValues(alpha: 0.16),
                       borderRadius: BorderRadius.circular(6),
@@ -188,6 +205,10 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
   }
 
   Widget _buildExternalFallback(Color accent) {
+    final canOfferEmbed = _canEmbed && _hasYoutubeId(_current);
+    final embedDisabled =
+        canOfferEmbed &&
+        !PrivacyPreferencesService.I.youtubeEmbedsEnabled.value;
     return Container(
       width: double.infinity,
       color: Colors.black,
@@ -197,7 +218,11 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
           Icon(Icons.smart_display_outlined, color: accent, size: 52),
           const SizedBox(height: 12),
           Text(
-            'Este episodio se ve en YouTube.',
+            embedDisabled
+                ? 'El reproductor integrado está desactivado para proteger tu '
+                      'privacidad. Si lo permites, YouTube recibirá datos '
+                      'técnicos como tu IP y datos del dispositivo.'
+                : 'Este episodio se ve en YouTube.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),
@@ -205,14 +230,23 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
             ),
           ),
           const SizedBox(height: 14),
-          ElevatedButton.icon(
-            onPressed: () => _openExternal(_current),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: accent,
-              foregroundColor: Colors.black,
+          if (embedDisabled) ...[
+            ElevatedButton.icon(
+              onPressed: _enableYoutubeEmbed,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: accent,
+                foregroundColor: Colors.black,
+              ),
+              icon: const Icon(Icons.play_arrow_rounded, size: 18),
+              label: const Text('Permitir y reproducir aquí'),
             ),
+            const SizedBox(height: 8),
+          ],
+          OutlinedButton.icon(
+            onPressed: () => _openExternal(_current),
+            style: OutlinedButton.styleFrom(foregroundColor: Colors.white),
             icon: const Icon(Icons.open_in_new, size: 18),
-            label: const Text('Ver en YouTube'),
+            label: const Text('Abrir en la app de YouTube'),
           ),
         ],
       ),

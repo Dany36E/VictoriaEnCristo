@@ -59,6 +59,8 @@ import 'services/learning/learning_cloud_sync.dart';
 import 'services/learning/talents_service.dart';
 import 'services/user_pref_cloud_sync_service.dart';
 import 'services/force_update_service.dart';
+import 'services/privacy_preferences_service.dart';
+import 'screens/legal_consent_screen.dart';
 import 'data/devotionals.dart';
 
 /// RouteObserver global para detectar navegación (usado por HomeScreen)
@@ -112,6 +114,13 @@ Future<StartupServices> _initializeStartupServices() async {
     () =>
         Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform),
   );
+
+  // Privacidad por defecto: los SDK opcionales permanecen apagados hasta que
+  // la persona los habilita expresamente en Configuración.
+  await _timedStartup('Preferencias de privacidad', () async {
+    await PrivacyPreferencesService.I.initialize();
+    await PrivacyPreferencesService.I.applyFirebasePreferences();
+  });
 
   // App Check: protege Firestore/Functions de clientes no autorizados.
   // Modo "monitor" — NO bloquea aún en consola; permite verificar adopción.
@@ -596,7 +605,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
           // para que la próxima notificación use el versículo del día nuevo
           // (la notificación recurrente conserva el texto capturado al
           // programarla, no se recalcula sola).
-          unawaited(NotificationService().rescheduleDailyVerseReminderIfEnabled());
+          unawaited(
+            NotificationService().rescheduleDailyVerseReminderIfEnabled(),
+          );
           // Refrescar scoring (streak, loggedToday)
           VictoryScoringService.I.refreshAfterDayChange();
         }
@@ -712,11 +723,17 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         // Usuario autenticado => Verificar perfil en NUBE (no cache local)
         final user = snapshot.data!;
 
-        return _ProfileGate(
-          user: user,
-          onThemeChanged: _handleThemeChange,
-          pendingRoute: _pendingRoute,
-          onRouteConsumed: () => setState(() => _pendingRoute = null),
+        return ValueListenableBuilder<bool>(
+          valueListenable: PrivacyPreferencesService.I.legalConsentAccepted,
+          builder: (context, accepted, _) {
+            if (!accepted) return const LegalConsentScreen();
+            return _ProfileGate(
+              user: user,
+              onThemeChanged: _handleThemeChange,
+              pendingRoute: _pendingRoute,
+              onRouteConsumed: () => setState(() => _pendingRoute = null),
+            );
+          },
         );
       },
     );

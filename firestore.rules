@@ -344,6 +344,11 @@ service cloud.firestore {
              && strMax(d, 'photoURL', 2048)
              && strMax(d, 'photoUrl', 2048)
              && strMax(d, 'inviteCode', 16)
+             && strMax(d, 'legalConsentVersion', 20)
+             && (!('legalConsentAcceptedAt' in d)
+                 || d.legalConsentAcceptedAt is timestamp)
+             && (!('sensitiveDataConsent' in d)
+                 || d.sensitiveDataConsent is bool)
              && (!('selectedGiants' in d) || (d.selectedGiants is list && d.selectedGiants.size() <= 20));
     }
 
@@ -367,6 +372,10 @@ service cloud.firestore {
         'isDarkMode',
         'notificationsEnabled',
         'updatedAt',
+        // Evidencia de consentimiento explícito (sin texto sensible)
+        'legalConsentVersion',
+        'legalConsentAcceptedAt',
+        'sensitiveDataConsent',
         // Compañero de Batalla
         'inviteCode',
         'publicName'
@@ -394,6 +403,10 @@ service cloud.firestore {
         'sfxEnabled',
         'isDarkMode',
         'notificationsEnabled',
+        // Evidencia de consentimiento explícito (sin texto sensible)
+        'legalConsentVersion',
+        'legalConsentAcceptedAt',
+        'sensitiveDataConsent',
         // Compañero de Batalla
         'inviteCode',
         'publicName'

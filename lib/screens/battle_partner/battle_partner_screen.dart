@@ -179,12 +179,15 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           decoration: BoxDecoration(
             color: AppDesignSystem.gold.withValues(alpha: 0.10),
             borderRadius: BorderRadius.circular(14),
-            border:
-                Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.3)),
+            border: Border.all(
+              color: AppDesignSystem.gold.withValues(alpha: 0.3),
+            ),
           ),
           child: ListTile(
-            leading: const Icon(Icons.shield_moon_rounded,
-                color: AppDesignSystem.gold),
+            leading: const Icon(
+              Icons.shield_moon_rounded,
+              color: AppDesignSystem.gold,
+            ),
             title: Text(
               label,
               style: const TextStyle(
@@ -197,13 +200,10 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               'Toca para poner un PIN',
               style: TextStyle(color: Colors.white70, fontSize: 12),
             ),
-            trailing:
-                const Icon(Icons.chevron_right, color: Colors.white54),
+            trailing: const Icon(Icons.chevron_right, color: Colors.white54),
             onTap: () => Navigator.push(
               context,
-              MaterialPageRoute(
-                builder: (_) => const RemoteGuardianScreen(),
-              ),
+              MaterialPageRoute(builder: (_) => const RemoteGuardianScreen()),
             ),
           ),
         );
@@ -522,7 +522,9 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             decoration: BoxDecoration(
               color: Colors.black.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.15)),
+              border: Border.all(
+                color: AppDesignSystem.gold.withValues(alpha: 0.15),
+              ),
             ),
             child: Column(
               children: [
@@ -550,7 +552,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           ),
           const SizedBox(height: 14),
           Text(
-            'Invita a un hermano de confianza que ore por ti y te acompañe. La privacidad está garantizada: nunca verá tu diario ni tus luchas específicas.',
+            'Invita a un hermano de confianza que ore por ti y te acompañe. La app no comparte con él tu diario ni el detalle de tus luchas; sólo verá lo que tú envíes mediante esta función.',
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 12,

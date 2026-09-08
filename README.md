@@ -5,7 +5,9 @@ App Flutter cristiana para acompanamiento espiritual, lectura biblica, planes, d
 ## Stack
 
 - Flutter / Dart con Material Design 3.
-- Firebase Auth, Firestore, Cloud Functions, Analytics, Crashlytics y FCM.
+- Firebase Auth, Firestore, Cloud Functions y FCM; Analytics y Crashlytics son
+  opcionales, están apagados por defecto y se habilitan desde el Centro de
+  privacidad.
 - Persistencia local con `shared_preferences` y cache offline de Firestore.
 - Audio con `just_audio`, `audio_session` y TTS con `flutter_tts`.
 - Widgets nativos con `home_widget`.
@@ -19,7 +21,8 @@ App Flutter cristiana para acompanamiento espiritual, lectura biblica, planes, d
 - Escuela del Reino: quizzes, recorridos, heroes, parabolas, libros, profecias y juegos.
 - Diario y oraciones: reflexion, prompts, oraciones por categoria y seguimiento espiritual.
 - Compañero de Batalla: invitaciones, mensajes, SOS de oracion y privacidad por defecto.
-- Muro de Batalla: publicaciones anonimas moderadas por Cloud Functions.
+- Muro de Batalla: publicaciones seudónimas moderadas por Cloud Functions; el
+  UID no se muestra y un hash interno permite prevenir abuso y eliminar datos.
 
 ## Comandos esenciales
 
@@ -61,7 +64,8 @@ flutter test integration_test/app_flow_test.dart -d <device_id>
 - Sync adapters write-through para conectar acciones locales con Firestore.
 - `DataBootstrapper` y `AccountSessionManager` coordinan login/logout, hidratacion cloud y limpieza segura.
 - `LearningRegistry` centraliza la inicializacion de Escuela del Reino.
-- `AppErrorHandler` centraliza reportes a Crashlytics y mensajes amables al usuario.
+- `AppErrorHandler` centraliza diagnósticos, respeta la preferencia de
+  Crashlytics y muestra mensajes claros al usuario.
 - `AppNavigation` centraliza rutas imperativas usadas por SOS, notificaciones y deep links.
 - Compañero de Batalla usa Cloud Functions para invitaciones, aceptar, mensajes y SOS; las reglas bloquean creates directos en documentos sensibles.
 - Desktop usa `PlatformCapabilities` para omitir plugins moviles no disponibles y mantener Windows como app maximizada/pantalla completa.

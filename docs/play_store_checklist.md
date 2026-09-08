@@ -24,6 +24,9 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - [x] Windows Google OAuth con PKCE S256.
 - [x] Política de contraseñas en signup (8+ chars, alfanumérico).
 - [x] BLB API key migrada con flag idempotente.
+- [x] Consentimiento expreso separado para datos sensibles y versión de aceptación.
+- [x] Analytics y Crashlytics desactivados por defecto, con controles revocables.
+- [x] YouTube integrado bloqueado hasta consentimiento específico.
 
 ## 🔧 Pendiente — Acciones manuales en Google / Firebase Console
 
@@ -57,7 +60,8 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - [x] Documentos publicados por GitHub Pages con HTTPS.
 - [x] Política: https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html
 - [x] Eliminación: https://dany36e.github.io/VictoriaEnCristo/data_deletion.html
-- [ ] Sustituir `soporte@victoriaencristo.app` por un correo público real antes de enviar a revisión.
+- [ ] Incorporar nombre o razón social, domicilio verificable y correo público
+  operativo para privacidad/ARCO antes de enviar a revisión.
 
 ## 🛒 Play Console — formulario de envío
 
@@ -72,9 +76,16 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - **Datos personales**: email, nombre, foto, UID. **Recolectados** y **almacenados encriptados en tránsito** (TLS).
 - **Mensajes**: contenido de Battle Partner. **Recolectados** (encriptados en tránsito).
 - **App activity**: progreso, configuración. **Recolectados**.
-- **Diagnóstico**: crash reports + métricas anónimas.
+- **Diagnóstico y uso**: Crashlytics y Analytics se recolectan únicamente cuando
+  la persona los habilita; declararlos de todos modos como datos opcionales.
 - **Identificador publicitario**: NO recolectado (AD_ID removido).
 - Política de eliminación: link a `data_deletion.md` hospedado.
+
+### Bloqueo de copyright
+- [ ] Archivar licencias escritas para distribuir los textos bíblicos completos
+  NVI, LBLA, NTV, TLA y RVR1960 dentro del AAB. La atribución no sustituye permiso.
+- [ ] Documentar autor, fuente, licencia y comprobante de audios, cartas,
+  portadas y fondos locales; retirar cualquier activo sin procedencia demostrable.
 
 ### Content rating (UGC)
 - Marcar **"Sí, los usuarios pueden interactuar/intercambiar contenido"** por:

@@ -1,11 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1024 1024" role="img" aria-labelledby="title desc">
   <title id="title">Victoria en Cristo</title>
-  <desc id="desc">Una cruz nace del vértice de una V, símbolo de victoria, camino y fe.</desc>
-  <rect width="1024" height="1024" fill="#07111C"/>
-  <g fill="none" stroke="#D4AF37" stroke-width="92" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M252 430 L512 782 L772 430"/>
-    <path d="M512 704 L512 224"/>
-    <path d="M382 354 L642 354"/>
+  <desc id="desc">Un camino en forma de V asciende y se convierte en una cruz.</desc>
+  <rect width="1024" height="1024" fill="#07131F"/>
+  <!--
+    Marca trazada sobre una cuadrícula propia de 8 px. La asimetría del brazo
+    derecho convierte la V estática en un camino ascendente; la cruz nace del
+    mismo vértice. No usa símbolos, tipografías ni ilustraciones de terceros.
+  -->
+  <g fill="none" stroke="#E0B93D" stroke-width="78" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M224 438 L500 790 Q512 806 524 790 L800 366"/>
+    <path d="M512 774 L512 214"/>
+    <path d="M374 348 L650 348"/>
   </g>
 </svg>

@@ -44,13 +44,16 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   ];
 
   ShareCardTemplate get _template => kShareTemplates[_selectedIndex];
-  Size get _cardSize => Size(_aspects[_aspectIndex].w, _aspects[_aspectIndex].h);
+  Size get _cardSize =>
+      Size(_aspects[_aspectIndex].w, _aspects[_aspectIndex].h);
 
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-        BibleReaderThemeData.migrateId(
-            BibleUserDataService.I.readerThemeNotifier.value));
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
+    );
 
     return Scaffold(
       backgroundColor: t.background,
@@ -89,8 +92,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             Container(
               decoration: BoxDecoration(
                 color: t.surface.withValues(alpha: 0.6),
-                borderRadius:
-                    const BorderRadius.vertical(top: Radius.circular(20)),
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(20),
+                ),
               ),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -120,8 +124,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         children: [
           GestureDetector(
             onTap: () => Navigator.pop(context),
-            child: Icon(Icons.arrow_back_ios,
-                color: t.textSecondary, size: 20),
+            child: Icon(Icons.arrow_back_ios, color: t.textSecondary, size: 20),
           ),
           const Spacer(),
           Text(
@@ -161,7 +164,8 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 border: isSelected
                     ? Border.all(color: t.accent, width: 2.5)
                     : Border.all(
-                        color: t.textSecondary.withValues(alpha: 0.15)),
+                        color: t.textSecondary.withValues(alpha: 0.15),
+                      ),
               ),
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
@@ -171,6 +175,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     if (tmpl.backgroundAsset != null)
                       Image.asset(
                         tmpl.backgroundAsset!,
+                        excludeFromSemantics: true,
                         fit: BoxFit.cover,
                         filterQuality: FilterQuality.high,
                         errorBuilder: (_, _, _) => Container(
@@ -192,7 +197,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                       right: 0,
                       child: Container(
                         padding: const EdgeInsets.symmetric(
-                            vertical: 3, horizontal: 2),
+                          vertical: 3,
+                          horizontal: 2,
+                        ),
                         color: Colors.black54,
                         child: Text(
                           tmpl.name,
@@ -226,12 +233,14 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         GestureDetector(
           onTap: () => setState(() => _customOpen = !_customOpen),
           child: Padding(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
               children: [
-                Icon(Icons.tune,
-                    size: 16, color: t.textSecondary.withValues(alpha: 0.5)),
+                Icon(
+                  Icons.tune,
+                  size: 16,
+                  color: t.textSecondary.withValues(alpha: 0.5),
+                ),
                 const SizedBox(width: 8),
                 Text(
                   'Personalizar',
@@ -292,8 +301,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     thumbColor: t.accent,
                     overlayColor: t.accent.withValues(alpha: 0.1),
                     trackHeight: 2,
-                    thumbShape:
-                        const RoundSliderThumbShape(enabledThumbRadius: 6),
+                    thumbShape: const RoundSliderThumbShape(
+                      enabledThumbRadius: 6,
+                    ),
                   ),
                   child: Slider(
                     value: _fontSize,
@@ -341,11 +351,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     const SizedBox(width: 12),
                     _alignIcon(Icons.format_align_left, TextAlign.left, t),
                     const SizedBox(width: 6),
-                    _alignIcon(
-                        Icons.format_align_center, TextAlign.center, t),
+                    _alignIcon(Icons.format_align_center, TextAlign.center, t),
                     const SizedBox(width: 6),
-                    _alignIcon(
-                        Icons.format_align_right, TextAlign.right, t),
+                    _alignIcon(Icons.format_align_right, TextAlign.right, t),
                     const Spacer(),
                     Text(
                       'Logo',
@@ -361,8 +369,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                         value: _showLogo,
                         onChanged: (v) => setState(() => _showLogo = v),
                         activeThumbColor: t.accent,
-                        inactiveTrackColor:
-                            t.textSecondary.withValues(alpha: 0.12),
+                        inactiveTrackColor: t.textSecondary.withValues(
+                          alpha: 0.12,
+                        ),
                       ),
                     ),
                   ],
@@ -423,11 +432,11 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
               ? Border.all(color: t.accent, width: 1)
               : Border.all(color: t.textSecondary.withValues(alpha: 0.12)),
         ),
-        child: Icon(icon,
-            color: isSelected
-                ? t.accent
-                : t.textSecondary.withValues(alpha: 0.4),
-            size: 16),
+        child: Icon(
+          icon,
+          color: isSelected ? t.accent : t.textSecondary.withValues(alpha: 0.4),
+          size: 16,
+        ),
       ),
     );
   }
@@ -505,17 +514,18 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   // ── Image capture ──
   Future<File?> _captureImage() async {
     try {
-      final boundary = _repaintKey.currentContext!.findRenderObject()
-          as RenderRepaintBoundary;
+      final boundary =
+          _repaintKey.currentContext!.findRenderObject()
+              as RenderRepaintBoundary;
       final image = await boundary.toImage(pixelRatio: 2.0);
-      final byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
+      final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) return null;
 
       final bytes = byteData.buffer.asUint8List();
       final dir = await getTemporaryDirectory();
       final file = File(
-          '${dir.path}/victoria_verse_${DateTime.now().millisecondsSinceEpoch}.png');
+        '${dir.path}/victoria_verse_${DateTime.now().millisecondsSinceEpoch}.png',
+      );
       await file.writeAsBytes(bytes);
       return file;
     } catch (e) {
@@ -535,10 +545,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
       );
       final file = cached ?? await _captureImage();
       if (file == null) return;
-      await Share.shareXFiles(
-        [XFile(file.path)],
-        text: 'Victoria en Cristo',
-      );
+      await Share.shareXFiles([XFile(file.path)], text: 'Victoria en Cristo');
     } finally {
       if (mounted) setState(() => _sharing = false);
     }

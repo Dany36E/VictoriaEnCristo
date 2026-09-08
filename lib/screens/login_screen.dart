@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import '../constants/image_urls.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../services/auth_service.dart';
+import '../services/privacy_preferences_service.dart';
 import '../utils/platform_capabilities.dart';
+import '../widgets/brand_backdrop.dart';
 
 class LoginScreen extends StatefulWidget {
   final VoidCallback? onThemeChanged;
@@ -39,6 +38,7 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
   bool _obscurePassword = true;
   bool _acceptedTerms = false;
+  bool _acceptedSensitiveData = false;
   String? _errorMessage;
 
   bool get _supportsGoogleSignIn => PlatformCapabilities.supportsGoogleSignIn;
@@ -72,25 +72,8 @@ class _LoginScreenState extends State<LoginScreen> {
       backgroundColor: Colors.transparent,
       body: Stack(
         children: [
-          // CAPA 1: Imagen de fondo épica (cacheada, misma que Home)
-          Positioned.fill(
-            child: CachedNetworkImage(
-              imageUrl: ImageUrls.heroMountain,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
-              placeholder: (context, url) =>
-                  Container(color: const Color(0xFF0D1B2A)),
-              errorWidget: (context, url, error) => Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [Color(0xFF1B2838), Color(0xFF0D1B2A)],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // CAPA 1: Portada editorial propia (misma identidad que Home)
+          const Positioned.fill(child: BrandBackdrop()),
 
           // CAPA 2: Overlay gradiente oscuro
           Positioned.fill(
@@ -536,6 +519,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   hintText: 'Nombre completo',
                   icon: Icons.person_outlined,
                   keyboardType: TextInputType.name,
+                  textInputAction: TextInputAction.next,
+                  autofillHints: const [AutofillHints.name],
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Ingresa tu nombre';
@@ -557,6 +542,8 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: 'Correo electrónico',
                 icon: Icons.email_outlined,
                 keyboardType: TextInputType.emailAddress,
+                textInputAction: TextInputAction.next,
+                autofillHints: const [AutofillHints.email],
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Ingresa tu correo';
@@ -577,6 +564,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 hintText: 'Contraseña',
                 icon: Icons.lock_outlined,
                 obscureText: _obscurePassword,
+                textInputAction: TextInputAction.done,
+                autofillHints: _isLogin
+                    ? const [AutofillHints.password]
+                    : const [AutofillHints.newPassword],
+                onFieldSubmitted: (_) => _handleSubmit(),
                 suffixIcon: IconButton(
                   icon: Icon(
                     _obscurePassword
@@ -594,8 +586,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Ingresa tu contraseña';
                   }
-                  if (!_isLogin && value.length < 6) {
-                    return 'Mínimo 6 caracteres';
+                  if (!_isLogin && value.length < 8) {
+                    return 'Mínimo 8 caracteres';
                   }
                   return null;
                 },
@@ -649,73 +641,68 @@ class _LoginScreenState extends State<LoginScreen> {
   // CHECKBOX TÉRMINOS Y CONDICIONES - ESTILO CONSISTENTE
   // ============================================================
   Widget _buildTermsCheckbox() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
+    const labelStyle = TextStyle(
+      fontFamily: 'Lato',
+      color: Colors.white,
+      fontSize: 13,
+      height: 1.4,
+    );
+    return Column(
       children: [
-        // Checkbox personalizado con estilo dorado
-        SizedBox(
-          width: 24,
-          height: 24,
-          child: Checkbox(
-            value: _acceptedTerms,
-            onChanged: (value) {
-              HapticFeedback.selectionClick();
-              setState(() => _acceptedTerms = value ?? false);
-            },
-            activeColor: const Color(0xFFD4AF37),
-            checkColor: Colors.black,
-            side: BorderSide(
-              color: _acceptedTerms
-                  ? const Color(0xFFD4AF37)
-                  : Colors.white.withValues(alpha: 0.5),
-              width: 1.5,
-            ),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(4),
-            ),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _acceptedTerms,
+          activeColor: const Color(0xFFD4AF37),
+          checkColor: Colors.black,
+          onChanged: (value) {
+            HapticFeedback.selectionClick();
+            setState(() => _acceptedTerms = value ?? false);
+          },
+          title: const Text(
+            'He leído y acepto los Términos y Condiciones.',
+            style: labelStyle,
           ),
         ),
-        const SizedBox(width: 12),
-        // Texto del label
-        Expanded(
-          child: GestureDetector(
-            onTap: () {
-              HapticFeedback.selectionClick();
-              setState(() => _acceptedTerms = !_acceptedTerms);
-            },
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontFamily: 'Lato',
-                  color: Colors.white.withValues(alpha: 0.8),
-                  fontSize: 13,
-                  fontWeight: FontWeight.w400,
-                  height: 1.4,
-                ),
-                children: [
-                  const TextSpan(text: 'He leído y acepto los '),
-                  TextSpan(
-                    text: 'Términos y Condiciones',
-                    style: const TextStyle(
-                      fontFamily: 'Lato',
-                      color: Color(0xFFFFD700),
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      decoration: TextDecoration.underline,
-                      decorationColor: Color(0xFFFFD700),
-                    ),
-                    recognizer: TapGestureRecognizer()
-                      ..onTap = () => launchUrl(
-                        Uri.parse(
-                          'https://dany36e.github.io/VictoriaEnCristo/terms.html',
-                        ),
-                        mode: LaunchMode.externalApplication,
-                      ),
-                  ),
-                ],
-              ),
-            ),
+        CheckboxListTile(
+          contentPadding: EdgeInsets.zero,
+          controlAffinity: ListTileControlAffinity.leading,
+          value: _acceptedSensitiveData,
+          activeColor: const Color(0xFFD4AF37),
+          checkColor: Colors.black,
+          onChanged: (value) {
+            HapticFeedback.selectionClick();
+            setState(() => _acceptedSensitiveData = value ?? false);
+          },
+          title: const Text(
+            'Consiento expresamente el tratamiento de los datos sensibles '
+            'que decida registrar, según el Aviso de Privacidad.',
+            style: labelStyle,
           ),
+        ),
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: 4,
+          children: [
+            TextButton(
+              onPressed: () => launchUrl(
+                Uri.parse(
+                  'https://dany36e.github.io/VictoriaEnCristo/terms.html',
+                ),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: const Text('Leer términos'),
+            ),
+            TextButton(
+              onPressed: () => launchUrl(
+                Uri.parse(
+                  'https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html',
+                ),
+                mode: LaunchMode.externalApplication,
+              ),
+              child: const Text('Leer aviso de privacidad'),
+            ),
+          ],
         ),
       ],
     );
@@ -732,11 +719,17 @@ class _LoginScreenState extends State<LoginScreen> {
     bool obscureText = false,
     Widget? suffixIcon,
     String? Function(String?)? validator,
+    TextInputAction? textInputAction,
+    Iterable<String>? autofillHints,
+    ValueChanged<String>? onFieldSubmitted,
   }) {
     return TextFormField(
       controller: controller,
       keyboardType: keyboardType,
       obscureText: obscureText,
+      textInputAction: textInputAction,
+      autofillHints: autofillHints,
+      onFieldSubmitted: onFieldSubmitted,
       // Texto del usuario: BLANCO PURO con Google Fonts
       style: const TextStyle(
         fontFamily: 'Lato',
@@ -893,6 +886,7 @@ class _LoginScreenState extends State<LoginScreen> {
               _isLogin = !_isLogin;
               _errorMessage = null;
               _acceptedTerms = false;
+              _acceptedSensitiveData = false;
               // Limpiar campo nombre al cambiar de modo
               if (_isLogin) _nameController.clear();
             });
@@ -982,6 +976,13 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
+    if (!_isLogin && !_acceptedSensitiveData) {
+      setState(
+        () => _errorMessage =
+            'Debes decidir si consientes el tratamiento de datos sensibles',
+      );
+      return;
+    }
 
     HapticFeedback.mediumImpact();
     setState(() {
@@ -1008,6 +1009,10 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => _isLoading = false);
 
     if (result.isSuccess) {
+      if (!_isLogin) {
+        await PrivacyPreferencesService.I.acceptRequiredConsent();
+      }
+      if (!mounted) return;
       HapticFeedback.heavyImpact();
       // NO navegar manualmente - el StreamBuilder en main.dart detectará
       // el cambio de auth y mostrará ProfileGate (que decide Home vs Onboarding)

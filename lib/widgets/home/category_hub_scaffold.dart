@@ -43,6 +43,7 @@ class CategoryHubScaffold extends StatelessWidget {
             Positioned.fill(
               child: Image.asset(
                 'assets/bible/share_backgrounds/cosmos.png',
+                excludeFromSemantics: true,
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
               ),

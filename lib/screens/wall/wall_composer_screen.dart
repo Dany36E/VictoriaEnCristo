@@ -64,7 +64,10 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
     setState(() => _sending = true);
 
     // Sanitizar: quitar caracteres de control (excepto newlines)
-    final body = _textController.text.trim().replaceAll(RegExp(r'[\x00-\x09\x0B\x0C\x0E-\x1F]'), '');
+    final body = _textController.text.trim().replaceAll(
+      RegExp(r'[\x00-\x09\x0B\x0C\x0E-\x1F]'),
+      '',
+    );
 
     final result = await WallService.I.submitPost(
       giantId: _selectedGiant!.id,
@@ -150,9 +153,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                 decoration: BoxDecoration(
                   color: t.accent.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: t.accent.withValues(alpha: 0.15),
-                  ),
+                  border: Border.all(color: t.accent.withValues(alpha: 0.15)),
                 ),
                 child: Row(
                   children: [
@@ -164,7 +165,7 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                     const SizedBox(width: 10),
                     Expanded(
                       child: Text(
-                        'Tu identidad es 100% anónima. Se te asignará un alias aleatorio.',
+                        'Tu nombre y UID no se muestran en la publicación. Se te asignará un alias aleatorio y usamos un identificador seudónimo para moderar abusos.',
                         style: TextStyle(
                           fontSize: 12,
                           height: 1.4,
@@ -219,11 +220,10 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                         g.displayName,
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight:
-                              selected ? FontWeight.w700 : FontWeight.w500,
-                          color: selected
-                              ? t.accent
-                              : t.textSecondary,
+                          fontWeight: selected
+                              ? FontWeight.w700
+                              : FontWeight.w500,
+                          color: selected ? t.accent : t.textSecondary,
                         ),
                       ),
                     ),
@@ -262,19 +262,22 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
                   filled: true,
                   fillColor: t.surface,
                   enabledBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
+                    borderRadius: BorderRadius.circular(
+                      AppDesignSystem.radiusM,
+                    ),
                     borderSide: BorderSide(
                       color: t.accent.withValues(alpha: 0.15),
                     ),
                   ),
                   focusedBorder: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                    borderSide: BorderSide(
-                      color: t.accent,
-                      width: 1.5,
+                    borderRadius: BorderRadius.circular(
+                      AppDesignSystem.radiusM,
                     ),
+                    borderSide: BorderSide(color: t.accent, width: 1.5),
                   ),
-                  contentPadding: const EdgeInsets.all(AppDesignSystem.spacingM),
+                  contentPadding: const EdgeInsets.all(
+                    AppDesignSystem.spacingM,
+                  ),
                   counterStyle: TextStyle(
                     fontSize: 11,
                     color: _charCount > _kMaxPostLength * 0.9

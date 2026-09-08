@@ -42,8 +42,9 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
   void initState() {
     super.initState();
 
-    _confettiController =
-        ConfettiController(duration: const Duration(seconds: 3));
+    _confettiController = ConfettiController(
+      duration: const Duration(seconds: 3),
+    );
 
     _fireController = AnimationController(
       vsync: this,
@@ -171,9 +172,9 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
                 SizedBox(height: screenHeight * 0.02),
 
                 // ─── Número grande ───
-                _buildStreakNumber(streakColor)
-                    .animate()
-                    .fadeIn(delay: 700.ms, duration: 500.ms),
+                _buildStreakNumber(
+                  streakColor,
+                ).animate().fadeIn(delay: 700.ms, duration: 500.ms),
 
                 const SizedBox(height: 4),
 
@@ -325,6 +326,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           // Sprite
           Image.asset(
             spritePath,
+            semanticLabel: 'Ilustración de celebración con Jesús',
             width: 160,
             height: 160,
             fit: BoxFit.contain,
@@ -352,10 +354,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           shaderCallback: (bounds) => LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              streakColor,
-              AppDesignSystem.goldLight,
-            ],
+            colors: [streakColor, AppDesignSystem.goldLight],
           ).createShader(bounds),
           child: Text(
             '${_numberAnimation.value}',
@@ -399,7 +398,9 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildWeeklyCalendar(
-      List<Map<String, dynamic>> weeklyData, Color streakColor) {
+    List<Map<String, dynamic>> weeklyData,
+    Color streakColor,
+  ) {
     const dayLabels = ['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'];
 
     return Container(
@@ -419,8 +420,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           final day = weeklyData[i];
           final completed = day['completed'] as bool;
           final isToday = day['isToday'] as bool;
-          final isFuture = (day['date'] as DateTime)
-              .isAfter(DateTime.now());
+          final isFuture = (day['date'] as DateTime).isAfter(DateTime.now());
 
           return _buildDayCircle(
             label: dayLabels[i],
@@ -461,37 +461,38 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
     }
 
     return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Text(
-          label,
-          style: GoogleFonts.manrope(
-            fontSize: 11,
-            fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
-            color: isToday
-                ? streakColor
-                : Colors.white.withValues(alpha: 0.6),
-          ),
-        ),
-        const SizedBox(height: 6),
-        Container(
-          width: 30,
-          height: 30,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: circleColor,
-            border: isToday
-                ? Border.all(color: streakColor, width: 2)
-                : null,
-          ),
-          child: centerWidget != null
-              ? Center(child: centerWidget)
-              : null,
-        ),
-      ],
-    )
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              label,
+              style: GoogleFonts.manrope(
+                fontSize: 11,
+                fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
+                color: isToday
+                    ? streakColor
+                    : Colors.white.withValues(alpha: 0.6),
+              ),
+            ),
+            const SizedBox(height: 6),
+            Container(
+              width: 30,
+              height: 30,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: circleColor,
+                border: isToday
+                    ? Border.all(color: streakColor, width: 2)
+                    : null,
+              ),
+              child: centerWidget != null ? Center(child: centerWidget) : null,
+            ),
+          ],
+        )
         .animate()
-        .fadeIn(delay: Duration(milliseconds: delayMs), duration: 300.ms)
+        .fadeIn(
+          delay: Duration(milliseconds: delayMs),
+          duration: 300.ms,
+        )
         .scale(
           begin: const Offset(0.5, 0.5),
           end: const Offset(1, 1),
@@ -547,15 +548,25 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
     }
 
     // Hitos especiales
-    if (_streak >= 365) return '¡UN AÑO COMPLETO!\n¡Eres un guerrero eterno de la fe!';
-    if (_streak == 100) return '¡CENTURIÓN DE LA FE!\n100 días caminando en victoria.';
-    if (_streak == 60) return '¡Dos meses de batalla!\nTu armadura brilla con fuerza.';
+    if (_streak >= 365) {
+      return '¡UN AÑO COMPLETO!\n¡Eres un guerrero eterno de la fe!';
+    }
+    if (_streak == 100) {
+      return '¡CENTURIÓN DE LA FE!\n100 días caminando en victoria.';
+    }
+    if (_streak == 60) {
+      return '¡Dos meses de batalla!\nTu armadura brilla con fuerza.';
+    }
     if (_streak == 30) return '¡Un mes entero!\nCada día te hace más fuerte.';
     if (_streak == 21) return '¡21 días!\nUn nuevo hábito se ha formado en ti.';
-    if (_streak == 14) return '¡Dos semanas seguidas!\nEstás forjando una armadura.';
+    if (_streak == 14) {
+      return '¡Dos semanas seguidas!\nEstás forjando una armadura.';
+    }
     if (_streak == 7) return '¡Una semana completa!\n¡Sabía que volverías!';
     if (_streak == 3) return '¡Tres días seguidos!\nEstás tomando impulso.';
-    if (_streak == 1) return '¡Tu primera victoria!\nEl camino más largo empieza con un paso.';
+    if (_streak == 1) {
+      return '¡Tu primera victoria!\nEl camino más largo empieza con un paso.';
+    }
 
     // Mensajes rotativos para rachas intermedias
     final messages = [

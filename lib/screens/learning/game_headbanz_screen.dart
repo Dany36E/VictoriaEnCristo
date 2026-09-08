@@ -364,7 +364,9 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                 end: Alignment.bottomRight,
                 colors: [Color(0xFF2D1B4E), Color(0xFF1A1A2E)],
               ),
-              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.35)),
+              border: Border.all(
+                color: AppDesignSystem.gold.withValues(alpha: 0.35),
+              ),
             ),
             child: Column(
               children: [
@@ -460,10 +462,14 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
         duration: 180.ms,
         padding: const EdgeInsets.all(AppDesignSystem.spacingM),
         decoration: BoxDecoration(
-          color: selected ? difficulty.color.withValues(alpha: 0.14) : t.inputBg,
+          color: selected
+              ? difficulty.color.withValues(alpha: 0.14)
+              : t.inputBg,
           borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           border: Border.all(
-            color: selected ? difficulty.color.withValues(alpha: 0.72) : t.cardBorder,
+            color: selected
+                ? difficulty.color.withValues(alpha: 0.72)
+                : t.cardBorder,
             width: selected ? 2 : 1,
           ),
         ),
@@ -558,7 +564,9 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
             decoration: BoxDecoration(
               color: AppDesignSystem.gold.withValues(alpha: 0.18),
               shape: BoxShape.circle,
-              border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.6)),
+              border: Border.all(
+                color: AppDesignSystem.gold.withValues(alpha: 0.6),
+              ),
             ),
             child: Text(
               num,
@@ -669,12 +677,16 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                                 AppDesignSystem.radiusL,
                               ),
                               border: Border.all(
-                                color: AppDesignSystem.gold.withValues(alpha: 0.6),
+                                color: AppDesignSystem.gold.withValues(
+                                  alpha: 0.6,
+                                ),
                                 width: 2,
                               ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: AppDesignSystem.gold.withValues(alpha: 0.25),
+                                  color: AppDesignSystem.gold.withValues(
+                                    alpha: 0.25,
+                                  ),
                                   blurRadius: 24,
                                   spreadRadius: 2,
                                 ),
@@ -687,6 +699,7 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
                               ),
                               child: Image.asset(
                                 card.asset,
+                                semanticLabel: 'Carta bíblica: ${card.name}',
                                 fit: BoxFit.contain,
                               ),
                             ),

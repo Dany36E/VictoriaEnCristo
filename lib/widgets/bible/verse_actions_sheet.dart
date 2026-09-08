@@ -259,6 +259,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               if (template.backgroundAsset != null)
                 Image.asset(
                   template.backgroundAsset!,
+                  excludeFromSemantics: true,
                   fit: BoxFit.cover,
                   filterQuality: FilterQuality.high,
                   errorBuilder: (_, _, _) => Container(

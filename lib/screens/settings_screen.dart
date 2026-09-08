@@ -9,6 +9,7 @@ import '../theme/app_theme_data.dart';
 import '../widgets/devotional/devotional_reminder_sheet.dart';
 import '../widgets/theme_selector.dart';
 import 'purity/purity_guard_screen.dart';
+import 'privacy_center_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   final VoidCallback onThemeChanged;
@@ -511,8 +512,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 trailing: Icon(Icons.chevron_right, color: t.textSecondary),
                 onTap: () => Navigator.push(
                   context,
+                  MaterialPageRoute(builder: (_) => const PurityGuardScreen()),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Privacidad: controles opcionales y documentos accesibles dentro
+          // de la app, como requieren las tiendas.
+          _buildSectionHeader('🔐 Privacidad y datos', isDark),
+          _buildSettingCard(
+            isDark: isDark,
+            children: [
+              ListTile(
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: t.accent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.privacy_tip_outlined, color: t.accent),
+                ),
+                title: Text(
+                  'Centro de privacidad',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: t.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Controla analítica, diagnósticos, YouTube y consulta tus derechos',
+                  style: TextStyle(color: t.textSecondary),
+                ),
+                trailing: Icon(Icons.chevron_right, color: t.textSecondary),
+                onTap: () => Navigator.push(
+                  context,
                   MaterialPageRoute(
-                    builder: (_) => const PurityGuardScreen(),
+                    builder: (_) => const PrivacyCenterScreen(),
                   ),
                 ),
               ),
@@ -1004,7 +1042,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
       decoration: BoxDecoration(
         color: t.cardBg,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.orange.withValues(alpha: 0.5), width: 2),
+        border: Border.all(
+          color: Colors.orange.withValues(alpha: 0.5),
+          width: 2,
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),

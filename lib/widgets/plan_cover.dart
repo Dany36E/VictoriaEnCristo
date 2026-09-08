@@ -18,7 +18,7 @@ class PlanCover extends StatelessWidget {
   final bool showTitle;
   final bool showBadge;
   final BorderRadius? borderRadius;
-  
+
   const PlanCover({
     super.key,
     required this.plan,
@@ -28,7 +28,7 @@ class PlanCover extends StatelessWidget {
     this.showBadge = false,
     this.borderRadius,
   });
-  
+
   /// Factory para thumbnail cuadrado (lista)
   factory PlanCover.thumbnail({
     required Plan plan,
@@ -44,12 +44,9 @@ class PlanCover extends StatelessWidget {
       borderRadius: borderRadius ?? BorderRadius.circular(12),
     );
   }
-  
+
   /// Factory para header grande (detalle)
-  factory PlanCover.header({
-    required Plan plan,
-    double? height,
-  }) {
+  factory PlanCover.header({required Plan plan, double? height}) {
     return PlanCover(
       plan: plan,
       height: height ?? 280,
@@ -58,7 +55,7 @@ class PlanCover extends StatelessWidget {
       borderRadius: BorderRadius.zero,
     );
   }
-  
+
   /// Factory para card poster (carrusel)
   factory PlanCover.poster({
     required Plan plan,
@@ -78,12 +75,13 @@ class PlanCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final coverPath = plan.coverImagePath;
-    final hasCover = coverPath.isNotEmpty && 
-                     coverPath.startsWith('assets/') && 
-                     !coverPath.contains('default');
-    
+    final hasCover =
+        coverPath.isNotEmpty &&
+        coverPath.startsWith('assets/') &&
+        !coverPath.contains('default');
+
     Widget content;
-    
+
     if (hasCover) {
       // Usar imagen real con overlay
       content = _buildRealCover(coverPath);
@@ -91,23 +89,20 @@ class PlanCover extends StatelessWidget {
       // Generar cover premium
       content = _buildGeneratedCover(context);
     }
-    
+
     return ClipRRect(
       borderRadius: borderRadius ?? BorderRadius.zero,
-      child: SizedBox(
-        width: width,
-        height: height,
-        child: content,
-      ),
+      child: SizedBox(width: width, height: height, child: content),
     );
   }
-  
+
   Widget _buildRealCover(String path) {
     return Stack(
       fit: StackFit.expand,
       children: [
         Image.asset(
           path,
+          semanticLabel: 'Portada del plan ${plan.title}',
           fit: BoxFit.cover,
           filterQuality: FilterQuality.high,
           errorBuilder: (_, _, _) => _buildGeneratedCoverFallback(),
@@ -132,7 +127,7 @@ class PlanCover extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildGeneratedCover(BuildContext context) {
     return _GeneratedCoverContent(
       plan: plan,
@@ -140,7 +135,7 @@ class PlanCover extends StatelessWidget {
       showBadge: showBadge,
     );
   }
-  
+
   Widget _buildGeneratedCoverFallback() {
     return _GeneratedCoverContent(
       plan: plan,
@@ -148,7 +143,7 @@ class PlanCover extends StatelessWidget {
       showBadge: showBadge,
     );
   }
-  
+
   Widget _buildTitleOverlay() {
     return Positioned(
       left: 12,
@@ -165,9 +160,7 @@ class PlanCover extends StatelessWidget {
               fontSize: 14,
               fontWeight: FontWeight.bold,
               height: 1.2,
-              shadows: [
-                Shadow(color: Colors.black54, blurRadius: 4),
-              ],
+              shadows: [Shadow(color: Colors.black54, blurRadius: 4)],
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -176,7 +169,7 @@ class PlanCover extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildBadgeOverlay() {
     return Positioned(
       top: 8,
@@ -208,28 +201,24 @@ class _GeneratedCoverContent extends StatelessWidget {
   final Plan plan;
   final bool showTitle;
   final bool showBadge;
-  
+
   const _GeneratedCoverContent({
     required this.plan,
     required this.showTitle,
     required this.showBadge,
   });
-  
+
   @override
   Widget build(BuildContext context) {
     final palette = _getPalette();
     final iconData = _getIcon();
-    
+
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [
-            palette.primary,
-            palette.secondary,
-            palette.tertiary,
-          ],
+          colors: [palette.primary, palette.secondary, palette.tertiary],
           stops: const [0.0, 0.5, 1.0],
         ),
       ),
@@ -238,26 +227,26 @@ class _GeneratedCoverContent extends StatelessWidget {
         children: [
           // Textura de ruido (patrón sutil)
           _buildNoiseTexture(palette),
-          
+
           // Elementos decorativos geométricos
           _buildDecorativeElements(palette),
-          
+
           // Icono central grande
           _buildCentralIcon(iconData, palette),
-          
+
           // Gradiente oscuro inferior
           _buildBottomGradient(),
-          
+
           // Badge de duración
           if (showBadge) _buildDurationBadge(),
-          
+
           // Título si se requiere
           if (showTitle) _buildTitle(),
         ],
       ),
     );
   }
-  
+
   Widget _buildNoiseTexture(_CoverPalette palette) {
     // Patrón de puntos sutiles para textura
     return CustomPaint(
@@ -267,11 +256,11 @@ class _GeneratedCoverContent extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildDecorativeElements(_CoverPalette palette) {
     final hash = plan.id.hashCode;
     final random = math.Random(hash);
-    
+
     return Stack(
       children: [
         // Círculo grande desenfocado
@@ -319,7 +308,7 @@ class _GeneratedCoverContent extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildCentralIcon(IconData icon, _CoverPalette palette) {
     return Center(
       child: Container(
@@ -336,7 +325,7 @@ class _GeneratedCoverContent extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildBottomGradient() {
     return Positioned.fill(
       child: DecoratedBox(
@@ -356,7 +345,7 @@ class _GeneratedCoverContent extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildDurationBadge() {
     return Positioned(
       top: 8,
@@ -378,7 +367,7 @@ class _GeneratedCoverContent extends StatelessWidget {
       ),
     );
   }
-  
+
   Widget _buildTitle() {
     return Positioned(
       left: 10,
@@ -395,9 +384,7 @@ class _GeneratedCoverContent extends StatelessWidget {
               fontSize: 13,
               fontWeight: FontWeight.bold,
               height: 1.2,
-              shadows: [
-                Shadow(color: Colors.black87, blurRadius: 4),
-              ],
+              shadows: [Shadow(color: Colors.black87, blurRadius: 4)],
             ),
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
@@ -406,7 +393,7 @@ class _GeneratedCoverContent extends StatelessWidget {
       ),
     );
   }
-  
+
   _CoverPalette _getPalette() {
     // Paletas oscuras premium por tipo de plan
     switch (plan.metadata.planType) {
@@ -454,7 +441,7 @@ class _GeneratedCoverContent extends StatelessWidget {
         );
     }
   }
-  
+
   IconData _getIcon() {
     // Iconos por tipo de plan
     switch (plan.metadata.planType) {
@@ -497,7 +484,7 @@ class _CoverPalette {
   final Color secondary;
   final Color tertiary;
   final Color accent;
-  
+
   const _CoverPalette({
     required this.primary,
     required this.secondary,
@@ -510,14 +497,14 @@ class _CoverPalette {
 class _NoisePainter extends CustomPainter {
   final Color color;
   final int seed;
-  
+
   _NoisePainter({required this.color, required this.seed});
-  
+
   @override
   void paint(Canvas canvas, Size size) {
     final random = math.Random(seed);
     final paint = Paint()..color = color;
-    
+
     // Dibujar puntos aleatorios
     for (var i = 0; i < 50; i++) {
       final x = random.nextDouble() * size.width;
@@ -526,7 +513,7 @@ class _NoisePainter extends CustomPainter {
       canvas.drawCircle(Offset(x, y), radius, paint);
     }
   }
-  
+
   @override
   bool shouldRepaint(covariant _NoisePainter oldDelegate) => false;
 }

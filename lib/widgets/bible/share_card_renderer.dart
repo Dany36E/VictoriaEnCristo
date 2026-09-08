@@ -40,6 +40,7 @@ class ShareCardRenderer extends StatelessWidget {
             Positioned.fill(
               child: Image.asset(
                 template.backgroundAsset!,
+                excludeFromSemantics: true,
                 fit: BoxFit.cover,
                 filterQuality: FilterQuality.high,
                 errorBuilder: (_, _, _) => CustomPaint(
@@ -154,10 +155,7 @@ class ShareCardRenderer extends StatelessWidget {
           ),
           SizedBox(height: _scale(12)),
           // REFERENCIA
-          Text(
-            reference.toUpperCase(),
-            style: _referenceStyle(ts),
-          ),
+          Text(reference.toUpperCase(), style: _referenceStyle(ts)),
           if (version.isNotEmpty) ...[
             SizedBox(height: _scale(4)),
             Text(
@@ -224,9 +222,9 @@ class ShareCardRenderer extends StatelessWidget {
               SizedBox(height: _scale(10)),
               Text(
                 reference.toUpperCase(),
-                style: _referenceStyle(ts).copyWith(
-                  color: Colors.white.withValues(alpha: 0.9),
-                ),
+                style: _referenceStyle(
+                  ts,
+                ).copyWith(color: Colors.white.withValues(alpha: 0.9)),
               ),
             ],
           ),
@@ -258,10 +256,7 @@ class ShareCardRenderer extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: _scale(20)),
-          Text(
-            reference.toUpperCase(),
-            style: _referenceStyle(ts),
-          ),
+          Text(reference.toUpperCase(), style: _referenceStyle(ts)),
         ],
       ),
     );
@@ -322,10 +317,7 @@ class ShareCardRenderer extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
           SizedBox(height: _scale(16)),
-          Text(
-            reference.toUpperCase(),
-            style: _referenceStyle(ts),
-          ),
+          Text(reference.toUpperCase(), style: _referenceStyle(ts)),
         ],
       ),
     );
@@ -362,10 +354,9 @@ class ShareCardRenderer extends StatelessWidget {
                 SizedBox(height: _scale(12)),
                 Text(
                   reference.toUpperCase(),
-                  style: _referenceStyle(ts).copyWith(
-                    fontSize: _scale(30),
-                    letterSpacing: _scale(4),
-                  ),
+                  style: _referenceStyle(
+                    ts,
+                  ).copyWith(fontSize: _scale(30), letterSpacing: _scale(4)),
                 ),
                 SizedBox(height: _scale(8)),
                 if (version.isNotEmpty)
@@ -398,12 +389,7 @@ class ShareCardRenderer extends StatelessWidget {
       height: 1.7,
       letterSpacing: 0.3,
       shadows: template.isDark
-          ? [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.8),
-                blurRadius: 8,
-              ),
-            ]
+          ? [Shadow(color: Colors.black.withValues(alpha: 0.8), blurRadius: 8)]
           : [],
     );
   }
@@ -416,12 +402,7 @@ class ShareCardRenderer extends StatelessWidget {
       letterSpacing: _scale(2.5),
       fontWeight: FontWeight.w600,
       shadows: template.isDark
-          ? [
-              Shadow(
-                color: Colors.black.withValues(alpha: 0.9),
-                blurRadius: 4,
-              ),
-            ]
+          ? [Shadow(color: Colors.black.withValues(alpha: 0.9), blurRadius: 4)]
           : [],
     );
   }
@@ -503,14 +484,8 @@ class _CircularTextPainter extends CustomPainter {
             fontWeight: FontWeight.w600,
             shadows: addShadow
                 ? [
-                    const Shadow(
-                      color: Color(0xCC000000),
-                      blurRadius: 6,
-                    ),
-                    const Shadow(
-                      color: Color(0x80000000),
-                      blurRadius: 12,
-                    ),
+                    const Shadow(color: Color(0xCC000000), blurRadius: 6),
+                    const Shadow(color: Color(0x80000000), blurRadius: 12),
                   ]
                 : [],
           ),

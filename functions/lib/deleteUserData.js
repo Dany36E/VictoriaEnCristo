@@ -18,6 +18,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUserData = void 0;
 const functions = require("firebase-functions");
 const admin = require("firebase-admin");
+const crypto = require("crypto");
 const db = admin.firestore();
 const auth = admin.auth();
 /**
@@ -63,16 +64,62 @@ async function countSubcollection(userDocRef, subcollectionName) {
  */
 exports.deleteUserData = functions
     .region("us-central1")
-    .runWith({ timeoutSeconds: 540, memory: "512MB" })
+    .runWith({
+    timeoutSeconds: 540,
+    memory: "512MB",
+    secrets: ["WALL_ABUSE_SALT"],
+})
     .https.onCall(async (_data, context) => {
     if (!context.auth) {
         throw new functions.https.HttpsError("unauthenticated", "Debes iniciar sesión para eliminar tu cuenta.");
     }
     const uid = context.auth.uid;
     const uidShort = uid.substring(0, 8);
+    const wallSalt = process.env.WALL_ABUSE_SALT;
+    if (!wallSalt || wallSalt.length < 16) {
+        throw new functions.https.HttpsError("failed-precondition", "No se pudo verificar la eliminación del contenido comunitario. Intenta más tarde.");
+    }
+    const abuseHash = crypto
+        .createHash("sha256")
+        .update(uid + wallSalt)
+        .digest("hex")
+        .substring(0, 16);
     console.log(`🗑️ [DELETE] Starting deletion for ${uidShort}…`);
     const deletionStats = {};
     const userDocRef = db.collection("users").doc(uid);
+    // El Muro usa un hash seudónimo en colecciones de nivel superior. Aunque
+    // no expone el UID, sigue siendo vinculable por el servidor y por ello se
+    // elimina junto con la cuenta.
+    try {
+        const posts = await db
+            .collection("wallPosts")
+            .where("abuseHash", "==", abuseHash)
+            .get();
+        for (const post of posts.docs)
+            await db.recursiveDelete(post.ref);
+        const comments = await db
+            .collectionGroup("comments")
+            .where("abuseHash", "==", abuseHash)
+            .get();
+        const reports = await db
+            .collection("wallReports")
+            .where("reporterHash", "==", abuseHash)
+            .get();
+        const cleanup = db.bulkWriter();
+        for (const comment of comments.docs)
+            cleanup.delete(comment.ref);
+        for (const report of reports.docs)
+            cleanup.delete(report.ref);
+        cleanup.delete(db.collection("abuseHashes").doc(abuseHash));
+        await cleanup.close();
+        deletionStats["wallPosts"] = posts.size;
+        deletionStats["wallComments"] = comments.size;
+        deletionStats["wallReports"] = reports.size;
+    }
+    catch (err) {
+        console.error("❌ [DELETE] Wall cleanup failed:", err);
+        throw new functions.https.HttpsError("internal", "No se pudo eliminar todo el contenido comunitario. Intenta de nuevo.", { phase: "wall" });
+    }
     // Telemetría previa
     for (const sub of KNOWN_USER_SUBCOLLECTIONS) {
         deletionStats[sub] = await countSubcollection(userDocRef, sub);

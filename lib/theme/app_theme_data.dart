@@ -15,15 +15,15 @@ class AppThemeData {
   final String id;
   final String name;
   final Color scaffoldBg;
-  final Color surface;       // toolbars, appbar, nav
+  final Color surface; // toolbars, appbar, nav
   final Color cardBg;
   final Color cardBorder;
   final Color textPrimary;
   final Color textSecondary;
-  final Color accent;        // gold / tema-color family
-  final Color accentSoft;    // accent at ~20% opacity for subtle backgrounds
+  final Color accent; // gold / tema-color family
+  final Color accentSoft; // accent at ~20% opacity for subtle backgrounds
   final Color divider;
-  final Color inputBg;       // text fields, search bars
+  final Color inputBg; // text fields, search bars
   final bool isDark;
 
   const AppThemeData({
@@ -122,7 +122,7 @@ class AppThemeData {
     cardBg: Color(0xFF242424),
     cardBorder: Color(0x14E8E8E8),
     textPrimary: Color(0xFFE8E8E8),
-    textSecondary: Color(0xFF888888),
+    textSecondary: Color(0xFF969696),
     accent: Color(0xFFD4AF37),
     accentSoft: Color(0x33D4AF37),
     divider: Color(0x14E8E8E8),
@@ -138,7 +138,7 @@ class AppThemeData {
     cardBg: Color(0xFF261C0E),
     cardBorder: Color(0x14E8D5A3),
     textPrimary: Color(0xFFE8D5A3),
-    textSecondary: Color(0xFF8B7355),
+    textSecondary: Color(0xFFA58E6B),
     accent: Color(0xFFD4AF37),
     accentSoft: Color(0x33D4AF37),
     divider: Color(0x14E8D5A3),
@@ -157,8 +157,8 @@ class AppThemeData {
     cardBorder: Color(0x0F1A1A1A),
     textPrimary: Color(0xFF1A1A1A),
     textSecondary: Color(0xFF757575),
-    accent: Color(0xFFB8960C),
-    accentSoft: Color(0x1AB8960C),
+    accent: Color(0xFF7A6200),
+    accentSoft: Color(0x1A7A6200),
     divider: Color(0x0F1A1A1A),
     inputBg: Color(0xFFF2F2F2),
     isDark: false,
@@ -188,9 +188,9 @@ class AppThemeData {
     cardBg: Color(0xFFFAFAFA),
     cardBorder: Color(0x0F212121),
     textPrimary: Color(0xFF212121),
-    textSecondary: Color(0xFF757575),
-    accent: Color(0xFFB8960C),
-    accentSoft: Color(0x1AB8960C),
+    textSecondary: Color(0xFF707070),
+    accent: Color(0xFF7A6200),
+    accentSoft: Color(0x1A7A6200),
     divider: Color(0x0F212121),
     inputBg: Color(0xFFE8E8E8),
     isDark: false,
@@ -236,9 +236,9 @@ class AppThemeData {
     cardBg: Color(0xFFFFFDF9),
     cardBorder: Color(0x14BF360C),
     textPrimary: Color(0xFFBF360C),
-    textSecondary: Color(0xFFBF6B00),
-    accent: Color(0xFFE65100),
-    accentSoft: Color(0x1AE65100),
+    textSecondary: Color(0xFF985400),
+    accent: Color(0xFFA63A00),
+    accentSoft: Color(0x1AA63A00),
     divider: Color(0x14BF360C),
     inputBg: Color(0xFFFFF8EE),
     isDark: false,
@@ -259,10 +259,7 @@ class AppThemeData {
 
   /// Obtener tema por ID (default: noche pura)
   static AppThemeData fromId(String id) {
-    return all.firstWhere(
-      (t) => t.id == id,
-      orElse: () => nightPure,
-    );
+    return all.firstWhere((t) => t.id == id, orElse: () => nightPure);
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -270,15 +267,13 @@ class AppThemeData {
   // ══════════════════════════════════════════════════════════════════════════
 
   static AppThemeData of(BuildContext context) {
-    final inherited = context.dependOnInheritedWidgetOfExactType<_AppThemeInherited>();
+    final inherited = context
+        .dependOnInheritedWidgetOfExactType<_AppThemeInherited>();
     return inherited?.theme ?? nightPure;
   }
 
   /// Wrap your MaterialApp's child with this to provide the theme
-  static Widget provider({
-    required AppThemeData theme,
-    required Widget child,
-  }) {
+  static Widget provider({required AppThemeData theme, required Widget child}) {
     return _AppThemeInherited(theme: theme, child: child);
   }
 }
@@ -286,10 +281,7 @@ class AppThemeData {
 class _AppThemeInherited extends InheritedWidget {
   final AppThemeData theme;
 
-  const _AppThemeInherited({
-    required this.theme,
-    required super.child,
-  });
+  const _AppThemeInherited({required this.theme, required super.child});
 
   @override
   bool updateShouldNotify(_AppThemeInherited oldWidget) {

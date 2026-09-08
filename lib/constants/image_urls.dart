@@ -5,14 +5,6 @@ library;
 class ImageUrls {
   ImageUrls._();
 
-  /// Montaña épica — fondo de Home, Login
-  static const String heroMountain =
-      'https://images.unsplash.com/photo-1519681393784-d120267933ba?w=1920&q=95';
-
-  /// Montaña con luz dorada — fondo de Onboarding
-  static const String onboardingMountain =
-      'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=95';
-
   // ─── Plan covers (Unsplash) ───
   static const String planArmadura = 'https://images.unsplash.com/photo-1514539079130-25950c84af65?auto=format&fit=crop&w=800&q=95';
   static const String planMente = 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=95';

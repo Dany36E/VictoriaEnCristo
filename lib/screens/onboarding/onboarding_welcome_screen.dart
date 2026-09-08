@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import '../../constants/image_urls.dart';
 import '../../theme/app_theme.dart';
 import '../../services/audio_engine.dart';
+import '../../widgets/brand_backdrop.dart';
 import 'giant_selection_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -26,9 +25,6 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _buttonScaleAnimation;
-
-  // Imagen de fondo: Montaña épica con luz dorada
-  static const String _heroImageUrl = ImageUrls.onboardingMountain;
 
   @override
   void initState() {
@@ -118,29 +114,9 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
       body: Stack(
         children: [
           // ═══════════════════════════════════════════════════════════════════
-          // FONDO: Imagen de montaña con overlay
+          // FONDO: portada editorial propia con overlay
           // ═══════════════════════════════════════════════════════════════════
-          Positioned.fill(
-            child: CachedNetworkImage(
-              imageUrl: _heroImageUrl,
-              fit: BoxFit.cover,
-              filterQuality: FilterQuality.high,
-              placeholder: (context, url) =>
-                  Container(color: AppDesignSystem.midnight),
-              errorWidget: (context, url, error) => Container(
-                decoration: const BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      AppDesignSystem.midnight,
-                      AppDesignSystem.midnightLight,
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
+          const Positioned.fill(child: BrandBackdrop()),
 
           // Overlay gradiente oscuro para legibilidad
           Positioned.fill(
@@ -188,7 +164,9 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
           // CONTENIDO PRINCIPAL
           // ═══════════════════════════════════════════════════════════════════
           SafeArea(
-            minimum: EdgeInsets.only(top: MediaQuery.paddingOf(context).top + 88),
+            minimum: EdgeInsets.only(
+              top: MediaQuery.paddingOf(context).top + 88,
+            ),
             child: AnimatedBuilder(
               animation: _animationController,
               builder: (context, child) {
