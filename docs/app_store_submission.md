@@ -1,6 +1,6 @@
 # Material de envío a App Store — iPhone y iPad
 
-Versión preparada: **1.0.28 (38)**
+Versión preparada: **1.0.29 (39)**
 
 Bundle ID existente en Firebase: **com.victoriaecristo.app**
 
@@ -60,9 +60,9 @@ La ficha de privacidad debe incluir también las prácticas efectivas de Firebas
 
 ## URLs
 
-- Política: https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html
-- Términos: https://dany36e.github.io/VictoriaEnCristo/terms.html
-- Eliminación: https://dany36e.github.io/VictoriaEnCristo/data_deletion.html
+- Política: https://victoria-en-cristo.web.app/privacy_policy.html
+- Términos: https://victoria-en-cristo.web.app/terms.html
+- Eliminación: https://victoria-en-cristo.web.app/data_deletion.html
 
 ## Pendientes humanos antes de revisión
 

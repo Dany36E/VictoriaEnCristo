@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../constants/legal_urls.dart';
 import '../../services/guardian_lock_service.dart';
 import '../../services/purity_guard_service.dart';
 import '../../services/remote_guardian_service.dart';
@@ -133,9 +134,7 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => launchUrl(
-                  Uri.parse(
-                    'https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html',
-                  ),
+                  legalDocumentUri('privacy_policy.html'),
                   mode: LaunchMode.externalApplication,
                 ),
                 child: const Text('Leer política de privacidad'),

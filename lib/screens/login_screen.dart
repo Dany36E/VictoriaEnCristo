@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../constants/legal_urls.dart';
 import '../services/auth_service.dart';
 import '../services/privacy_preferences_service.dart';
 import '../utils/platform_capabilities.dart';
@@ -686,18 +687,14 @@ class _LoginScreenState extends State<LoginScreen> {
           children: [
             TextButton(
               onPressed: () => launchUrl(
-                Uri.parse(
-                  'https://dany36e.github.io/VictoriaEnCristo/terms.html',
-                ),
+                legalDocumentUri('terms.html'),
                 mode: LaunchMode.externalApplication,
               ),
               child: const Text('Leer términos'),
             ),
             TextButton(
               onPressed: () => launchUrl(
-                Uri.parse(
-                  'https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html',
-                ),
+                legalDocumentUri('privacy_policy.html'),
                 mode: LaunchMode.externalApplication,
               ),
               child: const Text('Leer aviso de privacidad'),

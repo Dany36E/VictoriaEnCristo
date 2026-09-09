@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../constants/legal_urls.dart';
 import '../services/auth_service.dart';
 import '../services/connectivity_service.dart';
 import '../repositories/plans_repository.dart';
@@ -860,9 +861,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               textColor: Colors.white,
               onPressed: () {
                 launchUrl(
-                  Uri.parse(
-                    'https://dany36e.github.io/VictoriaEnCristo/data_deletion.html',
-                  ),
+                  legalDocumentUri('data_deletion.html'),
                   mode: LaunchMode.externalApplication,
                 );
               },

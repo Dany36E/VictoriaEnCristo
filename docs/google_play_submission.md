@@ -1,6 +1,6 @@
 # Material de envío a Google Play — Android
 
-Versión preparada: **1.0.28 (38)**
+Versión preparada: **1.0.29 (39)**
 
 Paquete: **com.victoriaencristo.app**
 Categoría recomendada: **Estilo de vida**
@@ -58,8 +58,8 @@ Las Alarmas Sagradas son recordatorios configurados por el usuario para oración
 
 ## URLs públicas
 
-- Política de privacidad: https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html
-- Eliminación de cuenta: https://dany36e.github.io/VictoriaEnCristo/data_deletion.html
+- Política de privacidad: https://victoria-en-cristo.web.app/privacy_policy.html
+- Eliminación de cuenta: https://victoria-en-cristo.web.app/data_deletion.html
 
 ## Pendiente dentro de Play Console
 

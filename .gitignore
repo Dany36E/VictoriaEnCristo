@@ -119,3 +119,6 @@ VictoriaEnCristo-windows-*.zip
 
 # Secretos codificados para pegar en Codemagic (nunca subir)
 *.b64.txt
+
+# Firebase Hosting local deployment cache
+.firebase/

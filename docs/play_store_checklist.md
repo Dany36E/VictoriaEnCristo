@@ -57,9 +57,9 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - [ ] El admin podrá luego usar `setAdminClaim` callable para granjear/revocar otros.
 
 ### D. Hosting de docs
-- [x] Documentos publicados por GitHub Pages con HTTPS.
-- [x] Política: https://dany36e.github.io/VictoriaEnCristo/privacy_policy.html
-- [x] Eliminación: https://dany36e.github.io/VictoriaEnCristo/data_deletion.html
+- [x] Documentos públicos alojados en Firebase Hosting con HTTPS y cabeceras restrictivas.
+- [x] Política: https://victoria-en-cristo.web.app/privacy_policy.html
+- [x] Eliminación: https://victoria-en-cristo.web.app/data_deletion.html
 - [ ] Incorporar nombre o razón social, domicilio verificable y correo público
   operativo para privacidad/ARCO antes de enviar a revisión.
 

@@ -10,7 +10,7 @@ en un iPad hay que firmarlo con un Apple ID en el momento de la instalación.
 2. Descarga e instala Sideloadly desde su sitio oficial.
 3. Conecta el iPad por USB, desbloquéalo y pulsa **Confiar** cuando lo solicite.
 4. Abre Sideloadly y arrastra el archivo
-   `VictoriaEnCristo-iOS-unsigned-v1.0.28+38.ipa`.
+   `VictoriaEnCristo-iOS-unsigned-v1.0.29+39.ipa`.
 5. Selecciona el iPad, escribe el Apple ID que se usará para firmar y pulsa
    **Start**. Apple puede pedir una contraseña específica para apps o el código de
    doble factor.

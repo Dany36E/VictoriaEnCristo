@@ -1,6 +1,6 @@
 # Auditoría legal y de privacidad para producción
 
-Fecha técnica: 2026-09-07. Este documento registra comprobaciones de producto; no sustituye la opinión de un abogado que conozca el responsable, el público y los países de distribución.
+Fecha técnica: 2026-09-08. Este documento registra comprobaciones de producto; no sustituye la opinión de un abogado que conozca el responsable, el público y los países de distribución.
 
 ## Implementado
 
@@ -14,6 +14,8 @@ Fecha técnica: 2026-09-07. Este documento registra comprobaciones de producto; 
 - Etiquetas semánticas o exclusión correcta de imágenes decorativas en las superficies principales.
 - Contraste de texto secundario corregido en los temas que no alcanzaban 4.5:1 sobre sus tarjetas.
 - No se requieren cookies para las páginas legales actuales: son estáticas, sin scripts, analítica, anuncios ni embeds.
+- El centro legal público se trasladó a `https://victoria-en-cristo.web.app`: Firebase Hosting sólo publica los siete HTML necesarios, excluye documentación interna y aplica CSP, `nosniff`, política de referente y permisos restrictivos.
+- La app usa una única constante para los enlaces legales, evitando que el cambio de visibilidad de GitHub rompa privacidad, términos, cookies, reembolsos, eliminación o avisos de terceros.
 
 ## Bloqueos antes de producción
 
@@ -40,3 +42,4 @@ Fecha técnica: 2026-09-07. Este documento registra comprobaciones de producto; 
 - Exportación de Data Safety y App Privacy versionada junto con cada release.
 - Comprobantes de licencias y atribuciones con fecha y alcance.
 - Prueba de eliminación: UID de ensayo, fecha, resultado de la función y consultas que confirmen cero documentos vinculables.
+- Inventario firmado o fechado de activos, con titular, fuente, licencia, alcance territorial/plataformas y comprobante archivado.

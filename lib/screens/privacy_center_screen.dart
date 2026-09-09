@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../constants/legal_urls.dart';
 import '../services/privacy_preferences_service.dart';
 
 class PrivacyCenterScreen extends StatefulWidget {
@@ -15,7 +16,7 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
 
   Future<void> _open(String path) async {
     await launchUrl(
-      Uri.parse('https://dany36e.github.io/VictoriaEnCristo/$path'),
+      legalDocumentUri(path),
       mode: LaunchMode.externalApplication,
     );
   }

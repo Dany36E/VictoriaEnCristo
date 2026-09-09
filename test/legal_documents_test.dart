@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:app_quitar/constants/legal_urls.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -33,5 +34,14 @@ void main() {
     for (final path in requiredPages) {
       expect(index, contains(path.replaceFirst('docs/', '')), reason: path);
     }
+  });
+
+  test('production legal URLs use the dedicated HTTPS host', () {
+    expect(kLegalBaseUrl, 'https://victoria-en-cristo.web.app');
+    expect(legalDocumentUri('/terms.html').scheme, 'https');
+    expect(
+      legalDocumentUrl('privacy_policy.html'),
+      'https://victoria-en-cristo.web.app/privacy_policy.html',
+    );
   });
 }
