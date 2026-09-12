@@ -105,6 +105,7 @@ test_*.png
 source_assets/
 scripts/*
 !scripts/*.ps1
+!scripts/capture_website_qa.mjs
 
 # Integration tests (contain test credentials)
 integration_test/*

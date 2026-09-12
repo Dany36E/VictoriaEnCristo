@@ -1,88 +1,94 @@
-"""Genera iconos nativos y el logo web desde el arte maestro del proyecto."""
+"""Genera iconos nativos y recursos web desde el emblema RGBA oficial."""
 
 from pathlib import Path
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 
 ROOT = Path(__file__).resolve().parents[1]
-SOURCE = (
-    ROOT
-    / "assets"
-    / "branding"
-    / "logo_victoria_en_cristo_source.png"
-)
+SOURCE = ROOT / "assets" / "branding" / "logo_victoria_en_cristo_source.png"
 MASTER = ROOT / "assets" / "branding" / "app_icon_master.png"
 PLAY_STORE_ICON = ROOT / "assets" / "branding" / "google_play_icon_512.png"
 WEB_LOGO = ROOT / "docs" / "logo-primary.webp"
+OG_IMAGE = ROOT / "docs" / "og-victoria-en-cristo.png"
 
-# El archivo entregado incluye un margen blanco alrededor de un rectángulo
-# redondeado. Estas medidas aíslan el arte sin alterar la Biblia ni la cruz.
-SOURCE_CROP = (47, 47, 1207, 1207)
-SOURCE_RADIUS = 262
 ICON_BACKGROUND = "#00163C"
+PATH_BLUE = "#164D8C"
+GOLD = "#F2C94C"
+
+
+def contain(image: Image.Image, box: tuple[int, int]) -> Image.Image:
+    result = image.copy()
+    result.thumbnail(box, Image.Resampling.LANCZOS)
+    return result
+
+
+def color_tuple(value: str) -> tuple[int, int, int]:
+    return Image.new("RGB", (1, 1), value).getpixel((0, 0))
+
+
+def blue_background(size: tuple[int, int]) -> Image.Image:
+    """Crea el fondo nocturno de marca sin recursos externos."""
+    width, height = size
+    base = Image.new("RGBA", size, (*color_tuple(ICON_BACKGROUND), 255))
+
+    blue_glow = Image.new("RGBA", size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(blue_glow)
+    radius = int(max(width, height) * 0.58)
+    center_x = width // 2
+    center_y = int(height * 0.34)
+    draw.ellipse(
+        (center_x - radius, center_y - radius, center_x + radius, center_y + radius),
+        fill=(*color_tuple(PATH_BLUE), 210),
+    )
+    blue_glow = blue_glow.filter(ImageFilter.GaussianBlur(max(24, radius // 2)))
+    base = Image.alpha_composite(base, blue_glow)
+
+    gold_glow = Image.new("RGBA", size, (0, 0, 0, 0))
+    draw = ImageDraw.Draw(gold_glow)
+    gold_radius = int(min(width, height) * 0.24)
+    gold_y = int(height * 0.31)
+    draw.ellipse(
+        (center_x - gold_radius, gold_y - gold_radius, center_x + gold_radius, gold_y + gold_radius),
+        fill=(*color_tuple(GOLD), 64),
+    )
+    gold_glow = gold_glow.filter(ImageFilter.GaussianBlur(max(18, gold_radius)))
+    return Image.alpha_composite(base, gold_glow)
+
+
+def compose(source: Image.Image, size: tuple[int, int], occupancy: float) -> Image.Image:
+    canvas = blue_background(size)
+    emblem = contain(source, (int(size[0] * occupancy), int(size[1] * occupancy)))
+    position = ((size[0] - emblem.width) // 2, (size[1] - emblem.height) // 2)
+    canvas.alpha_composite(emblem, position)
+    return canvas.convert("RGB")
 
 
 def prepare_brand_assets() -> None:
     if not SOURCE.exists():
-        raise FileNotFoundError(
-            "Falta el arte maestro: "
-            f"{SOURCE.relative_to(ROOT)}"
-        )
+        raise FileNotFoundError(f"Falta el arte maestro: {SOURCE.relative_to(ROOT)}")
 
-    with Image.open(SOURCE).convert("RGB") as source:
-        if source.size != (1254, 1254):
-            raise ValueError(
-                "El arte maestro debe conservar su tamaño original "
-                f"de 1254x1254 px; se recibió {source.size}."
-            )
+    with Image.open(SOURCE).convert("RGBA") as source:
+        if source.getchannel("A").getextrema() == (255, 255):
+            raise ValueError("El arte maestro debe conservar un fondo transparente real.")
 
-        cropped = source.crop(SOURCE_CROP)
-        mask = Image.new("L", cropped.size, 0)
-        ImageDraw.Draw(mask).rounded_rectangle(
-            (0, 0, cropped.width - 1, cropped.height - 1),
-            radius=SOURCE_RADIUS,
-            fill=255,
-        )
+        # La web conserva exactamente el emblema y su transparencia.
+        web_logo = contain(source, (900, 900))
+        web_logo.save(WEB_LOGO, format="WEBP", quality=90, method=6)
 
-        # Las tiendas aplican sus propias máscaras. El maestro debe ser
-        # cuadrado y opaco, así que el exterior se extiende con el azul de
-        # marca en lugar de conservar el borde blanco del archivo recibido.
-        icon_content = cropped.resize(
-            (1024, 1024),
-            Image.Resampling.LANCZOS,
-        )
-        icon_mask = mask.resize(
-            (1024, 1024),
-            Image.Resampling.LANCZOS,
-        )
-        master = Image.new("RGB", (1024, 1024), ICON_BACKGROUND)
-        master.paste(icon_content, (0, 0), icon_mask)
-        master.save(
-            MASTER,
-            format="PNG",
-            optimize=True,
-        )
+        # Las tiendas exigen icono cuadrado opaco. Sólo se añade el fondo azul
+        # de marca y una zona segura alrededor del emblema.
+        master = compose(source, (1024, 1024), 0.82)
+        master.save(MASTER, format="PNG", optimize=True)
 
-        # En la web sí conviene conservar la silueta redondeada y transparente
-        # para que el logo pueda vivir sobre el fondo nocturno.
-        web_logo = Image.new("RGBA", cropped.size, (0, 0, 0, 0))
-        web_logo.paste(cropped.convert("RGBA"), (0, 0), mask)
-        web_logo.thumbnail((920, 920), Image.Resampling.LANCZOS)
-        web_logo.save(
-            WEB_LOGO,
-            format="WEBP",
-            quality=92,
-            method=6,
-        )
+        og = compose(source, (1200, 630), 0.78)
+        og.save(OG_IMAGE, format="PNG", optimize=True)
 
 
 def save_png(source: Image.Image, path: Path, pixels: int) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     source.resize((pixels, pixels), Image.Resampling.LANCZOS).save(
-        path,
-        format="PNG",
-        optimize=True,
+        path, format="PNG", optimize=True
     )
 
 
@@ -148,17 +154,13 @@ def main() -> None:
             save_png(master, ROOT / "web" / filename, pixels)
 
         save_png(master, PLAY_STORE_ICON, 512)
-
         master.save(
             ROOT / "windows" / "runner" / "resources" / "app_icon.ico",
             format="ICO",
             sizes=[(16, 16), (24, 24), (32, 32), (48, 48), (64, 64), (128, 128), (256, 256)],
         )
 
-    print(
-        "Logo web e iconos Android, iOS, iPadOS, macOS, web y Windows "
-        "generados desde logo_victoria_en_cristo.png"
-    )
+    print("Logo web, vista social e iconos Android, iOS/iPadOS, macOS, web y Windows generados.")
 
 
 if __name__ == "__main__":

@@ -1,8 +1,17 @@
 # Entrega pendiente para producción
 
-Estado técnico de referencia: versión `1.0.29+39`, 8 de septiembre de 2026.
+Estado técnico de referencia: versión `1.0.29+39`, 12 de septiembre de 2026.
 
 Este documento separa las tareas que requieren decisiones, datos o cuentas del titular. No sustituye asesoría jurídica ni las declaraciones finales de Google Play o App Store Connect.
+
+## Entregables técnicos verificados
+
+- Web pública: `https://victoria-en-cristo.web.app/`. La portada, el centro de ayuda, los documentos legales, `robots.txt` y `sitemap.xml` responden públicamente; no se detectaron cookies, formularios, analítica ni recursos remotos.
+- Auditoría web móvil: rendimiento 98–99, accesibilidad 100, buenas prácticas 100, LCP 1.684 s, CLS 0 y TBT 55 ms. El peso transferido fue de aproximadamente 198 KB.
+- Android App Bundle: `dist/VictoriaEnCristo-1.0.29+39.aab`, validado con Bundletool y `jarsigner`, con `versionCode 39`, `versionName 1.0.29` y SHA-256 `535E156C528AD5352618CE773D9488CF440DD2EEBFEAB337A16B9FB5EE1D59D4`.
+- Windows: instalación local actualizada en `%LOCALAPPDATA%/Programs/Victoria en Cristo`, comprobada mediante arranque controlado. Paquete portable `dist/VictoriaEnCristo-Windows-v1.0.29.zip`, SHA-256 `DFECE1CE944A58C5E6F8F05A973CB24E70C3C3DF3E04257A5A96DA05F46131EE`.
+- iPhone y iPad: las 19 imágenes declaradas en `AppIcon.appiconset/Contents.json` existen y tienen las dimensiones requeridas. La compilación y firma nativas siguen necesitando macOS.
+- Calidad Flutter: `flutter analyze` sin incidencias y 355 pruebas automatizadas aprobadas.
 
 ## 1. Completar identidad y contacto legal
 

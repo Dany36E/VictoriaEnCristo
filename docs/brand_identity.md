@@ -12,7 +12,7 @@ un destino abstracto, sino una dirección que se recorre.
 - Azul de profundidad: #061A3D.
 - Oro de dirección: #F2C94C.
 - Papel iluminado: #F8F3E8.
-- Arte original recibido: assets/branding/logo_victoria_en_cristo_source.png.
+- Arte original RGBA con transparencia: assets/branding/logo_victoria_en_cristo_source.png.
 - Marca reducida: assets/branding/victoria_mark.svg.
 - Ícono maestro de tienda: assets/branding/app_icon_master.png.
 - Ícono listo para la ficha de Google Play: assets/branding/google_play_icon_512.png.
@@ -22,10 +22,11 @@ un destino abstracto, sino una dirección que se recorre.
 
 ## Producción
 
-Ejecutar python scripts/generate_brand_icons.py después de sustituir el arte
-original. El script recorta el margen blanco sin alterar el contenido, genera
-un maestro opaco y produce de forma determinista las variantes de Android,
-iPhone/iPad, macOS, Windows, web/PWA y Google Play.
+Ejecutar `python scripts/generate_brand_icons.py` después de sustituir el arte
+original. El script valida la transparencia, conserva el emblema sin
+redibujarlo, añade un fondo radial azul sólo a los iconos opacos y produce de
+forma determinista las variantes de Android, iPhone/iPad, macOS, Windows,
+web/PWA, Google Play, el logo transparente del sitio y la imagen social.
 
 El arte fue proporcionado por el titular del proyecto. No incorpora tipografías
 ni marcas de terceros.
