@@ -11,10 +11,10 @@ acompaña y cómo protege los datos, sin fingir que ya está publicada.
 
 ### Color
 
-- Tinta nocturna — #07131F: fondo principal y continuidad con la app.
-- Azul camino — #102B40: profundidad, superficies y paisaje abstracto.
-- Oro de victoria — #E0B93D: acciones y trazo de la marca.
-- Cielo pálido — #DDE8E9: secciones de lectura clara.
+- Azul de profundidad — #061A3D: fondo principal y continuidad con el logo.
+- Azul camino — #0D2F5A: profundidad, superficies y paisaje abstracto.
+- Oro de dirección — #F2C94C: acciones, rayos y cruz.
+- Cielo pálido — #E5ECF2: secciones de lectura clara.
 - Blanco neblina — #F4F7F6: texto y fondos luminosos.
 - Coral de auxilio — #F06543: reservado para la ayuda inmediata.
 
@@ -28,15 +28,15 @@ acompaña y cómo protege los datos, sin fingir que ya está publicada.
 
 ### Layout
 
-La página funciona como un camino vertical. El símbolo V/cruz aparece una sola
-vez como gran gesto memorable; después, líneas y cambios de plano conducen el
-recorrido.
+La página funciona como un camino vertical. El logo detallado aparece una sola
+vez como gran gesto memorable; después, la secuencia Biblia → V → camino → cruz
+ordena el recorrido.
 
     ┌──────────────────────────────────────────────┐
     │ marca      propósito  privacidad  documentos│
     ├──────────────────────┬───────────────────────┤
-    │ titular + explicación│ símbolo/camino vivo   │
-    │ acciones + estado    │ ritual diario         │
+    │ titular + explicación│ Biblia/V/camino/cruz  │
+    │ acciones + estado    │ significado del símbolo│
     ├──────────────────────┴───────────────────────┤
     │ manifiesto          cuatro pasos reales      │
     ├──────────────────────┬───────────────────────┤
@@ -59,14 +59,25 @@ de escritorio.
 4. No se publican cifras, reseñas ni disponibilidad que todavía no existan.
 5. El sitio no necesita cookies, analítica, fuentes remotas ni JavaScript.
 
+## Historia visual
+
+La narrativa se lee en cinco momentos:
+
+1. La oscuridad representa la batalla que no siempre se ve.
+2. La Biblia se abre y ofrece un punto de partida.
+3. Sus páginas revelan la V de Victoria.
+4. El vértice se convierte en un camino que asciende.
+5. La cruz da dirección y sentido al recorrido.
+
 ## Revisión crítica previa
 
-La primera idea usaba capturas flotantes de la app y una cuadrícula de tarjetas.
-Se descartó porque repetía el patrón genérico de landing pages y porque las
-capturas actuales mezclan etapas distintas de la interfaz. También se descartó
-una fotografía religiosa o generada: competiría con la marca y podría crear un
-problema de procedencia.
+La primera idea usaba una V lineal con una tarjeta de rutina delante. Se
+descartó al recibir la nueva marca porque ocultaba su idea más propia: la Biblia
+abierta ya contiene la V y el camino. También se descartaron fotografías y
+video generado: competirían con el símbolo entregado, aumentarían el peso de la
+página y podrían crear problemas de procedencia.
 
-La versión final concentra la personalidad en un solo gesto: el trazo original
-V/camino/cruz convertido en recorrido visual. El resto es editorial, sobrio y
-específico a las funciones reales de Victoria en Cristo.
+La versión final toma del método de historia visual una secuencia de cinco
+momentos. El logo resuelve esa historia en una sola imagen; la página la
+despliega mediante escala, luz y lectura vertical, sin introducir rastreo ni
+reproducción automática.
