@@ -40,6 +40,9 @@ void main() {
     test('fromId returns correct version for valid id', () {
       expect(BibleVersion.fromId('NVI'), BibleVersion.nvi);
       expect(BibleVersion.fromId('LBLA'), BibleVersion.lbla);
+      expect(BibleVersion.fromId('NIV_EN'), BibleVersion.nivEnglish);
+      expect(BibleVersion.fromId('NLT'), BibleVersion.nlt);
+      expect(BibleVersion.fromId('NKJV'), BibleVersion.nkjv);
     });
 
     test('fromId defaults to rvr1960 for unknown id', () {
@@ -49,9 +52,23 @@ void main() {
 
     test('all versions have non-empty shortName', () {
       for (final v in BibleVersion.values) {
-        expect(v.shortName.isNotEmpty, true,
-            reason: '${v.name} should have shortName');
+        expect(
+          v.shortName.isNotEmpty,
+          true,
+          reason: '${v.name} should have shortName',
+        );
       }
+    });
+
+    test('versions expose their language for grouped selectors and TTS', () {
+      expect(BibleVersion.nlt.language, BibleLanguage.english);
+      expect(BibleVersion.nkjv.language, BibleLanguage.english);
+      expect(BibleVersion.rvr1960.language, BibleLanguage.spanish);
+      expect(BibleVersion.forLanguage(BibleLanguage.english), [
+        BibleVersion.nivEnglish,
+        BibleVersion.nlt,
+        BibleVersion.nkjv,
+      ]);
     });
   });
 
@@ -77,8 +94,10 @@ void main() {
     });
 
     test('migrateId passes through modern ids', () {
-      expect(BibleReaderThemeData.migrateId('charcoal_editorial'),
-          'charcoal_editorial');
+      expect(
+        BibleReaderThemeData.migrateId('charcoal_editorial'),
+        'charcoal_editorial',
+      );
     });
 
     test('isDark is correct for all themes', () {
@@ -172,11 +191,20 @@ void main() {
 
     test('equality works by verse + reference', () {
       const a = data.BibleVerse(
-          verse: 'a', reference: 'Ref 1:1', category: 'cat');
+        verse: 'a',
+        reference: 'Ref 1:1',
+        category: 'cat',
+      );
       const b = data.BibleVerse(
-          verse: 'b', reference: 'Ref 1:1', category: 'cat');
+        verse: 'b',
+        reference: 'Ref 1:1',
+        category: 'cat',
+      );
       const c = data.BibleVerse(
-          verse: 'a', reference: 'Ref 1:1', category: 'other');
+        verse: 'a',
+        reference: 'Ref 1:1',
+        category: 'other',
+      );
       expect(a, equals(c)); // same verse+ref, different category
       expect(a, isNot(equals(b))); // different verse text
     });
@@ -212,8 +240,7 @@ void main() {
   group('Daily verse algorithm', () {
     test('same day produces same index', () {
       final now = DateTime(2025, 6, 15);
-      final dayOfYear =
-          now.difference(DateTime(now.year, 1, 1)).inDays + 1;
+      final dayOfYear = now.difference(DateTime(now.year, 1, 1)).inDays + 1;
       final seed = dayOfYear + (now.year * 365);
       final total = data.BibleVerses.allVerses.length;
       final idx1 = seed % total;
@@ -229,6 +256,7 @@ void main() {
         final dy = d.difference(DateTime(d.year, 1, 1)).inDays + 1;
         return (dy + d.year * 365) % total;
       }
+
       // Adjacent days should differ (modular arithmetic)
       expect(indexFor(day1), isNot(equals(indexFor(day2))));
     });

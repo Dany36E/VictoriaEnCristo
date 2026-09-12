@@ -182,6 +182,9 @@ class BibleDownloadService {
       BibleVersion.ntv,
       BibleVersion.tla,
       BibleVersion.rvr1960,
+      BibleVersion.nivEnglish,
+      BibleVersion.nlt,
+      BibleVersion.nkjv,
     ];
     for (final version in preference) {
       if (version != primary && isAvailable(version)) return version;
@@ -239,8 +242,9 @@ class BibleDownloadService {
         final client = http.Client();
         try {
           final req = http.Request('GET', Uri.parse(remoteUrl));
-          final resp =
-              await client.send(req).timeout(const Duration(seconds: 60));
+          final resp = await client
+              .send(req)
+              .timeout(const Duration(seconds: 60));
           if (resp.statusCode != 200) {
             throw HttpException(
               'HTTP ${resp.statusCode} al descargar ${version.id}',
@@ -266,7 +270,10 @@ class BibleDownloadService {
         }
       } else {
         if (!isBundled(version)) {
-          safeWarn('BIBLE-DL', '${version.id} has no remote URL and is not bundled');
+          safeWarn(
+            'BIBLE-DL',
+            '${version.id} has no remote URL and is not bundled',
+          );
           _updateState(version, DownloadState.notDownloaded);
           downloadingNotifier.value = null;
           progressNotifier.value = null;
@@ -290,7 +297,10 @@ class BibleDownloadService {
 
       downloadingNotifier.value = null;
       progressNotifier.value = null;
-      safeLog('BIBLE-DL', '${version.id} downloaded from $sourceLabel ($byteLength bytes)');
+      safeLog(
+        'BIBLE-DL',
+        '${version.id} downloaded from $sourceLabel ($byteLength bytes)',
+      );
       return true;
     } catch (e) {
       _updateState(version, DownloadState.notDownloaded);

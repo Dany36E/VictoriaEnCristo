@@ -84,6 +84,83 @@ const Map<int, String> _canonicalBookNames = {
   66: 'Apocalipsis',
 };
 
+const Map<int, String> _canonicalBookNamesEnglish = {
+  1: 'Genesis',
+  2: 'Exodus',
+  3: 'Leviticus',
+  4: 'Numbers',
+  5: 'Deuteronomy',
+  6: 'Joshua',
+  7: 'Judges',
+  8: 'Ruth',
+  9: '1 Samuel',
+  10: '2 Samuel',
+  11: '1 Kings',
+  12: '2 Kings',
+  13: '1 Chronicles',
+  14: '2 Chronicles',
+  15: 'Ezra',
+  16: 'Nehemiah',
+  17: 'Esther',
+  18: 'Job',
+  19: 'Psalms',
+  20: 'Proverbs',
+  21: 'Ecclesiastes',
+  22: 'Song of Solomon',
+  23: 'Isaiah',
+  24: 'Jeremiah',
+  25: 'Lamentations',
+  26: 'Ezekiel',
+  27: 'Daniel',
+  28: 'Hosea',
+  29: 'Joel',
+  30: 'Amos',
+  31: 'Obadiah',
+  32: 'Jonah',
+  33: 'Micah',
+  34: 'Nahum',
+  35: 'Habakkuk',
+  36: 'Zephaniah',
+  37: 'Haggai',
+  38: 'Zechariah',
+  39: 'Malachi',
+  40: 'Matthew',
+  41: 'Mark',
+  42: 'Luke',
+  43: 'John',
+  44: 'Acts',
+  45: 'Romans',
+  46: '1 Corinthians',
+  47: '2 Corinthians',
+  48: 'Galatians',
+  49: 'Ephesians',
+  50: 'Philippians',
+  51: 'Colossians',
+  52: '1 Thessalonians',
+  53: '2 Thessalonians',
+  54: '1 Timothy',
+  55: '2 Timothy',
+  56: 'Titus',
+  57: 'Philemon',
+  58: 'Hebrews',
+  59: 'James',
+  60: '1 Peter',
+  61: '2 Peter',
+  62: '1 John',
+  63: '2 John',
+  64: '3 John',
+  65: 'Jude',
+  66: 'Revelation',
+};
+
+String _canonicalBookName(BibleVersion version, int bookNumber) {
+  final names = version.isEnglish
+      ? _canonicalBookNamesEnglish
+      : _canonicalBookNames;
+  return names[bookNumber] ??
+      (version.isEnglish ? 'Book $bookNumber' : 'Libro $bookNumber');
+}
+
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE PARSER SERVICE - Singleton
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -267,9 +344,7 @@ class BibleParserService {
       for (final book in books) {
         final bookNum = int.parse(book.getAttribute('number')!);
         final bookName =
-            book.getAttribute('name') ??
-            _canonicalBookNames[bookNum] ??
-            'Libro $bookNum';
+            book.getAttribute('name') ?? _canonicalBookName(version, bookNum);
         final chapters = book.findAllElements('chapter');
         for (final chapterEl in chapters) {
           final chapNum = int.parse(chapterEl.getAttribute('number')!);
@@ -397,7 +472,7 @@ class BibleParserService {
     );
 
     // Build books index
-    _booksIndex[version] = _buildBooksIndex(doc);
+    _booksIndex[version] = _buildBooksIndex(doc, version);
     debugPrint(
       '📖 [BIBLE] ${version.id} loaded: ${_booksIndex[version]!.length} books',
     );
@@ -405,7 +480,7 @@ class BibleParserService {
 
   /// Construir índice de libros desde el documento XML.
   /// Maneja XMLs con o sin atributo name en <book>.
-  List<BibleBook> _buildBooksIndex(XmlDocument doc) {
+  List<BibleBook> _buildBooksIndex(XmlDocument doc, BibleVersion version) {
     final books = <BibleBook>[];
     final testaments = doc.rootElement.findAllElements('testament');
 
@@ -420,9 +495,7 @@ class BibleParserService {
         final bookNum = int.parse(bookEl.getAttribute('number')!);
         // Usar atributo name si existe, sino usar nombre canónico por número
         final bookName =
-            bookEl.getAttribute('name') ??
-            _canonicalBookNames[bookNum] ??
-            'Libro $bookNum';
+            bookEl.getAttribute('name') ?? _canonicalBookName(version, bookNum);
         final chapters = bookEl.findAllElements('chapter');
 
         final versesPerChapter = <int, int>{};
@@ -465,8 +538,7 @@ class BibleParserService {
 
         final bookName =
             bookEl.getAttribute('name') ??
-            _canonicalBookNames[bookNumber] ??
-            'Libro $bookNumber';
+            _canonicalBookName(version, bookNumber);
         final chapters = bookEl.findAllElements('chapter');
         for (final chapterEl in chapters) {
           if (int.parse(chapterEl.getAttribute('number')!) != chapter) continue;

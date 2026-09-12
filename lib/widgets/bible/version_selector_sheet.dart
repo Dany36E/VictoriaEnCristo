@@ -66,67 +66,133 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                       return ListView(
                         controller: scrollCtrl,
                         padding: const EdgeInsets.symmetric(horizontal: 24),
-                        children: BibleVersion.values.map((v) {
-                          final isCurrent = v == current;
-                          return GestureDetector(
-                            onTap: () async {
-                              if (!BibleDownloadService.I.isAvailable(v)) {
-                                final ok = await BibleDownloadService.I
-                                    .downloadVersion(v);
-                                if (!ok) {
-                                  if (context.mounted) {
+                        children: [
+                          for (final language in BibleLanguage.values) ...[
+                            Padding(
+                              padding: const EdgeInsets.only(top: 4, bottom: 8),
+                              child: Text(
+                                language.label.toUpperCase(),
+                                style: GoogleFonts.manrope(
+                                  color: t.accent.withValues(alpha: 0.75),
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 1.6,
+                                ),
+                              ),
+                            ),
+                            ...BibleVersion.forLanguage(language).map((v) {
+                              final isCurrent = v == current;
+                              final isAvailable = BibleDownloadService.I
+                                  .isAvailable(v);
+                              final canDownload = BibleDownloadService.I
+                                  .canDownload(v);
+                              final needsAuthorizedSource =
+                                  !isAvailable && !canDownload;
+                              return GestureDetector(
+                                onTap: () async {
+                                  if (needsAuthorizedSource) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
                                         content: Text(
-                                          '${v.shortName} aún no está disponible para descarga.',
+                                          '${v.shortName} requiere una fuente autorizada antes de poder usarse.',
                                         ),
                                       ),
                                     );
+                                    return;
                                   }
-                                  return;
-                                }
-                              }
-                              await BibleUserDataService.I.setPreferredVersion(
-                                v,
-                              );
-                              if (context.mounted) Navigator.pop(context);
-                              onChanged?.call();
-                            },
-                            child: SizedBox(
-                              height: 48,
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      v.displayName,
-                                      style: GoogleFonts.lora(
-                                        color: t.textPrimary,
-                                        fontSize: 16,
+                                  if (!isAvailable) {
+                                    final ok = await BibleDownloadService.I
+                                        .downloadVersion(v);
+                                    if (!ok) {
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              '${v.shortName} aún no está disponible para descarga.',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                      return;
+                                    }
+                                  }
+                                  await BibleUserDataService.I
+                                      .setPreferredVersion(v);
+                                  if (context.mounted) Navigator.pop(context);
+                                  onChanged?.call();
+                                },
+                                child: SizedBox(
+                                  height: 48,
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          v.displayName,
+                                          style: GoogleFonts.lora(
+                                            color: needsAuthorizedSource
+                                                ? t.textSecondary.withValues(
+                                                    alpha: 0.55,
+                                                  )
+                                                : t.textPrimary,
+                                            fontSize: 16,
+                                          ),
+                                        ),
                                       ),
-                                    ),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 7,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isCurrent
+                                              ? t.accent.withValues(alpha: 0.12)
+                                              : t.textSecondary.withValues(
+                                                  alpha: 0.08,
+                                                ),
+                                          borderRadius: BorderRadius.circular(
+                                            6,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          '${v.shortName} · ${v.language.code.toUpperCase()}',
+                                          style: GoogleFonts.manrope(
+                                            color: isCurrent
+                                                ? t.accent
+                                                : t.textSecondary.withValues(
+                                                    alpha: 0.65,
+                                                  ),
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ),
+                                      if (isCurrent) ...[
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          Icons.check,
+                                          color: t.accent,
+                                          size: 16,
+                                        ),
+                                      ] else if (needsAuthorizedSource) ...[
+                                        const SizedBox(width: 8),
+                                        Icon(
+                                          Icons.lock_outline_rounded,
+                                          color: t.textSecondary.withValues(
+                                            alpha: 0.5,
+                                          ),
+                                          size: 15,
+                                        ),
+                                      ],
+                                    ],
                                   ),
-                                  Text(
-                                    v.shortName,
-                                    style: GoogleFonts.manrope(
-                                      color: isCurrent
-                                          ? t.accent
-                                          : t.textSecondary.withValues(alpha: 0.6),
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  if (isCurrent) ...[
-                                    const SizedBox(width: 8),
-                                    Icon(
-                                      Icons.check,
-                                      color: t.accent,
-                                      size: 16,
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
-                          );
-                        }).toList(),
+                                ),
+                              );
+                            }),
+                            const SizedBox(height: 8),
+                          ],
+                        ],
                       );
                     },
                   ),

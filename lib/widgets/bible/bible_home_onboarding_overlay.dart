@@ -47,8 +47,8 @@ class _BibleHomeOnboardingOverlayState
       icon: Icons.translate_outlined,
       title: 'Elige tu versión',
       body:
-          'Toca el nombre de la versión arriba para cambiar entre RVR1960, '
-          'NVI, LBLA, NTV o TLA al instante.',
+          'Toca el nombre de la versión arriba para elegir traducciones en '
+          'español o English y cambiar entre ellas al instante.',
     ),
     _Slide(
       icon: Icons.text_fields,

@@ -122,9 +122,11 @@ class BibleSettingsScreen extends StatelessWidget {
                                   ),
                                 ),
                                 Text(
-                                  v.shortName,
+                                  '${v.shortName} · ${v.language.label}',
                                   style: GoogleFonts.manrope(
-                                    color: t.textSecondary.withValues(alpha: 0.5),
+                                    color: t.textSecondary.withValues(
+                                      alpha: 0.5,
+                                    ),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -188,7 +190,9 @@ class BibleSettingsScreen extends StatelessWidget {
                             max: 32,
                             divisions: 9,
                             activeColor: t.accent,
-                            inactiveColor: t.textSecondary.withValues(alpha: 0.15),
+                            inactiveColor: t.textSecondary.withValues(
+                              alpha: 0.15,
+                            ),
                             label: '${fontSize.toInt()}',
                             onChanged: (v) =>
                                 BibleUserDataService.I.setFontSize(v),
@@ -272,7 +276,9 @@ class BibleSettingsScreen extends StatelessWidget {
                                   border: Border.all(
                                     color: isActive
                                         ? t.accent
-                                        : t.textSecondary.withValues(alpha: 0.3),
+                                        : t.textSecondary.withValues(
+                                            alpha: 0.3,
+                                          ),
                                     width: isActive ? 2.5 : 1,
                                   ),
                                 ),
@@ -512,8 +518,7 @@ class _DailyVerseReminderRow extends StatefulWidget {
   const _DailyVerseReminderRow();
 
   @override
-  State<_DailyVerseReminderRow> createState() =>
-      _DailyVerseReminderRowState();
+  State<_DailyVerseReminderRow> createState() => _DailyVerseReminderRowState();
 }
 
 class _DailyVerseReminderRowState extends State<_DailyVerseReminderRow> {
@@ -615,8 +620,15 @@ class _DownloadsSection extends StatelessWidget {
         return ValueListenableBuilder<BibleVersion?>(
           valueListenable: dl.downloadingNotifier,
           builder: (context, downloading, _) {
-            final downloadedCount = states.values
-                .where((s) => s == DownloadState.downloaded)
+            final downloadableVersions = BibleVersion.values
+                .where(dl.canDownload)
+                .toList(growable: false);
+            final downloadedCount = downloadableVersions
+                .where(
+                  (version) =>
+                      states[version] == DownloadState.downloaded ||
+                      dl.isBundled(version),
+                )
                 .length;
             return Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -640,14 +652,14 @@ class _DownloadsSection extends StatelessWidget {
                       const SizedBox(width: 10),
                       Expanded(
                         child: Text(
-                          '$downloadedCount de ${BibleVersion.values.length} versiones descargadas',
+                          '$downloadedCount de ${downloadableVersions.length} versiones disponibles',
                           style: GoogleFonts.manrope(
                             color: t.textPrimary.withValues(alpha: 0.7),
                             fontSize: 13,
                           ),
                         ),
                       ),
-                      if (downloadedCount < BibleVersion.values.length)
+                      if (downloadedCount < downloadableVersions.length)
                         GestureDetector(
                           onTap: () => dl.downloadAll(),
                           child: Text(
@@ -667,8 +679,7 @@ class _DownloadsSection extends StatelessWidget {
                   final state = states[version] ?? DownloadState.notDownloaded;
                   final isBase = version == BibleVersion.rvr1960;
                   final isBundled = dl.isBundled(version);
-                  final isLocallyDownloaded =
-                      state == DownloadState.downloaded;
+                  final isLocallyDownloaded = state == DownloadState.downloaded;
                   final canDownload = dl.canDownload(version);
                   final isDownloadingThis = downloading == version;
 
@@ -702,14 +713,14 @@ class _DownloadsSection extends StatelessWidget {
                               ),
                               Text(
                                 isBase
-                                    ? '${version.shortName} · Incluida'
+                                    ? '${version.shortName} · ${version.language.label} · Incluida'
                                     : isLocallyDownloaded
-                                    ? '${version.shortName} · Guardada localmente · ~${_estimatedSize(version)}'
+                                    ? '${version.shortName} · ${version.language.label} · Guardada localmente · ~${_estimatedSize(version)}'
                                     : isBundled
-                                    ? '${version.shortName} · Disponible en la app'
+                                    ? '${version.shortName} · ${version.language.label} · Disponible en la app'
                                     : canDownload
-                                    ? '${version.shortName} · ~5 MB'
-                                    : '${version.shortName} · No disponible',
+                                    ? '${version.shortName} · ${version.language.label} · ~5 MB'
+                                    : '${version.shortName} · ${version.language.label} · Requiere fuente autorizada',
                                 style: GoogleFonts.manrope(
                                   color: t.textSecondary.withValues(alpha: 0.5),
                                   fontSize: 12,
@@ -827,6 +838,10 @@ class _DownloadsSection extends StatelessWidget {
         return '5.1 MB';
       case BibleVersion.tla:
         return '4.7 MB';
+      case BibleVersion.nivEnglish:
+      case BibleVersion.nlt:
+      case BibleVersion.nkjv:
+        return '5 MB';
     }
   }
 

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import '../../models/bible/bible_verse.dart';
+import '../../models/bible/bible_version.dart';
 import '../audio_engine.dart';
 
 /// Modo de lectura TTS
@@ -33,6 +34,7 @@ class BibleTtsService {
   int _queueIndex = -1;
   bool _playing = false;
   bool _paused = false;
+  BibleLanguage _language = BibleLanguage.spanish;
 
   /// Generación de lectura: se incrementa en cada stop/start para cancelar
   /// cualquier _readCurrent() en vuelo que pertenezca a una sesión anterior.
@@ -46,22 +48,14 @@ class BibleTtsService {
   final ValueNotifier<bool> isPlaying = ValueNotifier(false);
 
   /// Modo de lectura actual
-  final ValueNotifier<TtsReadMode> readMode = ValueNotifier(TtsReadMode.verseOnly);
+  final ValueNotifier<TtsReadMode> readMode = ValueNotifier(
+    TtsReadMode.verseOnly,
+  );
 
   Future<void> _init() async {
     if (_initialized) return;
     _tts = FlutterTts();
-    try {
-      await _tts!.setLanguage('es-MX');
-    } catch (e) {
-      debugPrint('🗣️ [TTS] es-MX unavailable: $e');
-      try {
-        await _tts!.setLanguage('es-US');
-      } catch (e2) {
-        debugPrint('🗣️ [TTS] es-US unavailable: $e2');
-        await _tts!.setLanguage('es-ES');
-      }
-    }
+    await _setLanguage(_language);
     await _tts!.setSpeechRate(0.45);
     await _tts!.setPitch(1.0);
     await _tts!.setVolume(1.0);
@@ -83,16 +77,36 @@ class BibleTtsService {
   }
 
   /// Iniciar lectura desde un índice específico (modo solo versículos)
-  Future<void> startReading(List<BibleVerse> verses, {int fromIndex = 0}) async {
+  Future<void> startReading(
+    List<BibleVerse> verses, {
+    int fromIndex = 0,
+  }) async {
+    final safeFromIndex = fromIndex < 0
+        ? 0
+        : fromIndex > verses.length
+        ? verses.length
+        : fromIndex;
     final queue = <TtsQueueItem>[];
-    for (int i = fromIndex; i < verses.length; i++) {
+    for (int i = safeFromIndex; i < verses.length; i++) {
       queue.add(TtsQueueItem(verses[i].text.trim(), i));
     }
-    await startReadingQueue(queue, mode: TtsReadMode.verseOnly);
+    final hasValidStart = safeFromIndex < verses.length;
+    final language = !hasValidStart
+        ? BibleLanguage.spanish
+        : BibleVersion.fromId(verses[safeFromIndex].version).language;
+    await startReadingQueue(
+      queue,
+      mode: TtsReadMode.verseOnly,
+      language: language,
+    );
   }
 
   /// Iniciar lectura con cola personalizada y modo
-  Future<void> startReadingQueue(List<TtsQueueItem> queue, {TtsReadMode mode = TtsReadMode.verseOnly}) async {
+  Future<void> startReadingQueue(
+    List<TtsQueueItem> queue, {
+    TtsReadMode mode = TtsReadMode.verseOnly,
+    BibleLanguage language = BibleLanguage.spanish,
+  }) async {
     // Detener BGM al activar TTS
     final engine = AudioEngine.I;
     if (engine.bgmState.value == BgmPlaybackState.playing) {
@@ -101,6 +115,7 @@ class BibleTtsService {
 
     await _init();
     await stop();
+    if (_language != language) await _setLanguage(language);
     _queue = queue;
     _queueIndex = 0;
     readMode.value = mode;
@@ -109,6 +124,21 @@ class BibleTtsService {
     isPlaying.value = true;
     final gen = ++_generation;
     await _readCurrent(gen);
+  }
+
+  Future<void> _setLanguage(BibleLanguage language) async {
+    _language = language;
+    final fallbacks = language == BibleLanguage.english
+        ? const ['en-US', 'en-GB']
+        : const ['es-MX', 'es-US', 'es-ES'];
+    for (final locale in fallbacks) {
+      try {
+        final result = await _tts!.setLanguage(locale);
+        if (result == 1 || result == true) return;
+      } catch (e) {
+        debugPrint('🗣️ [TTS] $locale unavailable: $e');
+      }
+    }
   }
 
   Future<void> _readCurrent(int gen) async {

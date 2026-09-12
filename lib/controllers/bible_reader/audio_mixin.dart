@@ -49,7 +49,8 @@ mixin AudioMixin on ReaderState {
     // Si modo estudio con Guzik y se pide modo específico → TTS directo
     if (mode != null) {
       if (mode != TtsReadMode.verseOnly &&
-          studyModeEnabled && guzikChapter == null) {
+          studyModeEnabled &&
+          guzikChapter == null) {
         await loadGuzikCommentary();
       }
       _startTtsWithMode(mode);
@@ -105,7 +106,11 @@ mixin AudioMixin on ReaderState {
 
   void _startTtsWithMode(TtsReadMode mode) {
     final queue = _buildTtsQueue(mode);
-    BibleTtsService.I.startReadingQueue(queue, mode: mode);
+    BibleTtsService.I.startReadingQueue(
+      queue,
+      mode: mode,
+      language: currentVersion.language,
+    );
     ttsActive = true;
     notifyListeners();
   }

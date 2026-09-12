@@ -6,18 +6,32 @@ import 'package:flutter_test/flutter_test.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('all configured bible xml assets are bundled', () async {
-    for (final version in BibleVersion.values) {
+  const bundledVersions = [
+    BibleVersion.rvr1960,
+    BibleVersion.nvi,
+    BibleVersion.lbla,
+    BibleVersion.ntv,
+    BibleVersion.tla,
+  ];
+
+  test('configured offline bible xml assets are bundled', () async {
+    for (final version in bundledVersions) {
       final assetPath = 'assets/bible/${version.fileName}';
       final bytes = await rootBundle.load(assetPath);
       expect(bytes.lengthInBytes, greaterThan(1024), reason: assetPath);
     }
   });
 
-  test('download service treats local bible xml files as bundled sources', () {
-    final service = BibleDownloadService.I;
-    for (final version in BibleVersion.values) {
-      expect(service.isBundled(version), isTrue, reason: version.id);
-    }
-  });
+  test(
+    'download service distinguishes bundled and licensed remote sources',
+    () {
+      final service = BibleDownloadService.I;
+      for (final version in bundledVersions) {
+        expect(service.isBundled(version), isTrue, reason: version.id);
+      }
+      expect(service.isBundled(BibleVersion.nlt), isFalse);
+      expect(service.isBundled(BibleVersion.nkjv), isFalse);
+      expect(service.isBundled(BibleVersion.nivEnglish), isFalse);
+    },
+  );
 }
