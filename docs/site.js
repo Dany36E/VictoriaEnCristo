@@ -25,16 +25,44 @@
   var verseSlots = Array.prototype.slice.call(document.querySelectorAll(".word-slot"));
   var verseWords = Array.prototype.slice.call(document.querySelectorAll(".verse-word"));
   var verseTargets = [];
-  var verseGeometryDirty = true;
+  var compactQuery = window.matchMedia("(max-width: 1120px)");
+  var mobileQuery = window.matchMedia("(max-width: 700px)");
+  var shortWideQuery = window.matchMedia("(min-width: 900px) and (max-height: 680px)");
+  var heroLayout = {
+    viewportWidth: window.innerWidth,
+    viewportHeight: window.innerHeight,
+    heroHeight: 0,
+    sceneWidth: 0,
+    sceneHeight: 0,
+    isCompact: compactQuery.matches,
+    isMobile: mobileQuery.matches,
+    isShortWide: shortWideQuery.matches
+  };
+  var heroLayoutDirty = true;
+  var lastBookX = 0;
   var framePending = false;
   var openingStarted = false;
   var openingCompleted = false;
   var heroMotionBound = false;
+  var heroReady = false;
 
-  var measureVerseTargets = function (bookX) {
-    if (!bookScene || !verseSlots.length) return;
+  var measureHeroLayout = function (heroRect) {
+    heroLayout.viewportWidth = window.innerWidth;
+    heroLayout.viewportHeight = window.innerHeight;
+    heroLayout.heroHeight = heroRect.height;
+    heroLayout.isCompact = compactQuery.matches;
+    heroLayout.isMobile = mobileQuery.matches;
+    heroLayout.isShortWide = shortWideQuery.matches;
+
+    if (!bookScene) {
+      heroLayoutDirty = false;
+      return;
+    }
+
     var sceneRect = bookScene.getBoundingClientRect();
-    var parentShift = window.innerWidth * bookX / 100;
+    var parentShift = heroLayout.viewportWidth * lastBookX / 100;
+    heroLayout.sceneWidth = bookScene.clientWidth;
+    heroLayout.sceneHeight = bookScene.clientHeight;
     verseTargets = verseSlots.map(function (slot) {
       var rect = slot.getBoundingClientRect();
       return {
@@ -42,21 +70,20 @@
         y: rect.top + rect.height / 2 - sceneRect.top
       };
     });
-    verseGeometryDirty = false;
+    heroLayoutDirty = false;
   };
 
-  var animateVerse = function (progress, bookX, bookY, closedShift) {
+  var animateVerse = function (progress, bookY, closedShift) {
     if (!bookScene || !verseWords.length) return;
-    if (verseGeometryDirty || verseTargets.length !== verseWords.length) measureVerseTargets(bookX);
 
-    var sourceX = bookScene.clientWidth * (0.5 + closedShift / 100) + window.innerWidth * bookX / 100;
-    var sourceY = bookScene.clientHeight * 0.57 + window.innerHeight * bookY / 100;
+    var sourceX = heroLayout.sceneWidth * (0.5 + closedShift / 100);
+    var sourceY = heroLayout.sceneHeight * 0.57 + heroLayout.viewportHeight * bookY / 100;
 
     verseWords.forEach(function (word, index) {
       var wordProgress = segment(progress, 0.4 + index * 0.026, 0.69 + index * 0.026);
       var target = verseTargets[index] || { x: sourceX, y: sourceY };
       var remaining = 1 - wordProgress;
-      var driftX = (sourceX - target.x - window.innerWidth * bookX / 100) * remaining;
+      var driftX = (sourceX - target.x) * remaining;
       var driftY = (sourceY - target.y) * remaining - Math.sin(Math.PI * wordProgress) * 58;
       var depth = 170 * remaining;
       var turn = (index % 2 === 0 ? -7 : 7) * remaining;
@@ -71,7 +98,9 @@
     if (!hero || root.classList.contains("motion-reduced")) return;
 
     var rect = hero.getBoundingClientRect();
-    var available = Math.max(hero.offsetHeight - window.innerHeight, 1);
+    if (heroLayoutDirty || verseTargets.length !== verseWords.length) measureHeroLayout(rect);
+
+    var available = Math.max(heroLayout.heroHeight - heroLayout.viewportHeight, 1);
     var progress = clamp(-rect.top / available, 0, 1);
     var openCover = segment(progress, 0.08, 0.5);
     var leafOne = segment(progress, 0.2, 0.48);
@@ -85,9 +114,9 @@
     var beam = segment(progress, 0.32, 0.78);
     var spreadReveal = segment(progress, 0.07, 0.31);
     var insideReveal = segment(progress, 0.32, 0.5);
-    var isCompact = window.matchMedia("(max-width: 1120px)").matches;
-    var isMobile = window.matchMedia("(max-width: 700px)").matches;
-    var isShortWide = window.matchMedia("(min-width: 900px) and (max-height: 680px)").matches;
+    var isCompact = heroLayout.isCompact;
+    var isMobile = heroLayout.isMobile;
+    var isShortWide = heroLayout.isShortWide;
 
     var bookX = isCompact && !isShortWide ? 0 : 22 * settle;
     var bookY = isMobile ? 5 - 9 * settle : (isCompact && !isShortWide ? 5 - 13 * settle : (isShortWide ? 6 + 7 * settle : 7 + 11 * settle));
@@ -118,8 +147,13 @@
     hero.style.setProperty("--verse-cite-opacity", segment(progress, 0.78, 0.94).toFixed(3));
     hero.style.setProperty("--verse-cite-y", (18 * (1 - segment(progress, 0.78, 0.94))).toFixed(2) + "px");
     hero.style.setProperty("--hero-progress", (progress * 100).toFixed(2) + "%");
-    hero.classList.toggle("hero-ready", progress >= 0.86);
-    animateVerse(progress, bookX, bookY, closedShift);
+    var ready = progress >= 0.86;
+    if (ready !== heroReady) {
+      heroReady = ready;
+      hero.classList.toggle("hero-ready", ready);
+    }
+    animateVerse(progress, bookY, closedShift);
+    lastBookX = bookX;
 
     if (progress > 0.04 && !openingStarted) {
       openingStarted = true;
@@ -154,12 +188,12 @@
     sceneObserver.observe(hero);
     window.addEventListener("scroll", requestHeroFrame, { passive: true });
     window.addEventListener("resize", function () {
-      verseGeometryDirty = true;
+      heroLayoutDirty = true;
       requestHeroFrame();
     }, { passive: true });
     if (document.fonts && document.fonts.ready) {
       document.fonts.ready.then(function () {
-        verseGeometryDirty = true;
+        heroLayoutDirty = true;
         requestHeroFrame();
       });
     }
@@ -169,7 +203,9 @@
   var motionReplay = document.querySelector(".motion-replay");
   var syncMotionPreference = function () {
     var reduced = motionQuery.matches && !motionOverride;
+    var preferenceChanged = root.classList.contains("motion-reduced") !== reduced;
     root.classList.toggle("motion-reduced", reduced);
+    if (preferenceChanged) heroLayoutDirty = true;
     if (motionReplay) {
       motionReplay.hidden = false;
       motionReplay.textContent = reduced ? "Activar animación" : "Repetir apertura";
@@ -184,7 +220,7 @@
         motionOverride = true;
         root.classList.remove("motion-reduced");
         motionReplay.textContent = "Repetir apertura";
-        verseGeometryDirty = true;
+        heroLayoutDirty = true;
         enableHeroMotion();
         motionReplay.blur();
         window.scrollTo({ top: hero.offsetTop, behavior: "auto" });

@@ -47,9 +47,13 @@ const socket = new WebSocket(target.webSocketDebuggerUrl);
 
 let nextId = 1;
 const pending = new Map();
+const runtimeErrors = [];
 
 socket.addEventListener("message", (event) => {
   const message = JSON.parse(event.data);
+  if (message.method === "Runtime.exceptionThrown") {
+    runtimeErrors.push(message.params.exceptionDetails.text);
+  }
   if (!message.id || !pending.has(message.id)) return;
   const callbacks = pending.get(message.id);
   pending.delete(message.id);
@@ -102,6 +106,34 @@ async function captureCurrent(filename) {
   await writeFile(join(outputDir, filename), Buffer.from(result.data, "base64"));
 }
 
+async function benchmarkScroll(from, to, duration) {
+  const result = await send("Runtime.evaluate", {
+    expression: "new Promise(function (resolve) {" +
+      "var hero = document.querySelector('.book-hero');" +
+      "var distance = hero.offsetHeight - window.innerHeight;" +
+      "var started = performance.now();" +
+      "var previous = null;" +
+      "var samples = [];" +
+      "function step(now) {" +
+        "if (previous !== null) samples.push(now - previous);" +
+        "previous = now;" +
+        "var elapsed = Math.min((now - started) / " + duration + ", 1);" +
+        "var eased = elapsed * elapsed * (3 - 2 * elapsed);" +
+        "window.scrollTo(0, distance * (" + from + " + (" + (to - from) + ") * eased));" +
+        "if (elapsed < 1) { requestAnimationFrame(step); return; }" +
+        "var stable = samples.slice(3).sort(function (a, b) { return a - b; });" +
+        "var total = stable.reduce(function (sum, value) { return sum + value; }, 0);" +
+        "resolve({frames: stable.length, averageMs: total / stable.length, p95Ms: stable[Math.floor(stable.length * 0.95)], maxMs: stable[stable.length - 1]});" +
+      "}" +
+      "requestAnimationFrame(step);" +
+    "})",
+    awaitPromise: true,
+    returnByValue: true,
+  });
+  await wait(120);
+  return result.result.value;
+}
+
 try {
   await send("Page.enable");
   await send("Runtime.enable");
@@ -116,6 +148,24 @@ try {
   });
   await send("Page.navigate", { url: "http://localhost:4173/index.html" });
   await wait(700);
+
+  const forwardBenchmark = await benchmarkScroll(0, 1, 1600);
+  const forwardState = await send("Runtime.evaluate", {
+    expression: "parseFloat(getComputedStyle(document.querySelector('.book-hero')).getPropertyValue('--hero-progress'))",
+    returnByValue: true,
+  });
+  const reverseBenchmark = await benchmarkScroll(1, 0, 1600);
+  const reverseState = await send("Runtime.evaluate", {
+    expression: "parseFloat(getComputedStyle(document.querySelector('.book-hero')).getPropertyValue('--hero-progress'))",
+    returnByValue: true,
+  });
+  if (forwardState.result.value < 99.5 || reverseState.result.value > 0.5) {
+    throw new Error("La animación no siguió el scroll completo en ambas direcciones.");
+  }
+  if (forwardBenchmark.p95Ms > 25 || reverseBenchmark.p95Ms > 25) {
+    throw new Error("La cadencia del scroll superó 25 ms en el percentil 95.");
+  }
+  console.log("Fluidez de scroll: " + JSON.stringify({ forward: forwardBenchmark, reverse: reverseBenchmark }));
 
   for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
     const label = String(Math.round(progress * 100)).padStart(3, "0");
@@ -179,6 +229,9 @@ try {
     throw new Error("La activación manual no habilitó la animación controlada por scroll.");
   }
   await captureCurrent("hero-reduced-opt-in-390.png");
+  if (runtimeErrors.length) {
+    throw new Error("Se detectaron errores de JavaScript: " + runtimeErrors.join(" | "));
+  }
   console.log("Capturas guardadas en " + outputDir);
 } finally {
   socket.close();
