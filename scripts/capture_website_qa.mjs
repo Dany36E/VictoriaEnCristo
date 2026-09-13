@@ -14,7 +14,6 @@ await mkdir(outputDir, { recursive: true });
 
 const processHandle = spawn(chrome, [
   "--headless=new",
-  "--disable-gpu",
   "--hide-scrollbars",
   "--no-first-run",
   "--remote-debugging-port=" + port,
@@ -151,21 +150,21 @@ try {
 
   const forwardBenchmark = await benchmarkScroll(0, 1, 1600);
   const forwardState = await send("Runtime.evaluate", {
-    expression: "parseFloat(getComputedStyle(document.querySelector('.book-hero')).getPropertyValue('--hero-progress'))",
+    expression: "parseFloat(document.querySelector('.hero-progress span').style.width)",
     returnByValue: true,
   });
   const reverseBenchmark = await benchmarkScroll(1, 0, 1600);
   const reverseState = await send("Runtime.evaluate", {
-    expression: "parseFloat(getComputedStyle(document.querySelector('.book-hero')).getPropertyValue('--hero-progress'))",
+    expression: "parseFloat(document.querySelector('.hero-progress span').style.width)",
     returnByValue: true,
   });
   if (forwardState.result.value < 99.5 || reverseState.result.value > 0.5) {
     throw new Error("La animación no siguió el scroll completo en ambas direcciones.");
   }
+  console.log("Fluidez de scroll: " + JSON.stringify({ forward: forwardBenchmark, reverse: reverseBenchmark }));
   if (forwardBenchmark.p95Ms > 25 || reverseBenchmark.p95Ms > 25) {
     throw new Error("La cadencia del scroll superó 25 ms en el percentil 95.");
   }
-  console.log("Fluidez de scroll: " + JSON.stringify({ forward: forwardBenchmark, reverse: reverseBenchmark }));
 
   for (const progress of [0, 0.25, 0.5, 0.75, 1]) {
     const label = String(Math.round(progress * 100)).padStart(3, "0");
@@ -184,18 +183,6 @@ try {
     await capture(viewport[0], viewport[1], 1, "hero-t100-" + viewport[0] + ".png");
   }
 
-  await send("Runtime.evaluate", {
-    expression: "document.querySelector('.motion-replay').click()",
-  });
-  await wait(180);
-  const replayState = await send("Runtime.evaluate", {
-    expression: "({scrollY: window.scrollY, label: document.querySelector('.motion-replay').textContent, cover: getComputedStyle(document.querySelector('.front-cover')).transform})",
-    returnByValue: true,
-  });
-  if (replayState.result.value.scrollY > 1 || replayState.result.value.label !== "Repetir apertura") {
-    throw new Error("El control para repetir no devolvió el hero al estado inicial.");
-  }
-
   await send("Emulation.setDeviceMetricsOverride", {
     width: 390,
     height: 844,
@@ -207,28 +194,18 @@ try {
   });
   await send("Page.reload");
   await wait(500);
-  await send("Runtime.evaluate", { expression: "window.scrollTo(0, 0)" });
-  await wait(120);
-  await captureCurrent("hero-reduced-motion-390.png");
-  const reducedState = await send("Runtime.evaluate", {
-    expression: "({reduced: document.documentElement.classList.contains('motion-reduced'), label: document.querySelector('.motion-replay').textContent})",
-    returnByValue: true,
-  });
-  if (!reducedState.result.value.reduced || reducedState.result.value.label !== "Activar animación") {
-    throw new Error("La alternativa de movimiento reducido no expuso el control de activación.");
-  }
   await send("Runtime.evaluate", {
-    expression: "document.querySelector('.motion-replay').click()",
+    expression: "window.scrollTo(0, (document.querySelector('.book-hero').offsetHeight - window.innerHeight) * 0.5)",
   });
   await wait(180);
-  const optInState = await send("Runtime.evaluate", {
-    expression: "({scrollY: window.scrollY, reduced: document.documentElement.classList.contains('motion-reduced'), label: document.querySelector('.motion-replay').textContent})",
+  await captureCurrent("hero-reduced-motion-active-390.png");
+  const reducedState = await send("Runtime.evaluate", {
+    expression: "({reducedClass: document.documentElement.classList.contains('motion-reduced'), buttonExists: Boolean(document.querySelector('.motion-replay')), progress: parseFloat(document.querySelector('.hero-progress span').style.width)})",
     returnByValue: true,
   });
-  if (optInState.result.value.scrollY > 1 || optInState.result.value.reduced || optInState.result.value.label !== "Repetir apertura") {
-    throw new Error("La activación manual no habilitó la animación controlada por scroll.");
+  if (reducedState.result.value.reducedClass || reducedState.result.value.buttonExists || Math.abs(reducedState.result.value.progress - 50) > 1) {
+    throw new Error("La animación no quedó activa por defecto sin controles adicionales.");
   }
-  await captureCurrent("hero-reduced-opt-in-390.png");
   if (runtimeErrors.length) {
     throw new Error("Se detectaron errores de JavaScript: " + runtimeErrors.join(" | "));
   }

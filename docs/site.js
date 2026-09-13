@@ -18,10 +18,26 @@
     document.dispatchEvent(new CustomEvent(name, { detail: detail }));
   };
 
-  var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var motionOverride = new URLSearchParams(window.location.search).get("motion") === "full";
   var hero = document.querySelector(".book-hero");
   var bookScene = document.querySelector(".book-scene");
+  var bookWrapper = document.querySelector(".book-wrapper");
+  var bookBackCover = document.querySelector(".book-back-cover");
+  var bookPageStack = document.querySelector(".book-page-stack");
+  var bookSpread = document.querySelector(".book-spread");
+  var frontCover = document.querySelector(".front-cover");
+  var coverFront = document.querySelector(".cover-front");
+  var coverInside = document.querySelector(".cover-inside");
+  var pageLeaves = ["one", "two", "three", "four"].map(function (name) {
+    return document.querySelector(".leaf-" + name);
+  });
+  var openingBefore = document.querySelector(".opening-copy-before");
+  var openingAfter = document.querySelector(".opening-copy-after");
+  var bookLight = document.querySelector(".book-light");
+  var bookBeam = document.querySelector(".book-beam");
+  var bookShadow = document.querySelector(".book-shadow");
+  var scriptureReveal = document.querySelector(".scripture-reveal");
+  var scriptureCite = document.querySelector(".scripture-reveal cite");
+  var progressBar = document.querySelector(".hero-progress span");
   var verseSlots = Array.prototype.slice.call(document.querySelectorAll(".word-slot"));
   var verseWords = Array.prototype.slice.call(document.querySelectorAll(".verse-word"));
   var verseTargets = [];
@@ -95,7 +111,7 @@
 
   var setHeroProgress = function () {
     framePending = false;
-    if (!hero || root.classList.contains("motion-reduced")) return;
+    if (!hero) return;
 
     var rect = hero.getBoundingClientRect();
     if (heroLayoutDirty || verseTargets.length !== verseWords.length) measureHeroLayout(rect);
@@ -122,31 +138,43 @@
     var bookY = isMobile ? 5 - 9 * settle : (isCompact && !isShortWide ? 5 - 13 * settle : (isShortWide ? 6 + 7 * settle : 7 + 11 * settle));
     var closedShift = -25 * (1 - spreadReveal);
 
-    hero.style.setProperty("--cover-angle", (-178 * openCover).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-one-angle", (-168 * leafOne).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-two-angle", (-154 * leafTwo).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-three-angle", (-139 * leafThree).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-four-angle", (-122 * leafFour).toFixed(2) + "deg");
-    hero.style.setProperty("--book-tilt", (4 + 54 * settle).toFixed(2) + "deg");
-    hero.style.setProperty("--book-roll", (-3 + 3 * settle).toFixed(2) + "deg");
-    hero.style.setProperty("--book-scale", (0.82 + 0.12 * settle).toFixed(3));
-    hero.style.setProperty("--book-x", bookX.toFixed(2) + "vw");
-    hero.style.setProperty("--book-y", bookY.toFixed(2) + "vh");
-    hero.style.setProperty("--closed-shift", closedShift.toFixed(2) + "%");
-    hero.style.setProperty("--closed-inset", (50 * (1 - spreadReveal)).toFixed(2) + "%");
-    hero.style.setProperty("--cover-front-opacity", (1 - insideReveal).toFixed(3));
-    hero.style.setProperty("--cover-inside-opacity", insideReveal.toFixed(3));
-    hero.style.setProperty("--before-opacity", before.toFixed(3));
-    hero.style.setProperty("--before-y", (-32 * (1 - before)).toFixed(2) + "px");
-    hero.style.setProperty("--after-opacity", after.toFixed(3));
-    hero.style.setProperty("--after-y", (32 * (1 - after)).toFixed(2) + "px");
-    hero.style.setProperty("--book-light-opacity", (0.92 * light).toFixed(3));
-    hero.style.setProperty("--book-beam-opacity", (0.84 * beam).toFixed(3));
-    hero.style.setProperty("--book-shadow-opacity", (0.28 + 0.42 * settle).toFixed(3));
-    hero.style.setProperty("--book-shadow-scale", (0.58 + 0.42 * settle).toFixed(3));
-    hero.style.setProperty("--verse-cite-opacity", segment(progress, 0.78, 0.94).toFixed(3));
-    hero.style.setProperty("--verse-cite-y", (18 * (1 - segment(progress, 0.78, 0.94))).toFixed(2) + "px");
-    hero.style.setProperty("--hero-progress", (progress * 100).toFixed(2) + "%");
+    var coverAngle = -178 * openCover;
+    var leafAngles = [-176 * leafOne, -169 * leafTwo, -161 * leafThree, -152 * leafFour];
+    var bookTilt = 4 + 54 * settle;
+    var bookRoll = -3 + 3 * settle;
+    var bookScale = 0.82 + 0.12 * settle;
+    var closedInset = 50 * (1 - spreadReveal);
+    var beforeY = -32 * (1 - before);
+    var afterY = 32 * (1 - after);
+    var citeReveal = segment(progress, 0.78, 0.94);
+    var shadowScale = 0.58 + 0.42 * settle;
+
+    frontCover.style.transform = "rotate3d(0,1,0," + coverAngle.toFixed(2) + "deg) translate3d(0,0,8px)";
+    pageLeaves.forEach(function (leaf, index) {
+      if (!leaf) return;
+      leaf.style.transform = "rotate3d(0,1,0," + leafAngles[index].toFixed(2) + "deg) translate3d(0,0," + (6 - index) + "px)";
+    });
+    bookWrapper.style.transform = "translate3d(calc(" + bookX.toFixed(2) + "vw + " + closedShift.toFixed(2) + "% )," + bookY.toFixed(2) + "vh,0) rotate3d(1,0,0," + bookTilt.toFixed(2) + "deg) rotate3d(0,0,1," + bookRoll.toFixed(2) + "deg) scale(" + bookScale.toFixed(3) + ")";
+    [bookBackCover, bookPageStack, bookSpread].forEach(function (layer) {
+      if (layer) layer.style.clipPath = "inset(0 0 0 " + closedInset.toFixed(2) + "%)";
+    });
+    coverFront.style.opacity = (1 - insideReveal).toFixed(3);
+    coverInside.style.opacity = insideReveal.toFixed(3);
+    openingBefore.style.opacity = before.toFixed(3);
+    openingBefore.style.transform = "translate3d(-50%," + beforeY.toFixed(2) + "px,0)";
+    openingAfter.style.opacity = after.toFixed(3);
+    openingAfter.style.transform = isCompact && !isShortWide
+      ? "translate3d(-50%," + afterY.toFixed(2) + "px,0)"
+      : "translate3d(0,calc(-42% + " + afterY.toFixed(2) + "px),0)";
+    bookLight.style.opacity = (0.92 * light).toFixed(3);
+    bookLight.style.transform = "translate3d(calc(-50% + " + bookX.toFixed(2) + "vw)," + bookY.toFixed(2) + "vh,0) scale(1.08)";
+    bookBeam.style.opacity = (0.84 * beam).toFixed(3);
+    bookShadow.style.opacity = (0.28 + 0.42 * settle).toFixed(3);
+    bookShadow.style.transform = "translate3d(" + bookX.toFixed(2) + "vw," + bookY.toFixed(2) + "vh,0) scaleX(" + shadowScale.toFixed(3) + ")";
+    scriptureReveal.style.transform = "translate3d(calc(-50% + " + bookX.toFixed(2) + "vw),0,0)";
+    scriptureCite.style.opacity = citeReveal.toFixed(3);
+    scriptureCite.style.transform = "translate3d(0," + (18 * (1 - citeReveal)).toFixed(2) + "px,0)";
+    progressBar.style.width = (progress * 100).toFixed(2) + "%";
     var ready = progress >= 0.86;
     if (ready !== heroReady) {
       heroReady = ready;
@@ -200,39 +228,7 @@
     requestHeroFrame();
   };
 
-  var motionReplay = document.querySelector(".motion-replay");
-  var syncMotionPreference = function () {
-    var reduced = motionQuery.matches && !motionOverride;
-    var preferenceChanged = root.classList.contains("motion-reduced") !== reduced;
-    root.classList.toggle("motion-reduced", reduced);
-    if (preferenceChanged) heroLayoutDirty = true;
-    if (motionReplay) {
-      motionReplay.hidden = false;
-      motionReplay.textContent = reduced ? "Activar animación" : "Repetir apertura";
-    }
-    if (!reduced) enableHeroMotion();
-  };
-
-  if (hero) {
-    syncMotionPreference();
-    if (motionReplay) {
-      motionReplay.addEventListener("click", function () {
-        motionOverride = true;
-        root.classList.remove("motion-reduced");
-        motionReplay.textContent = "Repetir apertura";
-        heroLayoutDirty = true;
-        enableHeroMotion();
-        motionReplay.blur();
-        window.scrollTo({ top: hero.offsetTop, behavior: "auto" });
-        requestHeroFrame();
-      });
-    }
-    var handleMotionChange = function () {
-      if (!motionOverride) syncMotionPreference();
-    };
-    if (motionQuery.addEventListener) motionQuery.addEventListener("change", handleMotionChange);
-    else if (motionQuery.addListener) motionQuery.addListener(handleMotionChange);
-  }
+  if (hero) enableHeroMotion();
 
   var pathways = {
     leer: {
