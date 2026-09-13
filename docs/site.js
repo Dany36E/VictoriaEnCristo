@@ -19,7 +19,7 @@
   };
 
   var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var motionOverride = false;
+  var motionOverride = new URLSearchParams(window.location.search).get("motion") === "full";
   var hero = document.querySelector(".book-hero");
   var bookScene = document.querySelector(".book-scene");
   var verseSlots = Array.prototype.slice.call(document.querySelectorAll(".word-slot"));
