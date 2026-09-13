@@ -15,11 +15,11 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from "firebase-functions/v1";
+import * as adminFirestore from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
-const db = admin.firestore();
+const db = adminFirestore.getFirestore();
 
 const ALLOWED_VERSIONS = ["RVR1960", "NVI", "LBLA", "NTV", "TLA"];
 const MAX_MEMBERS = ALLOWED_VERSIONS.length;
@@ -80,7 +80,7 @@ async function consumeDailyCreateLimit(uid: string): Promise<void> {
       count: current + 1,
       uid,
       day,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: adminFirestore.FieldValue.serverTimestamp(),
     }, {merge: true});
   });
 }
@@ -90,7 +90,7 @@ interface MemberDoc {
   displayName: string;
   photoUrl?: string | null;
   versionId: string;
-  joinedAt: admin.firestore.Timestamp;
+  joinedAt: adminFirestore.Timestamp;
 }
 
 interface RoomDoc {
@@ -102,13 +102,13 @@ interface RoomDoc {
   startVerse?: number | null;
   endVerse?: number | null;
   swapIntervalMinutes: number;
-  createdAt: admin.firestore.Timestamp;
-  lastSwapAt: admin.firestore.Timestamp;
+  createdAt: adminFirestore.Timestamp;
+  lastSwapAt: adminFirestore.Timestamp;
   swapTimerActive?: boolean;
-  swapTimerStartedAt?: admin.firestore.Timestamp | null;
+  swapTimerStartedAt?: adminFirestore.Timestamp | null;
   // Computed: lastSwapAt + swapIntervalMinutes. Indexable para que el
   // scheduler `studyRoomAutoSwap` pueda filtrar sin escanear todo.
-  nextSwapAt?: admin.firestore.Timestamp | null;
+  nextSwapAt?: adminFirestore.Timestamp | null;
   // Cache barato del tamaño para filtrar salas huérfanas (memberCount<2).
   memberCount: number;
   memberOrder: string[];
@@ -116,10 +116,10 @@ interface RoomDoc {
 }
 
 function computeNextSwapAt(
-  lastSwapAt: admin.firestore.Timestamp,
+  lastSwapAt: adminFirestore.Timestamp,
   swapIntervalMinutes: number,
-): admin.firestore.Timestamp {
-  return admin.firestore.Timestamp.fromMillis(
+): adminFirestore.Timestamp {
+  return adminFirestore.Timestamp.fromMillis(
     lastSwapAt.toMillis() + swapIntervalMinutes * 60 * 1000,
   );
 }
@@ -176,7 +176,7 @@ export const createStudyRoom = functions.region("us-central1").https.onCall(asyn
     await consumeDailyCreateLimit(uid);
 
     // Buscar un código único (5 intentos), con transacción para evitar race conditions.
-    const now = admin.firestore.Timestamp.now();
+    const now = adminFirestore.Timestamp.now();
     for (let attempt = 0; attempt < 5; attempt++) {
       const code = genCode();
       const ref = db.collection("studyRooms").doc(code);
@@ -289,7 +289,7 @@ export const joinStudyRoom = functions.region("us-central1").https.onCall(async 
         displayName: displayName || "Hermano(a)",
         photoUrl,
         versionId,
-        joinedAt: admin.firestore.Timestamp.now(),
+        joinedAt: adminFirestore.Timestamp.now(),
       };
       const memberOrder = [...(room.memberOrder ?? []), uid];
       tx.update(ref, {
@@ -342,7 +342,7 @@ export const leaveStudyRoom = functions.region("us-central1").https.onCall(async
       }
       const newHost = room.hostUid === uid ? memberOrder[0] : room.hostUid;
       const updates: Record<string, unknown> = {
-        [`members.${uid}`]: admin.firestore.FieldValue.delete(),
+        [`members.${uid}`]: adminFirestore.FieldValue.delete(),
         memberOrder,
         memberCount: memberOrder.length,
         hostUid: newHost,
@@ -350,7 +350,7 @@ export const leaveStudyRoom = functions.region("us-central1").https.onCall(async
       if (memberOrder.length < 2) {
         updates.swapTimerActive = false;
         updates.swapTimerStartedAt = null;
-        updates.nextSwapAt = admin.firestore.FieldValue.delete();
+        updates.nextSwapAt = adminFirestore.FieldValue.delete();
       }
       tx.update(ref, updates);
     });
@@ -375,7 +375,7 @@ async function rotateRoomVersions(code: string, force: boolean): Promise<RoomDoc
 
     if (!force) {
       if (room.swapTimerActive !== true || !room.nextSwapAt) return room;
-      const next = (room.nextSwapAt as admin.firestore.Timestamp).toMillis();
+      const next = (room.nextSwapAt as adminFirestore.Timestamp).toMillis();
       if (Date.now() < next) return room; // todavía no toca
     }
 
@@ -384,14 +384,14 @@ async function rotateRoomVersions(code: string, force: boolean): Promise<RoomDoc
     const versions = memberOrder.map(
       (u) => (room.members[u]?.versionId ?? "RVR1960"));
     const rotated = [versions[versions.length - 1], ...versions.slice(0, -1)];
-    const nowTs = admin.firestore.Timestamp.now();
+    const nowTs = adminFirestore.Timestamp.now();
     const updates: Record<string, unknown> = {
       lastSwapAt: nowTs,
     };
     if (room.swapTimerActive === true) {
       updates.nextSwapAt = computeNextSwapAt(nowTs, room.swapIntervalMinutes ?? 15);
     } else {
-      updates.nextSwapAt = admin.firestore.FieldValue.delete();
+      updates.nextSwapAt = adminFirestore.FieldValue.delete();
     }
     memberOrder.forEach((u, i) => {
       updates[`members.${u}.versionId`] = rotated[i];
@@ -431,7 +431,7 @@ export const startStudyRoomSwapTimer = functions.region("us-central1").https.onC
           throw new functions.https.HttpsError(
             "failed-precondition", "Espera a que se una al menos otra persona.");
         }
-        const nowTs = admin.firestore.Timestamp.now();
+        const nowTs = adminFirestore.Timestamp.now();
         const nextSwapAt = computeNextSwapAt(nowTs, room.swapIntervalMinutes ?? 15);
         tx.update(ref, {
           swapTimerActive: true,
@@ -492,7 +492,7 @@ export const rotateStudyVersions = functions.region("us-central1").https.onCall(
 export const studyRoomAutoSwap = functions.region("us-central1").pubsub
   .schedule("every 5 minutes")
   .onRun(async () => {
-    const now = admin.firestore.Timestamp.now();
+    const now = adminFirestore.Timestamp.now();
     // 1. Salas que necesitan rotar.
     const dueSnap = await db.collection("studyRooms")
       .where("memberCount", ">=", 2)
@@ -506,7 +506,7 @@ export const studyRoomAutoSwap = functions.region("us-central1").pubsub
       }));
     }
     // 2. Limpieza de salas inactivas > 24h (best-effort, límite chico).
-    const cutoff = admin.firestore.Timestamp.fromMillis(
+    const cutoff = adminFirestore.Timestamp.fromMillis(
       now.toMillis() - 24 * 60 * 60 * 1000,
     );
     const staleSnap = await db.collection("studyRooms")
@@ -529,7 +529,7 @@ export const studyRoomAutoSwap = functions.region("us-central1").pubsub
 function serializeRoom(room: RoomDoc): Record<string, unknown> {
   // Convierte Timestamps a millisecond numbers para que el cliente Dart no
   // tenga que depender de Timestamp (callable serializa con JSON plano).
-  const ts = (t: admin.firestore.Timestamp | undefined) =>
+  const ts = (t: adminFirestore.Timestamp | undefined) =>
     t ? {seconds: t.seconds, nanoseconds: t.nanoseconds} : null;
   return {
     code: room.code,

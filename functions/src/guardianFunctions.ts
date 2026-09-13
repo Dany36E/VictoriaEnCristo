@@ -17,12 +17,12 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import * as adminFirestore from "firebase-admin/firestore";
+import * as functions from "firebase-functions/v1";
 import * as crypto from "crypto";
 import {publicNameFor, assertActivePartners, pushToUser} from "./battlePartnerFunctions";
 
-const db = () => admin.firestore();
+const db = () => adminFirestore.getFirestore();
 const pinPattern = /^\d{4,8}$/;
 const maxAttempts = 5;
 const lockoutMs = 15 * 60 * 1000;
@@ -75,7 +75,7 @@ export const requestGuardianLock = functions
 
     const guardianName = await publicNameFor(guardianUid, "Tu compañero");
     const protegeName = await publicNameFor(protegeUid, "Un compañero");
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = adminFirestore.FieldValue.serverTimestamp();
 
     await lockRef(protegeUid).set(
       {
@@ -144,7 +144,7 @@ export const setGuardianPin = functions
     const hashHex = hashPin(pin, saltHex);
     const guardianName = await publicNameFor(guardianUid, "Tu compañero");
     const protegeName = await publicNameFor(protegeUid, "Un compañero");
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = adminFirestore.FieldValue.serverTimestamp();
 
     await lockRef(protegeUid).set(
       {
@@ -155,7 +155,7 @@ export const setGuardianPin = functions
         hashHex,
         failCount: 0,
         lockUntil: 0,
-        pendingGuardianUid: admin.firestore.FieldValue.delete(),
+        pendingGuardianUid: adminFirestore.FieldValue.delete(),
         updatedAt: now,
         createdAt: lockSnap.exists ? lock.createdAt ?? now : now,
       },
@@ -210,16 +210,16 @@ export const verifyGuardianPin = functions
       const saltHex = String(lock.saltHex ?? "");
       const hashHex = String(lock.hashHex ?? "");
       if (saltHex && hashHex && hashPin(pin, saltHex) === hashHex) {
-        tx.update(ref, {failCount: 0, lockUntil: 0, updatedAt: admin.firestore.FieldValue.serverTimestamp()});
+        tx.update(ref, {failCount: 0, lockUntil: 0, updatedAt: adminFirestore.FieldValue.serverTimestamp()});
         return {ok: true};
       }
       const fails = (typeof lock.failCount === "number" ? lock.failCount : 0) + 1;
       if (fails >= maxAttempts) {
         const until = now + lockoutMs;
-        tx.update(ref, {failCount: 0, lockUntil: until, updatedAt: admin.firestore.FieldValue.serverTimestamp()});
+        tx.update(ref, {failCount: 0, lockUntil: until, updatedAt: adminFirestore.FieldValue.serverTimestamp()});
         return {ok: false, lockedUntil: until};
       }
-      tx.update(ref, {failCount: fails, updatedAt: admin.firestore.FieldValue.serverTimestamp()});
+      tx.update(ref, {failCount: fails, updatedAt: adminFirestore.FieldValue.serverTimestamp()});
       return {ok: false};
     });
   });
@@ -268,10 +268,10 @@ export const removeGuardianPin = functions
       }
     }
 
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = adminFirestore.FieldValue.serverTimestamp();
     await lockRef(protegeUid).delete();
     await statusRef(protegeUid).set(
-      {active: false, pending: false, guardianUid: admin.firestore.FieldValue.delete(), updatedAt: now},
+      {active: false, pending: false, guardianUid: adminFirestore.FieldValue.delete(), updatedAt: now},
       {merge: true}
     );
     if (guardianUid) {

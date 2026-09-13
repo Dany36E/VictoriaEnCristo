@@ -10,11 +10,12 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from "firebase-functions/v1";
+import * as adminFirestore from "firebase-admin/firestore";
+import {getAuth} from "firebase-admin/auth";
 
-const db = admin.firestore();
-const auth = admin.auth();
+const db = adminFirestore.getFirestore();
+const auth = getAuth();
 
 const STALE_TOKEN_DAYS = 90;
 
@@ -54,7 +55,7 @@ export const setAdminClaim = functions
     // Reflejar en Firestore para legibilidad
     await db.collection("users").doc(targetUid).set({
       isAdmin: grant,
-      adminUpdatedAt: admin.firestore.FieldValue.serverTimestamp(),
+      adminUpdatedAt: adminFirestore.FieldValue.serverTimestamp(),
       adminUpdatedBy: context.auth.uid,
     }, {merge: true});
 
@@ -77,7 +78,7 @@ export const cleanStaleFcmTokens = functions
   .pubsub.schedule("0 3 * * *")
   .timeZone("UTC")
   .onRun(async () => {
-    const cutoff = admin.firestore.Timestamp.fromDate(
+    const cutoff = adminFirestore.Timestamp.fromDate(
       new Date(Date.now() - STALE_TOKEN_DAYS * 24 * 60 * 60 * 1000));
 
     const stale = await db.collectionGroup("fcmTokens")

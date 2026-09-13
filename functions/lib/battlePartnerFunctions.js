@@ -17,14 +17,48 @@
  * a dispositivo apagado/en background.
  * ═══════════════════════════════════════════════════════════════════════════
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.sendBattleSos = exports.sendBattleMessage = exports.acceptPartnerInvite = exports.sendPartnerInvite = void 0;
 exports.publicNameFor = publicNameFor;
 exports.assertActivePartners = assertActivePartners;
 exports.pushToUser = pushToUser;
-const admin = require("firebase-admin");
-const functions = require("firebase-functions");
-const db = () => admin.firestore();
+const adminFirestore = __importStar(require("firebase-admin/firestore"));
+const adminMessaging = __importStar(require("firebase-admin/messaging"));
+const functions = __importStar(require("firebase-functions/v1"));
+const db = () => adminFirestore.getFirestore();
 const maxBattlePartners = 5;
 const maxMessagesPerDay = 3;
 const maxSosPerDay = 1;
@@ -82,7 +116,7 @@ async function consumeDailyLimit(key, maxCount) {
         }
         tx.set(ref, {
             count: current + 1,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: adminFirestore.FieldValue.serverTimestamp(),
         }, { merge: true });
     });
 }
@@ -143,14 +177,14 @@ exports.sendPartnerInvite = functions
             partnerUid: targetUid,
             partnerName: targetName,
             status: "pending",
-            addedAt: admin.firestore.FieldValue.serverTimestamp(),
+            addedAt: adminFirestore.FieldValue.serverTimestamp(),
         });
         tx.set(targetInviteRef, {
             fromUid: uid,
             fromName: myName,
             inviteCode,
             status: "pending",
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: adminFirestore.FieldValue.serverTimestamp(),
         });
         return { targetUid, targetName };
     });
@@ -197,13 +231,13 @@ exports.acceptPartnerInvite = functions
             partnerUid: fromUid,
             partnerName: fromName,
             status: "active",
-            addedAt: admin.firestore.FieldValue.serverTimestamp(),
+            addedAt: adminFirestore.FieldValue.serverTimestamp(),
         }, { merge: true });
         tx.set(senderPartnerRef, {
             partnerUid: uid,
             partnerName: myName,
             status: "active",
-            addedAt: admin.firestore.FieldValue.serverTimestamp(),
+            addedAt: adminFirestore.FieldValue.serverTimestamp(),
         }, { merge: true });
     });
     return { ok: true };
@@ -226,10 +260,10 @@ exports.sendBattleMessage = functions
         fromName,
         messageKey,
         text,
-        sentAt: admin.firestore.FieldValue.serverTimestamp(),
+        sentAt: adminFirestore.FieldValue.serverTimestamp(),
         read: false,
     });
-    await db().collection("users").doc(uid).collection("battlePartners").doc(toUid).set({ lastMessageSentAt: admin.firestore.FieldValue.serverTimestamp() }, { merge: true });
+    await db().collection("users").doc(uid).collection("battlePartners").doc(toUid).set({ lastMessageSentAt: adminFirestore.FieldValue.serverTimestamp() }, { merge: true });
     return { ok: true };
 });
 exports.sendBattleSos = functions
@@ -272,7 +306,7 @@ exports.sendBattleSos = functions
             fromName,
             messageKey: sosMessageKey,
             text,
-            sentAt: admin.firestore.FieldValue.serverTimestamp(),
+            sentAt: adminFirestore.FieldValue.serverTimestamp(),
             read: false,
             priority: "sos",
         });
@@ -356,7 +390,7 @@ async function pushToUser(uid, notification, data, options = {}) {
             },
         },
     };
-    const res = await admin.messaging().sendEachForMulticast(msg);
+    const res = await adminMessaging.getMessaging().sendEachForMulticast(msg);
     if (res.failureCount > 0) {
         await cleanupInvalidTokens(uid, res.responses, tokens);
     }
@@ -436,7 +470,7 @@ exports.purgeOldPartnerInvites = functions
     .pubsub.schedule("every 24 hours")
     .timeZone("Etc/UTC")
     .onRun(async () => {
-    const cutoff = admin.firestore.Timestamp.fromMillis(Date.now() - 30 * 24 * 60 * 60 * 1000);
+    const cutoff = adminFirestore.Timestamp.fromMillis(Date.now() - 30 * 24 * 60 * 60 * 1000);
     const q = db()
         .collectionGroup("partnerInvites")
         .where("status", "in", ["accepted", "rejected"])

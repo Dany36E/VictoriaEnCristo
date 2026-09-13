@@ -17,13 +17,46 @@
  * Roles: P = protegido (tiene el Escudo). G = guardián (tiene el PIN).
  * ═══════════════════════════════════════════════════════════════════════════
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = void 0;
-const admin = require("firebase-admin");
-const functions = require("firebase-functions");
-const crypto = require("crypto");
+const adminFirestore = __importStar(require("firebase-admin/firestore"));
+const functions = __importStar(require("firebase-functions/v1"));
+const crypto = __importStar(require("crypto"));
 const battlePartnerFunctions_1 = require("./battlePartnerFunctions");
-const db = () => admin.firestore();
+const db = () => adminFirestore.getFirestore();
 const pinPattern = /^\d{4,8}$/;
 const maxAttempts = 5;
 const lockoutMs = 15 * 60 * 1000;
@@ -69,7 +102,7 @@ exports.requestGuardianLock = functions
     }
     const guardianName = await (0, battlePartnerFunctions_1.publicNameFor)(guardianUid, "Tu compañero");
     const protegeName = await (0, battlePartnerFunctions_1.publicNameFor)(protegeUid, "Un compañero");
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = adminFirestore.FieldValue.serverTimestamp();
     await lockRef(protegeUid).set({
         pendingGuardianUid: guardianUid,
         active: ((_b = existing.data()) === null || _b === void 0 ? void 0 : _b.active) === true,
@@ -122,7 +155,7 @@ exports.setGuardianPin = functions
     const hashHex = hashPin(pin, saltHex);
     const guardianName = await (0, battlePartnerFunctions_1.publicNameFor)(guardianUid, "Tu compañero");
     const protegeName = await (0, battlePartnerFunctions_1.publicNameFor)(protegeUid, "Un compañero");
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = adminFirestore.FieldValue.serverTimestamp();
     await lockRef(protegeUid).set({
         active: true,
         guardianUid,
@@ -131,7 +164,7 @@ exports.setGuardianPin = functions
         hashHex,
         failCount: 0,
         lockUntil: 0,
-        pendingGuardianUid: admin.firestore.FieldValue.delete(),
+        pendingGuardianUid: adminFirestore.FieldValue.delete(),
         updatedAt: now,
         createdAt: lockSnap.exists ? (_b = lock.createdAt) !== null && _b !== void 0 ? _b : now : now,
     }, { merge: true });
@@ -173,16 +206,16 @@ exports.verifyGuardianPin = functions
         const saltHex = String((_c = lock.saltHex) !== null && _c !== void 0 ? _c : "");
         const hashHex = String((_d = lock.hashHex) !== null && _d !== void 0 ? _d : "");
         if (saltHex && hashHex && hashPin(pin, saltHex) === hashHex) {
-            tx.update(ref, { failCount: 0, lockUntil: 0, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+            tx.update(ref, { failCount: 0, lockUntil: 0, updatedAt: adminFirestore.FieldValue.serverTimestamp() });
             return { ok: true };
         }
         const fails = (typeof lock.failCount === "number" ? lock.failCount : 0) + 1;
         if (fails >= maxAttempts) {
             const until = now + lockoutMs;
-            tx.update(ref, { failCount: 0, lockUntil: until, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+            tx.update(ref, { failCount: 0, lockUntil: until, updatedAt: adminFirestore.FieldValue.serverTimestamp() });
             return { ok: false, lockedUntil: until };
         }
-        tx.update(ref, { failCount: fails, updatedAt: admin.firestore.FieldValue.serverTimestamp() });
+        tx.update(ref, { failCount: fails, updatedAt: adminFirestore.FieldValue.serverTimestamp() });
         return { ok: false };
     });
 });
@@ -229,9 +262,9 @@ exports.removeGuardianPin = functions
             return { ok: false };
         }
     }
-    const now = admin.firestore.FieldValue.serverTimestamp();
+    const now = adminFirestore.FieldValue.serverTimestamp();
     await lockRef(protegeUid).delete();
-    await statusRef(protegeUid).set({ active: false, pending: false, guardianUid: admin.firestore.FieldValue.delete(), updatedAt: now }, { merge: true });
+    await statusRef(protegeUid).set({ active: false, pending: false, guardianUid: adminFirestore.FieldValue.delete(), updatedAt: now }, { merge: true });
     if (guardianUid) {
         await guardianOfRef(guardianUid, protegeUid).delete().catch(() => undefined);
     }

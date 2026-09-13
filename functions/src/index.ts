@@ -5,10 +5,10 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import * as admin from "firebase-admin";
+import {initializeApp} from "firebase-admin/app";
 
 // Inicializar Firebase Admin ANTES de importar otras funciones
-admin.initializeApp();
+initializeApp();
 
 // Exportar funciones
 export {deleteUserData} from "./deleteUserData";

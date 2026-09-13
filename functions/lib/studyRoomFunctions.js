@@ -15,12 +15,45 @@
  *     auto-swap cada minuto si vence el intervalo).
  * ═══════════════════════════════════════════════════════════════════════════
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.startStudyRoomSwapTimer = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = void 0;
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const crypto = require("crypto");
-const db = admin.firestore();
+const functions = __importStar(require("firebase-functions/v1"));
+const adminFirestore = __importStar(require("firebase-admin/firestore"));
+const crypto = __importStar(require("crypto"));
+const db = adminFirestore.getFirestore();
 const ALLOWED_VERSIONS = ["RVR1960", "NVI", "LBLA", "NTV", "TLA"];
 const MAX_MEMBERS = ALLOWED_VERSIONS.length;
 const MIN_SWAP_MINUTES = 5;
@@ -72,12 +105,12 @@ async function consumeDailyCreateLimit(uid) {
             count: current + 1,
             uid,
             day,
-            updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+            updatedAt: adminFirestore.FieldValue.serverTimestamp(),
         }, { merge: true });
     });
 }
 function computeNextSwapAt(lastSwapAt, swapIntervalMinutes) {
-    return admin.firestore.Timestamp.fromMillis(lastSwapAt.toMillis() + swapIntervalMinutes * 60 * 1000);
+    return adminFirestore.Timestamp.fromMillis(lastSwapAt.toMillis() + swapIntervalMinutes * 60 * 1000);
 }
 // ═══════════════════════════════════════════════════════════════════════════
 // CREATE ROOM
@@ -119,7 +152,7 @@ exports.createStudyRoom = functions.region("us-central1").https.onCall(async (da
         // Rate limit diario
         await consumeDailyCreateLimit(uid);
         // Buscar un código único (5 intentos), con transacción para evitar race conditions.
-        const now = admin.firestore.Timestamp.now();
+        const now = adminFirestore.Timestamp.now();
         for (let attempt = 0; attempt < 5; attempt++) {
             const code = genCode();
             const ref = db.collection("studyRooms").doc(code);
@@ -220,7 +253,7 @@ exports.joinStudyRoom = functions.region("us-central1").https.onCall(async (data
                 displayName: displayName || "Hermano(a)",
                 photoUrl,
                 versionId,
-                joinedAt: admin.firestore.Timestamp.now(),
+                joinedAt: adminFirestore.Timestamp.now(),
             };
             const memberOrder = [...((_b = room.memberOrder) !== null && _b !== void 0 ? _b : []), uid];
             tx.update(ref, {
@@ -269,7 +302,7 @@ exports.leaveStudyRoom = functions.region("us-central1").https.onCall(async (dat
             }
             const newHost = room.hostUid === uid ? memberOrder[0] : room.hostUid;
             const updates = {
-                [`members.${uid}`]: admin.firestore.FieldValue.delete(),
+                [`members.${uid}`]: adminFirestore.FieldValue.delete(),
                 memberOrder,
                 memberCount: memberOrder.length,
                 hostUid: newHost,
@@ -277,7 +310,7 @@ exports.leaveStudyRoom = functions.region("us-central1").https.onCall(async (dat
             if (memberOrder.length < 2) {
                 updates.swapTimerActive = false;
                 updates.swapTimerStartedAt = null;
-                updates.nextSwapAt = admin.firestore.FieldValue.delete();
+                updates.nextSwapAt = adminFirestore.FieldValue.delete();
             }
             tx.update(ref, updates);
         });
@@ -312,7 +345,7 @@ async function rotateRoomVersions(code, force) {
         // member[i] recibe la versión que tenía member[i-1] (cíclico).
         const versions = memberOrder.map((u) => { var _a, _b; return ((_b = (_a = room.members[u]) === null || _a === void 0 ? void 0 : _a.versionId) !== null && _b !== void 0 ? _b : "RVR1960"); });
         const rotated = [versions[versions.length - 1], ...versions.slice(0, -1)];
-        const nowTs = admin.firestore.Timestamp.now();
+        const nowTs = adminFirestore.Timestamp.now();
         const updates = {
             lastSwapAt: nowTs,
         };
@@ -320,7 +353,7 @@ async function rotateRoomVersions(code, force) {
             updates.nextSwapAt = computeNextSwapAt(nowTs, (_b = room.swapIntervalMinutes) !== null && _b !== void 0 ? _b : 15);
         }
         else {
-            updates.nextSwapAt = admin.firestore.FieldValue.delete();
+            updates.nextSwapAt = adminFirestore.FieldValue.delete();
         }
         memberOrder.forEach((u, i) => {
             updates[`members.${u}.versionId`] = rotated[i];
@@ -354,7 +387,7 @@ exports.startStudyRoomSwapTimer = functions.region("us-central1").https.onCall(a
             if (((_b = room.memberOrder) !== null && _b !== void 0 ? _b : []).length < 2) {
                 throw new functions.https.HttpsError("failed-precondition", "Espera a que se una al menos otra persona.");
             }
-            const nowTs = admin.firestore.Timestamp.now();
+            const nowTs = adminFirestore.Timestamp.now();
             const nextSwapAt = computeNextSwapAt(nowTs, (_c = room.swapIntervalMinutes) !== null && _c !== void 0 ? _c : 15);
             tx.update(ref, {
                 swapTimerActive: true,
@@ -405,7 +438,7 @@ exports.rotateStudyVersions = functions.region("us-central1").https.onCall(async
 exports.studyRoomAutoSwap = functions.region("us-central1").pubsub
     .schedule("every 5 minutes")
     .onRun(async () => {
-    const now = admin.firestore.Timestamp.now();
+    const now = adminFirestore.Timestamp.now();
     // 1. Salas que necesitan rotar.
     const dueSnap = await db.collection("studyRooms")
         .where("memberCount", ">=", 2)
@@ -419,7 +452,7 @@ exports.studyRoomAutoSwap = functions.region("us-central1").pubsub
         }));
     }
     // 2. Limpieza de salas inactivas > 24h (best-effort, límite chico).
-    const cutoff = admin.firestore.Timestamp.fromMillis(now.toMillis() - 24 * 60 * 60 * 1000);
+    const cutoff = adminFirestore.Timestamp.fromMillis(now.toMillis() - 24 * 60 * 60 * 1000);
     const staleSnap = await db.collection("studyRooms")
         .where("lastSwapAt", "<", cutoff)
         .limit(20)

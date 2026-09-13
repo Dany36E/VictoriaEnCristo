@@ -14,12 +14,13 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from "firebase-functions/v1";
+import * as adminFirestore from "firebase-admin/firestore";
+import {getAuth} from "firebase-admin/auth";
 import * as crypto from "crypto";
 
-const db = admin.firestore();
-const auth = admin.auth();
+const db = adminFirestore.getFirestore();
+const auth = getAuth();
 
 /**
  * Subcolecciones explícitas que enumeramos para reportar telemetría.

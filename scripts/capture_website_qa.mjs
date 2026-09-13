@@ -9,6 +9,7 @@ const chrome = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const outputDir = resolve("build", "website-qa");
 const profileDir = await mkdtemp(join(tmpdir(), "victoria-web-qa-"));
 const port = 9333;
+const baseUrl = (process.env.WEBSITE_QA_BASE_URL || "http://localhost:4173").replace(/\/$/, "");
 
 await mkdir(outputDir, { recursive: true });
 
@@ -38,7 +39,7 @@ async function waitForDebugger() {
 
 await waitForDebugger();
 const targetResponse = await fetch(
-  "http://127.0.0.1:" + port + "/json/new?http://localhost:4173/index.html",
+  "http://127.0.0.1:" + port + "/json/new?" + encodeURIComponent(baseUrl + "/index.html"),
   { method: "PUT" },
 );
 const target = await targetResponse.json();
@@ -47,11 +48,19 @@ const socket = new WebSocket(target.webSocketDebuggerUrl);
 let nextId = 1;
 const pending = new Map();
 const runtimeErrors = [];
+const browserErrors = [];
+const networkRequests = [];
 
 socket.addEventListener("message", (event) => {
   const message = JSON.parse(event.data);
   if (message.method === "Runtime.exceptionThrown") {
     runtimeErrors.push(message.params.exceptionDetails.text);
+  }
+  if (message.method === "Log.entryAdded" && message.params.entry.level === "error") {
+    browserErrors.push(message.params.entry.text);
+  }
+  if (message.method === "Network.requestWillBeSent") {
+    networkRequests.push(message.params.request.url);
   }
   if (!message.id || !pending.has(message.id)) return;
   const callbacks = pending.get(message.id);
@@ -136,6 +145,8 @@ async function benchmarkScroll(from, to, duration) {
 try {
   await send("Page.enable");
   await send("Runtime.enable");
+  await send("Log.enable");
+  await send("Network.enable");
   await send("Emulation.setDeviceMetricsOverride", {
     width: 1440,
     height: 900,
@@ -145,7 +156,7 @@ try {
   await send("Emulation.setEmulatedMedia", {
     features: [{ name: "prefers-reduced-motion", value: "no-preference" }],
   });
-  await send("Page.navigate", { url: "http://localhost:4173/index.html" });
+  await send("Page.navigate", { url: baseUrl + "/index.html" });
   await wait(700);
 
   const forwardBenchmark = await benchmarkScroll(0, 1, 1600);
@@ -216,7 +227,7 @@ try {
     deviceScaleFactor: 1,
     mobile: false,
   });
-  await send("Page.navigate", { url: "http://localhost:4173/ayuda.html#leer-biblia" });
+  await send("Page.navigate", { url: baseUrl + "/ayuda.html#leer-biblia" });
   await wait(700);
   const helpValidation = await send("Runtime.evaluate", {
     expression: "(function () {" +
@@ -256,11 +267,39 @@ try {
 
   await send("Emulation.setDeviceMetricsOverride", {
     width: 1440,
+    height: 1100,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await send("Page.navigate", { url: baseUrl + "/ayuda.html#apuntes-biblicos" });
+  await wait(600);
+  const priorityHelpState = await send("Runtime.evaluate", {
+    expression: "({apuntesOpen: document.getElementById('apuntes-biblicos').open, estudioExists: Boolean(document.getElementById('estudio-biblico'))})",
+    returnByValue: true,
+  });
+  if (!priorityHelpState.result.value.apuntesOpen || !priorityHelpState.result.value.estudioExists) {
+    throw new Error("El recorrido prioritario de Apuntes no abrió correctamente.");
+  }
+  await captureCurrent("ayuda-apuntes-1440.png");
+
+  await send("Page.navigate", { url: baseUrl + "/ayuda.html#estudio-biblico" });
+  await wait(600);
+  const studyHelpState = await send("Runtime.evaluate", {
+    expression: "document.getElementById('estudio-biblico').open",
+    returnByValue: true,
+  });
+  if (!studyHelpState.result.value) {
+    throw new Error("El recorrido prioritario de Modo Estudio no abrió correctamente.");
+  }
+  await captureCurrent("ayuda-estudio-1440.png");
+
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 1440,
     height: 1000,
     deviceScaleFactor: 1,
     mobile: false,
   });
-  await send("Page.navigate", { url: "http://localhost:4173/index.html" });
+  await send("Page.navigate", { url: baseUrl + "/index.html" });
   await wait(600);
   await send("Runtime.evaluate", {
     expression: "document.querySelector('.app-proof').scrollIntoView({block: 'start'})",
@@ -281,8 +320,24 @@ try {
   await wait(300);
   await captureCurrent("app-proof-390.png");
 
-  if (runtimeErrors.length) {
-    throw new Error("Se detectaron errores de JavaScript: " + runtimeErrors.join(" | "));
+  const privacyState = await send("Runtime.evaluate", {
+    expression: "({cookies: document.cookie, localStorageItems: localStorage.length, sessionStorageItems: sessionStorage.length, forms: document.forms.length, frames: document.querySelectorAll('iframe').length})",
+    returnByValue: true,
+  });
+  const privacy = privacyState.result.value;
+  if (privacy.cookies || privacy.localStorageItems || privacy.sessionStorageItems || privacy.forms || privacy.frames) {
+    throw new Error("La web creó estado o superficies de captura no permitidas: " + JSON.stringify(privacy));
+  }
+  const allowedOrigin = new URL(baseUrl).origin;
+  const externalRequests = networkRequests.filter(function (url) {
+    return /^https?:/i.test(url) && new URL(url).origin !== allowedOrigin;
+  });
+  if (externalRequests.length) {
+    throw new Error("La web solicitó recursos externos: " + Array.from(new Set(externalRequests)).join(" | "));
+  }
+
+  if (runtimeErrors.length || browserErrors.length) {
+    throw new Error("Se detectaron errores en el navegador: " + runtimeErrors.concat(browserErrors).join(" | "));
   }
   console.log("Capturas guardadas en " + outputDir);
 } finally {

@@ -17,10 +17,11 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import * as admin from "firebase-admin";
-import * as functions from "firebase-functions";
+import * as adminFirestore from "firebase-admin/firestore";
+import * as adminMessaging from "firebase-admin/messaging";
+import * as functions from "firebase-functions/v1";
 
-const db = () => admin.firestore();
+const db = () => adminFirestore.getFirestore();
 const maxBattlePartners = 5;
 const maxMessagesPerDay = 3;
 const maxSosPerDay = 1;
@@ -87,7 +88,7 @@ async function consumeDailyLimit(key: string, maxCount: number): Promise<void> {
       ref,
       {
         count: current + 1,
-        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedAt: adminFirestore.FieldValue.serverTimestamp(),
       },
       {merge: true}
     );
@@ -102,7 +103,7 @@ function partnerQuery(uid: string) {
     .where("status", "in", ["active", "pending"]);
 }
 
-async function partnerCount(tx: admin.firestore.Transaction, uid: string): Promise<number> {
+async function partnerCount(tx: adminFirestore.Transaction, uid: string): Promise<number> {
   const snap = await tx.get(partnerQuery(uid));
   return snap.size;
 }
@@ -163,14 +164,14 @@ export const sendPartnerInvite = functions
         partnerUid: targetUid,
         partnerName: targetName,
         status: "pending",
-        addedAt: admin.firestore.FieldValue.serverTimestamp(),
+        addedAt: adminFirestore.FieldValue.serverTimestamp(),
       });
       tx.set(targetInviteRef, {
         fromUid: uid,
         fromName: myName,
         inviteCode,
         status: "pending",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: adminFirestore.FieldValue.serverTimestamp(),
       });
 
       return {targetUid, targetName};
@@ -223,7 +224,7 @@ export const acceptPartnerInvite = functions
           partnerUid: fromUid,
           partnerName: fromName,
           status: "active",
-          addedAt: admin.firestore.FieldValue.serverTimestamp(),
+          addedAt: adminFirestore.FieldValue.serverTimestamp(),
         },
         {merge: true}
       );
@@ -233,7 +234,7 @@ export const acceptPartnerInvite = functions
           partnerUid: uid,
           partnerName: myName,
           status: "active",
-          addedAt: admin.firestore.FieldValue.serverTimestamp(),
+          addedAt: adminFirestore.FieldValue.serverTimestamp(),
         },
         {merge: true}
       );
@@ -261,11 +262,11 @@ export const sendBattleMessage = functions
       fromName,
       messageKey,
       text,
-      sentAt: admin.firestore.FieldValue.serverTimestamp(),
+      sentAt: adminFirestore.FieldValue.serverTimestamp(),
       read: false,
     });
     await db().collection("users").doc(uid).collection("battlePartners").doc(toUid).set(
-      {lastMessageSentAt: admin.firestore.FieldValue.serverTimestamp()},
+      {lastMessageSentAt: adminFirestore.FieldValue.serverTimestamp()},
       {merge: true}
     );
     return {ok: true};
@@ -313,7 +314,7 @@ export const sendBattleSos = functions
         fromName,
         messageKey: sosMessageKey,
         text,
-        sentAt: admin.firestore.FieldValue.serverTimestamp(),
+        sentAt: adminFirestore.FieldValue.serverTimestamp(),
         read: false,
         priority: "sos",
       });
@@ -345,7 +346,7 @@ async function getUserTokens(uid: string): Promise<string[]> {
  */
 async function cleanupInvalidTokens(
   uid: string,
-  responses: admin.messaging.SendResponse[],
+  responses: adminMessaging.SendResponse[],
   tokens: string[]
 ): Promise<void> {
   const toDelete: Promise<unknown>[] = [];
@@ -376,14 +377,14 @@ async function cleanupInvalidTokens(
  */
 export async function pushToUser(
   uid: string,
-  notification: admin.messaging.Notification,
+  notification: adminMessaging.Notification,
   data: Record<string, string>,
   options: {priority?: "high" | "normal"} = {}
 ): Promise<void> {
   const tokens = await getUserTokens(uid);
   if (tokens.length === 0) return;
 
-  const msg: admin.messaging.MulticastMessage = {
+  const msg: adminMessaging.MulticastMessage = {
     tokens,
     notification,
     data,
@@ -412,7 +413,7 @@ export async function pushToUser(
     },
   };
 
-  const res = await admin.messaging().sendEachForMulticast(msg);
+  const res = await adminMessaging.getMessaging().sendEachForMulticast(msg);
   if (res.failureCount > 0) {
     await cleanupInvalidTokens(uid, res.responses, tokens);
   }
@@ -508,7 +509,7 @@ export const purgeOldPartnerInvites = functions
   .pubsub.schedule("every 24 hours")
   .timeZone("Etc/UTC")
   .onRun(async () => {
-    const cutoff = admin.firestore.Timestamp.fromMillis(
+    const cutoff = adminFirestore.Timestamp.fromMillis(
       Date.now() - 30 * 24 * 60 * 60 * 1000
     );
     const q = db()

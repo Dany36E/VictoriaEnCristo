@@ -6,12 +6,45 @@
  * NUNCA guarda UID del autor de forma legible.
  * ═══════════════════════════════════════════════════════════════════════════
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.banAbuseHash = exports.blockWallAuthor = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = void 0;
-const functions = require("firebase-functions");
-const admin = require("firebase-admin");
-const crypto = require("crypto");
-const db = admin.firestore();
+const functions = __importStar(require("firebase-functions/v1"));
+const adminFirestore = __importStar(require("firebase-admin/firestore"));
+const crypto = __importStar(require("crypto"));
+const db = adminFirestore.getFirestore();
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURACIÓN
 // ═══════════════════════════════════════════════════════════════════════════
@@ -116,7 +149,7 @@ async function isAbuseHashBanned(hash) {
     return doc.exists;
 }
 async function countRecentPosts(abuseHash, hoursBack = 24) {
-    const cutoff = admin.firestore.Timestamp.fromDate(new Date(Date.now() - hoursBack * 60 * 60 * 1000));
+    const cutoff = adminFirestore.Timestamp.fromDate(new Date(Date.now() - hoursBack * 60 * 60 * 1000));
     const snap = await db
         .collection("wallPosts")
         .where("abuseHash", "==", abuseHash)
@@ -128,7 +161,7 @@ async function countRecentPosts(abuseHash, hoursBack = 24) {
 const MAX_COMMENTS_PER_DAY = 30;
 const MAX_REPORTS_PER_DAY = 20;
 async function countRecentCommentsByHash(abuseHash, hoursBack = 24) {
-    const cutoff = admin.firestore.Timestamp.fromDate(new Date(Date.now() - hoursBack * 60 * 60 * 1000));
+    const cutoff = adminFirestore.Timestamp.fromDate(new Date(Date.now() - hoursBack * 60 * 60 * 1000));
     // collectionGroup sobre subcolección 'comments' (requiere índice).
     const snap = await db
         .collectionGroup("comments")
@@ -138,7 +171,7 @@ async function countRecentCommentsByHash(abuseHash, hoursBack = 24) {
     return snap.size;
 }
 async function countRecentReportsByHash(reporterHash, hoursBack = 24) {
-    const cutoff = admin.firestore.Timestamp.fromDate(new Date(Date.now() - hoursBack * 60 * 60 * 1000));
+    const cutoff = adminFirestore.Timestamp.fromDate(new Date(Date.now() - hoursBack * 60 * 60 * 1000));
     const snap = await db
         .collection("wallReports")
         .where("reporterHash", "==", reporterHash)
@@ -229,7 +262,7 @@ exports.createWallPost = functions
                 body: sanitized,
                 status: "rejected",
                 rejectionReason: "Contenido bloqueado automáticamente",
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                createdAt: adminFirestore.FieldValue.serverTimestamp(),
                 commentCount: 0,
                 reportCount: 0,
             });
@@ -249,7 +282,7 @@ exports.createWallPost = functions
             body: sanitized,
             status: "pending",
             rejectionReason: null,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: adminFirestore.FieldValue.serverTimestamp(),
             approvedAt: null,
             approvedBy: null,
             commentCount: 0,
@@ -324,7 +357,7 @@ exports.createWallComment = functions
                 abuseHash,
                 body: sanitized,
                 status: "rejected",
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+                createdAt: adminFirestore.FieldValue.serverTimestamp(),
                 approvedAt: null,
             });
             return {
@@ -343,7 +376,7 @@ exports.createWallComment = functions
             abuseHash,
             body: sanitized,
             status: "pending",
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: adminFirestore.FieldValue.serverTimestamp(),
             approvedAt: null,
         });
         console.log(`[WALL] New comment ${commentRef.id} on post ${postId}`);
@@ -390,7 +423,7 @@ exports.moderateContent = functions
         if (!postId || typeof postId !== "string") {
             throw new functions.https.HttpsError("invalid-argument", "Post ID requerido.");
         }
-        const now = admin.firestore.FieldValue.serverTimestamp();
+        const now = adminFirestore.FieldValue.serverTimestamp();
         if (type === "post") {
             const postRef = db.collection("wallPosts").doc(postId);
             const postDoc = await postRef.get();
@@ -456,7 +489,7 @@ exports.moderateContent = functions
                 });
                 // Increment commentCount on parent post
                 await parentPostRef.update({
-                    commentCount: admin.firestore.FieldValue.increment(1),
+                    commentCount: adminFirestore.FieldValue.increment(1),
                 });
                 console.log(`[WALL] Comment ${commentId} on ${postId} approved`);
             }
@@ -467,7 +500,7 @@ exports.moderateContent = functions
                 });
                 if (currentStatus === "approved") {
                     await parentPostRef.update({
-                        commentCount: admin.firestore.FieldValue.increment(-1),
+                        commentCount: adminFirestore.FieldValue.increment(-1),
                     });
                 }
                 console.log(`[WALL] Comment ${commentId} on ${postId} rejected`);
@@ -528,12 +561,12 @@ exports.reportContent = functions
             commentId: commentId || null,
             reporterHash,
             reason,
-            createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            createdAt: adminFirestore.FieldValue.serverTimestamp(),
             resolved: false,
         });
         // Increment reportCount on the post
         batch.update(postRef, {
-            reportCount: admin.firestore.FieldValue.increment(1),
+            reportCount: adminFirestore.FieldValue.increment(1),
         });
         await batch.commit();
         console.log(`[WALL] Report on post ${postId} reason=${reason}`);
@@ -599,7 +632,7 @@ exports.blockWallAuthor = functions
             .collection("blockedWallAuthors")
             .doc(targetHash)
             .set({
-            blockedAt: admin.firestore.FieldValue.serverTimestamp(),
+            blockedAt: adminFirestore.FieldValue.serverTimestamp(),
             alias: typeof alias === "string" ? alias.substring(0, 40) : "Guerrero",
             sourceType: type,
         });
@@ -637,7 +670,7 @@ exports.banAbuseHash = functions
         }
         // Create ban record
         await db.collection("abuseHashes").doc(abuseHash).set({
-            bannedAt: admin.firestore.FieldValue.serverTimestamp(),
+            bannedAt: adminFirestore.FieldValue.serverTimestamp(),
             reason: reason || "Baneado por moderador",
             bannedBy: adminUid,
         });

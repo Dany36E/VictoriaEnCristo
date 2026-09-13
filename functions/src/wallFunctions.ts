@@ -6,11 +6,11 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
+import * as functions from "firebase-functions/v1";
+import * as adminFirestore from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
-const db = admin.firestore();
+const db = adminFirestore.getFirestore();
 
 // ═══════════════════════════════════════════════════════════════════════════
 // CONFIGURACIÓN
@@ -134,7 +134,7 @@ async function countRecentPosts(
   abuseHash: string,
   hoursBack = 24
 ): Promise<number> {
-  const cutoff = admin.firestore.Timestamp.fromDate(
+  const cutoff = adminFirestore.Timestamp.fromDate(
     new Date(Date.now() - hoursBack * 60 * 60 * 1000)
   );
   const snap = await db
@@ -153,7 +153,7 @@ async function countRecentCommentsByHash(
   abuseHash: string,
   hoursBack = 24
 ): Promise<number> {
-  const cutoff = admin.firestore.Timestamp.fromDate(
+  const cutoff = adminFirestore.Timestamp.fromDate(
     new Date(Date.now() - hoursBack * 60 * 60 * 1000)
   );
   // collectionGroup sobre subcolección 'comments' (requiere índice).
@@ -169,7 +169,7 @@ async function countRecentReportsByHash(
   reporterHash: string,
   hoursBack = 24
 ): Promise<number> {
-  const cutoff = admin.firestore.Timestamp.fromDate(
+  const cutoff = adminFirestore.Timestamp.fromDate(
     new Date(Date.now() - hoursBack * 60 * 60 * 1000)
   );
   const snap = await db
@@ -307,7 +307,7 @@ export const createWallPost = functions
           body: sanitized,
           status: "rejected",
           rejectionReason: "Contenido bloqueado automáticamente",
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          createdAt: adminFirestore.FieldValue.serverTimestamp(),
           commentCount: 0,
           reportCount: 0,
         });
@@ -329,7 +329,7 @@ export const createWallPost = functions
         body: sanitized,
         status: "pending",
         rejectionReason: null,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: adminFirestore.FieldValue.serverTimestamp(),
         approvedAt: null,
         approvedBy: null,
         commentCount: 0,
@@ -443,7 +443,7 @@ export const createWallComment = functions
           abuseHash,
           body: sanitized,
           status: "rejected",
-          createdAt: admin.firestore.FieldValue.serverTimestamp(),
+          createdAt: adminFirestore.FieldValue.serverTimestamp(),
           approvedAt: null,
         });
 
@@ -465,7 +465,7 @@ export const createWallComment = functions
         abuseHash,
         body: sanitized,
         status: "pending",
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: adminFirestore.FieldValue.serverTimestamp(),
         approvedAt: null,
       });
 
@@ -540,7 +540,7 @@ export const moderateContent = functions
         );
       }
 
-      const now = admin.firestore.FieldValue.serverTimestamp();
+      const now = adminFirestore.FieldValue.serverTimestamp();
 
       if (type === "post") {
         const postRef = db.collection("wallPosts").doc(postId);
@@ -621,7 +621,7 @@ export const moderateContent = functions
 
           // Increment commentCount on parent post
           await parentPostRef.update({
-            commentCount: admin.firestore.FieldValue.increment(1),
+            commentCount: adminFirestore.FieldValue.increment(1),
           });
 
           console.log(
@@ -634,7 +634,7 @@ export const moderateContent = functions
           });
           if (currentStatus === "approved") {
             await parentPostRef.update({
-              commentCount: admin.firestore.FieldValue.increment(-1),
+              commentCount: adminFirestore.FieldValue.increment(-1),
             });
           }
           console.log(
@@ -728,13 +728,13 @@ export const reportContent = functions
         commentId: commentId || null,
         reporterHash,
         reason,
-        createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        createdAt: adminFirestore.FieldValue.serverTimestamp(),
         resolved: false,
       });
 
       // Increment reportCount on the post
       batch.update(postRef, {
-        reportCount: admin.firestore.FieldValue.increment(1),
+        reportCount: adminFirestore.FieldValue.increment(1),
       });
       await batch.commit();
 
@@ -829,7 +829,7 @@ export const blockWallAuthor = functions
         .collection("blockedWallAuthors")
         .doc(targetHash)
         .set({
-          blockedAt: admin.firestore.FieldValue.serverTimestamp(),
+          blockedAt: adminFirestore.FieldValue.serverTimestamp(),
           alias: typeof alias === "string" ? alias.substring(0, 40) : "Guerrero",
           sourceType: type,
         });
@@ -885,7 +885,7 @@ export const banAbuseHash = functions
 
       // Create ban record
       await db.collection("abuseHashes").doc(abuseHash).set({
-        bannedAt: admin.firestore.FieldValue.serverTimestamp(),
+        bannedAt: adminFirestore.FieldValue.serverTimestamp(),
         reason: reason || "Baneado por moderador",
         bannedBy: adminUid,
       });
