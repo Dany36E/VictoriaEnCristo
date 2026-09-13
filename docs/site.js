@@ -1,8 +1,9 @@
 (function () {
   "use strict";
 
-  document.documentElement.classList.remove("no-js");
-  document.documentElement.classList.add("js");
+  var root = document.documentElement;
+  root.classList.remove("no-js");
+  root.classList.add("js");
 
   var clamp = function (value, min, max) {
     return Math.min(Math.max(value, min), max);
@@ -18,6 +19,7 @@
   };
 
   var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var motionOverride = false;
   var hero = document.querySelector(".book-hero");
   var bookScene = document.querySelector(".book-scene");
   var verseSlots = Array.prototype.slice.call(document.querySelectorAll(".word-slot"));
@@ -27,6 +29,7 @@
   var framePending = false;
   var openingStarted = false;
   var openingCompleted = false;
+  var heroMotionBound = false;
 
   var measureVerseTargets = function (bookX) {
     if (!bookScene || !verseSlots.length) return;
@@ -65,7 +68,7 @@
 
   var setHeroProgress = function () {
     framePending = false;
-    if (!hero || motionQuery.matches) return;
+    if (!hero || root.classList.contains("motion-reduced")) return;
 
     var rect = hero.getBoundingClientRect();
     var available = Math.max(hero.offsetHeight - window.innerHeight, 1);
@@ -115,6 +118,7 @@
     hero.style.setProperty("--verse-cite-opacity", segment(progress, 0.78, 0.94).toFixed(3));
     hero.style.setProperty("--verse-cite-y", (18 * (1 - segment(progress, 0.78, 0.94))).toFixed(2) + "px");
     hero.style.setProperty("--hero-progress", (progress * 100).toFixed(2) + "%");
+    hero.classList.toggle("hero-ready", progress >= 0.86);
     animateVerse(progress, bookX, bookY, closedShift);
 
     if (progress > 0.04 && !openingStarted) {
@@ -136,7 +140,12 @@
     window.requestAnimationFrame(setHeroProgress);
   };
 
-  if (hero && !motionQuery.matches) {
+  var enableHeroMotion = function () {
+    if (!hero || heroMotionBound) {
+      requestHeroFrame();
+      return;
+    }
+    heroMotionBound = true;
     var sceneObserver = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         hero.classList.toggle("scene-active", entry.isIntersecting);
@@ -155,6 +164,38 @@
       });
     }
     requestHeroFrame();
+  };
+
+  var motionReplay = document.querySelector(".motion-replay");
+  var syncMotionPreference = function () {
+    var reduced = motionQuery.matches && !motionOverride;
+    root.classList.toggle("motion-reduced", reduced);
+    if (motionReplay) {
+      motionReplay.hidden = false;
+      motionReplay.textContent = reduced ? "Activar animación" : "Repetir apertura";
+    }
+    if (!reduced) enableHeroMotion();
+  };
+
+  if (hero) {
+    syncMotionPreference();
+    if (motionReplay) {
+      motionReplay.addEventListener("click", function () {
+        motionOverride = true;
+        root.classList.remove("motion-reduced");
+        motionReplay.textContent = "Repetir apertura";
+        verseGeometryDirty = true;
+        enableHeroMotion();
+        motionReplay.blur();
+        window.scrollTo({ top: hero.offsetTop, behavior: "auto" });
+        requestHeroFrame();
+      });
+    }
+    var handleMotionChange = function () {
+      if (!motionOverride) syncMotionPreference();
+    };
+    if (motionQuery.addEventListener) motionQuery.addEventListener("change", handleMotionChange);
+    else if (motionQuery.addListener) motionQuery.addListener(handleMotionChange);
   }
 
   var pathways = {

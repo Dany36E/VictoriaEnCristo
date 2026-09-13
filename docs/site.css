@@ -263,7 +263,10 @@ h1, h2, h3, p { overflow-wrap: break-word; }
   pointer-events: none;
 }
 
-.opening-copy-after .hero-actions { pointer-events: auto; }
+.opening-copy-after .hero-actions { pointer-events: none; }
+.book-hero.hero-ready .opening-copy-after .hero-actions,
+.no-js .opening-copy-after .hero-actions,
+.motion-reduced .opening-copy-after .hero-actions { pointer-events: auto; }
 .hero-note { margin: 0 0 18px; color: var(--gold-pale); font-size: 0.9rem; font-weight: 680; }
 
 .opening-copy-after h1 {
@@ -311,6 +314,19 @@ h1, h2, h3, p { overflow-wrap: break-word; }
   text-decoration: none;
 }
 .text-link:hover, .chapter-link:hover { color: var(--gold-pale); }
+
+.motion-replay {
+  padding: 8px 0 5px;
+  border: 0;
+  border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: var(--gold-pale);
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+.motion-replay:hover { color: var(--mist); }
+.motion-replay[hidden] { display: none; }
 
 .book-scene {
   position: absolute;
@@ -788,38 +804,36 @@ h1, h2, h3, p { overflow-wrap: break-word; }
   .no-js .opening-copy-after { transform: translate3d(0, -42%, 0); }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
-  .book-hero { --book-x: 20vw; --book-y: 16vh; --book-light-opacity: 0.75; --book-beam-opacity: 0.82; --book-shadow-opacity: 0.7; --book-shadow-scale: 1; height: 100svh; min-height: 720px; }
-  .front-cover { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 8px) !important; }
-  .leaf-one { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 6px) !important; }
-  .leaf-two { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 5px) !important; }
-  .leaf-three { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 4px) !important; }
-  .leaf-four { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 3px) !important; }
-  .book-wrapper { transform: translate3d(20vw, 16vh, 0) rotate3d(1, 0, 0, 58deg) scale(0.94) !important; }
-  .book-back-cover, .book-spread { clip-path: inset(0) !important; }
-  .cover-front { opacity: 0 !important; }
-  .cover-inside { opacity: 1 !important; }
-  .opening-copy-before { display: none; }
-  .opening-copy-after { opacity: 1 !important; transform: translate3d(0, -42%, 0) !important; }
-  .book-light { opacity: 0.75 !important; }
-  .book-beam { opacity: 0.82 !important; }
-  .scripture-reveal { transform: translate3d(calc(-50% + 20vw), 0, 0) !important; }
-  .verse-word { opacity: 1 !important; transform: none !important; }
-  .scripture-reveal cite { opacity: 1 !important; transform: none !important; }
+.motion-reduced { scroll-behavior: auto; }
+.motion-reduced *, .motion-reduced *::before, .motion-reduced *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; }
+.motion-reduced .book-hero { --book-x: 20vw; --book-y: 16vh; --book-light-opacity: 0.75; --book-beam-opacity: 0.82; --book-shadow-opacity: 0.7; --book-shadow-scale: 1; height: 100svh; min-height: 720px; }
+.motion-reduced .front-cover { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 8px) !important; }
+.motion-reduced .leaf-one { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 6px) !important; }
+.motion-reduced .leaf-two { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 5px) !important; }
+.motion-reduced .leaf-three { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 4px) !important; }
+.motion-reduced .leaf-four { transform: rotate3d(0, 1, 0, -180deg) translate3d(0, 0, 3px) !important; }
+.motion-reduced .book-wrapper { transform: translate3d(20vw, 16vh, 0) rotate3d(1, 0, 0, 58deg) scale(0.94) !important; }
+.motion-reduced .book-back-cover, .motion-reduced .book-spread { clip-path: inset(0) !important; }
+.motion-reduced .cover-front { opacity: 0 !important; }
+.motion-reduced .cover-inside { opacity: 1 !important; }
+.motion-reduced .opening-copy-before { display: none; }
+.motion-reduced .opening-copy-after { opacity: 1 !important; transform: translate3d(0, -42%, 0) !important; }
+.motion-reduced .book-light { opacity: 0.75 !important; }
+.motion-reduced .book-beam { opacity: 0.82 !important; }
+.motion-reduced .scripture-reveal { transform: translate3d(calc(-50% + 20vw), 0, 0) !important; }
+.motion-reduced .verse-word { opacity: 1 !important; transform: none !important; }
+.motion-reduced .scripture-reveal cite { opacity: 1 !important; transform: none !important; }
+
+@media (max-width: 1120px) {
+  .motion-reduced .book-hero { --book-x: 0vw; --book-y: -8vh; }
+  .motion-reduced .opening-copy-after { transform: translate3d(-50%, 0, 0) !important; }
+  .motion-reduced .book-wrapper { transform: translate3d(0, -8vh, 0) rotate3d(1, 0, 0, 58deg) scale(0.88) !important; }
+  .motion-reduced .scripture-reveal { transform: translate3d(-50%, 0, 0) !important; }
 }
 
-@media (prefers-reduced-motion: reduce) and (max-width: 1120px) {
-  .book-hero { --book-x: 0vw; --book-y: -8vh; }
-  .opening-copy-after { transform: translate3d(-50%, 0, 0) !important; }
-  .book-wrapper { transform: translate3d(0, -8vh, 0) rotate3d(1, 0, 0, 58deg) scale(0.88) !important; }
-  .scripture-reveal { transform: translate3d(-50%, 0, 0) !important; }
-}
-
-@media (prefers-reduced-motion: reduce) and (min-width: 900px) and (max-width: 1120px) and (max-height: 680px) {
-  .book-hero { --book-x: 22vw; --book-y: 13vh; }
-  .opening-copy-after { transform: translate3d(0, -42%, 0) !important; }
-  .book-wrapper { transform: translate3d(22vw, 11vh, 0) rotate3d(1, 0, 0, 58deg) scale(0.9) !important; }
-  .scripture-reveal { transform: translate3d(calc(-50% + 22vw), 0, 0) !important; }
+@media (min-width: 900px) and (max-width: 1120px) and (max-height: 680px) {
+  .motion-reduced .book-hero { --book-x: 22vw; --book-y: 13vh; }
+  .motion-reduced .opening-copy-after { transform: translate3d(0, -42%, 0) !important; }
+  .motion-reduced .book-wrapper { transform: translate3d(22vw, 11vh, 0) rotate3d(1, 0, 0, 58deg) scale(0.9) !important; }
+  .motion-reduced .scripture-reveal { transform: translate3d(calc(-50% + 22vw), 0, 0) !important; }
 }

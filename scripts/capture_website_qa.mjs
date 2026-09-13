@@ -134,6 +134,18 @@ try {
     await capture(viewport[0], viewport[1], 1, "hero-t100-" + viewport[0] + ".png");
   }
 
+  await send("Runtime.evaluate", {
+    expression: "document.querySelector('.motion-replay').click()",
+  });
+  await wait(180);
+  const replayState = await send("Runtime.evaluate", {
+    expression: "({scrollY: window.scrollY, label: document.querySelector('.motion-replay').textContent, cover: getComputedStyle(document.querySelector('.front-cover')).transform})",
+    returnByValue: true,
+  });
+  if (replayState.result.value.scrollY > 1 || replayState.result.value.label !== "Repetir apertura") {
+    throw new Error("El control para repetir no devolvió el hero al estado inicial.");
+  }
+
   await send("Emulation.setDeviceMetricsOverride", {
     width: 390,
     height: 844,
@@ -148,6 +160,25 @@ try {
   await send("Runtime.evaluate", { expression: "window.scrollTo(0, 0)" });
   await wait(120);
   await captureCurrent("hero-reduced-motion-390.png");
+  const reducedState = await send("Runtime.evaluate", {
+    expression: "({reduced: document.documentElement.classList.contains('motion-reduced'), label: document.querySelector('.motion-replay').textContent})",
+    returnByValue: true,
+  });
+  if (!reducedState.result.value.reduced || reducedState.result.value.label !== "Activar animación") {
+    throw new Error("La alternativa de movimiento reducido no expuso el control de activación.");
+  }
+  await send("Runtime.evaluate", {
+    expression: "document.querySelector('.motion-replay').click()",
+  });
+  await wait(180);
+  const optInState = await send("Runtime.evaluate", {
+    expression: "({scrollY: window.scrollY, reduced: document.documentElement.classList.contains('motion-reduced'), label: document.querySelector('.motion-replay').textContent})",
+    returnByValue: true,
+  });
+  if (optInState.result.value.scrollY > 1 || optInState.result.value.reduced || optInState.result.value.label !== "Repetir apertura") {
+    throw new Error("La activación manual no habilitó la animación controlada por scroll.");
+  }
+  await captureCurrent("hero-reduced-opt-in-390.png");
   console.log("Capturas guardadas en " + outputDir);
 } finally {
   socket.close();
