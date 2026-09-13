@@ -19,9 +19,49 @@
 
   var motionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
   var hero = document.querySelector(".book-hero");
+  var bookScene = document.querySelector(".book-scene");
+  var verseSlots = Array.prototype.slice.call(document.querySelectorAll(".word-slot"));
+  var verseWords = Array.prototype.slice.call(document.querySelectorAll(".verse-word"));
+  var verseTargets = [];
+  var verseGeometryDirty = true;
   var framePending = false;
   var openingStarted = false;
   var openingCompleted = false;
+
+  var measureVerseTargets = function (bookX) {
+    if (!bookScene || !verseSlots.length) return;
+    var sceneRect = bookScene.getBoundingClientRect();
+    var parentShift = window.innerWidth * bookX / 100;
+    verseTargets = verseSlots.map(function (slot) {
+      var rect = slot.getBoundingClientRect();
+      return {
+        x: rect.left + rect.width / 2 - sceneRect.left - parentShift,
+        y: rect.top + rect.height / 2 - sceneRect.top
+      };
+    });
+    verseGeometryDirty = false;
+  };
+
+  var animateVerse = function (progress, bookX, bookY, closedShift) {
+    if (!bookScene || !verseWords.length) return;
+    if (verseGeometryDirty || verseTargets.length !== verseWords.length) measureVerseTargets(bookX);
+
+    var sourceX = bookScene.clientWidth * (0.5 + closedShift / 100) + window.innerWidth * bookX / 100;
+    var sourceY = bookScene.clientHeight * 0.57 + window.innerHeight * bookY / 100;
+
+    verseWords.forEach(function (word, index) {
+      var wordProgress = segment(progress, 0.4 + index * 0.026, 0.69 + index * 0.026);
+      var target = verseTargets[index] || { x: sourceX, y: sourceY };
+      var remaining = 1 - wordProgress;
+      var driftX = (sourceX - target.x - window.innerWidth * bookX / 100) * remaining;
+      var driftY = (sourceY - target.y) * remaining - Math.sin(Math.PI * wordProgress) * 58;
+      var depth = 170 * remaining;
+      var turn = (index % 2 === 0 ? -7 : 7) * remaining;
+      var scale = 0.56 + 0.44 * wordProgress;
+      word.style.opacity = clamp((wordProgress - 0.02) / 0.28, 0, 1).toFixed(3);
+      word.style.transform = "translate3d(" + driftX.toFixed(2) + "px," + driftY.toFixed(2) + "px," + depth.toFixed(2) + "px) rotate3d(0,0,1," + turn.toFixed(2) + "deg) scale(" + scale.toFixed(3) + ")";
+    });
+  };
 
   var setHeroProgress = function () {
     framePending = false;
@@ -30,33 +70,37 @@
     var rect = hero.getBoundingClientRect();
     var available = Math.max(hero.offsetHeight - window.innerHeight, 1);
     var progress = clamp(-rect.top / available, 0, 1);
-    var openCover = segment(progress, 0.12, 0.58);
-    var leafOne = segment(progress, 0.25, 0.54);
-    var leafTwo = segment(progress, 0.31, 0.60);
-    var leafThree = segment(progress, 0.37, 0.66);
-    var leafFour = segment(progress, 0.43, 0.72);
-    var settle = segment(progress, 0.06, 0.76);
+    var openCover = segment(progress, 0.08, 0.5);
+    var leafOne = segment(progress, 0.2, 0.48);
+    var leafTwo = segment(progress, 0.27, 0.55);
+    var leafThree = segment(progress, 0.34, 0.62);
+    var leafFour = segment(progress, 0.41, 0.69);
+    var settle = segment(progress, 0.05, 0.76);
     var before = 1 - segment(progress, 0.05, 0.23);
-    var after = segment(progress, 0.68, 0.9);
-    var light = segment(progress, 0.36, 0.78);
-    var spreadReveal = segment(progress, 0.08, 0.35);
-    var insideReveal = segment(progress, 0.38, 0.52);
+    var after = segment(progress, 0.87, 0.98);
+    var light = segment(progress, 0.24, 0.76);
+    var beam = segment(progress, 0.32, 0.78);
+    var spreadReveal = segment(progress, 0.07, 0.31);
+    var insideReveal = segment(progress, 0.32, 0.5);
     var isCompact = window.matchMedia("(max-width: 1120px)").matches;
     var isMobile = window.matchMedia("(max-width: 700px)").matches;
     var isShortWide = window.matchMedia("(min-width: 900px) and (max-height: 680px)").matches;
 
+    var bookX = isCompact && !isShortWide ? 0 : 22 * settle;
+    var bookY = isMobile ? 5 - 9 * settle : (isCompact && !isShortWide ? 5 - 13 * settle : (isShortWide ? 6 + 7 * settle : 7 + 11 * settle));
+    var closedShift = -25 * (1 - spreadReveal);
+
     hero.style.setProperty("--cover-angle", (-178 * openCover).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-one-angle", (-166 * leafOne).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-two-angle", (-151 * leafTwo).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-three-angle", (-135 * leafThree).toFixed(2) + "deg");
-    hero.style.setProperty("--leaf-four-angle", (-119 * leafFour).toFixed(2) + "deg");
-    hero.style.setProperty("--book-tilt", (58 - 46 * settle).toFixed(2) + "deg");
-    hero.style.setProperty("--book-roll", (-8 + 8 * settle).toFixed(2) + "deg");
-    hero.style.setProperty("--book-scale", (0.84 - 0.06 * settle).toFixed(3));
-    hero.style.setProperty("--book-x", (isCompact && !isShortWide ? 0 : 22 * settle).toFixed(2) + "vw");
-    var bookY = isMobile ? 5 - 25 * settle : (isCompact && !isShortWide ? 5 - 21 * settle : 5 - 5 * settle);
+    hero.style.setProperty("--leaf-one-angle", (-168 * leafOne).toFixed(2) + "deg");
+    hero.style.setProperty("--leaf-two-angle", (-154 * leafTwo).toFixed(2) + "deg");
+    hero.style.setProperty("--leaf-three-angle", (-139 * leafThree).toFixed(2) + "deg");
+    hero.style.setProperty("--leaf-four-angle", (-122 * leafFour).toFixed(2) + "deg");
+    hero.style.setProperty("--book-tilt", (4 + 54 * settle).toFixed(2) + "deg");
+    hero.style.setProperty("--book-roll", (-3 + 3 * settle).toFixed(2) + "deg");
+    hero.style.setProperty("--book-scale", (0.82 + 0.12 * settle).toFixed(3));
+    hero.style.setProperty("--book-x", bookX.toFixed(2) + "vw");
     hero.style.setProperty("--book-y", bookY.toFixed(2) + "vh");
-    hero.style.setProperty("--closed-shift", (-25 * (1 - spreadReveal)).toFixed(2) + "%");
+    hero.style.setProperty("--closed-shift", closedShift.toFixed(2) + "%");
     hero.style.setProperty("--closed-inset", (50 * (1 - spreadReveal)).toFixed(2) + "%");
     hero.style.setProperty("--cover-front-opacity", (1 - insideReveal).toFixed(3));
     hero.style.setProperty("--cover-inside-opacity", insideReveal.toFixed(3));
@@ -64,8 +108,14 @@
     hero.style.setProperty("--before-y", (-32 * (1 - before)).toFixed(2) + "px");
     hero.style.setProperty("--after-opacity", after.toFixed(3));
     hero.style.setProperty("--after-y", (32 * (1 - after)).toFixed(2) + "px");
-    hero.style.setProperty("--book-light-opacity", (0.78 * light).toFixed(3));
+    hero.style.setProperty("--book-light-opacity", (0.92 * light).toFixed(3));
+    hero.style.setProperty("--book-beam-opacity", (0.84 * beam).toFixed(3));
+    hero.style.setProperty("--book-shadow-opacity", (0.28 + 0.42 * settle).toFixed(3));
+    hero.style.setProperty("--book-shadow-scale", (0.58 + 0.42 * settle).toFixed(3));
+    hero.style.setProperty("--verse-cite-opacity", segment(progress, 0.78, 0.94).toFixed(3));
+    hero.style.setProperty("--verse-cite-y", (18 * (1 - segment(progress, 0.78, 0.94))).toFixed(2) + "px");
     hero.style.setProperty("--hero-progress", (progress * 100).toFixed(2) + "%");
+    animateVerse(progress, bookX, bookY, closedShift);
 
     if (progress > 0.04 && !openingStarted) {
       openingStarted = true;
@@ -94,7 +144,16 @@
     }, { rootMargin: "15% 0px" });
     sceneObserver.observe(hero);
     window.addEventListener("scroll", requestHeroFrame, { passive: true });
-    window.addEventListener("resize", requestHeroFrame, { passive: true });
+    window.addEventListener("resize", function () {
+      verseGeometryDirty = true;
+      requestHeroFrame();
+    }, { passive: true });
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(function () {
+        verseGeometryDirty = true;
+        requestHeroFrame();
+      });
+    }
     requestHeroFrame();
   }
 

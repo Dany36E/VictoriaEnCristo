@@ -93,6 +93,15 @@ async function capture(width, height, progress, filename) {
   await writeFile(join(outputDir, filename), Buffer.from(result.data, "base64"));
 }
 
+async function captureCurrent(filename) {
+  const result = await send("Page.captureScreenshot", {
+    format: "png",
+    captureBeyondViewport: false,
+    fromSurface: true,
+  });
+  await writeFile(join(outputDir, filename), Buffer.from(result.data, "base64"));
+}
+
 try {
   await send("Page.enable");
   await send("Runtime.enable");
@@ -124,6 +133,21 @@ try {
   ]) {
     await capture(viewport[0], viewport[1], 1, "hero-t100-" + viewport[0] + ".png");
   }
+
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-reduced-motion", value: "reduce" }],
+  });
+  await send("Page.reload");
+  await wait(500);
+  await send("Runtime.evaluate", { expression: "window.scrollTo(0, 0)" });
+  await wait(120);
+  await captureCurrent("hero-reduced-motion-390.png");
   console.log("Capturas guardadas en " + outputDir);
 } finally {
   socket.close();
