@@ -206,6 +206,81 @@ try {
   if (reducedState.result.value.reducedClass || reducedState.result.value.buttonExists || Math.abs(reducedState.result.value.progress - 50) > 1) {
     throw new Error("La animación no quedó activa por defecto sin controles adicionales.");
   }
+
+  await send("Emulation.setEmulatedMedia", {
+    features: [{ name: "prefers-reduced-motion", value: "no-preference" }],
+  });
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 1440,
+    height: 1100,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await send("Page.navigate", { url: "http://localhost:4173/ayuda.html#leer-biblia" });
+  await wait(700);
+  const helpValidation = await send("Runtime.evaluate", {
+    expression: "(function () {" +
+      "var search = document.getElementById('help-search');" +
+      "function visibleCount(query) {" +
+        "search.value = query;" +
+        "search.dispatchEvent(new Event('input', {bubbles: true}));" +
+        "return document.querySelectorAll('.guide-card:not([hidden])').length;" +
+      "}" +
+      "var result = {" +
+        "deepLinkOpen: document.getElementById('leer-biblia').open," +
+        "partial: visibleCount('interlin')," +
+        "withoutAccent: visibleCount('oracion')," +
+        "noResult: visibleCount('resultado imposible 987654321')" +
+      "};" +
+      "result.emptyVisible = document.getElementById('help-empty').classList.contains('is-visible');" +
+      "search.value = '';" +
+      "search.dispatchEvent(new Event('input', {bubbles: true}));" +
+      "return result;" +
+    "})()",
+    returnByValue: true,
+  });
+  const helpState = helpValidation.result.value;
+  if (!helpState.deepLinkOpen || helpState.partial < 1 || helpState.withoutAccent < 1 || helpState.noResult !== 0 || !helpState.emptyVisible) {
+    throw new Error("El buscador o los enlaces profundos de ayuda no superaron la prueba: " + JSON.stringify(helpState));
+  }
+  await captureCurrent("ayuda-biblia-1440.png");
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await send("Page.reload");
+  await wait(600);
+  await captureCurrent("ayuda-biblia-390.png");
+
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 1440,
+    height: 1000,
+    deviceScaleFactor: 1,
+    mobile: false,
+  });
+  await send("Page.navigate", { url: "http://localhost:4173/index.html" });
+  await wait(600);
+  await send("Runtime.evaluate", {
+    expression: "document.querySelector('.app-proof').scrollIntoView({block: 'start'})",
+  });
+  await wait(300);
+  await captureCurrent("app-proof-1440.png");
+  await send("Emulation.setDeviceMetricsOverride", {
+    width: 390,
+    height: 844,
+    deviceScaleFactor: 1,
+    mobile: true,
+  });
+  await send("Page.reload");
+  await wait(600);
+  await send("Runtime.evaluate", {
+    expression: "document.querySelector('.app-proof').scrollIntoView({block: 'start'})",
+  });
+  await wait(300);
+  await captureCurrent("app-proof-390.png");
+
   if (runtimeErrors.length) {
     throw new Error("Se detectaron errores de JavaScript: " + runtimeErrors.join(" | "));
   }

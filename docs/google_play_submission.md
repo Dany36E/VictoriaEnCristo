@@ -17,7 +17,7 @@ Victoria en Cristo es un espacio cristiano para fortalecer tu vida espiritual y 
 
 Lee la Biblia sin conexión, sigue planes devocionales, registra tus días de victoria, configura recordatorios de oración y encuentra ayuda inmediata cuando más la necesitas.
 
-También puedes caminar acompañado mediante el Compañero de Batalla y participar de forma anónima en un muro moderado. El contenido público se revisa antes de aparecer; puedes reportar publicaciones y bloquear a cualquier autor que no quieras volver a ver.
+También puedes caminar acompañado mediante el Compañero de Batalla y participar con una identidad seudónima en un muro moderado. El contenido público se revisa antes de aparecer; puedes reportar publicaciones y bloquear a cualquier autor que no quieras volver a ver.
 
 En Android, el Escudo de Pureza es una herramienta opcional que usa una VPN local para filtrar dominios de contenido adulto. Sólo procesa consultas DNS, mantiene una notificación visible mientras funciona y cifra las consultas permitidas mediante DNS-over-HTTPS. No inspeccionamos páginas ni vendemos tu actividad.
 
@@ -51,7 +51,7 @@ Las Alarmas Sagradas son recordatorios configurados por el usuario para oración
 | Email, nombre, foto y UID | Cuenta, perfil y sincronización | Recopilado; cifrado en tránsito; eliminable |
 | Progreso y configuración | Funcionalidad y sincronización | Recopilado; cifrado en tránsito; eliminable |
 | Mensajes con compañeros | Función social privada | Recopilado; cifrado en tránsito; eliminable |
-| Publicaciones del Muro | Comunidad anónima y moderación | Recopilado; sin UID visible; el contenido público puede conservarse anónimo |
+| Publicaciones del Muro | Comunidad seudónima y moderación | Recopilado; sin UID visible; eliminable junto con la cuenta conforme al flujo documentado |
 | Identificadores de dispositivo | Token FCM | Recopilado para notificaciones; eliminable |
 | Diagnóstico y actividad | Crashlytics y Analytics | Recopilado para estabilidad y métricas; sin AD_ID |
 | Consultas DNS del Escudo | Filtrado familiar opcional | No recibidas ni almacenadas por Victoria en Cristo; enviadas cifradas a CleanBrowsing |
@@ -60,10 +60,11 @@ Las Alarmas Sagradas son recordatorios configurados por el usuario para oración
 
 - Política de privacidad: https://victoria-en-cristo.web.app/privacy_policy.html
 - Eliminación de cuenta: https://victoria-en-cristo.web.app/data_deletion.html
+- Correo de soporte: gonzaleztalamantes836@gmail.com
 
 ## Pendiente dentro de Play Console
 
-- Proporcionar un correo público real de soporte.
+- Verificar que `gonzaleztalamantes836@gmail.com` reciba los mensajes de prueba enviados desde la ficha.
 - Aceptar Play App Signing y añadir a Firebase sus huellas SHA-1 y SHA-256.
 - Completar Data Safety, clasificación de contenido y declaraciones de permisos.
 - Subir el video del VpnService y capturas de la ficha.

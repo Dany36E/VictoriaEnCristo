@@ -1,15 +1,15 @@
 # Entrega pendiente para producción
 
-Estado técnico de referencia: versión `1.0.29+39`, 12 de septiembre de 2026.
+Estado técnico de referencia: versión `1.0.29+39`, 13 de septiembre de 2026.
 
 Este documento separa las tareas que requieren decisiones, datos o cuentas del titular. No sustituye asesoría jurídica ni las declaraciones finales de Google Play o App Store Connect.
 
 ## Entregables técnicos verificados
 
 - Web pública: `https://victoria-en-cristo.web.app/`. La portada, el centro de ayuda, los documentos legales, `robots.txt` y `sitemap.xml` responden públicamente; no se detectaron cookies, formularios, analítica ni recursos remotos.
-- Auditoría web móvil: rendimiento 98–99, accesibilidad 100, buenas prácticas 100, LCP 1.684 s, CLS 0 y TBT 55 ms. El peso transferido fue de aproximadamente 198 KB.
-- Android App Bundle: `dist/VictoriaEnCristo-1.0.29+39.aab`, validado con Bundletool y `jarsigner`, con `versionCode 39`, `versionName 1.0.29` y SHA-256 `535E156C528AD5352618CE773D9488CF440DD2EEBFEAB337A16B9FB5EE1D59D4`.
-- Windows: instalación local actualizada en `%LOCALAPPDATA%/Programs/Victoria en Cristo`, comprobada mediante arranque controlado. Paquete portable `dist/VictoriaEnCristo-Windows-v1.0.29.zip`, SHA-256 `DFECE1CE944A58C5E6F8F05A973CB24E70C3C3DF3E04257A5A96DA05F46131EE`.
+- Auditoría web móvil del despliegue del 13 de septiembre: rendimiento 95, accesibilidad 100, buenas prácticas 100 y SEO 92; LCP 2.2 s, CLS 0 y TBT 120 ms. El peso transferido fue de aproximadamente 232 KiB, incluidas las nuevas capturas reales diferidas.
+- Android App Bundle: `dist/VictoriaEnCristo-1.0.29+39.aab`, validado con Bundletool y `jarsigner`, con `versionCode 39`, `versionName 1.0.29` y SHA-256 `0FBD2484D5146E12DD3884CED1178C1CD34E7D18C7E5FEAD16D6F13902E22574`.
+- Windows: instalación local actualizada en `%LOCALAPPDATA%/Programs/Victoria en Cristo`, comprobada mediante hash y arranque controlado. Paquete portable `dist/VictoriaEnCristo-Windows-v1.0.29.zip`, SHA-256 `6319D1483262AF9AECEE495D9B3DCCEAF37FB84E6A24D391C5E042C82F1CF90E`.
 - iPhone y iPad: las 19 imágenes declaradas en `AppIcon.appiconset/Contents.json` existen y tienen las dimensiones requeridas. La compilación y firma nativas siguen necesitando macOS.
 - Calidad Flutter: `flutter analyze` sin incidencias y 355 pruebas automatizadas aprobadas.
 
@@ -17,8 +17,8 @@ Este documento separa las tareas que requieren decisiones, datos o cuentas del t
 
 1. Definir el nombre completo o razón social de quien opera la app.
 2. Definir un domicilio verificable para el aviso de privacidad. Consultar con un abogado si puede publicarse un domicilio profesional o de servicio en vez del personal.
-3. Activar `soporte@victoriaencristo.app` y comprobar recepción y respuesta, o elegir otro correo operativo.
-4. Sustituir los avisos de bloqueo en `privacy_policy.html`, `terms.html` y `data_deletion.html` con esos datos reales.
+3. Mantener monitoreado `gonzaleztalamantes836@gmail.com`, comprobar recepción y responder solicitudes de soporte y privacidad.
+4. Incorporar el nombre o razón social y el domicilio reales en `privacy_policy.html` y `terms.html`.
 5. Desplegar otra vez Firebase Hosting y abrir cada página desde una ventana privada.
 
 ## 2. Documentar licencias de contenido

@@ -4,6 +4,7 @@
 library;
 
 const String kLegalBaseUrl = 'https://victoria-en-cristo.web.app';
+const String kSupportEmail = 'gonzaleztalamantes836@gmail.com';
 
 Uri legalDocumentUri(String path) {
   final safePath = path.startsWith('/') ? path.substring(1) : path;

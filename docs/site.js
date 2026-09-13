@@ -347,6 +347,28 @@
     });
   });
 
+  var openHashGuide = function () {
+    if (!window.location.hash) return;
+    var targetId;
+    try {
+      targetId = decodeURIComponent(window.location.hash.slice(1));
+    } catch (_) {
+      return;
+    }
+    var target = document.getElementById(targetId);
+    if (!target || !target.matches("details.guide-card")) return;
+    target.hidden = false;
+    target.open = true;
+    var group = target.closest(".guide-group");
+    if (group) group.hidden = false;
+    window.requestAnimationFrame(function () {
+      target.scrollIntoView({ block: "start" });
+    });
+  };
+
+  openHashGuide();
+  window.addEventListener("hashchange", openHashGuide);
+
   document.querySelectorAll(".site-nav a").forEach(function (link) {
     link.addEventListener("click", function () {
       var disclosure = link.closest("details");

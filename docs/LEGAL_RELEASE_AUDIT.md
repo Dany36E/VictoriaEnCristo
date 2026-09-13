@@ -16,10 +16,11 @@ Fecha técnica: 2026-09-08. Este documento registra comprobaciones de producto; 
 - No se requieren cookies para las páginas legales actuales: son estáticas, sin scripts, analítica, anuncios ni embeds.
 - El centro legal público se trasladó a `https://victoria-en-cristo.web.app`: Firebase Hosting sólo publica los siete HTML necesarios, excluye documentación interna y aplica CSP, `nosniff`, política de referente y permisos restrictivos.
 - La app usa una única constante para los enlaces legales, evitando que el cambio de visibilidad de GitHub rompa privacidad, términos, cookies, reembolsos, eliminación o avisos de terceros.
+- Canal operativo de soporte, privacidad y solicitudes de datos publicado en la web y dentro de la app: `gonzaleztalamantes836@gmail.com`.
 
 ## Bloqueos antes de producción
 
-1. **Identidad legal:** proporcionar nombre o razón social, domicilio verificable y correo operativo para privacidad/ARCO y soporte. `soporte@victoriaencristo.app` no debe anunciarse hasta funcionar.
+1. **Identidad legal:** proporcionar nombre o razón social y domicilio verificable para privacidad/ARCO. El correo operativo ya quedó definido; no debe inventarse la identidad que falta.
 2. **Copyright bíblico:** archivar licencias de distribución digital completa para NVI, LBLA, NTV, TLA y RVR1960. La atribución dentro del XML no basta.
 3. **Otros activos:** documentar procedencia y licencia de cartas Headbanz, fondos para compartir, portadas, audios y bases de comentarios. Retirar cualquier archivo sin evidencia.
 4. **Tiendas:** hacer que Data Safety de Google Play y App Privacy de Apple coincidan exactamente con el binario final y todos sus SDK.

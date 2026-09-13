@@ -21,6 +21,15 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
     );
   }
 
+  Future<void> _contactSupport() async {
+    final emailUri = Uri(
+      scheme: 'mailto',
+      path: kSupportEmail,
+      queryParameters: const {'subject': 'Soporte Victoria en Cristo'},
+    );
+    await launchUrl(emailUri, mode: LaunchMode.externalApplication);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,6 +118,21 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
             icon: Icons.copyright_outlined,
             label: 'Avisos de terceros y copyright',
             onTap: () => _open('third_party_notices.html'),
+          ),
+          const Divider(height: 32),
+          Text('Contacto', style: Theme.of(context).textTheme.titleLarge),
+          _LegalLink(
+            icon: Icons.support_agent_outlined,
+            label: kSupportEmail,
+            onTap: _contactSupport,
+          ),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              'Describe el dispositivo y lo que ocurrió. No envíes contraseñas, '
+              'códigos de verificación ni información sensible de otras personas.',
+              style: TextStyle(fontSize: 12),
+            ),
           ),
           const SizedBox(height: 16),
           const Text(
