@@ -1,15 +1,16 @@
 import 'dart:async';
-import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_version.dart';
+import '../../models/bible/strong_lexicon_entry.dart';
 import '../user_pref_cloud_sync_service.dart';
 import 'bible_parser_service.dart';
-import 'interlinear_service.dart';
 import 'bible_timeline_service.dart';
+import 'strong_lexicon_service.dart';
 
 /// Tipo de búsqueda avanzada
 enum AdvancedSearchType {
   strong, // Búsqueda por número Strong (H/G)
+  originalWord, // Forma original o lema en hebreo/griego
   character, // Búsqueda por personaje bíblico
   theme, // Búsqueda por tema/tópico
 }
@@ -20,12 +21,14 @@ class AdvancedSearchResult {
   final String subtitle;
   final List<AdvancedSearchVerse> verses;
   final AdvancedSearchType type;
+  final String? description;
 
   const AdvancedSearchResult({
     required this.title,
     required this.subtitle,
     required this.verses,
     required this.type,
+    this.description,
   });
 }
 
@@ -55,7 +58,8 @@ class AdvancedSearchVerse {
 /// Búsqueda por números Strong, personajes y temas.
 /// ═══════════════════════════════════════════════════════════════════════════
 class AdvancedSearchService {
-  static final AdvancedSearchService _instance = AdvancedSearchService._internal();
+  static final AdvancedSearchService _instance =
+      AdvancedSearchService._internal();
   factory AdvancedSearchService() => _instance;
   static AdvancedSearchService get I => _instance;
   AdvancedSearchService._internal();
@@ -99,7 +103,14 @@ class AdvancedSearchService {
     'Fe': ['fe', 'creer', 'creyó', 'creyeron', 'fiel', 'fieles', 'confianza'],
     'Esperanza': ['esperanza', 'esperar', 'espera', 'esperamos'],
     'Gracia': ['gracia', 'misericordia', 'compasión', 'favor'],
-    'Salvación': ['salvación', 'salvar', 'salvó', 'salvador', 'redención', 'redentor'],
+    'Salvación': [
+      'salvación',
+      'salvar',
+      'salvó',
+      'salvador',
+      'redención',
+      'redentor',
+    ],
     'Perdón': ['perdón', 'perdonar', 'perdonó', 'perdonado'],
     'Oración': ['oración', 'orar', 'orad', 'oró', 'oremos', 'oraba', 'clamó'],
     'Paz': ['paz', 'pacífico', 'pacifica', 'reposo', 'descanso'],
@@ -107,75 +118,139 @@ class AdvancedSearchService {
     'Sabiduría': ['sabiduría', 'sabio', 'sabios', 'prudencia', 'entendimiento'],
     'Santidad': ['santo', 'santos', 'santidad', 'santificar', 'santificado'],
     'Gozo': ['gozo', 'gozoso', 'alegría', 'regocijo', 'gózate'],
-    'Pecado': ['pecado', 'pecados', 'pecar', 'pecó', 'iniquidad', 'transgresión'],
-    'Arrepentimiento': ['arrepentimiento', 'arrepentir', 'arrepentíos', 'arrepintió'],
-    'Espíritu Santo': ['espíritu santo', 'espíritu de dios', 'consolador', 'paráclito'],
+    'Pecado': [
+      'pecado',
+      'pecados',
+      'pecar',
+      'pecó',
+      'iniquidad',
+      'transgresión',
+    ],
+    'Arrepentimiento': [
+      'arrepentimiento',
+      'arrepentir',
+      'arrepentíos',
+      'arrepintió',
+    ],
+    'Espíritu Santo': [
+      'espíritu santo',
+      'espíritu de dios',
+      'consolador',
+      'paráclito',
+    ],
     'Resurrección': ['resurrección', 'resucitar', 'resucitó', 'levantó'],
     'Cielo': ['cielo', 'cielos', 'celestial', 'paraíso', 'morada'],
     'Tentación': ['tentación', 'tentar', 'tentado', 'prueba'],
     'Fortaleza': ['fortaleza', 'fuerte', 'fuerza', 'fortaleceos', 'esfuérzate'],
-    'Adoración': ['adoración', 'adorar', 'adorad', 'adoró', 'alabanza', 'alabar'],
+    'Adoración': [
+      'adoración',
+      'adorar',
+      'adorad',
+      'adoró',
+      'alabanza',
+      'alabar',
+    ],
   };
 
   /// Lista de temas disponibles
   List<String> get availableThemes => _themes.keys.toList();
 
   /// Buscar por número Strong
-  Future<AdvancedSearchResult> searchByStrong(String strongNumber, BibleVersion version) async {
-    final isHebrew = strongNumber.startsWith('H');
-    final results = <AdvancedSearchVerse>[];
+  Future<AdvancedSearchResult> searchByStrong(
+    String strongNumber,
+    BibleVersion version,
+  ) async {
+    final result = await StrongLexiconService.I.search(strongNumber);
+    return _buildOriginalLanguageResult(
+      result,
+      version,
+      AdvancedSearchType.strong,
+    );
+  }
 
-    // Buscar en interlinear data
-    try {
-      final startBook = isHebrew ? 1 : 40;
-      final endBook = isHebrew ? 39 : 66;
+  /// Busca una forma escrita o lema en todos los versículos del interlineal.
+  Future<AdvancedSearchResult> searchByOriginalWord(
+    String query,
+    BibleVersion version,
+  ) async {
+    final result = await StrongLexiconService.I.search(query);
+    return _buildOriginalLanguageResult(
+      result,
+      version,
+      AdvancedSearchType.originalWord,
+    );
+  }
 
-      for (int book = startBook; book <= endBook; book++) {
-        // Get chapter count from book index
-        final books = await BibleParserService.I.getBooks(version);
-        final bookInfo = books.where((b) => b.number == book).firstOrNull;
-        if (bookInfo == null) continue;
+  Future<AdvancedSearchResult> _buildOriginalLanguageResult(
+    OriginalWordSearchResult result,
+    BibleVersion version,
+    AdvancedSearchType type,
+  ) async {
+    const visibleLimit = 500;
+    final books = await BibleParserService.I.getBooks(version);
+    final bookNames = <int, String>{
+      for (final book in books) book.number: book.name,
+    };
+    final verses = <AdvancedSearchVerse>[];
+    final chapterCache = <String, Map<int, String>>{};
 
-        for (int ch = 1; ch <= bookInfo.totalChapters; ch++) {
-          final interlinearVerses = await InterlinearService.instance.getChapter(book, ch);
-          for (final iv in interlinearVerses) {
-            final hasStrong = iv.words.any(
-              (w) =>
-                  w.strongNumber != null &&
-                  (w.strongNumber == strongNumber || w.strongNumber!.contains(strongNumber)),
-            );
-
-            if (hasStrong) {
-              results.add(
-                AdvancedSearchVerse(
-                  bookNumber: book,
-                  bookName: bookInfo.name,
-                  chapter: ch,
-                  verse: iv.verse,
-                  text: '',
-                  highlight: strongNumber,
-                ),
-              );
-            }
-          }
-        }
-
-        if (results.length >= 200) break;
+    for (final reference in result.references.take(visibleLimit)) {
+      final chapterKey = '${reference.bookNumber}:${reference.chapter}';
+      var verseTexts = chapterCache[chapterKey];
+      if (verseTexts == null) {
+        final chapter = await BibleParserService.I.getChapter(
+          version: version,
+          bookNumber: reference.bookNumber,
+          chapter: reference.chapter,
+        );
+        verseTexts = <int, String>{
+          for (final verse in chapter) verse.verse: verse.text,
+        };
+        chapterCache[chapterKey] = verseTexts;
       }
-    } catch (e) {
-      debugPrint('🔍 [ADV-SEARCH] Strong error: $e');
+      verses.add(
+        AdvancedSearchVerse(
+          bookNumber: reference.bookNumber,
+          bookName:
+              bookNames[reference.bookNumber] ??
+              'Libro ${reference.bookNumber}',
+          chapter: reference.chapter,
+          verse: reference.verse,
+          text: verseTexts[reference.verse] ?? '',
+          highlight: '',
+        ),
+      );
     }
 
+    final total = result.occurrenceCount;
+    final shown = verses.length;
+    final strongLabel = result.strongNumbers.isEmpty
+        ? ''
+        : ' · ${result.strongNumbers.join(', ')}';
+    final lexical = result.lexiconEntries.firstOrNull;
+    final details = <String>[
+      if (lexical?.transliteration.isNotEmpty == true)
+        'Transliteración: ${lexical!.transliteration}',
+      if (lexical?.definition.isNotEmpty == true)
+        'Definición histórica Strong (inglés): ${lexical!.definition}',
+    ];
+
     return AdvancedSearchResult(
-      title: strongNumber,
-      subtitle: '${results.length} apariciones',
-      verses: results,
-      type: AdvancedSearchType.strong,
+      title: '${result.displayWord}$strongLabel',
+      subtitle: total > shown
+          ? '$total versículos · mostrando los primeros $shown'
+          : '$total versículo${total == 1 ? '' : 's'}',
+      description: details.isEmpty ? null : details.join('\n'),
+      verses: verses,
+      type: type,
     );
   }
 
   /// Buscar versículos relacionados con un personaje
-  Future<AdvancedSearchResult> searchByCharacter(String characterName, BibleVersion version) async {
+  Future<AdvancedSearchResult> searchByCharacter(
+    String characterName,
+    BibleVersion version,
+  ) async {
     await BibleTimelineService.I.init();
     final results = <AdvancedSearchVerse>[];
 
@@ -254,7 +329,9 @@ class AdvancedSearchService {
         );
         for (final v in verses) {
           final lower = v.text.toLowerCase();
-          final matchedKeyword = keywords.where((k) => lower.contains(k)).firstOrNull;
+          final matchedKeyword = keywords
+              .where((k) => lower.contains(k))
+              .firstOrNull;
           if (matchedKeyword != null) {
             results.add(
               AdvancedSearchVerse(

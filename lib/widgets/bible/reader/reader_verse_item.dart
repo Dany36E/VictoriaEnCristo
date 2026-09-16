@@ -8,6 +8,7 @@ import '../../../services/bible/bible_search_service.dart';
 import '../../../services/bible/red_letter_service.dart';
 import '../../../services/bible/study_mode_service.dart';
 import '../../../theme/bible_reader_theme.dart';
+import '../verse_study_sheet.dart';
 
 class ReaderVerseItem extends StatelessWidget {
   final BibleVerse verse;
@@ -168,13 +169,17 @@ class ReaderVerseItem extends StatelessWidget {
                           vertical: 0.5,
                         ),
                         decoration: BoxDecoration(
-                          color: const Color(0xFFFF7043).withValues(alpha: 0.15),
+                          color: const Color(
+                            0xFFFF7043,
+                          ).withValues(alpha: 0.15),
                           borderRadius: BorderRadius.circular(2),
                         ),
                         child: Text(
                           verse.bookNumber <= 39 ? '↗NT' : 'AT',
                           style: TextStyle(
-                            color: const Color(0xFFFF7043).withValues(alpha: 0.7),
+                            color: const Color(
+                              0xFFFF7043,
+                            ).withValues(alpha: 0.7),
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
                           ),
@@ -182,6 +187,10 @@ class ReaderVerseItem extends StatelessWidget {
                       ),
                     ),
                   ),
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: _InlineStudyActions(verse: verse, theme: theme),
+                ),
               ],
             ),
           ),
@@ -194,8 +203,10 @@ class ReaderVerseItem extends StatelessWidget {
 
   Widget _buildWordSelectionBody(List<StudyWordHighlight> wordHighlights) {
     // Misma tokenización que StudyWordHighlight para que los índices coincidan.
-    final tokens =
-        verse.text.split(RegExp(r'\s+')).where((s) => s.isNotEmpty).toList();
+    final tokens = verse.text
+        .split(RegExp(r'\s+'))
+        .where((s) => s.isNotEmpty)
+        .toList();
     return Semantics(
       label: 'Versículo ${verse.verse}. Modo subrayado de palabras.',
       child: Container(
@@ -256,9 +267,7 @@ class ReaderVerseItem extends StatelessWidget {
               ? theme.accent.withValues(alpha: 0.30)
               : existingColor?.withValues(alpha: theme.isDark ? 0.32 : 0.28),
           borderRadius: BorderRadius.circular(5),
-          border: selected
-              ? Border.all(color: theme.accent, width: 1.2)
-              : null,
+          border: selected ? Border.all(color: theme.accent, width: 1.2) : null,
         ),
         child: Text(
           word,
@@ -385,7 +394,9 @@ class ReaderVerseItem extends StatelessWidget {
           TextSpan(
             text: part,
             style: baseStyle.copyWith(
-              backgroundColor: color.withValues(alpha: theme.isDark ? 0.32 : 0.28),
+              backgroundColor: color.withValues(
+                alpha: theme.isDark ? 0.32 : 0.28,
+              ),
             ),
           ),
         );
@@ -393,5 +404,78 @@ class ReaderVerseItem extends StatelessWidget {
       wordIndex++;
     }
     return spans;
+  }
+}
+
+class _InlineStudyActions extends StatelessWidget {
+  final BibleVerse verse;
+  final BibleReaderThemeData theme;
+
+  const _InlineStudyActions({required this.verse, required this.theme});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 6, top: 2),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _action(
+            context,
+            icon: Icons.school_outlined,
+            label: 'Estudiar',
+            tab: 0,
+          ),
+          const SizedBox(width: 4),
+          _action(context, icon: Icons.link, label: 'Conexiones', tab: 2),
+        ],
+      ),
+    );
+  }
+
+  Widget _action(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required int tab,
+  }) {
+    return Semantics(
+      button: true,
+      label: '$label para ${verse.reference}',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(6),
+          onTap: () => VerseStudySheet.show(context, verse, initialTab: tab),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 2),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: theme.accent.withValues(alpha: 0.2)),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 11,
+                  color: theme.accent.withValues(alpha: 0.75),
+                ),
+                const SizedBox(width: 3),
+                Text(
+                  label,
+                  style: GoogleFonts.manrope(
+                    color: theme.accent.withValues(alpha: 0.8),
+                    fontSize: 9,
+                    fontWeight: FontWeight.w700,
+                    height: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }

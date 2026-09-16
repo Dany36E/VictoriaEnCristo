@@ -20,11 +20,13 @@ import '../../services/bible/bible_parser_service.dart';
 class BibleSearchScreen extends StatefulWidget {
   final bool initialAdvanced;
   final BibleVersion? version;
+  final String? initialQuery;
 
   const BibleSearchScreen({
     super.key,
     this.initialAdvanced = false,
     this.version,
+    this.initialQuery,
   });
 
   @override
@@ -54,12 +56,27 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     super.initState();
     _loadRecent();
     _loadAdvancedHistory();
-    if (widget.initialAdvanced) {
-      _advancedMode = true;
-    } else {
+    _advancedMode = widget.initialAdvanced;
+    final initialQuery = widget.initialQuery?.trim() ?? '';
+    if (initialQuery.isNotEmpty) {
+      _controller.text = initialQuery;
+      _controller.selection = TextSelection.collapsed(
+        offset: initialQuery.length,
+      );
+      _query = initialQuery;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _doAdvancedSearch(
+          _advancedTypeFor(initialQuery),
+          initialQuery,
+          addToHistory: false,
+        );
+      });
+    } else if (!widget.initialAdvanced) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         _focus.requestFocus();
       });
+    } else {
+      _advancedMode = true;
     }
   }
 
@@ -84,66 +101,90 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
   void _onQueryChanged(String value) {
     _debounce?.cancel();
     _query = value;
+    final minimumLength = _advancedMode ? 1 : 2;
 
-    if (value.trim().length < 2) {
+    if (value.trim().length < minimumLength) {
       setState(() {
         _searchResult = null;
+        _advancedResult = null;
         _searching = false;
+        _advancedSearching = false;
       });
       return;
     }
 
-    setState(() => _searching = true);
-    _debounce = Timer(const Duration(milliseconds: 400), () => _doSearch());
+    if (_advancedMode) {
+      setState(() {
+        _advancedSearching = true;
+        _advancedResult = null;
+      });
+      _debounce = Timer(
+        const Duration(milliseconds: 450),
+        () => _doAdvancedSearch(
+          _advancedTypeFor(value),
+          value,
+          addToHistory: false,
+        ),
+      );
+    } else {
+      setState(() => _searching = true);
+      _debounce = Timer(const Duration(milliseconds: 400), () => _doSearch());
+    }
   }
 
   Future<void> _doSearch() async {
     if (_query.trim().length < 2) return;
 
     try {
-    final version = BibleUserDataService.I.preferredVersionNotifier.value;
-    final result = await BibleSearchService.I.detectAndSearch(
-      version: version,
-      query: _query,
-      testamentFilter: _testamentFilter,
-    );
+      final version = BibleUserDataService.I.preferredVersionNotifier.value;
+      final result = await BibleSearchService.I.detectAndSearch(
+        version: version,
+        query: _query,
+        testamentFilter: _testamentFilter,
+      );
 
-    if (mounted) {
-      // Si es verseReference, navegar directamente
-      if (result.intent == SearchIntent.verseReference &&
-          result.bookNumber != null &&
-          result.chapter != null &&
-          result.verse != null) {
-        BibleSearchService.I.addRecentSearch(_query);
-        final bookName = result.bookName ??
-            await BibleParserService.I.getBookName(version, result.bookNumber!);
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('Abriendo $bookName ${result.chapter}:${result.verse}...'),
-              duration: const Duration(seconds: 1),
-            ),
-          );
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BibleReaderScreen(
-                bookNumber: result.bookNumber!,
-                bookName: bookName,
-                chapter: result.chapter!,
-                version: version,
+      if (mounted) {
+        // Si es verseReference, navegar directamente
+        if (result.intent == SearchIntent.verseReference &&
+            result.bookNumber != null &&
+            result.chapter != null &&
+            result.verse != null) {
+          BibleSearchService.I.addRecentSearch(_query);
+          final bookName =
+              result.bookName ??
+              await BibleParserService.I.getBookName(
+                version,
+                result.bookNumber!,
+              );
+          if (mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(
+                  'Abriendo $bookName ${result.chapter}:${result.verse}...',
+                ),
+                duration: const Duration(seconds: 1),
               ),
-            ),
-          );
+            );
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BibleReaderScreen(
+                  bookNumber: result.bookNumber!,
+                  bookName: bookName,
+                  chapter: result.chapter!,
+                  version: version,
+                ),
+              ),
+            );
+          }
+          return;
         }
-        return;
-      }
 
-      setState(() {
-        _searchResult = result;
-        _searching = false;
-      });
-    }
+        setState(() {
+          _searchResult = result;
+          _searching = false;
+        });
+      }
     } catch (e) {
       debugPrint('🔍 [SEARCH] Error searching: $e');
       if (mounted) setState(() => _searching = false);
@@ -151,7 +192,11 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
   }
 
   void _submitSearch(String query) {
-    if (query.trim().length < 2) return;
+    if (query.trim().length < (_advancedMode ? 1 : 2)) return;
+    if (_advancedMode) {
+      _doAdvancedSearch(_advancedTypeFor(query), query, addToHistory: true);
+      return;
+    }
     BibleSearchService.I.addRecentSearch(query);
     _loadRecent();
   }
@@ -201,13 +246,13 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 _buildSearchBar(t),
                 _buildFilters(t),
                 Expanded(
-                  child: _query.trim().length < 2
+                  child: _query.trim().length < (_advancedMode ? 1 : 2)
                       ? (_advancedMode
-                          ? _buildAdvancedPanel(t)
-                          : _buildRecentList(t))
-                      : (_advancedResult != null
-                          ? _buildAdvancedResults(t)
-                          : _buildResultsList(t)),
+                            ? _buildAdvancedPanel(t)
+                            : _buildRecentList(t))
+                      : (_advancedMode
+                            ? _buildAdvancedResults(t)
+                            : _buildResultsList(t)),
                 ),
               ],
             ),
@@ -225,8 +270,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       child: Row(
         children: [
           IconButton(
-            icon: Icon(Icons.arrow_back_ios,
-                color: t.textSecondary, size: 18),
+            icon: Icon(Icons.arrow_back_ios, color: t.textSecondary, size: 18),
             onPressed: () => Navigator.pop(context),
           ),
           Expanded(
@@ -249,20 +293,18 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 controller: _controller,
                 focusNode: _focus,
                 cursorColor: t.textPrimary,
-                style: GoogleFonts.manrope(
-                  color: t.textPrimary,
-                  fontSize: 16,
-                ),
+                style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 16),
                 decoration: InputDecoration(
-                  hintText: 'Buscar libros, capítulos o versículos...',
+                  hintText: _advancedMode
+                      ? 'Palabra hebrea, griega o número Strong...'
+                      : 'Buscar libros, capítulos o versículos...',
                   hintStyle: GoogleFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 16,
                   ),
                   border: InputBorder.none,
                   isCollapsed: true,
-                  contentPadding:
-                      const EdgeInsets.symmetric(vertical: 10),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
                 textInputAction: TextInputAction.search,
                 onChanged: _onQueryChanged,
@@ -272,8 +314,11 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           ),
           if (_controller.text.isNotEmpty)
             IconButton(
-              icon: Icon(Icons.close,
-                  color: t.textSecondary.withValues(alpha: 0.5), size: 20),
+              icon: Icon(
+                Icons.close,
+                color: t.textSecondary.withValues(alpha: 0.5),
+                size: 20,
+              ),
               onPressed: () {
                 _controller.clear();
                 _onQueryChanged('');
@@ -286,10 +331,11 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
   }
 
   Widget _buildFilters(BibleReaderThemeData t) {
-    return Container(
-      height: 36,
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: Row(
+    return SizedBox(
+      height: 44,
+      child: ListView(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
         children: [
           _FilterChip(
             label: 'Todo',
@@ -297,7 +343,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             theme: t,
             onTap: () {
               setState(() => _testamentFilter = null);
-              if (_query.trim().length >= 2) _doSearch();
+              _rerunCurrentSearch();
             },
           ),
           const SizedBox(width: 8),
@@ -307,7 +353,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             theme: t,
             onTap: () {
               setState(() => _testamentFilter = 'old');
-              if (_query.trim().length >= 2) _doSearch();
+              _rerunCurrentSearch();
             },
           ),
           const SizedBox(width: 8),
@@ -317,15 +363,30 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             theme: t,
             onTap: () {
               setState(() => _testamentFilter = 'new');
-              if (_query.trim().length >= 2) _doSearch();
+              _rerunCurrentSearch();
             },
           ),
           const SizedBox(width: 12),
           GestureDetector(
-            onTap: () => setState(() {
-              _advancedMode = !_advancedMode;
-              _advancedResult = null;
-            }),
+            onTap: () {
+              final advanced = !_advancedMode;
+              setState(() {
+                _advancedMode = advanced;
+                _advancedResult = null;
+                _searchResult = null;
+              });
+              if (_query.trim().isNotEmpty) {
+                if (advanced) {
+                  _doAdvancedSearch(
+                    _advancedTypeFor(_query),
+                    _query,
+                    addToHistory: false,
+                  );
+                } else if (_query.trim().length >= 2) {
+                  _doSearch();
+                }
+              }
+            },
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
               decoration: BoxDecoration(
@@ -351,17 +412,18 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               ),
             ),
           ),
-          const Spacer(),
+          const SizedBox(width: 14),
           ValueListenableBuilder<BibleVersion>(
-            valueListenable:
-                BibleUserDataService.I.preferredVersionNotifier,
+            valueListenable: BibleUserDataService.I.preferredVersionNotifier,
             builder: (_, version, _) {
-              return Text(
-                version.shortName,
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5),
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
+              return Center(
+                child: Text(
+                  version.shortName,
+                  style: GoogleFonts.manrope(
+                    color: t.textSecondary.withValues(alpha: 0.5),
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               );
             },
@@ -377,8 +439,11 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(Icons.search,
-                color: t.textSecondary.withValues(alpha: 0.2), size: 48),
+            Icon(
+              Icons.search,
+              color: t.textSecondary.withValues(alpha: 0.2),
+              size: 48,
+            ),
             const SizedBox(height: 12),
             Text(
               'Busca libros, capítulos o versículos',
@@ -436,22 +501,25 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         ..._recentSearches.map((q) {
           return ListTile(
             dense: true,
-            leading: Icon(Icons.history,
-                color: t.textSecondary.withValues(alpha: 0.3), size: 18),
+            leading: Icon(
+              Icons.history,
+              color: t.textSecondary.withValues(alpha: 0.3),
+              size: 18,
+            ),
             title: Text(
               q,
-              style: GoogleFonts.manrope(
-                color: t.textPrimary,
-                fontSize: 15,
-              ),
+              style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 15),
             ),
             trailing: GestureDetector(
               onTap: () async {
                 await BibleSearchService.I.removeRecentSearch(q);
                 _loadRecent();
               },
-              child: Icon(Icons.close,
-                  color: t.textSecondary.withValues(alpha: 0.3), size: 16),
+              child: Icon(
+                Icons.close,
+                color: t.textSecondary.withValues(alpha: 0.3),
+                size: 16,
+              ),
             ),
             onTap: () => _selectRecent(q),
           );
@@ -466,10 +534,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         child: SizedBox(
           width: 24,
           height: 24,
-          child: CircularProgressIndicator(
-            strokeWidth: 2,
-            color: t.accent,
-          ),
+          child: CircularProgressIndicator(strokeWidth: 2, color: t.accent),
         ),
       );
     }
@@ -477,7 +542,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     final result = _searchResult;
     if (result == null) return const SizedBox.shrink();
 
-    final hasReference = result.intent == SearchIntent.bookOnly ||
+    final hasReference =
+        result.intent == SearchIntent.bookOnly ||
         result.intent == SearchIntent.bookAndChapter;
     final hasVerses = result.verses.isNotEmpty;
 
@@ -526,7 +592,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         const SizedBox(height: 12),
       ]);
     }
-    final totalItems = headerItems.length + (hasVerses ? result.verses.length : 0);
+    final totalItems =
+        headerItems.length + (hasVerses ? result.verses.length : 0);
 
     return ListView.builder(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
@@ -584,15 +651,15 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         } else if (result.intent == SearchIntent.bookOnly &&
             result.bookNumber != null) {
           final books = await BibleParserService.I.getBooks(version);
-          final book = books.where((b) => b.number == result.bookNumber).firstOrNull;
+          final book = books
+              .where((b) => b.number == result.bookNumber)
+              .firstOrNull;
           if (book != null && mounted) {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (_) => ChapterSelectorScreen(
-                  book: book,
-                  version: version,
-                ),
+                builder: (_) =>
+                    ChapterSelectorScreen(book: book, version: version),
               ),
             );
           }
@@ -605,9 +672,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               ? Colors.white.withValues(alpha: 0.04)
               : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(8),
-          border: Border(
-            left: BorderSide(color: t.accent, width: 2),
-          ),
+          border: Border(left: BorderSide(color: t.accent, width: 2)),
         ),
         child: Row(
           children: [
@@ -619,10 +684,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     result.intent == SearchIntent.bookAndChapter
                         ? '${result.bookName}, capítulo ${result.chapter}'
                         : '${result.bookName} — ${result.totalChapters} capítulos',
-                    style: GoogleFonts.lora(
-                      color: t.textPrimary,
-                      fontSize: 16,
-                    ),
+                    style: GoogleFonts.lora(color: t.textPrimary, fontSize: 16),
                   ),
                 ],
               ),
@@ -651,12 +713,18 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
   }
 
   Widget _buildHighlightedText(
-      String text, String query, BibleReaderThemeData t) {
+    String text,
+    String query,
+    BibleReaderThemeData t,
+  ) {
     if (query.isEmpty) {
       return Text(
         text,
         style: GoogleFonts.lora(
-            color: t.textPrimary, fontSize: 15, height: 1.5),
+          color: t.textPrimary,
+          fontSize: 15,
+          height: 1.5,
+        ),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       );
@@ -670,7 +738,10 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       return Text(
         text,
         style: GoogleFonts.lora(
-            color: t.textPrimary, fontSize: 15, height: 1.5),
+          color: t.textPrimary,
+          fontSize: 15,
+          height: 1.5,
+        ),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       );
@@ -691,7 +762,10 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           TextSpan(text: text.substring(matchIndex + query.length)),
         ],
         style: GoogleFonts.lora(
-            color: t.textPrimary, fontSize: 15, height: 1.5),
+          color: t.textPrimary,
+          fontSize: 15,
+          height: 1.5,
+        ),
       ),
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
@@ -744,11 +818,19 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             runSpacing: 8,
             children: _advancedHistory.take(10).map((h) {
               return GestureDetector(
-                onTap: () => _doAdvancedSearch(
-                    AdvancedSearchType.theme, h),
+                onTap: () {
+                  _controller.text = h;
+                  _controller.selection = TextSelection.collapsed(
+                    offset: h.length,
+                  );
+                  _query = h;
+                  _doAdvancedSearch(_advancedTypeFor(h), h);
+                },
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                      horizontal: 10, vertical: 5),
+                    horizontal: 10,
+                    vertical: 5,
+                  ),
                   decoration: BoxDecoration(
                     color: t.isDark
                         ? Colors.white.withValues(alpha: 0.04)
@@ -761,9 +843,11 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.history,
-                          color: t.textSecondary.withValues(alpha: 0.4),
-                          size: 13),
+                      Icon(
+                        Icons.history,
+                        color: t.textSecondary.withValues(alpha: 0.4),
+                        size: 13,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         h,
@@ -799,27 +883,39 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             final books = snap.data!;
             return Row(
               children: [
-                Expanded(child: _buildBookDropdown(
-                  t, books, _startBook, 'Desde...', (v) {
+                Expanded(
+                  child: _buildBookDropdown(t, books, _startBook, 'Desde...', (
+                    v,
+                  ) {
                     setState(() => _startBook = v);
-                  },
-                )),
+                  }),
+                ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Icon(Icons.arrow_forward,
-                      color: t.textSecondary.withValues(alpha: 0.3), size: 16),
+                  child: Icon(
+                    Icons.arrow_forward,
+                    color: t.textSecondary.withValues(alpha: 0.3),
+                    size: 16,
+                  ),
                 ),
-                Expanded(child: _buildBookDropdown(
-                  t, books, _endBook, 'Hasta...', (v) {
+                Expanded(
+                  child: _buildBookDropdown(t, books, _endBook, 'Hasta...', (
+                    v,
+                  ) {
                     setState(() => _endBook = v);
-                  },
-                )),
+                  }),
+                ),
                 if (_startBook != null || _endBook != null)
                   IconButton(
-                    icon: Icon(Icons.close,
-                        color: t.textSecondary.withValues(alpha: 0.5), size: 16),
-                    onPressed: () =>
-                        setState(() { _startBook = null; _endBook = null; }),
+                    icon: Icon(
+                      Icons.close,
+                      color: t.textSecondary.withValues(alpha: 0.5),
+                      size: 16,
+                    ),
+                    onPressed: () => setState(() {
+                      _startBook = null;
+                      _endBook = null;
+                    }),
                   ),
               ],
             );
@@ -844,11 +940,12 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           runSpacing: 8,
           children: themes.map((theme) {
             return GestureDetector(
-              onTap: () => _doAdvancedSearch(
-                  AdvancedSearchType.theme, theme),
+              onTap: () => _doAdvancedSearch(AdvancedSearchType.theme, theme),
               child: Container(
                 padding: const EdgeInsets.symmetric(
-                    horizontal: 12, vertical: 6),
+                  horizontal: 12,
+                  vertical: 6,
+                ),
                 decoration: BoxDecoration(
                   color: t.isDark
                       ? Colors.white.withValues(alpha: 0.06)
@@ -869,6 +966,28 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
 
         const SizedBox(height: 28),
 
+        // Original-language word search
+        Text(
+          'PALABRA ORIGINAL',
+          style: GoogleFonts.manrope(
+            color: t.textSecondary.withValues(alpha: 0.4),
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Copia una palabra hebrea o griega desde el Interlineal. La búsqueda reúne sus apariciones por forma escrita, lema y Strong cuando existe vínculo local.',
+          style: GoogleFonts.manrope(
+            color: t.textSecondary.withValues(alpha: 0.55),
+            fontSize: 12,
+            height: 1.45,
+          ),
+        ),
+
+        const SizedBox(height: 24),
+
         // Strong number search
         Text(
           'NÚMERO STRONG',
@@ -881,7 +1000,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'Escribe un número Strong (ej: H430, G2316) en el buscador',
+          'También puedes escribir un número completo (por ejemplo H430 o G2316). El léxico y el índice funcionan sin conexión.',
           style: GoogleFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 12,
@@ -889,25 +1008,6 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         ),
 
         const SizedBox(height: 28),
-
-        // Character search
-        Text(
-          'BUSCAR POR PERSONAJE',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
-            fontSize: 11,
-            fontWeight: FontWeight.w700,
-            letterSpacing: 1.5,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Text(
-          'Escribe el nombre de un personaje bíblico en el buscador',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
-            fontSize: 12,
-          ),
-        ),
       ],
     );
   }
@@ -931,21 +1031,33 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         child: DropdownButton<int>(
           value: value,
           isExpanded: true,
-          hint: Text(hint,
-              style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5), fontSize: 12)),
+          hint: Text(
+            hint,
+            style: GoogleFonts.manrope(
+              color: t.textSecondary.withValues(alpha: 0.5),
+              fontSize: 12,
+            ),
+          ),
           dropdownColor: t.surface,
-          icon: Icon(Icons.expand_more,
-              color: t.textSecondary.withValues(alpha: 0.4), size: 18),
-          style: GoogleFonts.manrope(
-              color: t.textPrimary, fontSize: 12),
+          icon: Icon(
+            Icons.expand_more,
+            color: t.textSecondary.withValues(alpha: 0.4),
+            size: 18,
+          ),
+          style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 12),
           items: books
-              .map((b) => DropdownMenuItem<int>(
-                    value: b.number,
-                    child: Text(b.name,
-                        style: GoogleFonts.manrope(
-                            color: t.textPrimary, fontSize: 12)),
-                  ))
+              .map(
+                (b) => DropdownMenuItem<int>(
+                  value: b.number,
+                  child: Text(
+                    b.name,
+                    style: GoogleFonts.manrope(
+                      color: t.textPrimary,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              )
               .toList(),
           onChanged: onChanged,
         ),
@@ -953,32 +1065,66 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     );
   }
 
+  AdvancedSearchType _advancedTypeFor(String query) {
+    if (AdvancedSearchService.I.availableThemes.contains(query)) {
+      return AdvancedSearchType.theme;
+    }
+    return RegExp(r'^\s*[gGhH]0*\d+[a-zA-Z]*\s*$').hasMatch(query)
+        ? AdvancedSearchType.strong
+        : AdvancedSearchType.originalWord;
+  }
+
+  void _rerunCurrentSearch() {
+    if (_query.trim().length < (_advancedMode ? 1 : 2)) return;
+    if (_advancedMode) {
+      _doAdvancedSearch(_advancedTypeFor(_query), _query, addToHistory: false);
+    } else {
+      _doSearch();
+    }
+  }
+
   Future<void> _doAdvancedSearch(
-      AdvancedSearchType type, String query) async {
+    AdvancedSearchType type,
+    String query, {
+    bool addToHistory = true,
+  }) async {
     setState(() => _advancedSearching = true);
     try {
       final version = BibleUserDataService.I.preferredVersionNotifier.value;
-      await AdvancedSearchService.I.addToHistory(query);
-      _loadAdvancedHistory();
+      if (addToHistory) {
+        await AdvancedSearchService.I.addToHistory(query);
+        _loadAdvancedHistory();
+      }
 
       AdvancedSearchResult result;
       switch (type) {
         case AdvancedSearchType.strong:
-          result = await AdvancedSearchService.I
-              .searchByStrong(query, version);
+          result = await AdvancedSearchService.I.searchByStrong(query, version);
+          break;
+        case AdvancedSearchType.originalWord:
+          result = await AdvancedSearchService.I.searchByOriginalWord(
+            query,
+            version,
+          );
           break;
         case AdvancedSearchType.character:
-          result = await AdvancedSearchService.I
-              .searchByCharacter(query, version);
+          result = await AdvancedSearchService.I.searchByCharacter(
+            query,
+            version,
+          );
           break;
         case AdvancedSearchType.theme:
-          result = await AdvancedSearchService.I
-              .searchByTheme(query, version,
-                  startBook: _startBook, endBook: _endBook);
+          result = await AdvancedSearchService.I.searchByTheme(
+            query,
+            version,
+            startBook: _startBook,
+            endBook: _endBook,
+          );
           break;
       }
 
       if (mounted) {
+        if (_query.trim() != query.trim()) return;
         setState(() {
           _advancedResult = result;
           _advancedSearching = false;
@@ -1000,7 +1146,9 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               width: 24,
               height: 24,
               child: CircularProgressIndicator(
-                  color: t.accent, strokeWidth: 1.5),
+                color: t.accent,
+                strokeWidth: 1.5,
+              ),
             ),
             const SizedBox(height: 12),
             Text(
@@ -1030,8 +1178,11 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             children: [
               GestureDetector(
                 onTap: () => setState(() => _advancedResult = null),
-                child: Icon(Icons.arrow_back_ios,
-                    color: t.textSecondary, size: 14),
+                child: Icon(
+                  Icons.arrow_back_ios,
+                  color: t.textSecondary,
+                  size: 14,
+                ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -1053,6 +1204,19 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                         fontSize: 12,
                       ),
                     ),
+                    if (result.description != null) ...[
+                      const SizedBox(height: 6),
+                      Text(
+                        result.description!,
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        style: GoogleFonts.manrope(
+                          color: t.textSecondary.withValues(alpha: 0.65),
+                          fontSize: 11,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -1080,10 +1244,12 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   ),
                 )
               : _groupByBook
-                  ? _buildGroupedAdvancedResults(result, version, t)
-                  : ListView.builder(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+              ? _buildGroupedAdvancedResults(result, version, t)
+              : ListView.builder(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 8,
+                  ),
                   itemCount: result.verses.length,
                   itemBuilder: (context, index) {
                     final v = result.verses[index];
@@ -1115,7 +1281,10 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                             if (v.text.isNotEmpty) ...[
                               const SizedBox(height: 4),
                               _buildHighlightedText(
-                                  v.text, v.highlight ?? '', t),
+                                v.text,
+                                v.highlight ?? '',
+                                t,
+                              ),
                             ],
                           ],
                         ),
@@ -1181,45 +1350,41 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 ],
               ),
             ),
-            ...entry.value.map((v) => GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BibleReaderScreen(
-                        bookNumber: v.bookNumber,
-                        bookName: v.bookName,
-                        chapter: v.chapter,
-                        version: version,
-                      ),
+            ...entry.value.map(
+              (v) => GestureDetector(
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => BibleReaderScreen(
+                      bookNumber: v.bookNumber,
+                      bookName: v.bookName,
+                      chapter: v.chapter,
+                      version: version,
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(
-                        left: 12, bottom: 12),
-                    child: Column(
-                      crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '${v.chapter}:${v.verse}',
-                          style: GoogleFonts.manrope(
-                            color: t.textSecondary
-                                .withValues(alpha: 0.5),
-                            fontSize: 11,
-                            fontWeight: FontWeight.w600,
-                          ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 12, bottom: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${v.chapter}:${v.verse}',
+                        style: GoogleFonts.manrope(
+                          color: t.textSecondary.withValues(alpha: 0.5),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
                         ),
-                        if (v.text.isNotEmpty) ...[
-                          const SizedBox(height: 2),
-                          _buildHighlightedText(
-                              v.text,
-                              v.highlight ?? '',
-                              t),
-                        ],
+                      ),
+                      if (v.text.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        _buildHighlightedText(v.text, v.highlight ?? '', t),
                       ],
-                    ),
+                    ],
                   ),
-                )),
+                ),
+              ),
+            ),
             const SizedBox(height: 8),
           ],
         );

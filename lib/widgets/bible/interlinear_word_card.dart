@@ -4,9 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import '../../models/bible/interlinear_word.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/interlinear_service.dart';
+import '../../services/bible/strong_lexicon_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../utils/gloss_translations.dart';
 import 'morphology_detail_panel.dart';
+import 'contextual_study_tutorial.dart';
 
 /// Tarjeta vertical para una palabra interlineal.
 /// Muestra: palabra original → transliteración → Strong# → traducción → morfología.
@@ -21,8 +23,10 @@ class InterlinearWordCard extends StatelessWidget {
   });
 
   BibleReaderThemeData get t => BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value));
+    BibleReaderThemeData.migrateId(
+      BibleUserDataService.I.readerThemeNotifier.value,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -73,24 +77,8 @@ class InterlinearWordCard extends StatelessWidget {
             ],
 
             // Strong number
-            if (word.hasStrong) ...[
-              const SizedBox(height: 3),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
-                decoration: BoxDecoration(
-                  color: t.accent.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(4),
-                ),
-                child: Text(
-                  word.strongNumber!,
-                  style: GoogleFonts.manrope(
-                    fontSize: 9,
-                    color: t.accent.withValues(alpha: 0.7),
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ],
+            const SizedBox(height: 3),
+            _StrongBadge(word: word, isOT: isOT, theme: t),
 
             // Separador
             Padding(
@@ -135,6 +123,47 @@ class InterlinearWordCard extends StatelessWidget {
   }
 }
 
+class _StrongBadge extends StatelessWidget {
+  final InterlinearWord word;
+  final bool isOT;
+  final BibleReaderThemeData theme;
+
+  const _StrongBadge({
+    required this.word,
+    required this.isOT,
+    required this.theme,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    if (word.hasStrong) return _badge(word.strongNumber!);
+    return FutureBuilder(
+      future: StrongLexiconService.I.resolveWord(word, isHebrew: isOT),
+      builder: (context, snapshot) {
+        final entries = snapshot.data ?? const [];
+        if (entries.isEmpty) return const SizedBox(height: 13);
+        return _badge(entries.first.strongNumber);
+      },
+    );
+  }
+
+  Widget _badge(String strongNumber) => Container(
+    padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+    decoration: BoxDecoration(
+      color: theme.accent.withValues(alpha: 0.12),
+      borderRadius: BorderRadius.circular(4),
+    ),
+    child: Text(
+      strongNumber,
+      style: GoogleFonts.manrope(
+        fontSize: 9,
+        color: theme.accent.withValues(alpha: 0.7),
+        fontWeight: FontWeight.w600,
+      ),
+    ),
+  );
+}
+
 /// Sección completa de vista interlineal mejorada para el VerseStudySheet.
 /// Muestra texto en español arriba, luego tarjetas de palabras originales.
 class InterlinearSection extends StatelessWidget {
@@ -154,8 +183,10 @@ class InterlinearSection extends StatelessWidget {
   });
 
   BibleReaderThemeData get t => BibleReaderThemeData.fromId(
-      BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value));
+    BibleReaderThemeData.migrateId(
+      BibleUserDataService.I.readerThemeNotifier.value,
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +197,30 @@ class InterlinearSection extends StatelessWidget {
       controller: scrollController,
       padding: const EdgeInsets.all(16),
       children: [
+        ContextualStudyTutorial(
+          tutorialId: 'interlinear',
+          title: 'Cómo leer el Interlineal',
+          summary: 'Del texto original a Strong y a todas sus apariciones.',
+          theme: t,
+          steps: const [
+            StudyTutorialStep(
+              'Palabra original',
+              'Cada bloque conserva la forma que aparece en este versículo; puede cambiar según su función gramatical.',
+            ),
+            StudyTutorialStep(
+              'Lema y Strong',
+              'Toca la palabra para ver la forma de diccionario y el número Strong local cuando el vínculo es inequívoco.',
+            ),
+            StudyTutorialStep(
+              'Morfología',
+              'Tiempo, voz, caso, género y número explican qué hace la palabra en esta oración; no reemplazan el contexto.',
+            ),
+            StudyTutorialStep(
+              'Todas las apariciones',
+              'Desde el detalle abre la concordancia original para localizar la misma forma, lema o número en otros versículos.',
+            ),
+          ],
+        ),
         // Texto en español
         Container(
           padding: const EdgeInsets.all(14),
@@ -241,8 +296,11 @@ class InterlinearSection extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.touch_app,
-                size: 13, color: t.textPrimary.withValues(alpha: 0.3)),
+            Icon(
+              Icons.touch_app,
+              size: 13,
+              color: t.textPrimary.withValues(alpha: 0.3),
+            ),
             const SizedBox(width: 6),
             Text(
               'Toca cualquier palabra para ver el análisis completo',

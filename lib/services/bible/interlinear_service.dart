@@ -22,20 +22,72 @@ class InterlinearService {
 
   /// Mapa bookNumber (1-66) → código de archivo interlineal.
   static const _bookNumberToFileCode = <int, String>{
-    1: 'GEN', 2: 'EXO', 3: 'LEV', 4: 'NUM', 5: 'DEU',
-    6: 'JOS', 7: 'JDG', 8: 'RUT', 9: '1SA', 10: '2SA',
-    11: '1KI', 12: '2KI', 13: '1CH', 14: '2CH', 15: 'EZR',
-    16: 'NEH', 17: 'EST', 18: 'JOB', 19: 'PSA', 20: 'PRO',
-    21: 'ECC', 22: 'SNG', 23: 'ISA', 24: 'JER', 25: 'LAM',
-    26: 'EZK', 27: 'DAN', 28: 'HOS', 29: 'JOL', 30: 'AMO',
-    31: 'OBA', 32: 'JON', 33: 'MIC', 34: 'NAM', 35: 'HAB',
-    36: 'ZEP', 37: 'HAG', 38: 'ZEC', 39: 'MAL',
-    40: 'MAT', 41: 'MRK', 42: 'LUK', 43: 'JHN', 44: 'ACT',
-    45: 'ROM', 46: '1CO', 47: '2CO', 48: 'GAL', 49: 'EPH',
-    50: 'PHP', 51: 'COL', 52: '1TH', 53: '2TH', 54: '1TI',
-    55: '2TI', 56: 'TIT', 57: 'PHM', 58: 'HEB', 59: 'JAS',
-    60: '1PE', 61: '2PE', 62: '1JN', 63: '2JN', 64: '3JN',
-    65: 'JUD', 66: 'REV',
+    1: 'GEN',
+    2: 'EXO',
+    3: 'LEV',
+    4: 'NUM',
+    5: 'DEU',
+    6: 'JOS',
+    7: 'JDG',
+    8: 'RUT',
+    9: '1SA',
+    10: '2SA',
+    11: '1KI',
+    12: '2KI',
+    13: '1CH',
+    14: '2CH',
+    15: 'EZR',
+    16: 'NEH',
+    17: 'EST',
+    18: 'JOB',
+    19: 'PSA',
+    20: 'PRO',
+    21: 'ECC',
+    22: 'SNG',
+    23: 'ISA',
+    24: 'JER',
+    25: 'LAM',
+    26: 'EZK',
+    27: 'DAN',
+    28: 'HOS',
+    29: 'JOL',
+    30: 'AMO',
+    31: 'OBA',
+    32: 'JON',
+    33: 'MIC',
+    34: 'NAM',
+    35: 'HAB',
+    36: 'ZEP',
+    37: 'HAG',
+    38: 'ZEC',
+    39: 'MAL',
+    40: 'MAT',
+    41: 'MRK',
+    42: 'LUK',
+    43: 'JHN',
+    44: 'ACT',
+    45: 'ROM',
+    46: '1CO',
+    47: '2CO',
+    48: 'GAL',
+    49: 'EPH',
+    50: 'PHP',
+    51: 'COL',
+    52: '1TH',
+    53: '2TH',
+    54: '1TI',
+    55: '2TI',
+    56: 'TIT',
+    57: 'PHM',
+    58: 'HEB',
+    59: 'JAS',
+    60: '1PE',
+    61: '2PE',
+    62: '1JN',
+    63: '2JN',
+    64: '3JN',
+    65: 'JUD',
+    66: 'REV',
   };
 
   /// Obtiene el código de archivo para un número de libro.
@@ -60,10 +112,7 @@ class InterlinearService {
   }
 
   /// Obtiene datos interlineales para todos los versículos de un capítulo.
-  Future<List<InterlinearVerse>> getChapter(
-    int bookNumber,
-    int chapter,
-  ) async {
+  Future<List<InterlinearVerse>> getChapter(int bookNumber, int chapter) async {
     final code = _bookNumberToFileCode[bookNumber];
     if (code == null) return [];
 
@@ -89,14 +138,18 @@ class InterlinearService {
 
     final ot = isOT(bookNumber);
     final dir = ot ? 'hebrew' : 'greek';
-    final pack = ot ? ContentPack.interlinearHebrew : ContentPack.interlinearGreek;
+    final pack = ot
+        ? ContentPack.interlinearHebrew
+        : ContentPack.interlinearGreek;
     final localDir = BibleDownloadService.I.getPackLocalPath(pack);
     final localFile = localDir != null ? File('$localDir/$code.json') : null;
 
     try {
       final raw = (localFile != null && await localFile.exists())
           ? await localFile.readAsString()
-          : await rootBundle.loadString('assets/bible/interlinear/$dir/$code.json');
+          : await rootBundle.loadString(
+              'assets/bible/interlinear/$dir/$code.json',
+            );
       final parsed = await compute(_parseBookData, _ParseArgs(raw, code, ot));
       _cachedBookCode = code;
       _cachedVerses = parsed;
@@ -139,7 +192,10 @@ Map<String, InterlinearVerse> _parseBookData(_ParseArgs args) {
       final strongRaw = wm['s'] as String?;
       final String? strongNumber;
       if (strongRaw != null && strongRaw.isNotEmpty) {
-        strongNumber = args.isOT ? 'H$strongRaw' : 'G$strongRaw';
+        final normalized = strongRaw.toUpperCase();
+        strongNumber = normalized.startsWith('H') || normalized.startsWith('G')
+            ? normalized
+            : '${args.isOT ? 'H' : 'G'}$normalized';
       } else {
         strongNumber = null;
       }

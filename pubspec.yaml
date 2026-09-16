@@ -98,6 +98,7 @@ flutter:
     - assets/bible/section_title_overrides.json
     - assets/bible/interlinear/greek/
     - assets/bible/interlinear/hebrew/
+    - assets/bible/lexicon/
     - assets/bible/red_letter/
     - assets/bible/dictionary/
     - assets/bible/commentaries/matthew_henry/

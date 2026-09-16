@@ -13,6 +13,7 @@ import '../../../theme/bible_reader_theme.dart';
 import '../../../utils/cross_ref_classifier.dart';
 import '../../../utils/bible_navigation_helper.dart';
 import '../../../services/bible/bible_user_data_service.dart';
+import '../contextual_study_tutorial.dart';
 
 /// Tab 2 del VerseStudySheet: conexiones bíblicas (cross-refs, armonía, tipologías, citas AT→NT).
 class ConexionesTab extends StatelessWidget {
@@ -28,8 +29,10 @@ class ConexionesTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(
-        BibleReaderThemeData.migrateId(
-            BibleUserDataService.I.readerThemeNotifier.value));
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ),
+    );
 
     return FutureBuilder<_ConexionesData>(
       future: _loadConexiones(),
@@ -38,46 +41,95 @@ class ConexionesTab extends StatelessWidget {
           return Center(child: CircularProgressIndicator(color: t.accent));
         }
         final data = snapshot.data!;
-        final hasContent = data.harmony.isNotEmpty ||
+        final hasContent =
+            data.harmony.isNotEmpty ||
             data.typologies.isNotEmpty ||
             data.quotes.isNotEmpty ||
             data.classifiedRefs.isNotEmpty;
 
         if (!hasContent) {
-          return _emptyState(t, 'No se encontraron conexiones para este versículo');
+          return _emptyState(
+            t,
+            'No se encontraron conexiones para este versículo',
+          );
         }
 
         return ListView(
           controller: scrollController,
           padding: const EdgeInsets.all(16),
           children: [
+            ContextualStudyTutorial(
+              tutorialId: 'connections',
+              title: 'Cómo interpretar las Conexiones',
+              summary:
+                  'Sigue el hilo bíblico sin sacar el versículo de contexto.',
+              theme: t,
+              steps: const [
+                StudyTutorialStep(
+                  'Referencias cruzadas',
+                  'Abre pasajes que comparten lenguaje, tema o contexto. La etiqueta indica el tipo de relación.',
+                ),
+                StudyTutorialStep(
+                  'Pregunta “¿Por qué?”',
+                  'Revisa la explicación breve antes de saltar al otro pasaje y compara ambos capítulos completos.',
+                ),
+                StudyTutorialStep(
+                  'Armonía, tipología y citas',
+                  'Distingue relatos paralelos, patrones bíblicos y citas explícitas del Antiguo Testamento.',
+                ),
+                StudyTutorialStep(
+                  'Comprueba la conclusión',
+                  'Una conexión es una pista de estudio, no una prueba aislada. Verifica género, audiencia y contexto.',
+                ),
+              ],
+            ),
             if (data.classifiedRefs.isNotEmpty) ...[
-              _sectionHeader(t, 'Referencias Cruzadas', Icons.call_split,
-                  '${data.classifiedRefs.length} referencias'),
-              ...data.classifiedRefs.take(10).map((r) => _buildRefTile(context, t, r)),
+              _sectionHeader(
+                t,
+                'Referencias Cruzadas',
+                Icons.call_split,
+                '${data.classifiedRefs.length} referencias',
+              ),
+              ...data.classifiedRefs
+                  .take(10)
+                  .map((r) => _buildRefTile(context, t, r)),
               if (data.classifiedRefs.length > 10)
                 Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     '+${data.classifiedRefs.length - 10} más...',
                     style: GoogleFonts.manrope(
-                      color: t.textPrimary.withValues(alpha: 0.3), fontSize: 11),
+                      color: t.textPrimary.withValues(alpha: 0.3),
+                      fontSize: 11,
+                    ),
                   ),
                 ),
             ],
             if (data.harmony.isNotEmpty) ...[
-              _sectionHeader(t, 'Armonía de los Evangelios', Icons.grid_view_rounded,
-                  '${data.harmony.length} eventos'),
+              _sectionHeader(
+                t,
+                'Armonía de los Evangelios',
+                Icons.grid_view_rounded,
+                '${data.harmony.length} eventos',
+              ),
               ...data.harmony.map((h) => _buildHarmonyTile(t, h)),
             ],
             if (data.typologies.isNotEmpty) ...[
-              _sectionHeader(t, 'Tipologías', Icons.compare_arrows,
-                  '${data.typologies.length} tipologías'),
+              _sectionHeader(
+                t,
+                'Tipologías',
+                Icons.compare_arrows,
+                '${data.typologies.length} tipologías',
+              ),
               ...data.typologies.map((typ) => _buildTypologyTile(t, typ)),
             ],
             if (data.quotes.isNotEmpty) ...[
-              _sectionHeader(t, 'Citas del AT en el NT', Icons.format_quote,
-                  '${data.quotes.length} citas'),
+              _sectionHeader(
+                t,
+                'Citas del AT en el NT',
+                Icons.format_quote,
+                '${data.quotes.length} citas',
+              ),
               ...data.quotes.map((q) => _buildQuoteTile(t, q)),
             ],
             const SizedBox(height: 20),
@@ -108,14 +160,16 @@ class ConexionesTab extends StatelessWidget {
       final parsed = TreasuryService.parseReference(ref);
       if (parsed == null) continue;
       final type = CrossRefClassifier.classify(book, parsed.bookNumber);
-      classified.add(_ClassifiedRefItem(
-        formatted: TreasuryService.formatReference(ref),
-        raw: ref,
-        type: type,
-        explanation: CrossRefClassifier.defaultExplanation(type),
-        bookNumber: parsed.bookNumber,
-        chapter: parsed.chapter,
-      ));
+      classified.add(
+        _ClassifiedRefItem(
+          formatted: TreasuryService.formatReference(ref),
+          raw: ref,
+          type: type,
+          explanation: CrossRefClassifier.defaultExplanation(type),
+          bookNumber: parsed.bookNumber,
+          chapter: parsed.chapter,
+        ),
+      );
     }
 
     return _ConexionesData(
@@ -128,24 +182,44 @@ class ConexionesTab extends StatelessWidget {
 
   // ── Helpers ──
 
-  Widget _sectionHeader(BibleReaderThemeData t, String title, IconData icon, String subtitle) {
+  Widget _sectionHeader(
+    BibleReaderThemeData t,
+    String title,
+    IconData icon,
+    String subtitle,
+  ) {
     return Padding(
       padding: const EdgeInsets.only(top: 8, bottom: 10),
       child: Row(
         children: [
           Icon(icon, color: t.accent, size: 16),
           const SizedBox(width: 8),
-          Text(title,
-              style: GoogleFonts.cinzel(color: t.accent, fontSize: 13, fontWeight: FontWeight.w700)),
+          Text(
+            title,
+            style: GoogleFonts.cinzel(
+              color: t.accent,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
           const Spacer(),
-          Text(subtitle,
-              style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.3), fontSize: 10)),
+          Text(
+            subtitle,
+            style: GoogleFonts.manrope(
+              color: t.textPrimary.withValues(alpha: 0.3),
+              fontSize: 10,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildRefTile(BuildContext context, BibleReaderThemeData t, _ClassifiedRefItem ref) {
+  Widget _buildRefTile(
+    BuildContext context,
+    BibleReaderThemeData t,
+    _ClassifiedRefItem ref,
+  ) {
     final color = _refTypeColor(t, ref.type);
     return GestureDetector(
       onTap: () {
@@ -162,8 +236,14 @@ class ConexionesTab extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Text(ref.formatted,
-                style: GoogleFonts.manrope(color: t.accent, fontSize: 12, fontWeight: FontWeight.w600)),
+            Text(
+              ref.formatted,
+              style: GoogleFonts.manrope(
+                color: t.accent,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
             const SizedBox(width: 8),
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
@@ -171,38 +251,62 @@ class ConexionesTab extends StatelessWidget {
                 color: color.withValues(alpha: 0.15),
                 borderRadius: BorderRadius.circular(3),
               ),
-              child: Text(CrossRefClassifier.label(ref.type),
-                  style: GoogleFonts.manrope(color: color, fontSize: 8, fontWeight: FontWeight.w700)),
+              child: Text(
+                CrossRefClassifier.label(ref.type),
+                style: GoogleFonts.manrope(
+                  color: color,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
             ),
             const Spacer(),
             if (ref.explanation != null)
               GestureDetector(
                 onTap: () => _showRefExplanation(context, t, ref),
-                child: Text('¿Por qué?',
-                    style: GoogleFonts.manrope(
-                        fontSize: 10,
-                        color: t.accent.withValues(alpha: 0.6),
-                        decoration: TextDecoration.underline)),
+                child: Text(
+                  '¿Por qué?',
+                  style: GoogleFonts.manrope(
+                    fontSize: 10,
+                    color: t.accent.withValues(alpha: 0.6),
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
               ),
             if (ref.explanation == null)
-              Icon(Icons.chevron_right, color: t.textPrimary.withValues(alpha: 0.2), size: 16),
+              Icon(
+                Icons.chevron_right,
+                color: t.textPrimary.withValues(alpha: 0.2),
+                size: 16,
+              ),
           ],
         ),
       ),
     );
   }
 
-  void _showRefExplanation(BuildContext context, BibleReaderThemeData t, _ClassifiedRefItem ref) {
+  void _showRefExplanation(
+    BuildContext context,
+    BibleReaderThemeData t,
+    _ClassifiedRefItem ref,
+  ) {
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         backgroundColor: t.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        title: Text(ref.formatted,
-            style: GoogleFonts.cinzel(color: t.accent, fontSize: 16)),
-        content: Text(ref.explanation!,
-            style: GoogleFonts.manrope(
-                color: t.textPrimary.withValues(alpha: 0.8), fontSize: 13, height: 1.6)),
+        title: Text(
+          ref.formatted,
+          style: GoogleFonts.cinzel(color: t.accent, fontSize: 16),
+        ),
+        content: Text(
+          ref.explanation!,
+          style: GoogleFonts.manrope(
+            color: t.textPrimary.withValues(alpha: 0.8),
+            fontSize: 13,
+            height: 1.6,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () {
@@ -210,11 +314,17 @@ class ConexionesTab extends StatelessWidget {
               Navigator.pop(context);
               BibleNavigationHelper.navigateToOsis(context, ref.raw);
             },
-            child: Text('Ir al versículo', style: GoogleFonts.manrope(color: t.accent)),
+            child: Text(
+              'Ir al versículo',
+              style: GoogleFonts.manrope(color: t.accent),
+            ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Cerrar', style: GoogleFonts.manrope(color: Colors.grey)),
+            child: Text(
+              'Cerrar',
+              style: GoogleFonts.manrope(color: Colors.grey),
+            ),
           ),
         ],
       ),
@@ -231,14 +341,29 @@ class ConexionesTab extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.grid_view_rounded, color: t.accent.withValues(alpha: 0.4), size: 14),
+          Icon(
+            Icons.grid_view_rounded,
+            color: t.accent.withValues(alpha: 0.4),
+            size: 14,
+          ),
           const SizedBox(width: 8),
           Expanded(
-              child: Text(h.title,
-                  style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.8), fontSize: 12))),
-          Text('${h.gospelCount}/4',
+            child: Text(
+              h.title,
               style: GoogleFonts.manrope(
-                  color: t.accent.withValues(alpha: 0.5), fontSize: 10, fontWeight: FontWeight.w600)),
+                color: t.textPrimary.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
+          Text(
+            '${h.gospelCount}/4',
+            style: GoogleFonts.manrope(
+              color: t.accent.withValues(alpha: 0.5),
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
         ],
       ),
     );
@@ -254,11 +379,21 @@ class ConexionesTab extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Icon(Icons.compare_arrows, color: const Color(0xFF26A69A).withValues(alpha: 0.6), size: 14),
+          Icon(
+            Icons.compare_arrows,
+            color: const Color(0xFF26A69A).withValues(alpha: 0.6),
+            size: 14,
+          ),
           const SizedBox(width: 8),
           Expanded(
-              child: Text(typ.title,
-                  style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.8), fontSize: 12))),
+            child: Text(
+              typ.title,
+              style: GoogleFonts.manrope(
+                color: t.textPrimary.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -283,11 +418,21 @@ class ConexionesTab extends StatelessWidget {
       ),
       child: Row(
         children: [
-          Container(width: 6, height: 6, decoration: BoxDecoration(color: typeColor, shape: BoxShape.circle)),
+          Container(
+            width: 6,
+            height: 6,
+            decoration: BoxDecoration(color: typeColor, shape: BoxShape.circle),
+          ),
           const SizedBox(width: 8),
           Expanded(
-              child: Text('${q.otReference} → ${q.ntReference}',
-                  style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.8), fontSize: 12))),
+            child: Text(
+              '${q.otReference} → ${q.ntReference}',
+              style: GoogleFonts.manrope(
+                color: t.textPrimary.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -309,21 +454,30 @@ class ConexionesTab extends StatelessWidget {
   }
 
   Widget _emptyState(BibleReaderThemeData t, String message) => Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.menu_book_outlined, size: 40, color: t.accent.withValues(alpha: 0.3)),
-              const SizedBox(height: 12),
-              Text(message,
-                  textAlign: TextAlign.center,
-                  style: GoogleFonts.manrope(
-                      color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14, height: 1.5)),
-            ],
+    child: Padding(
+      padding: const EdgeInsets.all(32),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Icons.menu_book_outlined,
+            size: 40,
+            color: t.accent.withValues(alpha: 0.3),
           ),
-        ),
-      );
+          const SizedBox(height: 12),
+          Text(
+            message,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.manrope(
+              color: t.textPrimary.withValues(alpha: 0.5),
+              fontSize: 14,
+              height: 1.5,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
 // ── Internal models ──
@@ -334,8 +488,10 @@ class _ConexionesData {
   final List<OTQuote> quotes;
   final List<_ClassifiedRefItem> classifiedRefs;
   const _ConexionesData({
-    required this.harmony, required this.typologies,
-    required this.quotes, required this.classifiedRefs,
+    required this.harmony,
+    required this.typologies,
+    required this.quotes,
+    required this.classifiedRefs,
   });
 }
 
@@ -347,8 +503,11 @@ class _ClassifiedRefItem {
   final int bookNumber;
   final int chapter;
   const _ClassifiedRefItem({
-    required this.formatted, required this.raw,
-    required this.type, this.explanation,
-    required this.bookNumber, required this.chapter,
+    required this.formatted,
+    required this.raw,
+    required this.type,
+    this.explanation,
+    required this.bookNumber,
+    required this.chapter,
   });
 }
