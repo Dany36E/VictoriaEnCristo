@@ -273,6 +273,8 @@ Future<void> _startDeferredServices() async {
     await Future.wait([
       BibleParserService.I.init(),
       notificationService.scheduleAllNotifications(),
+      // Planes ocultos por ahora: sin recordatorios que lleven a ellos.
+      notificationService.cancelarRecordatoriosDePlanes(),
     ]);
     if (PlatformCapabilities.supportsHomeWidgets) {
       WidgetSyncService.I.syncWidget();

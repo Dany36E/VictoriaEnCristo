@@ -14,6 +14,7 @@ dependencies:
   firebase_core: ^3.8.1
   firebase_auth: ^5.3.4
   cloud_firestore: ^5.6.0
+  firebase_storage: ^12.4.0  # Fotos y dibujos de Apuntes en la nube
   cloud_functions: ^5.2.0  # For Callable Cloud Functions (deleteUserData)
   firebase_crashlytics: ^4.3.2  # Crash reporting
   firebase_analytics: ^11.4.2   # Usage analytics
@@ -27,6 +28,7 @@ dependencies:
   # Share as Image Dependencies
   share_plus: ^10.1.4  # Native share functionality
   path_provider: ^2.1.5 # File system access
+  image_picker: ^1.1.2  # Fotos con la cámara o la galería en Apuntes
   pdf: ^3.11.3  # Exportar estudios bíblicos a PDF
   # Text-to-Speech
   flutter_tts: ^4.2.0   # Native TTS functionality
