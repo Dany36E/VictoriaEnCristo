@@ -1,7 +1,7 @@
 param(
     [Parameter(Mandatory = $true)][string]$Device,
     [string]$Flutter = 'C:\Users\danie\flutter\bin\flutter.bat',
-    [ValidateSet('series', 'access')][string]$Suite = 'series'
+    [ValidateSet('access')][string]$Suite = 'access'
 )
 $ErrorActionPreference = 'Stop'
 Push-Location (Join-Path $PSScriptRoot '..')

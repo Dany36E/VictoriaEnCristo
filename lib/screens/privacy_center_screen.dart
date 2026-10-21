@@ -71,19 +71,6 @@ class _PrivacyCenterScreenState extends State<PrivacyCenterScreen> {
               ),
             ),
           ),
-          ValueListenableBuilder<bool>(
-            valueListenable: _privacy.youtubeEmbedsEnabled,
-            builder: (_, value, _) => SwitchListTile(
-              value: value,
-              onChanged: _privacy.setYoutubeEmbedsEnabled,
-              secondary: const Icon(Icons.smart_display_outlined),
-              title: const Text('Permitir reproductor de YouTube'),
-              subtitle: const Text(
-                'YouTube recibirá datos técnicos, como IP y datos del dispositivo, '
-                'al cargar un video integrado.',
-              ),
-            ),
-          ),
           const Divider(height: 32),
           Text(
             'Documentos y derechos',

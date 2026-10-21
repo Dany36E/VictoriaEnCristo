@@ -60,7 +60,6 @@ dependencies:
   dio_cache_interceptor_file_store: ^1.2.3
   # Connectivity monitoring
   connectivity_plus: ^6.1.4
-  youtube_player_iframe: ^6.0.2
   flutter_svg: ^2.3.0
 
 dev_dependencies:

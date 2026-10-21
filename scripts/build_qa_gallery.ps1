@@ -6,7 +6,6 @@ $sourceFiles = @(
     Get-ChildItem -LiteralPath (Join-Path $projectRoot 'lib') -Recurse -File -Filter '*.dart'
     Get-ChildItem -LiteralPath (Join-Path $projectRoot 'test/visual') -Recurse -File -Filter '*.dart'
     Get-ChildItem -LiteralPath (Join-Path $projectRoot 'integration_test') -File -Filter '*_native_qa_test.dart'
-    Get-Item -LiteralPath (Join-Path $projectRoot 'assets/content/series.json')
 )
 $latestSourceUtc = ($sourceFiles | Measure-Object -Property LastWriteTimeUtc -Maximum).Maximum
 $staleCount = 0

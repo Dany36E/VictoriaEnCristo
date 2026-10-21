@@ -247,7 +247,7 @@
     },
     aprender: {
       heading: "Estudia con contexto y avanza paso a paso.",
-      copy: "Usa introducciones, mapas, líneas de tiempo, concordancia y recursos de estudio junto con Escuela del Reino y sus series.",
+      copy: "Usa introducciones, mapas, líneas de tiempo, concordancia y recursos de estudio junto con Escuela del Reino.",
       features: ["Escuela del Reino", "Mapas y cronología", "Comentarios y conexiones"],
       href: "ayuda.html#crecimiento",
       link: "Explorar aprendizaje y estudio"

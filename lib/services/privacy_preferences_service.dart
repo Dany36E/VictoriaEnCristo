@@ -12,8 +12,8 @@ import '../utils/safe_log.dart';
 
 /// Preferencias de privacidad con valores conservadores por defecto.
 ///
-/// Analytics, reportes de fallos y el reproductor externo de YouTube quedan
-/// apagados hasta que la persona los habilita mediante una acción afirmativa.
+/// Analytics y reportes de fallos quedan apagados hasta que la persona los
+/// habilita mediante una acción afirmativa.
 class PrivacyPreferencesService {
   PrivacyPreferencesService._();
 
@@ -25,12 +25,10 @@ class PrivacyPreferencesService {
   static const _legalAcceptedUidKey = 'privacy.legal_accepted_uid';
   static const _analyticsKey = 'privacy.analytics_enabled';
   static const _crashReportsKey = 'privacy.crash_reports_enabled';
-  static const _youtubeEmbedsKey = 'privacy.youtube_embeds_enabled';
 
   final ValueNotifier<bool> legalConsentAccepted = ValueNotifier(false);
   final ValueNotifier<bool> analyticsEnabled = ValueNotifier(false);
   final ValueNotifier<bool> crashReportsEnabled = ValueNotifier(false);
-  final ValueNotifier<bool> youtubeEmbedsEnabled = ValueNotifier(false);
 
   SharedPreferences? _prefs;
   // Singleton de proceso: la suscripción vive mientras la app está abierta.
@@ -42,7 +40,6 @@ class PrivacyPreferencesService {
     _refreshConsentForUser(FirebaseAuth.instance.currentUser);
     analyticsEnabled.value = _prefs!.getBool(_analyticsKey) ?? false;
     crashReportsEnabled.value = _prefs!.getBool(_crashReportsKey) ?? false;
-    youtubeEmbedsEnabled.value = _prefs!.getBool(_youtubeEmbedsKey) ?? false;
     _authSubscription ??= FirebaseAuth.instance.authStateChanges().listen(
       _refreshConsentForUser,
     );
@@ -81,12 +78,6 @@ class PrivacyPreferencesService {
       );
     }
     crashReportsEnabled.value = enabled;
-  }
-
-  Future<void> setYoutubeEmbedsEnabled(bool enabled) async {
-    await _ensureInitialized();
-    await _prefs!.setBool(_youtubeEmbedsKey, enabled);
-    youtubeEmbedsEnabled.value = enabled;
   }
 
   /// Conserva evidencia local y, si hay una cuenta, registra versión y fecha

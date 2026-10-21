@@ -150,8 +150,8 @@ class _LegalConsentScreenState extends State<LegalConsentScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              'Analytics, diagnósticos y videos integrados permanecen '
-              'desactivados. Puedes habilitarlos después en Configuración.',
+              'Analytics y diagnósticos permanecen desactivados. '
+              'Puedes habilitarlos después en Configuración.',
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 12),
             ),

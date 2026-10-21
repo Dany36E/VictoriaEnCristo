@@ -6,7 +6,7 @@ Fecha técnica: 2026-09-08. Este documento registra comprobaciones de producto; 
 
 - Aviso de privacidad integral, términos, cookies/tecnologías similares, pagos/reembolsos, eliminación de datos y avisos de terceros.
 - Analytics y Crashlytics desactivados por defecto en Android, iOS y Flutter; controles independientes y revocables en la app.
-- Reproductor de YouTube bloqueado hasta una acción afirmativa; alternativa para abrirlo externamente.
+- Sin reproductor de YouTube ni otros videos integrados: la sección Series y su dependencia `youtube_player_iframe` se retiraron de la app.
 - Consentimiento separado y no premarcado para términos y tratamiento de datos sensibles; versión y fecha registradas localmente y en el documento privado del usuario.
 - Eliminación en servidor ampliada a publicaciones, comentarios y reportes vinculados al hash seudónimo del Muro.
 - Eliminadas las afirmaciones absolutas “100% anónima” y “privacidad garantizada”. No se encontraron reseñas o testimonios comerciales falsos en la interfaz.
@@ -34,7 +34,7 @@ Fecha técnica: 2026-09-08. Este documento registra comprobaciones de producto; 
 - Datos de cuenta, contenido del usuario, identificadores, actividad de la app y diagnósticos.
 - Datos sensibles voluntarios relacionados con religión, vida sexual, salud emocional o adicciones.
 - Firebase Auth/Firestore/Functions/FCM; Analytics y Crashlytics como opcionales.
-- YouTube, CleanBrowsing, Esri y APIs bíblicas activadas por función.
+- CleanBrowsing, Esri y APIs bíblicas activadas por función.
 - Cifrado en tránsito, eliminación de cuenta y ausencia de publicidad/venta de datos.
 
 ## Evidencia recomendada
