@@ -17,6 +17,7 @@ import '../models/widget_config.dart';
 import '../data/bible_verses.dart';
 import 'daily_verse_service.dart';
 import 'jesus_widget_service.dart';
+import 'theme_service.dart';
 import 'user_pref_cloud_sync_service.dart';
 import 'victory_scoring_service.dart';
 import '../utils/platform_capabilities.dart';
@@ -222,14 +223,18 @@ class WidgetSyncService {
         streakColor.toARGB32(),
       );
 
-      // Guardar imágenes de sprite y fondo para el widget nativo
+      // Guardar imágenes de sprite y fondo para el widget nativo (con el
+      // tema «Papel recortado» activo, los dibujos de papel)
+      final papel = ThemeService().currentTheme.isPaper;
       final spritePath = JesusWidgetService.I.getSprite(
         streakDays: payload.streakValue,
         completedToday: completedToday && victoryToday,
         isNewUser: isNewUser,
+        papel: papel,
       );
       final bgPath = JesusWidgetService.I.getBackground(
         streakDays: payload.streakValue,
+        papel: papel,
       );
       final spriteFile = await _saveAssetToWidgetDir(
         spritePath,

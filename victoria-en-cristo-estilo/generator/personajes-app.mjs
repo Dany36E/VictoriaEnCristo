@@ -1,20 +1,9 @@
-// Personajes nuevos con el generador del kit (papel-recortado.mjs):
-// Jesús (túnica blanca con banda roja) y avatares de perfil.
+// Avatares de perfil con el generador del kit (papel-recortado.mjs).
+// Jesús está en jesus-app.mjs.
 import { part, circ, ell, path, capsule, pencilLines, svgDoc, rng, C } from './papel-recortado.mjs';
 
 const sticker = (b) => `<g filter="url(#sticker)">${b}</g>`;
 const T = (x, y, s, b) => `<g transform="translate(${x} ${y}) scale(${s})">${b}</g>`;
-
-// Parte blanca: base lisa de papel + acuarela tenue encima (si no, el moteado la vuelve gris).
-function parteBlanca(shapes, { outer = false, op = 0.55, sw = 3.4 } = {}) {
-  const base = shapes.map((x) => x.replace(/fill="[^"]*"/, `fill="${C.paper}"`)).join('');
-  const crema = shapes.map((x) => x.replace(/fill="[^"]*"/, `fill="${C.cream}"`)).join('');
-  const trazo = (w) => `<g filter="url(#pen)" opacity="0.92">${shapes.map((x) => x
-    .replace(/fill="[^"]*"/g, '')
-    .replace(/\/>$/, ` fill="none" stroke="${C.pencil}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"/>`)).join('')}</g>`;
-  const relleno = `${base}<g filter="url(#wc)" opacity="${op}">${crema}</g>`;
-  return outer ? trazo(sw * 2) + relleno : relleno + trazo(sw);
-}
 
 // Tonos de piel (el kit trae C.skin; Timoteo y Victoria usan tonos más morenos).
 export const PIEL = {
@@ -255,68 +244,3 @@ export function avatar(o, seed) {
     <path fill-rule="evenodd" filter="url(#sombraAro)" fill="${C.paper}" d="M256 4 A252 252 0 1 1 255.9 4 Z M256 28 A228 228 0 1 0 256.1 28 Z"/>`;
   return svgDoc(512, 512, body, seed, { border: 10 });
 }
-
-// ---------- Jesús de cuerpo entero ----------
-const TUNICA = C.paper;     // blanco papel (la acuarela le da el moteado cálido)
-const BANDA = C.tomato;     // la línea roja
-const PIEL_J = PIEL.morena;
-const PELO_J = PELO.castano;
-
-function manoBrazo(hombro, codo, muneca, { ancho = 56, mano = 26 } = {}) {
-  const dx = muneca[0] - codo[0], dy = muneca[1] - codo[1], L = Math.hypot(dx, dy);
-  const mx = muneca[0] + (dx / L) * 30, my = muneca[1] + (dy / L) * 30;
-  const nx = -dy / L, ny = dx / L;
-  // manga acampanada al final del antebrazo
-  const w2 = ancho * 0.6;
-  const campana = path(`M${codo[0] + nx * ancho * 0.45} ${codo[1] + ny * ancho * 0.45} L${muneca[0] + nx * w2} ${muneca[1] + ny * w2} L${muneca[0] - nx * w2} ${muneca[1] - ny * w2} L${codo[0] - nx * ancho * 0.45} ${codo[1] - ny * ancho * 0.45} Z`, TUNICA);
-  return sticker(
-    part([circ(mx.toFixed(1), my.toFixed(1), mano, PIEL_J)]) +
-    parteBlanca([capsule(...hombro, ...codo, ancho, TUNICA), capsule(...codo, ...muneca, ancho * 0.9, TUNICA), campana], { outer: true }) +
-    pencilLines([`M${codo[0] + nx * ancho * 0.3} ${codo[1] + ny * ancho * 0.3} Q${(codo[0] + muneca[0]) / 2} ${(codo[1] + muneca[1]) / 2} ${muneca[0] + nx * w2 * 0.6} ${muneca[1] + ny * w2 * 0.6}`], { sw: 2.2, color: '#b9ab96', op: 0.6 })
-  );
-}
-
-function jesus(pose) {
-  const W = { saludo: 452, brazos: 500, corazon: 452, presenta: 540 }[pose];
-  const cx = { saludo: 200, brazos: 250, corazon: 226, presenta: 210 }[pose];
-  const hy = 180;
-
-  const { atras, cabeza: cab } = cabeza({
-    piel: PIEL_J, pelo: PELO_J, peinado: 'jesus', barba: 'jesus',
-    ojos: pose === 'brazos' ? 'felices' : (pose === 'corazon' ? 'cerrados' : 'abiertos'),
-    boca: pose === 'brazos' || pose === 'saludo' ? 'abierta' : 'sonrisa',
-  });
-
-  // Aureola de papel mostaza detrás de la cabeza
-  const aureola = sticker(part([circ(cx, hy - 20, 150, C.mustardLight)], { sw: 3 }) +
-    `<g opacity="0.35">${part([circ(cx, hy - 20, 118, C.mustard)], { outline: false })}</g>`);
-
-  // Pies con sandalias (debajo de la túnica)
-  const pies = sticker(
-    part([ell(cx - 50, 958, 46, 13, C.leather), ell(cx + 50, 958, 46, 13, C.leather)], { sw: 3 }) +
-    part([ell(cx - 48, 940, 38, 20, PIEL_J), ell(cx + 48, 940, 38, 20, PIEL_J)], { sw: 3 }) +
-    pencilLines([`M${cx - 80} 936 Q${cx - 50} 924 ${cx - 18} 936`, `M${cx + 18} 936 Q${cx + 50} 924 ${cx + 80} 936`, `M${cx - 48} 928 L${cx - 48} 952`, `M${cx + 48} 928 L${cx + 48} 952`], { sw: 6, color: C.leatherDark, op: 0.95 })
-  );
-
-  // Túnica con la banda roja cruzada
-  const tunicaD = `M${cx - 60} 300 Q${cx - 98} 302 ${cx - 102} 350 L${cx - 118} 914 Q${cx} 930 ${cx + 118} 914 L${cx + 102} 350 Q${cx + 98} 302 ${cx + 60} 300 Z`;
-  const torso = sticker(
-    parteBlanca([path(tunicaD, TUNICA)]) +
-    part([path(`M${cx - 30} 300 Q${cx} 338 ${cx + 30} 300 Z`, PIEL_J)], { sw: 2.6 }) +
-    part([path(`M${cx - 92} 316 L${cx - 54} 300 L${cx + 106} 516 L${cx + 108} 574 Z`, BANDA)], { sw: 3 }) +
-    part([path(`M${cx + 80} 536 L${cx + 107} 552 L${cx + 113} 720 Q${cx + 99} 730 ${cx + 84} 720 Z`, BANDA)], { sw: 3 }) +
-    pencilLines([`M${cx - 30} 600 L${cx - 38} 906`, `M${cx + 28} 610 L${cx + 34} 908`, `M${cx - 70} 560 L${cx - 84} 900`], { sw: 2.4, color: '#b9ab96', op: 0.7 })
-  );
-
-  const brazos = {
-    saludo: manoBrazo([cx - 86, 338], [cx - 108, 460], [cx - 116, 560]) + manoBrazo([cx + 86, 338], [cx + 168, 340], [cx + 178, 214]),
-    brazos: manoBrazo([cx - 86, 338], [cx - 168, 300], [cx - 190, 196], { ancho: 52 }) + manoBrazo([cx + 86, 338], [cx + 168, 300], [cx + 190, 196], { ancho: 52 }),
-    corazon: manoBrazo([cx - 86, 338], [cx - 108, 460], [cx - 116, 560]) + manoBrazo([cx + 86, 338], [cx + 132, 470], [cx + 46, 430]),
-    presenta: manoBrazo([cx - 86, 338], [cx - 108, 460], [cx - 116, 560]) + manoBrazo([cx + 86, 338], [cx + 176, 430], [cx + 262, 404]),
-  }[pose];
-
-  const body = aureola + pies + sticker(T(cx, hy, 1, atras + cab)) + torso + brazos;
-  return svgDoc(W, 1000, body, 41, { border: 10 });
-}
-
-export const jesusPoses = ['saludo', 'brazos', 'corazon', 'presenta'].map((p) => ({ name: `jesus_${p}`, svg: jesus(p) }));

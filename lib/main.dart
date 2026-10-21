@@ -445,6 +445,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
   /// Fecha conocida para detectar cambio de día al volver del background
   String _lastKnownDate = TimeUtils.todayISO();
 
+  /// Si el widget de inicio se sincronizó con los dibujos del tema papel.
+  late bool _widgetEnPapel = widget.themeService.currentTheme.isPaper;
+
   @override
   void initState() {
     super.initState();
@@ -648,6 +651,14 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     });
     _updateSystemUI();
     _rebuildAllChildren();
+    // El widget de inicio usa los dibujos de papel solo con ese tema.
+    final papel = widget.themeService.currentTheme.isPaper;
+    if (papel != _widgetEnPapel) {
+      _widgetEnPapel = papel;
+      if (PlatformCapabilities.supportsHomeWidgets) {
+        unawaited(WidgetSyncService.I.syncWidget());
+      }
+    }
   }
 
   /// AppFonts depende del tema activo pero no es un InheritedWidget, así que

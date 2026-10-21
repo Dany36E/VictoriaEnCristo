@@ -20,9 +20,11 @@ Para pantallas nuevas, usa el «prompt corto» de `PROMPT.md`.
 
 ## Personajes propios de la app
 
-Dibujados con el mismo generador (`generator/personajes-app.mjs`, `avatares-app.mjs`; se renderizan con `renderizar-app.mjs`):
+Dibujados con el mismo generador (`generator/jesus-app.mjs`, `fondos-racha-app.mjs`, `personajes-app.mjs` + `avatares-app.mjs`; se renderizan con `renderizar-app.mjs`):
 
-- **Jesús** (túnica blanca con banda roja y aureola) en 4 poses: `jesus_saludo`, `jesus_presenta`, `jesus_brazos`, `jesus_corazon`. Lo usa la tarjeta «días de victoria» del Inicio en el tema papel.
+- **Jesús** (pelo ondulado con raya al centro, barba, túnica blanca con banda roja) en los mismos estados que los sprites del tema normal: `jesus_nuevo` (con un corderito), `jesus_esperando`, `jesus_animo`, `jesus_perdida`, `jesus_victoria`, `jesus_semana`, `jesus_mes`, `jesus_centurion`, `jesus_anio`.
+- **8 escenas de racha** (`assets/vec/fondos/racha_*.webp`): listo (0), pradera (1+), cielo (3+), atardecer (7+), noche (14+), batalla (30+), armadura (100+), guardia (365+).
+- `JesusWidgetService.getSprite/getBackground(papel: true)` eligen el dibujo y la escena; los usan la tarjeta «días de victoria», la celebración y el widget de inicio de Android cuando el tema activo es papel.
 - **20 avatares de perfil** (`avatar_h01`…`avatar_h10`, `avatar_m01`…`avatar_m10`). El usuario los elige en Mi Perfil; la elección se guarda en `profile_avatar_id` (`AvatarPerfilService`) y se sincroniza con la nube.
 
-Están en `assets/vec/personajes/` como WebP (los avatares a 384 px) para que la app pese menos.
+Todo está en WebP para que la app pese menos.

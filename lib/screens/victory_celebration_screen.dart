@@ -16,6 +16,7 @@ import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
+import '../widgets/escena_racha_papel.dart';
 
 class VictoryCelebrationScreen extends StatefulWidget {
   final int streakDays;
@@ -545,7 +546,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL — Timoteo y Victoria celebran (mensaje de éxito del kit)
+  // TEMA PAPEL — Jesús celebra sobre la escena de la racha
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel(String message, List<Map<String, dynamic>> weeklyData) {
@@ -581,23 +582,14 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
                   children: [
                     PopIn(child: Globo(texto: message.replaceAll('\n', ' '))),
                     const SizedBox(height: 26),
-                    const PopIn(
-                      retraso: Duration(milliseconds: 150),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
-                        children: [
-                          Sticker(
-                            'assets/vec/personajes/timoteo_saludo.png',
-                            alto: 200,
-                            giro: -2,
-                          ),
-                          Sticker(
-                            'assets/vec/personajes/victoria_corazon.png',
-                            alto: 200,
-                            giro: 2,
-                          ),
-                        ],
+                    PopIn(
+                      retraso: const Duration(milliseconds: 150),
+                      child: EscenaRachaPapel(
+                        streakDays: _streak,
+                        completedToday: true,
+                        isNewUser: widget.isNewUser,
+                        ancho: 210,
+                        alto: 270,
                       ),
                     ),
                     const SizedBox(height: 10),
