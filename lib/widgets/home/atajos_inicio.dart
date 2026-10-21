@@ -1,6 +1,7 @@
 /// Atajos de Inicio: accesos directos que elige el usuario (por defecto
 /// Biblia, Estudio bíblico y Apuntes). Los mismos ids abren las pantallas
-/// desde el widget «Atajos» de Android (rutas `/atajo/<id>`).
+/// desde el widget «Atajos» y los accesos del ícono de Android (rutas
+/// `/atajo/<id>`).
 library;
 
 import 'dart:math' as math;
@@ -9,8 +10,30 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../navigation/app_navigation.dart';
+import '../../screens/battle_partner/battle_partner_screen.dart';
+import '../../screens/bible/bible_home_screen.dart';
+import '../../screens/bible/bible_map_screen.dart';
 import '../../screens/bible/entradas_biblia.dart';
+import '../../screens/bible/saved_verses_screen.dart';
+import '../../screens/devotional_screen.dart';
+import '../../screens/emergency_screen.dart';
+import '../../screens/emotional_verse_jar_screen.dart';
+import '../../screens/favorites_screen.dart';
+import '../../screens/journal_screen.dart';
+import '../../screens/learning/bible_order_screen.dart';
+import '../../screens/learning/game_headbanz_screen.dart';
+import '../../screens/learning/game_lightning_screen.dart';
+import '../../screens/learning/game_race_screen.dart';
+import '../../screens/learning/games_home_screen.dart';
+import '../../screens/learning/learning_home_screen.dart';
+import '../../screens/learning/mana_session_screen.dart';
+import '../../screens/prayers_screen.dart';
+import '../../screens/progress_screen.dart';
+import '../../screens/sacred_alarms_screen.dart';
+import '../../screens/verses_screen.dart';
+import '../../screens/wall/wall_screen.dart';
 import '../../services/atajos_service.dart';
+import '../../services/audio_engine.dart';
 import '../../services/widget_sync_service.dart';
 import '../../theme/app_theme_data.dart';
 import '../../utils/platform_capabilities.dart';
@@ -20,24 +43,76 @@ import '../../vec/vec_widgets.dart';
 /// Prefijo de las rutas con que el widget de Android pide abrir un atajo.
 const String prefijoRutaAtajo = '/atajo/';
 
+/// Pantallas que se abren tal cual.
+final Map<String, WidgetBuilder> _pantallas = {
+  'biblia': (_) => const BibleHomeScreen(),
+  'guardados': (_) => const SavedVersesScreen(),
+  'mapas': (_) => const BibleMapScreen(),
+  'mapa_oracion': (_) => const JournalScreen(),
+  'versiculos': (_) => const VersesScreen(),
+  'frasco': (_) => const EmotionalVerseJarScreen(),
+  'devocional': (_) => const DevotionalScreen(),
+  'oraciones': (_) => const PrayersScreen(),
+  'progreso': (_) => const ProgressScreen(),
+  'favoritos': (_) => const FavoritesScreen(),
+  'escuela': (_) => const LearningHomeScreen(),
+  'companero': (_) => const BattlePartnerScreen(),
+  'muro': (_) => const WallScreen(),
+  'sos': (_) => const EmergencyScreen(),
+  'campanas': (_) => const SacredAlarmsScreen(),
+};
+
+/// Juegos y prácticas de la Escuela del Reino: suenan con su música, como al
+/// abrirlos desde la Escuela, y al volver regresa la de Inicio.
+final Map<String, (WidgetBuilder, BgmContext)> _juegos = {
+  'juegos': ((_) => const GamesHomeScreen(), BgmContext.learningHeadbanz),
+  'carrera': ((_) => const GameRaceScreen(), BgmContext.learningHeadbanz),
+  'duelo': ((_) => const GameLightningScreen(), BgmContext.learningDuel),
+  'quien_soy': ((_) => const GameHeadbanzScreen(), BgmContext.learningHeadbanz),
+  'preguntas': ((_) => const ManaSessionScreen(), BgmContext.learningQuiz),
+  'orden_biblia': (
+    (_) => const BibleOrderScreen(),
+    BgmContext.learningBibleOrder,
+  ),
+};
+
+/// Ids que [abrirAtajo] sabe abrir (para comprobar el catálogo en pruebas).
+Set<String> get idsQueSeAbren => {
+  'estudio',
+  'apuntes',
+  ..._pantallas.keys,
+  ..._juegos.keys,
+};
+
 /// Abre la pantalla de un atajo. Devuelve `false` si el id no existe.
 bool abrirAtajo(BuildContext context, String id) {
-  final Future<void> Function(BuildContext)? accion = switch (id) {
-    'biblia' => AppNavigation.openBible,
-    'estudio' => EntradasBiblia.abrirEstudio,
-    'apuntes' => EntradasBiblia.abrirApuntes,
-    'escuela' => AppNavigation.openLearning,
-    'diario' => AppNavigation.openJournal,
-    'devocional' => AppNavigation.openDevotional,
-    'oracion' => AppNavigation.openPrayers,
-    'versiculos' => AppNavigation.openVerses,
-    'progreso' => AppNavigation.openProgress,
-    'muro' => AppNavigation.openWall,
-    _ => null,
-  };
-  if (accion == null) return false;
-  accion(context);
+  if (id == 'estudio') {
+    EntradasBiblia.abrirEstudio(context);
+    return true;
+  }
+  if (id == 'apuntes') {
+    EntradasBiblia.abrirApuntes(context);
+    return true;
+  }
+  final juego = _juegos[id];
+  if (juego != null) {
+    _abrirJuego(context, juego.$1, juego.$2);
+    return true;
+  }
+  final pantalla = _pantallas[id];
+  if (pantalla == null) return false;
+  AppNavigation.push<void>(context, pantalla);
   return true;
+}
+
+Future<void> _abrirJuego(
+  BuildContext context,
+  WidgetBuilder pantalla,
+  BgmContext musica,
+) async {
+  AudioEngine.I.switchBgmContext(musica);
+  await AppNavigation.push<void>(context, pantalla);
+  AudioEngine.I.switchBgmContext(BgmContext.home);
 }
 
 /// Cuadrícula de atajos de Inicio: tres por fila, o dos cuando la letra
@@ -298,13 +373,25 @@ class _EditorAtajos extends StatefulWidget {
 class _EditorAtajosState extends State<_EditorAtajos> {
   late final List<String> _elegidos = [...AtajosService.I.elegidos.value];
 
-  void _alternar(String id) {
+  void _guardar() => AtajosService.I.guardar(_elegidos);
+
+  void _agregar(String id) {
+    if (_elegidos.length >= AtajosService.maximo) return;
+    setState(() => _elegidos.add(id));
+    _guardar();
+  }
+
+  void _quitar(String id) {
+    setState(() => _elegidos.remove(id));
+    _guardar();
+  }
+
+  void _mover(int desde, int hasta) {
     setState(() {
-      if (!_elegidos.remove(id) && _elegidos.length < AtajosService.maximo) {
-        _elegidos.add(id);
-      }
+      if (hasta > desde) hasta--;
+      _elegidos.insert(hasta, _elegidos.removeAt(desde));
     });
-    AtajosService.I.guardar(_elegidos);
+    _guardar();
   }
 
   @override
@@ -312,9 +399,14 @@ class _EditorAtajosState extends State<_EditorAtajos> {
     final t = AppThemeData.of(context);
     final tema = Theme.of(context);
     final lleno = _elegidos.length >= AtajosService.maximo;
+    final telefono = PlatformCapabilities.supportsHomeWidgets;
     final titulo = t.isPaper
         ? const TituloVec('Tus atajos', tamano: 26)
         : Text('Tus atajos', style: tema.textTheme.titleLarge);
+    final elegidos = _elegidos
+        .map(AtajosService.porId)
+        .whereType<Atajo>()
+        .toList(growable: false);
     return SafeArea(
       top: false,
       child: ConstrainedBox(
@@ -328,26 +420,58 @@ class _EditorAtajosState extends State<_EditorAtajos> {
             titulo,
             const SizedBox(height: 4),
             Text(
-              'Elige hasta ${AtajosService.maximo}. Aparecen en Inicio en el '
-              'orden en que los elijas.',
+              'Elige hasta ${AtajosService.maximo} y arrástralos para '
+              'cambiar el orden.'
+              '${telefono ? ' Los primeros ${AtajosService.maximoTelefono} '
+                        'también salen en el widget y al mantener presionado '
+                        'el ícono de la app.' : ''}',
               style: tema.textTheme.bodyMedium,
             ),
-            const SizedBox(height: 12),
-            for (final atajo in AtajosService.catalogo)
-              _OpcionAtajo(
-                atajo: atajo,
-                orden: _elegidos.indexOf(atajo.id) + 1,
-                habilitado: _elegidos.contains(atajo.id) || !lleno,
-                onTap: () => _alternar(atajo.id),
+            _Grupo('En Inicio (${elegidos.length} de ${AtajosService.maximo})'),
+            if (elegidos.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8),
+                child: Text(
+                  'Todavía no tienes atajos. Agrega los que más uses.',
+                  style: tema.textTheme.bodyMedium,
+                ),
               ),
-            if (PlatformCapabilities.supportsHomeWidgets) ...[
+            ReorderableListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              buildDefaultDragHandles: false,
+              // onReorderItem llegó en Flutter 3.44 y el CI visual compila
+              // con 3.41: se mantiene onReorder mientras convivan ambos.
+              // ignore: deprecated_member_use
+              onReorder: _mover,
+              children: [
+                for (var i = 0; i < elegidos.length; i++)
+                  _FilaAtajo(
+                    key: ValueKey(elegidos[i].id),
+                    atajo: elegidos[i],
+                    subtitulo: telefono && i < AtajosService.maximoTelefono
+                        ? 'También en el teléfono'
+                        : null,
+                    accion: IconButton(
+                      tooltip: 'Quitar ${elegidos[i].titulo}',
+                      icon: const Icon(Icons.remove_circle_outline_rounded),
+                      color: t.isPaper ? VecColores.terracota : t.textSecondary,
+                      onPressed: () => _quitar(elegidos[i].id),
+                    ),
+                    arrastre: ReorderableDragStartListener(
+                      index: i,
+                      child: const Padding(
+                        padding: EdgeInsets.all(8),
+                        child: Icon(Icons.drag_handle_rounded),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+            for (final grupo in AtajosService.grupos)
+              ..._disponibles(grupo, lleno, t),
+            if (telefono) ...[
               const SizedBox(height: 16),
-              Text(
-                'También puedes poner Biblia, Estudio bíblico y Apuntes en la '
-                'pantalla de inicio del teléfono.',
-                style: tema.textTheme.bodyMedium,
-              ),
-              const SizedBox(height: 10),
               _BotonWidgetTelefono(papel: t.isPaper),
             ],
           ],
@@ -355,28 +479,79 @@ class _EditorAtajosState extends State<_EditorAtajos> {
       ),
     );
   }
+
+  List<Widget> _disponibles(String grupo, bool lleno, AppThemeData t) {
+    final libres = AtajosService.catalogo
+        .where((a) => a.grupo == grupo && !_elegidos.contains(a.id))
+        .toList(growable: false);
+    if (libres.isEmpty) return const [];
+    return [
+      _Grupo(grupo),
+      for (final atajo in libres)
+        _FilaAtajo(
+          atajo: atajo,
+          habilitado: !lleno,
+          onTap: () => _agregar(atajo.id),
+          accion: IconButton(
+            tooltip: 'Agregar ${atajo.titulo}',
+            icon: const Icon(Icons.add_circle_outline_rounded),
+            color: t.isPaper ? VecColores.azul : t.accent,
+            onPressed: lleno ? null : () => _agregar(atajo.id),
+          ),
+        ),
+    ];
+  }
 }
 
-class _OpcionAtajo extends StatelessWidget {
-  const _OpcionAtajo({
-    required this.atajo,
-    required this.orden,
-    required this.habilitado,
-    required this.onTap,
-  });
+class _Grupo extends StatelessWidget {
+  const _Grupo(this.texto);
 
-  final Atajo atajo;
-
-  /// Posición en Inicio (1, 2, …) o 0 si no está elegido.
-  final int orden;
-  final bool habilitado;
-  final VoidCallback onTap;
+  final String texto;
 
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    final elegido = orden > 0;
-    final color = t.isPaper ? VecColores.azul : t.accent;
+    return Padding(
+      padding: const EdgeInsets.only(top: 18, bottom: 4),
+      child: Semantics(
+        header: true,
+        child: t.isPaper
+            ? EtiquetaSeccion(texto)
+            : Text(
+                texto.toUpperCase(),
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 1.1,
+                  color: t.textSecondary,
+                ),
+              ),
+      ),
+    );
+  }
+}
+
+class _FilaAtajo extends StatelessWidget {
+  const _FilaAtajo({
+    super.key,
+    required this.atajo,
+    required this.accion,
+    this.arrastre,
+    this.subtitulo,
+    this.habilitado = true,
+    this.onTap,
+  });
+
+  final Atajo atajo;
+  final Widget accion;
+  final Widget? arrastre;
+  final String? subtitulo;
+  final bool habilitado;
+  final VoidCallback? onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppThemeData.of(context);
     final icono = t.isPaper
         ? Image.asset(
             atajo.dibujo,
@@ -386,33 +561,16 @@ class _OpcionAtajo extends StatelessWidget {
             excludeFromSemantics: true,
           )
         : Icon(atajo.icono, color: t.accent);
-    return Semantics(
-      label: elegido
-          ? '${atajo.titulo}, atajo $orden en Inicio'
-          : '${atajo.titulo}, no está en Inicio',
-      checked: elegido,
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
       enabled: habilitado,
-      onTap: habilitado ? onTap : null,
-      excludeSemantics: true,
-      child: ListTile(
-        contentPadding: EdgeInsets.zero,
-        enabled: habilitado,
-        onTap: onTap,
-        leading: SizedBox(width: 44, child: Center(child: icono)),
-        title: Text(atajo.titulo),
-        trailing: elegido
-            ? CircleAvatar(
-                radius: 14,
-                backgroundColor: color,
-                child: Text(
-                  '$orden',
-                  style: TextStyle(
-                    color: t.isPaper ? VecColores.papel : t.scaffoldBg,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              )
-            : Icon(Icons.add_circle_outline_rounded, color: color),
+      onTap: onTap,
+      leading: SizedBox(width: 44, child: Center(child: icono)),
+      title: Text(atajo.titulo),
+      subtitle: subtitulo == null ? null : Text(subtitulo!),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [accion, ?arrastre],
       ),
     );
   }

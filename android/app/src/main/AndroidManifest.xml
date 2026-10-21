@@ -63,10 +63,6 @@
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
-            <!-- Atajos al mantener presionado el ícono: Biblia, Estudio y Apuntes -->
-            <meta-data
-                android:name="android.app.shortcuts"
-                android:resource="@xml/shortcuts" />
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
@@ -151,7 +147,7 @@
                 android:resource="@xml/jesus_widget_info" />
         </receiver>
 
-        <!-- Atajos Widget Provider (Biblia, Estudio bíblico y Apuntes) -->
+        <!-- Atajos Widget Provider (atajos elegidos en la app) -->
         <receiver
             android:name=".AtajosWidgetProvider"
             android:exported="true"

@@ -464,6 +464,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       WidgetSyncService.I.registerInteractionCallback(
         navigatorKey: _navigatorKey,
       );
+      // El widget «Atajos» y los accesos del ícono siguen la elección de Inicio.
+      AtajosService.I.elegidos.addListener(_sincronizarAtajos);
+      _sincronizarAtajos();
     }
 
     // Deep-link desde notificaciones locales.
@@ -474,8 +477,15 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     });
   }
 
+  void _sincronizarAtajos() {
+    unawaited(
+      WidgetSyncService.I.sincronizarAtajos(AtajosService.I.elegidos.value),
+    );
+  }
+
   @override
   void dispose() {
+    AtajosService.I.elegidos.removeListener(_sincronizarAtajos);
     _navigationChannel.setMethodCallHandler(null);
     NotificationService.lastTapPayload.removeListener(_onNotificationPayload);
     widget.themeService.removeListener(_onThemeChanged);

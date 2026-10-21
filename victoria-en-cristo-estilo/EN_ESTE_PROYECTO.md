@@ -26,7 +26,7 @@ Dibujados con el mismo generador (`generator/jesus-app.mjs`, `fondos-racha-app.m
 - **8 escenas de racha** (`assets/vec/fondos/racha_*.webp`): listo (0), pradera (1+), cielo (3+), atardecer (7+), noche (14+), batalla (30+), armadura (100+), guardia (365+).
 - `JesusWidgetService.getSprite/getBackground(papel: true)` eligen el dibujo y la escena; los usan la tarjeta «días de victoria», la celebración y el widget de inicio de Android cuando el tema activo es papel.
 - **20 avatares de perfil** (`avatar_h01`…`avatar_h10`, `avatar_m01`…`avatar_m10`). El usuario los elige en Mi Perfil; la elección se guarda en `profile_avatar_id` (`AvatarPerfilService`) y se sincroniza con la nube.
-- **3 íconos de atajos** (`atajo_biblia`, `atajo_estudio`, `atajo_apuntes`): la Biblia del kit, la Biblia abierta con lupa y una libreta con lápiz. Están en `assets/vec/objetos/` para la sección «Atajos» de Inicio y en `android/app/src/main/res/drawable-nodpi/` para el widget «Atajos» de Android.
+- **Íconos de atajos** (`atajo_<id>`, uno por cada atajo de `AtajosService`: Biblia, Estudio bíblico, Apuntes, frasco de versículos, mapa de oración, juegos, campanas, etc.). Los objetos del kit (Biblia, corazón, calendario, vela, flama, globo) se reutilizan y el resto se dibuja en `atajos-app.mjs`. Están en `assets/vec/objetos/` para la sección «Atajos» de Inicio y en `android/app/src/main/res/drawable-nodpi/` para el widget «Atajos» y los accesos del ícono en Android.
 
 Reglas de dibujo que seguimos en estos personajes:
 

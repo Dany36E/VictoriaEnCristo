@@ -2,7 +2,7 @@
 //  - Jesús en los 9 estados de la racha (+ bienvenida y retrato de referencia)
 //  - las 8 escenas de fondo de la racha
 //  - los 20 avatares de perfil
-//  - los 3 íconos de atajos (Biblia, Estudio bíblico, Apuntes)
+//  - los íconos de atajos (uno por cada atajo del catálogo de AtajosService)
 // Uso (Node 18+ con Playwright):  node renderizar-app.mjs [carpetaSalida]
 // Para la app se recortan los márgenes transparentes y se guardan como WebP
 // (Jesús a 900 px de alto, fondos a 768 px, avatares a 384 px; calidad ~88):

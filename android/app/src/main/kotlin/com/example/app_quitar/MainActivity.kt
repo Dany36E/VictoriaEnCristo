@@ -13,6 +13,7 @@ class MainActivity : FlutterActivity() {
     private val NAVIGATION_CHANNEL = "victoria/navigation"
     private val SACRED_ALARMS_CHANNEL = "victoria/sacred_alarms"
     private val PURITY_CHANNEL = "victoria/purity_guard"
+    private val ATAJOS_CHANNEL = "victoria/atajos"
     private val VPN_REQUEST_CODE = 9911
     private var initialRouteConsumed = false
     private var navigationChannel: MethodChannel? = null
@@ -77,6 +78,25 @@ class MainActivity : FlutterActivity() {
                             }
                             startActivity(intent)
                         }
+                        result.success(true)
+                    }
+                    else -> result.notImplemented()
+                }
+            }
+
+        // ── Atajos elegidos en la app → accesos del ícono ─────────────────
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, ATAJOS_CHANNEL)
+            .setMethodCallHandler { call, result ->
+                when (call.method) {
+                    "actualizar" -> {
+                        @Suppress("UNCHECKED_CAST")
+                        val lista = call.arguments as? List<Map<String, Any?>> ?: emptyList()
+                        val atajos = lista.mapNotNull { mapa ->
+                            val id = mapa["id"] as? String
+                            val titulo = mapa["titulo"] as? String
+                            if (id == null || titulo == null) null else Atajos.Atajo(id, titulo)
+                        }
+                        Atajos.publicarAccesos(this, atajos)
                         result.success(true)
                     }
                     else -> result.notImplemented()

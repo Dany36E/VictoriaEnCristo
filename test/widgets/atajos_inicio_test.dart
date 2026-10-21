@@ -54,8 +54,8 @@ void main() {
 
     test('limpiar quita ids desconocidos y repetidos y respeta el máximo', () {
       expect(
-        AtajosService.limpiar(['diario', 'x', 'diario', 'biblia']),
-        ['diario', 'biblia'],
+        AtajosService.limpiar(['frasco', 'x', 'frasco', 'biblia']),
+        ['frasco', 'biblia'],
       );
       final todos = AtajosService.catalogo.map((a) => a.id);
       expect(AtajosService.limpiar(todos), hasLength(AtajosService.maximo));
@@ -72,10 +72,16 @@ void main() {
       expect(AtajosService.I.elegidos.value, isEmpty);
     });
 
-    test('cada atajo tiene su dibujo de papel', () {
+    test('cada atajo tiene su dibujo de papel, su grupo y se sabe abrir', () {
       for (final a in AtajosService.catalogo) {
         expect(File(a.dibujo).existsSync(), isTrue, reason: a.dibujo);
+        expect(AtajosService.grupos, contains(a.grupo), reason: a.id);
+        expect(a.tituloCorto.length, lessThanOrEqualTo(12), reason: a.id);
       }
+      expect(
+        idsQueSeAbren,
+        AtajosService.catalogo.map((a) => a.id).toSet(),
+      );
     });
   });
 
@@ -111,31 +117,73 @@ void main() {
     expect(find.text('Estudio con amigos'), findsOneWidget);
   });
 
-  testWidgets('el editor agrega y quita atajos', (tester) async {
+  testWidgets('el editor agrega, quita y reordena atajos', (tester) async {
     SharedPreferences.setMockInitialValues({});
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(420, 1600);
+    addTearDown(tester.view.resetPhysicalSize);
     await tester.pumpWidget(_app(_seccion));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Editar'));
     await tester.pumpAndSettle();
-    final hoja = find.byType(BottomSheet);
-    await tester.tap(find.descendant(of: hoja, matching: find.text('Diario')));
+    await tester.tap(find.byTooltip('Agregar Frasco de versículos'));
     await tester.pump();
-    await tester.tap(find.descendant(of: hoja, matching: find.text('Biblia')));
+    await tester.tap(find.byTooltip('Quitar Biblia'));
     await tester.pump();
-    expect(AtajosService.I.elegidos.value, ['estudio', 'apuntes', 'diario']);
+    expect(AtajosService.I.elegidos.value, ['estudio', 'apuntes', 'frasco']);
+
+    // Arrastra «Frasco de versículos» al principio.
+    final asa = find.byIcon(Icons.drag_handle_rounded);
+    await tester.timedDrag(
+      asa.at(2),
+      tester.getCenter(asa.at(0)) - tester.getCenter(asa.at(2)) -
+          const Offset(0, 20),
+      const Duration(milliseconds: 600),
+    );
+    await tester.pumpAndSettle();
+    expect(AtajosService.I.elegidos.value, ['frasco', 'estudio', 'apuntes']);
 
     await tester.tapAt(const Offset(10, 10));
     await tester.pumpAndSettle();
-    expect(find.text('Diario'), findsOneWidget);
+    expect(find.text('Frasco de versículos'), findsOneWidget);
     expect(find.text('Biblia'), findsNothing);
 
     final prefs = await SharedPreferences.getInstance();
     expect(prefs.getStringList(AtajosService.clave), [
+      'frasco',
       'estudio',
       'apuntes',
-      'diario',
     ]);
+  });
+
+  testWidgets('el editor no deja pasar del máximo', (tester) async {
+    AtajosService.I.elegidos.value = AtajosService.catalogo
+        .take(AtajosService.maximo)
+        .map((a) => a.id)
+        .toList();
+    await tester.pumpWidget(_app(const BotonEditarAtajos()));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Editar'));
+    await tester.pumpAndSettle();
+
+    final ultimo = AtajosService.catalogo.last;
+    await tester.scrollUntilVisible(
+      find.byTooltip('Agregar ${ultimo.titulo}'),
+      300,
+      scrollable: find.descendant(
+        of: find.byType(BottomSheet),
+        matching: find.byType(Scrollable),
+      ).first,
+    );
+    final boton = tester.widget<IconButton>(
+      find.ancestor(
+        of: find.byTooltip('Agregar ${ultimo.titulo}'),
+        matching: find.byType(IconButton),
+      ),
+    );
+    expect(boton.onPressed, isNull);
+    expect(AtajosService.I.elegidos.value, hasLength(AtajosService.maximo));
   });
 
   testWidgets('con letra grande en un teléfono angosto usa dos columnas', (
@@ -171,32 +219,29 @@ void main() {
       _app(const AtajosInicio(), tema: AppThemeData.nightPure),
     );
     await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.menu_book_rounded), findsOneWidget);
+    expect(find.byIcon(Icons.menu_book), findsOneWidget);
     expect(find.byIcon(Icons.edit_note_rounded), findsOneWidget);
     expect(find.byType(Image), findsNothing);
   });
 
-  test('el widget y los accesos del ícono de Android abren atajos que '
-      'existen', () {
-    final accesos = File(
-      'android/app/src/main/res/xml/shortcuts.xml',
+  test('Android tiene el dibujo de cada atajo y lo conoce por su id', () {
+    final kotlin = File(
+      'android/app/src/main/kotlin/com/example/app_quitar/Atajos.kt',
     ).readAsStringSync();
-    final widget = File(
-      'android/app/src/main/kotlin/com/example/app_quitar/'
-      'AtajosWidgetProvider.kt',
-    ).readAsStringSync();
-    final deAccesos = RegExp(
-      '$prefijoRutaAtajo(\\w+)',
-    ).allMatches(accesos).map((m) => m[1]!).toSet();
-    final deWidget = RegExp(
-      r'_texto, "(\w+)"\)',
-    ).allMatches(widget).map((m) => m[1]!).toSet();
+    final deKotlin = RegExp(
+      r'"(\w+)" to R\.drawable\.atajo_(\w+)',
+    ).allMatches(kotlin).map((m) {
+      expect(m[1], m[2]);
+      return m[1]!;
+    }).toSet();
 
-    const esperados = {'biblia', 'estudio', 'apuntes'};
-    expect(deAccesos, esperados);
-    expect(deWidget, esperados);
-    for (final id in esperados) {
-      expect(AtajosService.porId(id), isNotNull, reason: id);
+    expect(deKotlin, AtajosService.catalogo.map((a) => a.id).toSet());
+    for (final id in deKotlin) {
+      final dibujo = File(
+        'android/app/src/main/res/drawable-nodpi/atajo_$id.webp',
+      );
+      expect(dibujo.existsSync(), isTrue, reason: dibujo.path);
     }
+    expect(kotlin, contains('"$prefijoRutaAtajo\$id"'));
   });
 }

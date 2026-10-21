@@ -7,87 +7,155 @@ import 'user_pref_cloud_sync_service.dart';
 class Atajo {
   final String id;
   final String titulo;
+
+  /// Nombre corto para el widget y los accesos del ícono de Android.
+  final String tituloCorto;
   final IconData icono;
+  final String grupo;
 
-  /// Dibujo de papel para el tema «Papel recortado».
-  final String dibujo;
+  const Atajo(this.id, this.titulo, this.tituloCorto, this.icono, this.grupo);
 
-  const Atajo(this.id, this.titulo, this.icono, this.dibujo);
+  /// Dibujo de papel (tema «Papel recortado»). En Android el mismo dibujo
+  /// está en `drawable-nodpi/atajo_<id>.webp`.
+  String get dibujo => 'assets/vec/objetos/atajo_$id.webp';
 }
 
-/// Atajos elegidos por el usuario para Inicio. Se guardan en
-/// SharedPreferences y se sincronizan con la nube vía
+/// Atajos elegidos por el usuario para Inicio. Los primeros
+/// [maximoTelefono] también salen en el widget y en los accesos del ícono de
+/// Android. Se guardan en SharedPreferences y se sincronizan con la nube vía
 /// [UserPrefCloudSyncService].
 class AtajosService {
   AtajosService._();
   static final AtajosService I = AtajosService._();
 
   static const String clave = 'home_shortcuts_v1';
-  static const int maximo = 6;
+  static const int maximo = 9;
+  static const int maximoTelefono = 4;
 
   /// Biblia, Estudio bíblico y Apuntes: lo que más se usa de la app.
   static const List<String> predeterminados = ['biblia', 'estudio', 'apuntes'];
 
+  static const String _biblia = 'Biblia y estudio';
+  static const String _vida = 'Vida espiritual';
+  static const String _escuela = 'Escuela del Reino y juegos';
+  static const String _comunidad = 'Comunidad y ayuda';
+
+  /// Grupos en el orden en que aparecen en el editor.
+  static const List<String> grupos = [_biblia, _vida, _escuela, _comunidad];
+
   static const List<Atajo> catalogo = [
-    Atajo(
-      'biblia',
-      'Biblia',
-      Icons.menu_book_rounded,
-      'assets/vec/objetos/atajo_biblia.webp',
-    ),
+    Atajo('biblia', 'Biblia', 'Biblia', Icons.menu_book, _biblia),
     Atajo(
       'estudio',
       'Estudio bíblico',
+      'Estudio',
       Icons.manage_search_rounded,
-      'assets/vec/objetos/atajo_estudio.webp',
+      _biblia,
     ),
+    Atajo('apuntes', 'Apuntes', 'Apuntes', Icons.edit_note_rounded, _biblia),
     Atajo(
-      'apuntes',
-      'Apuntes',
-      Icons.edit_note_rounded,
-      'assets/vec/objetos/atajo_apuntes.webp',
+      'guardados',
+      'Versículos guardados',
+      'Guardados',
+      Icons.bookmark_rounded,
+      _biblia,
     ),
+    Atajo('mapas', 'Mapas bíblicos', 'Mapas', Icons.public_rounded, _biblia),
     Atajo(
-      'escuela',
-      'Escuela del Reino',
-      Icons.school_rounded,
-      'assets/vec/objetos/star.png',
-    ),
-    Atajo(
-      'diario',
-      'Diario',
-      Icons.book_rounded,
-      'assets/vec/objetos/letter_small.png',
-    ),
-    Atajo(
-      'devocional',
-      'Devocional',
-      Icons.wb_sunny_outlined,
-      'assets/vec/objetos/flame.png',
-    ),
-    Atajo(
-      'oracion',
-      'Oraciones',
-      Icons.volunteer_activism_rounded,
-      'assets/vec/objetos/heart_clean.png',
+      'mapa_oracion',
+      'Mapa de oración',
+      'Mapa oración',
+      Icons.map_outlined,
+      _vida,
     ),
     Atajo(
       'versiculos',
       'Versículos',
+      'Versículos',
       Icons.format_quote_rounded,
-      'assets/vec/objetos/bubble.png',
+      _vida,
     ),
     Atajo(
-      'progreso',
-      'Mi progreso',
-      Icons.calendar_month_rounded,
-      'assets/vec/objetos/calendar.png',
+      'frasco',
+      'Frasco de versículos',
+      'Frasco',
+      Icons.auto_awesome_rounded,
+      _vida,
     ),
     Atajo(
-      'muro',
-      'Muro',
-      Icons.mail_outline_rounded,
-      'assets/vec/objetos/envelope.png',
+      'devocional',
+      'Devocional',
+      'Devocional',
+      Icons.auto_stories_rounded,
+      _vida,
+    ),
+    Atajo(
+      'oraciones',
+      'Oraciones',
+      'Oraciones',
+      Icons.volunteer_activism_rounded,
+      _vida,
+    ),
+    Atajo('progreso', 'Mi progreso', 'Progreso', Icons.show_chart, _vida),
+    Atajo('favoritos', 'Mis favoritos', 'Favoritos', Icons.star_rounded, _vida),
+    Atajo(
+      'escuela',
+      'Escuela del Reino',
+      'Escuela',
+      Icons.school_rounded,
+      _escuela,
+    ),
+    Atajo(
+      'juegos',
+      'Juegos',
+      'Juegos',
+      Icons.sports_esports_rounded,
+      _escuela,
+    ),
+    Atajo(
+      'carrera',
+      'Carrera de la Fe',
+      'Carrera',
+      Icons.directions_run_rounded,
+      _escuela,
+    ),
+    Atajo('duelo', 'Duelo Relámpago', 'Duelo', Icons.bolt_rounded, _escuela),
+    Atajo(
+      'quien_soy',
+      '¿Quién soy?',
+      '¿Quién soy?',
+      Icons.theater_comedy_rounded,
+      _escuela,
+    ),
+    Atajo('preguntas', 'Preguntas', 'Preguntas', Icons.quiz_rounded, _escuela),
+    Atajo(
+      'orden_biblia',
+      'Orden de la Biblia',
+      'Orden Biblia',
+      Icons.format_list_numbered_rounded,
+      _escuela,
+    ),
+    Atajo(
+      'companero',
+      'Compañero de batalla',
+      'Compañero',
+      Icons.shield,
+      _comunidad,
+    ),
+    Atajo('muro', 'Muro de batalla', 'Muro', Icons.forum_rounded, _comunidad),
+    Atajo(
+      'sos',
+      'Necesito ayuda',
+      'Ayuda',
+      Icons.emergency_outlined,
+      _comunidad,
+    ),
+    Atajo(
+      'campanas',
+      'Campanas sagradas',
+      'Campanas',
+      Icons.notifications_active_rounded,
+      _comunidad,
     ),
   ];
 
