@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../vec/vec_tema.dart';
+
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE READER THEME - 10 temas editoriales premium
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -47,6 +49,10 @@ class BibleReaderThemeData {
 
   /// Swatch color for theme selector
   Color get swatchColor => background;
+
+  /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
+  /// cada página pinta el papel con textura (FondoPapel) por detrás.
+  Color get pageBg => id == paper.id ? Colors.transparent : background;
 
   // ══════════════════════════════════════════════════════════════════════════
   // 10 TEMAS
@@ -160,15 +166,16 @@ class BibleReaderThemeData {
     isDark: false,
   );
 
+  /// Estilo «papel recortado» (kit victoria-en-cristo-estilo, VecColores).
   static const paper = BibleReaderThemeData(
     id: 'papel',
     name: 'Papel recortado',
-    background: Color(0xFFF3EBDD),
-    surface: Color(0xFFFBF6EC),
-    textPrimary: Color(0xFF24324A),
-    textSecondary: Color(0xFF8A8174),
-    accent: Color(0xFFD9583B),
-    toolbarBg: Color(0xFFFBF6EC),
+    background: VecColores.crema,
+    surface: VecColores.papel,
+    textPrimary: VecColores.tinta,
+    textSecondary: VecColores.gris,
+    accent: VecColores.terracota,
+    toolbarBg: VecColores.papel,
     isDark: false,
   );
 

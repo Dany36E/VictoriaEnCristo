@@ -49,7 +49,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final t = AppThemeData.of(context);
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: _isLoading
           ? Center(child: CircularProgressIndicator(color: t.accent))
           : CustomScrollView(

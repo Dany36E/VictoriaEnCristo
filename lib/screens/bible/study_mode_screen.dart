@@ -4,7 +4,6 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 
 import '../../models/bible/bible_book.dart';
@@ -840,7 +839,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: _loading
                 ? Center(
@@ -2729,7 +2728,7 @@ class _SavedStudyTile extends StatelessWidget {
                 Expanded(
                   child: Text(
                     _referenceLabel(study),
-                    style: GoogleFonts.lora(
+                    style: AppFonts.lora(
                       color: t.textPrimary,
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
@@ -3768,7 +3767,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                                 Expanded(
                                   child: Text(
                                     verse.text,
-                                    style: GoogleFonts.crimsonPro(
+                                    style: AppFonts.crimsonPro(
                                       color: inRange
                                           ? t.textPrimary
                                           : t.textPrimary.withValues(alpha: 0.65),
@@ -4010,7 +4009,7 @@ class _TypographySheet extends StatelessWidget {
                   children: [
                     Text(
                       'A',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: t.textSecondary,
                         fontSize: 14,
                       ),
@@ -4028,7 +4027,7 @@ class _TypographySheet extends StatelessWidget {
                     ),
                     Text(
                       'A',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: t.textSecondary,
                         fontSize: 26,
                       ),

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 
 import '../../models/bible/bible_book.dart';
@@ -1286,7 +1285,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: _loading
                 ? Center(
@@ -1741,7 +1740,7 @@ class _NotesEditorCard extends StatelessWidget {
             hintLocales: const [Locale('es')],
             spellCheckConfiguration: spellCheckConfiguration,
             contextMenuBuilder: contextMenuBuilder,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
@@ -2072,7 +2071,7 @@ class _AddedVersesCardState extends State<_AddedVersesCard> {
                                     verse.text.trim(),
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
-                                    style: GoogleFonts.lora(
+                                    style: AppFonts.lora(
                                       color:
                                           t.textSecondary.withValues(alpha: 0.85),
                                       fontSize: 11.5,
@@ -2136,7 +2135,7 @@ class _TakeawayCard extends StatelessWidget {
             onChanged: onChanged,
             maxLines: null,
             minLines: 3,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
@@ -2839,7 +2838,7 @@ class _NotesFontSizeTile extends StatelessWidget {
                 children: [
                   Text(
                     preview,
-                    style: GoogleFonts.lora(
+                    style: AppFonts.lora(
                       color: t.textPrimary,
                       fontSize: size,
                       height: 1.1,
@@ -3371,7 +3370,7 @@ class _TypographySheet extends StatelessWidget {
                   children: [
                     Text(
                       'A',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: t.textSecondary,
                         fontSize: 14,
                       ),
@@ -3389,7 +3388,7 @@ class _TypographySheet extends StatelessWidget {
                     ),
                     Text(
                       'A',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: t.textSecondary,
                         fontSize: 26,
                       ),

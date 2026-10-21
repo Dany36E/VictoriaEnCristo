@@ -36,6 +36,8 @@ import '../widgets/morning_checkin_sheet.dart';
 import '../widgets/offline_banner.dart';
 import '../main.dart' show routeObserver;
 import '../utils/daily_outcome_registration.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 
 // Enum para tipos de animación de iconos
 enum IconAnimationType {
@@ -287,39 +289,43 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     // Forzar íconos claros en status bar: el fondo hero siempre es oscuro arriba
+    // (en el tema papel la hoja es clara: íconos oscuros).
     return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: const SystemUiOverlayStyle(
+      value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: Brightness.light,
-        statusBarBrightness: Brightness.dark, // iOS
+        statusBarIconBrightness: t.isPaper ? Brightness.dark : Brightness.light,
+        statusBarBrightness: t.isPaper ? Brightness.light : Brightness.dark,
       ),
       child: Scaffold(
-        backgroundColor: t.scaffoldBg,
+        backgroundColor: t.pageBg,
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
             // CAPA 1: Portada editorial propia (sin rastreo ni asset externo)
-            Positioned.fill(child: BrandBackdrop(accent: t.accent)),
+            // En el tema papel la portada es la propia hoja con textura.
+            if (!t.isPaper)
+              Positioned.fill(child: BrandBackdrop(accent: t.accent)),
 
             // CAPA 2: Overlay gradiente (adapta opacidad según tema)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.bottomCenter,
-                    end: Alignment.topCenter,
-                    colors: [
-                      t.scaffoldBg.withValues(alpha: 0.95),
-                      t.scaffoldBg.withValues(alpha: 0.7),
-                      t.scaffoldBg.withValues(alpha: 0.3),
-                      t.scaffoldBg.withValues(alpha: 0.1),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.15, 0.35, 0.55, 1.0],
+            if (!t.isPaper)
+              Positioned.fill(
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                      colors: [
+                        t.scaffoldBg.withValues(alpha: 0.95),
+                        t.scaffoldBg.withValues(alpha: 0.7),
+                        t.scaffoldBg.withValues(alpha: 0.3),
+                        t.scaffoldBg.withValues(alpha: 0.1),
+                        Colors.transparent,
+                      ],
+                      stops: const [0.0, 0.15, 0.35, 0.55, 1.0],
+                    ),
                   ),
                 ),
               ),
-            ),
 
             // CAPA 3: Contenido principal
             SafeArea(
@@ -632,6 +638,16 @@ class _HomeScreenState extends State<HomeScreen>
     Color? accent,
     int animationDelayMs = 300,
   }) {
+    if (AppThemeData.of(context).isPaper) {
+      // Aire abajo para la cinta de la primera tarjeta.
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: PopIn(
+          retraso: Duration(milliseconds: animationDelayMs),
+          child: EtiquetaSeccion(label),
+        ),
+      );
+    }
     final color = accent ?? Colors.white;
     return Row(
           children: [
@@ -1137,6 +1153,16 @@ class _QuickGlanceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) {
+      return GestureDetector(
+        onTap: onTap,
+        child: ChipVec(
+          texto: label,
+          color: VecColores.mostaza,
+          iconoWidget: const IconoVec('escudo', color: VecColores.papel),
+        ),
+      );
+    }
     return GestureDetector(
       onTap: () {
         if (onTap != null) {

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/study_chapter_answers.dart';
@@ -82,7 +81,7 @@ class StudyHeaderBar extends StatelessWidget {
                       children: [
                         Text(
                           '$bookName $chapter',
-                          style: GoogleFonts.lora(
+                          style: AppFonts.lora(
                             color: t.accent,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,

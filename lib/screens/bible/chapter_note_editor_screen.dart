@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/chapter_study_note.dart';
 import '../../services/bible/chapter_note_service.dart';
@@ -163,7 +162,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -384,7 +383,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           // Content
           TextField(
             controller: _contentController,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 16,
               height: 1.8,
@@ -392,7 +391,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             decoration: InputDecoration(
               hintText:
                   'Escribe tus reflexiones sobre este capítulo...',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.25),
                 fontSize: 16,
                 height: 1.8,

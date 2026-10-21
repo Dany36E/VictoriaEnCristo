@@ -6,6 +6,9 @@ import 'package:youtube_player_iframe/youtube_player_iframe.dart';
 import '../../models/series.dart';
 import '../../services/privacy_preferences_service.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 
 /// Reproductor de episodios. Embebe YouTube por ID de video (método fiable;
 /// evita el bug de loadPlaylist del paquete). Siempre ofrece "Ver en YouTube"
@@ -114,17 +117,21 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
     super.dispose();
   }
 
+  /// Tema «papel recortado»: el video conserva su marco oscuro; todo lo
+  /// demás es hoja de papel.
+  bool get _papel => AppThemeData.of(context).isPaper;
+
   @override
   Widget build(BuildContext context) {
-    final accent = widget.series.accentColor;
+    final accent = _papel ? VecColores.terracota : widget.series.accentColor;
     final ep = _current;
     final embeddable = _episodeEmbeddable(ep);
 
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnightDeep,
+      backgroundColor: _papel ? Colors.transparent : AppDesignSystem.midnightDeep,
       appBar: AppBar(
-        backgroundColor: AppDesignSystem.midnightDeep,
-        foregroundColor: AppDesignSystem.pureWhite,
+        backgroundColor: _papel ? Colors.transparent : AppDesignSystem.midnightDeep,
+        foregroundColor: _papel ? VecColores.tinta : AppDesignSystem.pureWhite,
         elevation: 0,
         title: Text(
           widget.season.title,
@@ -144,6 +151,9 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
               padding: const EdgeInsets.fromLTRB(16, 14, 16, 6),
               child: Row(
                 children: [
+                  if (_papel)
+                    ChipVec(texto: 'EP ${ep.number}', color: accent)
+                  else
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -166,8 +176,8 @@ class _SeriesPlayerScreenState extends State<SeriesPlayerScreen> {
                   Expanded(
                     child: Text(
                       ep.title,
-                      style: const TextStyle(
-                        color: Colors.white,
+                      style: TextStyle(
+                        color: _papel ? VecColores.tinta : Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
@@ -269,6 +279,64 @@ class _EpisodeRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) {
+      return Semantics(
+        button: true,
+        selected: active,
+        label: 'Episodio ${episode.number}. ${episode.title}',
+        excludeSemantics: true,
+        child: GestureDetector(
+          onTap: onTap,
+          child: Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: VecColores.papel,
+              borderRadius: BorderRadius.circular(VecRadios.m),
+              border: Border.all(
+                color: active ? VecColores.terracota : VecColores.papel,
+                width: 3,
+              ),
+              boxShadow: VecSombras.chip,
+            ),
+            child: Row(
+              children: [
+                CirculoIcono(
+                  iconoVec: 'play',
+                  color: active ? VecColores.terracota : VecColores.cremaOscuro,
+                  colorIcono: active ? VecColores.papel : VecColores.gris,
+                  tamano: 38,
+                  sombra: active,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Episodio ${episode.number}',
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.titulo,
+                          fontSize: 13,
+                          color: VecColores.terracota,
+                        ),
+                      ),
+                      Text(
+                        episode.title,
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.texto,
+                          fontSize: 17,
+                          color: VecColores.tinta,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(10),

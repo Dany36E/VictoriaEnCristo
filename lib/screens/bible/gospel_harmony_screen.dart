@@ -65,7 +65,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
           BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         title: Text(

@@ -8,6 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_fonts.dart';
 import '../services/feedback_engine.dart';
+import '../services/theme_service.dart';
+import '../vec/vec_tema.dart';
 
 class MonthlyVictoryCalendar extends StatelessWidget {
   final DateTime visibleMonth;
@@ -19,14 +21,17 @@ class MonthlyVictoryCalendar extends StatelessWidget {
   final Set<String> bibleDaysISO;
   final Set<String> planDaysISO;
 
-  static const Color _gold = Color(0xFFD4A853);
-  static const Color _textPrimary = Color(0xFFF0F0F0);
-  static const Color _textMuted = Color(0xFF8A8A9A);
-  static const Color _victory = Color(0xFF66BB6A);
-  static const Color _warmBg = Color(0xFF1A1520);
-  static const Color _journal = Color(0xFFCE93D8);
-  static const Color _bible = Color(0xFFE8C97A);
-  static const Color _plan = Color(0xFF64B5F6);
+  // En el tema «papel recortado» el calendario es una tarjeta de papel con
+  // los colores del kit (VecColores); en los demás, la paleta oscura cálida.
+  static bool get _papel => ThemeService().currentTheme.isPaper;
+  static Color get _gold => _papel ? VecColores.mostaza : const Color(0xFFD4A853);
+  static Color get _textPrimary => _papel ? VecColores.tinta : const Color(0xFFF0F0F0);
+  static Color get _textMuted => _papel ? VecColores.gris : const Color(0xFF8A8A9A);
+  static Color get _victory => _papel ? VecColores.verde : const Color(0xFF66BB6A);
+  static Color get _warmBg => _papel ? VecColores.papel : const Color(0xFF1A1520);
+  static Color get _journal => _papel ? VecColores.terracota : const Color(0xFFCE93D8);
+  static Color get _bible => _papel ? VecColores.mostaza : const Color(0xFFE8C97A);
+  static Color get _plan => _papel ? VecColores.azulClaro : const Color(0xFF64B5F6);
 
   const MonthlyVictoryCalendar({
     super.key,
@@ -44,7 +49,13 @@ class MonthlyVictoryCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
+      decoration: _papel
+          ? BoxDecoration(
+              color: _warmBg,
+              borderRadius: BorderRadius.circular(VecRadios.m),
+              boxShadow: VecSombras.papel,
+            )
+          : BoxDecoration(
         color: _warmBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
@@ -112,8 +123,10 @@ class MonthlyVictoryCalendar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(10),
+          color: _papel
+              ? VecColores.cremaOscuro
+              : Colors.white.withValues(alpha: 0.06),
+          borderRadius: BorderRadius.circular(_papel ? VecRadios.pildora : 10),
         ),
         child: Icon(icon, color: _textPrimary.withValues(alpha: 0.7), size: 24),
       ),
@@ -258,7 +271,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
     // Indicador de victoria: checkmark ✓
     Widget? indicator;
     if (dayInfo.isCurrentMonth && !dayInfo.isFuture && dayInfo.isVictory) {
-      indicator = const Icon(
+      indicator = Icon(
         Icons.check_rounded,
         size: 12,
         color: _victory,
@@ -299,7 +312,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
               Container(
                 width: 5,
                 height: 5,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: _gold,
                   shape: BoxShape.circle,
                 ),

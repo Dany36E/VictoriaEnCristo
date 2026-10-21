@@ -34,7 +34,7 @@ class ChapterSelectorScreen extends StatelessWidget {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

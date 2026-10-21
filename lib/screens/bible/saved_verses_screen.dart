@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/saved_verse.dart';
 import '../../models/bible/bible_version.dart';
@@ -30,7 +29,7 @@ class SavedVersesScreen extends StatelessWidget {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -178,7 +177,7 @@ class SavedVersesScreen extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 sv.text,
-                style: GoogleFonts.lora(
+                style: AppFonts.lora(
                   color: t.textPrimary,
                   fontSize: 15,
                   height: 1.6,

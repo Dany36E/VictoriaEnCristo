@@ -32,7 +32,7 @@ class RelapseRecoveryScreen extends StatelessWidget {
     final bestEver = scoring.getBestStreakAllTime();
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppDesignSystem.spacingL),

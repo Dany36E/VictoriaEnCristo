@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_verse.dart';
@@ -151,14 +150,14 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                     minLines: 4,
                     autofocus: true,
                     cursorColor: t.accent,
-                    style: GoogleFonts.lora(
+                    style: AppFonts.lora(
                       color: t.textPrimary,
                       fontSize: noteFontSize,
                       height: 1.55,
                     ),
                     decoration: InputDecoration(
                       hintText: 'Escribe tu reflexión...',
-                      hintStyle: GoogleFonts.lora(
+                      hintStyle: AppFonts.lora(
                         color: t.textSecondary.withValues(alpha: 0.70),
                         fontSize: noteFontSize,
                       ),

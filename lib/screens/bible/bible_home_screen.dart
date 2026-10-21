@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_book.dart';
@@ -176,7 +175,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: _loading
                 ? Center(
@@ -494,7 +493,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     const SizedBox(height: 2),
                     Text(
                       '$_lastBookName $_lastChapter',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: t.textPrimary,
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
@@ -939,7 +938,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Expanded(
                   child: Text(
                     book.name,
-                    style: GoogleFonts.lora(color: t.textPrimary, fontSize: 16),
+                    style: AppFonts.lora(color: t.textPrimary, fontSize: 16),
                   ),
                 ),
                 // Genre label
@@ -1063,7 +1062,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     if (query.isEmpty) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -1080,7 +1079,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     if (matchIndex < 0) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -1104,7 +1103,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           ),
           TextSpan(text: text.substring(matchIndex + query.length)),
         ],
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,

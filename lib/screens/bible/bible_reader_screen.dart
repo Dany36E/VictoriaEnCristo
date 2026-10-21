@@ -199,7 +199,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: GestureDetector(
             onTap: () {
               if (_ctrl.inWordSelection) {

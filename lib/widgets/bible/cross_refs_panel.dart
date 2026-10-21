@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../services/bible/bible_parser_service.dart';
@@ -272,7 +271,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
                 entry.previewText ?? '...',
                 maxLines: 2,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.lora(
+                style: AppFonts.lora(
                   color: t.textPrimary.withValues(alpha: 0.7),
                   fontSize: 12.5,
                   height: 1.5,

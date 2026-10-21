@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 
 /// Tutorial de bienvenida que se muestra la primera vez que el usuario
 /// abre la sección "La Biblia". Carrusel breve y amigable que cubre las
@@ -88,6 +90,11 @@ class _BibleHomeOnboardingOverlayState
     ),
   ];
 
+  // Tema «papel recortado»: hoja de papel con letras y colores del kit.
+  bool get _papel => AppThemeData.of(context).isPaper;
+  Color get _texto => _papel ? VecColores.tinta : Colors.white;
+  Color get _acento => _papel ? VecColores.terracota : const Color(0xFFD4A853);
+
   void _close() {
     BibleHomeOnboardingOverlay.markSeen();
     if (Navigator.canPop(context)) Navigator.pop(context);
@@ -96,8 +103,10 @@ class _BibleHomeOnboardingOverlayState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF161616),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      backgroundColor: _papel ? null : const Color(0xFF161616),
+      shape: _papel
+          ? null
+          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       insetPadding: const EdgeInsets.all(24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 460, maxHeight: 540),
@@ -107,7 +116,7 @@ class _BibleHomeOnboardingOverlayState
             Text(
               'La Biblia',
               style: AppFonts.cinzel(
-                color: Colors.white,
+                color: _texto,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -116,7 +125,7 @@ class _BibleHomeOnboardingOverlayState
             Text(
               'Conoce cómo aprovecharla en 60 segundos',
               style: AppFonts.manrope(
-                color: Colors.white60,
+                color: _papel ? VecColores.gris : Colors.white60,
                 fontSize: 11,
                 letterSpacing: 0.4,
               ),
@@ -139,12 +148,16 @@ class _BibleHomeOnboardingOverlayState
                     onPressed: _close,
                     child: Text(
                       'Saltar',
-                      style: AppFonts.manrope(color: Colors.white54),
+                      style: AppFonts.manrope(
+                        color: _papel ? VecColores.gris : Colors.white54,
+                      ),
                     ),
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
+                    style: _papel
+                        ? null
+                        : ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFFD4A853),
                       foregroundColor: Colors.black,
                       shape: RoundedRectangleBorder(
@@ -181,6 +194,9 @@ class _BibleHomeOnboardingOverlayState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
+          if (_papel)
+            PopIn(child: CirculoIcono(icono: s.icon, tamano: 84, giro: -4))
+          else
           Container(
             width: 84,
             height: 84,
@@ -199,7 +215,7 @@ class _BibleHomeOnboardingOverlayState
             s.title,
             textAlign: TextAlign.center,
             style: AppFonts.cinzel(
-              color: Colors.white,
+              color: _texto,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
@@ -208,8 +224,8 @@ class _BibleHomeOnboardingOverlayState
           Text(
             s.body,
             textAlign: TextAlign.center,
-            style: GoogleFonts.lora(
-              color: Colors.white70,
+            style: AppFonts.lora(
+              color: _papel ? VecColores.tinta : Colors.white70,
               fontSize: 14,
               height: 1.55,
             ),
@@ -230,7 +246,9 @@ class _BibleHomeOnboardingOverlayState
           width: active ? 18 : 6,
           height: 6,
           decoration: BoxDecoration(
-            color: active ? const Color(0xFFD4A853) : Colors.white24,
+            color: active
+                ? _acento
+                : (_papel ? VecColores.cremaOscuro : Colors.white24),
             borderRadius: BorderRadius.circular(3),
           ),
         );

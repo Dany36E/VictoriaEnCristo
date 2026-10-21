@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter/cupertino.dart';
 import 'app_fonts.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 import 'app_theme_data.dart';
 import 'dart:ui';
 
@@ -193,7 +195,7 @@ class AppDesignSystem {
   
   /// Scripture - Special style for Bible verses
   static TextStyle scripture(BuildContext context, {Color? color}) {
-    return GoogleFonts.crimsonPro(
+    return AppFonts.crimsonPro(
       fontSize: 20,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.italic,
@@ -390,6 +392,18 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) {
+      // Tema papel: sin vidrio esmerilado; recorte de papel con su sombra.
+      return Container(
+        padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
+        decoration: BoxDecoration(
+          color: VecColores.papel,
+          borderRadius: BorderRadius.circular(VecRadios.m),
+          boxShadow: VecSombras.papel,
+        ),
+        child: child,
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius ?? AppDesignSystem.radiusM),
       child: BackdropFilter(
@@ -483,6 +497,7 @@ class _PremiumButtonState extends State<PremiumButton>
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) return _buildPapel();
     return GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
@@ -516,6 +531,46 @@ class _PremiumButtonState extends State<PremiumButton>
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Tema papel: píldora de color sólido del kit que se hunde 5 px al tocarla.
+extension on _PremiumButtonState {
+  Widget _buildPapel() {
+    final fondo = widget.isOutlined
+        ? VecColores.papel
+        : widget.backgroundColor == AppDesignSystem.victory
+        ? VecColores.verde
+        : VecColores.terracota;
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      onTap: widget.onPressed,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          final abajo = _controller.value > 0;
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 110),
+            width: widget.width,
+            transform: Matrix4.translationValues(0, abajo ? 5 : 0, 0),
+            padding: widget.padding ??
+                const EdgeInsets.symmetric(
+                  horizontal: AppDesignSystem.spacingL,
+                  vertical: AppDesignSystem.spacingM,
+                ),
+            decoration: BoxDecoration(
+              color: fondo,
+              borderRadius: BorderRadius.circular(VecRadios.pildora),
+              boxShadow: abajo ? VecSombras.presionado : VecSombras.chip,
+            ),
+            child: child,
+          );
+        },
+        child: Center(child: widget.child),
       ),
     );
   }
@@ -1007,262 +1062,333 @@ class AppTheme {
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // PAPER THEME — "Papel recortado" (papercraft)
+  // PAPER THEME — «papel recortado» (kit victoria-en-cristo-estilo)
   // ══════════════════════════════════════════════════════════════════════════
   //
-  // Bordes blancos tipo sticker, formas de píldora, tipografía Baloo 2 y
-  // sombras cortas de papel. Se usa cuando AppThemeData.isPaper es true.
+  // Parte de vecTema() del kit y lo extiende a todos los componentes de
+  // Material con los mismos tokens (VecColores, VecFuentes, VecSombras,
+  // VecRadios). Se usa cuando AppThemeData.isPaper es true.
 
-  static TextStyle _paperFont({
-    double? fontSize,
-    FontWeight? fontWeight,
-    Color? color,
+  static const TextStyle _vecTitulo = TextStyle(
+    fontFamily: VecFuentes.titulo,
+    color: VecColores.tinta,
+  );
+  static const TextStyle _vecTexto = TextStyle(
+    fontFamily: VecFuentes.texto,
+    color: VecColores.tinta,
+  );
+
+  /// Botón de píldora: color sólido, texto crema en Lilita One y sombra
+  /// sólida que baja de 8 a 3 px al presionarlo.
+  static ButtonStyle _vecBoton({
+    required Color fondo,
+    required Color texto,
   }) {
-    return GoogleFonts.getFont(
-      'Baloo 2',
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      color: color,
+    return ButtonStyle(
+      backgroundColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? VecColores.cremaOscuro : fondo,
+      ),
+      foregroundColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? VecColores.gris : texto,
+      ),
+      iconColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? VecColores.gris : texto,
+      ),
+      overlayColor: WidgetStatePropertyAll(texto.withValues(alpha: 0.08)),
+      elevation: const WidgetStatePropertyAll(0),
+      shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.fromLTRB(26, 14, 26, 12),
+      ),
+      shape: WidgetStateProperty.resolveWith(
+        (s) => BordeConSombraVec.pildora(
+          presionado: s.contains(WidgetState.pressed),
+        ),
+      ),
+      textStyle: const WidgetStatePropertyAll(
+        TextStyle(fontFamily: VecFuentes.titulo, fontSize: 18),
+      ),
     );
   }
 
   static ThemeData get paperTheme {
-    const navy = PaperPalette.navy;
-    const coral = PaperPalette.coral;
-    const sticker = BorderSide(color: PaperPalette.sticker, width: 3);
-    final base = ThemeData(useMaterial3: true, brightness: Brightness.light);
+    final base = vecTema();
+    final tituloTema = base.textTheme;
 
     return base.copyWith(
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: coral,
-        primary: coral,
-        onPrimary: Colors.white,
-        secondary: PaperPalette.teal,
-        onSecondary: Colors.white,
-        tertiary: PaperPalette.mustard,
-        surface: PaperPalette.paper,
-        onSurface: navy,
-        brightness: Brightness.light,
+      // Cada página pinta su papel con textura (TransicionPapel/FondoPapel).
+      scaffoldBackgroundColor: Colors.transparent,
+      canvasColor: VecColores.papel,
+      textTheme: tituloTema.copyWith(
+        displayMedium: _vecTitulo.copyWith(fontSize: 38, height: 1.05),
+        displaySmall: _vecTitulo.copyWith(fontSize: 32, height: 1.05),
+        headlineLarge: _vecTitulo.copyWith(fontSize: 32, height: 1.05),
+        headlineSmall: _vecTitulo.copyWith(fontSize: 24, height: 1.05),
+        titleSmall: _vecTitulo.copyWith(fontSize: 16),
+        labelMedium: _vecTitulo.copyWith(fontSize: 14),
+        labelSmall: _vecTitulo.copyWith(fontSize: 12),
+        bodySmall: _vecTexto.copyWith(fontSize: 15, color: VecColores.gris),
       ),
-      scaffoldBackgroundColor: PaperPalette.cream,
-      textTheme: GoogleFonts.getTextTheme(
-        'Baloo 2',
-        base.textTheme,
-      ).apply(bodyColor: navy, displayColor: navy),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: TransicionPapel(
+            PredictiveBackPageTransitionsBuilder(),
+          ),
+          TargetPlatform.iOS: TransicionPapel(CupertinoPageTransitionsBuilder()),
+          TargetPlatform.macOS: TransicionPapel(
+            CupertinoPageTransitionsBuilder(),
+          ),
+          TargetPlatform.windows: TransicionPapel(ZoomPageTransitionsBuilder()),
+          TargetPlatform.linux: TransicionPapel(ZoomPageTransitionsBuilder()),
+        },
+      ),
 
-      appBarTheme: AppBarTheme(
-        backgroundColor: PaperPalette.cream,
-        foregroundColor: navy,
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        foregroundColor: VecColores.tinta,
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: _paperFont(
-          fontSize: 20,
-          fontWeight: FontWeight.w800,
-          color: navy,
+        titleTextStyle: TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 24,
+          color: VecColores.tinta,
         ),
-        iconTheme: const IconThemeData(color: navy, size: 24),
+        iconTheme: IconThemeData(color: VecColores.tinta, size: 26),
       ),
 
       cardTheme: CardThemeData(
-        color: PaperPalette.card,
-        elevation: 2,
-        shadowColor: const Color(0x665B4630),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(18),
-          side: sticker,
-        ),
+        color: VecColores.papel,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        shape: BordeConSombraVec.tarjeta(),
         margin: EdgeInsets.zero,
       ),
 
       elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: coral,
-          foregroundColor: Colors.white,
-          elevation: 2,
-          shadowColor: const Color(0x665B4630),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: const StadiumBorder(side: sticker),
-          textStyle: _paperFont(fontSize: 16, fontWeight: FontWeight.w800),
-        ),
+        style: _vecBoton(fondo: VecColores.terracota, texto: VecColores.papel),
       ),
-
       filledButtonTheme: FilledButtonThemeData(
-        style: FilledButton.styleFrom(
-          backgroundColor: coral,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: const StadiumBorder(side: sticker),
-          textStyle: _paperFont(fontSize: 16, fontWeight: FontWeight.w800),
-        ),
+        style: _vecBoton(fondo: VecColores.terracota, texto: VecColores.papel),
       ),
-
+      // Botón secundario (.vec-boton.secundario): papel con texto tinta.
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: _vecBoton(
+          fondo: VecColores.papel,
+          texto: VecColores.tinta,
+        ).copyWith(side: const WidgetStatePropertyAll(BorderSide.none)),
+      ),
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
-          foregroundColor: coral,
+          foregroundColor: VecColores.terracota,
           shape: const StadiumBorder(),
-          textStyle: _paperFont(fontSize: 15, fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 17),
         ),
       ),
 
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: navy,
-          backgroundColor: PaperPalette.card,
-          side: const BorderSide(color: navy, width: 2),
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-          shape: const StadiumBorder(),
-          textStyle: _paperFont(fontSize: 16, fontWeight: FontWeight.w700),
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: VecColores.terracota,
+        foregroundColor: VecColores.papel,
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        // Estadio: círculo en el FAB normal y píldora en el extendido.
+        shape: BordeConSombraVec(
+          forma: const StadiumBorder(),
+          sombras: VecSombras.chip,
         ),
-      ),
-
-      floatingActionButtonTheme: const FloatingActionButtonThemeData(
-        backgroundColor: coral,
-        foregroundColor: Colors.white,
-        elevation: 3,
-        shape: CircleBorder(side: sticker),
+        extendedTextStyle: const TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 18,
+        ),
       ),
 
       chipTheme: ChipThemeData(
-        backgroundColor: PaperPalette.card,
-        selectedColor: PaperPalette.teal,
-        labelStyle: _paperFont(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: navy,
+        backgroundColor: VecColores.cremaOscuro,
+        selectedColor: VecColores.terracota,
+        disabledColor: VecColores.cremaOscuro,
+        checkmarkColor: VecColores.papel,
+        labelStyle: const TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 15,
+          color: VecColores.tinta,
         ),
-        secondaryLabelStyle: _paperFont(
-          fontSize: 14,
-          fontWeight: FontWeight.w700,
-          color: Colors.white,
+        secondaryLabelStyle: const TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 15,
+          color: VecColores.papel,
         ),
-        shape: const StadiumBorder(
-          side: BorderSide(color: Colors.white, width: 2),
+        side: BorderSide.none,
+        shape: BordeConSombraVec(
+          forma: const StadiumBorder(),
+          sombras: VecSombras.presionado,
         ),
-        elevation: 1,
-        shadowColor: const Color(0x665B4630),
-      ),
-
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: PaperPalette.card,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 18,
-          vertical: 16,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: navy.withValues(alpha: 0.15),
-            width: 1.5,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: BorderSide(
-            color: navy.withValues(alpha: 0.15),
-            width: 1.5,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(16),
-          borderSide: const BorderSide(color: coral, width: 2.5),
-        ),
-        labelStyle: _paperFont(
-          color: PaperPalette.ink,
-          fontWeight: FontWeight.w600,
-        ),
-        hintStyle: _paperFont(color: PaperPalette.ink.withValues(alpha: 0.6)),
-      ),
-
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: PaperPalette.paper,
-        selectedItemColor: coral,
-        unselectedItemColor: PaperPalette.ink,
-        type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: _paperFont(
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
-        ),
-        unselectedLabelStyle: _paperFont(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-        ),
+        pressElevation: 0,
       ),
 
-      navigationBarTheme: NavigationBarThemeData(
-        backgroundColor: PaperPalette.paper,
-        indicatorColor: coral.withValues(alpha: 0.15),
-        indicatorShape: const StadiumBorder(),
-        labelTextStyle: WidgetStatePropertyAll(
-          _paperFont(fontSize: 12, fontWeight: FontWeight.w700, color: navy),
+      inputDecorationTheme: base.inputDecorationTheme.copyWith(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.tinta, width: 4),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.cremaOscuro, width: 4),
+        ),
+        labelStyle: _vecTexto.copyWith(color: VecColores.gris, fontSize: 18),
+        floatingLabelStyle: _vecTitulo.copyWith(
+          color: VecColores.terracota,
+          fontSize: 16,
+        ),
+        errorStyle: _vecTexto.copyWith(color: VecColores.terracota, fontSize: 15),
+        prefixIconColor: VecColores.gris,
+        suffixIconColor: VecColores.gris,
       ),
 
-      switchTheme: SwitchThemeData(
-        thumbColor: const WidgetStatePropertyAll(Colors.white),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return PaperPalette.teal;
-          return PaperPalette.ink.withValues(alpha: 0.3);
-        }),
-        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      switchTheme: base.switchTheme.copyWith(
+        trackOutlineWidth: const WidgetStatePropertyAll(3),
       ),
-
       checkboxTheme: CheckboxThemeData(
-        fillColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) return PaperPalette.teal;
-          return Colors.transparent;
-        }),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+        fillColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? VecColores.verde
+              : VecColores.papel,
+        ),
+        checkColor: const WidgetStatePropertyAll(VecColores.papel),
+        side: const BorderSide(color: VecColores.tinta, width: 3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
+      radioTheme: RadioThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? VecColores.verde
+              : VecColores.tinta,
+        ),
+      ),
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: VecColores.terracota,
+        inactiveTrackColor: VecColores.cremaOscuro,
+        thumbColor: VecColores.terracota,
       ),
 
       dialogTheme: DialogThemeData(
-        backgroundColor: PaperPalette.card,
-        elevation: 4,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(24),
-          side: const BorderSide(color: Colors.white, width: 4),
-        ),
-        titleTextStyle: _paperFont(
-          fontSize: 22,
-          fontWeight: FontWeight.w800,
-          color: navy,
-        ),
+        backgroundColor: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: BordeConSombraVec.tarjeta(radio: VecRadios.l),
+        titleTextStyle: _vecTitulo.copyWith(fontSize: 24),
+        contentTextStyle: _vecTexto.copyWith(fontSize: 18, height: 1.3),
       ),
-
       bottomSheetTheme: const BottomSheetThemeData(
-        backgroundColor: PaperPalette.paper,
+        backgroundColor: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: VecColores.papel,
+        dragHandleColor: VecColores.cremaOscuro,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-          side: BorderSide(color: Colors.white, width: 3),
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(VecRadios.l),
+          ),
         ),
       ),
-
+      popupMenuTheme: PopupMenuThemeData(
+        color: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: BordeConSombraVec.tarjeta(),
+        textStyle: _vecTexto.copyWith(fontSize: 18),
+      ),
       snackBarTheme: SnackBarThemeData(
-        backgroundColor: navy,
-        contentTextStyle: _paperFont(
-          color: Colors.white,
-          fontWeight: FontWeight.w700,
+        backgroundColor: VecColores.tinta,
+        contentTextStyle: _vecTitulo.copyWith(
+          color: VecColores.papel,
+          fontSize: 16,
         ),
-        shape: const StadiumBorder(
-          side: BorderSide(color: Colors.white, width: 2),
-        ),
+        actionTextColor: VecColores.mostazaClaro,
+        shape: BordeConSombraVec.pildora(presionado: true),
         behavior: SnackBarBehavior.floating,
+        elevation: 0,
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: VecColores.tinta,
+          borderRadius: BorderRadius.circular(VecRadios.s),
+        ),
+        textStyle: _vecTitulo.copyWith(color: VecColores.papel, fontSize: 14),
       ),
 
-      dividerTheme: DividerThemeData(
-        color: navy.withValues(alpha: 0.1),
-        thickness: 1.5,
+      // Barra inferior (.vec-tabbar): papel, activo en terracota.
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: VecColores.papel,
+        selectedItemColor: VecColores.terracota,
+        unselectedItemColor: VecColores.gris,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+        selectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+        unselectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: VecColores.terracota,
+        indicatorShape: const CircleBorder(),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (s) => IconThemeData(
+            color: s.contains(WidgetState.selected)
+                ? VecColores.papel
+                : VecColores.gris,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (s) => _vecTitulo.copyWith(
+            fontSize: 13,
+            color: s.contains(WidgetState.selected)
+                ? VecColores.terracota
+                : VecColores.gris,
+          ),
+        ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: VecColores.terracota,
+        unselectedLabelColor: VecColores.gris,
+        indicatorColor: VecColores.terracota,
+        dividerColor: VecColores.cremaOscuro,
+        labelStyle: _vecTitulo.copyWith(fontSize: 16),
+        unselectedLabelStyle: _vecTitulo.copyWith(fontSize: 16),
+      ),
+
+      dividerTheme: const DividerThemeData(
+        color: VecColores.cremaOscuro,
+        thickness: 2,
         space: 1,
       ),
-
-      listTileTheme: const ListTileThemeData(iconColor: navy, textColor: navy),
-      iconTheme: const IconThemeData(color: navy, size: 24),
-
-      progressIndicatorTheme: ProgressIndicatorThemeData(
-        color: coral,
-        linearTrackColor: navy.withValues(alpha: 0.1),
+      listTileTheme: ListTileThemeData(
+        iconColor: VecColores.tinta,
+        textColor: VecColores.tinta,
+        titleTextStyle: _vecTitulo.copyWith(fontSize: 17),
+        subtitleTextStyle: _vecTexto.copyWith(
+          fontSize: 16,
+          color: VecColores.gris,
+        ),
+      ),
+      iconTheme: const IconThemeData(color: VecColores.tinta, size: 24),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: VecColores.terracota,
+        linearTrackColor: VecColores.cremaOscuro,
+        circularTrackColor: VecColores.cremaOscuro,
       ),
     );
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_book.dart';
@@ -425,7 +424,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
     );
 
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -707,7 +706,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       ),
                       TextSpan(
                         text: verse.text,
-                        style: GoogleFonts.lora(
+                        style: AppFonts.lora(
                           color: t.textPrimary,
                           fontSize: _parallelFontSize,
                           height: 1.7,

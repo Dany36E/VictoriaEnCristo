@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
@@ -128,7 +127,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -272,7 +271,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
               const SizedBox(height: 6),
               Text(
                 verse.text,
-                style: GoogleFonts.lora(
+                style: AppFonts.lora(
                   color: t.textPrimary,
                   fontSize: 16,
                   height: 1.7,

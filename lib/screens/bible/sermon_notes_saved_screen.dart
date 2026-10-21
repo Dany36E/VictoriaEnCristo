@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 
 import '../../models/bible/rich_note_document.dart';
@@ -59,7 +58,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: _loading
                 ? Center(
@@ -574,7 +573,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   preview,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 14.5,
                     height: 1.55,

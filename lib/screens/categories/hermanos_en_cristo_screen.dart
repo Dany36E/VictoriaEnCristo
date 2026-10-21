@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 import '../../widgets/home/category_hub_scaffold.dart';
 import '../../widgets/home/glassmorphic_menu_button.dart';
 import '../../repositories/profile_repository.dart';
@@ -36,7 +39,7 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
     return CategoryHubScaffold(
       title: 'Hermanos en Cristo',
       children: [
-        _buildIntro(),
+        _buildIntro(context),
         const SizedBox(height: AppDesignSystem.spacingL),
         Row(
           children: [
@@ -130,7 +133,31 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
     );
   }
 
-  Widget _buildIntro() {
+  Widget _buildIntro(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) {
+      // Tema papel: Victoria presenta la sección, como en los videos.
+      return const PopIn(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Sticker(
+              'assets/vec/personajes/victoria_saludo.png',
+              alto: 120,
+            ),
+            SizedBox(width: 8),
+            Expanded(
+              child: Subtitulo(
+                quien: 'Victoria',
+                texto:
+                    'No caminamos solos. Apóyate en tu compañero y en la comunidad.',
+                clave: 'solos',
+                color: VecColores.terracota,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
           padding: const EdgeInsets.all(AppDesignSystem.spacingM),
           decoration: BoxDecoration(

@@ -12,6 +12,8 @@ import '../services/plan_repository.dart';
 import '../services/plan_progress_service.dart';
 import '../widgets/plan_cover.dart';
 import 'plan_reader_screen.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// PLAN DETAIL SCREEN V2
@@ -90,7 +92,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.surface,
+      backgroundColor: t.isPaper ? t.pageBg : t.surface,
       body: _isLoading
           ? _buildLoadingState()
           : Stack(
@@ -216,8 +218,43 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
     );
   }
 
+  /// Tema papel: botón redondo de papel sobre la portada (sin vidrio).
+  Widget _botonPapel({
+    required IconData icono,
+    required String tooltip,
+    required VoidCallback onTap,
+    bool activo = false,
+  }) {
+    return Tooltip(
+      message: tooltip,
+      child: Semantics(
+        button: true,
+        label: tooltip,
+        child: GestureDetector(
+          onTap: onTap,
+          child: CirculoIcono(
+            icono: icono,
+            color: activo ? VecColores.terracota : VecColores.papel,
+            colorIcono: activo ? VecColores.papel : VecColores.tinta,
+            tamano: 42,
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget _buildBackButton(BuildContext context) {
     final t = AppThemeData.of(context);
+    if (t.isPaper) {
+      return Padding(
+        padding: const EdgeInsets.all(8),
+        child: _botonPapel(
+          icono: Icons.arrow_back_rounded,
+          tooltip: 'Volver',
+          onTap: () => Navigator.of(context).pop(),
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.all(8),
       child: ClipRRect(
@@ -242,6 +279,13 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
 
   Widget _buildShareButton() {
     final t = AppThemeData.of(context);
+    if (t.isPaper) {
+      return _botonPapel(
+        icono: Icons.share_rounded,
+        tooltip: 'Compartir',
+        onTap: _sharePlan,
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(12),
       child: BackdropFilter(
@@ -265,6 +309,19 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
 
   Widget _buildReminderButton() {
     final t = AppThemeData.of(context);
+    if (t.isPaper) {
+      return Padding(
+        padding: const EdgeInsets.only(left: 8),
+        child: _botonPapel(
+          icono: _hasReminder
+              ? Icons.notifications_active_rounded
+              : Icons.notifications_rounded,
+          tooltip: 'Recordatorio',
+          activo: _hasReminder,
+          onTap: _toggleReminder,
+        ),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(left: 8),
       child: ClipRRect(

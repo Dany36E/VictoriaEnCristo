@@ -83,7 +83,7 @@ class _FruitWeekScreenState extends State<FruitWeekScreen> {
     final t = AppThemeData.of(context);
     final color = _parseHex(f.colorHex);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/typology.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -19,7 +18,7 @@ class TypologyDetailScreen extends StatelessWidget {
           BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         title: Text(
@@ -180,7 +179,7 @@ class TypologyDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               ref.text,
-              style: GoogleFonts.crimsonPro(
+              style: AppFonts.crimsonPro(
                 color: t.textPrimary.withValues(alpha: 0.7),
                 fontSize: 16,
                 fontStyle: FontStyle.italic,

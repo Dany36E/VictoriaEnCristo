@@ -45,7 +45,7 @@ class StudyResultsScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.background,
         elevation: 0,

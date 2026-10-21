@@ -335,7 +335,7 @@ class _VerseStudyScreenState extends State<VerseStudyScreen> {
     final t = AppThemeData.of(context);
     final state = VerseMemoryService.I.stateFor(widget.verse.id);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,

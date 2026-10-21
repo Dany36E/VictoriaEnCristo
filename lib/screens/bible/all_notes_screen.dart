@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_note.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -47,7 +46,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -274,7 +273,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
               const SizedBox(height: 6),
               Text(
                 note.text,
-                style: GoogleFonts.lora(
+                style: AppFonts.lora(
                   color: t.textPrimary,
                   fontSize: 15,
                   height: 1.6,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -45,7 +44,7 @@ class BibleSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -162,7 +161,7 @@ class BibleSettingsScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito...',
-                      style: GoogleFonts.crimsonPro(
+                      style: AppFonts.crimsonPro(
                         color: t.textPrimary.withValues(alpha: 0.7),
                         fontSize: fontSize,
                         fontStyle: FontStyle.italic,
@@ -176,7 +175,7 @@ class BibleSettingsScreen extends StatelessWidget {
                     children: [
                       Text(
                         'A',
-                        style: GoogleFonts.crimsonPro(
+                        style: AppFonts.crimsonPro(
                           color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 14,
                         ),
@@ -202,7 +201,7 @@ class BibleSettingsScreen extends StatelessWidget {
                       ),
                       Text(
                         'A',
-                        style: GoogleFonts.crimsonPro(
+                        style: AppFonts.crimsonPro(
                           color: t.textPrimary.withValues(alpha: 0.7),
                           fontSize: 28,
                         ),
@@ -243,7 +242,7 @@ class BibleSettingsScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'Porque de tal manera amó Dios al mundo...',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: currentTheme.textPrimary,
                         fontSize: 16,
                         fontStyle: FontStyle.italic,

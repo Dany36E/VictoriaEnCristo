@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
@@ -14,6 +13,8 @@ import '../services/content_repository.dart';
 import '../models/content_item.dart';
 import '../theme/app_theme_data.dart';
 import 'emotional_verse_jar_screen.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 
 class VersesScreen extends StatefulWidget {
   const VersesScreen({super.key});
@@ -88,7 +89,7 @@ class _VersesScreenState extends State<VersesScreen>
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: Column(
         children: [
           // ═══════════════════════════════════════════════════════════════
@@ -228,7 +229,7 @@ class _VersesScreenState extends State<VersesScreen>
                 // Versículo
                 Text(
                   '"${verse.verse}"',
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     fontSize: 17,
                     fontWeight: FontWeight.w500,
                     color: t.textPrimary,
@@ -379,6 +380,7 @@ class _VersesScreenState extends State<VersesScreen>
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildEmotionalHeroBanner() {
     final t = AppThemeData.of(context);
+    if (t.isPaper) return _buildHeroBannerPapel();
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: GestureDetector(
@@ -607,6 +609,65 @@ class _VersesScreenState extends State<VersesScreen>
         .slideY(begin: 0.1, end: 0, duration: 500.ms, curve: Curves.easeOutCubic);
   }
 
+  /// Tema papel: tarjeta con Victoria invitando a abrir el frasco.
+  Widget _buildHeroBannerPapel() {
+    void abrirFrasco() {
+      FeedbackEngine.I.confirm();
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const EmotionalVerseJarScreen()),
+      );
+    }
+
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 14, 16, 0),
+      child: PopIn(
+        child: GestureDetector(
+          onTap: abrirFrasco,
+          child: TarjetaPapel(
+            padding: const EdgeInsets.fromLTRB(18, 20, 14, 18),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const TituloVec(
+                        '¿Cómo te sientes hoy?',
+                        clave: 'sientes',
+                        tamano: 24,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Descubre una promesa de Dios específica para tu estado de ánimo.',
+                        style: AppFonts.manrope(
+                          fontSize: 17,
+                          color: VecColores.gris,
+                          height: 1.25,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      BotonVec(
+                        texto: 'Buscar consuelo',
+                        iconoWidget: const IconoVec('corazon'),
+                        onPressed: abrirFrasco,
+                      ),
+                    ],
+                  ),
+                ),
+                const Sticker(
+                  'assets/vec/personajes/victoria_piensa.png',
+                  alto: 150,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // ICONOS DE EMOCIONES DECORATIVOS (lado derecho del banner)
   // ═══════════════════════════════════════════════════════════════════════════
@@ -734,7 +795,7 @@ class _PremiumVerseCard extends StatelessWidget {
             // ═══════════════════════════════════════════════════════════════
             Text(
               '"${verse.verse}"',
-              style: GoogleFonts.crimsonPro(
+              style: AppFonts.crimsonPro(
                 fontSize: 19, // Aumentado significativamente
                 fontWeight: FontWeight.w400,
                 fontStyle: FontStyle.italic,
@@ -824,9 +885,13 @@ class _PremiumVerseCard extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0D1B2A),
+        backgroundColor: AppThemeData.of(context).isPaper
+            ? null
+            : const Color(0xFF0D1B2A),
         behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: AppThemeData.of(context).isPaper
+            ? null
+            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
       ),
@@ -931,9 +996,13 @@ class _FavoriteIconState extends State<_FavoriteIcon> {
               ),
             ],
           ),
-          backgroundColor: const Color(0xFF0D1B2A),
+          backgroundColor: AppThemeData.of(context).isPaper
+              ? null
+              : const Color(0xFF0D1B2A),
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: AppThemeData.of(context).isPaper
+              ? null
+              : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
         ),

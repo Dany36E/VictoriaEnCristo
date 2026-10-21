@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
@@ -240,7 +239,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -685,7 +684,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     result.intent == SearchIntent.bookAndChapter
                         ? '${result.bookName}, capítulo ${result.chapter}'
                         : '${result.bookName} — ${result.totalChapters} capítulos',
-                    style: GoogleFonts.lora(color: t.textPrimary, fontSize: 16),
+                    style: AppFonts.lora(color: t.textPrimary, fontSize: 16),
                   ),
                 ],
               ),
@@ -721,7 +720,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     if (query.isEmpty) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -738,7 +737,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     if (matchIndex < 0) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -762,7 +761,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           ),
           TextSpan(text: text.substring(matchIndex + query.length)),
         ],
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,

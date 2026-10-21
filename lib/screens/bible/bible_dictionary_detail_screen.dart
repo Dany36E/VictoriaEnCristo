@@ -15,7 +15,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value));
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: CustomScrollView(
           slivers: [

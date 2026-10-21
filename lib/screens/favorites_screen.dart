@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../services/favorites_service.dart';
 import '../theme/app_theme_data.dart';
+import '../vec/vec_widgets.dart';
 import '../widgets/share_verse_modal.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════════
@@ -46,7 +46,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -57,15 +57,22 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             expandedHeight: 180,
             floating: false,
             pinned: true,
-            backgroundColor: t.surface,
+            backgroundColor: t.isPaper ? Colors.transparent : t.surface,
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios_rounded, color: t.textPrimary),
               onPressed: () => Navigator.pop(context),
             ),
-            flexibleSpace: FlexibleSpaceBar(
+            flexibleSpace: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Tema papel: la barra fija también es hoja con textura.
+                if (t.isPaper) const FondoPapel(child: SizedBox.expand()),
+                FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: t.isPaper
+                      ? null
+                      : LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
@@ -77,6 +84,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 child: Stack(
                   children: [
                     // Decoración de fondo
+                    if (!t.isPaper)
                     Positioned(
                       top: -30,
                       right: -30,
@@ -139,6 +147,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   ],
                 ),
               ),
+            ),
+              ],
             ),
           ),
 
@@ -289,7 +299,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0A0E14),
+        backgroundColor: AppThemeData.of(context).isPaper
+            ? null
+            : const Color(0xFF0A0E14),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -377,7 +389,7 @@ class _FavoriteVerseCard extends StatelessWidget {
               // Versículo
               Text(
                 '"${verse.verse}"',
-                style: GoogleFonts.crimsonPro(
+                style: AppFonts.crimsonPro(
                   fontSize: 17,
                   fontWeight: FontWeight.w400,
                   fontStyle: FontStyle.italic,

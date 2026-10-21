@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_version.dart';
@@ -278,7 +277,7 @@ class _HeaderChip extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.accent,
               fontSize: 13,
               fontWeight: FontWeight.w600,

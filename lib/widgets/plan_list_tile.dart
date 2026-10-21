@@ -3,6 +3,9 @@ import '../theme/app_theme.dart';
 import '../models/plan.dart';
 import '../models/content_enums.dart';
 import 'plan_cover.dart';
+import '../services/theme_service.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// PLAN LIST TILE - Estilo YouVersion/Portada real
@@ -30,13 +33,20 @@ class PlanListTile extends StatelessWidget {
   double get _progressPercent => 
       progress?.progressPercentage(plan.durationDays) ?? 0.0;
 
+  // Tema «papel recortado»: tarjeta de papel con colores del kit.
+  static bool get _papel => ThemeService().currentTheme.isPaper;
+  static Color get _oro => _papel ? VecColores.terracota : AppDesignSystem.gold;
+  static Color get _texto => _papel ? VecColores.tinta : AppDesignSystem.pureWhite;
+  static Color get _gris => _papel ? VecColores.gris : AppDesignSystem.coolGray;
+  static Color get _sobreOro => _papel ? VecColores.papel : AppDesignSystem.midnight;
+
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: AppDesignSystem.midnightLight,
-      elevation: 2,
-      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-      shape: RoundedRectangleBorder(
+      color: _papel ? VecColores.papel : AppDesignSystem.midnightLight,
+      elevation: _papel ? 0 : 2,
+      margin: EdgeInsets.symmetric(horizontal: 16, vertical: _papel ? 10 : 6),
+      shape: _papel ? BordeConSombraVec.tarjeta() : RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
         side: BorderSide(
           color: _isCompleted 
@@ -161,22 +171,22 @@ class PlanListTile extends StatelessWidget {
         // Duración + categoría
         Row(
           children: [
-            const Icon(
-              Icons.calendar_today_outlined,
+            Icon(
+              Icons.calendar_today_rounded,
               size: 12,
-              color: AppDesignSystem.gold,
+              color: _oro,
             ),
             const SizedBox(width: 4),
             Text(
               '${plan.durationDays} días',
-              style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+              style: AppDesignSystem.labelSmall(context, color: _oro),
             ),
             const SizedBox(width: 8),
             Container(
               width: 4,
               height: 4,
               decoration: BoxDecoration(
-                color: AppDesignSystem.coolGray.withValues(alpha: 0.5),
+                color: _gris.withValues(alpha: 0.5),
                 shape: BoxShape.circle,
               ),
             ),
@@ -184,7 +194,7 @@ class PlanListTile extends StatelessWidget {
             Flexible(
               child: Text(
                 plan.metadata.stage.displayName,
-                style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
+                style: AppDesignSystem.labelSmall(context, color: _gris),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -197,7 +207,7 @@ class PlanListTile extends StatelessWidget {
         // Título
         Text(
           plan.title,
-          style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.pureWhite).copyWith(
+          style: AppDesignSystem.labelLarge(context, color: _texto).copyWith(
             fontSize: 15,
             fontWeight: FontWeight.w600,
             height: 1.2,
@@ -211,7 +221,7 @@ class PlanListTile extends StatelessWidget {
         // Subtítulo
         Text(
           plan.subtitle,
-          style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
+          style: AppDesignSystem.labelSmall(context, color: _gris),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -221,7 +231,7 @@ class PlanListTile extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             '${(_progressPercent * 100).toInt()}% completado',
-            style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold).copyWith(
+            style: AppDesignSystem.labelSmall(context, color: _oro).copyWith(
               fontWeight: FontWeight.w500,
             ),
           ),
@@ -235,12 +245,12 @@ class PlanListTile extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: AppDesignSystem.gold.withValues(alpha: 0.15),
+          color: _oro.withValues(alpha: 0.15),
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
           'Listo',
-          style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+          style: AppDesignSystem.labelSmall(context, color: _oro),
         ),
       );
     }
@@ -249,12 +259,12 @@ class PlanListTile extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: AppDesignSystem.gold,
+          color: _oro,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Text(
           'Continuar',
-          style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.midnight).copyWith(
+          style: AppDesignSystem.labelSmall(context, color: _sobreOro).copyWith(
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -265,12 +275,12 @@ class PlanListTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.5)),
+        border: Border.all(color: _oro.withValues(alpha: 0.5)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Text(
         'Iniciar',
-        style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+        style: AppDesignSystem.labelSmall(context, color: _oro),
       ),
     );
   }

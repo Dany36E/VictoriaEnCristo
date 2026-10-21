@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/bible_verse.dart';
@@ -272,7 +271,7 @@ class ReaderVerseItem extends StatelessWidget {
         ),
         child: Text(
           word,
-          style: GoogleFonts.lora(
+          style: AppFonts.lora(
             color: theme.textPrimary,
             fontSize: fontSize,
             height: 1.35,
@@ -294,7 +293,7 @@ class ReaderVerseItem extends StatelessWidget {
     final textColor = isRedLetter ? theme.redLetterColor : theme.textPrimary;
     // Selección = subrayado punteado (estilo YouVersion): marca clara sin
     // tapar el color de resaltado ni entorpecer la lectura.
-    final baseStyle = GoogleFonts.lora(
+    final baseStyle = AppFonts.lora(
       color: textColor,
       fontSize: fontSize,
       height: 1.8,

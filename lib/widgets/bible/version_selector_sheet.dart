@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -131,7 +130,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                                       Expanded(
                                         child: Text(
                                           v.displayName,
-                                          style: GoogleFonts.lora(
+                                          style: AppFonts.lora(
                                             color: needsAuthorizedSource
                                                 ? t.textSecondary.withValues(
                                                     alpha: 0.55,

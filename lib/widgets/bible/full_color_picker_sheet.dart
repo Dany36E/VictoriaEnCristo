@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 
@@ -118,7 +117,7 @@ class _FullColorPickerSheetState extends State<FullColorPickerSheet> {
                   child: Center(
                     child: Text(
                       'Aa',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: lum > 0.5 ? Colors.black87 : Colors.white,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,

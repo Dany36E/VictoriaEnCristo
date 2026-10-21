@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/rich_note_document.dart';
@@ -173,7 +172,7 @@ class _HopeMessageCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Mensaje de esperanza',
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -198,14 +197,14 @@ class _HopeMessageCard extends StatelessWidget {
             onChanged: onChanged,
             maxLines: null,
             minLines: 3,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
             ),
             decoration: InputDecoration(
               hintText: 'Ej. Jesús quiere sanarte y darte vida nueva.',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
@@ -858,7 +857,7 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
               Expanded(
                 child: Text(
                   'Notas generales',
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -943,14 +942,14 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
               spellCheckService: _spellBridge,
             ),
             contextMenuBuilder: _buildContextMenu,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
             ),
             decoration: InputDecoration(
               hintText: 'Escribe notas libres de este estudio…',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
@@ -1145,7 +1144,7 @@ class _StudyNotesPreview extends StatelessWidget {
       ),
       child: RichText(
         text: TextSpan(
-          style: GoogleFonts.lora(
+          style: AppFonts.lora(
             color: t.textPrimary,
             fontSize: 14,
             height: 1.5,
@@ -1356,7 +1355,7 @@ class _StudyNotesFontTile extends StatelessWidget {
                 children: [
                   Text(
                     preview,
-                    style: GoogleFonts.lora(
+                    style: AppFonts.lora(
                       color: t.textPrimary,
                       fontSize: size,
                       height: 1.1,
@@ -1574,7 +1573,7 @@ class _QuestionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   question.prompt,
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1602,14 +1601,14 @@ class _QuestionCard extends StatelessWidget {
             onChanged: onChanged,
             maxLines: null,
             minLines: 2,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
             ),
             decoration: InputDecoration(
               hintText: 'Escribe tu respuesta…',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),

@@ -73,7 +73,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: _loading
                 ? Center(

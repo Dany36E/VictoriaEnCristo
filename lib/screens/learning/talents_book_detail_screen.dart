@@ -29,7 +29,7 @@ class TalentsBookDetailScreen extends StatelessWidget {
     final book = BookRepository.I.byId(bookId);
     if (book == null) {
       return Scaffold(
-        backgroundColor: theme.scaffoldBg,
+        backgroundColor: theme.pageBg,
         appBar: AppBar(backgroundColor: theme.surface),
         body: Center(
           child: Text(
@@ -43,7 +43,7 @@ class TalentsBookDetailScreen extends StatelessWidget {
     final items = CollectiblesCatalog.I.itemsForBook(bookId);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBg,
+      backgroundColor: theme.pageBg,
       appBar: AppBar(
         backgroundColor: theme.surface,
         title: Text(

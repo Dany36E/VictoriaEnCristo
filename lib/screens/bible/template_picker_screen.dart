@@ -56,7 +56,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
     );
 
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: Column(
           children: [

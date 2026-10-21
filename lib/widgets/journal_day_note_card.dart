@@ -9,6 +9,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_fonts.dart';
 import '../services/journal_service.dart';
 import '../services/feedback_engine.dart';
+import '../services/theme_service.dart';
+import '../vec/vec_tema.dart';
 
 class JournalDayNoteCard extends StatelessWidget {
   final DateTime selectedDate;
@@ -17,10 +19,12 @@ class JournalDayNoteCard extends StatelessWidget {
   final VoidCallback onTapEdit;
   final VoidCallback onTapCreate;
 
-  static const Color _gold = Color(0xFFD4A853);
-  static const Color _textPrimary = Color(0xFFF0F0F0);
-  static const Color _textMuted = Color(0xFF8A8A9A);
-  static const Color _warmBg = Color(0xFF1A1520);
+  // En el tema «papel recortado» es una tarjeta de papel con colores del kit.
+  static bool get _papel => ThemeService().currentTheme.isPaper;
+  static Color get _gold => _papel ? VecColores.terracota : const Color(0xFFD4A853);
+  static Color get _textPrimary => _papel ? VecColores.tinta : const Color(0xFFF0F0F0);
+  static Color get _textMuted => _papel ? VecColores.gris : const Color(0xFF8A8A9A);
+  static Color get _warmBg => _papel ? VecColores.papel : const Color(0xFF1A1520);
 
   const JournalDayNoteCard({
     super.key,
@@ -43,7 +47,13 @@ class JournalDayNoteCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
+      decoration: _papel
+          ? BoxDecoration(
+              color: _warmBg,
+              borderRadius: BorderRadius.circular(VecRadios.m),
+              boxShadow: VecSombras.papel,
+            )
+          : BoxDecoration(
         color: _warmBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -62,7 +61,7 @@ class BibleVerseTile extends StatelessWidget {
               child: Text.rich(
                 TextSpan(
                   text: verse.text,
-                  style: GoogleFonts.crimsonPro(
+                  style: AppFonts.crimsonPro(
                     color: Colors.white.withValues(alpha: 0.9),
                     fontSize: fontSize,
                     height: 1.7,

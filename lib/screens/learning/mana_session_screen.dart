@@ -261,7 +261,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
 
     if (_questions.isEmpty) {
       return Scaffold(
-        backgroundColor: t.scaffoldBg,
+        backgroundColor: t.pageBg,
         appBar: AppBar(
           backgroundColor: t.surface,
           iconTheme: IconThemeData(color: t.textPrimary),
@@ -292,7 +292,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
       260.0,
     );
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,

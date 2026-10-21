@@ -1,0 +1,106 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Laboratorio de stickers — Victoria en Cristo</title>
+<link rel="stylesheet" href="../web/vec-estilo.css">
+<style>
+  body { margin: 0; padding: 20px; }
+  .wrap { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 760px) { .wrap { grid-template-columns: 1fr; } }
+  textarea { width: 100%; height: 300px; box-sizing: border-box; font: 14px/1.4 ui-monospace, monospace; padding: 12px; border: 4px solid var(--vec-tinta); border-radius: 10px; background: var(--vec-papel); }
+  .lienzo { background: #cfc6b5; border-radius: 14px; display: grid; place-items: center; min-height: 340px; }
+  label { font-family: var(--vec-fuente-titulo); }
+  .op { display: flex; gap: 14px; flex-wrap: wrap; align-items: center; margin: 12px 0; font-family: var(--vec-fuente-texto); font-size: 1.1em; }
+  input[type=number] { width: 70px; }
+</style>
+</head>
+<body class="vec-fondo">
+<h1 class="vec-titulo" style="text-align:center;font-size:2.2em;margin-bottom:18px">Laboratorio de <span class="clave">stickers</span></h1>
+<div class="wrap">
+  <div>
+    <label>1. Pega figuras SVG (path, circle, ellipse, rect) con su color en <code>fill</code>:</label>
+    <textarea id="src"><path d="M180 300 Q40 200 34 118 Q30 44 102 34 Q156 30 180 84 Q204 30 258 34 Q330 44 326 118 Q320 200 180 300 Z" fill="#d9483b"/>
+<ellipse cx="118" cy="98" rx="34" ry="22" fill="#f6a598" transform="rotate(-30 118 98)"/></textarea>
+    <div class="op">
+      Ancho <input id="w" type="number" value="360"> Alto <input id="h" type="number" value="330">
+      <label><input id="lapiz" type="checkbox" checked> contorno de lápiz</label>
+      <label><input id="borde" type="checkbox" checked> borde blanco + sombra</label>
+    </div>
+    <button class="vec-boton" id="ver">Ver</button>
+    <button class="vec-boton verde" id="png">Descargar PNG (2x)</button>
+    <button class="vec-boton secundario" id="svg">Descargar SVG</button>
+    <p style="font-size:1.1em">Tip: dibuja en Figma, Inkscape o Illustrator con formas simples y colores de la paleta, exporta como SVG y pega aquí solo las figuras. El laboratorio les agrega la textura de acuarela, la línea de lápiz y el borde de sticker.</p>
+  </div>
+  <div class="lienzo" id="out"></div>
+</div>
+<script>
+const DEFS = `<defs>
+  <filter id="wc" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="8" result="warp"/>
+    <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" seed="9" result="pig"/>
+    <feColorMatrix in="pig" type="matrix" values="0.32 0 0 0 0.8  0.32 0 0 0 0.8  0.32 0 0 0 0.8  0 0 0 0 1" result="pigGray"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="10" result="grain"/>
+    <feColorMatrix in="grain" type="matrix" values="0.12 0 0 0 0.93  0.12 0 0 0 0.93  0.12 0 0 0 0.93  0 0 0 0 1" result="grainGray"/>
+    <feComposite in="shape" in2="pigGray" operator="arithmetic" k1="1.04" result="tex1"/>
+    <feComposite in="tex1" in2="grainGray" operator="arithmetic" k1="1.0" result="tex2"/>
+    <feMorphology in="shape" operator="erode" radius="3" result="er"/>
+    <feComposite in="shape" in2="er" operator="out" result="ring"/>
+    <feGaussianBlur in="ring" stdDeviation="1.6" result="ringB"/>
+    <feFlood flood-color="#2b2622" flood-opacity="0.22"/>
+    <feComposite in2="ringB" operator="in" result="edgeDark"/>
+    <feComposite in="edgeDark" in2="shape" operator="in" result="edgeIn"/>
+    <feMerge><feMergeNode in="tex2"/><feMergeNode in="edgeIn"/></feMerge>
+  </filter>
+  <filter id="pen" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="11" result="w"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="12" result="g"/>
+    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.4 0.25" result="ga"/>
+    <feComposite in="d" in2="ga" operator="in"/>
+  </filter>
+  <filter id="torn" x="-2%" y="-10%" width="104%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="14" result="w"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="9" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
+  <filter id="sticker" x="-12%" y="-12%" width="124%" height="128%" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="8" result="dil"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="13" result="tn"/>
+    <feDisplacementMap in="dil" in2="tn" scale="4" xChannelSelector="R" yChannelSelector="G" result="dilW"/>
+    <feGaussianBlur in="dilW" stdDeviation="0.6" result="dilS"/>
+    <feFlood flood-color="#fbf7ee"/>
+    <feComposite in2="dilS" operator="in" result="white"/>
+    
+    <feOffset in="dilS" dy="9" result="o1"/><feGaussianBlur in="o1" stdDeviation="3.5" result="b1"/>
+    <feFlood flood-color="rgb(74,48,22)" flood-opacity="0.30"/><feComposite in2="b1" operator="in" result="sh1"/>
+    <feOffset in="dilS" dy="2" result="o2"/><feGaussianBlur in="o2" stdDeviation="0.8" result="b2"/>
+    <feFlood flood-color="#000" flood-opacity="0.20"/><feComposite in2="b2" operator="in" result="sh2"/>
+    <feMerge><feMergeNode in="sh1"/><feMergeNode in="sh2"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter><filter id="wob"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter></defs>`;
+function armar() {
+  const w = +document.getElementById('w').value, h = +document.getElementById('h').value;
+  const shapes = document.getElementById('src').value.trim();
+  const strokes = shapes.replace(/fill="[^"]*"/g, '').replace(/\/>/g, ' fill="none" stroke="#3a332c" stroke-width="3.4" stroke-linejoin="round" stroke-linecap="round"/>');
+  let body = `<g filter="url(#wc)">${shapes}</g>`;
+  if (document.getElementById('lapiz').checked) body += `<g filter="url(#pen)" opacity="0.92">${strokes}</g>`;
+  if (document.getElementById('borde').checked) body = `<g filter="url(#sticker)">${body}</g>`;
+  return { w, h, svg: `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="0 0 ${w} ${h}">${DEFS}${body}</svg>` };
+}
+function ver() { const { svg } = armar(); document.getElementById('out').innerHTML = svg; }
+function bajar(nombre, url) { const a = document.createElement('a'); a.href = url; a.download = nombre; a.click(); }
+document.getElementById('ver').onclick = ver;
+document.getElementById('svg').onclick = () => { const { svg } = armar(); bajar('sticker.svg', URL.createObjectURL(new Blob([svg], { type: 'image/svg+xml' }))); };
+document.getElementById('png').onclick = () => {
+  const { w, h, svg } = armar(); const img = new Image();
+  img.onload = () => { const c = document.createElement('canvas'); c.width = w * 2; c.height = h * 2; c.getContext('2d').drawImage(img, 0, 0, w * 2, h * 2); bajar('sticker.png', c.toDataURL('image/png')); };
+  img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+};
+ver();
+</script>
+</body>
+</html>

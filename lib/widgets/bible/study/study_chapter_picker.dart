@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_book.dart';
@@ -810,7 +809,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                         b.name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.lora(
+                        style: AppFonts.lora(
                           color: selected ? t.accent : t.textPrimary,
                           fontWeight: selected
                               ? FontWeight.w700

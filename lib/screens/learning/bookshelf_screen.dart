@@ -44,7 +44,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,

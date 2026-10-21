@@ -6,6 +6,10 @@ import '../../models/giant_frequency.dart';
 import '../../services/onboarding_service.dart';
 import '../../services/feedback_engine.dart';
 import '../../repositories/profile_repository.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
+import 'onboarding_papel.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// GIANT FREQUENCY SCREEN
@@ -195,6 +199,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) return _buildPapel();
     return Scaffold(
       backgroundColor: AppDesignSystem.midnight,
       body: SafeArea(
@@ -212,6 +217,183 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
               _buildContinueButton(),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // TEMA PAPEL
+  // ═══════════════════════════════════════════════════════════════════════
+
+  Widget _buildPapel() {
+    final total = widget.selectedGiants.length;
+    return FondoPapel(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Column(
+            children: [
+              EncabezadoPasoPapel(
+                paso: 'Paso 2 de 2',
+                progreso: 0.5 + 0.5 * (_completedCount / (total == 0 ? 1 : total)),
+                conAudio: false,
+              ),
+              Expanded(
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(18, 22, 18, 24),
+                  children: [
+                    const PopIn(
+                      child: TituloVec(
+                        '¿Con qué frecuencia luchas?',
+                        clave: 'frecuencia',
+                        tamano: 30,
+                        alineacion: TextAlign.center,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Configura cada batalla. Puedes cambiarlo después.',
+                      textAlign: TextAlign.center,
+                      style: AppFonts.manrope(
+                        fontSize: 17,
+                        color: VecColores.gris,
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+                    Center(
+                      child: ChipVec(
+                        texto: '$_completedCount de $total configurados',
+                        color: _isComplete
+                            ? VecColores.verde
+                            : VecColores.azulClaro,
+                        iconoWidget: _isComplete
+                            ? const IconoVec(
+                                'palomita',
+                                color: VecColores.papel,
+                              )
+                            : null,
+                      ),
+                    ),
+                    const SizedBox(height: 30),
+                    for (var i = 0; i < _giants.length; i++) ...[
+                      _buildGiantCardPapel(_giants[i], i),
+                      const SizedBox(height: 26),
+                    ],
+                  ],
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                child: BotonVec(
+                  texto: _isComplete
+                      ? 'Guardar y continuar'
+                      : 'Completa todas las opciones',
+                  icono: _isComplete ? Icons.arrow_forward_rounded : null,
+                  color: VecColores.verde,
+                  cargando: _isSaving,
+                  expandido: true,
+                  onPressed: _isComplete ? _saveAndContinue : null,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGiantCardPapel(GiantWithFrequency giant, int index) {
+    final par = index.isEven;
+    return PopIn(
+      retraso: Duration(milliseconds: 70 * index),
+      child: TarjetaPapel(
+        giro: par ? -1 : 1,
+        cintaDerecha: !par,
+        padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CirculoIcono(
+                  iconoVec: iconosGigantesPapel[giant.id] ?? 'escudo',
+                  color: giant.hasFrequency
+                      ? VecColores.verde
+                      : VecColores.azul,
+                  tamano: 48,
+                  giro: par ? -4 : 4,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        giant.name,
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.titulo,
+                          fontSize: 19,
+                          color: VecColores.tinta,
+                        ),
+                      ),
+                      Text(
+                        giant.description,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.texto,
+                          fontSize: 16,
+                          height: 1.15,
+                          color: VecColores.gris,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Wrap(
+              spacing: 10,
+              runSpacing: 14,
+              children: BattleFrequency.values.map((frequency) {
+                final isSelected = giant.frequency == frequency;
+                return Semantics(
+                  button: true,
+                  selected: isSelected,
+                  label: frequency.displayName,
+                  excludeSemantics: true,
+                  child: GestureDetector(
+                    onTap: () => _updateFrequency(giant.id, frequency),
+                    child: isSelected
+                        ? ChipVec(
+                            texto: frequency.displayName,
+                            color: VecColores.terracota,
+                            giro: -1,
+                          )
+                        : Container(
+                            padding: const EdgeInsets.fromLTRB(16, 8, 16, 7),
+                            decoration: BoxDecoration(
+                              color: VecColores.cremaOscuro,
+                              borderRadius: BorderRadius.circular(
+                                VecRadios.pildora,
+                              ),
+                            ),
+                            child: Text(
+                              frequency.displayName,
+                              style: const TextStyle(
+                                fontFamily: VecFuentes.titulo,
+                                fontSize: 16,
+                                color: VecColores.tinta,
+                              ),
+                            ),
+                          ),
+                  ),
+                );
+              }).toList(),
+            ),
+          ],
         ),
       ),
     );

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/bible/bible_verse.dart';
@@ -119,7 +118,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         const SizedBox(height: 4),
         Text(
           widget.verse.text,
-          style: GoogleFonts.crimsonPro(
+          style: AppFonts.crimsonPro(
             fontSize: 14,
             color: _t.textPrimary.withValues(alpha: 0.85),
             fontStyle: FontStyle.italic,

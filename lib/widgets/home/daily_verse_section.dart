@@ -8,6 +8,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../data/bible_verses.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../vec/vec_widgets.dart';
 
 class DailyVerseSection extends StatelessWidget {
   final BibleVerse dailyVerse;
@@ -22,6 +23,7 @@ class DailyVerseSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
+    if (t.isPaper) return _buildPapel();
     final fg = t.textPrimary;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -66,6 +68,38 @@ class DailyVerseSection extends StatelessWidget {
         .animate()
         .fadeIn(delay: 200.ms, duration: 400.ms)
         .slideY(begin: 0.1, end: 0);
+  }
+
+  /// Tema papel: tarjeta de versículo del kit (referencia en terracota y
+  /// texto en Patrick Hand).
+  Widget _buildPapel() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const EtiquetaSeccion('Versículo del día'),
+        // Aire para la cinta de la tarjeta (sobresale 12 px hacia arriba).
+        const SizedBox(height: 24),
+        Semantics(
+          button: true,
+          label:
+              'Versículo del día: ${dailyVerse.reference}. Toca para leer en contexto',
+          child: GestureDetector(
+            onTap: () {
+              HapticFeedback.lightImpact();
+              onTapVerse(dailyVerse.reference);
+            },
+            child: PopIn(
+              retraso: const Duration(milliseconds: 120),
+              child: TarjetaVersiculo(
+                referencia: dailyVerse.reference,
+                texto: dailyVerse.verse,
+                version: '',
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }
 

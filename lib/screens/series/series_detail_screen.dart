@@ -4,6 +4,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../models/series.dart';
 import '../../theme/app_theme.dart';
 import 'series_player_screen.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 
 /// Detalle de una serie: portada, sinopsis y temporadas con sus episodios.
 class SeriesDetailScreen extends StatefulWidget {
@@ -56,18 +59,24 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
     await launchUrl(uri, mode: LaunchMode.externalApplication);
   }
 
+  // Tema «papel recortado»: hoja de papel, tarjetas y letras del kit.
+  bool get _papel => AppThemeData.of(context).isPaper;
+  Color get _texto => _papel ? VecColores.tinta : Colors.white;
+  Color _suave(double alpha) =>
+      _papel ? VecColores.gris : Colors.white.withValues(alpha: alpha);
+
   @override
   Widget build(BuildContext context) {
     final s = widget.series;
-    final accent = s.accentColor;
+    final accent = _papel ? VecColores.terracota : s.accentColor;
 
     return Scaffold(
-      backgroundColor: AppDesignSystem.midnightDeep,
+      backgroundColor: _papel ? Colors.transparent : AppDesignSystem.midnightDeep,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: AppDesignSystem.midnightDeep,
-            foregroundColor: AppDesignSystem.pureWhite,
+            backgroundColor: _papel ? Colors.transparent : AppDesignSystem.midnightDeep,
+            foregroundColor: _papel ? VecColores.tinta : AppDesignSystem.pureWhite,
             expandedHeight: 210,
             pinned: true,
             flexibleSpace: FlexibleSpaceBar(
@@ -95,6 +104,13 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
   }
 
   Widget _buildHeaderBackground(Color accent) {
+    if (_papel) {
+      return const FondoPapel(
+        child: Center(
+          child: CirculoIcono(iconoVec: 'cine', tamano: 88, giro: -4),
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -138,7 +154,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
           Text(
             s.description,
             style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.78),
+              color: _papel ? VecColores.tinta : Colors.white.withValues(alpha: 0.78),
               fontSize: 13,
               height: 1.5,
             ),
@@ -151,7 +167,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               Text(
                 '${s.seasons.length} temporadas · ${s.totalEpisodes} episodios',
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.5),
+                  color: _suave(0.5),
                   fontSize: 12,
                 ),
               ),
@@ -176,11 +192,13 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
             borderRadius: BorderRadius.circular(12),
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: accent.withValues(alpha: 0.15)),
-              ),
+              decoration: _papel
+                  ? AppThemeData.of(context).cardDecoration
+                  : BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: accent.withValues(alpha: 0.15)),
+                    ),
               child: Row(
                 children: [
                   Icon(Icons.local_movies_outlined, color: accent, size: 20),
@@ -191,8 +209,8 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
                       children: [
                         Text(
                           season.title,
-                          style: const TextStyle(
-                            color: Colors.white,
+                          style: TextStyle(
+                            color: _texto,
                             fontSize: 15,
                             fontWeight: FontWeight.w700,
                           ),
@@ -205,7 +223,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
                                   ? '${season.episodes.length} episodios · en YouTube'
                                   : '${season.episodes.length} episodios · sitio oficial',
                           style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.45),
+                            color: _suave(0.45),
                             fontSize: 11,
                           ),
                         ),
@@ -217,7 +235,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
                     duration: const Duration(milliseconds: 180),
                     child: Icon(
                       Icons.keyboard_arrow_down,
-                      color: Colors.white.withValues(alpha: 0.6),
+                      color: _suave(0.6),
                     ),
                   ),
                 ],
@@ -244,11 +262,16 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
       borderRadius: BorderRadius.circular(10),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
-        decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
-        ),
+        decoration: _papel
+            ? BoxDecoration(
+                color: VecColores.papel,
+                borderRadius: BorderRadius.circular(VecRadios.s),
+              )
+            : BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.03),
+                borderRadius: BorderRadius.circular(10),
+                border: Border.all(color: Colors.white.withValues(alpha: 0.06)),
+              ),
         child: Row(
           children: [
             SizedBox(
@@ -268,7 +291,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               child: Text(
                 ep.title,
                 style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.9),
+                  color: _papel ? VecColores.tinta : Colors.white.withValues(alpha: 0.9),
                   fontSize: 14,
                 ),
               ),
@@ -277,7 +300,7 @@ class _SeriesDetailScreenState extends State<SeriesDetailScreen> {
               (ep.youtubeVideoId != null && ep.youtubeVideoId!.trim().isNotEmpty)
                   ? Icons.play_circle_outline
                   : Icons.open_in_new,
-              color: Colors.white.withValues(alpha: 0.4),
+              color: _suave(0.4),
               size: 18,
             ),
           ],

@@ -3,7 +3,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
@@ -435,7 +434,7 @@ class _QuoteCard extends StatelessWidget {
                   Text(
                     verse.verse,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.crimsonPro(
+                    style: AppFonts.crimsonPro(
                       fontSize: _calculateFontSize(verse.verse.length),
                       fontWeight: FontWeight.w500,
                       fontStyle: FontStyle.italic,

@@ -40,7 +40,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
     final t = AppThemeData.of(context);
     final rounds = ProphecyRepository.I.all;
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -302,7 +301,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
               const SizedBox(height: 6),
               Text(
                 ref.preview,
-                style: GoogleFonts.crimsonPro(
+                style: AppFonts.crimsonPro(
                   color: t.textSecondary.withValues(alpha: 0.7),
                   fontSize: 13,
                   fontStyle: FontStyle.italic,

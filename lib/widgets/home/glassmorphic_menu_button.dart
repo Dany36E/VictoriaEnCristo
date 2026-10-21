@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
+
 /// Tipo de animación del icono dentro del botón glassmórfico.
 enum IconAnimationType { shimmer, heartbeat, rotate, drawUp, pulse }
 
@@ -160,8 +164,121 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
     super.dispose();
   }
 
+  // ── Tema papel ─────────────────────────────────────────────────────────
+
+  /// Ícono del kit (assets/vec/iconos) equivalente a cada ícono de Material
+  /// que usan los menús; los que no estén aquí van rellenos en su círculo.
+  static final Map<IconData, String> _iconosKit = {
+    Icons.wb_sunny_outlined: 'orar',
+    Icons.trending_up_rounded: 'biblia',
+    Icons.groups_rounded: 'personas',
+    Icons.school_rounded: 'idea',
+    Icons.menu_book: 'biblia',
+    Icons.menu_book_outlined: 'cruz',
+    Icons.local_movies_rounded: 'cine',
+    Icons.shield: 'escudo',
+    Icons.forum_rounded: 'mensaje',
+    Icons.admin_panel_settings_rounded: 'candado',
+    Icons.map_outlined: 'orar',
+    Icons.auto_stories_rounded: 'sol',
+    Icons.show_chart: 'palomita',
+  };
+
+  static const List<Color> _coloresKit = [
+    VecColores.terracota,
+    VecColores.azul,
+    VecColores.verde,
+    VecColores.mostaza,
+    VecColores.noche,
+  ];
+
+  /// Tarjeta de papel con cinta, círculo de color con el ícono del kit y
+  /// título en Lilita One; se hunde un poco al tocarla.
+  Widget _buildPapel() {
+    final color = _coloresKit[widget.index % _coloresKit.length];
+    final iconoKit = _iconosKit[widget.icon];
+    final par = widget.index.isEven;
+    return Semantics(
+      button: true,
+      label: '${widget.title}. ${widget.subtitle}',
+      excludeSemantics: true,
+      child: GestureDetector(
+        onTapDown: (_) => setState(() => _isPressed = true),
+        onTapUp: (_) => setState(() => _isPressed = false),
+        onTapCancel: () => setState(() => _isPressed = false),
+        onTap: () {
+          HapticFeedback.lightImpact();
+          widget.onTap();
+        },
+        child: PopIn(
+          retraso: Duration(milliseconds: 80 * widget.index),
+          child: AnimatedSlide(
+            offset: Offset(0, _isPressed ? 0.03 : 0),
+            duration: const Duration(milliseconds: 110),
+            child: TarjetaPapel(
+              giro: par ? -1 : 1,
+              cintaDerecha: !par,
+              padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+              child: LayoutBuilder(
+                builder: (context, c) {
+                  final icono = CirculoIcono(
+                    iconoVec: iconoKit,
+                    icono: widget.icon,
+                    color: color,
+                    tamano: 58,
+                    giro: par ? -4 : 4,
+                  );
+                  final textos = Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        widget.title,
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.titulo,
+                          fontSize: 22,
+                          height: 1.05,
+                          color: VecColores.tinta,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.subtitle,
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.texto,
+                          fontSize: 18,
+                          height: 1.2,
+                          color: VecColores.gris,
+                        ),
+                      ),
+                    ],
+                  );
+                  // En los hubs van dos por fila: ícono arriba, texto abajo.
+                  if (c.maxWidth < 240) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [icono, const SizedBox(height: 12), textos],
+                    );
+                  }
+                  return Row(
+                    children: [
+                      icono,
+                      const SizedBox(width: 16),
+                      Expanded(child: textos),
+                    ],
+                  );
+                },
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) return _buildPapel();
     return MouseRegion(
           onEnter: (_) => setState(() => _isHovered = true),
           onExit: (_) => setState(() => _isHovered = false),

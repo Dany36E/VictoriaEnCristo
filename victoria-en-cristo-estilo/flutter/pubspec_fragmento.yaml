@@ -1,0 +1,22 @@
+# Pega esto dentro de tu pubspec.yaml (sección flutter:). Respeta la sangría de 2 espacios.
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/vec/personajes/
+    - assets/vec/objetos/
+    - assets/vec/fondos/
+    - assets/vec/texturas/
+    - assets/vec/iconos/
+  fonts:
+    - family: LilitaOne
+      fonts:
+        - asset: assets/vec/fuentes/LilitaOne-Regular.ttf
+    - family: PatrickHand
+      fonts:
+        - asset: assets/vec/fuentes/PatrickHand-Regular.ttf
+    - family: CaveatBrush
+      fonts:
+        - asset: assets/vec/fuentes/CaveatBrush-Regular.ttf
+
+# Opcional, solo si vas a usar los íconos SVG de assets/vec/iconos:
+#   flutter pub add flutter_svg

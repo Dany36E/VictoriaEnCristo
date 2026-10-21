@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../vec/vec_tema.dart';
+
 /// ═══════════════════════════════════════════════════════════════════════════
 /// APP THEME DATA — 10 temas seleccionables para toda la app
 /// ═══════════════════════════════════════════════════════════════════════════
 ///
 /// Extiende el concepto de BibleReaderThemeData a la UI general.
 /// Mismos 10 IDs, paletas derivadas para scaffold, cards, texto, acentos.
-/// El tema 'papel' además cambia tipografía, formas y textura (ver isPaper).
+/// El tema 'papel' usa el kit victoria-en-cristo-estilo (lib/vec): además
+/// cambia tipografía, formas, sombras y fondo de papel (ver isPaper).
 ///
 /// Uso: final t = AppThemeData.of(context);
-///      Scaffold(backgroundColor: t.scaffoldBg, ...)
+///      Scaffold(backgroundColor: t.pageBg, ...)
 /// ═══════════════════════════════════════════════════════════════════════════
 
 class AppThemeData {
@@ -43,9 +46,13 @@ class AppThemeData {
     required this.isDark,
   });
 
-  /// Tema "Papel recortado": activa tipografía redondeada, bordes tipo
-  /// sticker y textura de papel en toda la app.
+  /// Tema "Papel recortado": activa las letras, sombras, radios y fondo de
+  /// papel del kit victoria-en-cristo-estilo en toda la app.
   bool get isPaper => id == paper.id;
+
+  /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
+  /// cada página pinta el papel con textura (FondoPapel) por detrás.
+  Color get pageBg => isPaper ? Colors.transparent : scaffoldBg;
 
   // Helpers derivados
   Color get overlayBg => isDark
@@ -60,16 +67,19 @@ class AppThemeData {
       ? Colors.white.withValues(alpha: 0.1)
       : Colors.black.withValues(alpha: 0.08);
 
-  /// Gradient para headers (sutil, del surface hacia scaffoldBg)
+  /// Gradient para headers (sutil, del surface hacia scaffoldBg).
+  /// En el tema papel no hay degradado: se ve la hoja con textura.
   LinearGradient get headerGradient => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [surface, scaffoldBg],
+    colors: isPaper
+        ? const [Colors.transparent, Colors.transparent]
+        : [surface, scaffoldBg],
   );
 
   /// Shadow adaptativo
   List<BoxShadow> get cardShadow => isPaper
-      ? PaperPalette.stickerShadow
+      ? VecSombras.papel
       : isDark
       ? [
           BoxShadow(
@@ -94,8 +104,9 @@ class AppThemeData {
   /// Card decoration completa
   BoxDecoration get cardDecoration => BoxDecoration(
     color: cardBg,
-    borderRadius: BorderRadius.circular(isPaper ? 18 : 16),
-    border: Border.all(color: cardBorder, width: isPaper ? 3 : 1),
+    borderRadius: BorderRadius.circular(isPaper ? VecRadios.m : 16),
+    // Los recortes de papel no llevan contorno: solo sombra sólida + cálida.
+    border: isPaper ? null : Border.all(color: cardBorder, width: 1),
     boxShadow: cardShadow,
   );
 
@@ -253,20 +264,22 @@ class AppThemeData {
 
   // ─── PAPER THEME ───────────────────────────────────────────────────────
 
-  /// Estilo "papel recortado": crema, coral, azul marino y bordes blancos.
+  /// Estilo «papel recortado» de los videos (kit victoria-en-cristo-estilo).
   static const paper = AppThemeData(
     id: 'papel',
     name: 'Papel recortado',
-    scaffoldBg: PaperPalette.cream,
-    surface: PaperPalette.paper,
-    cardBg: PaperPalette.card,
-    cardBorder: PaperPalette.sticker,
-    textPrimary: PaperPalette.navy,
-    textSecondary: PaperPalette.ink,
-    accent: PaperPalette.coral,
-    accentSoft: Color(0x26D9583B),
-    divider: Color(0x1A24324A),
-    inputBg: PaperPalette.card,
+    scaffoldBg: VecColores.crema,
+    surface: VecColores.papel,
+    cardBg: VecColores.papel,
+    cardBorder: VecColores.cremaOscuro,
+    textPrimary: VecColores.tinta,
+    // El gris del kit (#8a7a64) da 3.9:1 sobre papel; el texto secundario de
+    // toda la app necesita ≥ 4.5:1 (WCAG AA), así que usa el lápiz del kit.
+    textSecondary: VecColores.lapiz,
+    accent: VecColores.terracota,
+    accentSoft: Color(0x26C8553D), // terracota 15%
+    divider: VecColores.cremaOscuro,
+    inputBg: VecColores.papel,
     isDark: false,
   );
 
@@ -314,27 +327,4 @@ class _AppThemeInherited extends InheritedWidget {
   bool updateShouldNotify(_AppThemeInherited oldWidget) {
     return theme.id != oldWidget.theme.id;
   }
-}
-
-/// Paleta del tema "Papel recortado" (ilustración tipo papercraft).
-class PaperPalette {
-  PaperPalette._();
-
-  static const Color cream = Color(0xFFF3EBDD); // fondo papel
-  static const Color paper = Color(0xFFFBF6EC); // barras, superficies
-  static const Color card = Color(0xFFFFFDF8); // tarjetas
-  static const Color sticker = Color(0xFFFFFFFF); // contorno recortado
-  static const Color navy = Color(0xFF24324A); // texto principal
-  static const Color ink = Color(0xFF6B6457); // texto secundario
-  static const Color coral = Color(0xFFD9583B); // acento principal
-  static const Color teal = Color(0xFF2E8C8A); // chips, éxito
-  static const Color mustard = Color(0xFFE8A93B); // resaltes
-  static const Color tape = Color(0xCCF2CF63); // cinta adhesiva
-  static const Color sage = Color(0xFF8DAA7B); // pasto, naturaleza
-  static const Color sky = Color(0xFF8FA6BF); // cielo apagado
-
-  /// Sombra corta y suave: el papel "despegado" del fondo.
-  static const List<BoxShadow> stickerShadow = [
-    BoxShadow(color: Color(0x2E5B4630), blurRadius: 6, offset: Offset(0, 3)),
-  ];
 }

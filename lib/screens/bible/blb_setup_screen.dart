@@ -95,7 +95,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
   Widget build(BuildContext context) {
     final t = BibleReaderThemeData.fromId(BibleReaderThemeData.migrateId(BibleUserDataService.I.readerThemeNotifier.value));
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         title: Text(

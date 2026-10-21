@@ -14,6 +14,8 @@ import '../services/daily_practice_service.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 
 class DailyChecklistCard extends StatefulWidget {
   /// Callbacks para navegar cuando el usuario toca un item no completado.
@@ -48,6 +50,7 @@ class _DailyChecklistCardState extends State<DailyChecklistCard> {
       valueListenable: DailyPracticeService.I.snapshotNotifier,
       builder: (context, snap, _) {
         final complete = snap.isComplete;
+        if (t.isPaper) return _buildPapel(snap);
         return Semantics(
           label:
               'Prácticas de hoy: ${snap.completedCount} de ${snap.total} completas',
@@ -152,6 +155,107 @@ class _DailyChecklistCardState extends State<DailyChecklistCard> {
               ),
         );
       },
+    );
+  }
+
+  /// Tema papel: tarjeta con las 4 prácticas como casillas redondas de la
+  /// barra del kit (apagadas en crema; hechas en verde con palomita).
+  Widget _buildPapel(DailyPracticeSnapshot snap) {
+    final items = [
+      (
+        'Devocional',
+        'biblia',
+        snap.devotional,
+        DailyPractice.devotional,
+        widget.onTapDevotional,
+      ),
+      (
+        'Oración',
+        'orar',
+        snap.journal,
+        DailyPractice.journal,
+        widget.onTapJournal,
+      ),
+      (
+        'Victoria',
+        'escudo',
+        snap.victory,
+        DailyPractice.victory,
+        widget.onTapVictory,
+      ),
+      ('Aprender', 'idea', snap.study, DailyPractice.study, widget.onTapStudy),
+    ];
+    return Semantics(
+      label:
+          'Prácticas de hoy: ${snap.completedCount} de ${snap.total} completas',
+      child: TarjetaPapel(
+        giro: 1,
+        cintaDerecha: true,
+        padding: const EdgeInsets.fromLTRB(18, 18, 18, 14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const TituloVec('Prácticas de hoy', clave: 'hoy', tamano: 22),
+                const Spacer(),
+                ChipVec(
+                  texto: '${snap.completedCount}/${snap.total}',
+                  color: snap.isComplete
+                      ? VecColores.verde
+                      : VecColores.mostaza,
+                  giro: 2,
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            Row(
+              children: [
+                for (final (label, icono, done, practice, onTap) in items)
+                  Expanded(
+                    child: Semantics(
+                      button: true,
+                      selected: done,
+                      label: '$label ${done ? 'hecho' : 'pendiente'}',
+                      excludeSemantics: true,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () => _handleTap(practice, onTap, done),
+                        child: Column(
+                          children: [
+                            CirculoIcono(
+                              iconoVec: done ? 'palomita' : icono,
+                              color: done
+                                  ? VecColores.verde
+                                  : VecColores.cremaOscuro,
+                              colorIcono: done
+                                  ? VecColores.papel
+                                  : VecColores.gris,
+                              sombra: done,
+                              giro: done ? -4 : 0,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              label,
+                              overflow: TextOverflow.ellipsis,
+                              style: TextStyle(
+                                fontFamily: VecFuentes.titulo,
+                                fontSize: 14,
+                                color: done
+                                    ? VecColores.verde
+                                    : VecColores.gris,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 

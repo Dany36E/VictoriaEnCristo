@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/bible_reader_controller.dart';
@@ -122,7 +121,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
                     child: Text(
                       p,
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: theme.textPrimary.withValues(alpha: 0.88),
                         fontSize: (fontSize - 1).clamp(10.0, 27.0),
                         height: 1.7,

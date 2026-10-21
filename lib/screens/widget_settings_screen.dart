@@ -12,6 +12,9 @@ import '../services/daily_verse_service.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme.dart';
 import '../utils/platform_capabilities.dart';
+import '../theme/app_theme_data.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 
 class WidgetSettingsScreen extends StatefulWidget {
   const WidgetSettingsScreen({super.key});
@@ -123,6 +126,9 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     _titleController.dispose();
     super.dispose();
   }
+
+  /// Tema «papel recortado» activo.
+  bool get _papel => AppThemeData.of(context).isPaper;
 
   @override
   Widget build(BuildContext context) {
@@ -488,9 +494,17 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             title: const Text('Modo discreto'),
             subtitle: Text(
               isDiscreet ? 'Sin términos religiosos ni sensibles' : 'Contenido cristiano visible',
-              style: TextStyle(color: isDark ? Colors.white60 : Colors.black54, fontSize: 13),
+              style: _papel
+                  ? null
+                  : TextStyle(color: isDark ? Colors.white60 : Colors.black54, fontSize: 13),
             ),
-            secondary: Container(
+            secondary: _papel
+                ? CirculoIcono(
+                    iconoVec: isDiscreet ? 'escudo' : 'ojo',
+                    color: isDiscreet ? VecColores.verde : VecColores.azul,
+                    tamano: 42,
+                  )
+                : Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: (isDiscreet ? Colors.green : AppTheme.primaryColor).withValues(alpha: 0.1),
@@ -516,10 +530,35 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                   ? WidgetTitlePresets.defaultDiscreet
                   : WidgetTitlePresets.defaultNormal;
             },
-            activeThumbColor: Colors.green,
+            activeThumbColor: _papel ? null : Colors.green,
           ),
 
-          if (isDiscreet)
+          if (isDiscreet && _papel)
+            Container(
+              margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: VecColores.verde.withValues(alpha: 0.14),
+                borderRadius: BorderRadius.circular(VecRadios.s),
+              ),
+              child: const Row(
+                children: [
+                  CirculoIcono(iconoVec: 'candado', color: VecColores.verde, tamano: 30),
+                  SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Nadie sabrá el propósito real de la app',
+                      style: TextStyle(
+                        fontFamily: VecFuentes.texto,
+                        fontSize: 16,
+                        color: VecColores.verde,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else if (isDiscreet)
             Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               padding: const EdgeInsets.all(12),
@@ -563,15 +602,23 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           children: [
             Text(
               'Título del widget',
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: isDark ? Colors.white : Colors.black87,
-              ),
+              style: _papel
+                  ? const TextStyle(
+                      fontFamily: VecFuentes.titulo,
+                      fontSize: 17,
+                      color: VecColores.tinta,
+                    )
+                  : TextStyle(
+                      fontWeight: FontWeight.w600,
+                      color: isDark ? Colors.white : Colors.black87,
+                    ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _titleController,
-              decoration: InputDecoration(
+              decoration: _papel
+                  ? InputDecoration(hintText: 'Ej: ${titlePresets.first}')
+                  : InputDecoration(
                 hintText: 'Ej: ${titlePresets.first}',
                 filled: true,
                 fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
@@ -591,6 +638,35 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
               runSpacing: 4,
               children: titlePresets.map((title) {
                 final isSelected = _titleController.text == title;
+                if (_papel) {
+                  return Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: GestureDetector(
+                      onTap: () {
+                        FeedbackEngine.I.tap();
+                        _titleController.text = title;
+                        _updateConfig(_config.copyWith(titleText: title));
+                      },
+                      child: isSelected
+                          ? ChipVec(texto: title, color: VecColores.terracota)
+                          : Container(
+                              padding: const EdgeInsets.fromLTRB(14, 8, 14, 7),
+                              decoration: BoxDecoration(
+                                color: VecColores.cremaOscuro,
+                                borderRadius: BorderRadius.circular(VecRadios.pildora),
+                              ),
+                              child: Text(
+                                title,
+                                style: const TextStyle(
+                                  fontFamily: VecFuentes.titulo,
+                                  fontSize: 15,
+                                  color: VecColores.tinta,
+                                ),
+                              ),
+                            ),
+                    ),
+                  );
+                }
                 return ActionChip(
                   label: Text(
                     title,
@@ -665,6 +741,40 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     final bgColor = isLight ? Colors.white : const Color(0xFF1E1E2E);
     final textColor = isLight ? Colors.black87 : Colors.white;
 
+    if (_papel) {
+      return GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          padding: const EdgeInsets.all(14),
+          decoration: AppThemeData.of(context).cardDecoration.copyWith(
+            border: Border.all(
+              color: isSelected ? VecColores.terracota : VecColores.papel,
+              width: 4,
+            ),
+          ),
+          child: Column(
+            children: [
+              CirculoIcono(
+                icono: icon,
+                color: isLight ? VecColores.mostaza : VecColores.noche,
+                tamano: 48,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontFamily: VecFuentes.titulo,
+                  fontSize: 17,
+                  color: VecColores.tinta,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -712,6 +822,45 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildActionsSection(bool isDark) {
+    if (_papel) {
+      return Column(
+        children: [
+          BotonVec(
+            texto: 'Guardar configuración',
+            iconoWidget: const IconoVec('palomita'),
+            color: VecColores.verde,
+            expandido: true,
+            onPressed: _hasChanges ? _saveConfig : null,
+          ),
+          const SizedBox(height: 18),
+          BotonVec(
+            texto: 'Añadir widget a inicio',
+            icono: Icons.add_to_home_screen_rounded,
+            color: VecColores.papel,
+            colorTexto: VecColores.tinta,
+            expandido: true,
+            onPressed: _addWidgetToHomeScreen,
+          ),
+          const SizedBox(height: 18),
+          const Row(
+            children: [
+              CirculoIcono(iconoVec: 'idea', color: VecColores.mostaza, tamano: 34),
+              SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'También puedes añadir el widget desde la pantalla de inicio de tu teléfono.',
+                  style: TextStyle(
+                    fontFamily: VecFuentes.texto,
+                    fontSize: 16,
+                    color: VecColores.gris,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      );
+    }
     return Column(
       children: [
         // Botón principal: Guardar
@@ -786,6 +935,16 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildSectionHeader(String title, bool isDark) {
+    if (_papel) {
+      // Sin el emoji del título: el estilo usa solo letras.
+      final sinEmoji = title.contains(' ')
+          ? title.substring(title.indexOf(' ') + 1)
+          : title;
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: EtiquetaSeccion(sinEmoji),
+      );
+    }
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
@@ -800,6 +959,18 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   }
 
   Widget _buildCard({required bool isDark, required Widget child}) {
+    if (_papel) {
+      final deco = AppThemeData.of(context).cardDecoration;
+      return Container(
+        decoration: deco,
+        child: ClipRRect(
+          borderRadius: deco.borderRadius!,
+          // Material propio para que los ListTile pinten su tinta encima
+          // del papel de la tarjeta.
+          child: Material(type: MaterialType.transparency, child: child),
+        ),
+      );
+    }
     return Container(
       decoration: BoxDecoration(
         color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
@@ -826,6 +997,39 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     required bool isFirst,
     required bool isLast,
   }) {
+    if (_papel) {
+      return Column(
+        children: [
+          if (!isFirst) const Divider(height: 1),
+          ListTile(
+            leading: CirculoIcono(
+              icono: icon,
+              color: isSelected ? VecColores.terracota : VecColores.cremaOscuro,
+              colorIcono: isSelected ? VecColores.papel : VecColores.gris,
+              tamano: 40,
+              sombra: isSelected,
+            ),
+            title: Text(title),
+            subtitle: Text(subtitle),
+            trailing: isSelected
+                ? const CirculoIcono(
+                    iconoVec: 'palomita',
+                    color: VecColores.verde,
+                    tamano: 30,
+                  )
+                : Container(
+                    width: 26,
+                    height: 26,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(color: VecColores.cremaOscuro, width: 3),
+                    ),
+                  ),
+            onTap: onTap,
+          ),
+        ],
+      );
+    }
     return Column(
       children: [
         if (!isFirst) const Divider(height: 1),

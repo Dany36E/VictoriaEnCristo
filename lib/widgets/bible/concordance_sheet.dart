@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_concordance_service.dart';
@@ -630,7 +629,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
     if (query.isEmpty) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
             color: t.textPrimary, fontSize: 13, height: 1.5),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
@@ -643,14 +642,14 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
     if (idx < 0) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
             color: t.textPrimary, fontSize: 13, height: 1.5),
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
       );
     }
 
-    final baseStyle = GoogleFonts.lora(
+    final baseStyle = AppFonts.lora(
         color: t.textPrimary, fontSize: 13, height: 1.5);
     return Text.rich(
       TextSpan(children: [

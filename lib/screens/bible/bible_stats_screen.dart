@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -20,7 +19,7 @@ class BibleStatsScreen extends StatelessWidget {
           BibleReaderThemeData.migrateId(themeId),
         );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -89,7 +88,7 @@ class BibleStatsScreen extends StatelessWidget {
                               Center(
                                 child: Text(
                                   '${pct.toStringAsFixed(1)}%',
-                                  style: GoogleFonts.instrumentSerif(
+                                  style: AppFonts.instrumentSerif(
                                     color: t.accent,
                                     fontSize: 48,
                                     fontWeight: FontWeight.w400,
@@ -170,7 +169,7 @@ class BibleStatsScreen extends StatelessWidget {
           const SizedBox(width: 16),
           Text(
             'Estadísticas de Lectura',
-            style: GoogleFonts.instrumentSerif(
+            style: AppFonts.instrumentSerif(
               color: t.textPrimary,
               fontSize: 20,
             ),
@@ -225,7 +224,7 @@ class BibleStatsScreen extends StatelessWidget {
                   children: [
                     Text(
                       value,
-                      style: GoogleFonts.instrumentSerif(
+                      style: AppFonts.instrumentSerif(
                         color: t.textPrimary,
                         fontSize: 32,
                       ),

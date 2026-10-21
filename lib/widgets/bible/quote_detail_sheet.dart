@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/ot_quote.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -225,7 +224,7 @@ class QuoteDetailSheet extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               text,
-              style: GoogleFonts.crimsonPro(
+              style: AppFonts.crimsonPro(
                 color: t.textSecondary,
                 fontSize: 14,
                 fontStyle: FontStyle.italic,

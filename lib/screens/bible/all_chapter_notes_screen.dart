@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/chapter_study_note.dart';
 import '../../services/bible/chapter_note_service.dart';
@@ -48,7 +47,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -373,7 +372,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                       const SizedBox(height: 2),
                       Text(
                         note.content,
-                        style: GoogleFonts.lora(
+                        style: AppFonts.lora(
                           color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 13,
                           height: 1.4,

@@ -13,7 +13,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'theme/app_theme_data.dart';
-import 'widgets/paper/paper_texture.dart';
+import 'vec/vec_tema.dart';
+import 'vec/vec_widgets.dart';
 import 'screens/home_screen.dart';
 import 'widgets/error_boundary.dart';
 import 'screens/login_screen.dart';
@@ -668,7 +669,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         systemNavigationBarColor: _isDarkMode
             ? AppTheme.darkBackground
             : (widget.themeService.currentTheme.isPaper
-                  ? PaperPalette.cream
+                  ? VecColores.crema
                   : AppTheme.backgroundColor),
         systemNavigationBarIconBrightness: _isDarkMode
             ? Brightness.light
@@ -711,8 +712,14 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         final content = child ?? const SizedBox.shrink();
         return AppThemeData.provider(
           theme: appTheme,
-          // Misma estructura con o sin textura: el Navigator conserva su estado.
-          child: PaperTextureOverlay(enabled: appTheme.isPaper, child: content),
+          // Papel con textura detrás de todas las rutas en el tema papel.
+          // Misma estructura en todos los temas: el Navigator conserva su estado.
+          child: DecoratedBox(
+            decoration: appTheme.isPaper
+                ? FondoPapel.decoracion
+                : const BoxDecoration(),
+            child: content,
+          ),
         );
       },
       home: _buildHomeOrOnboarding(),

@@ -5,7 +5,6 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
@@ -415,7 +414,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
         final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Stack(
               children: [
@@ -657,7 +656,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               const SizedBox(height: 8),
               SelectableText(
                 entry.verse,
-                style: GoogleFonts.lora(
+                style: AppFonts.lora(
                   color: t.textPrimary,
                   fontSize: fontSize + 1,
                   fontStyle: FontStyle.italic,
@@ -715,7 +714,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
             padding: const EdgeInsets.only(bottom: 16),
             child: SelectableText(
               p,
-              style: GoogleFonts.lora(
+              style: AppFonts.lora(
                 color: t.textPrimary,
                 fontSize: fontSize,
                 height: 1.75,
@@ -914,7 +913,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
             keyboardType: TextInputType.multiline,
             textCapitalization: TextCapitalization.sentences,
             onChanged: (_) => setState(() {}),
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: fontSize - 1,
               height: 1.6,
@@ -923,7 +922,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               hintText:
                   '¿Qué te habló Dios hoy? Escribe tu reflexión o una '
                   'oración…',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary,
                 fontSize: fontSize - 2,
                 height: 1.5,
@@ -1222,7 +1221,7 @@ class _DevotionalShareCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             entry.verse,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 17,
               fontStyle: FontStyle.italic,

@@ -67,7 +67,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         foregroundColor: t.textPrimary,

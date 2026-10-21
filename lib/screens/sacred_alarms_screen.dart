@@ -248,7 +248,7 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(title: const Text('Campanas Sagradas')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())

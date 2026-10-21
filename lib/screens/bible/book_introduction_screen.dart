@@ -62,7 +62,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: _t.background,
+      backgroundColor: _t.pageBg,
       body: SafeArea(
         child: _loading
             ? Center(

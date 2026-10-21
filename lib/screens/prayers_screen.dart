@@ -9,6 +9,7 @@ import '../services/audio_engine.dart';
 import '../services/daily_practice_service.dart';
 import '../models/content_item.dart';
 import '../models/content_enums.dart';
+import '../vec/vec_widgets.dart';
 /// ═══════════════════════════════════════════════════════════════════════════
 /// PRAYERS SCREEN — diseño premium adaptativo
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -153,61 +154,69 @@ class _PrayersScreenState extends State<PrayersScreen> {
     final totalPrayers = categories.fold<int>(0, (s, c) => s + c.prayers.length);
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             expandedHeight: 160,
-            backgroundColor: t.scaffoldBg,
+            backgroundColor: t.isPaper ? Colors.transparent : t.scaffoldBg,
             surfaceTintColor: Colors.transparent,
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 20, bottom: 16, right: 20),
-              title: Text(
-                'Oraciones',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w700,
-                  color: t.textPrimary,
-                  letterSpacing: 0.3,
-                ),
-              ),
-              background: Container(
-                decoration: BoxDecoration(gradient: t.headerGradient),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      right: -40,
-                      top: 30,
-                      child: Container(
-                        width: 200,
-                        height: 200,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              t.accent.withValues(alpha: 0.15),
-                              Colors.transparent,
-                            ],
+            flexibleSpace: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Tema papel: la barra fija también es hoja con textura.
+                if (t.isPaper) const FondoPapel(child: SizedBox.expand()),
+                FlexibleSpaceBar(
+                  titlePadding: const EdgeInsets.only(left: 20, bottom: 16, right: 20),
+                  title: Text(
+                    'Oraciones',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w700,
+                      color: t.textPrimary,
+                      letterSpacing: 0.3,
+                    ),
+                  ),
+                  background: Container(
+                    decoration: BoxDecoration(gradient: t.headerGradient),
+                    child: Stack(
+                      children: [
+                        if (!t.isPaper)
+                        Positioned(
+                          right: -40,
+                          top: 30,
+                          child: Container(
+                            width: 200,
+                            height: 200,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: RadialGradient(
+                                colors: [
+                                  t.accent.withValues(alpha: 0.15),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                    ),
-                    Positioned(
-                      left: 20,
-                      bottom: 48,
-                      child: Text(
-                        '$totalPrayers oraciones para cada momento',
-                        style: TextStyle(
-                          fontSize: 13,
-                          color: t.textSecondary,
-                          letterSpacing: 0.2,
+                        Positioned(
+                          left: 20,
+                          bottom: 48,
+                          child: Text(
+                            '$totalPrayers oraciones para cada momento',
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: t.textSecondary,
+                              letterSpacing: 0.2,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
           SliverPadding(
@@ -598,22 +607,29 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
             pinned: true,
             expandedHeight: 220,
-            backgroundColor: t.scaffoldBg,
+            backgroundColor: t.isPaper ? Colors.transparent : t.scaffoldBg,
             surfaceTintColor: Colors.transparent,
             iconTheme: IconThemeData(color: t.textPrimary),
-            flexibleSpace: FlexibleSpaceBar(
+            flexibleSpace: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Tema papel: la barra fija también es hoja con textura.
+                if (t.isPaper) const FondoPapel(child: SizedBox.expand()),
+                FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: [
+                    colors: t.isPaper
+                        ? const [Colors.transparent, Colors.transparent]
+                        : [
                       widget.color.withValues(alpha: t.isDark ? 0.30 : 0.18),
                       t.scaffoldBg,
                     ],
@@ -621,6 +637,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                 ),
                 child: Stack(
                   children: [
+                    if (!t.isPaper)
                     Positioned(
                       right: -60,
                       top: 40,
@@ -646,6 +663,13 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            if (t.isPaper)
+                              const CirculoIcono(
+                                iconoVec: 'orar',
+                                tamano: 56,
+                                giro: -4,
+                              )
+                            else
                             Container(
                               width: 56,
                               height: 56,
@@ -711,6 +735,8 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                   ],
                 ),
               ),
+            ),
+              ],
             ),
           ),
           SliverPadding(

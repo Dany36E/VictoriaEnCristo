@@ -57,7 +57,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
           BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: Column(
           children: [

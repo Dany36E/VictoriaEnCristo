@@ -40,7 +40,7 @@ class _ParablesGalleryScreenState extends State<ParablesGalleryScreen> {
     final t = AppThemeData.of(context);
     final parables = ParableRepository.I.all;
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,

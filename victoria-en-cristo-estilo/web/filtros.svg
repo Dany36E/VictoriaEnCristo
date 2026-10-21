@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute">
+<!-- Filtros del estilo «papel recortado» de Victoria en Cristo.
+     wc = relleno de acuarela · pen = línea de lápiz · sticker = borde blanco + sombra · wob = tembladito a mano.
+     Uso: pega este bloque una vez en tu HTML y aplica filter="url(#sticker)" (o wc / pen / wob) a un <g> de SVG. -->
+<defs>
+  <filter id="wc" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.022" numOctaves="3" seed="8" result="warp"/>
+    <feDisplacementMap in="SourceGraphic" in2="warp" scale="5" xChannelSelector="R" yChannelSelector="G" result="shape"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.035" numOctaves="4" seed="9" result="pig"/>
+    <feColorMatrix in="pig" type="matrix" values="0.32 0 0 0 0.8  0.32 0 0 0 0.8  0.32 0 0 0 0.8  0 0 0 0 1" result="pigGray"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="10" result="grain"/>
+    <feColorMatrix in="grain" type="matrix" values="0.12 0 0 0 0.93  0.12 0 0 0 0.93  0.12 0 0 0 0.93  0 0 0 0 1" result="grainGray"/>
+    <feComposite in="shape" in2="pigGray" operator="arithmetic" k1="1.04" result="tex1"/>
+    <feComposite in="tex1" in2="grainGray" operator="arithmetic" k1="1.0" result="tex2"/>
+    <feMorphology in="shape" operator="erode" radius="3" result="er"/>
+    <feComposite in="shape" in2="er" operator="out" result="ring"/>
+    <feGaussianBlur in="ring" stdDeviation="1.6" result="ringB"/>
+    <feFlood flood-color="#2b2622" flood-opacity="0.22"/>
+    <feComposite in2="ringB" operator="in" result="edgeDark"/>
+    <feComposite in="edgeDark" in2="shape" operator="in" result="edgeIn"/>
+    <feMerge><feMergeNode in="tex2"/><feMergeNode in="edgeIn"/></feMerge>
+  </filter>
+  <filter id="pen" x="-8%" y="-8%" width="116%" height="116%" color-interpolation-filters="sRGB">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="11" result="w"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="3.5" xChannelSelector="R" yChannelSelector="G" result="d"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="12" result="g"/>
+    <feColorMatrix in="g" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 1.4 0.25" result="ga"/>
+    <feComposite in="d" in2="ga" operator="in"/>
+  </filter>
+  <filter id="torn" x="-2%" y="-10%" width="104%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.09" numOctaves="3" seed="14" result="w"/>
+    <feDisplacementMap in="SourceGraphic" in2="w" scale="9" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+  <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+    <feGaussianBlur stdDeviation="6"/>
+  </filter>
+  <filter id="sticker" x="-12%" y="-12%" width="124%" height="128%" color-interpolation-filters="sRGB">
+    <feMorphology in="SourceAlpha" operator="dilate" radius="8" result="dil"/>
+    <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="13" result="tn"/>
+    <feDisplacementMap in="dil" in2="tn" scale="4" xChannelSelector="R" yChannelSelector="G" result="dilW"/>
+    <feGaussianBlur in="dilW" stdDeviation="0.6" result="dilS"/>
+    <feFlood flood-color="#fbf7ee"/>
+    <feComposite in2="dilS" operator="in" result="white"/>
+    
+    <feOffset in="dilS" dy="9" result="o1"/><feGaussianBlur in="o1" stdDeviation="3.5" result="b1"/>
+    <feFlood flood-color="rgb(74,48,22)" flood-opacity="0.30"/><feComposite in2="b1" operator="in" result="sh1"/>
+    <feOffset in="dilS" dy="2" result="o2"/><feGaussianBlur in="o2" stdDeviation="0.8" result="b2"/>
+    <feFlood flood-color="#000" flood-opacity="0.20"/><feComposite in2="b2" operator="in" result="sh2"/>
+    <feMerge><feMergeNode in="sh1"/><feMergeNode in="sh2"/><feMergeNode in="white"/><feMergeNode in="SourceGraphic"/></feMerge>
+  </filter><filter id="wob"><feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="4" result="n"/><feDisplacementMap in="SourceGraphic" in2="n" scale="3"/></filter></defs>
+</svg>

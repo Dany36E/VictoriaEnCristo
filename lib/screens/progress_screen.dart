@@ -389,7 +389,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     final t = AppThemeData.of(context);
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: t.scaffoldBg,
+        backgroundColor: t.pageBg,
         body: Center(
           child: CircularProgressIndicator(
             color: t.accent,
@@ -400,7 +400,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     }
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: Stack(
         children: [
           // Golden confetti

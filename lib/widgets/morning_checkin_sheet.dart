@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -214,7 +213,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         Text(
           '"${verse.verse}"',
           textAlign: TextAlign.center,
-          style: GoogleFonts.crimsonPro(
+          style: AppFonts.crimsonPro(
             color: td.textPrimary,
             fontSize: 17,
             fontStyle: FontStyle.italic,
@@ -282,7 +281,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
               ? _todayPrayer
               : 'Señor, te entrego este día.\nCúbreme con Tu gracia.\nGuarda mis ojos, mis manos y mi corazón.\nQue cada paso me acerque más a Ti.\nAmén.',
           textAlign: TextAlign.center,
-          style: GoogleFonts.crimsonPro(
+          style: AppFonts.crimsonPro(
             color: td.textPrimary,
             fontSize: 16,
             fontStyle: FontStyle.italic,

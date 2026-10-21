@@ -354,7 +354,7 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

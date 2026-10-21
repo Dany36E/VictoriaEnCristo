@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_verse.dart';
@@ -121,7 +120,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
                 ),
                 child: Text(
                   '"${widget.verse.text}"',
-                  style: GoogleFonts.crimsonPro(
+                  style: AppFonts.crimsonPro(
                     color: t.textSecondary.withValues(alpha: 0.6),
                     fontSize: 14,
                     fontStyle: FontStyle.italic,

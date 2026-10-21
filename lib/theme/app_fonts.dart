@@ -4,26 +4,32 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../services/theme_service.dart';
+import '../vec/vec_tema.dart';
 import 'app_theme_data.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// APP FONTS — Tipografía dependiente del tema
 /// ═══════════════════════════════════════════════════════════════════════════
 ///
-/// Reemplazo directo de `GoogleFonts.manrope(...)` / `GoogleFonts.cinzel(...)`
-/// (misma firma). En los temas normales devuelve exactamente lo mismo; con el
-/// tema "Papel recortado" usa Baloo 2 (redondeada, estilo papercraft).
+/// Reemplazo directo de `GoogleFonts.manrope/cinzel/lora/crimsonPro/
+/// instrumentSerif(...)` (misma firma). En los temas normales devuelve
+/// exactamente lo mismo; con el tema "Papel recortado" usa las letras del kit
+/// victoria-en-cristo-estilo (VecFuentes):
+///   • Lilita One  → títulos, botones, chips, etiquetas (Cinzel y Manrope ≥ w600)
+///   • Patrick Hand → texto corrido y versículos (Manrope < w600 y serifas)
 ///
-/// Las fuentes están bundled en `google_fonts/` (runtime fetching apagado).
+/// Las fuentes del kit tienen un solo peso: se piden en w400 para que el motor
+/// no sintetice negritas.
 /// ═══════════════════════════════════════════════════════════════════════════
 class AppFonts {
   AppFonts._();
 
-  static const String _paperFamily = 'Baloo 2';
-
   static bool get _isPaper => ThemeService().themeId == AppThemeData.paper.id;
 
-  /// Fuente de interfaz (Manrope → Baloo 2 en tema papel).
+  /// Patrick Hand se ve más chica que Manrope/Lora al mismo tamaño.
+  static const double _escalaTexto = 1.15;
+
+  /// Fuente de interfaz (Manrope → Lilita One / Patrick Hand en tema papel).
   static TextStyle manrope({
     TextStyle? textStyle,
     Color? color,
@@ -45,17 +51,39 @@ class AppFonts {
     TextDecorationStyle? decorationStyle,
     double? decorationThickness,
   }) {
-    final paper = _isPaper;
+    if (_isPaper) {
+      final peso = (fontWeight ?? textStyle?.fontWeight ?? FontWeight.w400);
+      final esTitulo = peso.value >= FontWeight.w600.value;
+      return _papel(
+        esTitulo ? VecFuentes.titulo : VecFuentes.texto,
+        textStyle: textStyle,
+        color: color,
+        backgroundColor: backgroundColor,
+        fontSize: fontSize,
+        fontStyle: fontStyle,
+        letterSpacing: letterSpacing,
+        wordSpacing: wordSpacing,
+        textBaseline: textBaseline,
+        height: height,
+        locale: locale,
+        foreground: foreground,
+        background: background,
+        shadows: shadows,
+        decoration: decoration,
+        decorationColor: decorationColor,
+        decorationStyle: decorationStyle,
+        decorationThickness: decorationThickness,
+      );
+    }
     return GoogleFonts.getFont(
-      paper ? _paperFamily : 'Manrope',
+      'Manrope',
       textStyle: textStyle,
       color: color,
       backgroundColor: backgroundColor,
       fontSize: fontSize,
-      // Baloo 2 se ve más ligera que Manrope al mismo peso: un punto más.
-      fontWeight: paper ? _oneStepBolder(fontWeight) : fontWeight,
+      fontWeight: fontWeight,
       fontStyle: fontStyle,
-      letterSpacing: paper ? _tight(letterSpacing, 0.2) : letterSpacing,
+      letterSpacing: letterSpacing,
       wordSpacing: wordSpacing,
       textBaseline: textBaseline,
       height: height,
@@ -71,7 +99,7 @@ class AppFonts {
     );
   }
 
-  /// Fuente de títulos "sagrados" (Cinzel → Baloo 2 gruesa en tema papel).
+  /// Títulos "sagrados" (Cinzel → Lilita One en tema papel).
   static TextStyle cinzel({
     TextStyle? textStyle,
     Color? color,
@@ -93,17 +121,16 @@ class AppFonts {
     TextDecorationStyle? decorationStyle,
     double? decorationThickness,
   }) {
-    final paper = _isPaper;
-    return GoogleFonts.getFont(
-      paper ? _paperFamily : 'Cinzel',
+    return _conFamilia(
+      'Cinzel',
+      VecFuentes.titulo,
       textStyle: textStyle,
       color: color,
       backgroundColor: backgroundColor,
       fontSize: fontSize,
-      // Los títulos del estilo papel son gruesos y sin tracking amplio.
-      fontWeight: paper ? _atLeastBold(fontWeight) : fontWeight,
+      fontWeight: fontWeight,
       fontStyle: fontStyle,
-      letterSpacing: paper ? _tight(letterSpacing, 0.3) : letterSpacing,
+      letterSpacing: letterSpacing,
       wordSpacing: wordSpacing,
       textBaseline: textBaseline,
       height: height,
@@ -119,22 +146,266 @@ class AppFonts {
     );
   }
 
-  /// El tracking amplio de Manrope/Cinzel separa demasiado a Baloo 2.
-  static double? _tight(double? letterSpacing, double max) {
-    if (letterSpacing == null || letterSpacing <= max) return letterSpacing;
-    return max;
+  /// Serifa de lectura (Lora → Patrick Hand en tema papel).
+  static TextStyle lora({
+    TextStyle? textStyle,
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+    FontWeight? fontWeight,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
+    double? height,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<ui.Shadow>? shadows,
+    List<ui.FontFeature>? fontFeatures,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+  }) {
+    return _conFamilia(
+      'Lora',
+      VecFuentes.texto,
+      textStyle: textStyle,
+      color: color,
+      backgroundColor: backgroundColor,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      letterSpacing: letterSpacing,
+      wordSpacing: wordSpacing,
+      textBaseline: textBaseline,
+      height: height,
+      locale: locale,
+      foreground: foreground,
+      background: background,
+      shadows: shadows,
+      fontFeatures: fontFeatures,
+      decoration: decoration,
+      decorationColor: decorationColor,
+      decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
+    );
   }
 
-  static FontWeight _oneStepBolder(FontWeight? weight) {
-    final value = (weight ?? FontWeight.w400).value;
-    // FontWeight.values[i] = w(i+1)00 → índice value/100 es un paso arriba.
-    return FontWeight.values[(value ~/ 100).clamp(3, 8)];
+  /// Serifa de versículos (Crimson Pro → Patrick Hand en tema papel).
+  static TextStyle crimsonPro({
+    TextStyle? textStyle,
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+    FontWeight? fontWeight,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
+    double? height,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<ui.Shadow>? shadows,
+    List<ui.FontFeature>? fontFeatures,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+  }) {
+    return _conFamilia(
+      'Crimson Pro',
+      VecFuentes.texto,
+      textStyle: textStyle,
+      color: color,
+      backgroundColor: backgroundColor,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      letterSpacing: letterSpacing,
+      wordSpacing: wordSpacing,
+      textBaseline: textBaseline,
+      height: height,
+      locale: locale,
+      foreground: foreground,
+      background: background,
+      shadows: shadows,
+      fontFeatures: fontFeatures,
+      decoration: decoration,
+      decorationColor: decorationColor,
+      decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
+    );
   }
 
-  static FontWeight _atLeastBold(FontWeight? weight) {
-    if (weight == null || weight.value < FontWeight.w700.value) {
-      return FontWeight.w700;
+  /// Serifa editorial (Instrument Serif → Lilita One en tema papel).
+  static TextStyle instrumentSerif({
+    TextStyle? textStyle,
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+    FontWeight? fontWeight,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
+    double? height,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<ui.Shadow>? shadows,
+    List<ui.FontFeature>? fontFeatures,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+  }) {
+    return _conFamilia(
+      'Instrument Serif',
+      VecFuentes.titulo,
+      textStyle: textStyle,
+      color: color,
+      backgroundColor: backgroundColor,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      letterSpacing: letterSpacing,
+      wordSpacing: wordSpacing,
+      textBaseline: textBaseline,
+      height: height,
+      locale: locale,
+      foreground: foreground,
+      background: background,
+      shadows: shadows,
+      fontFeatures: fontFeatures,
+      decoration: decoration,
+      decorationColor: decorationColor,
+      decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
+    );
+  }
+
+  /// Google Font original en temas normales; [familiaPapel] en tema papel.
+  static TextStyle _conFamilia(
+    String googleFont,
+    String familiaPapel, {
+    TextStyle? textStyle,
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+    FontWeight? fontWeight,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
+    double? height,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<ui.Shadow>? shadows,
+    List<ui.FontFeature>? fontFeatures,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+  }) {
+    if (_isPaper) {
+      return _papel(
+        familiaPapel,
+        textStyle: textStyle,
+        color: color,
+        backgroundColor: backgroundColor,
+        fontSize: fontSize,
+        fontStyle: fontStyle,
+        letterSpacing: letterSpacing,
+        wordSpacing: wordSpacing,
+        textBaseline: textBaseline,
+        height: height,
+        locale: locale,
+        foreground: foreground,
+        background: background,
+        shadows: shadows,
+        decoration: decoration,
+        decorationColor: decorationColor,
+        decorationStyle: decorationStyle,
+        decorationThickness: decorationThickness,
+      );
     }
-    return weight;
+    return GoogleFonts.getFont(
+      googleFont,
+      textStyle: textStyle,
+      color: color,
+      backgroundColor: backgroundColor,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      letterSpacing: letterSpacing,
+      wordSpacing: wordSpacing,
+      textBaseline: textBaseline,
+      height: height,
+      locale: locale,
+      foreground: foreground,
+      background: background,
+      shadows: shadows,
+      fontFeatures: fontFeatures,
+      decoration: decoration,
+      decorationColor: decorationColor,
+      decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
+    );
+  }
+
+  /// Estilo con una letra del kit (fuente declarada en pubspec, un solo peso).
+  static TextStyle _papel(
+    String familia, {
+    TextStyle? textStyle,
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
+    double? height,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<ui.Shadow>? shadows,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+  }) {
+    final esTexto = familia == VecFuentes.texto;
+    final tamano = fontSize ?? textStyle?.fontSize;
+    final tracking = letterSpacing ?? textStyle?.letterSpacing;
+    return (textStyle ?? const TextStyle()).copyWith(
+      fontFamily: familia,
+      fontFamilyFallback: const [VecFuentes.texto],
+      fontWeight: FontWeight.w400,
+      color: color,
+      backgroundColor: backgroundColor,
+      fontSize: tamano == null
+          ? null
+          : (esTexto ? tamano * _escalaTexto : tamano),
+      fontStyle: fontStyle,
+      // El tracking amplio de Manrope/Cinzel separa demasiado estas letras.
+      letterSpacing: tracking == null
+          ? null
+          : (tracking > 0.5 ? 0.5 : tracking),
+      wordSpacing: wordSpacing,
+      textBaseline: textBaseline,
+      height: height,
+      locale: locale,
+      foreground: foreground,
+      background: background,
+      shadows: shadows,
+      decoration: decoration,
+      decorationColor: decorationColor,
+      decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
+    );
   }
 }

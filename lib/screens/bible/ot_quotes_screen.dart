@@ -64,7 +64,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
           BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         title: Text(

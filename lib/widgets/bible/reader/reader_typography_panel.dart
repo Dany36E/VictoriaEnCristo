@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 import '../../../services/bible/bible_user_data_service.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -69,7 +68,7 @@ class ReaderTypographyPanel extends StatelessWidget {
                   return Row(
                     children: [
                       Text('A',
-                          style: GoogleFonts.lora(
+                          style: AppFonts.lora(
                               color: t.textSecondary, fontSize: 14)),
                       Expanded(
                         child: Semantics(
@@ -88,7 +87,7 @@ class ReaderTypographyPanel extends StatelessWidget {
                         ),
                       ),
                       Text('A',
-                          style: GoogleFonts.lora(
+                          style: AppFonts.lora(
                               color: t.textSecondary, fontSize: 26)),
                     ],
                   );

@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
@@ -573,7 +572,7 @@ class _SecondaryVerseText extends StatelessWidget {
     final t = theme;
     return RichText(
       text: TextSpan(
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary.withValues(alpha: 0.78),
           fontSize: fontSize * 0.92,
           height: 1.55,
@@ -1058,7 +1057,7 @@ class _WordChip extends StatelessWidget {
           children: [
             Text(
               '$text ',
-              style: GoogleFonts.lora(
+              style: AppFonts.lora(
                 color: muted ? t.textPrimary.withValues(alpha: 0.78) : t.textPrimary,
                 fontSize: fontSize,
                 height: 1.35,
