@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_version.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -77,7 +78,7 @@ class SermonHeaderBar extends StatelessWidget {
                 children: [
                   Text(
                     'Modo Predicacion',
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -103,7 +104,7 @@ class SermonHeaderBar extends StatelessWidget {
               minimumSize: const Size(0, 34),
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-              textStyle: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
+              textStyle: AppFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
             ),
           ),
           IconButton(
@@ -145,7 +146,7 @@ class SermonHeaderBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(color: t.accent.withValues(alpha: 0.22)),
               ),
-              textStyle: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
+              textStyle: AppFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
             ),
           ),
         ],
@@ -176,7 +177,7 @@ class SermonHeaderBar extends StatelessWidget {
                     'Modo Predicacion',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -187,7 +188,7 @@ class SermonHeaderBar extends StatelessWidget {
                     '$bookName $chapter · ${primaryVersion.shortName}/${secondaryVersion.shortName}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -250,7 +251,7 @@ class SermonHeaderBar extends StatelessWidget {
   ) {
     return PopupMenuItem(
       value: value,
-      child: Text(label, style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13)),
+      child: Text(label, style: AppFonts.manrope(color: t.textPrimary, fontSize: 13)),
     );
   }
 }

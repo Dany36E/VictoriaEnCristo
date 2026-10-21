@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/bible_version.dart';
@@ -411,7 +412,7 @@ class _PassageHeader extends StatelessWidget {
               '${verse.bookName} ${verse.chapter}',
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.78),
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -544,7 +545,7 @@ class _VersionLabel extends StatelessWidget {
     final t = theme;
     return Text(
       version.shortName,
-      style: GoogleFonts.manrope(
+      style: AppFonts.manrope(
         color: muted ? t.textSecondary.withValues(alpha: 0.55) : t.accent,
         fontSize: 10,
         fontWeight: FontWeight.w800,
@@ -580,7 +581,7 @@ class _SecondaryVerseText extends StatelessWidget {
         children: [
           TextSpan(
             text: '$verseNumber ',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textSecondary.withValues(alpha: 0.7),
               fontSize: fontSize * 0.62,
               fontWeight: FontWeight.w600,
@@ -634,7 +635,7 @@ class _VerseRow extends StatelessWidget {
             padding: const EdgeInsets.only(right: 6, top: 2),
             child: Text(
               '${verse.verse}',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: muted ? t.textSecondary.withValues(alpha: 0.7) : t.accent,
                 fontSize: fontSize * 0.65,
                 fontWeight: FontWeight.w600,
@@ -862,7 +863,7 @@ class _ContextChip extends StatelessWidget {
               child: Text(
                 label,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: theme.textPrimary.withValues(alpha: 0.82),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -942,7 +943,7 @@ class _ChapterContextSheet extends StatelessWidget {
                 Expanded(
                   child: Text(
                     '${intro.name} $chapter',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: theme.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -976,7 +977,7 @@ class _ContextDetail extends StatelessWidget {
         children: [
           Text(
             title,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: theme.accent,
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -985,7 +986,7 @@ class _ContextDetail extends StatelessWidget {
           const SizedBox(height: 5),
           Text(
             body,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: theme.textPrimary.withValues(alpha: 0.84),
               fontSize: 13,
               height: 1.45,
@@ -1376,7 +1377,7 @@ class _LegendSheet extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   'Leyenda de colores',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w700,

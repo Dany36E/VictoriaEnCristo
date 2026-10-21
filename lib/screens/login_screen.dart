@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../constants/legal_urls.dart';
 import '../services/auth_service.dart';
 import '../services/privacy_preferences_service.dart';
@@ -261,7 +261,7 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Text(
                 'VICTORIA EN CRISTO',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   fontSize: titleFontSize,
                   fontWeight: FontWeight.w800,
                   letterSpacing: titleLetterSpacing,

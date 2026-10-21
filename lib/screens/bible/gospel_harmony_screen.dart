@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/harmony_section.dart';
 import '../../services/bible/gospel_harmony_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -70,7 +70,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
         backgroundColor: t.surface,
         title: Text(
           'Armonía de los Evangelios',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: t.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -89,11 +89,11 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: (v) => setState(() => _searchQuery = v),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                         color: t.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Buscar evento...',
-                      hintStyle: GoogleFonts.manrope(
+                      hintStyle: AppFonts.manrope(
                           color: t.textPrimary.withValues(alpha: 0.3)),
                       prefixIcon: Icon(Icons.search,
                           color: t.accent.withValues(alpha: 0.5)),
@@ -118,7 +118,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                         flex: 5,
                         child: Text(
                           'Evento',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textPrimary.withValues(alpha: 0.4),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -130,7 +130,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                             child: Text(
                               h,
                               textAlign: TextAlign.center,
-                              style: GoogleFonts.cinzel(
+                              style: AppFonts.cinzel(
                                 color: t.accent,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
@@ -153,7 +153,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                           children: [
                             Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
+                            Text('Sin resultados', style: AppFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
                           ],
                         ),
                       )
@@ -183,7 +183,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
           color: t.accent.withValues(alpha: 0.06),
           child: Text(
             category.toUpperCase(),
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.accent,
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -215,7 +215,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
               flex: 5,
               child: Text(
                 section.title,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.85),
                   fontSize: 13,
                   height: 1.3,
@@ -241,7 +241,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                             child: Center(
                               child: Text(
                                 _formatChapter(ref),
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color: t.accent,
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
@@ -299,7 +299,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
               ),
               Text(
                 section.title,
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.textPrimary,
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -308,7 +308,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
               const SizedBox(height: 4),
               Text(
                 section.category,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -342,7 +342,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                         children: [
                           Text(
                             _gospelNames[gi],
-                            style: GoogleFonts.cinzel(
+                            style: AppFonts.cinzel(
                               color: has
                                   ? t.accent
                                   : t.textPrimary.withValues(alpha: 0.2),
@@ -354,7 +354,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                           if (has)
                             Text(
                               _formatOsisDisplay(ref),
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textPrimary
                                     .withValues(alpha: 0.6),
                                 fontSize: 12,
@@ -363,7 +363,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                           else
                             Text(
                               'No registrado',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textPrimary
                                     .withValues(alpha: 0.15),
                                 fontSize: 12,

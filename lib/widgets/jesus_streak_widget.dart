@@ -6,7 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/jesus_widget_service.dart';
 import '../services/victory_scoring_service.dart';
 
@@ -164,7 +164,7 @@ class JesusStreakWidget extends StatelessWidget {
                             // Mensaje motivacional
                             Text(
                               message,
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white.withValues(alpha: 0.9),
@@ -239,7 +239,7 @@ class JesusStreakWidget extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 isNewUser ? '0' : '$streakDays',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   fontSize: streakDays >= 1000
                       ? 30.0
                       : streakDays >= 100
@@ -264,7 +264,7 @@ class JesusStreakWidget extends StatelessWidget {
                 children: [
                   Text(
                     streakDays == 1 ? 'DÍA' : 'DÍAS',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       letterSpacing: streakDays >= 10 ? 0.5 : 1.5,
@@ -276,7 +276,7 @@ class JesusStreakWidget extends StatelessWidget {
                   if (streakDays < 100 && !(completedToday && streakDays >= 10))
                     Text(
                       'DE VICTORIA',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         color: Colors.white.withValues(alpha: 0.6),
@@ -396,7 +396,7 @@ class JesusStreakWidget extends StatelessWidget {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFFD4AF37),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 /// Tutorial de bienvenida que se muestra la primera vez que el usuario
@@ -105,7 +106,7 @@ class _BibleHomeOnboardingOverlayState
             const SizedBox(height: 18),
             Text(
               'La Biblia',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -114,7 +115,7 @@ class _BibleHomeOnboardingOverlayState
             const SizedBox(height: 6),
             Text(
               'Conoce cómo aprovecharla en 60 segundos',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: Colors.white60,
                 fontSize: 11,
                 letterSpacing: 0.4,
@@ -138,7 +139,7 @@ class _BibleHomeOnboardingOverlayState
                     onPressed: _close,
                     child: Text(
                       'Saltar',
-                      style: GoogleFonts.manrope(color: Colors.white54),
+                      style: AppFonts.manrope(color: Colors.white54),
                     ),
                   ),
                   const Spacer(),
@@ -162,7 +163,7 @@ class _BibleHomeOnboardingOverlayState
                     },
                     child: Text(
                       _index < _slides.length - 1 ? 'Siguiente' : '¡Comenzar!',
-                      style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+                      style: AppFonts.manrope(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -197,7 +198,7 @@ class _BibleHomeOnboardingOverlayState
           Text(
             s.title,
             textAlign: TextAlign.center,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w600,

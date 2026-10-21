@@ -2,7 +2,7 @@ import 'dart:ui' as ui;
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/bible/bible_verse.dart';
@@ -129,7 +129,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
           const Spacer(),
           Text(
             'COMPARTIR',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               letterSpacing: 2.0,
@@ -203,7 +203,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                         color: Colors.black54,
                         child: Text(
                           tmpl.name,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 8,
                             color: Colors.white,
                             fontWeight: FontWeight.w600,
@@ -244,7 +244,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 const SizedBox(width: 8),
                 Text(
                   'Personalizar',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 13,
                     color: t.textSecondary.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w600,
@@ -276,7 +276,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                   children: [
                     Text(
                       'TAMAÑO',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -286,7 +286,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     const Spacer(),
                     Text(
                       '${_fontSize.round()}',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.accent,
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -320,7 +320,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                   children: [
                     Text(
                       'PROPORCIÓN',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -341,7 +341,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                   children: [
                     Text(
                       'ALINEACIÓN',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -357,7 +357,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     const Spacer(),
                     Text(
                       'Logo',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 12,
                       ),
@@ -405,7 +405,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         ),
         child: Text(
           _aspects[index].label,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: isSelected
@@ -456,7 +456,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 icon: const Icon(Icons.download_rounded, size: 18),
                 label: Text(
                   'Guardar',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontWeight: FontWeight.w700,
                     fontSize: 13,
                   ),
@@ -491,7 +491,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     : const Icon(Icons.share, size: 18),
                 label: Text(
                   'Compartir',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                   ),
@@ -558,7 +558,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
       SnackBar(
         content: Text(
           'Imagen guardada en: ${file.path}',
-          style: GoogleFonts.manrope(fontSize: 12),
+          style: AppFonts.manrope(fontSize: 12),
         ),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 3),

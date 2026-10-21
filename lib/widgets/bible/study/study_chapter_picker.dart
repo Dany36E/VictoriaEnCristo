@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_book.dart';
 import '../../../models/bible/bible_version.dart';
@@ -383,7 +384,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                   Expanded(
                     child: Text(
                       'Elegir capítulo',
-                      style: GoogleFonts.cinzel(
+                      style: AppFonts.cinzel(
                         color: t.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w600,
@@ -400,7 +401,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                     ),
                     child: Text(
                       'Abrir',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.accent,
                         fontWeight: FontWeight.w600,
                       ),
@@ -439,10 +440,10 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
       child: TextField(
         controller: _searchController,
         cursorColor: t.accent,
-        style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+        style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
         decoration: InputDecoration(
           hintText: 'Buscar palabra o referencia (armadura, Ef 6)',
-          hintStyle: GoogleFonts.manrope(
+          hintStyle: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.45),
             fontSize: 12,
           ),
@@ -499,7 +500,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                 Expanded(
                   child: RichText(
                     text: TextSpan(
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary,
                         fontSize: 12.5,
                       ),
@@ -507,7 +508,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                         const TextSpan(text: 'Pegar '),
                         TextSpan(
                           text: ref.label,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textPrimary,
                             fontSize: 12.5,
                             fontWeight: FontWeight.w800,
@@ -599,7 +600,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                 const SizedBox(width: 6),
                 Text(
                   ref.label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: favorite ? t.accent : t.textPrimary,
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
@@ -643,7 +644,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                   leading: Icon(leadingIcon, color: t.accent, size: 18),
                   title: Text(
                     isBook ? hit.bookName : hit.reference,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
@@ -654,7 +655,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           text: TextSpan(
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textSecondary,
                               fontSize: 11,
                             ),
@@ -665,7 +666,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                           hit.preview,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textSecondary,
                             fontSize: 11,
                           ),
@@ -774,7 +775,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
             padding: const EdgeInsets.fromLTRB(16, 0, 8, 0),
             child: Text(
               row.header!,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.65),
                 fontSize: 10.5,
                 fontWeight: FontWeight.w800,
@@ -820,7 +821,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                     ),
                     Text(
                       b.abbreviation,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.45),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
@@ -868,7 +869,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
             _selectedBookName,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -879,7 +880,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
           padding: const EdgeInsets.fromLTRB(12, 0, 12, 6),
           child: Text(
             'Toca un capítulo para elegir versículos',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textSecondary.withValues(alpha: 0.7),
               fontSize: 10.5,
             ),
@@ -923,7 +924,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                         children: [
                           Text(
                             '$n',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: isCurrent ? t.accent : t.textPrimary,
                               fontWeight: isCurrent
                                   ? FontWeight.w800
@@ -934,7 +935,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                           if (verseCount != null)
                             Text(
                               '$verseCount v',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textSecondary.withValues(alpha: 0.5),
                                 fontSize: 8.5,
                                 fontWeight: FontWeight.w600,

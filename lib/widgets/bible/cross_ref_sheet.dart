@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/treasury_service.dart';
@@ -144,7 +145,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                     Expanded(
                       child: Text(
                         '${widget.bookName} ${widget.chapter}:${widget.verse}',
-                        style: GoogleFonts.cinzel(
+                        style: AppFonts.cinzel(
                           color: t.textPrimary,
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -154,7 +155,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                     if (!_loading)
                       Text(
                         '${_allRefs.length} refs',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textSecondary.withValues(alpha: 0.5),
                           fontSize: 12,
                         ),
@@ -175,7 +176,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                         ? Center(
                             child: Text(
                               'No se encontraron referencias cruzadas',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                   color: t.textSecondary, fontSize: 14),
                             ),
                           )
@@ -221,7 +222,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
         label: Text('$label ($count)'),
         selected: active,
         onSelected: (_) => setState(() => _activeFilter = type),
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: AppFonts.manrope(
           color: active ? t.background : t.textSecondary,
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -261,7 +262,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
               children: [
                 Text(
                   ref.formatted,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -277,7 +278,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                   ),
                   child: Text(
                     CrossRefClassifier.label(ref.type),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: typeColor,
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
@@ -288,7 +289,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                 GestureDetector(
                   onTap: () => _showExplanation(context, ref, t),
                   child: Text('¿Por qué?',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 10,
                       color: t.accent.withValues(alpha: 0.6),
                       decoration: TextDecoration.underline,
@@ -324,9 +325,9 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
         backgroundColor: t.surface,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(ref.formatted,
-          style: GoogleFonts.cinzel(color: t.accent, fontSize: 16)),
+          style: AppFonts.cinzel(color: t.accent, fontSize: 16)),
         content: Text(ref.explanation,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textPrimary,
             fontSize: 13,
             height: 1.6,
@@ -339,12 +340,12 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
               BibleNavigationHelper.navigateToOsis(context, ref.raw);
             },
             child: Text('Ir al versículo',
-              style: GoogleFonts.manrope(color: t.accent)),
+              style: AppFonts.manrope(color: t.accent)),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text('Cerrar',
-              style: GoogleFonts.manrope(color: Colors.grey)),
+              style: AppFonts.manrope(color: Colors.grey)),
           ),
         ],
       ),

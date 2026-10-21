@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
@@ -226,7 +227,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           Expanded(
             child: Text(
               'La Biblia',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -283,10 +284,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               child: TextField(
                 controller: _searchController,
                 focusNode: _searchFocus,
-                style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14),
+                style: AppFonts.manrope(color: t.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Buscar en la Biblia...',
-                  hintStyle: GoogleFonts.manrope(
+                  hintStyle: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.4),
                     fontSize: 14,
                   ),
@@ -417,7 +418,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         children: [
           Text(
             section.name.toUpperCase(),
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.accent.withValues(alpha: 0.7),
               fontSize: 10,
               fontWeight: FontWeight.w700,
@@ -427,7 +428,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           const SizedBox(height: 2),
           Text(
             section.description,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textSecondary.withValues(alpha: 0.4),
               fontSize: 11,
             ),
@@ -483,7 +484,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   children: [
                     Text(
                       'Continuar leyendo',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -541,7 +542,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   const SizedBox(width: 3),
                   Text(
                     '$streak días',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: const Color(0xFFFF6B35),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -565,7 +566,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   const SizedBox(width: 5),
                   Text(
                     '${pct.toStringAsFixed(1)}%',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 10,
                     ),
@@ -758,7 +759,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     const SizedBox(height: 4),
                     Text(
                       tool.label,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.6),
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -891,7 +892,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   tool.label,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -944,7 +945,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 // Genre label
                 Text(
                   book.genre.label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.32),
                     fontSize: 10,
                     letterSpacing: 0.4,
@@ -953,7 +954,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 const SizedBox(width: 10),
                 Text(
                   '${book.totalChapters}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 13,
                   ),
@@ -975,7 +976,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       return Center(
         child: Text(
           'Escribe al menos 3 caracteres',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 13,
           ),
@@ -993,7 +994,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       return Center(
         child: Text(
           'Sin resultados',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.4),
             fontSize: 14,
           ),
@@ -1037,7 +1038,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               children: [
                 Text(
                   '${verse.reference} — ${verse.version}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -1152,7 +1153,7 @@ class _StudyEntrySheet extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Modo Estudio',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1225,7 +1226,7 @@ class _SermonEntrySheet extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Apuntes de predicacion',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -1295,7 +1296,7 @@ class _StudyEntryTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -1304,7 +1305,7 @@ class _StudyEntryTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.7),
                       fontSize: 11,
                       height: 1.3,

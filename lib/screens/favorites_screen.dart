@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../services/favorites_service.dart';
@@ -117,7 +118,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'Mis Favoritos',
-                            style: GoogleFonts.cinzel(
+                            style: AppFonts.cinzel(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
                               color: t.textPrimary,
@@ -127,7 +128,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           const SizedBox(height: 6),
                           Text(
                             '${_favoritesService.count} versículos guardados',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               fontSize: 14,
                               color: t.textSecondary,
                             ),
@@ -201,7 +202,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             const SizedBox(height: 24),
             Text(
               'Sin favoritos aún',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
                 color: t.textPrimary,
@@ -211,7 +212,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             Text(
               'Los versículos que guardes aparecerán aquí.\nToca el ícono de marcador en cualquier versículo para guardarlo.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 color: t.textSecondary,
                 height: 1.6,
@@ -237,7 +238,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 ),
                 child: Text(
                   'Explorar Versículos',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,
@@ -281,7 +282,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             const SizedBox(width: 12),
             Text(
               message,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
@@ -362,7 +363,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                 ),
                 child: Text(
                   verse.category.toUpperCase(),
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: t.accent,
@@ -392,7 +393,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                 children: [
                   Text(
                     verse.reference,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: t.accent,

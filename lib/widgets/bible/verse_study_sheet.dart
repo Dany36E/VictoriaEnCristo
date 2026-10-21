@@ -1,5 +1,5 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/bible_verse.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -171,7 +171,7 @@ class _SheetBodyState extends State<_SheetBody>
                 children: [
                   Text(
                     'ESTUDIO PROFUNDO',
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.accent,
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
@@ -181,7 +181,7 @@ class _SheetBodyState extends State<_SheetBody>
                   const SizedBox(height: 2),
                   Text(
                     widget.verse.reference,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary.withValues(alpha: 0.7),
                       fontSize: 13,
                     ),
@@ -215,7 +215,7 @@ class _SheetBodyState extends State<_SheetBody>
           labelColor: t.accent,
           unselectedLabelColor:
               t.textPrimary.withValues(alpha: 0.5),
-          labelStyle: GoogleFonts.manrope(
+          labelStyle: AppFonts.manrope(
               fontSize: 13, fontWeight: FontWeight.w600),
           tabs: const [
             Tab(text: 'Interlineal'),

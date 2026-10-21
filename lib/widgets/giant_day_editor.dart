@@ -5,7 +5,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../models/content_enums.dart';
@@ -155,7 +155,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             const SizedBox(height: 16),
             Text(
               'Detalle por área',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: _textMuted,
@@ -180,7 +180,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
                   const SizedBox(width: 10),
                   Text(
                     'Día futuro',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 14,
                       color: _textMuted,
                     ),
@@ -220,7 +220,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             children: [
               Text(
                 _formattedDate,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: _textPrimary,
@@ -228,7 +228,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
               ),
               Text(
                 'Progreso del día',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 12,
                   color: _textMuted.withValues(alpha: 0.7),
                 ),
@@ -252,7 +252,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
           ),
           child: Text(
             '$_victoriesCount/$_totalGiants',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: _isVictoryDay ? _victory : _textMuted,
@@ -309,7 +309,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: color,
@@ -350,7 +350,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             Expanded(
               child: Text(
                 name,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _textPrimary.withValues(alpha: 0.9),

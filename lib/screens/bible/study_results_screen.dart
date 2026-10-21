@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../models/bible/study_room.dart';
@@ -52,7 +52,7 @@ class StudyResultsScreen extends StatelessWidget {
         iconTheme: IconThemeData(color: t.textPrimary),
         title: Text(
           'Resultados',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: t.textPrimary,
             fontWeight: FontWeight.w700,
             fontSize: 18,
@@ -80,7 +80,7 @@ class StudyResultsScreen extends StatelessWidget {
                       const SizedBox(width: 10),
                       Text(
                         'Tiempo de compartir',
-                        style: GoogleFonts.cinzel(
+                        style: AppFonts.cinzel(
                           color: t.accent,
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -93,7 +93,7 @@ class StudyResultsScreen extends StatelessWidget {
                     'Compartan, uno por uno, lo que Dios les habló a través de '
                     'Su Palabra. Pueden seguir el mismo PDF de resultados '
                     'mientras conversan.',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary.withValues(alpha: 0.85),
                       fontSize: 13,
                       height: 1.4,
@@ -115,7 +115,7 @@ class StudyResultsScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         p,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -152,7 +152,7 @@ class StudyResultsScreen extends StatelessWidget {
                       backgroundColor: t.accent.withValues(alpha: 0.18),
                       child: Text(
                         _initials(p.displayName),
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.accent,
                           fontWeight: FontWeight.w700,
                           fontSize: 12,
@@ -163,7 +163,7 @@ class StudyResultsScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         p.displayName,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textPrimary,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -172,7 +172,7 @@ class StudyResultsScreen extends StatelessWidget {
                     ),
                     Text(
                       p.currentVersionId,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary,
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -196,7 +196,7 @@ class StudyResultsScreen extends StatelessWidget {
               icon: const Icon(Icons.ios_share, size: 18),
               label: Text(
                 'Compartir / abrir PDF',
-                style: GoogleFonts.manrope(fontWeight: FontWeight.w700),
+                style: AppFonts.manrope(fontWeight: FontWeight.w700),
               ),
             ),
             if (savedToDownloads) ...[
@@ -212,7 +212,7 @@ class StudyResultsScreen extends StatelessWidget {
                   Expanded(
                     child: Text(
                       'PDF guardado en Descargas:\n${pdfFile.path}',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary,
                         fontSize: 11,
                         height: 1.3,
@@ -241,7 +241,7 @@ class StudyResultsScreen extends StatelessWidget {
               icon: const Icon(Icons.logout, size: 18),
               label: Text(
                 'Salir de la sala',
-                style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+                style: AppFonts.manrope(fontWeight: FontWeight.w600),
               ),
             ),
           ],
@@ -252,7 +252,7 @@ class StudyResultsScreen extends StatelessWidget {
 
   Widget _sectionTitle(BibleReaderThemeData t, String text) => Text(
     text.toUpperCase(),
-    style: GoogleFonts.manrope(
+    style: AppFonts.manrope(
       color: t.accent,
       fontSize: 11,
       fontWeight: FontWeight.w700,

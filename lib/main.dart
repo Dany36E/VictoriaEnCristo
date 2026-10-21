@@ -13,6 +13,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'theme/app_theme_data.dart';
+import 'widgets/paper/paper_texture.dart';
 import 'screens/home_screen.dart';
 import 'widgets/error_boundary.dart';
 import 'screens/login_screen.dart';
@@ -643,6 +644,18 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       _isDarkMode = widget.themeService.isDarkMode;
     });
     _updateSystemUI();
+    _rebuildAllChildren();
+  }
+
+  /// AppFonts depende del tema activo pero no es un InheritedWidget, así que
+  /// forzamos rebuild de todo el árbol (sin perder estado) al cambiar de tema.
+  void _rebuildAllChildren() {
+    void rebuild(Element el) {
+      el.markNeedsBuild();
+      el.visitChildren(rebuild);
+    }
+
+    if (mounted) (context as Element).visitChildren(rebuild);
   }
 
   void _updateSystemUI() {
@@ -654,7 +667,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
             : Brightness.dark,
         systemNavigationBarColor: _isDarkMode
             ? AppTheme.darkBackground
-            : AppTheme.backgroundColor,
+            : (widget.themeService.currentTheme.isPaper
+                  ? PaperPalette.cream
+                  : AppTheme.backgroundColor),
         systemNavigationBarIconBrightness: _isDarkMode
             ? Brightness.light
             : Brightness.dark,
@@ -672,7 +687,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       scaffoldMessengerKey: AppErrorHandler.I.messengerKey,
       title: 'Victoria en Cristo',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: appTheme.isPaper ? AppTheme.paperTheme : AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       navigatorObservers: [
@@ -693,9 +708,11 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         );
       },
       builder: (context, child) {
+        final content = child ?? const SizedBox.shrink();
         return AppThemeData.provider(
           theme: appTheme,
-          child: child ?? const SizedBox.shrink(),
+          // Misma estructura con o sin textura: el Navigator conserva su estado.
+          child: PaperTextureOverlay(enabled: appTheme.isPaper, child: content),
         );
       },
       home: _buildHomeOrOnboarding(),

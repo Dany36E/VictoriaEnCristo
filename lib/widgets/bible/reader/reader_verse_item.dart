@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/highlight.dart';
@@ -109,7 +110,7 @@ class ReaderVerseItem extends StatelessWidget {
                     offset: const Offset(0, -2),
                     child: Text(
                       '${verse.verse} ',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: isSelected || isTtsActive
                             ? theme.accent
                             : theme.textSecondary.withValues(alpha: 0.5),
@@ -224,7 +225,7 @@ class ReaderVerseItem extends StatelessWidget {
               padding: const EdgeInsets.only(right: 6, top: 3),
               child: Text(
                 '${verse.verse}',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: theme.accent,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -464,7 +465,7 @@ class _InlineStudyActions extends StatelessWidget {
                 const SizedBox(width: 3),
                 Text(
                   label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: theme.accent.withValues(alpha: 0.8),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../services/bible/blb_api_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -60,7 +60,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('✓ API key válida y guardada',
-                style: GoogleFonts.manrope()),
+                style: AppFonts.manrope()),
             backgroundColor: const Color(0xFF4CAF50),
           ),
         );
@@ -68,7 +68,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('✗ API key inválida — verifica tu clave',
-                style: GoogleFonts.manrope()),
+                style: AppFonts.manrope()),
             backgroundColor: const Color(0xFFE57373),
           ),
         );
@@ -84,7 +84,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Error verificando key: $e',
-              style: GoogleFonts.manrope()),
+              style: AppFonts.manrope()),
           backgroundColor: const Color(0xFFE57373),
         ),
       );
@@ -100,7 +100,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
         backgroundColor: t.surface,
         title: Text(
           'Blue Letter Bible',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: t.accent,
             fontSize: 18,
             fontWeight: FontWeight.w600,
@@ -135,7 +135,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                 const SizedBox(height: 12),
                 Text(
                   'Herramientas de Estudio',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.accent,
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
@@ -146,7 +146,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                   'Accede a Strong\'s Numbers, Lexicón Griego/Hebreo '
                   'y Referencias Cruzadas directamente desde tu Biblia.',
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary.withValues(alpha: 0.7),
                     fontSize: 14,
                     height: 1.5,
@@ -199,7 +199,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
               children: [
                 Text(
                   'API KEY',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.accent,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -210,13 +210,13 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                 TextField(
                   controller: _keyController,
                   obscureText: true,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 14,
                   ),
                   decoration: InputDecoration(
                     hintText: 'Pega tu API key aquí...',
-                    hintStyle: GoogleFonts.manrope(
+                    hintStyle: AppFonts.manrope(
                       color:
                           t.textPrimary.withValues(alpha: 0.3),
                     ),
@@ -265,7 +265,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                         : const Icon(Icons.verified_outlined, size: 18),
                     label: Text(
                       _verifying ? 'Verificando...' : 'Guardar y verificar',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                           fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                     style: ElevatedButton.styleFrom(
@@ -282,7 +282,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                   Text(
                     'La API key no es válida. Verifica que la copiaste '
                     'correctamente.',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: const Color(0xFFE57373),
                       fontSize: 12,
                     ),
@@ -311,7 +311,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                     const SizedBox(width: 8),
                     Text(
                       'Plan Gratuito',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.accent,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -325,7 +325,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                   '• Datos cacheados automáticamente\n'
                   '• Lexicón se guarda permanentemente\n'
                   '• Referencias cruzadas se guardan 30 días',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary.withValues(alpha: 0.5),
                     fontSize: 13,
                     height: 1.5,
@@ -365,7 +365,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
             alignment: Alignment.center,
             child: Text(
               '$number',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent,
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
@@ -379,7 +379,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -388,7 +388,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                 const SizedBox(height: 4),
                 Text(
                   description,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary.withValues(alpha: 0.5),
                     fontSize: 13,
                     height: 1.4,

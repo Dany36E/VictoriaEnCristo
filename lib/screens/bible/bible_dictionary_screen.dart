@@ -1,5 +1,5 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/dictionary_entry.dart';
 import '../../services/bible/bible_dictionary_service.dart';
@@ -87,7 +87,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             const SizedBox(width: 10),
             Text(
               'DICCIONARIO BÍBLICO',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent,
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
@@ -97,7 +97,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             const Spacer(),
             Text(
               '${_dict.totalCount} entradas',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.4),
                 fontSize: 12,
               ),
@@ -111,13 +111,13 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
         child: TextField(
           controller: _searchController,
           onChanged: _onSearch,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textPrimary,
             fontSize: 15,
           ),
           decoration: InputDecoration(
             hintText: 'Buscar término o definición...',
-            hintStyle: GoogleFonts.manrope(
+            hintStyle: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.3),
               fontSize: 15,
             ),
@@ -194,7 +194,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: selected
                 ? t.accent
                 : t.textPrimary.withValues(alpha: 0.5),
@@ -218,7 +218,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             const SizedBox(height: 12),
             Text(
               'No se encontraron resultados',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
@@ -266,7 +266,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
                             Flexible(
                               child: Text(
                                 entry.term,
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color: t.accent,
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
@@ -284,7 +284,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
                               ),
                               child: Text(
                                 entry.source,
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color: t.accent
                                       .withValues(alpha: 0.6),
                                   fontSize: 9,
@@ -299,7 +299,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
                           entry.shortDefinition,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textPrimary
                                 .withValues(alpha: 0.6),
                             fontSize: 13,

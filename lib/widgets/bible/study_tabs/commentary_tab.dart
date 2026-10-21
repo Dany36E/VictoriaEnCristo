@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/commentary_entry.dart';
@@ -86,7 +86,7 @@ class _CommentaryTabState extends State<CommentaryTab>
           const SizedBox(height: 4),
           Text(
             'Dominio público',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.3),
               fontSize: 10,
             ),
@@ -134,7 +134,7 @@ class _CommentaryTabState extends State<CommentaryTab>
                 ),
                 child: Text(
                   source.displayName,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: isSelected
                         ? t.accent
                         : hasData
@@ -171,7 +171,7 @@ class _CommentaryTabState extends State<CommentaryTab>
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   'v. ${entry.verse}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -180,7 +180,7 @@ class _CommentaryTabState extends State<CommentaryTab>
               ),
             Text(
               entry.text,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.85),
                 fontSize: 14,
                 height: 1.7,
@@ -204,7 +204,7 @@ class _CommentaryTabState extends State<CommentaryTab>
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.5),
                   fontSize: 14,
                   height: 1.5,

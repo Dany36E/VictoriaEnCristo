@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../services/notification_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -127,7 +127,7 @@ class _DailyVerseReminderSheetState extends State<_DailyVerseReminderSheet> {
                   ? 'Recordatorio activo a las ${_fmt(time)}'
                   : '¿Quieres un recordatorio diario?',
               textAlign: TextAlign.center,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -139,7 +139,7 @@ class _DailyVerseReminderSheetState extends State<_DailyVerseReminderSheet> {
                   ? 'Te avisaré cada día a esta hora con el Versículo del Día. Al tocarlo, se abre directo en la Biblia.'
                   : 'Te aviso cada día con el Versículo del Día. Al tocar la notificación, se abre directo en la Biblia.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary,
                 fontSize: 13.5,
                 height: 1.5,
@@ -184,7 +184,7 @@ class _DailyVerseReminderSheetState extends State<_DailyVerseReminderSheet> {
                 onPressed: _busy ? null : _disable,
                 child: Text(
                   'Desactivar recordatorio',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),
@@ -196,7 +196,7 @@ class _DailyVerseReminderSheetState extends State<_DailyVerseReminderSheet> {
                 onPressed: () => Navigator.pop(context),
                 child: Text(
                   'Ahora no',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontWeight: FontWeight.w600,
                   ),

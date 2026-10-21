@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
@@ -121,7 +121,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
         SnackBar(
           content: Text(
             'Selecciona al menos un área de batalla',
-            style: GoogleFonts.manrope(fontWeight: FontWeight.w500),
+            style: AppFonts.manrope(fontWeight: FontWeight.w500),
           ),
           backgroundColor: AppDesignSystem.midnightLight,
           behavior: SnackBarBehavior.floating,
@@ -293,7 +293,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                 ),
                 child: Text(
                   'Paso 1 de 2',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: AppDesignSystem.gold,
@@ -334,7 +334,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
             child: Text(
               '¿CUÁL ES TU GIGANTE?',
               textAlign: TextAlign.center,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -348,7 +348,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
           Text(
             'Selecciona las áreas donde necesitas más victoria.\nPuedes elegir una o varias.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 15,
               fontWeight: FontWeight.w400,
               color: AppDesignSystem.pureWhite.withValues(alpha: 0.75),
@@ -466,7 +466,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                     // Nombre del gigante - COLOR NEUTRAL UNIFORME
                     Text(
                       giant['name'],
-                      style: GoogleFonts.cinzel(
+                      style: AppFonts.cinzel(
                         fontSize: 13,
                         fontWeight: FontWeight.w700,
                         // Dorado al seleccionar, blanco si no
@@ -483,7 +483,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                     Expanded(
                       child: Text(
                         giant['description'],
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 11,
                           fontWeight: FontWeight.w400,
                           color: isSelected
@@ -572,7 +572,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                           ? 'CONTINUAR (${_selectedGiants.length})'
                           : 'SELECCIONA AL MENOS UNO',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.cinzel(
+                      style: AppFonts.cinzel(
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: hasSelection

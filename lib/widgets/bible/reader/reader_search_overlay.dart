@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../theme/bible_reader_theme.dart';
 
@@ -58,11 +58,11 @@ class ReaderSearchOverlay extends StatelessWidget {
                   controller: searchController,
                   focusNode: searchFocusNode,
                   cursorColor: t.textPrimary,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                       color: t.textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Buscar en capítulo...',
-                    hintStyle: GoogleFonts.manrope(
+                    hintStyle: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                     ),
@@ -80,7 +80,7 @@ class ReaderSearchOverlay extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 4),
                 child: Text(
                   matchText,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 11,
                   ),

@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../widgets/share_verse_modal.dart';
@@ -238,7 +239,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
           if (!_isRevealing)
             Text(
               'Frasco de Versículos',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 fontSize: 16,
                 fontWeight: FontWeight.w500,
                 color: Colors.white60,
@@ -267,7 +268,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
           Text(
             '¿Cómo está tu\ncorazón hoy?',
             textAlign: TextAlign.center,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               fontSize: 28,
               fontWeight: FontWeight.w600,
               color: Colors.white,
@@ -284,7 +285,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
           Text(
             'Selecciona cómo te sientes y recibe\nuna palabra de Dios para ti',
             textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 14,
               color: Colors.white54,
               height: 1.5,
@@ -373,7 +374,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                       const SizedBox(width: 8),
                       Text(
                         _selectedEmotion!.label,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 12,
                           fontWeight: FontWeight.w700,
                           color: _selectedEmotion!.color,
@@ -472,7 +473,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                       const SizedBox(width: 10),
                       Text(
                         'Sacar otro papelito',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
                           color: Colors.white70,
@@ -589,7 +590,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                   // Referencia bíblica
                   Text(
                     _revealedVerse!.reference,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 14,
                       fontWeight: FontWeight.w800,
                       color: _selectedEmotion!.darkColor,
@@ -661,7 +662,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
             const SizedBox(width: 12),
             Text(
               message,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
@@ -816,7 +817,7 @@ class _EmotionCardState extends State<_EmotionCard> {
                     // ═══════════════════════════════════════════════════════
                     Text(
                       widget.emotion.name.toUpperCase(),
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: Colors.white.withValues(alpha: 0.9),
@@ -886,7 +887,7 @@ class _ActionButton extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             label,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 11,
               fontWeight: FontWeight.w600,
               color: isActive ? Colors.white : Colors.white60,

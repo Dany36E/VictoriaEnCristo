@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_download_service.dart';
@@ -156,7 +157,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
             children: [
               Text(
                 'Comparar',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.textPrimary,
                   fontSize: 20,
                   fontWeight: FontWeight.w600,
@@ -165,7 +166,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
               const SizedBox(height: 2),
               Text(
                 '${widget.bookName} ${widget.chapter}:${widget.verse}',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.6),
                   fontSize: 13,
                 ),
@@ -193,7 +194,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
               children: [
                 Text(
                   version.shortName.toUpperCase(),
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -222,7 +223,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
               children: [
                 Text(
                   version.shortName.toUpperCase(),
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -238,7 +239,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
                     BibleDownloadService.I.isAvailable(version)
                         ? 'No disponible. Toca para reintentar.'
                         : 'No descargada. Toca para descargar.',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
@@ -261,7 +262,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
             children: [
               Text(
                 version.shortName.toUpperCase(),
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

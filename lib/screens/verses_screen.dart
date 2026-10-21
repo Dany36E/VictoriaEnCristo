@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../widgets/share_verse_modal.dart';
@@ -209,7 +210,7 @@ class _VersesScreenState extends State<VersesScreen>
                       Flexible(
                         child: Text(
                           reason,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 10,
                             fontWeight: FontWeight.w600,
                             color: t.accent,
@@ -241,7 +242,7 @@ class _VersesScreenState extends State<VersesScreen>
                 // Referencia
                 Text(
                   verse.reference,
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: t.accent,
@@ -295,7 +296,7 @@ class _VersesScreenState extends State<VersesScreen>
                   // Título
                   Text(
                     'Versículos Bíblicos',
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       fontSize: 22,
                       fontWeight: FontWeight.w600,
                       color: t.textPrimary,
@@ -341,7 +342,7 @@ class _VersesScreenState extends State<VersesScreen>
                             ),
                             child: Text(
                               _categories[index],
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 fontSize: 14,
                                 fontWeight: isActive ? FontWeight.w700 : FontWeight.w500,
                                 color: isActive ? t.accent : t.textSecondary,
@@ -503,7 +504,7 @@ class _VersesScreenState extends State<VersesScreen>
                                 const SizedBox(width: 10),
                                 Text(
                                   'NUEVO',
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w800,
                                     color: t.accent,
@@ -518,7 +519,7 @@ class _VersesScreenState extends State<VersesScreen>
                             // Título principal
                             Text(
                               '¿Cómo te sientes hoy?',
-                              style: GoogleFonts.cinzel(
+                              style: AppFonts.cinzel(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w700,
                                 color: Colors.white,
@@ -532,7 +533,7 @@ class _VersesScreenState extends State<VersesScreen>
                             // Subtítulo descriptivo
                             Text(
                               'Descubre una promesa de Dios específica para tu estado de ánimo.',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 fontSize: 13,
                                 fontWeight: FontWeight.w400,
                                 color: Colors.white.withValues(alpha: 0.7),
@@ -575,7 +576,7 @@ class _VersesScreenState extends State<VersesScreen>
                                   const SizedBox(width: 8),
                                   Text(
                                     'Buscar Consuelo',
-                                    style: GoogleFonts.manrope(
+                                    style: AppFonts.manrope(
                                       fontSize: 13,
                                       fontWeight: FontWeight.w700,
                                       color: Colors.white,
@@ -717,7 +718,7 @@ class _PremiumVerseCard extends StatelessWidget {
               ),
               child: Text(
                 verse.category.toUpperCase(),
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   color: t.accent,
@@ -758,7 +759,7 @@ class _PremiumVerseCard extends StatelessWidget {
                   child: Text(
                     verse.reference,
                     textAlign: TextAlign.right,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 11.5,
                       fontWeight: FontWeight.w700,
                       color: t.accent,
@@ -816,7 +817,7 @@ class _PremiumVerseCard extends StatelessWidget {
             const SizedBox(width: 12),
             Text(
               'Versículo copiado',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
@@ -923,7 +924,7 @@ class _FavoriteIconState extends State<_FavoriteIcon> {
               const SizedBox(width: 12),
               Text(
                 isFavorite ? 'Eliminado de favoritos' : '¡Guardado en favoritos!',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
                 ),

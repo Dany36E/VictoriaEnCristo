@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/harmony_section.dart';
 import '../../theme/bible_reader_theme.dart';
 
@@ -69,7 +69,7 @@ class HarmonySheet extends StatelessWidget {
                         Expanded(
                           child: Text(
                             'Armonía de los Evangelios',
-                            style: GoogleFonts.cinzel(
+                            style: AppFonts.cinzel(
                               color: t.textSecondary.withValues(alpha: 0.5),
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class HarmonySheet extends StatelessWidget {
                     const SizedBox(height: 4),
                     Text(
                       section.title,
-                      style: GoogleFonts.cinzel(
+                      style: AppFonts.cinzel(
                         color: t.textPrimary,
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
@@ -97,7 +97,7 @@ class HarmonySheet extends StatelessWidget {
                       ),
                       child: Text(
                         section.category,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.accent,
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -127,7 +127,7 @@ class HarmonySheet extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Text(
                   '${section.gospelCount} de 4 evangelios narran este evento',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.4),
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
@@ -176,7 +176,7 @@ class HarmonySheet extends StatelessWidget {
           children: [
             Text(
               abbr,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: hasRef ? t.accent : t.textSecondary.withValues(alpha: 0.3),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
@@ -186,7 +186,7 @@ class HarmonySheet extends StatelessWidget {
             if (hasRef)
               Text(
                 _formatOsisRef(ref!),
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -196,7 +196,7 @@ class HarmonySheet extends StatelessWidget {
             else
               Text(
                 '—',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.2),
                   fontSize: 14,
                 ),

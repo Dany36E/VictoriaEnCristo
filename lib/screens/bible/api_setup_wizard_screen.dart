@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../services/bible/iq_bible_service.dart';
 
 /// Wizard paso-a-paso para configurar la API key de IQ Bible (RapidAPI).
@@ -107,7 +108,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
         elevation: 0,
         title: Text(
           'CONFIGURAR API',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             letterSpacing: 2.0,
@@ -171,7 +172,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           const SizedBox(height: 20),
           Text(
             'IQ Bible API',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: Colors.white,
               fontSize: 24,
               fontWeight: FontWeight.w700,
@@ -182,7 +183,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             'Para acceder a herramientas avanzadas de estudio bíblico '
             '(interlineal, Strong\'s, referencias cruzadas, audio), '
             'necesitas una API key gratuita de RapidAPI.',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: Colors.white70,
               fontSize: 14,
               height: 1.6,
@@ -204,7 +205,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
               icon: const Icon(Icons.open_in_new, size: 18),
               label: Text(
                 'Ir a RapidAPI',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     fontSize: 14, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
@@ -221,7 +222,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             child: TextButton(
               onPressed: _nextPage,
               child: Text('Ya tengo mi API Key',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                       color: const Color(0xFFD4AF37), fontSize: 13)),
             ),
           ),
@@ -241,7 +242,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           const SizedBox(height: 20),
           Text(
             'Pega tu API Key',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: Colors.white,
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -251,7 +252,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           Text(
             'Copia la key de tu dashboard de RapidAPI '
             '(sección "X-RapidAPI-Key").',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: Colors.white54,
               fontSize: 13,
               height: 1.5,
@@ -298,7 +299,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             const SizedBox(height: 8),
             Text(
               'La API key no es válida. Verifica que la copiaste correctamente.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                   color: const Color(0xFFE57373), fontSize: 12),
             ),
           ],
@@ -318,7 +319,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
                   : const Icon(Icons.verified_outlined, size: 18),
               label: Text(
                 _verifying ? 'Verificando...' : 'Verificar y guardar',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     fontSize: 14, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
@@ -335,7 +336,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             child: TextButton(
               onPressed: _prevPage,
               child: Text('Atrás',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                       color: Colors.white54, fontSize: 13)),
             ),
           ),
@@ -363,7 +364,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           const SizedBox(height: 24),
           Text(
             '¡Configuración exitosa!',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: Colors.white,
               fontSize: 22,
               fontWeight: FontWeight.w700,
@@ -377,7 +378,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             '• Números Strong\'s\n'
             '• Referencias cruzadas\n'
             '• Audio de capítulos\n',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: Colors.white70,
               fontSize: 14,
               height: 1.6,
@@ -398,7 +399,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
               ),
               child: Text(
                 'Comenzar a estudiar',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     fontSize: 14, fontWeight: FontWeight.w700),
               ),
             ),
@@ -423,7 +424,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             child: Center(
               child: Text(
                 number,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: const Color(0xFFD4AF37),
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -435,7 +436,7 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: Colors.white70,
                 fontSize: 13,
                 height: 1.4,

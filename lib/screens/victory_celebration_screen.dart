@@ -7,7 +7,7 @@ library;
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/jesus_widget_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
@@ -275,7 +275,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppDesignSystem.midnightDeep,
@@ -384,7 +384,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
   Widget _buildStreakLabel(Color streakColor) {
     return Text(
       _streak == 1 ? 'día de victoria' : 'días de victoria',
-      style: GoogleFonts.manrope(
+      style: AppFonts.manrope(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: streakColor,
@@ -465,7 +465,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           children: [
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 11,
                 fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
                 color: isToday
@@ -527,7 +527,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           ),
           child: Text(
             'CONTINUAR',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 16,
               fontWeight: FontWeight.w800,
               letterSpacing: 2,

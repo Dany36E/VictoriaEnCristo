@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../theme/app_theme.dart';
 import '../data/dummy_plans.dart';
 import '../services/audio_service.dart';
@@ -141,7 +142,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
               children: [
                 Text(
                   widget.plan.title,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                     color: AppDesignSystem.coolGray,
@@ -150,7 +151,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                 ),
                 Text(
                   'Día ${day.dayNumber} de ${widget.plan.days}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
                     color: AppDesignSystem.midnight,
@@ -190,7 +191,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                   // ═══════════════════════════════════════════════════════════
                   Text(
                     day.title,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       fontSize: 28,
                       fontWeight: FontWeight.w600,
                       color: AppDesignSystem.midnight,
@@ -254,7 +255,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                           ),
                           child: Text(
                             day.scriptureReference,
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: AppDesignSystem.gold,
@@ -316,7 +317,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
               icon: const Icon(Icons.check, color: AppDesignSystem.midnight),
               label: Text(
                 'COMPLETAR',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontWeight: FontWeight.w700,
                   color: AppDesignSystem.midnight,
                 ),
@@ -441,7 +442,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
       padding: const EdgeInsets.only(bottom: 16),
       child: Text(
         text,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           fontSize: 17,
           fontWeight: FontWeight.w400,
           color: AppDesignSystem.midnight.withValues(alpha: 0.85),
@@ -466,7 +467,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           const SizedBox(width: 10),
           Text(
             title,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               fontSize: 16,
               fontWeight: FontWeight.w700,
               color: AppDesignSystem.midnight,
@@ -511,7 +512,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
               const SizedBox(width: 12),
               Text(
                 'REFLEXIÓN',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
                   color: AppDesignSystem.midnight,
@@ -539,7 +540,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           // Contenido
           Text(
             content,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 16,
               fontWeight: FontWeight.w400,
               color: AppDesignSystem.midnight.withValues(alpha: 0.8),
@@ -608,7 +609,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                         const SizedBox(width: 12),
                         Text(
                           'ORACIÓN',
-                          style: GoogleFonts.cinzel(
+                          style: AppFonts.cinzel(
                             fontSize: 16,
                             fontWeight: FontWeight.w700,
                             color: AppDesignSystem.midnight,
@@ -686,7 +687,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                 const SizedBox(width: 12),
                 Text(
                   'COMPLETAR DEVOCIONAL',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: AppDesignSystem.midnight,
@@ -721,7 +722,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           const SizedBox(width: 12),
           Text(
             'DEVOCIONAL COMPLETADO',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 14,
               fontWeight: FontWeight.w700,
               color: AppDesignSystem.victory,
@@ -790,7 +791,7 @@ class _CompletionDialog extends StatelessWidget {
             // Título
             Text(
               isLastDay ? '¡PLAN COMPLETADO!' : '¡DÍA $dayNumber COMPLETADO!',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
                 color: AppDesignSystem.gold,
@@ -804,7 +805,7 @@ class _CompletionDialog extends StatelessWidget {
               isLastDay 
                   ? '¡Felicidades! Has terminado "$planTitle". Tu dedicación espiritual es inspiradora.'
                   : 'Excelente progreso. El día ${dayNumber + 1} ya está desbloqueado.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 color: AppDesignSystem.coolGray,
                 height: 1.5,
@@ -829,7 +830,7 @@ class _CompletionDialog extends StatelessWidget {
                 ),
                 child: Text(
                   isLastDay ? '¡CELEBRAR!' : 'CONTINUAR',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.2,

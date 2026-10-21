@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/highlight.dart';
 import '../../../services/bible/bible_tts_service.dart';
@@ -107,7 +107,7 @@ class ReaderContentView extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   'Sin conexión · Funciones online no disponibles',
-                  style: GoogleFonts.manrope(fontSize: 10, color: t.textSecondary.withValues(alpha: 0.5)),
+                  style: AppFonts.manrope(fontSize: 10, color: t.textSecondary.withValues(alpha: 0.5)),
                 ),
               ],
             ),
@@ -126,7 +126,7 @@ class ReaderContentView extends StatelessWidget {
           children: [
             Text(
               '${controller.currentChapter}',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.25),
                 fontSize: 64,
                 fontWeight: FontWeight.w200,
@@ -137,7 +137,7 @@ class ReaderContentView extends StatelessWidget {
               const SizedBox(height: 12),
               Text(
                 controller.chapterIntro!,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
@@ -265,7 +265,7 @@ class _SectionTitleHeader extends StatelessWidget {
           Expanded(
             child: Text(
               title,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: (fontSize - 2).clamp(12.0, 22.0),
                 fontWeight: FontWeight.w600,

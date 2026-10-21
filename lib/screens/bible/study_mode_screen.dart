@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
@@ -2081,7 +2082,7 @@ class _SavedStudiesHeader extends StatelessWidget {
               children: [
                 Text(
                   'Estudios guardados',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.textPrimary,
                     fontSize: 17,
                     fontWeight: FontWeight.w600,
@@ -2092,7 +2093,7 @@ class _SavedStudiesHeader extends StatelessWidget {
                   totalCount == 0
                       ? 'Sin estudios todavía'
                       : '$filteredCount de $totalCount',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.75),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -2210,10 +2211,10 @@ class _SavedStudiesFilters extends StatelessWidget {
     return TextField(
       controller: searchController,
       onChanged: (_) => onChanged(),
-      style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+      style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
       decoration: InputDecoration(
         hintText: 'Buscar estudio, respuesta o nota',
-        hintStyle: GoogleFonts.manrope(
+        hintStyle: AppFonts.manrope(
           color: t.textSecondary.withValues(alpha: 0.56),
           fontSize: 13,
         ),
@@ -2249,14 +2250,14 @@ class _SavedStudiesFilters extends StatelessWidget {
       keyboardType: TextInputType.number,
       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
       textAlign: TextAlign.center,
-      style: GoogleFonts.manrope(
+      style: AppFonts.manrope(
         color: t.textPrimary,
         fontSize: 13,
         fontWeight: FontWeight.w800,
       ),
       decoration: InputDecoration(
         hintText: 'Cap.',
-        hintStyle: GoogleFonts.manrope(
+        hintStyle: AppFonts.manrope(
           color: t.textSecondary.withValues(alpha: 0.56),
           fontSize: 12,
         ),
@@ -2358,7 +2359,7 @@ class _BookFilterButton extends StatelessWidget {
           value: null,
           child: Text(
             'Todos los libros',
-            style: GoogleFonts.manrope(color: theme.textPrimary),
+            style: AppFonts.manrope(color: theme.textPrimary),
           ),
         ),
         for (final entry in options.entries)
@@ -2366,7 +2367,7 @@ class _BookFilterButton extends StatelessWidget {
             value: entry.key,
             child: Text(
               entry.value,
-              style: GoogleFonts.manrope(color: theme.textPrimary),
+              style: AppFonts.manrope(color: theme.textPrimary),
             ),
           ),
       ],
@@ -2414,7 +2415,7 @@ class _SortFilterButton extends StatelessWidget {
   PopupMenuItem<_SavedStudySort> _sortItem(_SavedStudySort sort, String label) {
     return PopupMenuItem(
       value: sort,
-      child: Text(label, style: GoogleFonts.manrope(color: theme.textPrimary)),
+      child: Text(label, style: AppFonts.manrope(color: theme.textPrimary)),
     );
   }
 
@@ -2470,7 +2471,7 @@ class _FilterButtonShell extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.78),
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -2530,7 +2531,7 @@ class _SavedFilterChoiceChip extends StatelessWidget {
             const SizedBox(width: 5),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.76),
                 fontSize: 11,
                 fontWeight: FontWeight.w800,
@@ -2568,7 +2569,7 @@ class _SavedStudiesEmptyState extends StatelessWidget {
                   ? 'No hay estudios con esos filtros.'
                   : 'Todavía no hay estudios guardados.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: theme.textSecondary,
                 fontSize: 13,
               ),
@@ -2677,7 +2678,7 @@ class _SavedStudyGroupHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(4, 8, 4, 8),
       child: Text(
         label,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           color: theme.accent,
           fontSize: 12,
           fontWeight: FontWeight.w900,
@@ -2889,7 +2890,7 @@ class _StudyMiniChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           color: t.textSecondary,
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -2950,7 +2951,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
             const SizedBox(height: 16),
             Text(
               'Exportar PDF',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -2959,7 +2960,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
             const SizedBox(height: 8),
             Text(
               'Elige una portada mas limpia si quieres un resultado mas sobrio.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.66),
                 fontSize: 12,
                 height: 1.35,
@@ -2974,7 +2975,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
               activeThumbColor: t.accent,
               title: Text(
                 'Portada limpia',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -2982,7 +2983,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
               ),
               subtitle: Text(
                 'Usa un encabezado mas minimalista y resalta las versiones elegidas.',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.64),
                   fontSize: 11.5,
                 ),
@@ -3063,7 +3064,7 @@ class _PdfActionTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -3072,7 +3073,7 @@ class _PdfActionTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary,
                       fontSize: 12,
                       height: 1.3,
@@ -3159,7 +3160,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
             const SizedBox(height: 16),
             Text(
               'Versiones para estudiar',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -3169,7 +3170,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
             Text(
               'Se recomienda leer el pasaje en dos traducciones. La primera '
               'mantiene tus subrayados; la segunda sirve para comparar.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary,
                 fontSize: 12,
                 height: 1.4,
@@ -3254,10 +3255,10 @@ class _VersionDropdown extends StatelessWidget {
       return TextFormField(
         enabled: false,
         initialValue: 'Descarga otra versión en Ajustes de Biblia',
-        style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 13),
+        style: AppFonts.manrope(color: t.textSecondary, fontSize: 13),
         decoration: InputDecoration(
           labelText: label,
-          labelStyle: GoogleFonts.manrope(color: t.textSecondary),
+          labelStyle: AppFonts.manrope(color: t.textSecondary),
           filled: true,
           fillColor: t.background,
           border: OutlineInputBorder(
@@ -3285,10 +3286,10 @@ class _VersionDropdown extends StatelessWidget {
         if (version != null) onChanged(version);
       },
       dropdownColor: t.surface,
-      style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+      style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
       decoration: InputDecoration(
         labelText: label,
-        labelStyle: GoogleFonts.manrope(color: t.textSecondary),
+        labelStyle: AppFonts.manrope(color: t.textSecondary),
         filled: true,
         fillColor: t.background,
         border: OutlineInputBorder(
@@ -3530,7 +3531,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
             const SizedBox(height: 16),
             Text(
               'Versículos a estudiar',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -3540,7 +3541,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
             Text(
               'Las respuestas, el mensaje de esperanza y el Verso Principal '
               'se mostrarán como nota en cada uno de los versículos seleccionados.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary,
                 fontSize: 12,
                 height: 1.4,
@@ -3556,7 +3557,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                   label: const Text('Ver capítulo'),
                   style: TextButton.styleFrom(
                     foregroundColor: t.accent,
-                    textStyle: GoogleFonts.manrope(
+                    textStyle: AppFonts.manrope(
                       fontWeight: FontWeight.w600,
                       fontSize: 13,
                     ),
@@ -3596,7 +3597,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                       children: [
                         Text(
                           'Versículos a estudiar',
-                          style: GoogleFonts.cinzel(
+                          style: AppFonts.cinzel(
                             color: t.textPrimary,
                             fontSize: 16,
                             fontWeight: FontWeight.w600,
@@ -3612,7 +3613,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                             ),
                             label: Text(
                               'Ocultar',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textSecondary,
                                 fontSize: 12,
                               ),
@@ -3639,7 +3640,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                             _multiSelect
                                 ? 'Toca versículos sueltos para agregarlos.'
                                 : 'Toca un versículo para ajustar el rango.',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textSecondary.withValues(alpha: 0.65),
                               fontSize: 11,
                               fontStyle: FontStyle.italic,
@@ -3654,7 +3655,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                               foregroundColor: t.accent,
                               padding: const EdgeInsets.symmetric(horizontal: 6),
                               minimumSize: Size.zero,
-                              textStyle: GoogleFonts.manrope(
+                              textStyle: AppFonts.manrope(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 11.5,
                               ),
@@ -3698,7 +3699,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                             padding: const EdgeInsets.fromLTRB(16, 14, 16, 4),
                             child: Text(
                               sectionTitle,
-                              style: GoogleFonts.cinzel(
+                              style: AppFonts.cinzel(
                                 color: t.accent,
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
@@ -3754,7 +3755,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                                   child: Text(
                                     '${verse.verse}',
                                     textAlign: TextAlign.right,
-                                    style: GoogleFonts.cinzel(
+                                    style: AppFonts.cinzel(
                                       color: inRange
                                           ? t.accent
                                           : t.textSecondary,
@@ -3828,7 +3829,7 @@ class _NumberPicker extends StatelessWidget {
       children: [
         Text(
           label,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary,
             fontSize: 11,
             fontWeight: FontWeight.w600,
@@ -3859,7 +3860,7 @@ class _NumberPicker extends StatelessWidget {
                     child: Text(
                       '$value',
                       textAlign: TextAlign.center,
-                      style: GoogleFonts.cinzel(
+                      style: AppFonts.cinzel(
                         color: t.textPrimary,
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -3893,7 +3894,7 @@ class _NumberPicker extends StatelessWidget {
         backgroundColor: t.surface,
         title: Text(
           'Versículo ($label)',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textPrimary,
             fontWeight: FontWeight.w700,
             fontSize: 15,
@@ -3908,14 +3909,14 @@ class _NumberPicker extends StatelessWidget {
             LengthLimitingTextInputFormatter(4),
           ],
           textAlign: TextAlign.center,
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: t.textPrimary,
             fontSize: 22,
             fontWeight: FontWeight.w700,
           ),
           decoration: InputDecoration(
             hintText: '$min – $max',
-            hintStyle: GoogleFonts.manrope(
+            hintStyle: AppFonts.manrope(
               color: t.textSecondary.withValues(alpha: 0.5),
               fontSize: 13,
             ),
@@ -3994,7 +3995,7 @@ class _TypographySheet extends StatelessWidget {
           children: [
             Text(
               'TEXTO Y COLORES',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
@@ -4039,7 +4040,7 @@ class _TypographySheet extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'TEMA',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,

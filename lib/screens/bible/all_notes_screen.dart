@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_note.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -79,11 +80,11 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                 child: TextField(
                   controller: _searchController,
                   focusNode: _searchFocus,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                       color: t.textPrimary, fontSize: 14),
                   decoration: InputDecoration(
                     hintText: 'Buscar en notas...',
-                    hintStyle: GoogleFonts.manrope(
+                    hintStyle: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 14,
                     ),
@@ -127,7 +128,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
           Expanded(
             child: Text(
               'Notas',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -171,7 +172,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     ? 'Sin resultados'
                     : 'Tus reflexiones sobre los\nversículos aparecerán aquí',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.4),
                   fontSize: 14,
                   height: 1.6,
@@ -204,7 +205,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
         padding: const EdgeInsets.only(right: 16),
         child: Text(
           'Eliminar',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -253,7 +254,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                   Expanded(
                     child: Text(
                       note.reference.toUpperCase(),
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -263,7 +264,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                   ),
                   Text(
                     _relativeDate(note.updatedAt),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.3),
                       fontSize: 11,
                     ),

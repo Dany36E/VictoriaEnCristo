@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/ot_quote.dart';
 import '../../theme/bible_reader_theme.dart';
 
@@ -61,7 +62,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           'Cita del Antiguo Testamento',
-                          style: GoogleFonts.cinzel(
+                          style: AppFonts.cinzel(
                             color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
@@ -128,7 +129,7 @@ class QuoteDetailSheet extends StatelessWidget {
                       if (quote.context.isNotEmpty) ...[
                         Text(
                           'Contexto',
-                          style: GoogleFonts.cinzel(
+                          style: AppFonts.cinzel(
                             color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -137,7 +138,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           quote.context,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textSecondary,
                             fontSize: 13,
                             height: 1.5,
@@ -148,7 +149,7 @@ class QuoteDetailSheet extends StatelessWidget {
                       if (quote.significance.isNotEmpty) ...[
                         Text(
                           'Significado',
-                          style: GoogleFonts.cinzel(
+                          style: AppFonts.cinzel(
                             color: t.textSecondary.withValues(alpha: 0.5),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
@@ -157,7 +158,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         const SizedBox(height: 4),
                         Text(
                           quote.significance,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textSecondary,
                             fontSize: 13,
                             height: 1.5,
@@ -205,7 +206,7 @@ class QuoteDetailSheet extends StatelessWidget {
           children: [
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: color,
                 fontSize: 9,
                 fontWeight: FontWeight.w800,
@@ -215,7 +216,7 @@ class QuoteDetailSheet extends StatelessWidget {
             const SizedBox(height: 4),
             Text(
               _formatOsisRef(reference),
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -237,7 +238,7 @@ class QuoteDetailSheet extends StatelessWidget {
               children: [
                 Text(
                   'Ir al pasaje',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: color.withValues(alpha: 0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
@@ -278,7 +279,7 @@ class QuoteDetailSheet extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           color: color,
           fontSize: 10,
           fontWeight: FontWeight.w700,

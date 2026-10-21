@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../services/bible/bible_user_data_service.dart';
 import '../../../theme/bible_reader_theme.dart';
 
@@ -44,7 +45,7 @@ class ReaderTypographyPanel extends StatelessWidget {
                 children: [
                   Text(
                     'TIPOGRAFÍA',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/study_word_highlight.dart';
 
@@ -49,7 +50,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
             const SizedBox(height: 20),
             Text(
               'Modo Estudio',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: Colors.white,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -72,7 +73,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('Saltar', style: GoogleFonts.manrope(color: Colors.white54)),
+                    child: Text('Saltar', style: AppFonts.manrope(color: Colors.white54)),
                   ),
                   const Spacer(),
                   ElevatedButton(
@@ -93,7 +94,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
                     },
                     child: Text(
                       _index < _slides.length - 1 ? 'Siguiente' : 'Empezar',
-                      style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+                      style: AppFonts.manrope(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -116,7 +117,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
           Text(
             s.title,
             textAlign: TextAlign.center,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: Colors.white,
               fontSize: 18,
               fontWeight: FontWeight.w600,
@@ -151,7 +152,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
               ),
               child: Text(
                 c.label,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: Colors.white,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

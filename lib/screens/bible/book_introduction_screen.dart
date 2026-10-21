@@ -1,5 +1,5 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/book_introduction.dart';
 import '../../services/bible/bible_maps_service.dart';
@@ -129,7 +129,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
               const SizedBox(width: 8),
               Text(
                 'Ver estudio completo',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: _t.accent,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -162,7 +162,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
               Expanded(
                 child: Text(
                   'INTRODUCCIÓN',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: _t.accent,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -177,7 +177,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 4),
           child: Text(
             intro.name,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: _t.textPrimary,
               fontSize: 28,
               fontWeight: FontWeight.w700,
@@ -222,7 +222,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                 padding: const EdgeInsets.only(left: 30),
                 child: Text(
                   intro.authorDetails,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color:
                         _t.textPrimary.withValues(alpha: 0.5),
                     fontSize: 12,
@@ -256,7 +256,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
           width: 70,
           child: Text(
             label,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: _t.accent.withValues(alpha: 0.7),
               fontSize: 12,
               fontWeight: FontWeight.w600,
@@ -266,7 +266,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
         Expanded(
           child: Text(
             value,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: _t.textPrimary.withValues(alpha: 0.85),
               fontSize: 13,
               height: 1.4,
@@ -285,7 +285,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
         children: [
           Text(
             title,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: _t.accent.withValues(alpha: 0.7),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -295,7 +295,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
           const SizedBox(height: 8),
           Text(
             content,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: _t.textPrimary.withValues(alpha: 0.85),
               fontSize: 14,
               height: 1.7,
@@ -314,7 +314,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
         children: [
           Text(
             'TEMAS CLAVE',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: _t.accent.withValues(alpha: 0.7),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -339,7 +339,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                       ),
                       child: Text(
                         theme,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: _t.accent,
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -363,7 +363,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
         children: [
           Text(
             'VERSÍCULOS CLAVE',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: _t.accent.withValues(alpha: 0.7),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -382,7 +382,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                     const SizedBox(width: 8),
                     Text(
                       ref,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: _t.textPrimary
                             .withValues(alpha: 0.8),
                         fontSize: 13,
@@ -406,7 +406,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
         children: [
           Text(
             'ESTRUCTURA',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: _t.accent.withValues(alpha: 0.7),
               fontSize: 11,
               fontWeight: FontWeight.w600,
@@ -429,7 +429,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                       ),
                       child: Text(
                         section.chapters,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: _t.accent,
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
@@ -440,7 +440,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                     Expanded(
                       child: Text(
                         section.title,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: _t.textPrimary
                               .withValues(alpha: 0.8),
                           fontSize: 13,
@@ -486,7 +486,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                   children: [
                     Text(
                       'Mapas relacionados',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: _t.accent,
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
@@ -494,7 +494,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                     ),
                     Text(
                       '$_relatedMapsCount mapa${_relatedMapsCount != 1 ? 's' : ''} disponible${_relatedMapsCount != 1 ? 's' : ''}',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: _t.textPrimary
                             .withValues(alpha: 0.5),
                         fontSize: 11,
@@ -531,7 +531,7 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
           const SizedBox(height: 12),
           Text(
             'Introducción no disponible',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: _t.textPrimary.withValues(alpha: 0.5),
               fontSize: 14,
             ),

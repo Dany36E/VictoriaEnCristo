@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme_data.dart';
 import 'user_pref_cloud_sync_service.dart';
 
-/// Servicio para manejar el tema seleccionable de la app (9 temas)
+/// Servicio para manejar el tema seleccionable de la app (10 temas)
 class ThemeService extends ChangeNotifier {
   // Legacy keys (para migración)
   static const String _legacyThemeModeKey = 'theme_mode';

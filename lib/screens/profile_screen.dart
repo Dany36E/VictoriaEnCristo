@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../constants/legal_urls.dart';
 import '../services/auth_service.dart';
@@ -91,7 +91,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             const SizedBox(width: 14),
                             Text(
                               'Mi Perfil',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 fontSize: 22,
                                 fontWeight: FontWeight.w800,
                                 color: t.textPrimary,
@@ -110,7 +110,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           user?.displayName ??
                               _userData?.displayName ??
                               'Usuario',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 22,
                             fontWeight: FontWeight.w800,
                             color: t.textPrimary,
@@ -121,7 +121,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         // Email
                         Text(
                           user?.email ?? '',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 13,
                             color: t.textSecondary,
                           ),
@@ -155,7 +155,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               const SizedBox(width: 8),
                               Text(
                                 'Tema de la app',
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   fontSize: 15,
                                   fontWeight: FontWeight.w700,
                                   color: t.textPrimary,
@@ -272,7 +272,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               value,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
                 color: t.textPrimary,
@@ -280,7 +280,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             Text(
               label,
-              style: GoogleFonts.manrope(fontSize: 11, color: t.textSecondary),
+              style: AppFonts.manrope(fontSize: 11, color: t.textSecondary),
             ),
           ],
         ),
@@ -350,7 +350,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       title: Text(
         title,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           fontSize: 14,
           fontWeight: FontWeight.w600,
           color: isDestructive ? danger : t.textPrimary,
@@ -358,7 +358,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.manrope(fontSize: 12, color: t.textSecondary),
+        style: AppFonts.manrope(fontSize: 12, color: t.textSecondary),
       ),
       trailing: Icon(
         Icons.chevron_right_rounded,
@@ -378,7 +378,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         icon: Icon(Icons.logout_rounded, size: 18, color: t.textSecondary),
         label: Text(
           'Cerrar Sesión',
-          style: GoogleFonts.manrope(fontSize: 14, fontWeight: FontWeight.w600),
+          style: AppFonts.manrope(fontSize: 14, fontWeight: FontWeight.w600),
         ),
         style: OutlinedButton.styleFrom(
           foregroundColor: t.textSecondary,

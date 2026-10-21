@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
@@ -193,7 +194,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           children: [
             Text(
               isLeft ? 'VERSIÓN IZQUIERDA' : 'VERSIÓN DERECHA',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -216,7 +217,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 ),
                 title: Text(
                   v.displayName,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: isOtherSide
                         ? t.textSecondary.withValues(alpha: 0.3)
                         : t.textPrimary,
@@ -226,7 +227,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 ),
                 subtitle: Text(
                   v.shortName,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.5),
                     fontSize: 12,
                   ),
@@ -281,7 +282,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               padding: const EdgeInsets.all(16),
               child: Text(
                 'SELECCIONAR LIBRO',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -305,7 +306,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     ),
                     title: Text(
                       book.name,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: isCurrent ? t.accent : t.textPrimary,
                         fontSize: 14,
                         fontWeight: isCurrent
@@ -315,7 +316,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     ),
                     trailing: Text(
                       '${book.totalChapters} cap.',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.5),
                         fontSize: 11,
                       ),
@@ -346,7 +347,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           children: [
             Text(
               '${selectedBook.name.toUpperCase()} — CAPÍTULO',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -378,7 +379,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                         ),
                         child: Text(
                           '$ch',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textPrimary,
                             fontSize: 14,
                             fontWeight: FontWeight.w500,
@@ -458,7 +459,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 const SizedBox(width: 6),
                 Text(
                   '$_bookName $_currentChapter',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w600,
@@ -495,7 +496,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               child: Text(
                 'A\u2212',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary,
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
@@ -505,7 +506,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           ),
           Text(
             '${_parallelFontSize.toInt()}',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textSecondary.withValues(alpha: 0.6),
               fontSize: 11,
             ),
@@ -531,7 +532,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
               child: Text(
                 'A+',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary,
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
@@ -574,7 +575,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 ),
                 child: Text(
                   _leftVersion.shortName,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -594,7 +595,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 ),
                 child: Text(
                   _rightVersion.shortName,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
@@ -619,7 +620,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
       return Center(
         child: Text(
           'No se pudieron cargar los versículos',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 14,
           ),
@@ -651,7 +652,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 ? 'No se pudo cargar esta versión.'
                 : 'Descarga otra versión en Ajustes de Biblia para comparar.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textSecondary.withValues(alpha: 0.55),
               fontSize: 13,
               height: 1.4,
@@ -698,7 +699,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     children: [
                       TextSpan(
                         text: '${verse.verse} ',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.accent.withValues(alpha: isSelected ? 0.9 : 0.5),
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
@@ -758,7 +759,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 ),
                 Text(
                   '$_bookName $_currentChapter:${verse.verse}',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.accent,
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
@@ -842,7 +843,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
             const SizedBox(width: 6),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w500,
@@ -897,7 +898,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
             ),
             Text(
               'Subrayar versículo $verseNumber',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary,
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
@@ -1011,7 +1012,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       Icon(Icons.chevron_left, size: 18, color: t.accent),
                       Text(
                         'Cap. ${_currentChapter - 1}',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.accent,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
@@ -1023,7 +1024,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               : const SizedBox.shrink(),
           Text(
             '$_bookName $_currentChapter',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textSecondary.withValues(alpha: 0.5),
               fontSize: 12,
             ),
@@ -1036,7 +1037,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     children: [
                       Text(
                         'Cap. ${_currentChapter + 1}',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.accent,
                           fontSize: 13,
                           fontWeight: FontWeight.w500,

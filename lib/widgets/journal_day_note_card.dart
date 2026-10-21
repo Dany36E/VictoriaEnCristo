@@ -6,7 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/journal_service.dart';
 import '../services/feedback_engine.dart';
 
@@ -103,7 +103,7 @@ class JournalDayNoteCard extends StatelessWidget {
             children: [
               Text(
                 'Mi diario',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: _textPrimary,
@@ -111,7 +111,7 @@ class JournalDayNoteCard extends StatelessWidget {
               ),
               Text(
                 dateStr,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 12,
                   color: _textMuted.withValues(alpha: 0.7),
                 ),
@@ -177,7 +177,7 @@ class JournalDayNoteCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       JournalService.moodLabels[entry!.mood] ?? '',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 13,
                         color: _gold.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
@@ -186,7 +186,7 @@ class JournalDayNoteCard extends StatelessWidget {
                     const Spacer(),
                     Text(
                       '🕐 $timeStr',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 11,
                         color: _textMuted.withValues(alpha: 0.5),
                       ),
@@ -197,7 +197,7 @@ class JournalDayNoteCard extends StatelessWidget {
               ],
               Text(
                 snippet,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   color: _textPrimary.withValues(alpha: 0.85),
                   height: 1.55,
@@ -237,7 +237,7 @@ class JournalDayNoteCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 _isToday ? '¿Cómo te fue hoy?' : 'Sin entrada este día',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _textMuted.withValues(alpha: 0.6),
@@ -246,7 +246,7 @@ class JournalDayNoteCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 _isToday ? 'Escribe sobre tu día' : 'Puedes agregar una reflexión',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 12,
                   color: _textMuted.withValues(alpha: 0.4),
                 ),
@@ -297,7 +297,7 @@ class JournalDayNoteCard extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: isPrimary ? _gold : _textMuted,

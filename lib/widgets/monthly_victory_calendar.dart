@@ -6,7 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/feedback_engine.dart';
 
 class MonthlyVictoryCalendar extends StatelessWidget {
@@ -89,7 +89,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
         ),
         Text(
           '${monthNames[visibleMonth.month]} ${visibleMonth.year}',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 17,
             fontWeight: FontWeight.w700,
             color: _textPrimary,
@@ -130,7 +130,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
         child: Text(
           day,
           textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 11,
             fontWeight: FontWeight.w600,
             color: _textMuted.withValues(alpha: 0.5),
@@ -284,7 +284,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
           children: [
             Text(
               dayInfo.day.toString(),
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 fontWeight: dayInfo.isToday || dayInfo.isVictory ? FontWeight.w700 : FontWeight.w500,
                 color: dayInfo.isVictory && dayInfo.isCurrentMonth ? _victory : textColor,
@@ -355,7 +355,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
           decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
         const SizedBox(width: 4),
-        Text(label, style: GoogleFonts.manrope(fontSize: 11, color: _textMuted)),
+        Text(label, style: AppFonts.manrope(fontSize: 11, color: _textMuted)),
       ],
     );
   }
@@ -368,7 +368,7 @@ class MonthlyVictoryCalendar extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 12,
             color: _textMuted.withValues(alpha: 0.7),
             fontWeight: FontWeight.w500,

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../utils/share_utils.dart';
@@ -108,7 +109,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                       children: [
                         Text(
                           'Compartir Versículo',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -117,7 +118,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                         const SizedBox(height: 2),
                         Text(
                           'Descarga la imagen para compartir',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 13,
                             color: Colors.white54,
                           ),
@@ -303,7 +304,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
             const SizedBox(width: 12),
             Text(
               message,
-              style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+              style: AppFonts.manrope(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -324,7 +325,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
             const SizedBox(width: 12),
             Text(
               message,
-              style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+              style: AppFonts.manrope(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -467,7 +468,7 @@ class _QuoteCard extends StatelessWidget {
                   // Referencia
                   Text(
                     verse.reference,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: accentColor,
@@ -489,7 +490,7 @@ class _QuoteCard extends StatelessWidget {
                       const SizedBox(width: 8),
                       Text(
                         'Victoria en Cristo',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                           color: Colors.white.withValues(alpha: 0.4),
@@ -569,7 +570,7 @@ class _FormatChip extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: isSelected ? const Color(0xFFD4A853) : Colors.white70,
@@ -577,7 +578,7 @@ class _FormatChip extends StatelessWidget {
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 11,
                     color: Colors.white38,
                   ),
@@ -641,7 +642,7 @@ class _PrimaryShareButton extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               isLoading ? 'Generando...' : label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -688,7 +689,7 @@ class _SecondaryButton extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Colors.white70,

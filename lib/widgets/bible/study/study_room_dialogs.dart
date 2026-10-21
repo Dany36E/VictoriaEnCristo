@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_version.dart';
 import '../../../models/bible/study_room.dart';
@@ -17,7 +17,7 @@ class StudyRoomChoiceDialog extends StatelessWidget {
     return AlertDialog(
       title: Text(
         'Estudiar con amigos',
-        style: GoogleFonts.cinzel(fontWeight: FontWeight.w700),
+        style: AppFonts.cinzel(fontWeight: FontWeight.w700),
       ),
       content: const Text(
         'Reúnete con hasta 4 amigos. Cada uno lee una traducción distinta '
@@ -125,7 +125,7 @@ class _CreateRoomSheetState extends State<CreateRoomSheet> {
               const SizedBox(height: 16),
               Text(
                 'Crear sala de estudio',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   fontWeight: FontWeight.w700,
                   fontSize: 18,
                 ),
@@ -407,7 +407,7 @@ class StudyRoomActiveDialog extends StatelessWidget {
           const SizedBox(height: 8),
           SelectableText(
             room.code,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               fontSize: 28,
               fontWeight: FontWeight.w800,
               letterSpacing: 6,

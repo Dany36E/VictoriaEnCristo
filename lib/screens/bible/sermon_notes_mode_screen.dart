@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
@@ -1562,7 +1563,7 @@ class _SermonMetaCard extends StatelessWidget {
         children: [
           Text(
             'Apunte de predicacion',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 16,
               fontWeight: FontWeight.w700,
@@ -1686,7 +1687,7 @@ class _NotesEditorCard extends StatelessWidget {
                   children: [
                     Text(
                       'Notas',
-                      style: GoogleFonts.cinzel(
+                      style: AppFonts.cinzel(
                         color: t.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -1866,7 +1867,7 @@ class _NotesFormatBar extends StatelessWidget {
                     children: [
                       Text(
                         '$size',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textPrimary,
                           fontSize: 15,
                           fontWeight: FontWeight.w800,
@@ -1874,7 +1875,7 @@ class _NotesFormatBar extends StatelessWidget {
                       ),
                       Text(
                         'tamaño',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textSecondary,
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
@@ -1984,7 +1985,7 @@ class _AddedVersesCardState extends State<_AddedVersesCard> {
                   Expanded(
                     child: Text(
                       'Versiculos agregados',
-                      style: GoogleFonts.cinzel(
+                      style: AppFonts.cinzel(
                         color: t.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w700,
@@ -2000,7 +2001,7 @@ class _AddedVersesCardState extends State<_AddedVersesCard> {
                     ),
                     child: Text(
                       '${verses.length}',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.accent,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -2032,7 +2033,7 @@ class _AddedVersesCardState extends State<_AddedVersesCard> {
                 const SizedBox(height: 4),
                 Text(
                   'Aparecen en la lectura (izquierda) y en el PDF. Quitalos con la X.',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.72),
                     fontSize: 11,
                     height: 1.3,
@@ -2059,7 +2060,7 @@ class _AddedVersesCardState extends State<_AddedVersesCard> {
                               children: [
                                 Text(
                                   '${verse.reference} · ${verse.versionId}',
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     color: t.accent,
                                     fontSize: 12,
                                     fontWeight: FontWeight.w800,
@@ -2123,7 +2124,7 @@ class _TakeawayCard extends StatelessWidget {
         children: [
           Text(
             '¿Con que me quedo?',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 15,
               fontWeight: FontWeight.w700,
@@ -2196,7 +2197,7 @@ class _LabeledField extends StatelessWidget {
     return TextField(
       controller: controller,
       onChanged: onChanged,
-      style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+      style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
       decoration: _inputDecoration(t, hint).copyWith(labelText: label),
     );
   }
@@ -2270,7 +2271,7 @@ class _SpeakerAutocompleteFieldState extends State<_SpeakerAutocompleteField> {
           onChanged: widget.onChanged,
           onSubmitted: (_) => onFieldSubmitted(),
           textCapitalization: TextCapitalization.words,
-          style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+          style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
           decoration: _inputDecoration(t, 'Pastor / maestro').copyWith(
             labelText: 'Predicador',
             suffixIcon: Icon(
@@ -2313,7 +2314,7 @@ class _SpeakerAutocompleteFieldState extends State<_SpeakerAutocompleteField> {
                               option,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textPrimary,
                                 fontSize: 13,
                                 fontWeight: FontWeight.w600,
@@ -2370,7 +2371,7 @@ class _InfoButton extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
@@ -2437,7 +2438,7 @@ class _SaveStatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           color: color,
           fontSize: 10.5,
           fontWeight: FontWeight.w800,
@@ -2493,7 +2494,7 @@ class _ReferenceSuggestionBar extends StatelessWidget {
                   reference.label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -2502,7 +2503,7 @@ class _ReferenceSuggestionBar extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'Cita detectada. Puedes insertarla en tus apuntes o ignorarla.',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.76),
                     fontSize: 11,
                     height: 1.25,
@@ -2597,7 +2598,7 @@ class _SpellingSuggestionBar extends StatelessWidget {
                   token,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -2606,7 +2607,7 @@ class _SpellingSuggestionBar extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'Sugerencia: $replacement',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.76),
                     fontSize: 11,
                     height: 1.25,
@@ -2674,7 +2675,7 @@ class _InlineEditorHint extends StatelessWidget {
               insertedVerseCount == 0
                   ? 'El corrector subraya palabras dudosas en rojo. Si el cursor cae sobre una cita biblica detectada, veras aqui la sugerencia para insertarla.'
                   : 'El corrector sigue activo mientras escribes. Si colocas el cursor sobre una cita biblica detectada, podras insertarla sin salir de la nota.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.76),
                 fontSize: 11.5,
                 height: 1.35,
@@ -2705,7 +2706,7 @@ class _InsertedVersesIndicator extends StatelessWidget {
         const SizedBox(width: 6),
         Text(
           label,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.80),
             fontSize: 11.5,
             fontWeight: FontWeight.w700,
@@ -2750,7 +2751,7 @@ class _NotesFontSizeSheet extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Tamano del texto',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -2759,7 +2760,7 @@ class _NotesFontSizeSheet extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Selecciona una parte de la nota y despues elige el tamano que quieras aplicar.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.72),
                 fontSize: 12,
                 height: 1.35,
@@ -2824,7 +2825,7 @@ class _NotesFontSizeTile extends StatelessWidget {
               alignment: Alignment.center,
               child: Text(
                 size.toInt().toString(),
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -2847,7 +2848,7 @@ class _NotesFontSizeTile extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     'Aplicar a la seleccion actual',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.72),
                       fontSize: 11.5,
                     ),
@@ -2913,7 +2914,7 @@ class _VersionPairSheetState extends State<_VersionPairSheet> {
           children: [
             Text(
               'Versiones',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -2994,7 +2995,7 @@ class _VersionDropdown extends StatelessWidget {
       ],
       onChanged: onChanged,
       dropdownColor: t.surface,
-      style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+      style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
       decoration: _inputDecoration(t, label),
     );
   }
@@ -3093,7 +3094,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                 Expanded(
                   child: Text(
                     widget.title,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.textPrimary,
                       fontSize: 17,
                       fontWeight: FontWeight.w700,
@@ -3108,7 +3109,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                       foregroundColor: t.accent,
                       padding: const EdgeInsets.symmetric(horizontal: 6),
                       minimumSize: Size.zero,
-                      textStyle: GoogleFonts.manrope(
+                      textStyle: AppFonts.manrope(
                         fontWeight: FontWeight.w700,
                         fontSize: 12,
                       ),
@@ -3203,7 +3204,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
       children: [
         Text(
           'Toca los versículos que quieras (pueden ser salteados).',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.7),
             fontSize: 11.5,
           ),
@@ -3262,7 +3263,7 @@ class _VerseChip extends StatelessWidget {
           alignment: Alignment.center,
           child: Text(
             '$number',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: selected ? t.background : t.textPrimary,
               fontSize: 13,
               fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
@@ -3300,7 +3301,7 @@ class _VerseDropdown extends StatelessWidget {
       ],
       onChanged: onChanged,
       dropdownColor: t.surface,
-      style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+      style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
       decoration: _inputDecoration(t, label),
     );
   }
@@ -3325,7 +3326,7 @@ class _TypographyHintSheet extends StatelessWidget {
         top: false,
         child: Text(
           'Selecciona texto dentro de Notas y usa B, subrayado o tamaño.',
-          style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14),
+          style: AppFonts.manrope(color: t.textPrimary, fontSize: 14),
         ),
       ),
     );
@@ -3355,7 +3356,7 @@ class _TypographySheet extends StatelessWidget {
           children: [
             Text(
               'TEXTO Y COLORES',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
@@ -3400,7 +3401,7 @@ class _TypographySheet extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               'TEMA',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
@@ -3493,7 +3494,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
             const SizedBox(height: 16),
             Text(
               'Exportar PDF',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
@@ -3502,7 +3503,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
             const SizedBox(height: 8),
             Text(
               'Elige si quieres una portada mas limpia para compartir o guardar.',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.66),
                 fontSize: 12,
                 height: 1.35,
@@ -3517,7 +3518,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
               activeThumbColor: t.accent,
               title: Text(
                 'Portada limpia',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -3525,7 +3526,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
               ),
               subtitle: Text(
                 'Reduce adornos y deja un encabezado mas sobrio.',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.64),
                   fontSize: 11.5,
                 ),
@@ -3612,7 +3613,7 @@ class _PdfExportTile extends StatelessWidget {
                 children: [
                   Text(
                     title,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontSize: 13,
                       fontWeight: FontWeight.w800,
@@ -3621,7 +3622,7 @@ class _PdfExportTile extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     subtitle,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.65),
                       fontSize: 12,
                     ),
@@ -3639,11 +3640,11 @@ class _PdfExportTile extends StatelessWidget {
 InputDecoration _inputDecoration(BibleReaderThemeData t, String hint) {
   return InputDecoration(
     hintText: hint,
-    hintStyle: GoogleFonts.manrope(
+    hintStyle: AppFonts.manrope(
       color: t.textSecondary.withValues(alpha: 0.45),
       fontSize: 13,
     ),
-    labelStyle: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12),
+    labelStyle: AppFonts.manrope(color: t.textSecondary, fontSize: 12),
     filled: true,
     fillColor: t.background,
     border: OutlineInputBorder(

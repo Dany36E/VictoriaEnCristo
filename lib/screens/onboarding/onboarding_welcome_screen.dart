@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../theme/app_theme.dart';
 import '../../services/audio_engine.dart';
 import '../../widgets/brand_backdrop.dart';
@@ -336,7 +336,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
   }
 
   Widget _buildTitle(double availableWidth) {
-    final style = GoogleFonts.cinzel(
+    final style = AppFonts.cinzel(
       fontSize: 36,
       fontWeight: FontWeight.w700,
       color: Colors.white,
@@ -372,7 +372,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
       children: [
         Text(
           'Bienvenido, guerrero.',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             color: AppDesignSystem.pureWhite,
@@ -383,7 +383,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
         const SizedBox(height: 16),
         Text(
           'Esta aplicación es tu arsenal. Para darte las armas correctas, necesitamos saber contra qué gigante te enfrentas hoy.',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 16,
             fontWeight: FontWeight.w400,
             color: AppDesignSystem.pureWhite.withValues(alpha: 0.85),
@@ -414,7 +414,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
               Flexible(
                 child: Text(
                   'Tu respuesta es privada entre tú y Dios.',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: AppDesignSystem.gold,
@@ -465,7 +465,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                   child: Text(
                     'ELEGIR MIS GIGANTES',
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       fontSize: 16,
                       fontWeight: FontWeight.w700,
                       color: AppDesignSystem.midnight,

@@ -8,7 +8,7 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../models/badge_definition.dart';
 import '../services/badge_service.dart';
 import '../theme/app_theme_data.dart';
@@ -117,7 +117,7 @@ class _HeroHeader extends StatelessWidget {
                 children: [
                   Text(
                     '$totalUnlocked',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 18,
                       fontWeight: FontWeight.w800,
                       color: theme.textPrimary,
@@ -126,7 +126,7 @@ class _HeroHeader extends StatelessWidget {
                   ),
                   Text(
                     'de $totalPossible',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 9,
                       color: theme.textSecondary,
                       height: 1.2,
@@ -145,7 +145,7 @@ class _HeroHeader extends StatelessWidget {
             children: [
               Text(
                 'Insignias',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,
                   color: theme.textPrimary,
@@ -170,7 +170,7 @@ class _HeroHeader extends StatelessWidget {
                         'Próxima: ${nearest!.nextLevel!.displayName} • ${nearest!.category.displayName}',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: theme.textSecondary,
@@ -184,7 +184,7 @@ class _HeroHeader extends StatelessWidget {
                   totalUnlocked == totalPossible && totalPossible > 0
                       ? '¡Todas las insignias obtenidas! 👑'
                       : 'Tu camino de fe en imágenes',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 11,
                     color: theme.textSecondary,
                   ),
@@ -248,7 +248,7 @@ class _BadgeRow extends StatelessWidget {
               Expanded(
                 child: Text(
                   cat.displayName,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w700,
                     color: theme.textPrimary,
@@ -276,7 +276,7 @@ class _BadgeRow extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         progress.unlockedLevel!.displayName,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 11,
                           fontWeight: FontWeight.w700,
                           color: levelColor,
@@ -288,7 +288,7 @@ class _BadgeRow extends StatelessWidget {
               else
                 Text(
                   'Aún en camino',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                     color: theme.textSecondary.withValues(alpha: 0.7),
@@ -345,7 +345,7 @@ class _BadgeRow extends StatelessWidget {
               children: [
                 Text(
                   '${progress.currentValue}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                     color: theme.textPrimary,
@@ -353,7 +353,7 @@ class _BadgeRow extends StatelessWidget {
                 ),
                 Text(
                   ' / ${progress.nextThreshold}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 11,
                     color: theme.textSecondary,
                   ),
@@ -362,7 +362,7 @@ class _BadgeRow extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'para ${progress.nextLevel!.displayName} ${progress.nextLevel!.emoji}',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 11,
                       color: theme.textSecondary.withValues(alpha: 0.85),
                     ),
@@ -373,7 +373,7 @@ class _BadgeRow extends StatelessWidget {
           else if (hasUnlocked)
             Text(
               '¡Nivel máximo alcanzado! 👑',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: theme.accent,

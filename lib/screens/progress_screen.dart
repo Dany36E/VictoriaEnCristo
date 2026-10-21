@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../theme/app_theme_data.dart';
 import '../services/feedback_engine.dart';
 import '../services/victory_scoring_service.dart';
@@ -567,7 +567,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                   children: [
                     Text(
                       'Mi Progreso',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         color: t.textPrimary,
@@ -575,7 +575,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                     ),
                     Text(
                       _getHeaderSubtitle(),
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 13,
                         color: t.textSecondary.withValues(alpha: 0.7),
                       ),
@@ -678,7 +678,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w500,
                 color: t.textSecondary.withValues(alpha: 0.8),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/interlinear_word.dart';
@@ -87,7 +87,7 @@ class _InterlinealTabState extends State<InterlinealTab>
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.5),
                   fontSize: 14,
                   height: 1.5,

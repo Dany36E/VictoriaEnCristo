@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../controllers/bible_reader_controller.dart';
 import '../../models/bible/bible_version.dart';
@@ -265,7 +265,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               return Center(
                                 child: Text(
                                   label,
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     color: t.textSecondary.withValues(alpha: 0.3),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -405,7 +405,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 child: Text(
                   '${widget.bookName} ${_ctrl.currentChapter}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -507,7 +507,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               const SizedBox(height: 16),
               Text(
                 'Modo de lectura',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -558,7 +558,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       leading: Icon(icon, color: t.accent),
       title: Text(
         title,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           color: t.textPrimary,
           fontSize: 14,
           fontWeight: FontWeight.w500,
@@ -566,7 +566,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       ),
       subtitle: Text(
         subtitle,
-        style: GoogleFonts.manrope(color: t.textSecondary, fontSize: 12),
+        style: AppFonts.manrope(color: t.textSecondary, fontSize: 12),
       ),
       onTap: () {
         Navigator.pop(ctx);

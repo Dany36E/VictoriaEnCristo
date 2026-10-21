@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/share_template.dart';
@@ -108,7 +109,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
       children: [
         Text(
           '${widget.verse.reference} (${widget.verse.version})'.toUpperCase(),
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 10,
             color: _t.accent,
             fontWeight: FontWeight.w700,
@@ -190,7 +191,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               },
               child: Text(
                 'Ver todas →',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 10,
                   color: _t.accent,
                   fontWeight: FontWeight.w600,
@@ -213,7 +214,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
         child: Text(
           'Toca para compartir  ·  Mantén para editar',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 9,
             color: _t.textSecondary.withValues(alpha: 0.35),
           ),
@@ -292,7 +293,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
                 right: 4,
                 child: Text(
                   template.name,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 8,
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -391,7 +392,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               const SizedBox(height: 3),
               Text(
                 label,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 9,
                   color: _t.accent,
                   fontWeight: FontWeight.w600,
@@ -537,7 +538,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               const SizedBox(height: 3),
               Text(
                 label,
-                style: GoogleFonts.manrope(fontSize: 9, color: c),
+                style: AppFonts.manrope(fontSize: 9, color: c),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -551,7 +552,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
   // ── Helpers ──
   Widget _sectionLabel(String text) => Text(
     text,
-    style: GoogleFonts.manrope(
+    style: AppFonts.manrope(
       fontSize: 9,
       color: _t.textSecondary.withValues(alpha: 0.5),
       fontWeight: FontWeight.w700,

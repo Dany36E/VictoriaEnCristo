@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../theme/bible_reader_theme.dart';
@@ -84,7 +84,7 @@ class _ContextualStudyTutorialState extends State<ContextualStudyTutorial> {
                         children: [
                           Text(
                             widget.title,
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textPrimary,
                               fontSize: 13,
                               fontWeight: FontWeight.w700,
@@ -93,7 +93,7 @@ class _ContextualStudyTutorialState extends State<ContextualStudyTutorial> {
                           const SizedBox(height: 2),
                           Text(
                             widget.summary,
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textPrimary.withValues(alpha: 0.55),
                               fontSize: 11,
                               height: 1.35,
@@ -148,7 +148,7 @@ class _ContextualStudyTutorialState extends State<ContextualStudyTutorial> {
             decoration: BoxDecoration(color: t.accent, shape: BoxShape.circle),
             child: Text(
               '$number',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.background,
                 fontSize: 10,
                 fontWeight: FontWeight.w800,
@@ -167,7 +167,7 @@ class _ContextualStudyTutorialState extends State<ContextualStudyTutorial> {
                   TextSpan(text: step.body),
                 ],
               ),
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.78),
                 fontSize: 11.5,
                 height: 1.45,

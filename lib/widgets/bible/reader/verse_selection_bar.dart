@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/highlight.dart';
@@ -61,7 +61,7 @@ class VerseSelectionBar extends StatelessWidget {
           Expanded(
             child: Text(
               controller.selectionReference,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -249,7 +249,7 @@ class VerseSelectionBar extends StatelessWidget {
               const SizedBox(height: 2),
               Text(
                 label,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 9,
                   color: t.textSecondary,
                   fontWeight: FontWeight.w500,

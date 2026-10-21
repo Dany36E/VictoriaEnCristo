@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../theme/app_theme.dart';
 import '../../models/giant_frequency.dart';
@@ -225,7 +225,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
           // Título
           Text(
             '¿CON QUÉ FRECUENCIA LUCHAS?',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: AppDesignSystem.gold,
@@ -239,7 +239,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
           // Subtítulo
           Text(
             'Configura cada batalla. Puedes cambiarlo después.',
-            style: GoogleFonts.manrope(fontSize: 14, color: Colors.white70),
+            style: AppFonts.manrope(fontSize: 14, color: Colors.white70),
             textAlign: TextAlign.center,
           ),
 
@@ -257,7 +257,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
               const SizedBox(width: 8),
               Text(
                 '$_completedCount de ${widget.selectedGiants.length} configurados',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 13,
                   color: _isComplete ? AppDesignSystem.victory : Colors.white54,
                   fontWeight: FontWeight.w500,
@@ -341,7 +341,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                       children: [
                         Text(
                           giant.name,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -350,7 +350,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                         const SizedBox(height: 2),
                         Text(
                           giant.description,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 12,
                             color: Colors.white54,
                           ),
@@ -412,7 +412,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                 Flexible(
                   child: Text(
                     frequency.displayName,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 12,
                       fontWeight: isSelected
                           ? FontWeight.bold
@@ -492,7 +492,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                                 ? 'GUARDAR Y CONTINUAR'
                                 : 'COMPLETA TODAS LAS OPCIONES',
                             textAlign: TextAlign.center,
-                            style: GoogleFonts.cinzel(
+                            style: AppFonts.cinzel(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
                               color: _isComplete

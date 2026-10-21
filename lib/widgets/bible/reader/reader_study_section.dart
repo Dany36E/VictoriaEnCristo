@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -29,7 +30,7 @@ class ReaderStudyBanner extends StatelessWidget {
             Expanded(
               child: Text(
                 'Modo Estudio · David Guzik · Enduring Word',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: const Color(0xFFD4AF37).withValues(alpha: 0.8),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
@@ -99,7 +100,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                     Expanded(
                       child: Text(
                         section.heading,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: const Color(0xFFD4AF37),
                           fontSize: (fontSize - 2).clamp(9.0, 26.0),
                           fontWeight: FontWeight.w600,
@@ -165,7 +166,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
                 '©1996–present The Enduring Word Bible Commentary\n'
                 'by David Guzik – enduringword.com',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: theme.textSecondary.withValues(alpha: 0.5),
                   fontSize: 10,
                   height: 1.5,
@@ -174,7 +175,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Used with permission.',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: theme.textSecondary.withValues(alpha: 0.35),
                   fontSize: 9,
                   fontStyle: FontStyle.italic,

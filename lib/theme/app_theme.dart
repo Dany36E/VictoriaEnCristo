@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'app_fonts.dart';
+import 'app_theme_data.dart';
 import 'dart:ui';
 
 /// ============================================================================
@@ -77,7 +79,7 @@ class AppDesignSystem {
   /// Display - For hero moments, scripture headers
   /// Cinzel: Elegant, timeless, sacred feeling
   static TextStyle displayLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.cinzel(
+    return AppFonts.cinzel(
       fontSize: 48,
       fontWeight: FontWeight.w300, // Light - elegant
       letterSpacing: 2.0,
@@ -87,7 +89,7 @@ class AppDesignSystem {
   }
   
   static TextStyle displayMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.cinzel(
+    return AppFonts.cinzel(
       fontSize: 36,
       fontWeight: FontWeight.w400,
       letterSpacing: 1.5,
@@ -97,7 +99,7 @@ class AppDesignSystem {
   }
   
   static TextStyle displaySmall(BuildContext context, {Color? color}) {
-    return GoogleFonts.cinzel(
+    return AppFonts.cinzel(
       fontSize: 28,
       fontWeight: FontWeight.w400,
       letterSpacing: 1.0,
@@ -108,7 +110,7 @@ class AppDesignSystem {
   
   /// Headlines - Section titles, card headers
   static TextStyle headlineLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 24,
       fontWeight: FontWeight.w600,
       letterSpacing: -0.5,
@@ -118,7 +120,7 @@ class AppDesignSystem {
   }
   
   static TextStyle headlineMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 20,
       fontWeight: FontWeight.w600,
       letterSpacing: -0.3,
@@ -128,7 +130,7 @@ class AppDesignSystem {
   }
   
   static TextStyle headlineSmall(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 18,
       fontWeight: FontWeight.w500,
       letterSpacing: 0,
@@ -139,7 +141,7 @@ class AppDesignSystem {
   
   /// Labels - Buttons, tags, small UI elements
   static TextStyle labelLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 14,
       fontWeight: FontWeight.w600,
       letterSpacing: 1.2, // Wide tracking for elegance
@@ -149,7 +151,7 @@ class AppDesignSystem {
   }
   
   static TextStyle labelMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 12,
       fontWeight: FontWeight.w500,
       letterSpacing: 1.5,
@@ -159,7 +161,7 @@ class AppDesignSystem {
   }
   
   static TextStyle labelSmall(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 10,
       fontWeight: FontWeight.w500,
       letterSpacing: 2.0, // Very wide for tiny text
@@ -170,7 +172,7 @@ class AppDesignSystem {
   
   /// Body - Reading text, descriptions
   static TextStyle bodyLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 16,
       fontWeight: FontWeight.w400,
       letterSpacing: 0.2,
@@ -180,7 +182,7 @@ class AppDesignSystem {
   }
   
   static TextStyle bodyMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 14,
       fontWeight: FontWeight.w400,
       letterSpacing: 0.1,
@@ -202,7 +204,7 @@ class AppDesignSystem {
   }
   
   static TextStyle scriptureReference(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 12,
       fontWeight: FontWeight.w600,
       letterSpacing: 2.0,
@@ -564,7 +566,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.manrope(
+        titleTextStyle: AppFonts.manrope(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
@@ -605,7 +607,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -617,7 +619,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppDesignSystem.midnight,
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -640,7 +642,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -687,11 +689,11 @@ class AppTheme {
             width: 2,
           ),
         ),
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray,
           fontWeight: FontWeight.w500,
         ),
-        hintStyle: GoogleFonts.manrope(
+        hintStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
         ),
       ),
@@ -703,12 +705,12 @@ class AppTheme {
         unselectedItemColor: AppDesignSystem.coolGray,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: GoogleFonts.manrope(
+        selectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
-        unselectedLabelStyle: GoogleFonts.manrope(
+        unselectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
@@ -743,7 +745,7 @@ class AppTheme {
       // Snackbar
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppDesignSystem.midnight,
-        contentTextStyle: GoogleFonts.manrope(
+        contentTextStyle: AppFonts.manrope(
           color: AppDesignSystem.pureWhite,
           fontWeight: FontWeight.w500,
         ),
@@ -794,7 +796,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.manrope(
+        titleTextStyle: AppFonts.manrope(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
@@ -835,7 +837,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -847,7 +849,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppDesignSystem.goldLight,
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -870,7 +872,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -917,11 +919,11 @@ class AppTheme {
             width: 2,
           ),
         ),
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray,
           fontWeight: FontWeight.w500,
         ),
-        hintStyle: GoogleFonts.manrope(
+        hintStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
         ),
       ),
@@ -933,12 +935,12 @@ class AppTheme {
         unselectedItemColor: AppDesignSystem.coolGray,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: GoogleFonts.manrope(
+        selectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
-        unselectedLabelStyle: GoogleFonts.manrope(
+        unselectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
@@ -973,7 +975,7 @@ class AppTheme {
       // Snackbar
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppDesignSystem.gold,
-        contentTextStyle: GoogleFonts.manrope(
+        contentTextStyle: AppFonts.manrope(
           color: AppDesignSystem.midnightDeep,
           fontWeight: FontWeight.w500,
         ),
@@ -1000,6 +1002,267 @@ class AppTheme {
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppDesignSystem.gold,
         linearTrackColor: AppDesignSystem.midnightLight,
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PAPER THEME — "Papel recortado" (papercraft)
+  // ══════════════════════════════════════════════════════════════════════════
+  //
+  // Bordes blancos tipo sticker, formas de píldora, tipografía Baloo 2 y
+  // sombras cortas de papel. Se usa cuando AppThemeData.isPaper es true.
+
+  static TextStyle _paperFont({
+    double? fontSize,
+    FontWeight? fontWeight,
+    Color? color,
+  }) {
+    return GoogleFonts.getFont(
+      'Baloo 2',
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      color: color,
+    );
+  }
+
+  static ThemeData get paperTheme {
+    const navy = PaperPalette.navy;
+    const coral = PaperPalette.coral;
+    const sticker = BorderSide(color: PaperPalette.sticker, width: 3);
+    final base = ThemeData(useMaterial3: true, brightness: Brightness.light);
+
+    return base.copyWith(
+      colorScheme: ColorScheme.fromSeed(
+        seedColor: coral,
+        primary: coral,
+        onPrimary: Colors.white,
+        secondary: PaperPalette.teal,
+        onSecondary: Colors.white,
+        tertiary: PaperPalette.mustard,
+        surface: PaperPalette.paper,
+        onSurface: navy,
+        brightness: Brightness.light,
+      ),
+      scaffoldBackgroundColor: PaperPalette.cream,
+      textTheme: GoogleFonts.getTextTheme(
+        'Baloo 2',
+        base.textTheme,
+      ).apply(bodyColor: navy, displayColor: navy),
+
+      appBarTheme: AppBarTheme(
+        backgroundColor: PaperPalette.cream,
+        foregroundColor: navy,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        titleTextStyle: _paperFont(
+          fontSize: 20,
+          fontWeight: FontWeight.w800,
+          color: navy,
+        ),
+        iconTheme: const IconThemeData(color: navy, size: 24),
+      ),
+
+      cardTheme: CardThemeData(
+        color: PaperPalette.card,
+        elevation: 2,
+        shadowColor: const Color(0x665B4630),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+          side: sticker,
+        ),
+        margin: EdgeInsets.zero,
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          backgroundColor: coral,
+          foregroundColor: Colors.white,
+          elevation: 2,
+          shadowColor: const Color(0x665B4630),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: const StadiumBorder(side: sticker),
+          textStyle: _paperFont(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
+      ),
+
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          backgroundColor: coral,
+          foregroundColor: Colors.white,
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: const StadiumBorder(side: sticker),
+          textStyle: _paperFont(fontSize: 16, fontWeight: FontWeight.w800),
+        ),
+      ),
+
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: coral,
+          shape: const StadiumBorder(),
+          textStyle: _paperFont(fontSize: 15, fontWeight: FontWeight.w700),
+        ),
+      ),
+
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          foregroundColor: navy,
+          backgroundColor: PaperPalette.card,
+          side: const BorderSide(color: navy, width: 2),
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+          shape: const StadiumBorder(),
+          textStyle: _paperFont(fontSize: 16, fontWeight: FontWeight.w700),
+        ),
+      ),
+
+      floatingActionButtonTheme: const FloatingActionButtonThemeData(
+        backgroundColor: coral,
+        foregroundColor: Colors.white,
+        elevation: 3,
+        shape: CircleBorder(side: sticker),
+      ),
+
+      chipTheme: ChipThemeData(
+        backgroundColor: PaperPalette.card,
+        selectedColor: PaperPalette.teal,
+        labelStyle: _paperFont(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: navy,
+        ),
+        secondaryLabelStyle: _paperFont(
+          fontSize: 14,
+          fontWeight: FontWeight.w700,
+          color: Colors.white,
+        ),
+        shape: const StadiumBorder(
+          side: BorderSide(color: Colors.white, width: 2),
+        ),
+        elevation: 1,
+        shadowColor: const Color(0x665B4630),
+      ),
+
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: PaperPalette.card,
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 18,
+          vertical: 16,
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: navy.withValues(alpha: 0.15),
+            width: 1.5,
+          ),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: BorderSide(
+            color: navy.withValues(alpha: 0.15),
+            width: 1.5,
+          ),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(16),
+          borderSide: const BorderSide(color: coral, width: 2.5),
+        ),
+        labelStyle: _paperFont(
+          color: PaperPalette.ink,
+          fontWeight: FontWeight.w600,
+        ),
+        hintStyle: _paperFont(color: PaperPalette.ink.withValues(alpha: 0.6)),
+      ),
+
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
+        backgroundColor: PaperPalette.paper,
+        selectedItemColor: coral,
+        unselectedItemColor: PaperPalette.ink,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+        selectedLabelStyle: _paperFont(
+          fontSize: 12,
+          fontWeight: FontWeight.w800,
+        ),
+        unselectedLabelStyle: _paperFont(
+          fontSize: 12,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: PaperPalette.paper,
+        indicatorColor: coral.withValues(alpha: 0.15),
+        indicatorShape: const StadiumBorder(),
+        labelTextStyle: WidgetStatePropertyAll(
+          _paperFont(fontSize: 12, fontWeight: FontWeight.w700, color: navy),
+        ),
+      ),
+
+      switchTheme: SwitchThemeData(
+        thumbColor: const WidgetStatePropertyAll(Colors.white),
+        trackColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return PaperPalette.teal;
+          return PaperPalette.ink.withValues(alpha: 0.3);
+        }),
+        trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
+      ),
+
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith((states) {
+          if (states.contains(WidgetState.selected)) return PaperPalette.teal;
+          return Colors.transparent;
+        }),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+      ),
+
+      dialogTheme: DialogThemeData(
+        backgroundColor: PaperPalette.card,
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(24),
+          side: const BorderSide(color: Colors.white, width: 4),
+        ),
+        titleTextStyle: _paperFont(
+          fontSize: 22,
+          fontWeight: FontWeight.w800,
+          color: navy,
+        ),
+      ),
+
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: PaperPalette.paper,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          side: BorderSide(color: Colors.white, width: 3),
+        ),
+      ),
+
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: navy,
+        contentTextStyle: _paperFont(
+          color: Colors.white,
+          fontWeight: FontWeight.w700,
+        ),
+        shape: const StadiumBorder(
+          side: BorderSide(color: Colors.white, width: 2),
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+
+      dividerTheme: DividerThemeData(
+        color: navy.withValues(alpha: 0.1),
+        thickness: 1.5,
+        space: 1,
+      ),
+
+      listTileTheme: const ListTileThemeData(iconColor: navy, textColor: navy),
+      iconTheme: const IconThemeData(color: navy, size: 24),
+
+      progressIndicatorTheme: ProgressIndicatorThemeData(
+        color: coral,
+        linearTrackColor: navy.withValues(alpha: 0.1),
       ),
     );
   }

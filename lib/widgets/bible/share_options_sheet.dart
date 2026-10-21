@@ -1,5 +1,5 @@
 ﻿import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../models/bible/bible_verse.dart';
@@ -38,7 +38,7 @@ class ShareOptionsSheet extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 'COMPARTIR',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.accent,
                   fontSize: 16,
                   letterSpacing: 2.0,
@@ -111,7 +111,7 @@ class _ShareOption extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: Colors.white70,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,

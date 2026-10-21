@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/rich_note_document.dart';
 import '../../models/bible/sermon_note.dart';
@@ -105,7 +106,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
               Expanded(
                 child: Text(
                   'Apuntes Guardados',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.textPrimary,
                     fontSize: 19,
                     fontWeight: FontWeight.w600,
@@ -119,10 +120,10 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
             controller: _searchController,
             focusNode: _searchFocus,
             onChanged: (value) => setState(() => _searchQuery = value),
-            style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+            style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
             decoration: InputDecoration(
               hintText: 'Buscar por titulo, pastor o pasaje',
-              hintStyle: GoogleFonts.manrope(
+              hintStyle: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.55),
                 fontSize: 13,
               ),
@@ -176,7 +177,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   value: sort,
                   child: Text(
                     _sortLabel(sort),
-                    style: GoogleFonts.manrope(color: t.textPrimary),
+                    style: AppFonts.manrope(color: t.textPrimary),
                   ),
                 ),
             ],
@@ -196,7 +197,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                 value: null,
                 child: Text(
                   'Todos los pastores',
-                  style: GoogleFonts.manrope(color: t.textPrimary),
+                  style: AppFonts.manrope(color: t.textPrimary),
                 ),
               ),
               for (final speaker in speakers)
@@ -204,7 +205,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   value: speaker,
                   child: Text(
                     speaker,
-                    style: GoogleFonts.manrope(color: t.textPrimary),
+                    style: AppFonts.manrope(color: t.textPrimary),
                   ),
                 ),
             ],
@@ -267,7 +268,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     ? 'No hay apuntes con esos filtros.'
                     : 'Tus apuntes de predicacion guardados apareceran aqui.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.45),
                   fontSize: 14,
                   height: 1.6,
@@ -363,14 +364,14 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
             backgroundColor: t.surface,
             title: Text(
               'Eliminar apunte',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary,
                 fontSize: 16,
               ),
             ),
             content: Text(
               'Eliminar "$title"?',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary,
                 fontSize: 14,
               ),
@@ -380,14 +381,14 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                 onPressed: () => Navigator.pop(ctx, false),
                 child: Text(
                   'Cancelar',
-                  style: GoogleFonts.manrope(color: t.textSecondary),
+                  style: AppFonts.manrope(color: t.textSecondary),
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 child: Text(
                   'Eliminar',
-                  style: GoogleFonts.manrope(color: Colors.red),
+                  style: AppFonts.manrope(color: Colors.red),
                 ),
               ),
             ],
@@ -409,7 +410,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
         padding: const EdgeInsets.only(right: 16),
         child: Text(
           'Eliminar',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary.withValues(alpha: 0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -423,14 +424,14 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                 backgroundColor: t.surface,
                 title: Text(
                   'Eliminar apunte',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 16,
                   ),
                 ),
                 content: Text(
                   '¿Eliminar "${note.title.trim().isEmpty ? 'Apunte sin titulo' : note.title}"?',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontSize: 14,
                   ),
@@ -440,14 +441,14 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     onPressed: () => Navigator.pop(ctx, false),
                     child: Text(
                       'Cancelar',
-                      style: GoogleFonts.manrope(color: t.textSecondary),
+                      style: AppFonts.manrope(color: t.textSecondary),
                     ),
                   ),
                   TextButton(
                     onPressed: () => Navigator.pop(ctx, true),
                     child: Text(
                       'Eliminar',
-                      style: GoogleFonts.manrope(color: Colors.red),
+                      style: AppFonts.manrope(color: Colors.red),
                     ),
                   ),
                 ],
@@ -517,7 +518,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                       _noteTitle(note).toUpperCase(),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textPrimary,
                         fontSize: 12,
                         fontWeight: FontWeight.w800,
@@ -527,7 +528,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   ),
                   Text(
                     _formatDate(note.sermonDate),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.4),
                       fontSize: 11,
                     ),
@@ -699,7 +700,7 @@ class _FilterShell extends StatelessWidget {
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.78),
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
@@ -754,7 +755,7 @@ class _ChoiceChipShell extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.76),
               fontSize: 11,
               fontWeight: FontWeight.w800,

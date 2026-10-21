@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/dictionary_entry.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -54,7 +54,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
                   ),
                   child: Text(
                     entry.source,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent.withValues(alpha: 0.7),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -70,7 +70,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
                 children: [
                   Text(
                     entry.term,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.accent,
                       fontSize: 26,
                       fontWeight: FontWeight.w700,
@@ -86,7 +86,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
                       const SizedBox(width: 4),
                       Text(
                         'Diccionario Bíblico',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textPrimary
                               .withValues(alpha: 0.4),
                           fontSize: 12,
@@ -108,7 +108,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
           children: [
             Text(
               'DEFINICIÓN',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent.withValues(alpha: 0.6),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -125,7 +125,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
               ),
               child: Text(
                 entry.definition,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.85),
                   fontSize: 15,
                   height: 1.7,
@@ -143,7 +143,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
           children: [
             Text(
               'REFERENCIAS BÍBLICAS',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent.withValues(alpha: 0.6),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
@@ -166,7 +166,7 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
                   ),
                   child: Text(
                     ref,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 13,
                       fontWeight: FontWeight.w500,

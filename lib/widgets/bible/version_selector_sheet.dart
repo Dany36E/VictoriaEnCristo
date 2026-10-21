@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_download_service.dart';
@@ -49,7 +50,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     'VERSIÓN',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textSecondary.withValues(alpha: 0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
@@ -72,7 +73,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                               padding: const EdgeInsets.only(top: 4, bottom: 8),
                               child: Text(
                                 language.label.toUpperCase(),
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color: t.accent.withValues(alpha: 0.75),
                                   fontSize: 10,
                                   fontWeight: FontWeight.w700,
@@ -157,7 +158,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                                         ),
                                         child: Text(
                                           '${v.shortName} · ${v.language.code.toUpperCase()}',
-                                          style: GoogleFonts.manrope(
+                                          style: AppFonts.manrope(
                                             color: isCurrent
                                                 ? t.accent
                                                 : t.textSecondary.withValues(

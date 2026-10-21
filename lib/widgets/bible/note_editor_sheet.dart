@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_note.dart';
@@ -101,7 +102,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                   const SizedBox(width: 8),
                   Text(
                     'Nota — ${widget.verse.reference}',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -183,7 +184,7 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
                   ),
                   child: Text(
                     _existing != null ? 'Guardar cambios' : 'Guardar nota',
-                    style: GoogleFonts.manrope(fontWeight: FontWeight.w700),
+                    style: AppFonts.manrope(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

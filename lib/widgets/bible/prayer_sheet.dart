@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/verse_prayer.dart';
@@ -87,7 +88,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
                   Expanded(
                     child: Text(
                       'Oración — ${widget.verse.reference}',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.accent,
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
@@ -143,10 +144,10 @@ class _PrayerSheetState extends State<PrayerSheet> {
                   maxLines: null,
                   minLines: 4,
                   autofocus: true,
-                  style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14, height: 1.5),
+                  style: AppFonts.manrope(color: t.textPrimary, fontSize: 14, height: 1.5),
                   decoration: InputDecoration(
                     hintText: 'Señor, con este versículo te pido...',
-                    hintStyle: GoogleFonts.manrope(color: t.textSecondary.withValues(alpha: 0.5), fontSize: 14),
+                    hintStyle: AppFonts.manrope(color: t.textSecondary.withValues(alpha: 0.5), fontSize: 14),
                     border: InputBorder.none,
                     contentPadding: const EdgeInsets.all(16),
                   ),
@@ -167,7 +168,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
                   ),
                   child: Text(
                     _existing != null ? 'Actualizar oración' : 'Guardar oración',
-                    style: GoogleFonts.manrope(fontWeight: FontWeight.w700),
+                    style: AppFonts.manrope(fontWeight: FontWeight.w700),
                   ),
                 ),
               ),

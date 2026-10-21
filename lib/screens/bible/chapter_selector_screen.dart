@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -55,7 +55,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                           children: [
                             Text(
                               book.name,
-                              style: GoogleFonts.cinzel(
+                              style: AppFonts.cinzel(
                                 color: t.textPrimary,
                                 fontSize: 24,
                                 fontWeight: FontWeight.w600,
@@ -64,7 +64,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                             const SizedBox(height: 2),
                             Text(
                               '${book.totalChapters} capítulos',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textSecondary,
                                 fontSize: 13,
                               ),
@@ -99,7 +99,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                         children: [
                           Text(
                             'RECIENTES',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textSecondary.withValues(alpha: 0.4),
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
@@ -142,7 +142,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                                   ),
                                   child: Text(
                                     'Cap. $ch',
-                                    style: GoogleFonts.manrope(
+                                    style: AppFonts.manrope(
                                       color: t.accent,
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
@@ -202,7 +202,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                           child: Center(
                             child: Text(
                               '$chapter',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: isRead ? t.accent : t.textSecondary,
                                 fontSize: 15,
                                 fontWeight: isRead ? FontWeight.w700 : FontWeight.w400,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -138,7 +139,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
             ),
             const SizedBox(width: 8),
             Text('Cargando referencias...',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.4), fontSize: 12)),
           ],
         ),
@@ -170,7 +171,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
                 const SizedBox(width: 6),
                 Text(
                   'REFERENCIAS CRUZADAS',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -186,7 +187,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
                   ),
                   child: Text(
                     '${_refs.length}',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent, fontSize: 10, fontWeight: FontWeight.w700),
                   ),
                 ),
@@ -214,7 +215,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
                       _expanded
                           ? 'Mostrar menos'
                           : 'Ver ${_refs.length - 3} más',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.accent.withValues(alpha: 0.7),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
@@ -257,7 +258,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
               ),
               child: Text(
                 entry.displayRef,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/ot_quote.dart';
 import '../../services/bible/ot_quotes_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -69,7 +69,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
         backgroundColor: t.surface,
         title: Text(
           'Citas del AT en el NT',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: t.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -88,11 +88,11 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: (v) => setState(() => _searchQuery = v),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                         color: t.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Buscar cita...',
-                      hintStyle: GoogleFonts.manrope(
+                      hintStyle: AppFonts.manrope(
                           color: t.textPrimary.withValues(alpha: 0.3)),
                       prefixIcon: Icon(Icons.search,
                           color: t.accent.withValues(alpha: 0.5)),
@@ -129,7 +129,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       '${_filtered.length} citas',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textPrimary.withValues(alpha: 0.3),
                         fontSize: 11,
                       ),
@@ -146,7 +146,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                           children: [
                             Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
+                            Text('Sin resultados', style: AppFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
                           ],
                         ),
                       )
@@ -184,7 +184,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
         label: Text(label),
         selected: active,
         onSelected: (_) => setState(() => _activeType = type),
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: AppFonts.manrope(
           color: active ? t.background : chipColor,
           fontSize: 11,
           fontWeight: FontWeight.w600,
@@ -240,7 +240,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                   ),
                   child: Text(
                     _formatOsis(quote.ntReference),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: const Color(0xFF42A5F5),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -262,7 +262,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                   ),
                   child: Text(
                     _formatOsis(quote.otReference),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: const Color(0xFFFF7043),
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -279,7 +279,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                   ),
                   child: Text(
                     typeLabel,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: typeColor,
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
@@ -292,7 +292,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
               const SizedBox(height: 8),
               Text(
                 quote.context,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.5),
                   fontSize: 12,
                   height: 1.4,

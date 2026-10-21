@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/harmony_section.dart';
@@ -98,7 +98,7 @@ class ConexionesTab extends StatelessWidget {
                   padding: const EdgeInsets.only(bottom: 16),
                   child: Text(
                     '+${data.classifiedRefs.length - 10} más...',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary.withValues(alpha: 0.3),
                       fontSize: 11,
                     ),
@@ -196,7 +196,7 @@ class ConexionesTab extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             title,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.accent,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -205,7 +205,7 @@ class ConexionesTab extends StatelessWidget {
           const Spacer(),
           Text(
             subtitle,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.3),
               fontSize: 10,
             ),
@@ -238,7 +238,7 @@ class ConexionesTab extends StatelessWidget {
           children: [
             Text(
               ref.formatted,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
@@ -253,7 +253,7 @@ class ConexionesTab extends StatelessWidget {
               ),
               child: Text(
                 CrossRefClassifier.label(ref.type),
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: color,
                   fontSize: 8,
                   fontWeight: FontWeight.w700,
@@ -266,7 +266,7 @@ class ConexionesTab extends StatelessWidget {
                 onTap: () => _showRefExplanation(context, t, ref),
                 child: Text(
                   '¿Por qué?',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 10,
                     color: t.accent.withValues(alpha: 0.6),
                     decoration: TextDecoration.underline,
@@ -297,11 +297,11 @@ class ConexionesTab extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           ref.formatted,
-          style: GoogleFonts.cinzel(color: t.accent, fontSize: 16),
+          style: AppFonts.cinzel(color: t.accent, fontSize: 16),
         ),
         content: Text(
           ref.explanation!,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textPrimary.withValues(alpha: 0.8),
             fontSize: 13,
             height: 1.6,
@@ -316,14 +316,14 @@ class ConexionesTab extends StatelessWidget {
             },
             child: Text(
               'Ir al versículo',
-              style: GoogleFonts.manrope(color: t.accent),
+              style: AppFonts.manrope(color: t.accent),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
             child: Text(
               'Cerrar',
-              style: GoogleFonts.manrope(color: Colors.grey),
+              style: AppFonts.manrope(color: Colors.grey),
             ),
           ),
         ],
@@ -350,7 +350,7 @@ class ConexionesTab extends StatelessWidget {
           Expanded(
             child: Text(
               h.title,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.8),
                 fontSize: 12,
               ),
@@ -358,7 +358,7 @@ class ConexionesTab extends StatelessWidget {
           ),
           Text(
             '${h.gospelCount}/4',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.accent.withValues(alpha: 0.5),
               fontSize: 10,
               fontWeight: FontWeight.w600,
@@ -388,7 +388,7 @@ class ConexionesTab extends StatelessWidget {
           Expanded(
             child: Text(
               typ.title,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.8),
                 fontSize: 12,
               ),
@@ -427,7 +427,7 @@ class ConexionesTab extends StatelessWidget {
           Expanded(
             child: Text(
               '${q.otReference} → ${q.ntReference}',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.8),
                 fontSize: 12,
               ),
@@ -468,7 +468,7 @@ class ConexionesTab extends StatelessWidget {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.5),
               fontSize: 14,
               height: 1.5,

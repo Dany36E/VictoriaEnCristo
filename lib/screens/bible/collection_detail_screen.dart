@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/verse_collection.dart';
 import '../../services/bible/collection_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -56,7 +57,7 @@ class CollectionDetailScreen extends StatelessWidget {
                                 Expanded(
                                   child: Text(
                                     collection.name,
-                                    style: GoogleFonts.cinzel(
+                                    style: AppFonts.cinzel(
                                       color: t.textPrimary,
                                       fontSize: 20,
                                       fontWeight: FontWeight.w600,
@@ -71,7 +72,7 @@ class CollectionDetailScreen extends StatelessWidget {
                                 padding: const EdgeInsets.only(top: 2),
                                 child: Text(
                                   collection.description!,
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     color: t.textSecondary.withValues(alpha: 0.5),
                                     fontSize: 12,
                                   ),
@@ -100,7 +101,7 @@ class CollectionDetailScreen extends StatelessWidget {
                         return Center(
                           child: Text(
                             'Colección vacía',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textSecondary.withValues(alpha: 0.4),
                               fontSize: 14,
                             ),
@@ -170,7 +171,7 @@ class CollectionDetailScreen extends StatelessWidget {
             children: [
               Text(
                 '${v.reference} — ${v.version}',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.5),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
-/// BIBLE READER THEME - 9 temas editoriales premium
+/// BIBLE READER THEME - 10 temas editoriales premium
 /// ═══════════════════════════════════════════════════════════════════════════
 ///
 /// Cada tema define una paleta completa para el lector:
@@ -49,7 +49,7 @@ class BibleReaderThemeData {
   Color get swatchColor => background;
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 9 TEMAS
+  // 10 TEMAS
   // ══════════════════════════════════════════════════════════════════════════
 
   static const nightPure = BibleReaderThemeData(
@@ -160,6 +160,18 @@ class BibleReaderThemeData {
     isDark: false,
   );
 
+  static const paper = BibleReaderThemeData(
+    id: 'papel',
+    name: 'Papel recortado',
+    background: Color(0xFFF3EBDD),
+    surface: Color(0xFFFBF6EC),
+    textPrimary: Color(0xFF24324A),
+    textSecondary: Color(0xFF8A8174),
+    accent: Color(0xFFD9583B),
+    toolbarBg: Color(0xFFFBF6EC),
+    isDark: false,
+  );
+
   /// Todos los temas disponibles
   static const List<BibleReaderThemeData> all = [
     nightPure,
@@ -171,6 +183,7 @@ class BibleReaderThemeData {
     lavender,
     mint,
     peach,
+    paper,
   ];
 
   /// Obtener tema por ID (default: noche pura)
