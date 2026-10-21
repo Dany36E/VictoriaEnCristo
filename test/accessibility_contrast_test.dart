@@ -14,18 +14,31 @@ double _contrastRatio(Color foreground, Color background) {
 }
 
 void main() {
-  test('all theme body text meets WCAG AA contrast on cards', () {
-    for (final theme in AppThemeData.all) {
-      expect(
-        _contrastRatio(theme.textPrimary, theme.cardBg),
-        greaterThanOrEqualTo(4.5),
-        reason: '${theme.name}: primary text on card',
-      );
-      expect(
-        _contrastRatio(theme.textSecondary, theme.cardBg),
-        greaterThanOrEqualTo(4.5),
-        reason: '${theme.name}: secondary text on card',
-      );
-    }
-  });
+  test(
+    'all theme body text meets WCAG AA contrast on cards and background',
+    () {
+      for (final theme in AppThemeData.all) {
+        expect(
+          _contrastRatio(theme.textPrimary, theme.cardBg),
+          greaterThanOrEqualTo(4.5),
+          reason: '${theme.name}: primary text on card',
+        );
+        expect(
+          _contrastRatio(theme.textSecondary, theme.cardBg),
+          greaterThanOrEqualTo(4.5),
+          reason: '${theme.name}: secondary text on card',
+        );
+        expect(
+          _contrastRatio(theme.textPrimary, theme.scaffoldBg),
+          greaterThanOrEqualTo(4.5),
+          reason: '${theme.name}: primary text on screen background',
+        );
+        expect(
+          _contrastRatio(theme.textSecondary, theme.scaffoldBg),
+          greaterThanOrEqualTo(4.5),
+          reason: '${theme.name}: secondary text on screen background',
+        );
+      }
+    },
+  );
 }
