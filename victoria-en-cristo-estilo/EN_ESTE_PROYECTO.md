@@ -27,4 +27,10 @@ Dibujados con el mismo generador (`generator/jesus-app.mjs`, `fondos-racha-app.m
 - `JesusWidgetService.getSprite/getBackground(papel: true)` eligen el dibujo y la escena; los usan la tarjeta «días de victoria», la celebración y el widget de inicio de Android cuando el tema activo es papel.
 - **20 avatares de perfil** (`avatar_h01`…`avatar_h10`, `avatar_m01`…`avatar_m10`). El usuario los elige en Mi Perfil; la elección se guarda en `profile_avatar_id` (`AvatarPerfilService`) y se sincroniza con la nube.
 
+Reglas de dibujo que seguimos en estos personajes:
+
+- Las manos son solo una bolita del color de la piel: nunca dedos (ni para señalar ni para orar).
+- Las proporciones de la cabeza de Jesús salen de la ilustración de referencia (pelo en cúpula, raya al centro, barba que deja ver la boca).
+- Corazón, Biblia, estrellas y flama son los objetos del kit (`assets/vec/objetos`); los fondos llevan encima la textura `papel_tile_512.png`.
+
 Todo está en WebP para que la app pese menos.
