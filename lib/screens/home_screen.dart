@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/brand_backdrop.dart';
+import '../widgets/home/atajos_inicio.dart';
 import '../widgets/home/daily_verse_section.dart';
 import '../widgets/home/home_header.dart';
 import '../widgets/home/sos_button.dart';
@@ -462,6 +463,32 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
 
+                  // ATAJOS — accesos directos que elige el usuario
+                  // (por defecto Biblia, Estudio bíblico y Apuntes)
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingL,
+                        AppDesignSystem.spacingM,
+                        AppDesignSystem.spacingS,
+                      ),
+                      child: _buildSectionHeader(
+                        label: 'ATAJOS',
+                        icon: Icons.bolt_rounded,
+                        accent: const Color(0xFFE8C97A),
+                        animationDelayMs: 200,
+                        trailing: const BotonEditarAtajos(),
+                      ),
+                    ),
+                  ),
+                  const SliverPadding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: AppDesignSystem.spacingM,
+                    ),
+                    sliver: SliverToBoxAdapter(child: AtajosInicio()),
+                  ),
+
                   // Tools Section Header — MENÚ PRINCIPAL (3 botones simplificados)
                   SliverToBoxAdapter(
                     child: Padding(
@@ -637,15 +664,19 @@ class _HomeScreenState extends State<HomeScreen>
     IconData icon = Icons.shield_outlined,
     Color? accent,
     int animationDelayMs = 300,
+    Widget? trailing,
   }) {
     if (AppThemeData.of(context).isPaper) {
+      final etiqueta = PopIn(
+        retraso: Duration(milliseconds: animationDelayMs),
+        child: EtiquetaSeccion(label),
+      );
       // Aire abajo para la cinta de la primera tarjeta.
       return Padding(
         padding: const EdgeInsets.only(bottom: 10),
-        child: PopIn(
-          retraso: Duration(milliseconds: animationDelayMs),
-          child: EtiquetaSeccion(label),
-        ),
+        child: trailing == null
+            ? etiqueta
+            : Row(children: [Expanded(child: etiqueta), trailing]),
       );
     }
     final color = accent ?? Colors.white;
@@ -673,6 +704,7 @@ class _HomeScreenState extends State<HomeScreen>
                 color: Colors.white70,
               ),
             ),
+            if (trailing != null) ...[const Spacer(), trailing],
           ],
         )
         .animate()

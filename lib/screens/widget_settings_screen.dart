@@ -121,6 +121,21 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     }
   }
 
+  Future<void> _addAtajosWidget() async {
+    FeedbackEngine.I.tap();
+    final success = await WidgetSyncService.I.requestAtajosPin();
+    if (success || !mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text(
+          'Tu teléfono no permite agregarlo desde aquí. Mantén presionada la '
+          'pantalla de inicio, elige Widgets y busca «Atajos».',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _titleController.dispose();
@@ -842,6 +857,15 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             onPressed: _addWidgetToHomeScreen,
           ),
           const SizedBox(height: 18),
+          BotonVec(
+            texto: 'Añadir widget de atajos',
+            icono: Icons.widgets_outlined,
+            color: VecColores.papel,
+            colorTexto: VecColores.tinta,
+            expandido: true,
+            onPressed: _addAtajosWidget,
+          ),
+          const SizedBox(height: 18),
           const Row(
             children: [
               CirculoIcono(iconoVec: 'idea', color: VecColores.mostaza, tamano: 34),
@@ -889,6 +913,23 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             onPressed: _addWidgetToHomeScreen,
             icon: const Icon(Icons.add_to_home_screen),
             label: const Text('Añadir Widget a Inicio'),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
+        // Widget de atajos: Biblia, Estudio bíblico y Apuntes
+        SizedBox(
+          width: double.infinity,
+          child: OutlinedButton.icon(
+            onPressed: _addAtajosWidget,
+            icon: const Icon(Icons.widgets_outlined),
+            label: const Text('Añadir Widget de Atajos'),
             style: OutlinedButton.styleFrom(
               padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),

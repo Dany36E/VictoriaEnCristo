@@ -409,6 +409,12 @@ class WidgetSyncService {
         qualifiedAndroidName: kAndroidJesusWidgetQualifiedName,
         iOSName: kIOSJesusWidgetName,
       );
+
+      // Widget de atajos (claro/oscuro según widget_is_light)
+      await HomeWidget.updateWidget(
+        androidName: kAndroidAtajosWidgetProvider,
+        qualifiedAndroidName: kAndroidAtajosWidgetQualifiedName,
+      );
     } catch (e) {
       debugPrint('📱 [WIDGET] Update error: $e');
     }
@@ -540,6 +546,23 @@ class WidgetSyncService {
       return true;
     } catch (e) {
       debugPrint('📱 [WIDGET] Pin request error: $e');
+      return false;
+    }
+  }
+
+  /// Solicita al usuario que añada el widget de atajos (Android).
+  /// Retorna false si el sistema no admite pedirlo desde la app.
+  Future<bool> requestAtajosPin() async {
+    if (!isSupported) return false;
+    try {
+      if (await HomeWidget.isRequestPinWidgetSupported() != true) return false;
+      await HomeWidget.requestPinWidget(
+        androidName: kAndroidAtajosWidgetProvider,
+        qualifiedAndroidName: kAndroidAtajosWidgetQualifiedName,
+      );
+      return true;
+    } catch (e) {
+      debugPrint('📱 [WIDGET] Atajos pin request error: $e');
       return false;
     }
   }

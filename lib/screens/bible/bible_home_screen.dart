@@ -30,9 +30,7 @@ import 'bible_map_screen.dart';
 import 'gospel_harmony_screen.dart';
 import 'typology_screen.dart';
 import 'ot_quotes_screen.dart';
-import 'sermon_notes_mode_screen.dart';
-import 'sermon_notes_saved_screen.dart';
-import 'study_mode_screen.dart';
+import 'entradas_biblia.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE HOME SCREEN — Edición editorial premium
@@ -581,53 +579,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   // ─── Quick Study Tools Strip ────────────────────────────────────────
 
-  void _openStudyMode({
-    bool openRoomDialogOnStart = false,
-    bool openSetupOnStart = true,
-    bool openSavedStudiesOnStart = false,
-  }) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => StudyModeScreen(
-          bookNumber: _lastBookNumber ?? 1,
-          bookName: _lastBookName ?? 'Génesis',
-          chapter: _lastChapter ?? 1,
-          version: _version,
-          openRoomDialogOnStart: openRoomDialogOnStart,
-          openSetupOnStart: openSetupOnStart,
-          openSavedStudiesOnStart: openSavedStudiesOnStart,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openStudyEntryOptions() async {
-    final action = await showModalBottomSheet<_StudyEntryAction>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _StudyEntrySheet(theme: _currentTheme()),
-    );
-    if (!mounted || action == null) return;
-    switch (action) {
-      case _StudyEntryAction.newStudy:
-        _openStudyMode(openSetupOnStart: true);
-        break;
-      case _StudyEntryAction.savedStudies:
-        _openStudyMode(openSetupOnStart: false, openSavedStudiesOnStart: true);
-        break;
-      case _StudyEntryAction.friendsStudy:
-        _openStudyMode(openSetupOnStart: false, openRoomDialogOnStart: true);
-        break;
-    }
-  }
-
-  BibleReaderThemeData _currentTheme() => BibleReaderThemeData.fromId(
-    BibleReaderThemeData.migrateId(
-      BibleUserDataService.I.readerThemeNotifier.value,
-    ),
-  );
-
   void _openParallelReader() {
     Navigator.push(
       context,
@@ -642,48 +593,18 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     );
   }
 
-  void _openSermonNotesMode() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SermonNotesModeScreen(
-          bookNumber: _lastBookNumber ?? 1,
-          bookName: _lastBookName ?? 'Genesis',
-          chapter: _lastChapter ?? 1,
-          version: _version,
-        ),
-      ),
-    );
-  }
-
-  void _openSavedSermonNotes() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const SermonNotesSavedScreen()),
-    );
-  }
-
-  Future<void> _openSermonEntryOptions() async {
-    final action = await showModalBottomSheet<_SermonEntryAction>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _SermonEntrySheet(theme: _currentTheme()),
-    );
-    if (!mounted || action == null) return;
-    switch (action) {
-      case _SermonEntryAction.newNote:
-        _openSermonNotesMode();
-        break;
-      case _SermonEntryAction.savedNotes:
-        _openSavedSermonNotes();
-        break;
-    }
-  }
-
   Widget _buildQuickToolsStrip(BibleReaderThemeData t) {
     final quickTools = [
-      _ToolItem(Icons.menu_book, 'Estudio', _openStudyEntryOptions),
-      _ToolItem(Icons.edit_note, 'Apuntes', _openSermonEntryOptions),
+      _ToolItem(
+        Icons.menu_book,
+        'Estudio',
+        () => EntradasBiblia.abrirEstudio(context),
+      ),
+      _ToolItem(
+        Icons.edit_note,
+        'Apuntes',
+        () => EntradasBiblia.abrirApuntes(context),
+      ),
       _ToolItem(Icons.view_column_outlined, '2 versiones', _openParallelReader),
       _ToolItem(
         Icons.bookmark_outline,
@@ -1111,212 +1032,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-    );
-  }
-}
-
-enum _StudyEntryAction { newStudy, savedStudies, friendsStudy }
-
-enum _SermonEntryAction { newNote, savedNotes }
-
-class _StudyEntrySheet extends StatelessWidget {
-  final BibleReaderThemeData theme;
-
-  const _StudyEntrySheet({required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: t.textSecondary.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Modo Estudio',
-              style: AppFonts.cinzel(
-                color: t.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _StudyEntryTile(
-              icon: Icons.add_circle_outline,
-              title: 'Empezar nuevo estudio',
-              subtitle: 'Elegir pasaje, rango y versiones.',
-              theme: t,
-              onTap: () => Navigator.pop(context, _StudyEntryAction.newStudy),
-            ),
-            const SizedBox(height: 8),
-            _StudyEntryTile(
-              icon: Icons.folder_open_outlined,
-              title: 'Estudios guardados',
-              subtitle: 'Continuar respuestas y notas anteriores.',
-              theme: t,
-              onTap: () =>
-                  Navigator.pop(context, _StudyEntryAction.savedStudies),
-            ),
-            const SizedBox(height: 8),
-            _StudyEntryTile(
-              icon: Icons.groups_outlined,
-              title: 'Estudio con amigos',
-              subtitle: 'Crear o unirte a una sala. Lean juntos en '
-                  'distintas versiones y rotándolas.',
-              theme: t,
-              onTap: () =>
-                  Navigator.pop(context, _StudyEntryAction.friendsStudy),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SermonEntrySheet extends StatelessWidget {
-  final BibleReaderThemeData theme;
-
-  const _SermonEntrySheet({required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: t.textSecondary.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Apuntes de predicacion',
-              style: AppFonts.cinzel(
-                color: t.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _StudyEntryTile(
-              icon: Icons.add_circle_outline,
-              title: 'Nuevo apunte',
-              subtitle: 'Abrir lectura y tomar notas de la predicacion.',
-              theme: t,
-              onTap: () => Navigator.pop(context, _SermonEntryAction.newNote),
-            ),
-            const SizedBox(height: 8),
-            _StudyEntryTile(
-              icon: Icons.folder_open_outlined,
-              title: 'Apuntes guardados',
-              subtitle: 'Buscar por pastor, fecha, titulo o pasaje.',
-              theme: t,
-              onTap: () =>
-                  Navigator.pop(context, _SermonEntryAction.savedNotes),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StudyEntryTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final BibleReaderThemeData theme;
-  final VoidCallback onTap;
-
-  const _StudyEntryTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.theme,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: t.isDark
-              ? Colors.white.withValues(alpha: 0.04)
-              : Colors.black.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.textSecondary.withValues(alpha: 0.09)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: t.accent, size: 22),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppFonts.manrope(
-                      color: t.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.7),
-                      fontSize: 11,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: t.textSecondary, size: 20),
-          ],
-        ),
-      ),
     );
   }
 }

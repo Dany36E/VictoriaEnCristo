@@ -50,6 +50,7 @@ class UserPrefCloudSyncService {
     'feedback_sfx_volume',
     'app_theme_id',
     'profile_avatar_id',
+    'home_shortcuts_v1',
     'auto_theme',
     'last_dark_theme',
     'last_light_theme',

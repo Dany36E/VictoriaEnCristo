@@ -24,7 +24,9 @@ import 'screens/emergency_screen.dart';
 import 'screens/sacred_alarm_active_screen.dart';
 import 'screens/sacred_alarms_screen.dart';
 import 'navigation/app_navigation.dart';
+import 'widgets/home/atajos_inicio.dart';
 import 'services/theme_service.dart';
+import 'services/atajos_service.dart';
 import 'services/avatar_perfil_service.dart';
 import 'services/favorites_service.dart';
 import 'services/onboarding_service.dart';
@@ -200,6 +202,7 @@ Future<StartupServices> _initializeStartupServices() async {
     await Future.wait([
       themeService.initialize(),
       AvatarPerfilService.I.cargar(),
+      AtajosService.I.cargar(),
       onboardingService.init(),
       favoritesService.init(),
       audioEngine.init(),
@@ -1246,6 +1249,13 @@ class _NavigationHandlerState extends State<_NavigationHandler> {
           showAlreadyVictoryCelebration: true,
         ),
       );
+      return;
+    }
+
+    // Atajos del widget de Android y del ícono de la app (/atajo/<id>).
+    if (route.startsWith(prefijoRutaAtajo)) {
+      widget.onRouteConsumed();
+      abrirAtajo(context, route.substring(prefijoRutaAtajo.length));
       return;
     }
 
