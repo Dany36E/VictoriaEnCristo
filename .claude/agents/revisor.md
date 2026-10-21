@@ -30,19 +30,22 @@ no solo el diff.
    los FAB extendidos fuera del círculo.
 4. **Revisión visual (obligatoria si cambió UI, tema o colores)**: no basta
    con leer código, hay que ver la pantalla.
-   - Si la pantalla cambiada no está en `test/visual/`, escribe una prueba
-     como `test/visual/journal_theme_matrix_test.dart`: que la dibuje en
-     cada tema de `AppThemeData.all` (claros y oscuros), guarde la captura
-     en `build/qa/` y llame a `expectButtonBackgroundsCoverContent` y
-     `expectReadableText` de `test/visual/visual_checks.dart`. Esa prueba
-     sí se deja en el repo (es el único archivo que puedes crear).
-   - Corre `flutter test --no-pub test/visual/` y reporta cada fallo: fondo
-     de botón que no cubre su texto, contraste WCAG < 4.5, desbordes.
+   - Toda pantalla debe estar en `test/visual/screens_theme_matrix_test.dart`
+     (`themeMatrix('<nombre>', () => const MiPantalla())`). Si una pantalla
+     nueva o cambiada no está, agrégala (es el único archivo que puedes
+     tocar). `themeMatrix` la dibuja en los 9 temas, guarda capturas en
+     `build/qa/` y revisa desbordes y errores, que el fondo de cada botón
+     cubra su texto y el contraste WCAG del texto contra su fondo real.
+   - Corre `flutter test --no-pub test/visual/` y reporta cada problema
+     nuevo como **seguro**.
+   - Revisa el diff de `test/visual/problemas_conocidos/`: si se agregaron
+     líneas, es un problema nuevo escondido en la lista; repórtalo como
+     **seguro**. Esa lista solo debe achicarse.
    - Abre con Read las capturas PNG de `build/qa/` de las pantallas
      cambiadas, al menos una de tema claro y una de oscuro, y busca lo que
-     las pruebas no ven: letras negras sobre fondo oscuro (o blancas sobre
-     claro), elementos encimados o cortados, íconos invisibles, textos
-     que no cuadran con el diseño.
+     las pruebas no ven: elementos encimados o cortados, íconos invisibles,
+     texto sobre fotos sin sombra o capa oscura, cosas que no cuadran con
+     el diseño.
 5. **Convenciones del proyecto** (CLAUDE.md): audio solo por `AudioService`,
    Firebase como único backend, Material 3 oscuro, `pubspec.yaml` sin cambios
    no autorizados.

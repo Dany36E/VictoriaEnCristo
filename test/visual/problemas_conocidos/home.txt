@@ -1,0 +1,76 @@
+# Problemas visuales que ya existían en "home". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "0" contraste < 3.0
+charcoal: "DE VICTORIA" contraste < 4.5
+charcoal: "DÍAS" contraste < 4.5
+charcoal: "Registrar día" contraste < 4.5
+charcoal: "Todo camino comienza con un primer paso" contraste < 4.5
+charcoal: "VERSÍCULO DEL DÍA" contraste < 4.5
+clean_page: "0" contraste < 3.0
+clean_page: "DE VICTORIA" contraste < 4.5
+clean_page: "DÍAS" contraste < 4.5
+clean_page: "Registrar día" contraste < 4.5
+clean_page: "Todo camino comienza con un primer paso" contraste < 4.5
+clean_page: "Tu camino a la libertad" contraste < 3.0
+clean_page: "VERSÍCULO DEL DÍA" contraste < 4.5
+clean_page: "Victoria en Cristo" contraste < 4.5
+clean_page: "¡NECESITO AYUDA!" contraste < 3.0
+grey_editorial: "0" contraste < 3.0
+grey_editorial: "DE VICTORIA" contraste < 4.5
+grey_editorial: "DÍAS" contraste < 4.5
+grey_editorial: "Registrar día" contraste < 4.5
+grey_editorial: "Todo camino comienza con un primer paso" contraste < 4.5
+grey_editorial: "Tu camino a la libertad" contraste < 3.0
+grey_editorial: "VERSÍCULO DEL DÍA" contraste < 4.5
+grey_editorial: "Victoria en Cristo" contraste < 4.5
+grey_editorial: "¡NECESITO AYUDA!" contraste < 3.0
+lavender: "0" contraste < 3.0
+lavender: "DE VICTORIA" contraste < 4.5
+lavender: "DÍAS" contraste < 4.5
+lavender: "Porque no tenemos un sumo sacerdote que …" contraste < 4.5
+lavender: "Registrar día" contraste < 4.5
+lavender: "Todo camino comienza con un primer paso" contraste < 4.5
+lavender: "Tu camino a la libertad" contraste < 3.0
+lavender: "VERSÍCULO DEL DÍA" contraste < 4.5
+lavender: "Victoria en Cristo" contraste < 4.5
+lavender: "¡NECESITO AYUDA!" contraste < 3.0
+mint: "0" contraste < 3.0
+mint: "DE VICTORIA" contraste < 4.5
+mint: "DÍAS" contraste < 4.5
+mint: "Porque no tenemos un sumo sacerdote que …" contraste < 4.5
+mint: "Registrar día" contraste < 4.5
+mint: "Todo camino comienza con un primer paso" contraste < 4.5
+mint: "Tu camino a la libertad" contraste < 3.0
+mint: "VERSÍCULO DEL DÍA" contraste < 4.5
+mint: "Victoria en Cristo" contraste < 4.5
+mint: "¡NECESITO AYUDA!" contraste < 3.0
+night_pure: "DÍAS" contraste < 4.5
+night_pure: "Registrar día" contraste < 4.5
+night_pure: "VERSÍCULO DEL DÍA" contraste < 4.5
+parchment: "0" contraste < 3.0
+parchment: "DE VICTORIA" contraste < 4.5
+parchment: "DÍAS" contraste < 4.5
+parchment: "Porque no tenemos un sumo sacerdote que …" contraste < 4.5
+parchment: "Registrar día" contraste < 4.5
+parchment: "Todo camino comienza con un primer paso" contraste < 4.5
+parchment: "Tu camino a la libertad" contraste < 3.0
+parchment: "VERSÍCULO DEL DÍA" contraste < 4.5
+parchment: "Victoria en Cristo" contraste < 4.5
+parchment: "¡NECESITO AYUDA!" contraste < 3.0
+peach: "0" contraste < 3.0
+peach: "DE VICTORIA" contraste < 4.5
+peach: "DÍAS" contraste < 4.5
+peach: "Porque no tenemos un sumo sacerdote que …" contraste < 4.5
+peach: "Registrar día" contraste < 4.5
+peach: "Todo camino comienza con un primer paso" contraste < 4.5
+peach: "VERSÍCULO DEL DÍA" contraste < 4.5
+peach: "Victoria en Cristo" contraste < 4.5
+peach: "¡NECESITO AYUDA!" contraste < 3.0
+sepia_night: "0" contraste < 3.0
+sepia_night: "DE VICTORIA" contraste < 4.5
+sepia_night: "DÍAS" contraste < 4.5
+sepia_night: "Registrar día" contraste < 4.5
+sepia_night: "Todo camino comienza con un primer paso" contraste < 4.5
+sepia_night: "VERSÍCULO DEL DÍA" contraste < 4.5
+sepia_night: "¡NECESITO AYUDA!" contraste < 3.0

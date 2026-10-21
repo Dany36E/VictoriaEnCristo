@@ -1,0 +1,204 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:app_quitar/services/bible/bible_user_data_service.dart';
+import 'package:app_quitar/theme/app_theme.dart';
+import 'package:app_quitar/theme/app_theme_data.dart';
+import 'package:firebase_core/firebase_core.dart';
+// Firebase's own test transport; no calls reach a remote backend.
+// ignore: depend_on_referenced_packages
+import 'package:firebase_core_platform_interface/test.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import 'visual_checks.dart';
+
+/// Prepara Firebase simulado, preferencias vacías y las fuentes reales, para
+/// que las capturas se vean como en el teléfono (no con cuadros de prueba).
+void setUpThemeMatrix() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setupFirebaseCoreMocks();
+  setUpAll(() async {
+    SharedPreferences.setMockInitialValues({});
+    await Firebase.initializeApp();
+    // Auth escucha cambios de sesión por canales nativos; sin plugin se
+    // simulan para que se comporte como un usuario sin sesión.
+    final mensajero =
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger;
+    const api =
+        'dev.flutter.pigeon.firebase_auth_platform_interface'
+        '.FirebaseAuthHostApi';
+    const eventos = 'pruebas/firebase_auth/eventos';
+    for (final metodo in [
+      'registerIdTokenListener',
+      'registerAuthStateListener',
+    ]) {
+      mensajero.setMockMessageHandler(
+        '$api.$metodo',
+        (_) async => const StandardMessageCodec().encodeMessage([eventos]),
+      );
+    }
+    mensajero.setMockMethodCallHandler(
+      const MethodChannel(eventos),
+      (_) async => null,
+    );
+    GoogleFonts.config.allowRuntimeFetching = false;
+    mensajero.setMockMethodCallHandler(
+      const MethodChannel('plugins.flutter.io/path_provider'),
+      (_) async => Directory.systemTemp.path,
+    );
+    await (FontLoader(
+      'MaterialIcons',
+    )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
+    // Solo los pesos que existen en google_fonts/: pedir otro hace que
+    // google_fonts intente descargarlo y la prueba falle.
+    const medios = [FontWeight.w400, FontWeight.w500, FontWeight.w600];
+    for (final (familia, archivo, pesos) in [
+      ('Manrope', 'Manrope', FontWeight.values),
+      ('Cinzel', 'Cinzel', FontWeight.values),
+      ('Lora', 'Lora', [...medios, FontWeight.w700]),
+      ('Crimson Pro', 'CrimsonPro', [...medios, FontWeight.w700]),
+    ]) {
+      final fuente = 'google_fonts/$archivo-VariableFont_wght.ttf';
+      await (FontLoader(familia)..addFont(rootBundle.load(fuente))).load();
+      for (final peso in pesos) {
+        final nombre = GoogleFonts.getFont(
+          familia,
+          fontWeight: peso,
+        ).fontFamily!;
+        await (FontLoader(nombre)..addFont(rootBundle.load(fuente))).load();
+      }
+    }
+  });
+}
+
+/// Dibuja [pantalla] en cada tema de [AppThemeData.all] (claros y oscuros) a
+/// 360×800, guarda la captura en `build/qa/<nombre>_<tema>.png` y revisa
+/// desbordes y errores, fondos de botones que no cubren su texto y contraste
+/// WCAG del texto contra lo que realmente está pintado detrás.
+///
+/// Los problemas que ya existían están en
+/// `test/visual/problemas_conocidos/<nombre>.txt` y no hacen fallar la prueba;
+/// cualquier problema nuevo sí. Al corregir uno, regenera la lista con
+/// `ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/`.
+void themeMatrix(String nombre, Widget Function() pantalla) {
+  final archivo = File('test/visual/problemas_conocidos/$nombre.txt');
+  final conocidos = archivo.existsSync()
+      ? archivo
+            .readAsLinesSync()
+            .where((l) => l.trim().isNotEmpty && !l.startsWith('#'))
+            .toSet()
+      : <String>{};
+  final actualizar =
+      Platform.environment['ACTUALIZAR_PROBLEMAS_CONOCIDOS'] == '1';
+  final encontrados = <String>[];
+
+  if (actualizar) {
+    tearDownAll(() {
+      if (encontrados.isEmpty) {
+        if (archivo.existsSync()) archivo.deleteSync();
+        return;
+      }
+      archivo.parent.createSync(recursive: true);
+      archivo.writeAsStringSync(
+        '# Problemas visuales que ya existían en "$nombre". No agregues\n'
+        '# líneas a mano: corrige el problema. Se regenera con\n'
+        '# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/\n'
+        '${(encontrados..sort()).join('\n')}\n',
+      );
+    });
+  }
+
+  for (final theme in AppThemeData.all) {
+    testWidgets('$nombre en tema ${theme.id}: botones y contraste', (
+      tester,
+    ) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(360, 800);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      // Las pantallas de la Biblia usan su propio tema de lectura (mismos ids).
+      BibleUserDataService.I.readerThemeNotifier.value = theme.id;
+      final boundaryKey = GlobalKey();
+      try {
+        await tester.pumpWidget(
+          MaterialApp(
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: theme.isDark ? ThemeMode.dark : ThemeMode.light,
+            builder: (context, child) =>
+                AppThemeData.provider(theme: theme, child: child!),
+            home: RepaintBoundary(key: boundaryKey, child: pantalla()),
+          ),
+        );
+        // Sin pumpAndSettle: varias pantallas tienen animaciones infinitas.
+        for (var i = 0; i < 20; i++) {
+          await tester.pump(const Duration(milliseconds: 100));
+        }
+
+        final limite =
+            boundaryKey.currentContext!.findRenderObject()
+                as RenderRepaintBoundary;
+        // Guardar la captura antes de las comprobaciones, aunque fallen.
+        final (imagen, pixeles) = (await tester.runAsync(() async {
+          final captura = await capturarPixeles(limite);
+          final png = await captura.$1.toByteData(
+            format: ui.ImageByteFormat.png,
+          );
+          final file = File('build/qa/${nombre}_${theme.id}.png');
+          await file.parent.create(recursive: true);
+          await file.writeAsBytes(png!.buffer.asUint8List());
+          return captura;
+        }))!;
+
+        final excepcion = tester.takeException();
+        final problemas = {
+          if (excepcion != null)
+            'error: ${excepcion.toString().split('\n').first.trim()}',
+          ...problemasDeBotones(tester),
+          ...problemasDeContraste(limite, imagen, pixeles),
+        }.map((p) => '${theme.id}: ${p.replaceAll('\n', ' ')}').toList();
+        imagen.dispose();
+
+        if (actualizar) {
+          encontrados.addAll(problemas.map(_clave));
+          return;
+        }
+        final nuevos = problemas
+            .where((p) => !conocidos.contains(_clave(p)))
+            .toList();
+        for (final viejo in conocidos.where(
+          (c) =>
+              c.startsWith('${theme.id}: ') &&
+              !problemas.map(_clave).contains(c),
+        )) {
+          debugPrint('Ya corregido, quítalo de ${archivo.path}: $viejo');
+        }
+        expect(
+          nuevos,
+          isEmpty,
+          reason:
+              'Problemas visuales nuevos en $nombre (captura en '
+              'build/qa/${nombre}_${theme.id}.png). Corrígelos; no los '
+              'agregues a la lista de conocidos.',
+        );
+      } finally {
+        // Desmontar y avanzar el reloj para que no queden timers pendientes.
+        await tester.pumpWidget(const SizedBox.shrink());
+        await tester.pump(const Duration(seconds: 11));
+      }
+    });
+  }
+}
+
+/// Lo que se guarda en la lista de conocidos: qué texto o botón falla y en
+/// qué tema, sin medidas exactas, que cambian un poco entre versiones de
+/// Flutter (el CI usa la última estable).
+String _clave(String problema) => problema
+    .replaceAll(RegExp(r'contraste [\d.]+ < '), 'contraste < ')
+    .replaceAll(RegExp(r' \((texto|contenido) .*\)$'), '');

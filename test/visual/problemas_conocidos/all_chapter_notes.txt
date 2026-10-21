@@ -1,0 +1,12 @@
+# Problemas visuales que ya existían en "all_chapter_notes". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+clean_page: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+grey_editorial: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+lavender: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+mint: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+night_pure: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+parchment: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+peach: "Tus notas de estudio por capítulo aparec…" contraste < 4.5
+sepia_night: "Tus notas de estudio por capítulo aparec…" contraste < 4.5

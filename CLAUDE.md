@@ -75,10 +75,13 @@ functions/    - Cloud Functions (Node.js)
   invoca al subagente `revisor` (`.claude/agents/revisor.md`). Corrige todo lo
   que reporte como seguro y vuelve a invocarlo hasta que responda "Sin
   problemas encontrados". No te revises tú mismo en lugar del revisor.
-- Cambios de UI, tema o colores: la pantalla tiene que estar en una prueba de
-  `test/visual/` que la dibuje en todos los temas (claros y oscuros) y use
-  `test/visual/visual_checks.dart` (fondo de botones que cubra el texto y
-  contraste WCAG). Mira las capturas de `build/qa/` antes de terminar.
+- Cambios de UI, tema o colores: la pantalla tiene que estar en
+  `test/visual/screens_theme_matrix_test.dart`, que la dibuja en los 9 temas
+  y revisa desbordes, fondos de botones y contraste WCAG. Mira las capturas
+  de `build/qa/` antes de terminar. `test/visual/problemas_conocidos/` lista
+  problemas que ya existían: corrígelos y regenera con
+  `ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/`; nunca agregues
+  problemas nuevos a esa lista.
 - En la nube, `.claude/hooks/session-start.sh` instala Flutter 3.41.1 y crea
   los stubs de los archivos secretos; `.claude/hooks/stop-analyze.sh` corre
   `flutter analyze` al terminar si hubo cambios en Dart y obliga a corregir

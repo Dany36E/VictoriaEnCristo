@@ -1,0 +1,18 @@
+# Problemas visuales que ya existían en "series_home". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+clean_page: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+clean_page: "Series" contraste < 3.0
+grey_editorial: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+grey_editorial: "Series" contraste < 3.0
+lavender: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+lavender: "Series" contraste < 3.0
+mint: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+mint: "Series" contraste < 3.0
+night_pure: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+parchment: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+parchment: "Series" contraste < 3.0
+peach: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
+peach: "Series" contraste < 3.0
+sepia_night: "La vida de Jesús como nunca la habías vi…" contraste < 4.5
