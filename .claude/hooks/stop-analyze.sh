@@ -16,10 +16,19 @@ command -v flutter >/dev/null 2>&1 || exit 0
 
 cd "${CLAUDE_PROJECT_DIR:-.}" || exit 0
 
-# Solo si hay Dart modificado sin commitear o en commits aún no subidos.
-changed=$(git status --porcelain -- '*.dart' pubspec.yaml analysis_options.yaml 2>/dev/null)
-if [ -z "$changed" ] && git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
-  changed=$(git diff --name-only '@{u}..HEAD' -- '*.dart' pubspec.yaml analysis_options.yaml 2>/dev/null)
+# Solo si hay Dart modificado sin commitear o en commits aún no subidos
+# (contra el upstream, o contra origin/main si la rama todavía no tiene).
+rutas=('*.dart' pubspec.yaml analysis_options.yaml)
+changed=$(git status --porcelain -- "${rutas[@]}" 2>/dev/null)
+if [ -z "$changed" ]; then
+  if git rev-parse --abbrev-ref '@{u}' >/dev/null 2>&1; then
+    base='@{u}'
+  else
+    base=$(git merge-base HEAD origin/main 2>/dev/null)
+  fi
+  if [ -n "$base" ]; then
+    changed=$(git diff --name-only "$base" HEAD -- "${rutas[@]}" 2>/dev/null)
+  fi
 fi
 [ -n "$changed" ] || exit 0
 
