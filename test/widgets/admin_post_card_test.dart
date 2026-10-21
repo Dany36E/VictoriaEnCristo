@@ -1,4 +1,6 @@
 import 'package:app_quitar/models/wall_post.dart';
+import 'package:app_quitar/theme/app_theme.dart';
+import 'package:app_quitar/theme/app_theme_data.dart';
 import 'package:app_quitar/widgets/admin_post_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,5 +114,43 @@ void main() {
     expect(find.text('Aprobar'), findsNothing);
     expect(find.text('Rechazar'), findsNothing);
     expect(find.text('Ban'), findsOneWidget);
+  });
+
+  testWidgets('tema papel: mismas acciones, activables también por semántica', (
+    tester,
+  ) async {
+    final semantics = tester.ensureSemantics();
+    var approveCount = 0;
+    var banCount = 0;
+
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.paperTheme,
+        builder: (context, child) =>
+            AppThemeData.provider(theme: AppThemeData.paper, child: child!),
+        home: Scaffold(
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: AdminPostCard(
+              post: post(),
+              onApprove: () => approveCount++,
+              onReject: () {},
+              onBan: () => banCount++,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    expect(find.text('Pendiente'), findsOneWidget);
+    expect(find.text('Rechazar'), findsOneWidget);
+
+    await tester.tap(find.text('Aprobar'));
+    tester.semantics.tap(find.semantics.byLabel('Ban'));
+    await tester.pump();
+
+    expect(approveCount, 1);
+    expect(banCount, 1);
+    semantics.dispose();
   });
 }
