@@ -363,6 +363,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                   button: true,
                   selected: isSelected,
                   label: frequency.displayName,
+                  onTap: () => _updateFrequency(giant.id, frequency),
                   excludeSemantics: true,
                   child: GestureDetector(
                     onTap: () => _updateFrequency(giant.id, frequency),

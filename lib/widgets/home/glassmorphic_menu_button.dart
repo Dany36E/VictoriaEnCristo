@@ -201,6 +201,10 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
     return Semantics(
       button: true,
       label: '${widget.title}. ${widget.subtitle}',
+      onTap: () {
+        HapticFeedback.lightImpact();
+        widget.onTap();
+      },
       excludeSemantics: true,
       child: GestureDetector(
         onTapDown: (_) => setState(() => _isPressed = true),

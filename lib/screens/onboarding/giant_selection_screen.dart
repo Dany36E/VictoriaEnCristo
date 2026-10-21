@@ -324,6 +324,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
         button: true,
         selected: isSelected,
         label: '${giant['name']}. ${giant['description']}',
+        onTap: () => _toggleGiant(giant['id']),
         excludeSemantics: true,
         child: GestureDetector(
           onTap: () => _toggleGiant(giant['id']),

@@ -190,6 +190,8 @@ class _BotonVecState extends State<BotonVec> {
       button: true,
       enabled: _activo,
       label: widget.texto,
+      // La acción va en este nodo: excludeSemantics borra la del GestureDetector.
+      onTap: _activo ? widget.onPressed : null,
       excludeSemantics: true,
       child: GestureDetector(
         onTapDown: _activo ? (_) => setState(() => _abajo = true) : null,

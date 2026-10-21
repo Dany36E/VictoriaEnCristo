@@ -776,6 +776,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                     child: Semantics(
                       button: true,
                       label: emotion.name,
+                      onTap: () => _selectEmotion(emotion),
                       excludeSemantics: true,
                       child: GestureDetector(
                         onTap: () => _selectEmotion(emotion),
@@ -836,24 +837,29 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
             ),
             const SizedBox(height: 34),
             // El papelito sale del frasco y se desdobla.
+            // La tarjeta se arma dentro del builder: el versículo se asigna
+            // después del primer build y no hay setState hasta el final.
             AnimatedBuilder(
               animation: _unfoldAnimation,
-              builder: (context, child) {
+              builder: (context, _) {
+                final verso = _revealedVerse;
                 return Transform(
                   alignment: Alignment.center,
                   transform: Matrix4.identity()
                     ..setEntry(3, 2, 0.001)
                     ..rotateX((1 - _unfoldAnimation.value) * pi / 2),
-                  child: Opacity(opacity: _unfoldAnimation.value, child: child),
+                  child: Opacity(
+                    opacity: _unfoldAnimation.value,
+                    child: verso == null
+                        ? const SizedBox()
+                        : TarjetaVersiculo(
+                            referencia: verso.reference,
+                            texto: verso.verse,
+                            version: '',
+                          ),
+                  ),
                 );
               },
-              child: _revealedVerse == null
-                  ? const SizedBox()
-                  : TarjetaVersiculo(
-                      referencia: _revealedVerse!.reference,
-                      texto: _revealedVerse!.verse,
-                      version: '',
-                    ),
             ),
             const SizedBox(height: 36),
             if (_showVerse) ...[
@@ -911,6 +917,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
     return Semantics(
       button: true,
       label: texto,
+      onTap: onTap,
       excludeSemantics: true,
       child: GestureDetector(
         onTap: onTap,

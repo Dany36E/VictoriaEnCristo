@@ -217,6 +217,7 @@ class _DailyChecklistCardState extends State<DailyChecklistCard> {
                       button: true,
                       selected: done,
                       label: '$label ${done ? 'hecho' : 'pendiente'}',
+                      onTap: () => _handleTap(practice, onTap, done),
                       excludeSemantics: true,
                       child: GestureDetector(
                         behavior: HitTestBehavior.opaque,

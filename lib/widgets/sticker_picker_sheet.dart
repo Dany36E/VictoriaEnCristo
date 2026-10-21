@@ -397,6 +397,7 @@ class _StickerButton extends StatelessWidget {
         button: true,
         enabled: enabled,
         label: message.text,
+        onTap: enabled ? () { FeedbackEngine.I.select(); onTap(); } : null,
         excludeSemantics: true,
         child: GestureDetector(
           onTap: enabled ? () { FeedbackEngine.I.select(); onTap(); } : null,

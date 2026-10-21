@@ -284,6 +284,7 @@ class _EpisodeRow extends StatelessWidget {
         button: true,
         selected: active,
         label: 'Episodio ${episode.number}. ${episode.title}',
+        onTap: onTap,
         excludeSemantics: true,
         child: GestureDetector(
           onTap: onTap,
