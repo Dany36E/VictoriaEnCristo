@@ -13,6 +13,7 @@ import '../../services/favorites_service.dart';
 import '../../screens/profile_screen.dart';
 import '../../screens/favorites_screen.dart';
 import '../../screens/settings_screen.dart';
+import '../avatar_perfil.dart';
 
 class HomeHeader extends StatelessWidget {
   final VoidCallback? onThemeChanged;
@@ -61,17 +62,20 @@ class HomeHeader extends StatelessWidget {
                 width: 1.5,
               ),
             ),
-            child: Container(
-              width: 46,
-              height: 46,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: fg.withValues(alpha: 0.1),
-              ),
-              child: Icon(
-                isLoggedIn ? Icons.person : Icons.shield_outlined,
-                color: fg,
-                size: 24,
+            child: AvatarPerfilImagen(
+              tamano: 46,
+              respaldo: Container(
+                width: 46,
+                height: 46,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: fg.withValues(alpha: 0.1),
+                ),
+                child: Icon(
+                  isLoggedIn ? Icons.person : Icons.shield_outlined,
+                  color: fg,
+                  size: 24,
+                ),
               ),
             ),
           ),
@@ -206,9 +210,14 @@ class HomeHeader extends StatelessWidget {
               }
             },
             child: const PopIn(
-              child: AvatarVec(
-                ruta: 'assets/vec/personajes/timoteo_avatar.png',
+              child: AvatarPerfilImagen(
                 tamano: 56,
+                respaldo: CirculoIcono(
+                  icono: Icons.person_rounded,
+                  color: VecColores.cremaOscuro,
+                  colorIcono: VecColores.gris,
+                  tamano: 56,
+                ),
               ),
             ),
           ),

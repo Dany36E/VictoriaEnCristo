@@ -25,6 +25,7 @@ import 'screens/sacred_alarm_active_screen.dart';
 import 'screens/sacred_alarms_screen.dart';
 import 'navigation/app_navigation.dart';
 import 'services/theme_service.dart';
+import 'services/avatar_perfil_service.dart';
 import 'services/favorites_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/audio_engine.dart';
@@ -198,6 +199,7 @@ Future<StartupServices> _initializeStartupServices() async {
   await _timedStartup('Fase 1 servicios críticos', () async {
     await Future.wait([
       themeService.initialize(),
+      AvatarPerfilService.I.cargar(),
       onboardingService.init(),
       favoritesService.init(),
       audioEngine.init(),

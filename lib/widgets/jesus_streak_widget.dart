@@ -210,19 +210,19 @@ class JesusStreakWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL — tarjeta de papel con Timoteo/Victoria como guías
+  // TEMA PAPEL — tarjeta de papel con Jesús (túnica blanca y banda roja)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Pose del personaje según el estado del día.
+  /// Pose de Jesús según el estado del día.
   String get _personajePapel {
     const ruta = 'assets/vec/personajes';
-    if (isNewUser) return '$ruta/timoteo_saludo.png';
+    if (isNewUser) return '$ruta/jesus_saludo.webp';
     if (completedToday) {
       return victoryToday
-          ? '$ruta/victoria_corazon.png'
-          : '$ruta/victoria_ora.png';
+          ? '$ruta/jesus_brazos.webp'
+          : '$ruta/jesus_corazon.webp';
     }
-    return '$ruta/timoteo_presenta.png';
+    return '$ruta/jesus_presenta.webp';
   }
 
   Widget _buildPapel(BuildContext context) {

@@ -43,6 +43,7 @@ import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 import 'notification_service.dart';
+import 'avatar_perfil_service.dart';
 import '../utils/safe_log.dart';
 import 'exercise_log_service.dart';
 import 'fcm_service.dart';
@@ -386,6 +387,7 @@ class AccountSessionManager {
 
       // Keys de preferencias/progreso que ahora tienen sync propio.
       await UserPrefCloudSyncService.I.clearLocalCache();
+      await AvatarPerfilService.I.cargar();
       await LearningCloudSync.I.clearLocalCache();
       await prefs.remove('learning.talents.v1');
       await prefs.remove('learning.talents.ledger.v1');
@@ -449,6 +451,7 @@ class AccountSessionManager {
         await Future.wait([
           ThemeService().initialize(),
           NotificationService().reloadSettings(),
+          AvatarPerfilService.I.cargar(),
         ]);
         await Future.wait([
           PlansRepository.I.reloadActivePlanFromPrefs(),
@@ -501,6 +504,7 @@ class AccountSessionManager {
       await Future.wait([
         ThemeService().initialize(),
         NotificationService().reloadSettings(),
+        AvatarPerfilService.I.cargar(),
       ]);
       await Future.wait([
         PlansRepository.I.reloadActivePlanFromPrefs(),

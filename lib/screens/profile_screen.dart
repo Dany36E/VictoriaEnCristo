@@ -13,6 +13,9 @@ import '../services/user_pref_cloud_sync_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
+import '../widgets/avatar_perfil.dart';
 import '../widgets/theme_selector.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -197,8 +200,80 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
+  /// Avatar dibujado elegido (o la foto de la cuenta); al tocarlo se abre el
+  /// selector de avatares.
   Widget _buildAvatar(String? photoUrl) {
     final t = AppThemeData.of(context);
+    return Semantics(
+      button: true,
+      label: 'Cambiar avatar de perfil',
+      child: GestureDetector(
+        onTap: () => mostrarSelectorAvatar(context),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            AvatarPerfilImagen(
+              tamano: 88,
+              respaldo: _buildFotoCuenta(photoUrl),
+            ),
+            Positioned(
+              right: -4,
+              bottom: -2,
+              child: t.isPaper
+                  ? const CirculoIcono(
+                      icono: Icons.edit_rounded,
+                      tamano: 32,
+                      giro: -4,
+                    )
+                  : Container(
+                      width: 28,
+                      height: 28,
+                      decoration: BoxDecoration(
+                        color: t.accent,
+                        shape: BoxShape.circle,
+                        border: Border.all(color: t.pageBg, width: 2),
+                      ),
+                      child: Icon(
+                        Icons.edit_rounded,
+                        size: 14,
+                        color: t.isDark ? Colors.black : Colors.white,
+                      ),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFotoCuenta(String? photoUrl) {
+    final t = AppThemeData.of(context);
+    if (t.isPaper) {
+      const sinFoto = CirculoIcono(
+        icono: Icons.person_rounded,
+        color: VecColores.cremaOscuro,
+        colorIcono: VecColores.gris,
+        tamano: 88,
+      );
+      if (photoUrl == null) return sinFoto;
+      return Container(
+        width: 88,
+        height: 88,
+        decoration: const BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [BoxShadow(color: Color(0x402B2622), offset: Offset(0, 5))],
+        ),
+        child: ClipOval(
+          child: Image.network(
+            photoUrl,
+            semanticLabel: 'Foto de perfil',
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (c, e, s) => sinFoto,
+          ),
+        ),
+      );
+    }
     return Container(
       width: 88,
       height: 88,
@@ -246,16 +321,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Row(
       children: [
-        _buildStatChip('🔥', '$streak', 'Racha'),
+        _buildStatChip('🔥', 'sol', '$streak', 'Racha'),
         const SizedBox(width: 10),
-        _buildStatChip('🏆', '$victories', 'Victorias'),
+        _buildStatChip('🏆', 'escudo', '$victories', 'Victorias'),
         const SizedBox(width: 10),
-        _buildStatChip('📅', memberDate, 'Miembro'),
+        _buildStatChip('📅', 'reloj', memberDate, 'Miembro'),
       ],
     );
   }
 
-  Widget _buildStatChip(String emoji, String value, String label) {
+  /// [iconoPapel]: ícono del kit que sustituye al emoji en el tema papel.
+  Widget _buildStatChip(
+    String emoji,
+    String iconoPapel,
+    String value,
+    String label,
+  ) {
     final t = AppThemeData.of(context);
     return Expanded(
       child: Container(
@@ -268,7 +349,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Column(
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 20)),
+            t.isPaper
+                ? IconoVec(iconoPapel, color: VecColores.terracota, tamano: 24)
+                : Text(emoji, style: const TextStyle(fontSize: 20)),
             const SizedBox(height: 4),
             Text(
               value,
@@ -294,6 +377,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: t.cardDecoration,
       child: Column(
         children: [
+          _buildOptionTile(
+            icon: Icons.face_rounded,
+            title: 'Avatar de perfil',
+            subtitle: 'Elige entre 20 dibujos',
+            onTap: () => mostrarSelectorAvatar(context),
+          ),
+          Divider(height: 1, indent: 60, endIndent: 16, color: t.divider),
           _buildOptionTile(
             icon: Icons.cloud_upload_rounded,
             title: 'Sincronizar datos',
