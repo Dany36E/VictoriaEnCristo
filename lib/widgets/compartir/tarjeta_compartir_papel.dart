@@ -274,7 +274,7 @@ class _Contenido extends StatelessWidget {
         final tope = tamano * escala;
         final tamanoFinal = restricciones.hasBoundedHeight
             ? _tamanoQueCabe(base, ancho, restricciones.maxHeight, tope)
-            : tope;
+            : (tope * 4).floor() / 4;
         // Si aun con letra de 10 no cabe, se achica todo junto en vez de
         // cortarse.
         return FittedBox(

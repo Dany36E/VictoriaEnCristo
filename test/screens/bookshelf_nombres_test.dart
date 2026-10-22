@@ -80,13 +80,18 @@ void main() {
 
           // Las dos pestañas: el Nuevo Testamento tiene la palabra más
           // larga («Tesalonicenses»).
-          for (final pestana in ['Antiguo', 'Nuevo']) {
-            if (pestana == 'Nuevo') {
-              await tester.tap(find.textContaining('Nuevo Testamento'));
-              await tester.pump(const Duration(milliseconds: 600));
+          for (final (pestana, libros) in [
+            ('Antiguo', BookRepository.I.ot),
+            ('Nuevo', BookRepository.I.nt),
+          ]) {
+            // pumpWidget reusa el estado: se elige la pestaña siempre y se
+            // deja terminar la animación (varios cuadros).
+            await tester.tap(find.textContaining('$pestana Testamento'));
+            for (var i = 0; i < 8; i++) {
+              await tester.pump(const Duration(milliseconds: 100));
             }
             var revisados = 0;
-            for (final libro in BookRepository.I.all) {
+            for (final libro in libros) {
               final hallado = find.text(libro.name);
               if (hallado.evaluate().isEmpty) continue;
               revisados++;
@@ -110,7 +115,16 @@ void main() {
                 inicio += palabra.length + 1;
               }
             }
+            // Se ve la pestaña pedida (y no la otra a medio deslizar).
             expect(revisados, greaterThan(20), reason: '$pestana, $ancho px');
+            final otros = pestana == 'Antiguo'
+                ? BookRepository.I.nt
+                : BookRepository.I.ot;
+            expect(
+              otros.where((l) => find.text(l.name).evaluate().isNotEmpty),
+              isEmpty,
+              reason: 'se ven libros de la otra pestaña ($pestana, $ancho px)',
+            );
           }
         }
 

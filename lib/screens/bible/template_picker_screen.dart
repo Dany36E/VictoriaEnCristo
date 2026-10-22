@@ -130,20 +130,29 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     top: Radius.circular(20),
                   ),
                 ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const SizedBox(height: 12),
-                      // Template selector (horizontal scroll)
-                      _buildTemplateSelector(t),
-                      // Expandable customization
-                      _buildCustomPanel(t),
-                      // Action buttons
-                      _buildActionButtons(t),
-                      const SizedBox(height: 8),
-                    ],
-                  ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Lo de arriba se desplaza; «Guardar» y «Compartir»
+                    // quedan siempre a la vista.
+                    Flexible(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 12),
+                            // Template selector (horizontal scroll)
+                            _buildTemplateSelector(t),
+                            // Expandable customization
+                            _buildCustomPanel(t),
+                          ],
+                        ),
+                      ),
+                    ),
+                    // Action buttons
+                    _buildActionButtons(t),
+                    const SizedBox(height: 8),
+                  ],
                 ),
               ),
             ),
@@ -377,7 +386,8 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 // versículos largos ya la llena y el control no la cambia.
                 if (_papelSeleccionado)
                   Text(
-                    'La letra crece hasta llenar la tarjeta.',
+                    'Con versículos largos, la letra no pasa del tamaño '
+                    'que llena la tarjeta.',
                     style: AppFonts.manrope(
                       color: t.textoTenue(0.5),
                       fontSize: 11,
@@ -388,14 +398,19 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
 
                 // Aspect ratio selector
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'PROPORCIÓN',
-                      style: AppFonts.manrope(
-                        color: t.textoTenue(0.4),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
+                    // A la altura de la primera fila de controles (48).
+                    Padding(
+                      padding: const EdgeInsets.only(top: 17),
+                      child: Text(
+                        'PROPORCIÓN',
+                        style: AppFonts.manrope(
+                          color: t.textoTenue(0.4),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -415,14 +430,19 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
 
                 // Alineación (cada ícono ocupa 48: ya quedan separados).
                 Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ALINEACIÓN',
-                      style: AppFonts.manrope(
-                        color: t.textoTenue(0.4),
-                        fontSize: 10,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5,
+                    // A la altura de la primera fila de controles (48).
+                    Padding(
+                      padding: const EdgeInsets.only(top: 17),
+                      child: Text(
+                        'ALINEACIÓN',
+                        style: AppFonts.manrope(
+                          color: t.textoTenue(0.4),
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.5,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),
