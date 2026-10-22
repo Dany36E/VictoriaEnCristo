@@ -14,6 +14,10 @@ enum PersonajeCompartir {
   const PersonajeCompartir(this.ruta, this.color);
   final String ruta;
   final Color color;
+
+  /// Quién presenta cada plantilla de papel de la Biblia.
+  static PersonajeCompartir dePlantilla(String idPlantilla) =>
+      idPlantilla == 'papel_timoteo' ? timoteo : victoria;
 }
 
 /// Imagen para compartir un versículo con el estilo «papel recortado»: hoja
@@ -74,9 +78,13 @@ class TarjetaCompartirPapel extends StatelessWidget {
   Widget build(BuildContext context) {
     final alto = _alto;
     final vertical = proporcion < 0.95;
-    // El personaje crece con el lienzo, sin tapar la tarjeta.
+    // El personaje crece con el lienzo. La tarjeta termina arriba de su
+    // cabeza (se asoma un 8 % por abajo) para que nunca tape el texto.
     final altoPersonaje = vertical ? math.min(alto * 0.36, 230.0) : 128.0;
-    final abajoTarjeta = mostrarMarca || pie != null ? 70.0 : 40.0;
+    final abajoTarjeta = math.max(
+      mostrarMarca || pie != null ? 70.0 : 40.0,
+      altoPersonaje * 0.92 + 6,
+    );
     final arribaTarjeta = etiqueta != null ? 58.0 : 34.0;
 
     return MediaQuery(
@@ -100,7 +108,7 @@ class TarjetaCompartirPapel extends StatelessWidget {
                 left: 22,
                 right: 22,
                 top: arribaTarjeta,
-                bottom: abajoTarjeta + (vertical ? altoPersonaje * 0.45 : 0),
+                bottom: abajoTarjeta,
                 child: Center(
                   child: TarjetaPapel(
                     giro: -1.2,
@@ -166,64 +174,99 @@ class _Contenido extends StatelessWidget {
     _ => CrossAxisAlignment.center,
   };
 
+  TextStyle get _comillas => TextStyle(
+    fontFamily: VecFuentes.titulo,
+    fontSize: 46,
+    height: 0.8,
+    color: color.withValues(alpha: 0.85),
+  );
+
+  TextStyle _estiloTexto(double tamano) => TextStyle(
+    fontFamily: VecFuentes.texto,
+    fontSize: tamano,
+    height: 1.28,
+    color: VecColores.tinta,
+  );
+
+  TextSpan get _referencia => TextSpan(
+    children: [
+      TextSpan(
+        text: referencia,
+        style: TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 20,
+          color: color,
+        ),
+      ),
+      if (version.isNotEmpty)
+        TextSpan(
+          text: '  $version',
+          style: const TextStyle(
+            fontFamily: VecFuentes.titulo,
+            fontSize: 13,
+            color: VecColores.gris,
+          ),
+        ),
+    ],
+  );
+
+  static const _separacion = 14.0;
+
+  double _altoDe(InlineSpan texto, double ancho) {
+    final pintor = TextPainter(
+      text: texto,
+      textAlign: alineacion,
+      textDirection: TextDirection.ltr,
+    )..layout(maxWidth: ancho);
+    final alto = pintor.height;
+    pintor.dispose();
+    return alto;
+  }
+
+  /// La letra más grande, hasta [tamano], con la que todo cabe en [alto]
+  /// usando el ancho completo. Así un versículo largo se acomoda en más
+  /// renglones a lo ancho, en vez de achicarse la tarjeta entera (con la
+  /// referencia) y dejar márgenes vacíos.
+  double _tamanoQueCabe(double ancho, double alto) {
+    final fijo =
+        _altoDe(TextSpan(text: '“', style: _comillas), ancho) +
+        _separacion +
+        _altoDe(_referencia, ancho);
+    var t = tamano;
+    while (t > 10 &&
+        fijo + _altoDe(TextSpan(text: texto, style: _estiloTexto(t)), ancho) >
+            alto) {
+      t -= 0.5;
+    }
+    return t;
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, restricciones) {
-        // Ancho fijo para que el texto se acomode en renglones y, si aun así
-        // no cabe, se achique todo junto en vez de cortarse.
+        final ancho = restricciones.maxWidth;
+        final tamanoFinal = restricciones.hasBoundedHeight
+            ? _tamanoQueCabe(ancho, restricciones.maxHeight)
+            : tamano;
+        // Si aun con la letra más chica no cabe, se achica todo junto en vez
+        // de cortarse.
         return FittedBox(
           fit: BoxFit.scaleDown,
           child: SizedBox(
-            width: restricciones.maxWidth,
+            width: ancho,
             child: Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: _cruce,
               children: [
-                Text(
-                  '“',
-                  style: TextStyle(
-                    fontFamily: VecFuentes.titulo,
-                    fontSize: 46,
-                    height: 0.8,
-                    color: color.withValues(alpha: 0.85),
-                  ),
-                ),
+                Text('“', style: _comillas),
                 Text(
                   texto,
                   textAlign: alineacion,
-                  style: TextStyle(
-                    fontFamily: VecFuentes.texto,
-                    fontSize: tamano,
-                    height: 1.28,
-                    color: VecColores.tinta,
-                  ),
+                  style: _estiloTexto(tamanoFinal),
                 ),
-                const SizedBox(height: 14),
-                Text.rich(
-                  TextSpan(
-                    children: [
-                      TextSpan(
-                        text: referencia,
-                        style: TextStyle(
-                          fontFamily: VecFuentes.titulo,
-                          fontSize: 20,
-                          color: color,
-                        ),
-                      ),
-                      if (version.isNotEmpty)
-                        TextSpan(
-                          text: '  $version',
-                          style: const TextStyle(
-                            fontFamily: VecFuentes.titulo,
-                            fontSize: 13,
-                            color: VecColores.gris,
-                          ),
-                        ),
-                    ],
-                  ),
-                  textAlign: alineacion,
-                ),
+                const SizedBox(height: _separacion),
+                Text.rich(_referencia, textAlign: alineacion),
               ],
             ),
           ),

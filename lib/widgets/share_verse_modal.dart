@@ -271,7 +271,8 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  color: VecColores.cremaOscuro,
+                  // Kraft: el crema oscuro casi no se veía sobre la hoja.
+                  color: VecColores.kraft,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),
@@ -342,15 +343,23 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
               ),
               const SizedBox(height: 18),
               // Se captura dentro del FittedBox: la imagen sale de 1080 px
-              // de ancho aunque la vista previa sea más chica.
-              FittedBox(
-                child: RepaintBoundary(
-                  key: _quoteCardKey,
-                  child: TarjetaCompartirPapel(
-                    texto: widget.verse.verse,
-                    referencia: widget.verse.reference,
-                    etiqueta: 'Versículo',
-                    proporcion: proporcion,
+              // de ancho aunque la vista previa sea más chica. El borde de
+              // lápiz y la sombra marcan dónde termina la imagen sobre la
+              // hoja (no salen en ella).
+              Container(
+                decoration: const BoxDecoration(boxShadow: VecSombras.papel),
+                foregroundDecoration: BoxDecoration(
+                  border: Border.all(color: VecColores.lapiz, width: 1.5),
+                ),
+                child: FittedBox(
+                  child: RepaintBoundary(
+                    key: _quoteCardKey,
+                    child: TarjetaCompartirPapel(
+                      texto: widget.verse.verse,
+                      referencia: widget.verse.reference,
+                      etiqueta: 'Versículo',
+                      proporcion: proporcion,
+                    ),
                   ),
                 ),
               ),

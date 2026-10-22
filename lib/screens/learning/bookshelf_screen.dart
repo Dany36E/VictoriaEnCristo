@@ -202,6 +202,23 @@ class _BookSpine extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Cuánto achicar la letra para que la palabra más larga del nombre quepa
+  /// en un renglón (si no, «Deuteronomio» se partía en «Deuterono / mio»).
+  double _escalaSinPartir(BuildContext context, TextStyle estilo, double ancho) {
+    final palabra = book.name
+        .split(' ')
+        .reduce((a, b) => a.length >= b.length ? a : b);
+    final medida = TextPainter(
+      text: TextSpan(text: palabra, style: estilo),
+      textDirection: TextDirection.ltr,
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final escala = medida.width > ancho ? ancho / medida.width : 1.0;
+    medida.dispose();
+    return escala;
+  }
+
   /// Tono claro del lomo de los libros estudiados (el peor caso para texto
   /// claro sobre el degradado café).
   static const _lomoClaro = Color(0xFF6B4E20);
@@ -257,12 +274,28 @@ class _BookSpine extends StatelessWidget {
             const SizedBox(height: 6),
             Expanded(
               child: Center(
-                child: Text(
-                  book.name,
-                  textAlign: TextAlign.center,
-                  style: AppDesignSystem.headlineSmall(context, color: titulo),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: LayoutBuilder(
+                  builder: (context, restricciones) {
+                    final estilo = AppDesignSystem.headlineSmall(
+                      context,
+                      color: titulo,
+                    );
+                    return Text(
+                      book.name,
+                      textAlign: TextAlign.center,
+                      style: estilo.copyWith(
+                        fontSize:
+                            (estilo.fontSize ?? 16) *
+                            _escalaSinPartir(
+                              context,
+                              estilo,
+                              restricciones.maxWidth,
+                            ),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  },
                 ),
               ),
             ),

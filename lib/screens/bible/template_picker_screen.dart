@@ -11,7 +11,9 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/share_cache_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../theme/contraste.dart';
+import '../../vec/vec_tema.dart';
 import '../../widgets/bible/share_card_renderer.dart';
+import '../../widgets/compartir/tarjeta_compartir_papel.dart';
 
 /// Pantalla rediseñada para compartir versículos como imagen premium.
 /// Preview grande arriba + selector horizontal de plantillas + personalización.
@@ -54,6 +56,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         BibleReaderThemeData.paper.id,
   );
   ShareCardTemplate get _template => _plantillas[_selectedIndex];
+  bool get _papelSeleccionado => _template.layout == ShareLayout.papel;
   Size get _cardSize =>
       Size(_aspects[_aspectIndex].w, _aspects[_aspectIndex].h);
 
@@ -78,19 +81,34 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
               child: Center(
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: RepaintBoundary(
-                      key: _repaintKey,
-                      child: ShareCardRenderer(
-                        template: _template,
-                        verseText: widget.verse.text,
-                        reference: widget.verse.reference,
-                        version: widget.verse.version,
-                        customFontSize: _fontSize,
-                        showLogo: _showLogo,
-                        textAlign: _textAlign,
-                        cardSize: _cardSize,
+                  // En papel la imagen es papel sobre papel: un borde de lápiz
+                  // y su sombra marcan dónde termina (no salen en la imagen).
+                  child: Container(
+                    decoration: _papelSeleccionado
+                        ? const BoxDecoration(boxShadow: VecSombras.papel)
+                        : null,
+                    foregroundDecoration: _papelSeleccionado
+                        ? BoxDecoration(
+                            border: Border.all(
+                              color: VecColores.lapiz,
+                              width: 1.5,
+                            ),
+                          )
+                        : null,
+                    child: FittedBox(
+                      fit: BoxFit.contain,
+                      child: RepaintBoundary(
+                        key: _repaintKey,
+                        child: ShareCardRenderer(
+                          template: _template,
+                          verseText: widget.verse.text,
+                          reference: widget.verse.reference,
+                          version: widget.verse.version,
+                          customFontSize: _fontSize,
+                          showLogo: _showLogo,
+                          textAlign: _textAlign,
+                          cardSize: _cardSize,
+                        ),
                       ),
                     ),
                   ),
@@ -182,7 +200,22 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
-                    if (tmpl.backgroundAsset != null)
+                    // Papel: la tarjeta en miniatura, con su personaje (la
+                    // textura sola no dejaba ver la diferencia).
+                    if (tmpl.layout == ShareLayout.papel)
+                      ExcludeSemantics(
+                        child: FittedBox(
+                          fit: BoxFit.cover,
+                          child: TarjetaCompartirPapel(
+                            texto: widget.verse.text,
+                            referencia: widget.verse.reference,
+                            proporcion: 0.8,
+                            personaje: PersonajeCompartir.dePlantilla(tmpl.id),
+                            mostrarMarca: false,
+                          ),
+                        ),
+                      )
+                    else if (tmpl.backgroundAsset != null)
                       Image.asset(
                         tmpl.backgroundAsset!,
                         excludeFromSemantics: true,
@@ -501,14 +534,21 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                         ),
                       )
                     : const Icon(Icons.share, size: 18),
-                label: Text(
-                  'Compartir',
-                  style: AppFonts.manrope(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14,
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Compartir',
+                    maxLines: 1,
+                    style: AppFonts.manrope(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                    ),
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
+                  // Sin el relleno vertical del tema (16): en 46 de alto
+                  // recortaba el texto por abajo.
+                  padding: const EdgeInsets.symmetric(horizontal: 12),
                   // Acento ajustado para que el texto del color del fondo
                   // se lea encima.
                   backgroundColor: legibleSobre(t.accent, t.background),

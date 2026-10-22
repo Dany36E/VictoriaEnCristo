@@ -4,8 +4,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../theme/app_theme_data.dart';
-import '../theme_service.dart';
+import '../../theme/bible_reader_theme.dart';
+import 'bible_user_data_service.dart';
 
 /// Paleta y letras de los PDF de Apuntes y de Estudio.
 ///
@@ -32,9 +32,18 @@ class EstiloPdf {
     required this.bordeTarjeta,
     required this.fondoDestacado,
     required this.bordeDestacado,
+    this.ascensoMano = 0,
+    this.altoMano = 0,
   });
 
   final bool papel;
+
+  /// Medidas de la letra a mano en fracciones de su tamaño, como las usa el
+  /// paquete pdf: de arriba de la línea a la base ([ascensoMano]) y alto de
+  /// cada línea sin el interlineado ([altoMano]). Sirven para que los
+  /// renglones de la hoja rayada caigan bajo cada línea escrita.
+  final double ascensoMano;
+  final double altoMano;
 
   /// Letras del cuerpo (regular, negrita y cursiva).
   final pw.ThemeData tema;
@@ -80,9 +89,15 @@ class EstiloPdf {
   /// Fondo de la hoja en el tema papel (crema del kit).
   static const fondoPagina = _crema;
 
-  /// ¿El tema activo de la app es papel?
+  /// ¿El tema de lectura de la Biblia es papel? Apuntes y Estudio son
+  /// pantallas de la Biblia: el PDF sale con el mismo tema que se ve en ellas
+  /// (igual que las imágenes para compartir de la Biblia), aunque la Biblia
+  /// tenga un tema distinto al de la app.
   static bool get temaPapelActivo =>
-      ThemeService().themeId == AppThemeData.paper.id;
+      BibleReaderThemeData.migrateId(
+        BibleUserDataService.I.readerThemeNotifier.value,
+      ) ==
+      BibleReaderThemeData.paper.id;
 
   /// Carga las letras del estilo que corresponde al tema activo.
   static Future<EstiloPdf> cargar({bool? papel}) async {
@@ -116,6 +131,10 @@ class EstiloPdf {
       );
     }
 
+    final datosMano = await rootBundle.load(
+      'assets/vec/fuentes/CaveatBrush-Regular.ttf',
+    );
+    final medidasMano = TtfParser(datosMano);
     // Cuerpo en Lato: es la única con negrita y cursiva de verdad (los
     // Lora-*.ttf del proyecto son la fuente variable y el PDF solo usa su
     // peso normal). Los versículos van en Lora, como en la Biblia de la app.
@@ -127,7 +146,10 @@ class EstiloPdf {
         italic: await fuente('google_fonts/Lato-Italic.ttf'),
       ),
       titulo: await fuente('assets/vec/fuentes/LilitaOne-Regular.ttf'),
-      mano: await fuente('assets/vec/fuentes/CaveatBrush-Regular.ttf'),
+      mano: pw.Font.ttf(datosMano),
+      ascensoMano: medidasMano.ascent / medidasMano.unitsPerEm,
+      altoMano:
+          (medidasMano.ascent - medidasMano.descent) / medidasMano.unitsPerEm,
       lectura: await fuente('google_fonts/Lora-Regular.ttf'),
       lecturaCursiva: await fuente('google_fonts/Lora-Italic.ttf'),
       acento: _terracota,
@@ -340,10 +362,18 @@ class EstiloPdf {
     );
   }
 
-  /// Hasta este largo una nota cabe con holgura en una página y puede ir en
-  /// una sola pieza (renglones, título pegado). Más larga tiene que poder
-  /// partirse entre páginas.
-  static const largoEnUnaPieza = 900;
+  /// Si [texto] cabe con holgura en una página y puede ir en una sola pieza
+  /// (renglones, título pegado). Si no, tiene que poder partirse entre
+  /// páginas. Se cuentan las líneas a lo mucho 45 caracteres cada una, de
+  /// más para que nunca se quede corto: 18 líneas de nota a mano miden unos
+  /// 450 pt de los ~760 de la página.
+  static bool cabeEnUnaPieza(String texto) {
+    var lineas = 0;
+    for (final parrafo in texto.split('\n')) {
+      lineas += math.max(1, (parrafo.length / 45).ceil());
+    }
+    return lineas <= 18;
+  }
 
   /// Nota a mano sobre hoja rayada (estilo HojaRayada del kit) para la
   /// reflexión final; en el clásico, recuadro dorado en negrita.
@@ -369,35 +399,40 @@ class EstiloPdf {
         ),
       );
     }
-    const renglon = 22.0;
+    const tamano = 15.0;
+    const interlineado = 6.0;
     final letra = pw.Text(
       texto,
       style: pw.TextStyle(
         font: mano,
-        fontSize: 15,
-        lineSpacing: renglon - 15,
+        fontSize: tamano,
+        lineSpacing: interlineado,
         color: _noche,
       ),
       overflow: pw.TextOverflow.span,
     );
     const relleno = pw.EdgeInsets.fromLTRB(16, 8, 16, 10);
     // Los renglones van en un Stack, que no se parte entre páginas.
-    if (texto.length > largoEnUnaPieza) {
+    if (!cabeEnUnaPieza(texto)) {
       return tarjeta(padding: relleno, child: letra);
     }
+    // Cada línea escrita baja su alto más el interlineado; el renglón va un
+    // poco debajo de la base de cada una.
+    final avance = altoMano * tamano + interlineado;
+    final primeraBase = ascensoMano * tamano + 2;
     return tarjeta(
       padding: relleno,
       child: pw.Stack(
         children: [
           pw.Positioned.fill(
             child: pw.CustomPaint(
-              // En el PDF la y crece hacia arriba: un renglón bajo cada línea
-              // de texto, de arriba hacia abajo.
+              // En el PDF la y crece hacia arriba: se mide desde arriba y se
+              // voltea.
               painter: (canvas, size) {
                 canvas.setStrokeColor(const PdfColor.fromInt(0xFFC9D2E3));
                 canvas.setLineWidth(0.8);
-                for (var y = size.y - renglon + 4; y > -1; y -= renglon) {
-                  canvas.drawLine(0, y, size.x, y);
+                for (var y = primeraBase; y < size.y; y += avance) {
+                  canvas.drawLine(0, size.y - y, size.x, size.y - y);
                 }
                 canvas.strokePath();
               },

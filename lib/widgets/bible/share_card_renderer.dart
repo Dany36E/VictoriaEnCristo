@@ -114,9 +114,7 @@ class ShareCardRenderer extends StatelessWidget {
           referencia: reference,
           version: version,
           proporcion: cardSize.width / cardSize.height,
-          personaje: template.id == 'papel_timoteo'
-              ? PersonajeCompartir.timoteo
-              : PersonajeCompartir.victoria,
+          personaje: PersonajeCompartir.dePlantilla(template.id),
           mostrarMarca: showLogo,
           alineacion: textAlign,
           // El control de tamaño de la pantalla parte de 34.

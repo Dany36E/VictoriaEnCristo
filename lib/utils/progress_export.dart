@@ -28,8 +28,9 @@ class ProgressExport {
       if (boundary == null) return;
 
       final captura = await boundary.toImage(pixelRatio: _escala);
-      final image = await _conFondo(captura, tema);
+      final image = await conFondo(captura, tema);
       final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      image.dispose();
       if (byteData == null) return;
 
       final dir = await getTemporaryDirectory();
@@ -51,8 +52,10 @@ class ProgressExport {
 
   /// El fondo de la página está fuera de la captura (el widget es
   /// transparente): se pinta debajo para que la imagen no salga negra. En el
-  /// tema papel es la hoja con textura, igual que FondoPapel.
-  static Future<ui.Image> _conFondo(ui.Image captura, AppThemeData tema) async {
+  /// tema papel es la hoja con textura, igual que FondoPapel. Libera
+  /// [captura].
+  @visibleForTesting
+  static Future<ui.Image> conFondo(ui.Image captura, AppThemeData tema) async {
     final grabadora = ui.PictureRecorder();
     final lienzo = Canvas(grabadora);
     final rect =
@@ -61,12 +64,14 @@ class ProgressExport {
       rect,
       Paint()..color = tema.isPaper ? VecColores.crema : tema.scaffoldBg,
     );
+    ui.Image? textura;
     if (tema.isPaper) {
       final datos = await rootBundle.load(
         'assets/vec/texturas/papel_tile_512.png',
       );
       final codec = await ui.instantiateImageCodec(datos.buffer.asUint8List());
-      final textura = (await codec.getNextFrame()).image;
+      textura = (await codec.getNextFrame()).image;
+      codec.dispose();
       // FondoPapel la repite a escala 2 (256 lógicos) y a media opacidad.
       final ajuste = Matrix4.diagonal3Values(_escala / 2, _escala / 2, 1);
       lienzo.drawRect(
@@ -82,6 +87,12 @@ class ProgressExport {
       );
     }
     lienzo.drawImage(captura, Offset.zero, Paint());
-    return grabadora.endRecording().toImage(captura.width, captura.height);
+    final dibujo = grabadora.endRecording();
+    final resultado = await dibujo.toImage(captura.width, captura.height);
+    // Se liberan después de dibujar: el shader todavía usa la textura.
+    dibujo.dispose();
+    textura?.dispose();
+    captura.dispose();
+    return resultado;
   }
 }

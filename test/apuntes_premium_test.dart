@@ -10,6 +10,10 @@ import 'package:app_quitar/models/bible/sermon_note.dart';
 import 'package:app_quitar/services/bible/sermon_note_export_service.dart';
 import 'package:app_quitar/utils/tinta.dart';
 import 'package:app_quitar/widgets/bible/sermon/lienzo/edicion_trazos.dart';
+import 'package:firebase_core/firebase_core.dart';
+// Firebase simulado: el estilo del PDF lee el tema de la Biblia.
+// ignore: depend_on_referenced_packages
+import 'package:firebase_core_platform_interface/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
@@ -26,6 +30,9 @@ Trazo _trazo(List<PuntoTinta> puntos) => Trazo(
 );
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+  setupFirebaseCoreMocks();
+  setUpAll(() async => Firebase.initializeApp());
   group('tinta', () {
     test('un trazo con presión da un contorno cerrado', () {
       final contorno = contornoTinta(

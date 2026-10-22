@@ -3,6 +3,8 @@
 import 'package:app_quitar/data/bible_verses.dart' as frasco;
 import 'package:app_quitar/models/bible/bible_verse.dart';
 import 'package:app_quitar/models/bible/bible_version.dart';
+import 'package:app_quitar/services/learning/book_progress_service.dart';
+import 'package:app_quitar/services/learning/book_repository.dart';
 import 'package:app_quitar/screens/battle_partner/add_partner_screen.dart';
 import 'package:app_quitar/screens/bible/all_chapter_notes_screen.dart';
 import 'package:app_quitar/screens/bible/all_notes_screen.dart';
@@ -63,6 +65,7 @@ import 'package:app_quitar/widgets/share_verse_modal.dart';
 import 'package:app_quitar/screens/settings_screen.dart';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 import 'theme_matrix.dart';
 
@@ -76,6 +79,16 @@ import 'theme_matrix.dart';
 //   de dibujarse: en la prueba se quedan en el indicador de carga.
 void main() {
   setUpThemeMatrix();
+  // Biblioteca: en la app los libros se cargan al abrirla (LearningRegistry).
+  // Dos quedan estudiados para medir también el lomo café.
+  setUpAll(() async {
+    await BookRepository.I.load();
+    final libros = BookRepository.I.all;
+    BookProgressService.I.stateNotifier.value = BookProgressState(
+      studied: {libros[0].id, libros[1].id},
+      bestScores: {libros[0].id: 3},
+    );
+  });
   themeMatrix('add_partner', () => const AddPartnerScreen());
   themeMatrix('all_chapter_notes', () => const AllChapterNotesScreen());
   themeMatrix('all_notes', () => const AllNotesScreen());

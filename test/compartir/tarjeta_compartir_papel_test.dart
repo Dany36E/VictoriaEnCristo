@@ -45,6 +45,11 @@ Future<void> _capturar(
   });
   await tester.pump();
   expect(tester.takeException(), isNull);
+  // El personaje se asoma abajo de la tarjeta, sin taparla (con un margen
+  // por el giro de la tarjeta).
+  final tarjetaPapel = tester.getRect(find.byType(TarjetaPapel));
+  final personaje = tester.getRect(find.byType(Image));
+  expect(tarjetaPapel.bottom, lessThanOrEqualTo(personaje.top + 4));
   await tester.runAsync(() async {
     final limite =
         llave.currentContext!.findRenderObject()! as RenderRepaintBoundary;
@@ -98,6 +103,19 @@ void main() {
         etiqueta: 'Devocional',
         pie: 'La Chequera del Banco de la Fe',
         proporcion: 9 / 16,
+      ),
+    );
+    // Cuadrada (la de la pantalla de plantillas), texto largo a la derecha y
+    // letra grande: el personaje no tapa la versión y la letra se ajusta.
+    await _capturar(
+      tester,
+      'cuadrada_larga_derecha',
+      const TarjetaCompartirPapel(
+        texto: _largo,
+        referencia: '1 Corintios 10:13',
+        version: 'RVR1960',
+        alineacion: TextAlign.right,
+        tamanoTexto: 30,
       ),
     );
     expect(find.byType(FondoPapel), findsNothing);

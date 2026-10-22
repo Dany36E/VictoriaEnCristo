@@ -120,8 +120,7 @@ class SermonNoteExportService {
             note.takeaway.trim().isEmpty
                 ? _emptyText('Sin reflexión final registrada.')
                 : _takeawayBlock(note.takeaway.trim()),
-            enUnaPieza:
-                note.takeaway.trim().length <= EstiloPdf.largoEnUnaPieza,
+            enUnaPieza: EstiloPdf.cabeEnUnaPieza(note.takeaway.trim()),
           ),
         ],
       ),

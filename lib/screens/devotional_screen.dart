@@ -300,6 +300,10 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
       );
     } catch (e) {
       debugPrint('📖 [DEVOC] Error sharing image: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo crear la imagen.')),
+      );
     }
   }
 
@@ -440,36 +444,46 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                     theme: t,
                     onClose: () => setState(() => _showTypography = false),
                   ),
-                // Widget oculto para captura de imagen — Opacity(0) lo pinta
-                // en memoria sin mostrarlo; IgnorePointer evita interacciones.
+                // Tarjeta para capturar como imagen: fuera de la pantalla pero
+                // pintada (con Opacity(0) Flutter no la pinta y toImage
+                // falla), sin toques ni lector de pantalla.
                 if (_entry != null)
-                  IgnorePointer(
-                    child: Opacity(
-                      opacity: 0.0,
-                      // Tema papel: la tarjeta de papel recortado, siempre a
-                      // 360 de ancho (sale de 1080 px al capturarla a 3x).
-                      child: t.id == BibleReaderThemeData.paper.id
-                          ? OverflowBox(
-                              alignment: Alignment.topLeft,
-                              maxWidth: TarjetaCompartirPapel.ancho,
-                              child: RepaintBoundary(
-                                key: _shareKey,
-                                child: TarjetaCompartirPapel(
-                                  texto: _entry!.verse,
-                                  referencia: _entry!.verseReference,
-                                  etiqueta: 'Devocional',
-                                  pie: 'La Chequera del Banco de la Fe',
-                                  proporcion: 0.8,
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: ExcludeSemantics(
+                        child: Transform.translate(
+                          offset: const Offset(-100000, 0),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            // Tema papel: la tarjeta de papel recortado,
+                            // siempre a 360×450 (sale de 1080 px a 3x),
+                            // aunque la pantalla sea más chica.
+                            child: t.id == BibleReaderThemeData.paper.id
+                              ? OverflowBox(
+                                  alignment: Alignment.topLeft,
+                                  maxWidth: TarjetaCompartirPapel.ancho,
+                                  maxHeight: double.infinity,
+                                  child: RepaintBoundary(
+                                    key: _shareKey,
+                                    child: TarjetaCompartirPapel(
+                                      texto: _entry!.verse,
+                                      referencia: _entry!.verseReference,
+                                      etiqueta: 'Devocional',
+                                      pie: 'La Chequera del Banco de la Fe',
+                                      proporcion: 0.8,
+                                    ),
+                                  ),
+                                )
+                              : RepaintBoundary(
+                                  key: _shareKey,
+                                  child: _DevotionalShareCard(
+                                    entry: _entry!,
+                                    theme: t,
+                                  ),
                                 ),
-                              ),
-                            )
-                          : RepaintBoundary(
-                              key: _shareKey,
-                              child: _DevotionalShareCard(
-                                entry: _entry!,
-                                theme: t,
-                              ),
-                            ),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
               ],
