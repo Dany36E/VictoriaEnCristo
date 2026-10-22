@@ -40,7 +40,11 @@ Este documento separa las tareas que requieren decisiones, datos o cuentas del t
 
 ## 4. Google Play Console
 
-1. Compilar el AAB de la versión que diga `pubspec.yaml` (hoy `1.0.30+40`; el de `1.0.29+39` de arriba ya no es el último) en la computadora que tiene la llave de firma: `flutter build appbundle --release` deja `build/app/outputs/bundle/release/app-release.aab`. Comprobar que esté firmado con `jarsigner -verify` y que diga `versionCode 40`.
+1. Compilar el AAB de la versión que diga `pubspec.yaml` (hoy `1.0.30+40`; el de `1.0.29+39` de arriba ya no es el último) en la computadora que tiene `android/key.properties` (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`; `storeFile` se resuelve desde `android/`) y el keystore de subida. Sin ese archivo el build de release se detiene.
+   - `flutter build appbundle --release` deja `build/app/outputs/bundle/release/app-release.aab`.
+   - Versión: `bundletool dump manifest --bundle=build/app/outputs/bundle/release/app-release.aab --xpath=/manifest/@android:versionCode` debe decir `40` (y `.../@android:versionName`, `1.0.30`). `bundletool validate --bundle=...` sin errores.
+   - Firma: `jarsigner -verify -verbose -certs build/app/outputs/bundle/release/app-release.aab` debe mostrar el certificado de subida, no `CN=Android Debug`.
+   - Guardar una copia como `dist/VictoriaEnCristo-1.0.30+40.aab` y anotar su SHA-256 en «Entregables técnicos verificados».
 2. Crear la versión de producción y cargar ese AAB.
 3. Completar **Seguridad de los datos** usando `google_play_submission.md`; declarar cuenta, contenido del usuario, identificadores, actividad, diagnósticos y datos sensibles voluntarios según el comportamiento final.
 4. Declarar la eliminación de cuenta y colocar `https://victoria-en-cristo.web.app/data_deletion.html`.
