@@ -737,7 +737,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         accent: t.accent,
         textPrimary: t.textPrimary,
         textSecondary: t.textSecondary,
-        isDark: t.isDark,
+        isDark: t.oscuro,
       ),
     );
     if (mounted) setState(() {});
