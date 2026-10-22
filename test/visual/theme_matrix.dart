@@ -85,7 +85,16 @@ void setUpThemeMatrix() {
 /// `test/visual/problemas_conocidos/<nombre>.txt` y no hacen fallar la prueba;
 /// cualquier problema nuevo sí. Al corregir uno, regenera la lista con
 /// `ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/`.
-void themeMatrix(String nombre, Widget Function() pantalla) {
+///
+/// [contenidoDelDia]: la pantalla muestra textos que cambian con la fecha
+/// (versículo o devocional del día). En la lista de conocidos sus textos
+/// con poco contraste se guardan por su orden en la pantalla, no por lo que
+/// dicen, para que la prueba no falle solo porque cambió el día.
+void themeMatrix(
+  String nombre,
+  Widget Function() pantalla, {
+  bool contenidoDelDia = false,
+}) {
   final archivo = File('test/visual/problemas_conocidos/$nombre.txt');
   final conocidos = archivo.existsSync()
       ? archivo
@@ -96,9 +105,13 @@ void themeMatrix(String nombre, Widget Function() pantalla) {
   final actualizar =
       Platform.environment['ACTUALIZAR_PROBLEMAS_CONOCIDOS'] == '1';
   final encontrados = <String>[];
+  var temasRevisados = 0;
 
   if (actualizar) {
     tearDownAll(() {
+      // Con un filtro (--plain-name) no corren todos los temas: no tocar la
+      // lista, o se perderían los problemas de los temas que no se vieron.
+      if (temasRevisados != AppThemeData.all.length) return;
       if (encontrados.isEmpty) {
         if (archivo.existsSync()) archivo.deleteSync();
         return;
@@ -165,17 +178,24 @@ void themeMatrix(String nombre, Widget Function() pantalla) {
         }.map((p) => '${theme.id}: ${p.replaceAll('\n', ' ')}').toList();
         imagen.dispose();
 
+        var n = 0;
+        final claves = [
+          for (final p in problemas)
+            contenidoDelDia && p.contains('" contraste ')
+                ? _clave(p).replaceFirst(RegExp(r'"[^"]*"'), '"texto #${++n}"')
+                : _clave(p),
+        ];
         if (actualizar) {
-          encontrados.addAll(problemas.map(_clave));
+          encontrados.addAll(claves);
+          temasRevisados++;
           return;
         }
-        final nuevos = problemas
-            .where((p) => !conocidos.contains(_clave(p)))
-            .toList();
+        final nuevos = [
+          for (var i = 0; i < problemas.length; i++)
+            if (!conocidos.contains(claves[i])) problemas[i],
+        ];
         for (final viejo in conocidos.where(
-          (c) =>
-              c.startsWith('${theme.id}: ') &&
-              !problemas.map(_clave).contains(c),
+          (c) => c.startsWith('${theme.id}: ') && !claves.contains(c),
         )) {
           debugPrint('Ya corregido, quítalo de ${archivo.path}: $viejo');
         }

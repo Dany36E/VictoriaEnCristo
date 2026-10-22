@@ -84,7 +84,11 @@ void main() {
   );
   themeMatrix('hermanos_en_cristo', () => const HermanosEnCristoScreen());
   themeMatrix('vida_espiritual', () => const VidaEspiritualScreen());
-  themeMatrix('devotional', () => const DevotionalScreen());
+  themeMatrix(
+    'devotional',
+    () => const DevotionalScreen(),
+    contenidoDelDia: true,
+  );
   themeMatrix('emergency', () => const EmergencyScreen());
   themeMatrix('emotional_verse_jar', () => const EmotionalVerseJarScreen());
   themeMatrix('exercises', () => const ExercisesScreen());
@@ -118,7 +122,7 @@ void main() {
   themeMatrix('verses', () => const VersesScreen());
   themeMatrix('wall', () => const WallScreen());
   themeMatrix('widget_settings', () => const WidgetSettingsScreen());
-  themeMatrix('home', () => const HomeScreen());
+  themeMatrix('home', () => const HomeScreen(), contenidoDelDia: true);
   themeMatrix('login', () => const LoginScreen());
   themeMatrix('profile', () => const ProfileScreen());
   themeMatrix('settings', () => SettingsScreen(onThemeChanged: () {}));

@@ -1,29 +1,29 @@
 # Problemas visuales que ya existían en "devotional". No agregues
 # líneas a mano: corrige el problema. Se regenera con
 # ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-charcoal: "Sin racha aún" contraste < 4.5
-clean_page: "Compartir" contraste < 4.5
-clean_page: "Devocional" contraste < 4.5
-clean_page: "HOY" contraste < 4.5
-clean_page: "Leer el pasaje" contraste < 4.5
-clean_page: "Sin racha aún" contraste < 4.5
-clean_page: "Ver historial" contraste < 4.5
-clean_page: "— Isaías 60:22" contraste < 3.0
-grey_editorial: "Compartir" contraste < 4.5
-grey_editorial: "Devocional" contraste < 4.5
-grey_editorial: "HOY" contraste < 4.5
-grey_editorial: "Leer el pasaje" contraste < 4.5
-grey_editorial: "Ver historial" contraste < 4.5
-grey_editorial: "— Isaías 60:22" contraste < 3.0
-lavender: "Sin racha aún" contraste < 4.5
-mint: "HOY" contraste < 4.5
-mint: "Sin racha aún" contraste < 4.5
-parchment: "HOY" contraste < 4.5
-parchment: "Sin racha aún" contraste < 4.5
-peach: "Compartir" contraste < 4.5
-peach: "Devocional" contraste < 4.5
-peach: "HOY" contraste < 4.5
-peach: "Leer el pasaje" contraste < 4.5
-peach: "Sin racha aún" contraste < 4.5
-peach: "Ver historial" contraste < 4.5
-sepia_night: "Sin racha aún" contraste < 4.5
+charcoal: "texto #1" contraste < 4.5
+clean_page: "texto #1" contraste < 4.5
+clean_page: "texto #2" contraste < 4.5
+clean_page: "texto #3" contraste < 4.5
+clean_page: "texto #4" contraste < 4.5
+clean_page: "texto #5" contraste < 3.0
+clean_page: "texto #6" contraste < 4.5
+clean_page: "texto #7" contraste < 4.5
+grey_editorial: "texto #1" contraste < 4.5
+grey_editorial: "texto #2" contraste < 4.5
+grey_editorial: "texto #3" contraste < 4.5
+grey_editorial: "texto #4" contraste < 3.0
+grey_editorial: "texto #5" contraste < 4.5
+grey_editorial: "texto #6" contraste < 4.5
+lavender: "texto #1" contraste < 4.5
+mint: "texto #1" contraste < 4.5
+mint: "texto #2" contraste < 4.5
+parchment: "texto #1" contraste < 4.5
+parchment: "texto #2" contraste < 4.5
+peach: "texto #1" contraste < 4.5
+peach: "texto #2" contraste < 4.5
+peach: "texto #3" contraste < 4.5
+peach: "texto #4" contraste < 4.5
+peach: "texto #5" contraste < 4.5
+peach: "texto #6" contraste < 4.5
+sepia_night: "texto #1" contraste < 4.5
