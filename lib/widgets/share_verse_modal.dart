@@ -57,7 +57,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
     return _buildPapel(context);
   }
 
-  /// Tema papel: hoja crema con la tarjeta de papel recortado del kit.
+  /// Hoja crema con la tarjeta de papel recortado del kit.
   Widget _buildPapel(BuildContext context) {
     final proporcion = _selectedFormat == 0 ? 1.0 : 0.8;
     return Container(

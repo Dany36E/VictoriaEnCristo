@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/app_version.dart';
 import '../services/audio_engine.dart';
-import '../services/theme_service.dart';
 import '../services/notification_service.dart';
 import '../services/audio_service.dart';
 import '../services/feedback_engine.dart';
@@ -21,7 +20,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final ThemeService _themeService = ThemeService();
   final NotificationService _notificationService = NotificationService();
   final AudioService _audioService = AudioService();
 
@@ -33,10 +31,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    await _themeService.initialize();
     await _notificationService.initialize();
     await _audioService.initialize();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   Future<bool> _ensureNotificationPermission() async {
@@ -66,7 +63,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Sección de Apariencia
           _buildSectionHeader('🎨 Apariencia'),
           _buildSettingCard(
-            
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -122,7 +118,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Sección de Notificaciones
           _buildSectionHeader('🔔 Notificaciones'),
           _buildSettingCard(
-            
             children: [
               ListTile(
                 leading: Container(
@@ -158,7 +153,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _notificationService.setMorningEnabled(value);
                   setState(() {});
                 },
-                
               ),
               if (_notificationService.morningEnabled)
                 _buildTimePicker(
@@ -169,7 +163,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     await _notificationService.setMorningTime(time);
                     setState(() {});
                   },
-                  
                 ),
               const Divider(height: 1),
               _buildSwitchTile(
@@ -182,7 +175,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _notificationService.setNightEnabled(value);
                   setState(() {});
                 },
-                
               ),
               if (_notificationService.nightEnabled)
                 _buildTimePicker(
@@ -193,7 +185,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     await _notificationService.setNightTime(time);
                     setState(() {});
                   },
-                  
                 ),
               const Divider(height: 1),
               _buildSwitchTile(
@@ -207,7 +198,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _notificationService.setVictoryReminderEnabled(value);
                   setState(() {});
                 },
-                
               ),
               if (_notificationService.victoryReminderEnabled)
                 _buildVictoryReminderTimes(),
@@ -224,7 +214,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                   setState(() {});
                 },
-                
               ),
               if (_notificationService.devotionalReminderEnabled) ...[
                 _buildSwitchTile(
@@ -239,7 +228,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                     setState(() {});
                   },
-                  
                 ),
                 if (_notificationService.devotionalReminderPerWeekday)
                   Padding(
@@ -270,7 +258,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                       setState(() {});
                     },
-                    
                   ),
               ],
             ],
@@ -281,7 +268,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Sección de Audio
           _buildSectionHeader('🎵 Audio'),
           _buildSettingCard(
-            
             children: [
               // ═══════════════════════════════════════════════════════════════
               // CONTROL DE BGM - Toggle ON/OFF
@@ -308,7 +294,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
                       }
                     },
-                    
                   );
                 },
               ),
@@ -333,7 +318,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Volumen BGM',
                     value: volume,
                     onChanged: (v) => AudioEngine.I.setBgmVolume(v),
-                    
                   );
                 },
               ),
@@ -357,7 +341,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         FeedbackEngine.I.tap();
                       }
                     },
-                    
                   );
                 },
               ),
@@ -381,7 +364,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         FeedbackEngine.I.confirm();
                       }
                     },
-                    
                   );
                 },
               ),
@@ -396,7 +378,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Volumen SFX',
                     value: volume,
                     onChanged: (v) => FeedbackEngine.I.setSfxVolume(v),
-                    
                   );
                 },
               ),
@@ -411,7 +392,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _audioService.setAudioEnabled(value);
                   setState(() {});
                 },
-                
               ),
               if (_audioService.audioEnabled) ...[
                 const Divider(height: 1),
@@ -432,7 +412,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Sección Widget de Inicio
           _buildSectionHeader('📱 Widget de Inicio'),
           _buildSettingCard(
-            
             children: [
               ListTile(
                 leading: Container(
@@ -472,7 +451,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Sección Protección / Pureza
           _buildSectionHeader('🛡️ Protección'),
           _buildSettingCard(
-            
             children: [
               ListTile(
                 leading: Container(
@@ -509,7 +487,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // de la app, como requieren las tiendas.
           _buildSectionHeader('🔐 Privacidad y datos'),
           _buildSettingCard(
-            
             children: [
               ListTile(
                 leading: Container(
@@ -547,7 +524,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
           // Sección Acerca de
           _buildSectionHeader('ℹ️ Acerca de'),
           _buildSettingCard(
-            
             children: [
               ListTile(
                 leading: Container(
@@ -620,10 +596,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingCard({
-    required List<Widget> children,
-    
-  }) {
+  Widget _buildSettingCard({required List<Widget> children}) {
     final t = AppThemeData.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -647,7 +620,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required bool value,
     required ValueChanged<bool> onChanged,
-    
   }) {
     final t = AppThemeData.of(context);
     return ListTile(
@@ -676,7 +648,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required TimeOfDay time,
     required ValueChanged<TimeOfDay> onChanged,
-    
   }) {
     final t = AppThemeData.of(context);
     return Padding(
@@ -866,9 +837,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Text(
           '${speed}x',
           style: TextStyle(
-            color: isSelected
-                ? (t.sobreAcento)
-                : t.textSecondary,
+            color: isSelected ? (t.sobreAcento) : t.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -972,7 +941,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String label,
     required double value,
     required ValueChanged<double> onChanged,
-    
   }) {
     final t = AppThemeData.of(context);
     return Padding(

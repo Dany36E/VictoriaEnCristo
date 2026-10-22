@@ -34,18 +34,18 @@ class AppThemeData {
 
   /// Tema «papel recortado» con la [paleta] que se le dé.
   AppThemeData._papel(this.paleta, {required this.id, required this.name})
-      : scaffoldBg = paleta.crema,
-        surface = paleta.papel,
-        cardBg = paleta.papel,
-        cardBorder = paleta.cremaOscuro,
-        textPrimary = paleta.tinta,
-        // El texto secundario de toda la app necesita ≥ 4.5:1 (WCAG AA) sobre
-        // el papel con textura, así que usa el lápiz del kit en vez del gris.
-        textSecondary = paleta.lapiz,
-        accent = paleta.terracota,
-        accentSoft = paleta.terracota.withValues(alpha: 0.15),
-        divider = paleta.cremaOscuro,
-        inputBg = paleta.papel;
+    : scaffoldBg = paleta.crema,
+      surface = paleta.papel,
+      cardBg = paleta.papel,
+      cardBorder = paleta.cremaOscuro,
+      textPrimary = paleta.tinta,
+      // El texto secundario de toda la app necesita ≥ 4.5:1 (WCAG AA) sobre
+      // el papel con textura, así que usa el lápiz del kit en vez del gris.
+      textSecondary = paleta.lapiz,
+      accent = paleta.terracota,
+      accentSoft = paleta.terracota.withValues(alpha: 0.15),
+      divider = paleta.cremaOscuro,
+      inputBg = paleta.papel;
 
   /// Si la pantalla se ve oscura (papeles kraft y noche).
   bool get oscuro => paleta.oscura;
@@ -100,20 +100,28 @@ class AppThemeData {
   // ─── PAPER THEME ───────────────────────────────────────────────────────
 
   /// Estilo «papel recortado» de los videos (kit victoria-en-cristo-estilo).
-  static final paper = AppThemeData._papel(VecPaleta.claro, id: 'papel', name: 'Papel recortado');
+  static final paper = AppThemeData._papel(
+    VecPaleta.claro,
+    id: 'papel',
+    name: 'Papel recortado',
+  );
 
   /// Papel oscuro café (kraft), mismo kit con tinta crema.
-  static final paperKraft = AppThemeData._papel(VecPaleta.kraftOscuro, id: 'papel_kraft', name: 'Papel kraft');
+  static final paperKraft = AppThemeData._papel(
+    VecPaleta.kraftOscuro,
+    id: 'papel_kraft',
+    name: 'Papel kraft',
+  );
 
   /// Papel oscuro azul de noche.
-  static final paperNoche = AppThemeData._papel(VecPaleta.nocheAzul, id: 'papel_noche', name: 'Papel noche');
+  static final paperNoche = AppThemeData._papel(
+    VecPaleta.nocheAzul,
+    id: 'papel_noche',
+    name: 'Papel noche',
+  );
 
   /// Todos los temas disponibles
-  static final List<AppThemeData> all = [
-    paper,
-    paperKraft,
-    paperNoche,
-  ];
+  static final List<AppThemeData> all = [paper, paperKraft, paperNoche];
 
   /// Obtener tema por ID (por defecto, el papel claro)
   static AppThemeData fromId(String id) {

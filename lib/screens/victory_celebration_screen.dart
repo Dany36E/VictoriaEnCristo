@@ -29,9 +29,8 @@ class VictoryCelebrationScreen extends StatefulWidget {
 }
 
 class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   late final ConfettiController _confettiController;
-  late final AnimationController _fireController;
   late final AnimationController _numberController;
   late final Animation<int> _numberAnimation;
 
@@ -44,11 +43,6 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
     _confettiController = ConfettiController(
       duration: const Duration(seconds: 3),
     );
-
-    _fireController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
 
     _numberController = AnimationController(
       vsync: this,
@@ -74,7 +68,6 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
   @override
   void dispose() {
     _confettiController.dispose();
-    _fireController.dispose();
     _numberController.dispose();
     AudioEngine.I.unmuteForScreen();
     super.dispose();
@@ -91,39 +84,32 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
   // FONDO ANIMADO
   // ═══════════════════════════════════════════════════════════════════════════
 
-
   // ═══════════════════════════════════════════════════════════════════════════
   // SPEECH BUBBLE
   // ═══════════════════════════════════════════════════════════════════════════
-
 
   // ═══════════════════════════════════════════════════════════════════════════
   // JESÚS + FIRE AURA
   // ═══════════════════════════════════════════════════════════════════════════
 
-
   // ═══════════════════════════════════════════════════════════════════════════
   // NÚMERO GRANDE
   // ═══════════════════════════════════════════════════════════════════════════
-
 
   // ═══════════════════════════════════════════════════════════════════════════
   // LABEL
   // ═══════════════════════════════════════════════════════════════════════════
 
-
   // ═══════════════════════════════════════════════════════════════════════════
   // MINI CALENDARIO SEMANAL
   // ═══════════════════════════════════════════════════════════════════════════
-
 
   // ═══════════════════════════════════════════════════════════════════════════
   // BOTÓN CONTINUAR
   // ═══════════════════════════════════════════════════════════════════════════
 
-
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL — Jesús celebra sobre la escena de la racha
+  // PAPEL RECORTADO — Jesús celebra sobre la escena de la racha
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel(String message, List<Map<String, dynamic>> weeklyData) {

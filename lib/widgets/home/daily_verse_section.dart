@@ -21,7 +21,7 @@ class DailyVerseSection extends StatelessWidget {
     return _buildPapel();
   }
 
-  /// Tema papel: tarjeta de versículo del kit (referencia en terracota y
+  /// Tarjeta de versículo del kit (referencia en terracota y
   /// texto en Patrick Hand).
   Widget _buildPapel() {
     return Column(

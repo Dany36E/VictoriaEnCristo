@@ -4,7 +4,6 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-
 /// Paleta y letras de los PDF de Apuntes y de Estudio.
 ///
 /// Estilo «papel recortado» del kit victoria-en-cristo-estilo: hoja crema,
@@ -43,16 +42,15 @@ class EstiloPdf {
   /// Letras del cuerpo (regular, negrita y cursiva).
   final pw.ThemeData tema;
 
-  /// Títulos, referencias y etiquetas (Lilita One en papel).
-  final pw.Font? titulo;
+  /// Títulos, referencias y etiquetas (Lilita One).
+  final pw.Font titulo;
 
-  /// Notas a mano (Caveat Brush en papel).
-  final pw.Font? mano;
+  /// Notas a mano (Caveat Brush).
+  final pw.Font mano;
 
-  /// Texto de los versículos (Lora en papel, como en la Biblia de la app);
-  /// null usa la letra del cuerpo.
-  final pw.Font? lectura;
-  final pw.Font? lecturaCursiva;
+  /// Texto de los versículos (Lora, como en la Biblia de la app).
+  final pw.Font lectura;
+  final pw.Font lecturaCursiva;
 
   final PdfColor acento;
   final PdfColor tinta;
@@ -81,7 +79,7 @@ class EstiloPdf {
   /// Color de la sombra sólida de las tarjetas de papel.
   static const sombraPapel = PdfColor.fromInt(0xFFD9CDB8);
 
-  /// Fondo de la hoja en el tema papel (crema del kit).
+  /// Fondo de la hoja (crema del kit).
   static const fondoPagina = _crema;
 
   /// Carga las letras del estilo.
@@ -123,7 +121,7 @@ class EstiloPdf {
     );
   }
 
-  /// Estilo de títulos y referencias: Lilita One en papel, negrita si no.
+  /// Estilo de títulos y referencias: Lilita One.
   pw.TextStyle estiloTitulo({
     required double fontSize,
     PdfColor? color,
@@ -132,7 +130,6 @@ class EstiloPdf {
   }) {
     return pw.TextStyle(
       font: titulo,
-      fontWeight: titulo == null ? pw.FontWeight.bold : null,
       fontSize: fontSize,
       color: color ?? tinta,
       lineSpacing: lineSpacing,
@@ -148,19 +145,19 @@ class EstiloPdf {
       margin: margin,
       theme: tema,
       buildBackground: (context) => pw.FullPage(
-              ignoreMargins: true,
-              child: pw.Stack(
-                children: [
-                  pw.Container(color: _crema),
-                  if (context.pageNumber > 1)
-                    pw.Positioned(
-                      right: -20,
-                      top: -10,
-                      child: cinta(ancho: 64, alto: 18, giro: 35),
-                    ),
-                ],
+        ignoreMargins: true,
+        child: pw.Stack(
+          children: [
+            pw.Container(color: _crema),
+            if (context.pageNumber > 1)
+              pw.Positioned(
+                right: -20,
+                top: -10,
+                child: cinta(ancho: 64, alto: 18, giro: 35),
               ),
-            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -188,8 +185,7 @@ class EstiloPdf {
     );
   }
 
-  /// Tarjeta de papel con sombra sólida (en el estilo clásico, tarjeta con
-  /// borde fino).
+  /// Tarjeta de papel con sombra sólida.
   pw.Widget tarjeta({
     required pw.Widget child,
     pw.EdgeInsets padding = const pw.EdgeInsets.fromLTRB(12, 9, 12, 10),
@@ -219,7 +215,7 @@ class EstiloPdf {
             padding: const pw.EdgeInsets.only(left: 3.5),
             child: caja,
           );
-    
+
     // Sombra sólida del papel grueso: una copia más oscura desplazada.
     return pw.Container(
       margin: margin,
@@ -232,16 +228,12 @@ class EstiloPdf {
     );
   }
 
-  /// Título de sección: subrayado dorado en el clásico; en papel, Lilita One
-  /// en terracota con una rayita mostaza.
+  /// Título de sección: Lilita One en terracota con una rayita mostaza.
   pw.Widget tituloSeccion(String texto) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
-        pw.Text(
-          texto,
-          style: estiloTitulo(fontSize: 16, color: acento),
-        ),
+        pw.Text(texto, style: estiloTitulo(fontSize: 16, color: acento)),
         pw.SizedBox(height: 4),
         pw.Container(
           width: 46,
@@ -276,10 +268,7 @@ class EstiloPdf {
       decoration: pw.BoxDecoration(
         color: _papel,
         borderRadius: pw.BorderRadius.circular(12),
-        border: pw.Border.all(
-          color: _cremaOscuro,
-          width: 0.6,
-        ),
+        border: pw.Border.all(color: _cremaOscuro, width: 0.6),
       ),
       child: pw.RichText(
         text: pw.TextSpan(
@@ -290,10 +279,7 @@ class EstiloPdf {
             ),
             pw.TextSpan(
               text: valor,
-              style: const pw.TextStyle(
-                fontSize: 10.5,
-                color: _tinta,
-              ),
+              style: const pw.TextStyle(fontSize: 10.5, color: _tinta),
             ),
           ],
         ),
@@ -315,9 +301,8 @@ class EstiloPdf {
   }
 
   /// Nota a mano sobre hoja rayada (estilo HojaRayada del kit) para la
-  /// reflexión final; en el clásico, recuadro dorado en negrita.
+  /// reflexión final.
   pw.Widget notaAMano(String texto) {
-    
     const tamano = 15.0;
     const interlineado = 6.0;
     final letra = pw.Text(

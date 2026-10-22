@@ -406,14 +406,14 @@ class GlassContainer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
-        decoration: BoxDecoration(
-          color: VecColores.papel,
-          borderRadius: BorderRadius.circular(VecRadios.m),
-          boxShadow: VecSombras.papel,
-        ),
-        child: child,
-      );
+      padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
+      decoration: BoxDecoration(
+        color: VecColores.papel,
+        borderRadius: BorderRadius.circular(VecRadios.m),
+        boxShadow: VecSombras.papel,
+      ),
+      child: child,
+    );
   }
 }
 
@@ -487,7 +487,7 @@ class _PremiumButtonState extends State<PremiumButton>
   }
 }
 
-/// Tema papel: píldora de color sólido del kit que se hunde 5 px al tocarla.
+/// Píldora de color sólido del kit que se hunde 5 px al tocarla.
 extension on _PremiumButtonState {
   Widget _buildPapel() {
     final fondo = widget.isOutlined

@@ -123,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
   // ============================================================
 
   // ============================================================
-  // TEMA PAPEL — portada con letrero y personajes, formulario en
+  // PAPEL RECORTADO — portada con letrero y personajes, formulario en
   // tarjeta de papel (kit victoria-en-cristo-estilo)
   // ============================================================
   Widget _buildPapel(BuildContext context) {

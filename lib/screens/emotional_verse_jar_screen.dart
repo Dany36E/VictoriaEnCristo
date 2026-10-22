@@ -29,7 +29,7 @@ class EmotionalVerseJarScreen extends StatefulWidget {
 }
 
 class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   
   // Estados de la experiencia
   bool _isRevealing = false;
@@ -39,7 +39,6 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
 
   // Controladores de animación
   late AnimationController _unfoldController;
-  late AnimationController _glowController;
   late Animation<double> _unfoldAnimation;
 
   // Definición de emociones
@@ -109,16 +108,11 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
     );
 
     // Animación de glow pulsante
-    _glowController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
   }
 
   @override
   void dispose() {
     _unfoldController.dispose();
-    _glowController.dispose();
     super.dispose();
   }
 
@@ -158,7 +152,6 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
       _revealedVerse = null;
     });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -248,9 +241,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
             ),
           ],
         ),
-        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
-        shape: null,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
       ),
@@ -258,7 +249,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL
+  // PAPEL RECORTADO
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Color del kit e ícono (SVG del kit o Material relleno) por emoción.

@@ -35,11 +35,11 @@ class BibleReadingStreak extends StatelessWidget {
               children: [
                 // Icono Biblia
                 CirculoIcono(
-                    iconoVec: 'biblia',
-                    color: VecColores.azul,
-                    tamano: 42,
-                    giro: -4,
-                  ),
+                  iconoVec: 'biblia',
+                  color: VecColores.azul,
+                  tamano: 42,
+                  giro: -4,
+                ),
                 const SizedBox(width: 12),
 
                 // Stats text

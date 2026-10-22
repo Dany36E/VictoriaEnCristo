@@ -548,10 +548,10 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             fontWeight: FontWeight.w700,
             color: isSelected
                 ? legibleEnPastilla(
-                    legibleEnPastilla(t.accent, 0.15, t.fondoVisible),
-                    0.15,
-                    t.surface,
-                  )
+                  legibleEnPastilla(t.accent, 0.15, t.fondoVisible),
+                  0.15,
+                  t.surface,
+                )
                 : t.textoTenue(0.45),
           ),
         ),

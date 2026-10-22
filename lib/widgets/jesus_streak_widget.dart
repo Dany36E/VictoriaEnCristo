@@ -39,7 +39,7 @@ class JesusStreakWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL — Jesús sobre la escena de la racha, enmarcada como foto de papel
+  // PAPEL RECORTADO — Jesús sobre la escena de la racha, enmarcada como foto de papel
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel(BuildContext context) {

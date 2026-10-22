@@ -20,35 +20,12 @@ class OnboardingWelcomeScreen extends StatefulWidget {
       _OnboardingWelcomeScreenState();
 }
 
-class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-
+class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen> {
   @override
   void initState() {
     super.initState();
-    _setupAnimations();
-
     // BGM ya inicia desde main.dart - no duplicar aquí
     // AudioEngine ya está corriendo si bgmEnabled=true
-
-    // Iniciar animación de entrada
-    Future.delayed(const Duration(milliseconds: 300), () {
-      if (mounted) _animationController.forward();
-    });
-  }
-
-  void _setupAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   void _navigateToGiantSelection() {
@@ -88,7 +65,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
     return _buildPapel();
   }
 
-  /// Tema papel: Timoteo y Victoria dan la bienvenida, letrero de portada
+  /// Timoteo y Victoria dan la bienvenida, letrero de portada
   /// y la explicación en una tarjeta de papel.
   Widget _buildPapel() {
     return FondoPapel(

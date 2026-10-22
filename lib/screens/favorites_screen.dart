@@ -69,17 +69,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             flexibleSpace: Stack(
               fit: StackFit.expand,
               children: [
-                // Tema papel: la barra fija también es hoja con textura.
+                // La barra fija también es hoja con textura.
                 const FondoPapel(child: SizedBox.expand()),
                 FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(
-                  gradient: null,
                 ),
                 child: Stack(
                   children: [
                     // Decoración de fondo
-                    
+
                     // Contenido
                     Positioned(
                       left: 24,
@@ -283,7 +282,6 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
           ],
         ),
-        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),

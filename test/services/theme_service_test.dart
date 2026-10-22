@@ -47,6 +47,38 @@ void main() {
       expect(ThemeService().modo, ModoTema.automatico);
     });
 
+    testWidgets('otra cuenta sin tema no hereda el papel de la anterior', (
+      tester,
+    ) async {
+      await tester.runAsync(
+        () => iniciar({
+          'tema_modo': 'oscuro',
+          'tema_papel_oscuro': 'papel_noche',
+        }),
+      );
+      expect(ThemeService().themeId, 'papel_noche');
+      // Cerrar sesión borra las claves; la cuenta nueva no trae tema.
+      final prefs = (await tester.runAsync(() => iniciar({})))!;
+      expect(ThemeService().modo, ModoTema.claro);
+      expect(ThemeService().papelOscuro, 'papel_kraft');
+      expect(prefs.getString('tema_papel_oscuro'), 'papel_kraft');
+    });
+
+    testWidgets('initialize varias veces no cambia la elección', (
+      tester,
+    ) async {
+      await tester.runAsync(
+        () => iniciar({
+          'tema_modo': 'automatico',
+          'tema_papel_oscuro': 'papel_noche',
+        }),
+      );
+      await tester.runAsync(() => ThemeService().initialize());
+      await tester.runAsync(() => ThemeService().initialize());
+      expect(ThemeService().modo, ModoTema.automatico);
+      expect(ThemeService().papelOscuro, 'papel_noche');
+    });
+
     testWidgets('con las claves nuevas no se vuelve a migrar', (tester) async {
       await tester.runAsync(
         () => iniciar({
@@ -77,12 +109,13 @@ void main() {
   });
 
   testWidgets('automático sigue el modo del teléfono', (tester) async {
-    addTearDown(
-      tester.platformDispatcher.clearPlatformBrightnessTestValue,
-    );
+    addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.light;
     await tester.runAsync(
-      () => iniciar({'tema_modo': 'automatico', 'tema_papel_oscuro': 'papel_kraft'}),
+      () => iniciar({
+        'tema_modo': 'automatico',
+        'tema_papel_oscuro': 'papel_kraft',
+      }),
     );
     final ts = ThemeService();
     expect(ts.themeId, 'papel');

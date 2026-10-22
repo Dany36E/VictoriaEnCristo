@@ -671,37 +671,37 @@ class StudyExportService {
     bool cleanCover = false,
   }) {
     return pw.Stack(
-        overflow: pw.Overflow.visible,
-        children: [
-          _e.tarjeta(
-            radio: 10,
-            padding: const pw.EdgeInsets.fromLTRB(18, 16, 18, 16),
-            child: pw.Column(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Text('Estudio bíblico', style: _e.estiloTitulo(fontSize: 24)),
-                pw.SizedBox(height: 4),
-                pw.Text(
-                  study.reference,
-                  style: _e.estiloTitulo(fontSize: 15, color: _e.acento),
-                ),
-                pw.SizedBox(height: 10),
-                pw.Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: [
-                    _metaChip('Versión principal', study.versionId),
-                    if (secondaryVersionId != null)
-                      _metaChip('Versión secundaria', secondaryVersionId),
-                    _metaChip('Actualizado', _date(study.updatedAt)),
-                  ],
-                ),
-              ],
-            ),
+      overflow: pw.Overflow.visible,
+      children: [
+        _e.tarjeta(
+          radio: 10,
+          padding: const pw.EdgeInsets.fromLTRB(18, 16, 18, 16),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text('Estudio bíblico', style: _e.estiloTitulo(fontSize: 24)),
+              pw.SizedBox(height: 4),
+              pw.Text(
+                study.reference,
+                style: _e.estiloTitulo(fontSize: 15, color: _e.acento),
+              ),
+              pw.SizedBox(height: 10),
+              pw.Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  _metaChip('Versión principal', study.versionId),
+                  if (secondaryVersionId != null)
+                    _metaChip('Versión secundaria', secondaryVersionId),
+                  _metaChip('Actualizado', _date(study.updatedAt)),
+                ],
+              ),
+            ],
           ),
-          pw.Positioned(right: -12, top: -10, child: _e.cinta(giro: 22)),
-        ],
-      );
+        ),
+        pw.Positioned(right: -12, top: -10, child: _e.cinta(giro: 22)),
+      ],
+    );
   }
 
   pw.Widget _metaChip(String label, String value) {

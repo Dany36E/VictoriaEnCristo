@@ -14,8 +14,7 @@ class ApiSetupWizardScreen extends StatefulWidget {
 }
 
 class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
-  // Tema «papel recortado»: hoja de papel y colores del kit; en los demás
-  // temas, la paleta nocturna original.
+  // Hoja de papel y colores del kit.
   Color get _fondo => Colors.transparent;
   Color get _barra => Colors.transparent;
   Color get _superficie => VecColores.papel;

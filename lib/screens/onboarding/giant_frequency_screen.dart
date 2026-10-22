@@ -23,16 +23,12 @@ class GiantFrequencyScreen extends StatefulWidget {
   State<GiantFrequencyScreen> createState() => _GiantFrequencyScreenState();
 }
 
-class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
-    with SingleTickerProviderStateMixin {
+class _GiantFrequencyScreenState extends State<GiantFrequencyScreen> {
   // Mapa de frecuencias por gigante
   late Map<String, BattleFrequency?> _frequencies;
 
   // Lista de gigantes con sus datos completos
   late List<GiantWithFrequency> _giants;
-
-  // Animación de entrada
-  late AnimationController _animationController;
 
   // Estado de guardado
   bool _isSaving = false;
@@ -41,11 +37,6 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
   void initState() {
     super.initState();
     _initializeGiants();
-    _setupAnimations();
-
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) _animationController.forward();
-    });
   }
 
   void _initializeGiants() {
@@ -67,19 +58,6 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
         _giants.add(giant);
       }
     }
-  }
-
-  void _setupAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
   }
 
   /// ¿Todas las frecuencias están asignadas?
@@ -196,7 +174,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL
+  // PAPEL RECORTADO
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel() {
@@ -242,9 +220,9 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                             : VecColores.azulClaro,
                         iconoWidget: _isComplete
                             ? IconoVec(
-                                'palomita',
-                                color: VecColores.papel,
-                              )
+                              'palomita',
+                              color: VecColores.papel,
+                            )
                             : null,
                       ),
                     ),

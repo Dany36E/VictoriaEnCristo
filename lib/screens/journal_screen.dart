@@ -248,7 +248,7 @@ class _JournalScreenState extends State<JournalScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 FeedbackEngine.I.confirm();
-                _openNewEntryWithPrompt(context, false, prompt);
+                _openNewEntryWithPrompt(context, prompt);
               },
               icon: const Icon(Icons.edit, size: 18),
               label: const Text('Escribir sobre esto'),
@@ -267,7 +267,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  void _openNewEntryWithPrompt(BuildContext context, bool isDark, JournalPromptItem prompt) {
+  void _openNewEntryWithPrompt(BuildContext context, JournalPromptItem prompt) {
     Navigator.push(
       context,
       MaterialPageRoute(

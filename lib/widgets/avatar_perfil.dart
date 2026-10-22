@@ -44,7 +44,6 @@ Future<void> mostrarSelectorAvatar(BuildContext context) {
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    backgroundColor: null,
     builder: (_) => const _SelectorAvatar(),
   );
 }
@@ -80,10 +79,10 @@ class _SelectorAvatar extends StatelessWidget {
               Text(
                 'Así te verás en tu perfil y en Inicio.',
                 style: TextStyle(
-                        fontFamily: VecFuentes.texto,
-                        fontSize: 18,
-                        color: VecColores.lapiz,
-                      ),
+                  fontFamily: VecFuentes.texto,
+                  fontSize: 18,
+                  color: VecColores.lapiz,
+                ),
               ),
               seccion('Hombres'),
               _Rejilla(avatares: AvatarPerfilService.hombres, elegido: elegido),
@@ -100,10 +99,10 @@ class _SelectorAvatar extends StatelessWidget {
                     child: Text(
                       'Quitar avatar',
                       style: TextStyle(
-                              fontFamily: VecFuentes.titulo,
-                              fontSize: 17,
-                              color: VecColores.terracota,
-                            ),
+                        fontFamily: VecFuentes.titulo,
+                        fontSize: 17,
+                        color: VecColores.terracota,
+                      ),
                     ),
                   ),
                 ),
@@ -174,11 +173,8 @@ class _OpcionAvatar extends StatelessWidget {
                         ? Border.all(color: colorMarca, width: 3)
                         : null,
                     boxShadow: const [
-                            BoxShadow(
-                              color: Color(0x402B2622),
-                              offset: Offset(0, 4),
-                            ),
-                          ],
+                      BoxShadow(color: Color(0x402B2622), offset: Offset(0, 4)),
+                    ],
                   ),
                   child: Padding(
                     padding: EdgeInsets.all(seleccionado ? 3 : 0),
@@ -197,10 +193,10 @@ class _OpcionAvatar extends StatelessWidget {
                   right: -2,
                   bottom: -2,
                   child: CirculoIcono(
-                          iconoVec: 'palomita',
-                          color: VecColores.papel,
-                          tamano: 24,
-                        ),
+                    iconoVec: 'palomita',
+                    color: VecColores.papel,
+                    tamano: 24,
+                  ),
                 ),
             ],
           ),

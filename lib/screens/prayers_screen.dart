@@ -166,7 +166,7 @@ class _PrayersScreenState extends State<PrayersScreen> {
             flexibleSpace: Stack(
               fit: StackFit.expand,
               children: [
-                // Tema papel: la barra fija también es hoja con textura.
+                // La barra fija también es hoja con textura.
                 const FondoPapel(child: SizedBox.expand()),
                 FlexibleSpaceBar(
                   titlePadding: const EdgeInsets.only(left: 20, bottom: 16, right: 20),
@@ -183,7 +183,7 @@ class _PrayersScreenState extends State<PrayersScreen> {
                     decoration: BoxDecoration(gradient: t.headerGradient),
                     child: Stack(
                       children: [
-                        
+
                         Positioned(
                           left: 20,
                           bottom: 48,
@@ -607,7 +607,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
             flexibleSpace: Stack(
               fit: StackFit.expand,
               children: [
-                // Tema papel: la barra fija también es hoja con textura.
+                // La barra fija también es hoja con textura.
                 const FondoPapel(child: SizedBox.expand()),
                 FlexibleSpaceBar(
               background: Container(
@@ -620,7 +620,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                 ),
                 child: Stack(
                   children: [
-                    
+
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Padding(
@@ -630,10 +630,10 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             const CirculoIcono(
-                                iconoVec: 'orar',
-                                tamano: 56,
-                                giro: -4,
-                              ),
+                              iconoVec: 'orar',
+                              tamano: 56,
+                              giro: -4,
+                            ),
                             const SizedBox(height: 12),
                             Text(
                               widget.prayer.title,

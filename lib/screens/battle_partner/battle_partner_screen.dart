@@ -85,9 +85,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('¡${invite.fromName} ya es tu compañero! ⚔️'),
-          backgroundColor: null,
           behavior: SnackBarBehavior.floating,
-          shape: null,
         ),
       );
     }
@@ -112,17 +110,13 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: null,
-        shape: null,
         title: Text(
           '¿Liberar a ${partner.name}?',
-          style: null,
         ),
         content: Text(
           'Dejarás de compartir tu progreso con ${partner.name}. '
           'No recibirás notificaciones. Podrás reconectar en cualquier '
           'momento volviendo a intercambiar códigos.',
-          style: null,
         ),
         actions: [
           TextButton(
@@ -165,9 +159,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
         content: Text(
           'Código copiado al portapapeles',
         ),
-        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
-        shape: null,
         duration: Duration(seconds: 2),
       ),
     );
@@ -178,7 +170,6 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
     if (code == null) return;
     FeedbackEngine.I.tap();
     _showQrSheetPapel(code);
-      return;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -210,9 +201,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                     ? 'Aceptando nuevas invitaciones'
                     : 'Invitaciones pausadas. Nadie podrá agregarte por ahora.'),
         ),
-        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
-        shape: null,
       ),
     );
   }
@@ -227,15 +216,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: null,
-        shape: null,
         title: const Text(
           '¿Pedir oración urgente?',
-          style: null,
         ),
         content: const Text(
           'Se notificará a todos tus compañeros de batalla que necesitas oración ahora. Solo puedes hacerlo 1 vez al día.',
-          style: null,
         ),
         actions: [
           TextButton(
@@ -244,7 +229,6 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            style: null,
             child: const Text('Enviar SOS'),
           ),
         ],
@@ -261,7 +245,6 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               ? '${''}Se notificó a $sent compañero${sent == 1 ? '' : 's'}. Están orando contigo.'
               : 'No se pudo enviar la alerta (rate-limit o sin compañeros).',
         ),
-        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 4),
       ),
@@ -270,7 +253,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL — «papel recortado» (kit victoria-en-cristo-estilo)
+  // PAPEL RECORTADO — «papel recortado» (kit victoria-en-cristo-estilo)
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel() {

@@ -29,7 +29,7 @@ class SermonNoteExportService {
 
   bool get shouldSaveToDownloadsByDefault => Platform.isWindows;
 
-  /// Estilo del documento en curso (clásico o papel, según el tema).
+  /// Estilo del documento en curso.
   late EstiloPdf _e;
 
   Future<File> exportSermonNoteToPdf({
@@ -167,7 +167,7 @@ class SermonNoteExportService {
     return _portadaPapel(note);
   }
 
-  /// Portada del tema papel: hoja crema, el título en una tarjeta con cinta,
+  /// Portada del papel: hoja crema, el título en una tarjeta con cinta,
   /// el pasaje en terracota y los datos en pastillas.
   pw.Widget _portadaPapel(SermonNote note) {
     return pw.Container(
@@ -191,7 +191,7 @@ class SermonNoteExportService {
     );
   }
 
-  /// Título y pasaje en una tarjeta de papel con cinta (tema papel).
+  /// Título y pasaje en una tarjeta de papel con cinta.
   pw.Widget _tituloConCinta(
     SermonNote note, {
     required double tamano,
@@ -230,14 +230,14 @@ class SermonNoteExportService {
 
   pw.Widget _header(SermonNote note) {
     return _tituloConCinta(
-        note,
-        tamano: 22,
-        paddingTarjeta: 18,
-        debajo: [
-          pw.SizedBox(height: 12),
-          pw.Wrap(spacing: 8, runSpacing: 8, children: _metaChips(note)),
-        ],
-      );
+      note,
+      tamano: 22,
+      paddingTarjeta: 18,
+      debajo: [
+        pw.SizedBox(height: 12),
+        pw.Wrap(spacing: 8, runSpacing: 8, children: _metaChips(note)),
+      ],
+    );
   }
 
   List<pw.Widget> _metaChips(SermonNote note) {

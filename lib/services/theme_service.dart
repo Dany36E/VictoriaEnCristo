@@ -29,7 +29,7 @@ class ThemeService extends ChangeNotifier with WidgetsBindingObserver {
   String _themeId = AppThemeData.paper.id;
   bool _observando = false;
 
-  /// En el tema papel, versículos y apuntes se leen en Lora; con esta opción
+  /// Versículos y apuntes se leen en Lora; con esta opción
   /// usan la letra manuscrita del kit (Patrick Hand).
   final ValueNotifier<bool> lecturaManuscrita = ValueNotifier(false);
 
@@ -83,6 +83,10 @@ class ThemeService extends ChangeNotifier with WidgetsBindingObserver {
   /// sepia nocturno) al papel kraft y los claros al papel claro. El tema
   /// automático por hora pasa a seguir al teléfono.
   void _migrar(SharedPreferences prefs) {
+    // Desde cero: el servicio es uno solo para toda la app y puede traer el
+    // papel de la cuenta anterior (al cerrar sesión se borran las claves).
+    _modo = ModoTema.claro;
+    _papelOscuro = AppThemeData.paperKraft.id;
     var id = prefs.getString(_legacyThemeIdKey);
     if (id == null) {
       // Sistema más viejo: 0 = sistema, 1 = claro, 2 = oscuro.
@@ -95,9 +99,6 @@ class ThemeService extends ChangeNotifier with WidgetsBindingObserver {
       _papelOscuro = id!;
     } else if (oscurosDeAntes.contains(id)) {
       _modo = ModoTema.oscuro;
-      _papelOscuro = AppThemeData.paperKraft.id;
-    } else {
-      _modo = ModoTema.claro;
     }
     if (prefs.getBool(_legacyAutoThemeKey) ?? false) {
       _modo = ModoTema.automatico;
@@ -169,7 +170,7 @@ class ThemeService extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  /// Elegir la letra de lectura del tema papel (Lora o manuscrita).
+  /// Elegir la letra de lectura del papel (Lora o manuscrita).
   Future<void> setLecturaManuscrita(bool manuscrita) async {
     if (lecturaManuscrita.value == manuscrita) return;
     lecturaManuscrita.value = manuscrita;

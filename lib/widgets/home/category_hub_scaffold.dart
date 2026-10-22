@@ -15,34 +15,33 @@ class CategoryHubScaffold extends StatelessWidget {
     required this.children,
   });
 
-
   @override
   Widget build(BuildContext context) {
     final mediaPadding = MediaQuery.paddingOf(context);
     final tema = AppThemeData.of(context);
     return Scaffold(
-        backgroundColor: Colors.transparent,
-        appBar: AppBar(
-          title: Text(title),
-          systemOverlayStyle:
-              (tema.oscuro
-                      ? SystemUiOverlayStyle.light
-                      : SystemUiOverlayStyle.dark)
-                  .copyWith(
-                    statusBarColor: Colors.transparent,
-                    systemNavigationBarColor: VecColores.crema,
-                  ),
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: Text(title),
+        systemOverlayStyle:
+            (tema.oscuro
+                    ? SystemUiOverlayStyle.light
+                    : SystemUiOverlayStyle.dark)
+                .copyWith(
+                  statusBarColor: Colors.transparent,
+                  systemNavigationBarColor: VecColores.crema,
+                ),
+      ),
+      body: ListView(
+        physics: const BouncingScrollPhysics(),
+        padding: EdgeInsets.fromLTRB(
+          AppDesignSystem.spacingM,
+          AppDesignSystem.spacingL,
+          AppDesignSystem.spacingM,
+          mediaPadding.bottom + AppDesignSystem.spacingXL,
         ),
-        body: ListView(
-          physics: const BouncingScrollPhysics(),
-          padding: EdgeInsets.fromLTRB(
-            AppDesignSystem.spacingM,
-            AppDesignSystem.spacingL,
-            AppDesignSystem.spacingM,
-            mediaPadding.bottom + AppDesignSystem.spacingXL,
-          ),
-          children: children,
-        ),
-      );
+        children: children,
+      ),
+    );
   }
 }

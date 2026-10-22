@@ -25,7 +25,7 @@ class _PuritySuggestionSheet extends StatelessWidget {
     );
   }
 
-  /// Tema papel: hoja de papel con Victoria presentando el escudo.
+  /// Hoja de papel con Victoria presentando el escudo.
   Widget _buildPapel(BuildContext context) {
     return Container(
       decoration: BoxDecoration(

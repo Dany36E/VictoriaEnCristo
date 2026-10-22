@@ -383,7 +383,7 @@ class _VersesScreenState extends State<VersesScreen>
     return _buildHeroBannerPapel();
   }
 
-  /// Tema papel: tarjeta con Victoria invitando a abrir el frasco.
+  /// Tarjeta con Victoria invitando a abrir el frasco.
   Widget _buildHeroBannerPapel() {
     void abrirFrasco() {
       FeedbackEngine.I.confirm();
@@ -623,9 +623,7 @@ class _PremiumVerseCard extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
-        shape: null,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
       ),
@@ -730,9 +728,7 @@ class _FavoriteIconState extends State<_FavoriteIcon> {
               ),
             ],
           ),
-          backgroundColor: null,
           behavior: SnackBarBehavior.floating,
-          shape: null,
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
         ),

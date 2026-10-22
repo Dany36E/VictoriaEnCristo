@@ -51,8 +51,6 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
                         icon: Icons.shield,
                         title: 'Compañero',
                         subtitle: 'De Batalla',
-                        accentColor: const Color(0xFFFFAB40),
-                        animationType: IconAnimationType.pulse,
                         index: 0,
                         onTap: () => Navigator.push(
                           context,
@@ -92,8 +90,6 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
                 icon: Icons.forum_rounded,
                 title: 'Muro de',
                 subtitle: 'Batalla',
-                accentColor: const Color(0xFF64B5F6),
-                animationType: IconAnimationType.shimmer,
                 index: 1,
                 onTap: () => Navigator.push(
                   context,
@@ -112,8 +108,6 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
                   icon: Icons.admin_panel_settings_rounded,
                   title: 'Moderación',
                   subtitle: 'Admin',
-                  accentColor: AppDesignSystem.struggle,
-                  animationType: IconAnimationType.pulse,
                   index: 2,
                   onTap: () => Navigator.push(
                     context,
@@ -132,25 +126,25 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
 
   Widget _buildIntro(BuildContext context) {
     return PopIn(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Sticker(
-              'assets/vec/personajes/victoria_saludo.png',
-              alto: 120,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Sticker(
+            'assets/vec/personajes/victoria_saludo.png',
+            alto: 120,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Subtitulo(
+              quien: 'Victoria',
+              texto:
+                  'No caminamos solos. Apóyate en tu compañero y en la comunidad.',
+              clave: 'solos',
+              color: VecColores.terracota,
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Subtitulo(
-                quien: 'Victoria',
-                texto:
-                    'No caminamos solos. Apóyate en tu compañero y en la comunidad.',
-                clave: 'solos',
-                color: VecColores.terracota,
-              ),
-            ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 }

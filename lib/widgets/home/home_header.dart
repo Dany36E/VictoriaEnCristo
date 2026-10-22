@@ -28,7 +28,7 @@ class HomeHeader extends StatelessWidget {
     return _buildPapel(context, user);
   }
 
-  /// Tema papel: cabecera del kit (avatar, título con palabra clave en
+  /// Cabecera del kit (avatar, título con palabra clave en
   /// terracota) y botones redondos como las casillas de la barra.
   Widget _buildPapel(BuildContext context, User? user) {
     final isLoggedIn = user != null;
@@ -113,7 +113,7 @@ class HomeHeader extends StatelessWidget {
   }
 }
 
-/// Botón redondo de la cabecera en tema papel (casilla apagada de .vec-tab).
+/// Botón redondo de la cabecera (casilla apagada de .vec-tab).
 class _BotonRedondoPapel extends StatelessWidget {
   final String tooltip;
   final IconData icono;

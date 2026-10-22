@@ -180,18 +180,14 @@ class BotonEditarAtajos extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextButton.icon(
       onPressed: () => mostrarEditorAtajos(context),
-      icon: Icon(
-        Icons.tune_rounded,
-        size: 18,
-        color: VecColores.azul,
-      ),
+      icon: Icon(Icons.tune_rounded, size: 18, color: VecColores.azul),
       label: Text(
         'Editar',
         style: TextStyle(
-                fontFamily: VecFuentes.texto,
-                fontSize: 18,
-                color: VecColores.azul,
-              ),
+          fontFamily: VecFuentes.texto,
+          fontSize: 18,
+          color: VecColores.azul,
+        ),
       ),
     );
   }
@@ -287,12 +283,12 @@ class _SinAtajos extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BotonVec(
-        texto: 'Agregar atajos',
-        icono: Icons.add_rounded,
-        color: VecColores.azul,
-        expandido: true,
-        onPressed: () => mostrarEditorAtajos(context),
-      );
+      texto: 'Agregar atajos',
+      icono: Icons.add_rounded,
+      color: VecColores.azul,
+      expandido: true,
+      onPressed: () => mostrarEditorAtajos(context),
+    );
   }
 }
 
@@ -453,10 +449,7 @@ class _Grupo extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 18, bottom: 4),
-      child: Semantics(
-        header: true,
-        child: EtiquetaSeccion(texto),
-      ),
+      child: Semantics(header: true, child: EtiquetaSeccion(texto)),
     );
   }
 }
@@ -482,12 +475,12 @@ class _FilaAtajo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final icono = Image.asset(
-            atajo.dibujo,
-            width: 40,
-            height: 40,
-            fit: BoxFit.contain,
-            excludeFromSemantics: true,
-          );
+      atajo.dibujo,
+      width: 40,
+      height: 40,
+      fit: BoxFit.contain,
+      excludeFromSemantics: true,
+    );
     return ListTile(
       contentPadding: EdgeInsets.zero,
       enabled: habilitado,

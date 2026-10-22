@@ -230,99 +230,99 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
   /// Construye un párrafo normal
   Widget _buildParagraph(String text) {
     return Padding(
-        padding: const EdgeInsets.only(bottom: 16),
-        child: Text(
-          text,
-          style: TextStyle(
-            fontFamily: VecFuentes.texto,
-            fontSize: 20,
-            height: 1.4,
-            color: VecColores.tinta,
-          ),
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Text(
+        text,
+        style: TextStyle(
+          fontFamily: VecFuentes.texto,
+          fontSize: 20,
+          height: 1.4,
+          color: VecColores.tinta,
         ),
-      );
+      ),
+    );
   }
 
   /// Construye un encabezado de sección con icono
   Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
-        padding: const EdgeInsets.only(top: 24, bottom: 12),
-        child: Row(
-          children: [
-            CirculoIcono(
-              iconoVec: 'idea',
-              color: VecColores.mostaza,
-              tamano: 36,
-              giro: -4,
-            ),
-            const SizedBox(width: 10),
-            Expanded(child: TituloVec(title, tamano: 22)),
-          ],
-        ),
-      );
+      padding: const EdgeInsets.only(top: 24, bottom: 12),
+      child: Row(
+        children: [
+          CirculoIcono(
+            iconoVec: 'idea',
+            color: VecColores.mostaza,
+            tamano: 36,
+            giro: -4,
+          ),
+          const SizedBox(width: 10),
+          Expanded(child: TituloVec(title, tamano: 22)),
+        ],
+      ),
+    );
   }
 
   /// Sección de REFLEXIÓN con estilo destacado
   Widget _buildReflexionSection(String content) {
     return TarjetaPapel(
-        giro: 1,
-        cintaDerecha: true,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                CirculoIcono(
-                  iconoVec: 'idea',
-                  color: VecColores.mostaza,
-                  tamano: 40,
-                  giro: -4,
-                ),
-                const SizedBox(width: 12),
-                const TituloVec('Reflexión', tamano: 24),
-              ],
-            ),
-            const SizedBox(height: 14),
-            Text(
-              content,
-              style: TextStyle(
-                fontFamily: VecFuentes.texto,
-                fontSize: 19,
-                height: 1.4,
-                color: VecColores.tinta,
-              ),
-            ),
-          ],
-        ),
-      );
-  }
-
-  /// Sección de ORACIÓN con estilo especial (card diferenciada)
-  Widget _buildOracionSection(String content) {
-    return Column(
+      giro: 1,
+      cintaDerecha: true,
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               CirculoIcono(
-                iconoVec: 'orar',
-                color: VecColores.noche,
+                iconoVec: 'idea',
+                color: VecColores.mostaza,
                 tamano: 40,
                 giro: -4,
               ),
               const SizedBox(width: 12),
-              const TituloVec('Oración', tamano: 24),
+              const TituloVec('Reflexión', tamano: 24),
             ],
           ),
-          const SizedBox(height: 22),
-          HojaRayada(child: Text(content)),
+          const SizedBox(height: 14),
+          Text(
+            content,
+            style: TextStyle(
+              fontFamily: VecFuentes.texto,
+              fontSize: 19,
+              height: 1.4,
+              color: VecColores.tinta,
+            ),
+          ),
         ],
-      );
+      ),
+    );
+  }
+
+  /// Sección de ORACIÓN con estilo especial (card diferenciada)
+  Widget _buildOracionSection(String content) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            CirculoIcono(
+              iconoVec: 'orar',
+              color: VecColores.noche,
+              tamano: 40,
+              giro: -4,
+            ),
+            const SizedBox(width: 12),
+            const TituloVec('Oración', tamano: 24),
+          ],
+        ),
+        const SizedBox(height: 22),
+        HojaRayada(child: Text(content)),
+      ],
+    );
   }
 
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL
+  // PAPEL RECORTADO
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel(DayPlan day, bool isCompleted) {
@@ -475,51 +475,51 @@ class _CompletionDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Dialog(
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              PopIn(
-                child: Sticker(
-                  isLastDay
-                      ? 'assets/vec/personajes/victoria_saludo.png'
-                      : 'assets/vec/personajes/victoria_corazon.png',
-                  alto: 150,
-                ),
-              ),
-              const SizedBox(height: 12),
-              TituloVec(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            PopIn(
+              child: Sticker(
                 isLastDay
-                    ? '¡Plan completado!'
-                    : '¡Día $dayNumber completado!',
-                clave: 'completado',
-                tamano: 26,
-                alineacion: TextAlign.center,
+                    ? 'assets/vec/personajes/victoria_saludo.png'
+                    : 'assets/vec/personajes/victoria_corazon.png',
+                alto: 150,
               ),
-              const SizedBox(height: 10),
-              Text(
-                isLastDay
-                    ? '¡Felicidades! Has terminado "$planTitle". Tu dedicación espiritual es inspiradora.'
-                    : 'Excelente progreso. El día ${dayNumber + 1} ya está desbloqueado.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontFamily: VecFuentes.texto,
-                  fontSize: 18,
-                  height: 1.3,
-                  color: VecColores.tinta,
-                ),
+            ),
+            const SizedBox(height: 12),
+            TituloVec(
+              isLastDay
+                  ? '¡Plan completado!'
+                  : '¡Día $dayNumber completado!',
+              clave: 'completado',
+              tamano: 26,
+              alineacion: TextAlign.center,
+            ),
+            const SizedBox(height: 10),
+            Text(
+              isLastDay
+                  ? '¡Felicidades! Has terminado "$planTitle". Tu dedicación espiritual es inspiradora.'
+                  : 'Excelente progreso. El día ${dayNumber + 1} ya está desbloqueado.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontFamily: VecFuentes.texto,
+                fontSize: 18,
+                height: 1.3,
+                color: VecColores.tinta,
               ),
-              const SizedBox(height: 22),
-              BotonVec(
-                texto: isLastDay ? '¡Celebrar!' : 'Continuar',
-                color: VecColores.verde,
-                expandido: true,
-                onPressed: onConfirm,
-              ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 22),
+            BotonVec(
+              texto: isLastDay ? '¡Celebrar!' : 'Continuar',
+              color: VecColores.verde,
+              expandido: true,
+              onPressed: onConfirm,
+            ),
+          ],
         ),
-      );
+      ),
+    );
   }
 }

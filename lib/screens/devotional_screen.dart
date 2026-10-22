@@ -455,7 +455,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                           offset: const Offset(-100000, 0),
                           child: Align(
                             alignment: Alignment.topLeft,
-                            // Tema papel: la tarjeta de papel recortado,
+                            // La tarjeta de papel recortado,
                             // siempre a 360×450 (sale de 1080 px a 3x),
                             // aunque la pantalla sea más chica.
                             child: OverflowBox(

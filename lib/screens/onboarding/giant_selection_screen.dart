@@ -21,19 +21,16 @@ class GiantSelectionScreen extends StatefulWidget {
   State<GiantSelectionScreen> createState() => _GiantSelectionScreenState();
 }
 
-class _GiantSelectionScreenState extends State<GiantSelectionScreen>
-    with SingleTickerProviderStateMixin {
+class _GiantSelectionScreenState extends State<GiantSelectionScreen> {
   // Set de gigantes seleccionados
   final Set<String> _selectedGiants = {};
-
-  late AnimationController _animationController;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // COLORES NEUTRALES (ANTISESGO)
   // Todos los gigantes usan el mismo color base para evitar que alguno "grite" más
   // La diferenciación es solo por icono/texto y estado seleccionado (borde dorado)
   // ═══════════════════════════════════════════════════════════════════════════
-// Dorado (gold)
+  // Dorado (gold)
 
   // Los 6 gigantes principales - COLORES NEUTRALES UNIFORMES
   static const List<Map<String, dynamic>> _giants = [
@@ -74,29 +71,6 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
       'description': 'Ira, resentimiento, falta de perdón, envidia',
     },
   ];
-
-  @override
-  void initState() {
-    super.initState();
-    _setupAnimations();
-
-    Future.delayed(const Duration(milliseconds: 100), () {
-      if (mounted) _animationController.forward();
-    });
-  }
-
-  void _setupAnimations() {
-    _animationController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 800),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
 
   void _toggleGiant(String id) {
     HapticFeedback.lightImpact();
@@ -173,7 +147,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL
+  // PAPEL RECORTADO
   // ═══════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel() {

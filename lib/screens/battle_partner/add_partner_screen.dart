@@ -54,7 +54,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
 
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL
+  // PAPEL RECORTADO
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildPapel() {
@@ -304,9 +304,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
             content: Text(
               '${''}Solicitud enviada a ${result.targetName}',
             ),
-            backgroundColor: null,
             behavior: SnackBarBehavior.floating,
-            shape: null,
           ),
         );
         Navigator.pop(context);

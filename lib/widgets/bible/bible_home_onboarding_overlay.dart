@@ -101,8 +101,6 @@ class _BibleHomeOnboardingOverlayState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: null,
-      shape: null,
       insetPadding: const EdgeInsets.all(24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 460, maxHeight: 540),
@@ -151,7 +149,6 @@ class _BibleHomeOnboardingOverlayState
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    style: null,
                     onPressed: () {
                       if (_index < _slides.length - 1) {
                         _controller.nextPage(

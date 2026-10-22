@@ -16,7 +16,6 @@ class SelectorLetraLectura extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    
     final t = theme;
     return ValueListenableBuilder<bool>(
       valueListenable: ThemeService().lecturaManuscrita,

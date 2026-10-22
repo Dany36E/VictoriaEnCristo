@@ -13,7 +13,7 @@ import '../theme/app_theme_data.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 
-/// Ícono del kit para cada mensaje en el tema papel (en lugar de emojis).
+/// Ícono del kit para cada mensaje (en lugar de emojis).
 const Map<String, String> _iconosMensajePapel = {
   'praying_for_you': 'orar',
   'well_done_soldier': 'escudo',
@@ -57,7 +57,7 @@ class StickerPickerSheet extends StatelessWidget {
     return _buildPapel(context, remaining, isLimited);
   }
 
-  /// Tema papel: hoja de papel con los mensajes como tarjetas con ícono del kit.
+  /// Hoja de papel con los mensajes como tarjetas con ícono del kit.
   Widget _buildPapel(BuildContext context, int remaining, bool isLimited) {
     return Container(
       decoration: BoxDecoration(
@@ -174,9 +174,7 @@ class StickerPickerSheet extends StatelessWidget {
             content: Text(
               'Mensaje enviado a $toName',
             ),
-            backgroundColor: null,
             behavior: SnackBarBehavior.floating,
-            shape: null,
           ),
         );
       }
@@ -206,7 +204,7 @@ class StickerPickerSheet extends StatelessWidget {
 
 class _FlyingStickerOverlay extends StatefulWidget {
   final String icon;
-  final String? iconoPapel; // ícono del kit en el tema papel
+  final String? iconoPapel; // ícono del kit
   final VoidCallback onDone;
   const _FlyingStickerOverlay({
     required this.icon,
@@ -280,45 +278,45 @@ class _StickerButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Semantics(
-        button: true,
-        enabled: enabled,
-        label: message.text,
+      button: true,
+      enabled: enabled,
+      label: message.text,
+      onTap: enabled ? () { FeedbackEngine.I.select(); onTap(); } : null,
+      excludeSemantics: true,
+      child: GestureDetector(
         onTap: enabled ? () { FeedbackEngine.I.select(); onTap(); } : null,
-        excludeSemantics: true,
-        child: GestureDetector(
-          onTap: enabled ? () { FeedbackEngine.I.select(); onTap(); } : null,
-          child: AnimatedOpacity(
-            opacity: enabled ? 1.0 : 0.45,
-            duration: const Duration(milliseconds: 200),
-            child: Container(
-              padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
-              decoration: AppThemeData.of(context).cardDecoration,
-              child: Row(
-                children: [
-                  CirculoIcono(
-                    iconoVec: _iconosMensajePapel[message.key] ?? 'corazon',
-                    color: VecColores.azulClaro,
-                    tamano: 36,
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      message.textoSinEmoji,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontFamily: VecFuentes.texto,
-                        fontSize: 15,
-                        height: 1.1,
-                        color: VecColores.tinta,
-                      ),
+        child: AnimatedOpacity(
+          opacity: enabled ? 1.0 : 0.45,
+          duration: const Duration(milliseconds: 200),
+          child: Container(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 8),
+            decoration: AppThemeData.of(context).cardDecoration,
+            child: Row(
+              children: [
+                CirculoIcono(
+                  iconoVec: _iconosMensajePapel[message.key] ?? 'corazon',
+                  color: VecColores.azulClaro,
+                  tamano: 36,
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    message.textoSinEmoji,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      fontFamily: VecFuentes.texto,
+                      fontSize: 15,
+                      height: 1.1,
+                      color: VecColores.tinta,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 }

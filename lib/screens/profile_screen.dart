@@ -274,7 +274,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  /// [iconoPapel]: ícono del kit que sustituye al emoji en el tema papel.
+  /// [iconoPapel]: ícono del kit que sustituye al emoji.
   Widget _buildStatChip(
     String emoji,
     String iconoPapel,

@@ -217,7 +217,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
     );
   }
 
-  /// Tema papel: botón redondo de papel sobre la portada (sin vidrio).
+  /// Botón redondo de papel sobre la portada (sin vidrio).
   Widget _botonPapel({
     required IconData icono,
     required String tooltip,
@@ -244,35 +244,35 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
 
   Widget _buildBackButton(BuildContext context) {
     return Padding(
-        padding: const EdgeInsets.all(8),
-        child: _botonPapel(
-          icono: Icons.arrow_back_rounded,
-          tooltip: 'Volver',
-          onTap: () => Navigator.of(context).pop(),
-        ),
-      );
+      padding: const EdgeInsets.all(8),
+      child: _botonPapel(
+        icono: Icons.arrow_back_rounded,
+        tooltip: 'Volver',
+        onTap: () => Navigator.of(context).pop(),
+      ),
+    );
   }
 
   Widget _buildShareButton() {
     return _botonPapel(
-        icono: Icons.share_rounded,
-        tooltip: 'Compartir',
-        onTap: _sharePlan,
-      );
+      icono: Icons.share_rounded,
+      tooltip: 'Compartir',
+      onTap: _sharePlan,
+    );
   }
 
   Widget _buildReminderButton() {
     return Padding(
-        padding: const EdgeInsets.only(left: 8),
-        child: _botonPapel(
-          icono: _hasReminder
-              ? Icons.notifications_active_rounded
-              : Icons.notifications_rounded,
-          tooltip: 'Recordatorio',
-          activo: _hasReminder,
-          onTap: _toggleReminder,
-        ),
-      );
+      padding: const EdgeInsets.only(left: 8),
+      child: _botonPapel(
+        icono: _hasReminder
+            ? Icons.notifications_active_rounded
+            : Icons.notifications_rounded,
+        tooltip: 'Recordatorio',
+        activo: _hasReminder,
+        onTap: _toggleReminder,
+      ),
+    );
   }
 
   Widget _buildCoverImage() {

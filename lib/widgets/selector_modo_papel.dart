@@ -6,8 +6,9 @@ import '../theme/app_theme_data.dart';
 import '../vec/vec_tema.dart';
 
 /// Apariencia de la app: claro, oscuro o automático (sigue al teléfono), y
-/// cuál papel oscuro usar (kraft o noche). Se usa en Ajustes, en el Perfil y
-/// en los ajustes de la Biblia.
+/// cuál papel oscuro usar (kraft o noche). Se usa en Ajustes, en el Perfil,
+/// en los ajustes de la Biblia y en los paneles de Tipografía del lector,
+/// Modo Estudio y Apuntes.
 class SelectorModoPapel extends StatelessWidget {
   const SelectorModoPapel({super.key, this.onChanged});
 
@@ -142,15 +143,18 @@ class _Opcion extends StatelessWidget {
             children: [
               Icon(icono, color: tinta, size: 22),
               const SizedBox(height: 4),
-              Text(
-                nombre,
-                textAlign: TextAlign.center,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: AppFonts.manrope(
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
-                  color: tinta,
+              // Con letra grande, «Automático» se achica en vez de cortarse.
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  nombre,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  style: AppFonts.manrope(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                    color: tinta,
+                  ),
                 ),
               ),
             ],

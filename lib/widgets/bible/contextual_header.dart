@@ -402,7 +402,7 @@ class _ContextualActionButton extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(height: 2),
-              // La letra del tema papel es más alta: una línea compacta para
+              // La letra del kit es más alta: una línea compacta para
               // que no se desborde la barra.
               Text(
                 action.label,

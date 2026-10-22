@@ -103,19 +103,16 @@ class _AdminWallScreenState extends State<AdminWallScreen>
   Future<void> _banUser(WallPost post) async {
     if (post.abuseHash == null) return;
 
-    // En el tema papel el diálogo toma los colores de AppTheme.paperTheme.
+    // El diálogo toma los colores de AppTheme.paperTheme.
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: null,
         title: const Text(
           'Banear usuario',
-          style: null,
         ),
         content: Text(
           'Esto bloqueará permanentemente al usuario ${post.alias} '
           '(hash: ${post.abuseHash}) y rechazará todos sus posts pendientes.',
-          style: null,
         ),
         actions: [
           TextButton(
@@ -153,10 +150,8 @@ class _AdminWallScreenState extends State<AdminWallScreen>
     return showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
-        backgroundColor: null,
         title: const Text(
           'Razón de rechazo',
-          style: null,
         ),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -193,18 +188,17 @@ class _AdminWallScreenState extends State<AdminWallScreen>
 
   void _showResult(WallPostResult result) {
     ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            result.message,
-            style: TextStyle(color: VecColores.papel),
-          ),
-          backgroundColor: result.success
-              ? VecColores.verde
-              : VecColores.terracota,
-          behavior: SnackBarBehavior.floating,
+      SnackBar(
+        content: Text(
+          result.message,
+          style: TextStyle(color: VecColores.papel),
         ),
-      );
-      return;
+        backgroundColor: result.success
+            ? VecColores.verde
+            : VecColores.terracota,
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   @override
@@ -213,7 +207,7 @@ class _AdminWallScreenState extends State<AdminWallScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL — barra, pestañas y diálogos salen de AppTheme.paperTheme;
+  // PAPEL RECORTADO — barra, pestañas y diálogos salen de AppTheme.paperTheme;
   // las listas vacías llevan a Timoteo o Victoria como guía.
   // ═══════════════════════════════════════════════════════════════════════════
 

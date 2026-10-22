@@ -1,4 +1,4 @@
-/// Escena de la racha en el tema «Papel recortado»: el fondo del hito de la
+/// Escena de la racha del estilo «Papel recortado»: el fondo del hito de la
 /// racha con el sprite de Jesús encima, enmarcada como foto de papel.
 library;
 

@@ -15,7 +15,7 @@ class Atajo {
 
   const Atajo(this.id, this.titulo, this.tituloCorto, this.icono, this.grupo);
 
-  /// Dibujo de papel (tema «Papel recortado»). En Android el mismo dibujo
+  /// Dibujo de papel (estilo «Papel recortado»). En Android el mismo dibujo
   /// está en `drawable-nodpi/atajo_<id>.webp`.
   String get dibujo => 'assets/vec/objetos/atajo_$id.webp';
 }

@@ -29,8 +29,6 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
                 icon: Icons.school_rounded,
                 title: 'Escuela del Reino',
                 subtitle: 'Aprende y memoriza',
-                accentColor: AppDesignSystem.gold,
-                animationType: IconAnimationType.shimmer,
                 index: 0,
                 onTap: () => Navigator.push(
                   context,
@@ -44,8 +42,6 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
                 icon: Icons.menu_book,
                 title: 'La Biblia',
                 subtitle: 'Palabra de Dios',
-                accentColor: const Color(0xFFE8C97A),
-                animationType: IconAnimationType.shimmer,
                 index: 1,
                 onTap: () => Navigator.push(
                   context,
@@ -61,25 +57,25 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
 
   Widget _buildIntro(BuildContext context) {
     return PopIn(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            const Sticker(
-              'assets/vec/personajes/timoteo_explica.png',
-              alto: 120,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Sticker(
+            'assets/vec/personajes/timoteo_explica.png',
+            alto: 120,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Subtitulo(
+              quien: 'Timoteo',
+              texto:
+                  'Profundiza en la Palabra y crece en tu caminar con Dios.',
+              clave: 'Palabra',
+              color: VecColores.azul,
             ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Subtitulo(
-                quien: 'Timoteo',
-                texto:
-                    'Profundiza en la Palabra y crece en tu caminar con Dios.',
-                clave: 'Palabra',
-                color: VecColores.azul,
-              ),
-            ),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
   }
 }

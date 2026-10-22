@@ -16,9 +16,7 @@ class EmergencyScreen extends StatefulWidget {
   State<EmergencyScreen> createState() => _EmergencyScreenState();
 }
 
-class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderStateMixin {
-  late AnimationController _pulseController;
-  late AnimationController _breatheController;
+class _EmergencyScreenState extends State<EmergencyScreen> {
   int _currentStep = 0;
 
   late List<PersonalizedStep> _steps;
@@ -71,22 +69,6 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
       _giantName = 'General';
     }
 
-    _pulseController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
-
-    _breatheController = AnimationController(
-      duration: const Duration(milliseconds: 4000),
-      vsync: this,
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _pulseController.dispose();
-    _breatheController.dispose();
-    super.dispose();
   }
 
   void _nextStep() {
@@ -106,62 +88,61 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
   void _showPostSosCheckin() {
     FeedbackEngine.I.confirm();
     showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (ctx) => Dialog(
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const PopIn(
-                  child: Sticker(
-                    'assets/vec/personajes/victoria_piensa.png',
-                    alto: 140,
-                  ),
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => Dialog(
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const PopIn(
+                child: Sticker(
+                  'assets/vec/personajes/victoria_piensa.png',
+                  alto: 140,
                 ),
-                const SizedBox(height: 12),
-                const TituloVec(
-                  '¿Cómo te sientes ahora?',
-                  clave: 'ahora',
-                  tamano: 24,
-                  alineacion: TextAlign.center,
+              ),
+              const SizedBox(height: 12),
+              const TituloVec(
+                '¿Cómo te sientes ahora?',
+                clave: 'ahora',
+                tamano: 24,
+                alineacion: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'No hay respuesta incorrecta. Solo queremos acompañarte.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: VecFuentes.texto,
+                  fontSize: 18,
+                  color: VecColores.gris,
                 ),
-                const SizedBox(height: 8),
-                Text(
-                  'No hay respuesta incorrecta. Solo queremos acompañarte.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: VecFuentes.texto,
-                    fontSize: 18,
-                    color: VecColores.gris,
-                  ),
-                ),
-                const SizedBox(height: 20),
-                BotonVec(
-                  texto: 'Ya estoy bien',
-                  iconoWidget: const IconoVec('palomita'),
-                  color: VecColores.verde,
-                  expandido: true,
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    _showVictoryDialog();
-                  },
-                ),
-                const SizedBox(height: 8),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    _showEscalationSheet();
-                  },
-                  child: const Text('Sigo luchando'),
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 20),
+              BotonVec(
+                texto: 'Ya estoy bien',
+                iconoWidget: const IconoVec('palomita'),
+                color: VecColores.verde,
+                expandido: true,
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  _showVictoryDialog();
+                },
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(ctx).pop();
+                  _showEscalationSheet();
+                },
+                child: const Text('Sigo luchando'),
+              ),
+            ],
           ),
         ),
-      );
-      return;
+      ),
+    );
   }
 
   /// Hoja de escalación: si tras los 5 pasos el usuario sigue luchando.
@@ -294,54 +275,53 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
   void _showVictoryDialog() {
     FeedbackEngine.I.confirm();
     showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (context) => Dialog(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const PopIn(
-                  child: Sticker(
-                    'assets/vec/personajes/victoria_corazon.png',
-                    alto: 150,
-                  ),
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Dialog(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const PopIn(
+                child: Sticker(
+                  'assets/vec/personajes/victoria_corazon.png',
+                  alto: 150,
                 ),
-                const SizedBox(height: 4),
-                const Letrero('¡VICTORIA!', tamano: 40),
-                const SizedBox(height: 10),
-                Text(
-                  'Has resistido la tentación. Cada victoria te hace más fuerte.',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontFamily: VecFuentes.texto,
-                    fontSize: 18,
-                    height: 1.3,
-                    color: VecColores.tinta,
-                  ),
+              ),
+              const SizedBox(height: 4),
+              const Letrero('¡VICTORIA!', tamano: 40),
+              const SizedBox(height: 10),
+              Text(
+                'Has resistido la tentación. Cada victoria te hace más fuerte.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: VecFuentes.texto,
+                  fontSize: 18,
+                  height: 1.3,
+                  color: VecColores.tinta,
                 ),
-                const SizedBox(height: 22),
-                const TarjetaVersiculo(
-                  referencia: 'Santiago 4:7',
-                  texto: 'Resistid al diablo, y huirá de vosotros.',
-                ),
-                const SizedBox(height: 22),
-                BotonVec(
-                  texto: 'Continuar en victoria',
-                  color: VecColores.verde,
-                  expandido: true,
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              ],
-            ),
+              ),
+              const SizedBox(height: 22),
+              const TarjetaVersiculo(
+                referencia: 'Santiago 4:7',
+                texto: 'Resistid al diablo, y huirá de vosotros.',
+              ),
+              const SizedBox(height: 22),
+              BotonVec(
+                texto: 'Continuar en victoria',
+                color: VecColores.verde,
+                expandido: true,
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
           ),
         ),
-      );
-      return;
+      ),
+    );
   }
 
   @override
@@ -371,7 +351,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
       body: Stack(
         children: [
           // Animated background gradient (en papel, la hoja con textura)
-          
+
 
           SafeArea(
             bottom: false,
@@ -406,12 +386,12 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
 
   Widget _buildGiantBadge() {
     return PopIn(
-        child: ChipVec(
-          texto: 'Plan personalizado: $_giantName',
-          color: VecColores.terracota,
-          iconoWidget: IconoVec('escudo', color: VecColores.papel),
-        ),
-      );
+      child: ChipVec(
+        texto: 'Plan personalizado: $_giantName',
+        color: VecColores.terracota,
+        iconoWidget: IconoVec('escudo', color: VecColores.papel),
+      ),
+    );
   }
 
   Widget _buildProgressIndicator() {
@@ -438,7 +418,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
     ).animate().fadeIn(delay: 100.ms);
   }
 
-  /// Personaje que acompaña cada paso en el tema papel.
+  /// Personaje que acompaña cada paso.
   static const _personajesPaso = [
     'assets/vec/personajes/victoria_preocupado.png',
     'assets/vec/personajes/timoteo_explica.png',
@@ -535,16 +515,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
     return _buildStepContentPapel(step);
   }
 
-
   Widget _buildNextButton() {
     final isLastStep = _currentStep == _steps.length - 1;
     return BotonVec(
-        texto: isLastStep ? '¡Lo logré!' : 'Siguiente paso',
-        icono: isLastStep ? Icons.celebration_rounded : Icons.arrow_forward_rounded,
-        color: isLastStep ? VecColores.verde : VecColores.terracota,
-        expandido: true,
-        onPressed: _nextStep,
-      );
+      texto: isLastStep ? '¡Lo logré!' : 'Siguiente paso',
+      icono: isLastStep ? Icons.celebration_rounded : Icons.arrow_forward_rounded,
+      color: isLastStep ? VecColores.verde : VecColores.terracota,
+      expandido: true,
+      onPressed: _nextStep,
+    );
   }
 }
 

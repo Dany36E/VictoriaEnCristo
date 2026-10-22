@@ -35,7 +35,7 @@ class AdminPostCard extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL
+  // PAPEL RECORTADO
   // ═══════════════════════════════════════════════════════════════════════
 
   static TextStyle get _textoPapel => TextStyle(
@@ -243,7 +243,7 @@ class AdminPostCard extends StatelessWidget {
 // ═══════════════════════════════════════════════════════════════════════════
 
 
-/// Píldora de acción del tema papel (como ChipVec, pero se puede tocar).
+/// Píldora de acción del papel (como ChipVec, pero se puede tocar).
 class _AccionPapel extends StatelessWidget {
   final IconData icon;
   final String label;

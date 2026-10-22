@@ -227,7 +227,7 @@ const List<ShareCardTemplate> kShareTemplates = [
     ),
     layout: ShareLayout.centered,
   ),
-  // ── 11 y 12. Papel recortado (el estilo del tema papel) ──
+  // ── 11 y 12. Papel recortado (el estilo del papel) ──
   ShareCardTemplate(
     id: 'papel_victoria',
     name: 'Victoria',

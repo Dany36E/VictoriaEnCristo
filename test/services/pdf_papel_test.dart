@@ -20,8 +20,9 @@ import 'package:path_provider_platform_interface/path_provider_platform_interfac
 import 'package:pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Genera el PDF de un apunte en el estilo clásico y en el de papel. Las
-/// copias quedan en build/qa/ para revisarlas a ojo.
+/// Genera los PDF de Apuntes y Estudio (siempre en papel claro, aunque la app
+/// esté en un papel oscuro). Las copias quedan en build/qa/ para revisarlas a
+/// ojo.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseCoreMocks();
@@ -38,15 +39,18 @@ void main() {
     if (await tempDir.exists()) await tempDir.delete(recursive: true);
   });
 
-  test('el PDF sale en papel claro aunque la app esté en papel oscuro', () async {
-    for (final tema in ['papel', 'papel_kraft', 'papel_noche']) {
-      await _usarTema(tema);
-      final estilo = await EstiloPdf.cargar();
-      expect(estilo.titulo, isNotNull, reason: tema);
-      expect(estilo.mano, isNotNull, reason: tema);
-      expect(estilo.tinta, const PdfColor.fromInt(0xFF2B2622), reason: tema);
-    }
-  });
+  test(
+    'el PDF sale en papel claro aunque la app esté en papel oscuro',
+    () async {
+      for (final tema in ['papel', 'papel_kraft', 'papel_noche']) {
+        await _usarTema(tema);
+        final estilo = await EstiloPdf.cargar();
+        expect(estilo.titulo, isNotNull, reason: tema);
+        expect(estilo.mano, isNotNull, reason: tema);
+        expect(estilo.tinta, const PdfColor.fromInt(0xFF2B2622), reason: tema);
+      }
+    },
+  );
 
   for (final (tema, portada) in [
     ('papel', true),

@@ -725,8 +725,8 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         final content = child ?? const SizedBox.shrink();
         return AppThemeData.provider(
           theme: appTheme,
-          // Papel con textura detrás de todas las rutas en el tema papel.
-          // Misma estructura en todos los temas: el Navigator conserva su estado.
+          // Papel con textura detrás de todas las rutas. Al cambiar de papel la
+          // estructura no cambia: el Navigator conserva su estado.
           child: DecoratedBox(
             decoration: FondoPapel.decoracion,
             child: content,

@@ -28,7 +28,7 @@ class BattlePartnerCard extends StatelessWidget {
   }
 
 
-  /// Tema papel: tarjeta de papel con inicial en círculo, racha en terracota
+  /// Tarjeta de papel con inicial en círculo, racha en terracota
   /// y botón de ánimo en píldora.
   Widget _buildPapel(BuildContext context) {
     final inactivo = partner.isInactive;

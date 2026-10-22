@@ -16,7 +16,7 @@ class BattleMessage {
     required this.icon,
   });
 
-  /// Texto sin emojis (el tema papel muestra el ícono del kit aparte).
+  /// Texto sin emojis (la app muestra el ícono del kit aparte).
   String get textoSinEmoji => text
       .replaceAll(RegExp(r'[^\p{L}\p{N}\p{P}\s]', unicode: true), '')
       .trim();

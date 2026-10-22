@@ -50,8 +50,8 @@ class ProgressExport {
   }
 
   /// El fondo de la página está fuera de la captura (el widget es
-  /// transparente): se pinta debajo para que la imagen no salga negra. En el
-  /// tema papel es la hoja con textura, igual que FondoPapel. Libera
+  /// transparente): se pinta debajo para que la imagen no salga negra: la
+  /// hoja con textura del papel del tema, igual que FondoPapel. Libera
   /// [captura].
   @visibleForTesting
   static Future<ui.Image> conFondo(ui.Image captura, AppThemeData tema) async {

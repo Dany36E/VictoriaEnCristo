@@ -50,7 +50,7 @@ class _DailyChecklistCardState extends State<DailyChecklistCard> {
     );
   }
 
-  /// Tema papel: tarjeta con las 4 prácticas como casillas redondas de la
+  /// Tarjeta con las 4 prácticas como casillas redondas de la
   /// barra del kit (apagadas en crema; hechas en verde con palomita).
   Widget _buildPapel(DailyPracticeSnapshot snap) {
     final items = [
