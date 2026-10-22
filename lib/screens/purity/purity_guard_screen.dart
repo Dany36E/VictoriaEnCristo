@@ -963,7 +963,7 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
       'sustituto de la rendición de cuentas y la oración. "Todo lo puedo en '
       'Cristo que me fortalece." — Filipenses 4:13',
       style: TextStyle(
-        color: t.textSecondary.withValues(alpha: 0.7),
+        color: t.textSecondary,
         fontSize: 12,
         height: 1.5,
         fontStyle: FontStyle.italic,

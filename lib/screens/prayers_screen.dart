@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
+import '../theme/contraste.dart';
 import '../data/prayers.dart';
 import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
@@ -423,7 +424,11 @@ class _CategoryBlock extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
-                    color: category.accent,
+                    color: legibleEnPastilla(
+                      category.accent,
+                      0.15,
+                      themeData.fondoVisible,
+                    ),
                   ),
                 ),
               ),

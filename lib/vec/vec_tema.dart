@@ -13,19 +13,27 @@ class VecColores {
   static const crema = Color(0xFFF3ECDF); // fondo general
   static const cremaOscuro = Color(0xFFEFE6D6); // casillas apagadas, separadores
   static const kraft = Color(0xFFB98F5E);
+  // Lo que de verdad se ve detrás del texto en el fondo con textura: el
+  // promedio de la textura a media opacidad sobre el crema (#EDE4D4), un poco
+  // más oscuro para que las manchas no le quiten contraste. Solo para
+  // calcular colores de texto legibles, no para pintar.
+  static const papelTexturado = Color(0xFFEAE1D0);
 
   // tinta
   static const tinta = Color(0xFF2B2622); // texto principal
   static const lapiz = Color(0xFF3A332C); // contornos
-  static const gris = Color(0xFF8A7A64); // texto secundario
+  // El kit usa #8a7a64, #c8553d y #2f7f7a; aquí van un poco más oscuros para
+  // que el texto llegue a contraste 4.5:1 (WCAG AA) sobre el papel con
+  // textura.
+  static const gris = Color(0xFF6F6150); // texto secundario
 
   // acentos
-  static const terracota = Color(0xFFC8553D); // principal: palabras clave, Victoria
+  static const terracota = Color(0xFFA8452F); // principal: palabras clave, Victoria
   static const azul = Color(0xFF3D6890); // Timoteo
   static const azulClaro = Color(0xFF4F7FA8);
   static const mostaza = Color(0xFFE0A73A); // cinta, cruz, estrellas
   static const mostazaClaro = Color(0xFFEFC56A);
-  static const verde = Color(0xFF2F7F7A); // confirmaciones
+  static const verde = Color(0xFF276F6A); // confirmaciones (kit: #2f7f7a)
   static const noche = Color(0xFF2F4A68);
   static const rosa = Color(0xFFF1A9A0);
   static const salvia = Color(0xFF9DBB8E);

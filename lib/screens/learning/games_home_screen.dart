@@ -199,8 +199,8 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
                         ),
                         child: Text(
                           badge,
-                          style: const TextStyle(
-                            color: AppDesignSystem.gold,
+                          style: TextStyle(
+                            color: AppDesignSystem.oroTexto(context, pastilla: 0.15),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),

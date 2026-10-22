@@ -4,6 +4,7 @@ import '../../models/bible/ot_quote.dart';
 import '../../services/bible/ot_quotes_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../widgets/bible/quote_detail_sheet.dart';
 import 'bible_reader_screen.dart';
 
@@ -92,8 +93,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                         color: t.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Buscar cita...',
-                      hintStyle: AppFonts.manrope(
-                          color: t.textPrimary.withValues(alpha: 0.3)),
+                      hintStyle: AppFonts.manrope(color: t.textoAtenuado()),
                       prefixIcon: Icon(Icons.search,
                           color: t.accent.withValues(alpha: 0.5)),
                       filled: true,
@@ -130,7 +130,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                     child: Text(
                       '${_filtered.length} citas',
                       style: AppFonts.manrope(
-                        color: t.textPrimary.withValues(alpha: 0.3),
+                        color: t.textoAtenuado(),
                         fontSize: 11,
                       ),
                     ),
@@ -146,7 +146,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                           children: [
                             Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: AppFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
+                            Text('Sin resultados', style: AppFonts.manrope(color: t.textoAtenuado(), fontSize: 14)),
                           ],
                         ),
                       )
@@ -178,6 +178,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
         chipColor = t.accent;
         break;
     }
+    final tinta = legibleEnPastilla(chipColor, 0.1, t.fondoVisible);
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
@@ -185,12 +186,12 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
         selected: active,
         onSelected: (_) => setState(() => _activeType = type),
         labelStyle: AppFonts.manrope(
-          color: active ? t.background : chipColor,
+          color: active ? t.background : tinta,
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
         backgroundColor: chipColor.withValues(alpha: 0.1),
-        selectedColor: chipColor,
+        selectedColor: tinta,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         side: BorderSide.none,
         padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -215,7 +216,10 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
         typeLabel = 'Alusión';
         break;
     }
-    
+    final tintaTipo = legibleEnPastilla(typeColor, 0.15, t.surface);
+    final colorNt = legibleEnPastilla(const Color(0xFF42A5F5), 0.1, t.surface);
+    final colorAt = legibleEnPastilla(const Color(0xFFFF7043), 0.1, t.surface);
+
     return GestureDetector(
       onTap: () => _showQuoteDetail(quote),
       child: Container(
@@ -241,7 +245,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                   child: Text(
                     _formatOsis(quote.ntReference),
                     style: AppFonts.manrope(
-                      color: const Color(0xFF42A5F5),
+                      color: colorNt,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
@@ -263,7 +267,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                   child: Text(
                     _formatOsis(quote.otReference),
                     style: AppFonts.manrope(
-                      color: const Color(0xFFFF7043),
+                      color: colorAt,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
                     ),
@@ -280,7 +284,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
                   child: Text(
                     typeLabel,
                     style: AppFonts.manrope(
-                      color: typeColor,
+                      color: tintaTipo,
                       fontSize: 9,
                       fontWeight: FontWeight.w700,
                     ),
@@ -293,7 +297,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
               Text(
                 quote.context,
                 style: AppFonts.manrope(
-                  color: t.textPrimary.withValues(alpha: 0.5),
+                  color: t.textoAtenuado(),
                   fontSize: 12,
                   height: 1.4,
                 ),

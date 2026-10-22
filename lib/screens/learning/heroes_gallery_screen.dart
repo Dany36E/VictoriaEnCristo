@@ -262,7 +262,7 @@ class _HeroesGalleryScreenState extends State<HeroesGalleryScreen> {
             ),
             Text(
               h.epithet,
-              style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+              style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.oroTexto(context)),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),

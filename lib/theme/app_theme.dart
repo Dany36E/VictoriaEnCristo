@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/cupertino.dart';
 import 'app_fonts.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 import 'app_theme_data.dart';
+import 'contraste.dart';
 import 'dart:ui';
 
 /// ============================================================================
@@ -39,6 +39,12 @@ class AppDesignSystem {
   static const Color goldDark = Color(0xFFC19A3E);
   static const Color goldMuted = Color(0xFFB8956E);
   static const Color goldSubtle = Color(0x33D4A853); // 20% opacity
+
+  /// [gold] para texto: en los temas claros se oscurece lo justo para leerse
+  /// (WCAG AA) sobre el fondo de la página, o sobre una pastilla dorada de
+  /// opacidad [pastilla] encima de ella. En los oscuros queda igual.
+  static Color oroTexto(BuildContext context, {double pastilla = 0}) =>
+      legibleEnPastilla(gold, pastilla, AppThemeData.of(context).fondoVisible);
   
   /// Neutral: Pure Light - Represents purity, peace, clarity
   static const Color pureWhite = Color(0xFFFFFBF5);

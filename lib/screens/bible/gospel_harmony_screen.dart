@@ -4,6 +4,7 @@ import '../../models/bible/harmony_section.dart';
 import '../../services/bible/gospel_harmony_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import 'bible_reader_screen.dart';
 
 /// Pantalla que muestra la Armonía de los Evangelios por categorías.
@@ -93,8 +94,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                         color: t.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Buscar evento...',
-                      hintStyle: AppFonts.manrope(
-                          color: t.textPrimary.withValues(alpha: 0.3)),
+                      hintStyle: AppFonts.manrope(color: t.textoAtenuado()),
                       prefixIcon: Icon(Icons.search,
                           color: t.accent.withValues(alpha: 0.5)),
                       filled: true,
@@ -119,7 +119,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                         child: Text(
                           'Evento',
                           style: AppFonts.manrope(
-                            color: t.textPrimary.withValues(alpha: 0.4),
+                            color: t.textoAtenuado(),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
@@ -131,7 +131,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                               h,
                               textAlign: TextAlign.center,
                               style: AppFonts.cinzel(
-                                color: t.accent,
+                                color: legibleSobre(t.accent, t.fondoVisible),
                                 fontSize: 12,
                                 fontWeight: FontWeight.w800,
                               ),
@@ -153,7 +153,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                           children: [
                             Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: AppFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
+                            Text('Sin resultados', style: AppFonts.manrope(color: t.textoAtenuado(), fontSize: 14)),
                           ],
                         ),
                       )
@@ -184,7 +184,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
           child: Text(
             category.toUpperCase(),
             style: AppFonts.cinzel(
-              color: t.accent,
+              color: legibleEnPastilla(t.accent, 0.06, t.fondoVisible),
               fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 1,
@@ -242,7 +242,11 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
                               child: Text(
                                 _formatChapter(ref),
                                 style: AppFonts.manrope(
-                                  color: t.accent,
+                                  color: legibleEnPastilla(
+                                    t.accent,
+                                    0.15,
+                                    t.fondoVisible,
+                                  ),
                                   fontSize: 9,
                                   fontWeight: FontWeight.w700,
                                 ),

@@ -200,96 +200,98 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
 
     final icon = _iconFor(s.icon);
 
-    return Opacity(
-      opacity: unlocked ? 1.0 : 0.5,
-      child: InkWell(
-        borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        onTap: unlocked
-            ? () async {
-                FeedbackEngine.I.tap();
-                final result = await Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(builder: (_) => JourneyStationScreen(station: s)),
-                );
-                if (result == true && mounted) setState(() {});
-              }
-            : null,
-        child: Container(
-          padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-          decoration: BoxDecoration(
-            color: t.cardBg,
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-            border: Border.all(
-              color: isCurrent ? AppDesignSystem.gold.withValues(alpha: 0.55) : t.cardBorder,
-              width: isCurrent ? 1.5 : 1,
-            ),
-            boxShadow: t.cardShadow,
+    // Las bloqueadas no se desvanecen enteras (el texto dejaría de leerse):
+    // se apagan el ícono y el título, y llevan el candado al final.
+    return InkWell(
+      borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+      onTap: unlocked
+          ? () async {
+              FeedbackEngine.I.tap();
+              final result = await Navigator.push<bool>(
+                context,
+                MaterialPageRoute(builder: (_) => JourneyStationScreen(station: s)),
+              );
+              if (result == true && mounted) setState(() {});
+            }
+          : null,
+      child: Container(
+        padding: const EdgeInsets.all(AppDesignSystem.spacingM),
+        decoration: BoxDecoration(
+          color: t.cardBg,
+          borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+          border: Border.all(
+            color: isCurrent ? AppDesignSystem.gold.withValues(alpha: 0.55) : t.cardBorder,
+            width: isCurrent ? 1.5 : 1,
           ),
-          child: Row(
-            children: [
-              Container(
+          boxShadow: t.cardShadow,
+        ),
+        child: Row(
+          children: [
+            Opacity(
+              opacity: unlocked ? 1.0 : 0.5,
+              child: Container(
                 width: 48,
                 height: 48,
                 decoration: BoxDecoration(color: accent.withValues(alpha: 0.15), shape: BoxShape.circle),
                 child: Icon(unlocked ? icon : Icons.lock_outline_rounded, color: accent),
               ),
-              const SizedBox(width: AppDesignSystem.spacingM),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Text(
-                          '${s.order}. ',
-                          style: AppDesignSystem.labelMedium(
+            ),
+            const SizedBox(width: AppDesignSystem.spacingM),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(
+                        '${s.order}. ',
+                        style: AppDesignSystem.labelMedium(
+                          context,
+                          color: t.textSecondary,
+                        ).copyWith(fontWeight: FontWeight.w700),
+                      ),
+                      Expanded(
+                        child: Text(
+                          s.title,
+                          style: AppDesignSystem.bodyLarge(
                             context,
-                            color: t.textSecondary,
+                            color: unlocked ? t.textPrimary : t.textSecondary,
                           ).copyWith(fontWeight: FontWeight.w700),
                         ),
-                        Expanded(
-                          child: Text(
-                            s.title,
-                            style: AppDesignSystem.bodyLarge(
-                              context,
-                              color: t.textPrimary,
-                            ).copyWith(fontWeight: FontWeight.w700),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      s.subtitle,
-                      style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    s.subtitle,
+                    style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                  ),
+                ],
               ),
-              const SizedBox(width: AppDesignSystem.spacingS),
-              if (completed)
-                const Icon(Icons.check_circle_rounded, color: AppDesignSystem.gold, size: 24)
-              else if (isCurrent)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppDesignSystem.gold,
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Text(
-                    'Actual',
-                    style: AppDesignSystem.labelSmall(
-                      context,
-                      color: AppDesignSystem.midnightDeep,
-                    ).copyWith(fontWeight: FontWeight.w700),
-                  ),
-                )
-              else
-                const Icon(Icons.lock_outline_rounded, size: 20),
-            ],
-          ),
-        ).animate().fadeIn(duration: 280.ms, delay: (40 * s.order).ms).slideY(begin: 0.05, end: 0),
-      ),
+            ),
+            const SizedBox(width: AppDesignSystem.spacingS),
+            if (completed)
+              const Icon(Icons.check_circle_rounded, color: AppDesignSystem.gold, size: 24)
+            else if (isCurrent)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppDesignSystem.gold,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  'Actual',
+                  style: AppDesignSystem.labelSmall(
+                    context,
+                    color: AppDesignSystem.midnightDeep,
+                  ).copyWith(fontWeight: FontWeight.w700),
+                ),
+              )
+            else
+              const Icon(Icons.lock_outline_rounded, size: 20),
+          ],
+        ),
+      ).animate().fadeIn(duration: 280.ms, delay: (40 * s.order).ms).slideY(begin: 0.05, end: 0),
     );
   }
 

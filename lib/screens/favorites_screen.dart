@@ -4,7 +4,9 @@ import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../services/favorites_service.dart';
+import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
+import '../theme/contraste.dart';
 import '../vec/vec_widgets.dart';
 import '../widgets/share_verse_modal.dart';
 
@@ -234,9 +236,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [t.accent, t.accentSoft],
-                  ),
+                  // Fondo sólido: con el degradado a accentSoft (casi
+                  // transparente) el texto se perdía en la mitad derecha.
+                  color: t.accent,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
@@ -251,7 +253,11 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color:
+                        contrasteWcag(Colors.white, t.accent) >=
+                            contrasteWcag(AppDesignSystem.midnightDeep, t.accent)
+                        ? Colors.white
+                        : AppDesignSystem.midnightDeep,
                   ),
                 ),
               ),

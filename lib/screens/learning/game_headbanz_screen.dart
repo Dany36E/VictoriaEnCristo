@@ -570,8 +570,8 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
             ),
             child: Text(
               num,
-              style: const TextStyle(
-                color: AppDesignSystem.gold,
+              style: TextStyle(
+                color: AppDesignSystem.oroTexto(context, pastilla: 0.18),
                 fontWeight: FontWeight.w800,
                 fontSize: 13,
               ),

@@ -3,6 +3,7 @@ import '../../theme/app_fonts.dart';
 import '../../models/bible/typology.dart';
 import '../../services/bible/typology_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import 'typology_detail_screen.dart';
 
@@ -98,8 +99,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                         color: t.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Buscar tipología...',
-                      hintStyle: AppFonts.manrope(
-                          color: t.textPrimary.withValues(alpha: 0.3)),
+                      hintStyle: AppFonts.manrope(color: t.textoAtenuado()),
                       prefixIcon: Icon(Icons.search,
                           color: t.accent.withValues(alpha: 0.5)),
                       filled: true,
@@ -135,7 +135,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                     child: Text(
                       '${_filtered.length} tipologías',
                       style: AppFonts.manrope(
-                        color: t.textPrimary.withValues(alpha: 0.3),
+                        color: t.textoAtenuado(),
                         fontSize: 11,
                       ),
                     ),
@@ -151,7 +151,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                           children: [
                             Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: AppFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
+                            Text('Sin resultados', style: AppFonts.manrope(color: t.textoAtenuado(), fontSize: 14)),
                           ],
                         ),
                       )
@@ -175,7 +175,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
         selected: active,
         onSelected: (_) => setState(() => _activeTag = tag),
         labelStyle: AppFonts.manrope(
-          color: active ? t.background : t.textPrimary.withValues(alpha: 0.6),
+          color: active ? t.background : t.textoAtenuado(sobre: t.surface),
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
@@ -232,7 +232,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
             Text(
               typology.description,
               style: AppFonts.manrope(
-                color: t.textPrimary.withValues(alpha: 0.5),
+                color: t.textoAtenuado(sobre: t.surface),
                 fontSize: 12,
                 height: 1.4,
               ),
@@ -247,6 +247,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                   'AT',
                   typology.oldTestament.reference,
                   const Color(0xFFFF7043),
+                  t.surface,
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 6),
@@ -258,6 +259,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                   'NT',
                   typology.newTestament.reference,
                   const Color(0xFF42A5F5),
+                  t.surface,
                 ),
                 const Spacer(),
                 // Tags
@@ -272,7 +274,12 @@ class _TypologyScreenState extends State<TypologyScreen> {
                       child: Text(
                         tag,
                         style: AppFonts.manrope(
-                          color: t.textPrimary.withValues(alpha: 0.3),
+                          color: t.textoAtenuado(
+                            sobre: Color.alphaBlend(
+                              t.textPrimary.withValues(alpha: 0.05),
+                              t.surface,
+                            ),
+                          ),
                           fontSize: 9,
                         ),
                       ),
@@ -285,7 +292,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
     );
   }
 
-  Widget _refBadge(String testament, String osis, Color color) {
+  Widget _refBadge(String testament, String osis, Color color, Color base) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -295,7 +302,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
       child: Text(
         '$testament · ${_formatOsis(osis)}',
         style: AppFonts.manrope(
-          color: color,
+          color: legibleEnPastilla(color, 0.1, base),
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),

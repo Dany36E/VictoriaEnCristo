@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:app_quitar/services/theme_service.dart';
 import 'package:app_quitar/theme/app_fonts.dart';
 import 'package:app_quitar/theme/bible_reader_theme.dart';
+import 'package:app_quitar/theme/contraste.dart';
 import 'package:app_quitar/vec/vec_tema.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -48,10 +49,23 @@ void main() {
     );
   });
 
-  test('el texto tenue del lector no se pierde sobre el papel', () {
+  test('el texto tenue y atenuado del lector se lee en todos los temas', () {
+    for (final t in BibleReaderThemeData.all) {
+      for (final alpha in [0.2, 0.4, 0.6, 0.95]) {
+        expect(
+          contrasteWcag(t.textoTenue(alpha), t.fondoVisible),
+          greaterThanOrEqualTo(4.5),
+          reason: '${t.id}: textoTenue($alpha)',
+        );
+      }
+      expect(
+        contrasteWcag(t.textoAtenuado(), t.fondoVisible),
+        greaterThanOrEqualTo(4.5),
+        reason: '${t.id}: textoAtenuado()',
+      );
+    }
+    // Si el gris ya se lee (el lápiz del papel), se queda como está.
     const papel = BibleReaderThemeData.paper;
-    expect(papel.textoTenue(0.3).a, closeTo(0.85, 0.01));
-    expect(papel.textoTenue(0.95).a, closeTo(0.95, 0.01));
-    expect(BibleReaderThemeData.nightPure.textoTenue(0.3).a, closeTo(0.3, 0.01));
+    expect(papel.textoTenue(1).toARGB32(), papel.textSecondary.toARGB32());
   });
 }

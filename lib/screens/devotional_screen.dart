@@ -19,6 +19,7 @@ import '../services/notification_service.dart';
 import '../services/user_pref_cloud_sync_service.dart';
 import '../services/bible/bible_user_data_service.dart';
 import '../theme/bible_reader_theme.dart';
+import '../theme/contraste.dart';
 import '../utils/bible_navigation_helper.dart';
 import '../utils/time_utils.dart';
 import '../widgets/bible/reader/reader_typography_panel.dart';
@@ -584,7 +585,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                 child: Text(
                   'HOY',
                   style: AppFonts.manrope(
-                    color: t.accent,
+                    color: legibleEnPastilla(t.accent, 0.15, t.fondoVisible),
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
@@ -667,7 +668,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               Text(
                 '— ${entry.verseReference}',
                 style: AppFonts.manrope(
-                  color: t.accent,
+                  color: legibleSobre(t.accent, t.surface),
                   fontSize: fontSize - 5,
                   fontWeight: FontWeight.w700,
                 ),
@@ -868,7 +869,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
             Text(
               label,
               style: AppFonts.manrope(
-                color: t.accent,
+                color: legibleSobre(t.accent, t.surface),
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),

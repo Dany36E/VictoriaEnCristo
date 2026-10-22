@@ -130,9 +130,13 @@ class _BibleMapsScreenState extends State<BibleMapsScreen> {
               const Icon(Icons.public_rounded, color: AppDesignSystem.gold, size: 28),
               const SizedBox(width: 12),
               Expanded(
+                // La tarjeta es azul noche en todos los temas: texto claro fijo.
                 child: Text(
                   'Explora las tierras bíblicas',
-                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+                  style: AppDesignSystem.headlineSmall(
+                    context,
+                    color: AppDesignSystem.pureWhite,
+                  ),
                 ),
               ),
             ],
@@ -140,7 +144,10 @@ class _BibleMapsScreenState extends State<BibleMapsScreen> {
           const SizedBox(height: AppDesignSystem.spacingS),
           Text(
             'Arrastra los nombres de los lugares a su posición correcta en cada mapa.',
-            style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+            style: AppDesignSystem.bodyMedium(
+              context,
+              color: AppDesignSystem.pureWhite.withValues(alpha: 0.75),
+            ),
           ),
           const SizedBox(height: AppDesignSystem.spacingM),
           Row(

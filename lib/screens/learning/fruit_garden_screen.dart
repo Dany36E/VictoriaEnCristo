@@ -196,8 +196,8 @@ class _FruitGardenScreenState extends State<FruitGardenScreen> {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: AppDesignSystem.gold,
+        style: TextStyle(
+          color: AppDesignSystem.oroTexto(context, pastilla: 0.12),
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),

@@ -1,0 +1,31 @@
+# Problemas visuales que ya existían en "bible_settings". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+clean_page: "AJUSTES" contraste < 3.0
+clean_page: "TAMAÑO DE FUENTE" contraste < 4.5
+clean_page: "VERSIÓN POR DEFECTO" contraste < 4.5
+grey_editorial: "AJUSTES" contraste < 3.0
+grey_editorial: "TAMAÑO DE FUENTE" contraste < 4.5
+grey_editorial: "VERSIÓN POR DEFECTO" contraste < 4.5
+lavender: "RVR60 · Español" contraste < 4.5
+mint: "LBLA · Español" contraste < 4.5
+mint: "NIV · English" contraste < 4.5
+mint: "NKJV · English" contraste < 4.5
+mint: "NLT · English" contraste < 4.5
+mint: "NTV · Español" contraste < 4.5
+mint: "NVI · Español" contraste < 4.5
+mint: "RVR60 · Español" contraste < 4.5
+mint: "TLA · Español" contraste < 4.5
+parchment: "TAMAÑO DE FUENTE" contraste < 4.5
+parchment: "VERSIÓN POR DEFECTO" contraste < 4.5
+peach: "LBLA · Español" contraste < 4.5
+peach: "NIV · English" contraste < 4.5
+peach: "NKJV · English" contraste < 4.5
+peach: "NLT · English" contraste < 4.5
+peach: "NTV · Español" contraste < 4.5
+peach: "NVI · Español" contraste < 4.5
+peach: "Porque de tal manera amó Dios al mundo, …" contraste < 3.0
+peach: "RVR60 · Español" contraste < 4.5
+peach: "TAMAÑO DE FUENTE" contraste < 4.5
+peach: "TLA · Español" contraste < 4.5
+peach: "VERSIÓN POR DEFECTO" contraste < 4.5

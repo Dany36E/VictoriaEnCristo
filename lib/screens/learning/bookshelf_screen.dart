@@ -56,7 +56,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
         bottom: TabBar(
           controller: _tabs,
           onTap: (_) => FeedbackEngine.I.tabChange(),
-          labelColor: AppDesignSystem.gold,
+          labelColor: AppDesignSystem.oroTexto(context),
           unselectedLabelColor: t.textSecondary,
           indicatorColor: AppDesignSystem.gold,
           tabs: const [
@@ -109,7 +109,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
+                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.oroTexto(context)),
               ),
             ],
           ),
@@ -148,7 +148,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
               padding: const EdgeInsets.only(left: 4, top: 8, bottom: 8),
               child: Text(
                 cat,
-                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.gold),
+                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.oroTexto(context)),
               ),
             ),
             GridView.builder(
@@ -235,7 +235,7 @@ class _BookSpine extends StatelessWidget {
               children: [
                 Text(
                   '#${book.order}',
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.oroTexto(context)),
                 ),
                 if (studied)
                   const Icon(Icons.check_circle_rounded, color: AppDesignSystem.gold, size: 14),
@@ -264,7 +264,7 @@ class _BookSpine extends StatelessWidget {
                 child: Text(
                   '$score/3 ✓',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.oroTexto(context)),
                 ),
               ),
           ],

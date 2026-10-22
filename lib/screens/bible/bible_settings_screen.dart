@@ -126,9 +126,7 @@ class BibleSettingsScreen extends StatelessWidget {
                                 Text(
                                   '${v.shortName} · ${v.language.label}',
                                   style: AppFonts.manrope(
-                                    color: t.textSecondary.withValues(
-                                      alpha: 0.5,
-                                    ),
+                                    color: t.textoTenue(0.5),
                                     fontSize: 12,
                                   ),
                                 ),

@@ -126,7 +126,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
             decoration: InputDecoration(
               hintText: 'Buscar por título, predicador o pasaje',
               hintStyle: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.55),
+                color: t.textoAtenuado(),
                 fontSize: 13,
               ),
               prefixIcon: Icon(Icons.search, color: t.textSecondary, size: 18),
@@ -323,7 +323,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     : 'Tus apuntes de predicación guardados aparecerán aquí.',
                 textAlign: TextAlign.center,
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.45),
+                  color: t.textoAtenuado(),
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -869,7 +869,7 @@ class _FilterShell extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppFonts.manrope(
-                color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.78),
+                color: selected ? t.accent : t.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),

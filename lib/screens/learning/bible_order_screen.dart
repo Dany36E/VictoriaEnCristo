@@ -60,7 +60,7 @@ class _BibleOrderScreenState extends State<BibleOrderScreen> with SingleTickerPr
         bottom: TabBar(
           controller: _tabs,
           onTap: (_) => FeedbackEngine.I.tabChange(),
-          labelColor: AppDesignSystem.gold,
+          labelColor: AppDesignSystem.oroTexto(context),
           unselectedLabelColor: t.textSecondary,
           indicatorColor: AppDesignSystem.gold,
           tabs: const [
@@ -114,7 +114,7 @@ class _BibleOrderScreenState extends State<BibleOrderScreen> with SingleTickerPr
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
+                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.oroTexto(context)),
               ),
             ],
           ),
@@ -341,7 +341,7 @@ class _CategoryCard extends StatelessWidget {
                       icon: const Icon(Icons.school_rounded, size: 16),
                       label: const Text('Aprender'),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppDesignSystem.gold,
+                        foregroundColor: AppDesignSystem.oroTexto(context),
                         side: BorderSide(color: AppDesignSystem.gold.withValues(alpha: 0.7)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),

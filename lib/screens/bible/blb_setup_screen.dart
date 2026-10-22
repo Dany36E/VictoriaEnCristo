@@ -4,6 +4,7 @@ import '../../theme/app_fonts.dart';
 import '../../services/bible/blb_api_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 
 /// Pantalla con instrucciones de configuración y campo rápido
 /// para pegar la API key de Blue Letter Bible.
@@ -136,7 +137,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                 Text(
                   'Herramientas de Estudio',
                   style: AppFonts.cinzel(
-                    color: t.accent,
+                    color: legibleEnPastilla(t.accent, 0.15, t.fondoVisible),
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                   ),
@@ -147,7 +148,13 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                   'y Referencias Cruzadas directamente desde tu Biblia.',
                   textAlign: TextAlign.center,
                   style: AppFonts.manrope(
-                    color: t.textPrimary.withValues(alpha: 0.7),
+                    color: t.textoAtenuado(
+                      alpha: 0.7,
+                      sobre: Color.alphaBlend(
+                        t.accent.withValues(alpha: 0.15),
+                        t.fondoVisible,
+                      ),
+                    ),
                     fontSize: 14,
                     height: 1.5,
                   ),
@@ -200,7 +207,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                 Text(
                   'API KEY',
                   style: AppFonts.cinzel(
-                    color: t.accent,
+                    color: legibleSobre(t.accent, t.fondoVisible),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.5,
@@ -217,8 +224,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                   decoration: InputDecoration(
                     hintText: 'Pega tu API key aquí...',
                     hintStyle: AppFonts.manrope(
-                      color:
-                          t.textPrimary.withValues(alpha: 0.3),
+                      color: t.textoAtenuado(sobre: t.background),
                     ),
                     filled: true,
                     fillColor: t.background,
@@ -269,7 +275,9 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                           fontWeight: FontWeight.w600, fontSize: 14),
                     ),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: t.accent,
+                      // El acento ajustado para que el texto del color del
+                      // fondo se lea encima.
+                      backgroundColor: legibleSobre(t.accent, t.background),
                       foregroundColor: t.background,
                       shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12)),
@@ -312,7 +320,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                     Text(
                       'Plan Gratuito',
                       style: AppFonts.manrope(
-                        color: t.accent,
+                        color: legibleSobre(t.accent, t.fondoVisible),
                         fontSize: 13,
                         fontWeight: FontWeight.w600,
                       ),
@@ -326,7 +334,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                   '• Lexicón se guarda permanentemente\n'
                   '• Referencias cruzadas se guardan 30 días',
                   style: AppFonts.manrope(
-                    color: t.textPrimary.withValues(alpha: 0.5),
+                    color: t.textoAtenuado(),
                     fontSize: 13,
                     height: 1.5,
                   ),
@@ -366,7 +374,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
             child: Text(
               '$number',
               style: AppFonts.cinzel(
-                color: t.accent,
+                color: legibleEnPastilla(t.accent, 0.15, t.fondoVisible),
                 fontSize: 14,
                 fontWeight: FontWeight.w700,
               ),
@@ -389,7 +397,7 @@ class _BlbSetupScreenState extends State<BlbSetupScreen> {
                 Text(
                   description,
                   style: AppFonts.manrope(
-                    color: t.textPrimary.withValues(alpha: 0.5),
+                    color: t.textoAtenuado(),
                     fontSize: 13,
                     height: 1.4,
                   ),

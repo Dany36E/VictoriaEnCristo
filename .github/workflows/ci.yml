@@ -21,7 +21,9 @@ jobs:
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
-          channel: stable
+          # Misma versión que visual-qa.yml y codemagic.yaml: las pruebas de
+          # test/visual comparan contra problemas_conocidos/, generados con ella.
+          flutter-version: 3.41.1
           cache: true
 
       - name: Flutter version

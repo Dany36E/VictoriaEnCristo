@@ -54,6 +54,11 @@ class AppThemeData {
   /// cada página pinta el papel con textura (FondoPapel) por detrás.
   Color get pageBg => isPaper ? Colors.transparent : scaffoldBg;
 
+  /// El color que se ve detrás del texto de la página, para calcular colores
+  /// legibles (`legibleSobre`). En el tema papel es el tono de la textura,
+  /// más oscuro que [scaffoldBg].
+  Color get fondoVisible => isPaper ? VecColores.papelTexturado : scaffoldBg;
+
   // Helpers derivados
   Color get overlayBg => isDark
       ? Colors.white.withValues(alpha: 0.06)
@@ -174,7 +179,7 @@ class AppThemeData {
     cardBg: Color(0xFFFFFFFF),
     cardBorder: Color(0x0F1A1A1A),
     textPrimary: Color(0xFF1A1A1A),
-    textSecondary: Color(0xFF757575),
+    textSecondary: Color(0xFF6B6B6B),
     accent: Color(0xFF7A6200),
     accentSoft: Color(0x1A7A6200),
     divider: Color(0x0F1A1A1A),
@@ -206,7 +211,7 @@ class AppThemeData {
     cardBg: Color(0xFFFAFAFA),
     cardBorder: Color(0x0F212121),
     textPrimary: Color(0xFF212121),
-    textSecondary: Color(0xFF707070),
+    textSecondary: Color(0xFF666666),
     accent: Color(0xFF7A6200),
     accentSoft: Color(0x1A7A6200),
     divider: Color(0x0F212121),
@@ -273,11 +278,11 @@ class AppThemeData {
     cardBg: VecColores.papel,
     cardBorder: VecColores.cremaOscuro,
     textPrimary: VecColores.tinta,
-    // El gris del kit (#8a7a64) da 3.9:1 sobre papel; el texto secundario de
-    // toda la app necesita ≥ 4.5:1 (WCAG AA), así que usa el lápiz del kit.
+    // El texto secundario de toda la app necesita ≥ 4.5:1 (WCAG AA) sobre el
+    // papel con textura, así que usa el lápiz del kit en vez del gris.
     textSecondary: VecColores.lapiz,
     accent: VecColores.terracota,
-    accentSoft: Color(0x26C8553D), // terracota 15%
+    accentSoft: Color(0x26A8452F), // terracota 15%
     divider: VecColores.cremaOscuro,
     inputBg: VecColores.papel,
     isDark: false,

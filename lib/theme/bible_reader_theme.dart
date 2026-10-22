@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../vec/vec_tema.dart';
+import 'contraste.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE READER THEME - 10 temas editoriales premium
@@ -50,12 +51,35 @@ class BibleReaderThemeData {
   /// Swatch color for theme selector
   Color get swatchColor => background;
 
-  /// Texto secundario atenuado (fechas, contadores, avisos). En el tema papel
-  /// no baja de 0.85 de opacidad: el gris con poca opacidad casi desaparece
-  /// sobre el papel crema. En los demás temas es igual a `withValues`.
-  Color textoTenue(double alpha) => textSecondary.withValues(
-    alpha: id == paper.id && alpha < 0.85 ? 0.85 : alpha,
-  );
+  /// Texto secundario atenuado (fechas, contadores, avisos): [textSecondary]
+  /// con la opacidad [alpha]. Si así no llega a contraste 4.5 (WCAG AA) sobre
+  /// la página, usa [textoAtenuado], que sí llega: el gris con poca opacidad
+  /// casi desaparece en los temas claros y sobre el papel con textura.
+  Color textoTenue(double alpha) {
+    final color = textSecondary.withValues(alpha: alpha);
+    if (contrasteWcag(color, fondoVisible) >= 4.5) return color;
+    return textoAtenuado(alpha: alpha);
+  }
+
+  /// Texto de apoyo (pistas de búsqueda, avisos de lista vacía) que se nota
+  /// más suave que el principal pero sigue siendo legible: [textPrimary] con
+  /// la opacidad [alpha], subiéndola hasta llegar a contraste 4.5 (WCAG AA)
+  /// sobre [sobre] (por defecto, el fondo). Algunos temas tienen un
+  /// `textSecondary` muy claro.
+  Color textoAtenuado({double alpha = 0.72, Color? sobre}) {
+    final fondo = sobre ?? fondoVisible;
+    for (var a = alpha; a < 1; a += 0.04) {
+      final color = textPrimary.withValues(alpha: a);
+      if (contrasteWcag(color, fondo) >= 4.5) return color;
+    }
+    return textPrimary;
+  }
+
+  /// El color que se ve detrás del texto de la página, para calcular colores
+  /// legibles (`legibleSobre`). En el tema papel es el tono de la textura,
+  /// más oscuro que [background].
+  Color get fondoVisible =>
+      id == paper.id ? VecColores.papelTexturado : background;
 
   /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
   /// cada página pinta el papel con textura (FondoPapel) por detrás.

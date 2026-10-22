@@ -4,6 +4,7 @@ import '../../theme/app_fonts.dart';
 import '../../models/bible/dictionary_entry.dart';
 import '../../services/bible/bible_dictionary_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import 'bible_dictionary_detail_screen.dart';
 
@@ -85,20 +86,24 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             Icon(Icons.menu_book_outlined,
                 color: t.accent, size: 22),
             const SizedBox(width: 10),
-            Text(
-              'DICCIONARIO BÍBLICO',
-              style: AppFonts.cinzel(
-                color: t.accent,
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 1.2,
+            Expanded(
+              child: Text(
+                'DICCIONARIO BÍBLICO',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: AppFonts.cinzel(
+                  color: legibleSobre(t.accent, t.fondoVisible),
+                  fontSize: 15,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.2,
+                ),
               ),
             ),
-            const Spacer(),
+            const SizedBox(width: 8),
             Text(
               '${_dict.totalCount} entradas',
               style: AppFonts.manrope(
-                color: t.textPrimary.withValues(alpha: 0.4),
+                color: t.textoAtenuado(),
                 fontSize: 12,
               ),
             ),
@@ -118,7 +123,12 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
           decoration: InputDecoration(
             hintText: 'Buscar término o definición...',
             hintStyle: AppFonts.manrope(
-              color: t.textPrimary.withValues(alpha: 0.3),
+              color: t.textoAtenuado(
+                sobre: Color.alphaBlend(
+                  t.surface.withValues(alpha: 0.6),
+                  t.fondoVisible,
+                ),
+              ),
               fontSize: 15,
             ),
             prefixIcon: Icon(Icons.search,
@@ -196,8 +206,8 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
           label,
           style: AppFonts.manrope(
             color: selected
-                ? t.accent
-                : t.textPrimary.withValues(alpha: 0.5),
+                ? legibleEnPastilla(t.accent, 0.2, t.fondoVisible)
+                : t.textoAtenuado(),
             fontSize: 12,
             fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
           ),
@@ -219,7 +229,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             Text(
               'No se encontraron resultados',
               style: AppFonts.manrope(
-                color: t.textPrimary.withValues(alpha: 0.5),
+                color: t.textoAtenuado(),
                 fontSize: 14,
               ),
             ),

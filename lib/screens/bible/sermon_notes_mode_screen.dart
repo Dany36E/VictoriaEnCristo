@@ -74,7 +74,7 @@ class SermonNotesModeScreen extends StatefulWidget {
   const SermonNotesModeScreen({
     super.key,
     this.bookNumber = 1,
-    this.bookName = 'Genesis',
+    this.bookName = 'Génesis',
     this.chapter = 1,
     this.version,
     this.noteId,

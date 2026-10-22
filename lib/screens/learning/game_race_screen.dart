@@ -22,6 +22,7 @@ import '../../services/feedback_engine.dart';
 import '../../services/learning/question_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../theme/contraste.dart';
 import '../../widgets/learning/game_difficulty_selector.dart';
 
 // ═══════════════════════════════════════════════════════════════════════════
@@ -423,7 +424,14 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
               const SizedBox(height: 8),
               Text(
                 'De Egipto a Jerusalén',
-                style: AppDesignSystem.headlineSmall(context, color: const Color(0xFFD4A574)),
+                style: AppDesignSystem.headlineSmall(
+                  context,
+                  color: legibleEnPastilla(
+                    const Color(0xFFD4A574),
+                    0.2,
+                    AppThemeData.of(context).fondoVisible,
+                  ),
+                ),
               ),
               const SizedBox(height: 4),
               Text(
@@ -507,6 +515,12 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
     final otherIdx = isP1 ? _runner2Idx : _runner1Idx;
     final ctrl = isP1 ? _nameCtrl1 : _nameCtrl2;
     final runner = _kRunners[selectedIdx];
+    // Número del jugador en blanco o en oscuro, el que más se lea sobre su color.
+    final colorNumero =
+        contrasteWcag(Colors.white, runner.color) >=
+            contrasteWcag(AppDesignSystem.midnightDeep, runner.color)
+        ? Colors.white
+        : AppDesignSystem.midnightDeep;
 
     return Container(
       padding: const EdgeInsets.all(AppDesignSystem.spacingM),
@@ -528,8 +542,8 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
                 child: Center(
                   child: Text(
                     '$player',
-                    style: const TextStyle(
-                      color: Colors.white,
+                    style: TextStyle(
+                      color: colorNumero,
                       fontWeight: FontWeight.w800,
                       fontSize: 14,
                     ),
@@ -539,7 +553,10 @@ class _GameRaceScreenState extends State<GameRaceScreen> with TickerProviderStat
               const SizedBox(width: 10),
               Text(
                 'Jugador $player',
-                style: AppDesignSystem.labelLarge(context, color: runner.color),
+                style: AppDesignSystem.labelLarge(
+                  context,
+                  color: legibleEnPastilla(runner.color, 0.06, t.fondoVisible),
+                ),
               ),
               const Spacer(),
               Text(

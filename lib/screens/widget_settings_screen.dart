@@ -264,7 +264,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white38 : Colors.black38,
+                  color: AppThemeData.of(context).textSecondary,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -283,7 +283,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                 style: TextStyle(
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
-                  color: isDark ? Colors.white38 : Colors.black38,
+                  color: AppThemeData.of(context).textSecondary,
                   letterSpacing: 1.2,
                 ),
               ),
@@ -373,7 +373,9 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     final borderColor = isLight ? const Color(0xFFE0E0E0) : const Color(0xFF3D3D5C);
     final textColor = isLight ? const Color(0xFF212121) : Colors.white;
     final labelColor = isLight ? const Color(0xFF757575) : const Color(0xFFB0B0B0);
-    const accentColor = Color(0xFFD4AF37);
+    // En la tarjeta clara el dorado no se lee: va el dorado oscuro (igual
+    // que en VerseOfDayWidgetProvider.kt).
+    final accentColor = isLight ? const Color(0xFF8B6914) : const Color(0xFFD4AF37);
 
     return Container(
       width: 280,
@@ -408,7 +410,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             const SizedBox(height: 6),
             Text(
               _verseRef,
-              style: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: accentColor),
+              style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: accentColor),
               maxLines: 1,
             ),
           ],

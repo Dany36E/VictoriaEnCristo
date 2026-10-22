@@ -253,7 +253,7 @@ class MyKingdomScreen extends StatelessWidget {
               value,
               style: AppDesignSystem.headlineSmall(
                 context,
-                color: AppDesignSystem.gold,
+                color: AppDesignSystem.oroTexto(context),
               ),
             ),
           ],

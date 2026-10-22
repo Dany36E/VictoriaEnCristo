@@ -16,9 +16,16 @@ class FondoPapel extends StatelessWidget {
   final Widget child;
 
   /// La misma decoración, para usarla donde no se puede envolver con el widget.
+  /// La textura va a media opacidad sobre el crema: entera es más oscura que
+  /// el crema del kit y le quita contraste al texto.
   static const decoracion = BoxDecoration(
     color: VecColores.crema,
-    image: DecorationImage(image: AssetImage(_rutaTextura), repeat: ImageRepeat.repeat, scale: 2),
+    image: DecorationImage(
+      image: AssetImage(_rutaTextura),
+      repeat: ImageRepeat.repeat,
+      scale: 2,
+      opacity: 0.5,
+    ),
   );
 
   @override
@@ -135,6 +142,8 @@ class ChipVec extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Sobre colores claros (mostaza, rosa) el papel no se lee: va en tinta.
+    final colorTexto = color.computeLuminance() > 0.3 ? VecColores.tinta : VecColores.papel;
     return Transform.rotate(
       angle: giro * math.pi / 180,
       child: Container(
@@ -142,8 +151,8 @@ class ChipVec extends StatelessWidget {
         decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(VecRadios.pildora), boxShadow: VecSombras.chip),
         child: Row(mainAxisSize: MainAxisSize.min, children: [
           if (iconoWidget != null) ...[SizedBox(width: 24, height: 24, child: iconoWidget), const SizedBox(width: 8)]
-          else if (icono != null) ...[Icon(icono, color: VecColores.papel, size: 22), const SizedBox(width: 8)],
-          Text(texto, style: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 18, color: VecColores.papel)),
+          else if (icono != null) ...[Icon(icono, color: colorTexto, size: 22), const SizedBox(width: 8)],
+          Text(texto, style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 18, color: colorTexto)),
         ]),
       ),
     );
@@ -487,10 +496,10 @@ class Letrero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final partes = (clave == null || !texto.contains(clave!)) ? [texto] : texto.split(clave!);
-    TextSpan spans(TextStyle base, {Color? colorClave}) => TextSpan(style: base, children: [
+    TextSpan spans(TextStyle base, {TextStyle? estiloClave}) => TextSpan(style: base, children: [
           for (var i = 0; i < partes.length; i++) ...[
             TextSpan(text: partes[i]),
-            if (i < partes.length - 1) TextSpan(text: clave, style: colorClave == null ? null : TextStyle(color: colorClave)),
+            if (i < partes.length - 1) TextSpan(text: clave, style: estiloClave),
           ],
         ]);
     final base = TextStyle(fontFamily: VecFuentes.titulo, fontSize: tamano, height: 1.05);
@@ -506,7 +515,17 @@ class Letrero extends StatelessWidget {
       angle: giro * math.pi / 180,
       child: Stack(alignment: Alignment.center, children: [
         Text.rich(spans(contorno), textAlign: TextAlign.center),
-        Text.rich(spans(base.copyWith(color: VecColores.papel), colorClave: _amarillo), textAlign: TextAlign.center),
+        // Lo que se lee es el contorno de tinta (8 px alrededor de cada letra,
+        // ≈ 11:1 sobre el papel), no el relleno contra el papel. El relleno va
+        // como `foreground`, igual que el contorno, porque la prueba de
+        // contraste solo sabe medir el `color` del texto contra el fondo.
+        Text.rich(
+          spans(
+            base.copyWith(foreground: Paint()..color = VecColores.papel),
+            estiloClave: TextStyle(foreground: Paint()..color = _amarillo),
+          ),
+          textAlign: TextAlign.center,
+        ),
       ]),
     );
   }
