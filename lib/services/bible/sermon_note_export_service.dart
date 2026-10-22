@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
@@ -8,6 +9,8 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
 
 import '../../models/bible/bible_verse.dart';
+import '../../models/bible/colores_nota.dart';
+import '../../models/bible/listas_nota.dart';
 import '../../models/bible/rich_note_document.dart';
 import '../../models/bible/sermon_note.dart';
 import '../../models/bible/study_word_highlight.dart';
@@ -21,6 +24,14 @@ const _kBody = PdfColor(0.17, 0.17, 0.18);
 const _kCardBg = PdfColor(0.985, 0.975, 0.955);
 const _kCardBorder = PdfColor(0.88, 0.85, 0.77);
 
+/// Foto o dibujo de la nota ya convertido en imagen para el PDF.
+class ImagenPdf {
+  final Uint8List bytes;
+  final String pie;
+
+  const ImagenPdf(this.bytes, this.pie);
+}
+
 class SermonNoteExportService {
   SermonNoteExportService._();
   static final SermonNoteExportService I = SermonNoteExportService._();
@@ -32,6 +43,7 @@ class SermonNoteExportService {
     required List<BibleVerse> chapterVerses,
     List<BibleVerse> secondaryChapterVerses = const [],
     List<StudyWordHighlight> highlights = const [],
+    List<ImagenPdf> imagenes = const [],
     bool saveToDownloads = false,
     bool cleanCover = false,
   }) async {
@@ -56,7 +68,7 @@ class SermonNoteExportService {
       italic: fontItalic,
     );
 
-    // Solo versiculos agregados con contenido real (evita tarjetas en blanco).
+    // Solo versículos agregados con contenido real (evita tarjetas en blanco).
     final addedVerses = note.verses
         .where(
           (verse) =>
@@ -87,7 +99,7 @@ class SermonNoteExportService {
           child: pw.Align(
             alignment: pw.Alignment.centerRight,
             child: pw.Text(
-              'Victoria en Cristo · Pagina ${context.pageNumber} de ${context.pagesCount}',
+              'Victoria en Cristo · Página ${context.pageNumber} de ${context.pagesCount}',
               style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
             ),
           ),
@@ -111,20 +123,36 @@ class SermonNoteExportService {
           _sectionTitle('Notas'),
           pw.SizedBox(height: 10),
           note.notes.trim().isEmpty
-              ? _emptyText('Sin notas registradas todavia.')
+              ? _emptyText('Sin notas registradas todavía.')
               : _formattedStudyText(note.notes.trim()),
+          if (imagenes.isNotEmpty) ...[
+            pw.SizedBox(height: 20),
+            // El título viaja con la primera imagen para no quedar solo al
+            // final de una página.
+            pw.Inseparable(
+              child: pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  _sectionTitle('Fotos y dibujos'),
+                  pw.SizedBox(height: 10),
+                  _imagenBlock(imagenes.first),
+                ],
+              ),
+            ),
+            for (final imagen in imagenes.skip(1)) _imagenBlock(imagen),
+          ],
           if (addedVerses.isNotEmpty) ...[
             pw.SizedBox(height: 20),
-            _sectionTitle('Versiculos agregados'),
+            _sectionTitle('Versículos agregados'),
             pw.SizedBox(height: 10),
             for (final verse in addedVerses)
               _verseReferenceBlock(verse, highlights),
           ],
           pw.SizedBox(height: 20),
-          _sectionTitle('¿Con que me quedo?'),
+          _sectionTitle('¿Con qué me quedo?'),
           pw.SizedBox(height: 10),
           note.takeaway.trim().isEmpty
-              ? _emptyText('Sin reflexion final registrada.')
+              ? _emptyText('Sin reflexión final registrada.')
               : _takeawayBlock(note.takeaway.trim()),
         ],
       ),
@@ -143,6 +171,7 @@ class SermonNoteExportService {
     required List<BibleVerse> chapterVerses,
     List<BibleVerse> secondaryChapterVerses = const [],
     List<StudyWordHighlight> highlights = const [],
+    List<ImagenPdf> imagenes = const [],
     bool cleanCover = false,
   }) async {
     final file = await exportSermonNoteToPdf(
@@ -150,6 +179,7 @@ class SermonNoteExportService {
       chapterVerses: chapterVerses,
       secondaryChapterVerses: secondaryChapterVerses,
       highlights: highlights,
+      imagenes: imagenes,
       cleanCover: cleanCover,
     );
     await Share.shareXFiles(
@@ -162,7 +192,7 @@ class SermonNoteExportService {
 
   String _pdfTitle(SermonNote note) {
     final title = note.title.trim();
-    return title.isEmpty ? 'Apunte de predicacion' : title;
+    return title.isEmpty ? 'Apunte de predicación' : title;
   }
 
   pw.Widget _coverPage(SermonNote note) {
@@ -326,7 +356,7 @@ class SermonNoteExportService {
         .toList(growable: false);
     if (primary.isEmpty) {
       return [
-        _emptyText('No se encontraron versiculos para el pasaje central.'),
+        _emptyText('No se encontraron versículos para el pasaje central.'),
       ];
     }
     return [
@@ -409,7 +439,7 @@ class SermonNoteExportService {
     );
   }
 
-  /// Tarjeta uniforme para versiculos (pasaje central y agregados).
+  /// Tarjeta uniforme para versículos (pasaje central y agregados).
   pw.Widget _verseCard({required String reference, required pw.Widget child}) {
     return pw.Container(
       width: double.infinity,
@@ -438,7 +468,7 @@ class SermonNoteExportService {
     );
   }
 
-  /// Renderiza el texto de un versiculo subrayando las palabras resaltadas
+  /// Renderiza el texto de un versículo subrayando las palabras resaltadas
   /// (con el color del resaltado) para que coincida con la lectura en la app.
   pw.Widget _verseRichText(
     String text, {
@@ -572,10 +602,154 @@ class SermonNoteExportService {
     );
   }
 
+  pw.Widget _imagenBlock(ImagenPdf imagen) {
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(bottom: 14),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.center,
+        children: [
+          pw.Container(
+            constraints: const pw.BoxConstraints(maxHeight: 470),
+            padding: const pw.EdgeInsets.all(4),
+            decoration: pw.BoxDecoration(
+              color: PdfColors.white,
+              borderRadius: pw.BorderRadius.circular(6),
+              border: pw.Border.all(color: _kCardBorder, width: 0.6),
+            ),
+            child: pw.Image(
+              pw.MemoryImage(imagen.bytes),
+              fit: pw.BoxFit.contain,
+            ),
+          ),
+          if (imagen.pie.trim().isNotEmpty) ...[
+            pw.SizedBox(height: 5),
+            pw.Text(
+              imagen.pie.trim(),
+              textAlign: pw.TextAlign.center,
+              style: pw.TextStyle(
+                fontSize: 10,
+                color: _kLabel,
+                fontStyle: pw.FontStyle.italic,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  /// En el editor el texto base mide 15; en el PDF, 11.
+  static const double _escalaNotas = 11 / 15;
+
+  pw.TextStyle _estiloSegmento(RichNoteTextSegment segment) {
+    final decoraciones = [
+      if (segment.underline) pw.TextDecoration.underline,
+      if (segment.strike) pw.TextDecoration.lineThrough,
+    ];
+    final colorTexto = coloresTextoClaro[segment.color];
+    final resaltado = coloresResaltado[segment.highlight];
+    return pw.TextStyle(
+      fontSize: segment.fontSize == null ? 11 : segment.fontSize! * _escalaNotas,
+      lineSpacing: 3.6,
+      color: colorTexto == null ? _kBody : PdfColor.fromInt(colorTexto),
+      fontWeight: segment.bold ? pw.FontWeight.bold : pw.FontWeight.normal,
+      fontStyle: segment.italic ? pw.FontStyle.italic : pw.FontStyle.normal,
+      decoration: decoraciones.isEmpty
+          ? null
+          : pw.TextDecoration.combine(decoraciones),
+      decorationColor: segment.underline ? _kGold : null,
+      decorationThickness: segment.underline ? 1.8 : null,
+      background: resaltado == null
+          ? null
+          : pw.BoxDecoration(color: _sobreBlanco(resaltado)),
+    );
+  }
+
+  /// Color translúcido ya mezclado con el papel blanco (el PDF lo pinta opaco).
+  PdfColor _sobreBlanco(int argb) {
+    final a = ((argb >> 24) & 0xFF) / 255;
+    double canal(int desplazamiento) =>
+        1 - a * (1 - ((argb >> desplazamiento) & 0xFF) / 255);
+    return PdfColor(canal(16), canal(8), canal(0));
+  }
+
+  /// Casilla de tarea dibujada (la letra del PDF no trae ☐ ni ☑).
+  pw.InlineSpan _casilla(bool hecha) {
+    return pw.WidgetSpan(
+      baseline: -1.5,
+      child: pw.Container(
+        width: 9,
+        height: 9,
+        margin: const pw.EdgeInsets.only(right: 5),
+        decoration: pw.BoxDecoration(
+          color: hecha ? _kGold : null,
+          borderRadius: pw.BorderRadius.circular(2),
+          border: pw.Border.all(color: hecha ? _kGold : _kLabel, width: 0.9),
+        ),
+      ),
+    );
+  }
+
+  /// Texto con su formato; las tareas llevan casilla y, si están hechas,
+  /// el resto de la línea va tachado y más tenue.
+  List<pw.InlineSpan> _spansNotas(List<RichNoteTextSegment> segments) {
+    final spans = <pw.InlineSpan>[];
+    var inicioLinea = true;
+    var lineaHecha = false;
+    for (final segment in segments) {
+      final estilo = _estiloSegmento(segment);
+      final buffer = StringBuffer();
+      void volcar() {
+        if (buffer.isEmpty) return;
+        spans.add(
+          pw.TextSpan(
+            text: buffer.toString(),
+            style: lineaHecha
+                ? estilo.copyWith(
+                    color: PdfColors.grey600,
+                    decoration: pw.TextDecoration.lineThrough,
+                  )
+                : estilo,
+          ),
+        );
+        buffer.clear();
+      }
+
+      final texto = segment.text;
+      var i = 0;
+      while (i < texto.length) {
+        // La casilla puede quedar en un tramo y su espacio en el siguiente
+        // (si el formato empieza justo después), así que se mira el carácter.
+        if (inicioLinea &&
+            (texto[i] == tareaPendiente[0] || texto[i] == tareaHecha[0])) {
+          volcar();
+          lineaHecha = texto[i] == tareaHecha[0];
+          spans.add(_casilla(lineaHecha));
+          i++;
+          if (i < texto.length && texto[i] == ' ') i++;
+          inicioLinea = false;
+          continue;
+        }
+        final c = texto[i];
+        buffer.write(c);
+        i++;
+        if (c == '\n') {
+          volcar();
+          lineaHecha = false;
+          inicioLinea = true;
+        } else {
+          inicioLinea = false;
+        }
+      }
+      volcar();
+    }
+    return spans;
+  }
+
   pw.Widget _formattedStudyText(String source) {
     final segments = richNoteSegments(source);
     if (segments.isEmpty) {
-      return _emptyText('Sin notas registradas todavia.');
+      return _emptyText('Sin notas registradas todavía.');
     }
     return pw.RichText(
       overflow: pw.TextOverflow.span,
@@ -585,25 +759,7 @@ class SermonNoteExportService {
           lineSpacing: 3.6,
           color: _kBody,
         ),
-        children: [
-          for (final segment in segments)
-            pw.TextSpan(
-              text: segment.text,
-              style: pw.TextStyle(
-                fontSize: segment.fontSize ?? 11,
-                lineSpacing: 3.6,
-                color: _kBody,
-                fontWeight: segment.bold
-                    ? pw.FontWeight.bold
-                    : pw.FontWeight.normal,
-                decoration: segment.underline
-                    ? pw.TextDecoration.underline
-                    : null,
-                decorationColor: segment.underline ? _kGold : null,
-                decorationThickness: segment.underline ? 1.8 : null,
-              ),
-            ),
-        ],
+        children: _spansNotas(segments),
       ),
     );
   }

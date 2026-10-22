@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_fonts.dart';
 import '../../../services/bible/bible_user_data_service.dart';
+import '../../../theme/app_theme_data.dart';
 import '../../../theme/bible_reader_theme.dart';
+import 'selector_letra_lectura.dart';
 
 class ReaderTypographyPanel extends StatelessWidget {
   final BibleReaderThemeData theme;
@@ -93,6 +95,10 @@ class ReaderTypographyPanel extends StatelessWidget {
                   );
                 },
               ),
+              if (AppThemeData.of(context).isPaper) ...[
+                const SizedBox(height: 8),
+                SelectorLetraLectura(theme: t),
+              ],
               const SizedBox(height: 12),
               ValueListenableBuilder<String>(
                 valueListenable: BibleUserDataService.I.readerThemeNotifier,

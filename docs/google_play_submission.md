@@ -51,6 +51,7 @@ Las Alarmas Sagradas son recordatorios configurados por el usuario para oración
 | Email, nombre, foto y UID | Cuenta, perfil y sincronización | Recopilado; cifrado en tránsito; eliminable |
 | Progreso y configuración | Funcionalidad y sincronización | Recopilado; cifrado en tránsito; eliminable |
 | Mensajes con compañeros | Función social privada | Recopilado; cifrado en tránsito; eliminable |
+| Fotos y dibujos de Apuntes | Adjuntos privados de cada apunte (Firebase Storage) | Recopilado sólo si el usuario agrega una imagen; cifrado en tránsito; eliminable con el apunte o la cuenta |
 | Publicaciones del Muro | Comunidad seudónima y moderación | Recopilado; sin UID visible; eliminable junto con la cuenta conforme al flujo documentado |
 | Identificadores de dispositivo | Token FCM | Recopilado para notificaciones; eliminable |
 | Diagnóstico y actividad | Crashlytics y Analytics | Recopilado para estabilidad y métricas; sin AD_ID |

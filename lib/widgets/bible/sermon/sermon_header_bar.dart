@@ -76,7 +76,7 @@ class SermonHeaderBar extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    'Modo Predicacion',
+                    'Modo Predicación',
                     style: AppFonts.cinzel(
                       color: t.textPrimary,
                       fontSize: 18,
@@ -112,7 +112,7 @@ class SermonHeaderBar extends StatelessWidget {
             onPressed: onSwapVersions,
           ),
           IconButton(
-            tooltip: 'Agregar versiculos',
+            tooltip: 'Agregar versículos',
             icon: Icon(Icons.playlist_add, color: t.accent, size: 22),
             onPressed: onOpenAddVersesPicker,
           ),
@@ -173,7 +173,7 @@ class SermonHeaderBar extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Modo Predicacion',
+                    'Modo Predicación',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppFonts.cinzel(
@@ -232,7 +232,7 @@ class SermonHeaderBar extends StatelessWidget {
               _menuItem(t, _SermonHeaderAction.passage, 'Cambiar lectura'),
               _menuItem(t, _SermonHeaderAction.versions, 'Versiones'),
               _menuItem(t, _SermonHeaderAction.swapVersions, 'Intercambiar versiones'),
-              _menuItem(t, _SermonHeaderAction.addVerses, 'Agregar versiculos'),
+              _menuItem(t, _SermonHeaderAction.addVerses, 'Agregar versículos'),
               _menuItem(t, _SermonHeaderAction.savedNotes, 'Apuntes guardados'),
               _menuItem(t, _SermonHeaderAction.exportPdf, 'Exportar PDF'),
               _menuItem(t, _SermonHeaderAction.text, 'Texto y colores'),

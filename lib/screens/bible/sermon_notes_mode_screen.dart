@@ -3,13 +3,18 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../theme/app_fonts.dart';
+import '../../models/bible/adjunto_nota.dart';
+import '../../models/bible/dibujo_nota.dart';
+import '../../models/bible/listas_nota.dart';
 
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../models/bible/rich_note_document.dart';
 import '../../models/bible/sermon_note.dart';
+import '../../services/bible/adjuntos_nota_service.dart';
 import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/sermon_note_export_service.dart';
@@ -18,8 +23,11 @@ import '../../services/bible/sermon_note_service.dart';
 import '../../services/bible/sermon_reference_parser.dart';
 import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
+import 'lienzo_dibujo_screen.dart';
 import 'sermon_notes_saved_screen.dart';
 import 'study_mode_screen.dart' show StudyPickerResult;
+import '../../widgets/bible/sermon/adjuntos_nota.dart';
+import '../../widgets/bible/sermon/hoja_formato_nota.dart';
 import '../../widgets/bible/sermon/sermon_highlight_controller.dart';
 import '../../widgets/bible/sermon/sermon_rich_text_controller.dart';
 import '../../widgets/bible/study/study_chapter_picker.dart';
@@ -126,6 +134,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   // Foco del editor de Notas: cuando esta activo mostramos la barra de formato
   // flotante pegada al teclado.
   final _notesFocusNode = FocusNode();
+  final _picker = ImagePicker();
+  bool _agregandoAdjunto = false;
+  bool _editandoListas = false;
 
   @override
   void initState() {
@@ -477,8 +488,10 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   void _onFieldChanged(String _) => _scheduleSave();
 
   void _onNotesEdited() {
-    if (_hydrating) return;
-    final textChanged = _lastNotesText != _notesController.text;
+    if (_hydrating || _editandoListas) return;
+    final anterior = _lastNotesText;
+    final textChanged = anterior != _notesController.text;
+    if (textChanged) _continuarListaSiHaceFalta(anterior);
     final selectionChanged = _lastNotesSelection != _notesController.selection;
     if (!textChanged && !selectionChanged) return;
     _lastNotesText = _notesController.text;
@@ -636,9 +649,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     final items = List<ContextMenuButtonItem>.from(
       editableTextState.contextMenuButtonItems,
     );
-    // Formato inline estilo Word: al seleccionar texto, los controles de
-    // negrita, subrayado y tamaño aparecen justo en el menu de la seleccion,
-    // sin tener que subir a la barra de herramientas del encabezado.
+    // Formato inline: al seleccionar texto, negrita, cursiva, subrayado y
+    // resaltado aparecen en el menú de la selección; «Formato…» abre el panel
+    // completo (estilos, listas, colores y tamaño).
     final selection = editableTextState.textEditingValue.selection;
     if (selection.isValid && !selection.isCollapsed) {
       var insertAt = 0;
@@ -656,16 +669,18 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       }
 
       addFormat('Negrita', () => _applyNotesFormat(RichNoteFormat.bold));
+      addFormat('Cursiva', () => _applyNotesFormat(RichNoteFormat.italic));
       addFormat('Subrayar', () => _applyNotesFormat(RichNoteFormat.underline));
-      addFormat(
-        'A-',
-        () => _applyNotesFormat(RichNoteFormat.size, fontSize: 12),
-      );
-      addFormat('A', () => _applyNotesFormat(RichNoteFormat.size, fontSize: 16));
-      addFormat(
-        'A+',
-        () => _applyNotesFormat(RichNoteFormat.size, fontSize: 22),
-      );
+      addFormat('Resaltar', () {
+        final actual = _notesController.document
+            .formatIn(selection.start, selection.end)
+            .highlight;
+        _applyNotesFormat(
+          RichNoteFormat.highlight,
+          value: actual == null ? richNoteHighlightColors.first : null,
+        );
+      });
+      addFormat('Formato…', _abrirFormato);
     }
     if (activeSuggestion != null) {
       final replacements = activeSuggestion.suggestions.take(3).toList();
@@ -721,14 +736,263 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     );
   }
 
-  Future<void> _openNotesTypographyMenu() async {
-    final size = await showModalBottomSheet<double>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _NotesFontSizeSheet(theme: _theme()),
+  /// Enter dentro de una lista: sigue la lista o la termina, como en Notas.
+  void _continuarListaSiHaceFalta(String anterior) {
+    final nuevo = _notesController.text;
+    final sel = _notesController.selection;
+    if (!sel.isValid || !sel.isCollapsed) return;
+    final cursor = sel.baseOffset;
+    if (nuevo.length != anterior.length + 1 ||
+        cursor <= 0 ||
+        cursor > nuevo.length ||
+        nuevo[cursor - 1] != '\n' ||
+        nuevo.replaceRange(cursor - 1, cursor, '') != anterior) {
+      return;
+    }
+    final resultado = continuarLista(nuevo, cursor);
+    if (resultado == null) return;
+    _editandoListas = true;
+    _notesController.aplicarEdiciones(resultado);
+    _editandoListas = false;
+  }
+
+  /// Tocar la casilla de una tarea la marca o la desmarca.
+  void _alTocarNotas() {
+    final sel = _notesController.selection;
+    if (!sel.isValid || !sel.isCollapsed) return;
+    final resultado = alternarTareaEn(_notesController.text, sel.baseOffset);
+    if (resultado == null) return;
+    HapticFeedback.selectionClick();
+    _notesController.aplicarEdiciones(resultado);
+  }
+
+  void _alternarLista(TipoLista tipo) {
+    final texto = _notesController.text;
+    final sel = _notesController.selection;
+    final inicio = sel.isValid ? sel.start : texto.length;
+    final fin = sel.isValid ? sel.end : texto.length;
+    HapticFeedback.selectionClick();
+    _notesController.aplicarEdiciones(alternarLista(texto, inicio, fin, tipo));
+    if (!_notesFocusNode.hasFocus) _notesFocusNode.requestFocus();
+  }
+
+  void _aplicarParrafo(RichNoteParagraphStyle estilo) {
+    _notesController.applyParagraphStyle(estilo);
+    _notesDocument = _notesController.document;
+    _scheduleSave();
+    if (mounted) setState(() {});
+  }
+
+  Future<void> _abrirFormato() async {
+    await mostrarHojaFormatoNota(
+      context,
+      theme: _theme(),
+      controller: _notesController,
+      acciones: AccionesFormatoNota(
+        formato: (formato, {valor}) =>
+            _applyNotesFormat(formato, value: valor),
+        parrafo: _aplicarParrafo,
+        lista: _alternarLista,
+        tamano: _bumpNotesSize,
+      ),
     );
-    if (size == null) return;
-    _applyNotesFormat(RichNoteFormat.size, fontSize: size);
+    if (mounted) _notesFocusNode.requestFocus();
+  }
+
+  // ── Fotos y dibujos ────────────────────────────────────────────────────
+
+  void _actualizarAdjuntos(List<AdjuntoNota> adjuntos) {
+    setState(() => _note = _note.copyWith(adjuntos: adjuntos));
+    _scheduleSave();
+  }
+
+  void _reemplazarAdjunto(AdjuntoNota nuevo) {
+    _actualizarAdjuntos([
+      for (final a in _note.adjuntos) a.id == nuevo.id ? nuevo : a,
+    ]);
+  }
+
+  Future<void> _agregarFotos(ImageSource fuente) async {
+    _notesFocusNode.unfocus();
+    try {
+      final List<XFile> elegidas;
+      if (fuente == ImageSource.camera) {
+        final foto = await _picker.pickImage(
+          source: ImageSource.camera,
+          maxWidth: 2048,
+          maxHeight: 2048,
+          imageQuality: 82,
+        );
+        elegidas = [?foto];
+      } else {
+        elegidas = await _picker.pickMultiImage(
+          maxWidth: 2048,
+          maxHeight: 2048,
+          imageQuality: 82,
+          limit: 10,
+        );
+      }
+      if (elegidas.isEmpty || !mounted) return;
+      setState(() => _agregandoAdjunto = true);
+      final nuevos = <AdjuntoNota>[];
+      for (final foto in elegidas) {
+        final adjunto = await AdjuntosNotaService.I.agregarFoto(
+          _note.id,
+          await foto.readAsBytes(),
+        );
+        if (adjunto != null) nuevos.add(adjunto);
+      }
+      if (!mounted) return;
+      if (nuevos.isNotEmpty) {
+        _actualizarAdjuntos([..._note.adjuntos, ...nuevos]);
+        HapticFeedback.lightImpact();
+      }
+      if (nuevos.length < elegidas.length) {
+        _showSnack('No se pudo agregar alguna foto.');
+      }
+    } on PlatformException catch (e) {
+      _showSnack(
+        e.code.contains('access_denied')
+            ? 'Permite el acceso a la cámara y a las fotos en los ajustes del teléfono.'
+            : 'No se pudo abrir la cámara ni las fotos.',
+      );
+    } finally {
+      if (mounted) setState(() => _agregandoAdjunto = false);
+    }
+  }
+
+  Future<void> _agregarDibujo() async {
+    _notesFocusNode.unfocus();
+    final datos = await LienzoDibujoScreen.abrir(context);
+    if (datos == null || datos.vacio || !mounted) return;
+    final adjunto = await AdjuntosNotaService.I.guardarDibujo(_note.id, datos);
+    if (adjunto == null || !mounted) return;
+    _actualizarAdjuntos([..._note.adjuntos, adjunto]);
+  }
+
+  Future<void> _accionAdjunto(AdjuntoNota adjunto, AccionAdjunto accion) async {
+    switch (accion) {
+      case AccionAdjunto.ver:
+        final elegida = await VisorAdjunto.abrir(
+          context,
+          notaId: _note.id,
+          adjunto: adjunto,
+          theme: _theme(),
+        );
+        if (elegida != null && mounted) await _accionAdjunto(adjunto, elegida);
+      case AccionAdjunto.editar:
+        if (adjunto.tipo == TipoAdjunto.dibujo) {
+          await _editarDibujo(adjunto);
+        } else {
+          await _marcarFoto(adjunto);
+        }
+      case AccionAdjunto.pie:
+        await _editarPie(adjunto);
+      case AccionAdjunto.subir || AccionAdjunto.bajar:
+        final lista = [..._note.adjuntos];
+        final i = lista.indexWhere((a) => a.id == adjunto.id);
+        final j = accion == AccionAdjunto.subir ? i - 1 : i + 1;
+        if (i < 0 || j < 0 || j >= lista.length) return;
+        lista[i] = lista[j];
+        lista[j] = adjunto;
+        _actualizarAdjuntos(lista);
+      case AccionAdjunto.quitar:
+        final ok = await showDialog<bool>(
+          context: context,
+          builder: (c) => AlertDialog(
+            title: Text(
+              adjunto.tipo == TipoAdjunto.foto ? '¿Quitar la foto?' : '¿Quitar el dibujo?',
+            ),
+            content: const Text('Se borrará de este apunte y de la nube.'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(c, false),
+                child: const Text('Cancelar'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(c, true),
+                child: const Text('Quitar'),
+              ),
+            ],
+          ),
+        );
+        if (ok != true || !mounted) return;
+        _actualizarAdjuntos([
+          for (final a in _note.adjuntos)
+            if (a.id != adjunto.id) a,
+        ]);
+        unawaited(AdjuntosNotaService.I.borrarAdjunto(_note.id, adjunto));
+    }
+  }
+
+  Future<void> _editarDibujo(AdjuntoNota adjunto) async {
+    final actual = await AdjuntosNotaService.I.leerDibujo(_note.id, adjunto.archivo);
+    if (!mounted) return;
+    final datos = await LienzoDibujoScreen.abrir(
+      context,
+      inicial: actual ?? const DatosDibujo(),
+    );
+    if (datos == null || !mounted) return;
+    final nuevo = await AdjuntosNotaService.I.guardarDibujo(
+      _note.id,
+      datos,
+      existente: adjunto,
+    );
+    if (nuevo != null && mounted) _reemplazarAdjunto(nuevo);
+  }
+
+  Future<void> _marcarFoto(AdjuntoNota adjunto) async {
+    final contenido = await cargarAdjunto(_note.id, adjunto);
+    if (!mounted) return;
+    final foto = contenido.foto;
+    if (foto == null) {
+      _showSnack('No se pudo abrir la foto. Revisa tu conexión.');
+      return;
+    }
+    final datos = await LienzoDibujoScreen.abrir(
+      context,
+      inicial: contenido.dibujo,
+      foto: foto,
+      titulo: 'Marcar la foto',
+    );
+    if (datos == null || !mounted) return;
+    final nuevo = await AdjuntosNotaService.I.guardarMarcas(
+      _note.id,
+      adjunto,
+      datos,
+    );
+    if (nuevo != null && mounted) _reemplazarAdjunto(nuevo);
+  }
+
+  Future<void> _editarPie(AdjuntoNota adjunto) async {
+    final controller = TextEditingController(text: adjunto.pie);
+    final pie = await showDialog<String>(
+      context: context,
+      builder: (c) => AlertDialog(
+        title: const Text('Pie de foto'),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          maxLength: 140,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: const InputDecoration(hintText: 'Ej. Bosquejo del pastor'),
+          onSubmitted: (v) => Navigator.pop(c, v),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(c),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(c, controller.text),
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    if (pie == null || !mounted) return;
+    _reemplazarAdjunto(adjunto.copyWith(pie: pie.trim()));
   }
 
   void _scheduleSave() {
@@ -741,10 +1005,13 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     _saveDebounce = Timer(const Duration(milliseconds: 650), _flushNote);
   }
 
+  /// true desde dispose: el guardado final ya no toca el estado.
+  bool _cerrando = false;
+
   Future<void> _flushNote() async {
     _saveDebounce?.cancel();
     _saveDebounce = null;
-    if (mounted) {
+    if (mounted && !_cerrando) {
       setState(() {
         _isSaving = true;
       });
@@ -765,7 +1032,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     );
     _note = updated;
     if (!updated.hasContent) {
-      if (mounted) {
+      if (mounted && !_cerrando) {
         setState(() {
           _isSaving = false;
           _hasPendingChanges = false;
@@ -777,7 +1044,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       return;
     }
     await SermonNoteService.I.saveNote(updated);
-    if (mounted) {
+    if (mounted && !_cerrando) {
       setState(() {
         _lastSavedAt = updated.updatedAt;
         _isSaving = false;
@@ -802,8 +1069,12 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     );
   }
 
-  void _applyNotesFormat(RichNoteFormat format, {double? fontSize}) {
-    _notesController.applyFormat(format, fontSize: fontSize);
+  void _applyNotesFormat(
+    RichNoteFormat format, {
+    double? fontSize,
+    String? value,
+  }) {
+    _notesController.applyFormat(format, fontSize: fontSize, value: value);
     _notesDocument = _notesController.document;
     _scheduleSave();
     if (mounted) setState(() {});
@@ -920,7 +1191,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         theme: _theme(),
         verses: chapterVerses,
         title: '${picked.bookName} ${picked.chapter}',
-        actionLabel: 'Agregar versiculos',
+        actionLabel: 'Agregar versículos',
         initialStart: picked.verse,
         initialEnd: picked.verseEnd ?? picked.verse,
         allowMultiSelect: true,
@@ -961,7 +1232,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       }
     }
     if (!changed) {
-      _showSnack('Esos versiculos ya estan agregados a la lectura.');
+      _showSnack('Esos versículos ya están agregados a la lectura.');
       return;
     }
     setState(() => _note = _note.copyWith(verses: verses));
@@ -1183,12 +1454,14 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       final choice = await _pickPdfExportAction();
       if (choice == null) return;
       final highlights = _highlightController.value;
+      final imagenes = await imagenesParaPdf(_note.id, _note.adjuntos);
       final File file = choice.action == _PdfExportAction.share
           ? await SermonNoteExportService.I.exportAndShareSermonNote(
               note: _note,
               chapterVerses: _verses,
               secondaryChapterVerses: _secondaryVerses,
               highlights: highlights,
+              imagenes: imagenes,
               cleanCover: choice.cleanCover,
             )
           : await SermonNoteExportService.I.exportSermonNoteToPdf(
@@ -1196,6 +1469,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
               chapterVerses: _verses,
               secondaryChapterVerses: _secondaryVerses,
               highlights: highlights,
+              imagenes: imagenes,
               saveToDownloads: true,
               cleanCover: choice.cleanCover,
             );
@@ -1243,7 +1517,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   String _saveStatusLabel() {
     if (_isSaving) return 'Guardando...';
     if (_hasPendingChanges) return 'Cambios sin guardar';
-    if (!_note.hasContent) return 'Borrador vacio';
+    if (!_note.hasContent) return 'Borrador vacío';
     final savedAt = _lastSavedAt;
     if (savedAt == null) return 'Sin guardado reciente';
     return 'Guardado hace ${_relativeTime(savedAt)}';
@@ -1262,6 +1536,8 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   void dispose() {
     _saveDebounce?.cancel();
     _saveStatusTicker?.cancel();
+    // El último guardado corre al cerrar: no debe redibujar la pantalla.
+    _cerrando = true;
     unawaited(_flushNote());
     _titleController.dispose();
     _speakerController.dispose();
@@ -1284,6 +1560,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
         SystemChrome.setSystemUIOverlayStyle(
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
+        _notesController
+          ..colorMarcas = t.accent
+          ..fondoOscuro = t.isDark;
         return Scaffold(
           backgroundColor: t.pageBg,
           body: SafeArea(
@@ -1377,9 +1656,14 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     return _NotesFormatBar(
       theme: t,
       state: state,
+      onFormato: _abrirFormato,
       onBold: () => _applyFloatingFormat(RichNoteFormat.bold),
+      onItalic: () => _applyFloatingFormat(RichNoteFormat.italic),
       onUnderline: () => _applyFloatingFormat(RichNoteFormat.underline),
-      onSizeDelta: _bumpNotesSize,
+      onTareas: () => _alternarLista(TipoLista.tareas),
+      onVinetas: () => _alternarLista(TipoLista.vinetas),
+      onCamara: () => _agregarFotos(ImageSource.camera),
+      onDibujo: _agregarDibujo,
       onDismiss: _notesFocusNode.unfocus,
     );
   }
@@ -1476,9 +1760,16 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
               if (mounted) setState(() {});
             }
           },
-          onBold: () => _applyNotesFormat(RichNoteFormat.bold),
-          onUnderline: () => _applyNotesFormat(RichNoteFormat.underline),
-          onPickSize: _openNotesTypographyMenu,
+          notaId: _note.id,
+          adjuntos: _note.adjuntos,
+          agregandoAdjunto: _agregandoAdjunto,
+          onTapNotas: _alTocarNotas,
+          onFormato: _abrirFormato,
+          onTareas: () => _alternarLista(TipoLista.tareas),
+          onCamara: () => _agregarFotos(ImageSource.camera),
+          onFotos: () => _agregarFotos(ImageSource.gallery),
+          onDibujo: _agregarDibujo,
+          onAccionAdjunto: _accionAdjunto,
           onInsertVerse: activeReference == null
               ? null
               : () => _insertDetectedVerse(activeReference),
@@ -1561,7 +1852,7 @@ class _SermonMetaCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Apunte de predicacion',
+            'Apunte de predicación',
             style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 16,
@@ -1572,7 +1863,7 @@ class _SermonMetaCard extends StatelessWidget {
           _LabeledField(
             theme: t,
             controller: titleController,
-            label: 'Titulo',
+            label: 'Título',
             hint: 'Ej. La fe que permanece',
             onChanged: onChanged,
           ),
@@ -1636,9 +1927,16 @@ class _NotesEditorCard extends StatelessWidget {
   final bool canRedo;
   final VoidCallback onUndo;
   final VoidCallback onRedo;
-  final VoidCallback onBold;
-  final VoidCallback onUnderline;
-  final VoidCallback onPickSize;
+  final String notaId;
+  final List<AdjuntoNota> adjuntos;
+  final bool agregandoAdjunto;
+  final VoidCallback onTapNotas;
+  final VoidCallback onFormato;
+  final VoidCallback onTareas;
+  final VoidCallback onCamara;
+  final VoidCallback onFotos;
+  final VoidCallback onDibujo;
+  final void Function(AdjuntoNota, AccionAdjunto) onAccionAdjunto;
   final VoidCallback? onInsertVerse;
   final VoidCallback? onIgnoreReference;
   final VoidCallback? onReplaceSuggestion;
@@ -1658,9 +1956,16 @@ class _NotesEditorCard extends StatelessWidget {
     required this.canRedo,
     required this.onUndo,
     required this.onRedo,
-    required this.onBold,
-    required this.onUnderline,
-    required this.onPickSize,
+    required this.notaId,
+    required this.adjuntos,
+    required this.agregandoAdjunto,
+    required this.onTapNotas,
+    required this.onFormato,
+    required this.onTareas,
+    required this.onCamara,
+    required this.onFotos,
+    required this.onDibujo,
+    required this.onAccionAdjunto,
     required this.onInsertVerse,
     required this.onIgnoreReference,
     required this.onReplaceSuggestion,
@@ -1678,57 +1983,51 @@ class _NotesEditorCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Wrap(
+                  spacing: 10,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
                     Text(
                       'Notas',
                       style: AppFonts.cinzel(
                         color: t.textPrimary,
-                        fontSize: 15,
+                        fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    const SizedBox(height: 4),
                     _SaveStatusChip(theme: t, label: saveStatusLabel),
                   ],
                 ),
               ),
               _FormatIcon(
                 theme: t,
-                icon: Icons.undo,
+                icon: Icons.undo_rounded,
                 tooltip: 'Deshacer',
                 enabled: canUndo,
                 onTap: onUndo,
               ),
               _FormatIcon(
                 theme: t,
-                icon: Icons.redo,
+                icon: Icons.redo_rounded,
                 tooltip: 'Rehacer',
                 enabled: canRedo,
                 onTap: onRedo,
               ),
-              _FormatIcon(
-                theme: t,
-                icon: Icons.format_bold,
-                tooltip: 'Negrita',
-                onTap: onBold,
-              ),
-              _FormatIcon(
-                theme: t,
-                icon: Icons.format_underlined,
-                tooltip: 'Subrayado',
-                onTap: onUnderline,
-              ),
-              _FormatIcon(
-                theme: t,
-                icon: Icons.format_size,
-                tooltip: 'Tamaño de texto',
-                onTap: onPickSize,
-              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          // Herramientas como en Notas: formato, tareas, cámara, fotos y dibujo.
+          Row(
+            children: [
+              _HerramientaNota(theme: t, icono: Icons.text_format_rounded, texto: 'Formato', onTap: onFormato),
+              _HerramientaNota(theme: t, icono: Icons.checklist_rounded, texto: 'Tareas', onTap: onTareas),
+              _HerramientaNota(theme: t, icono: Icons.photo_camera_outlined, texto: 'Cámara', onTap: onCamara),
+              _HerramientaNota(theme: t, icono: Icons.photo_library_outlined, texto: 'Fotos', onTap: onFotos),
+              _HerramientaNota(theme: t, icono: Icons.draw_outlined, texto: 'Dibujar', onTap: onDibujo),
             ],
           ),
           const SizedBox(height: 10),
@@ -1740,14 +2039,17 @@ class _NotesEditorCard extends StatelessWidget {
             hintLocales: const [Locale('es')],
             spellCheckConfiguration: spellCheckConfiguration,
             contextMenuBuilder: contextMenuBuilder,
-            style: AppFonts.lora(
+            onTap: onTapNotas,
+            textCapitalization: TextCapitalization.sentences,
+            style: AppFonts.lectura(
               color: t.textPrimary,
-              fontSize: 14,
-              height: 1.5,
+              fontSize: 15,
+              height: 1.55,
             ),
             decoration: _inputDecoration(
               t,
-              'Escribe tus apuntes. Mueve el cursor sobre una cita para verla como sugerencia.',
+              'Escribe tus apuntes. Usa Formato para títulos, listas y '
+              'colores; toca una cita para agregar el versículo.',
             ),
           ),
           const SizedBox(height: 10),
@@ -1784,7 +2086,89 @@ class _NotesEditorCard extends StatelessWidget {
             const SizedBox(height: 10),
             _InsertedVersesIndicator(theme: t, count: insertedVerseCount),
           ],
+          if (agregandoAdjunto) ...[
+            const SizedBox(height: 12),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(4),
+              child: LinearProgressIndicator(
+                minHeight: 3,
+                color: t.accent,
+                backgroundColor: t.accent.withValues(alpha: 0.15),
+              ),
+            ),
+          ],
+          if (adjuntos.isNotEmpty)
+            GaleriaAdjuntos(
+              theme: t,
+              notaId: notaId,
+              adjuntos: adjuntos,
+              onAccion: onAccionAdjunto,
+            ),
         ],
+      ),
+    );
+  }
+}
+
+/// Botón con ícono y texto debajo de la barra de herramientas de Notas.
+/// Los cinco comparten el ancho para que quepan en un teléfono.
+class _HerramientaNota extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final IconData icono;
+  final String texto;
+  final VoidCallback onTap;
+
+  const _HerramientaNota({
+    required this.theme,
+    required this.icono,
+    required this.texto,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 3),
+        child: Semantics(
+          button: true,
+          label: texto,
+          excludeSemantics: true,
+          child: Material(
+            color: t.accent.withValues(alpha: t.isDark ? 0.14 : 0.08),
+            borderRadius: BorderRadius.circular(14),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(14),
+              onTap: () {
+                HapticFeedback.selectionClick();
+                onTap();
+              },
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 9),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icono, size: 22, color: t.accent),
+                    const SizedBox(height: 4),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        texto,
+                        maxLines: 1,
+                        style: AppFonts.manrope(
+                          color: t.textPrimary,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -1797,31 +2181,45 @@ class _NotesEditorCard extends StatelessWidget {
 class _NotesFormatBar extends StatelessWidget {
   final BibleReaderThemeData theme;
   final RichNoteFormatState state;
+  final VoidCallback onFormato;
   final VoidCallback onBold;
+  final VoidCallback onItalic;
   final VoidCallback onUnderline;
-  final ValueChanged<double> onSizeDelta;
+  final VoidCallback onTareas;
+  final VoidCallback onVinetas;
+  final VoidCallback onCamara;
+  final VoidCallback onDibujo;
   final VoidCallback onDismiss;
 
   const _NotesFormatBar({
     required this.theme,
     required this.state,
+    required this.onFormato,
     required this.onBold,
+    required this.onItalic,
     required this.onUnderline,
-    required this.onSizeDelta,
+    required this.onTareas,
+    required this.onVinetas,
+    required this.onCamara,
+    required this.onDibujo,
     required this.onDismiss,
   });
 
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final size = (state.fontSize ?? 14).round();
+    Widget separador() => Container(
+      width: 1,
+      height: 24,
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      color: t.textSecondary.withValues(alpha: 0.14),
+    );
     return TextFieldTapRegion(
       child: Focus(
         canRequestFocus: false,
         descendantsAreFocusable: false,
         child: Material(
           color: t.surface,
-          elevation: 8,
           child: SafeArea(
             top: false,
             child: Container(
@@ -1832,66 +2230,76 @@ class _NotesFormatBar extends StatelessWidget {
                   ),
                 ),
               ),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 6),
               child: Row(
                 children: [
-                  _BarButton(
-                    theme: t,
-                    icon: Icons.format_bold,
-                    tooltip: 'Negrita',
-                    active: state.bold,
-                    onTap: onBold,
-                  ),
-                  _BarButton(
-                    theme: t,
-                    icon: Icons.format_underlined,
-                    tooltip: 'Subrayar',
-                    active: state.underline,
-                    onTap: onUnderline,
-                  ),
-                  Container(
-                    width: 1,
-                    height: 24,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    color: t.textSecondary.withValues(alpha: 0.14),
-                  ),
-                  _BarButton(
-                    theme: t,
-                    icon: Icons.text_decrease,
-                    tooltip: 'Reducir tamaño',
-                    onTap: () => onSizeDelta(-2),
-                  ),
-                  Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        '$size',
-                        style: AppFonts.manrope(
-                          color: t.textPrimary,
-                          fontSize: 15,
-                          fontWeight: FontWeight.w800,
-                        ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.text_format_rounded,
+                            tooltip: 'Formato',
+                            onTap: onFormato,
+                          ),
+                          separador(),
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.format_bold_rounded,
+                            tooltip: 'Negrita',
+                            active: state.bold,
+                            onTap: onBold,
+                          ),
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.format_italic_rounded,
+                            tooltip: 'Cursiva',
+                            active: state.italic,
+                            onTap: onItalic,
+                          ),
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.format_underlined_rounded,
+                            tooltip: 'Subrayar',
+                            active: state.underline,
+                            onTap: onUnderline,
+                          ),
+                          separador(),
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.checklist_rounded,
+                            tooltip: 'Lista de tareas',
+                            onTap: onTareas,
+                          ),
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.format_list_bulleted_rounded,
+                            tooltip: 'Viñetas',
+                            onTap: onVinetas,
+                          ),
+                          separador(),
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.photo_camera_outlined,
+                            tooltip: 'Tomar foto',
+                            onTap: onCamara,
+                          ),
+                          _BarButton(
+                            theme: t,
+                            icon: Icons.draw_outlined,
+                            tooltip: 'Dibujar',
+                            onTap: onDibujo,
+                          ),
+                        ],
                       ),
-                      Text(
-                        'tamaño',
-                        style: AppFonts.manrope(
-                          color: t.textSecondary,
-                          fontSize: 9,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
+                  separador(),
                   _BarButton(
                     theme: t,
-                    icon: Icons.text_increase,
-                    tooltip: 'Aumentar tamaño',
-                    onTap: () => onSizeDelta(2),
-                  ),
-                  const Spacer(),
-                  _BarButton(
-                    theme: t,
-                    icon: Icons.keyboard_hide,
+                    icon: Icons.keyboard_hide_rounded,
                     tooltip: 'Ocultar teclado',
                     onTap: onDismiss,
                   ),
@@ -1983,7 +2391,7 @@ class _AddedVersesCardState extends State<_AddedVersesCard> {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      'Versiculos agregados',
+                      'Versículos agregados',
                       style: AppFonts.cinzel(
                         color: t.textPrimary,
                         fontSize: 15,
@@ -2122,7 +2530,7 @@ class _TakeawayCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '¿Con que me quedo?',
+            '¿Con qué me quedo?',
             style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 15,
@@ -2142,7 +2550,7 @@ class _TakeawayCard extends StatelessWidget {
             ),
             decoration: _inputDecoration(
               t,
-              'Una idea, conviccion o accion concreta.',
+              'Una idea, convicción o acción concreta.',
             ),
           ),
         ],
@@ -2672,8 +3080,8 @@ class _InlineEditorHint extends StatelessWidget {
           Expanded(
             child: Text(
               insertedVerseCount == 0
-                  ? 'El corrector subraya palabras dudosas en rojo. Si el cursor cae sobre una cita biblica detectada, veras aqui la sugerencia para insertarla.'
-                  : 'El corrector sigue activo mientras escribes. Si colocas el cursor sobre una cita biblica detectada, podras insertarla sin salir de la nota.',
+                  ? 'Escribe una cita como «Juan 3:16» y pon el cursor encima para agregar el versículo. Las palabras dudosas se subrayan en rojo.'
+                  : 'Pon el cursor sobre otra cita bíblica para agregarla sin salir de la nota.',
               style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.76),
                 fontSize: 11.5,
@@ -2697,8 +3105,8 @@ class _InsertedVersesIndicator extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     final label = count == 1
-        ? '1 versiculo agregado a la lectura'
-        : '$count versiculos agregados a la lectura';
+        ? '1 versículo agregado a la lectura'
+        : '$count versículos agregados a la lectura';
     return Row(
       children: [
         Icon(Icons.library_books_outlined, color: t.accent, size: 16),
@@ -2712,152 +3120,6 @@ class _InsertedVersesIndicator extends StatelessWidget {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _NotesFontSizeSheet extends StatelessWidget {
-  final BibleReaderThemeData theme;
-
-  const _NotesFontSizeSheet({required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    const sizes = <double>[14, 18, 22];
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: t.textSecondary.withValues(alpha: 0.28),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Tamano del texto',
-              style: AppFonts.cinzel(
-                color: t.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              'Selecciona una parte de la nota y despues elige el tamano que quieras aplicar.',
-              style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.72),
-                fontSize: 12,
-                height: 1.35,
-              ),
-            ),
-            const SizedBox(height: 14),
-            for (final size in sizes) ...[
-              _NotesFontSizeTile(
-                theme: t,
-                size: size,
-                preview: size == 14
-                    ? 'Texto base'
-                    : size == 18
-                    ? 'Enfasis intermedio'
-                    : 'Enfasis fuerte',
-                onTap: () => Navigator.pop(context, size),
-              ),
-              if (size != sizes.last) const SizedBox(height: 8),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _NotesFontSizeTile extends StatelessWidget {
-  final BibleReaderThemeData theme;
-  final double size;
-  final String preview;
-  final VoidCallback onTap;
-
-  const _NotesFontSizeTile({
-    required this.theme,
-    required this.size,
-    required this.preview,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(12),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-        decoration: BoxDecoration(
-          color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.60),
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              width: 38,
-              height: 38,
-              decoration: BoxDecoration(
-                color: t.accent.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              alignment: Alignment.center,
-              child: Text(
-                size.toInt().toString(),
-                style: AppFonts.manrope(
-                  color: t.accent,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-            ),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    preview,
-                    style: AppFonts.lora(
-                      color: t.textPrimary,
-                      fontSize: size,
-                      height: 1.1,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    'Aplicar a la seleccion actual',
-                    style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.72),
-                      fontSize: 11.5,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
@@ -3501,7 +3763,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Elige si quieres una portada mas limpia para compartir o guardar.',
+              'Elige si quieres una portada más limpia para compartir o guardar.',
               style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.66),
                 fontSize: 12,
@@ -3524,7 +3786,7 @@ class _PdfExportSheetState extends State<_PdfExportSheet> {
                 ),
               ),
               subtitle: Text(
-                'Reduce adornos y deja un encabezado mas sobrio.',
+                'Reduce adornos y deja un encabezado más sobrio.',
                 style: AppFonts.manrope(
                   color: t.textSecondary.withValues(alpha: 0.64),
                   fontSize: 11.5,

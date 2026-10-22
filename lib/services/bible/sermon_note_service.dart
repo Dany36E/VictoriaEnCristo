@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/bible/sermon_note.dart';
+import 'adjuntos_nota_service.dart';
 
 class SermonNoteService {
   SermonNoteService._();
@@ -74,9 +75,30 @@ class SermonNoteService {
     await _col.doc(updated.id).set(updated.toMap(), SetOptions(merge: true));
   }
 
+  /// Fija o suelta un apunte sin cambiar su fecha de edición.
+  Future<void> fijar(String id, bool fijada) async {
+    final uid = _uid;
+    final nota = notesNotifier.value[id];
+    if (uid == null || uid.isEmpty || nota == null) return;
+    if (nota.fijada == fijada) return;
+    final actualizada = SermonNote.fromMap(id, {
+      ...nota.toMap(),
+      'fijada': fijada,
+    });
+    final next = Map<String, SermonNote>.from(notesNotifier.value);
+    next[id] = actualizada;
+    notesNotifier.value = Map.unmodifiable(next);
+    await _saveLocalCache(next);
+    await _col.doc(id).set({'fijada': fijada}, SetOptions(merge: true));
+  }
+
   Future<void> deleteNote(String id) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) return;
+    final adjuntos = notesNotifier.value[id]?.adjuntos ?? const [];
+    if (adjuntos.isNotEmpty) {
+      unawaited(AdjuntosNotaService.I.borrarNota(id, adjuntos));
+    }
     final next = Map<String, SermonNote>.from(notesNotifier.value)..remove(id);
     notesNotifier.value = Map.unmodifiable(next);
     await _saveLocalCache(next);

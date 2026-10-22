@@ -28,6 +28,7 @@ import 'bible/bible_user_data_service.dart';
 import 'bible/bible_reading_stats_service.dart';
 import 'bible/collection_service.dart';
 import 'bible/chapter_note_service.dart';
+import 'bible/adjuntos_nota_service.dart';
 import 'bible/sermon_note_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
@@ -228,6 +229,7 @@ class AccountSessionManager {
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
     SermonNoteService.I.stop();
+    unawaited(AdjuntosNotaService.I.borrarCacheLocal());
     StudyModeService.I.stop();
     await StudyRoomService.I.stop();
     CollectionService.I.stop();

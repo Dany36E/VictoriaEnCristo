@@ -8,6 +8,7 @@ import 'bible/bible_reading_stats_service.dart';
 import 'bible/bible_user_data_service.dart';
 import 'bible/chapter_note_service.dart';
 import 'bible/collection_service.dart';
+import 'bible/adjuntos_nota_service.dart';
 import 'bible/sermon_note_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
@@ -70,6 +71,8 @@ class UserScopedServices {
     await ensureBible();
     _sermonNotesInit ??= SermonNoteService.I.init(uid);
     await _sermonNotesInit;
+    // Fotos y dibujos de Apuntes que quedaron sin subir.
+    unawaited(AdjuntosNotaService.I.reintentarPendientes());
     await ensureStudyMode();
   }
 

@@ -16,7 +16,9 @@ import 'app_theme_data.dart';
 /// exactamente lo mismo; con el tema "Papel recortado" usa las letras del kit
 /// victoria-en-cristo-estilo (VecFuentes):
 ///   • Lilita One  → títulos, botones, chips, etiquetas (Cinzel y Manrope ≥ w600)
-///   • Patrick Hand → texto corrido y versículos (Manrope < w600 y serifas)
+///   • Patrick Hand → texto corrido (Manrope < w600 y serifas)
+///   • Lora → versículos y apuntes ([lectura]), salvo que se elija la letra
+///     manuscrita en Tipografía
 ///
 /// Las fuentes del kit tienen un solo peso: se piden en w400 para que el motor
 /// no sintetice negritas.
@@ -171,6 +173,77 @@ class AppFonts {
     return _conFamilia(
       'Lora',
       VecFuentes.texto,
+      textStyle: textStyle,
+      color: color,
+      backgroundColor: backgroundColor,
+      fontSize: fontSize,
+      fontWeight: fontWeight,
+      fontStyle: fontStyle,
+      letterSpacing: letterSpacing,
+      wordSpacing: wordSpacing,
+      textBaseline: textBaseline,
+      height: height,
+      locale: locale,
+      foreground: foreground,
+      background: background,
+      shadows: shadows,
+      fontFeatures: fontFeatures,
+      decoration: decoration,
+      decorationColor: decorationColor,
+      decorationStyle: decorationStyle,
+      decorationThickness: decorationThickness,
+    );
+  }
+
+  /// Letra para leer versículos y apuntes. Es Lora en todos los temas; en el
+  /// tema papel pasa a Patrick Hand solo si la persona eligió la letra
+  /// manuscrita en Tipografía.
+  static TextStyle lectura({
+    TextStyle? textStyle,
+    Color? color,
+    Color? backgroundColor,
+    double? fontSize,
+    FontWeight? fontWeight,
+    FontStyle? fontStyle,
+    double? letterSpacing,
+    double? wordSpacing,
+    TextBaseline? textBaseline,
+    double? height,
+    Locale? locale,
+    Paint? foreground,
+    Paint? background,
+    List<ui.Shadow>? shadows,
+    List<ui.FontFeature>? fontFeatures,
+    TextDecoration? decoration,
+    Color? decorationColor,
+    TextDecorationStyle? decorationStyle,
+    double? decorationThickness,
+  }) {
+    if (_isPaper && ThemeService().lecturaManuscrita.value) {
+      return lora(
+        textStyle: textStyle,
+        color: color,
+        backgroundColor: backgroundColor,
+        fontSize: fontSize,
+        fontWeight: fontWeight,
+        fontStyle: fontStyle,
+        letterSpacing: letterSpacing,
+        wordSpacing: wordSpacing,
+        textBaseline: textBaseline,
+        height: height,
+        locale: locale,
+        foreground: foreground,
+        background: background,
+        shadows: shadows,
+        fontFeatures: fontFeatures,
+        decoration: decoration,
+        decorationColor: decorationColor,
+        decorationStyle: decorationStyle,
+        decorationThickness: decorationThickness,
+      );
+    }
+    return GoogleFonts.getFont(
+      'Lora',
       textStyle: textStyle,
       color: color,
       backgroundColor: backgroundColor,

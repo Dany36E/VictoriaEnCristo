@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/app_theme_data.dart';
+import '../../widgets/bible/reader/selector_letra_lectura.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_download_service.dart';
@@ -219,6 +221,12 @@ class BibleSettingsScreen extends StatelessWidget {
               );
             },
           ),
+
+          // En el tema papel: Lora o letra manuscrita para leer.
+          if (AppThemeData.of(context).isPaper) ...[
+            const SizedBox(height: 20),
+            SelectorLetraLectura(theme: t),
+          ],
 
           const SizedBox(height: 24),
 

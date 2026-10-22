@@ -45,7 +45,8 @@ El flujo manual `.github/workflows/ios-app-store.yml` genera un IPA firmado y, o
 | Nombre y correo | Sí | No | Cuenta y funcionalidad |
 | User ID | Sí | No | Cuenta, seguridad y sincronización |
 | Device ID/token push | Sí | No | Notificaciones |
-| Contenido del usuario | Sí | No | Diario, progreso, mensajes y comunidad |
+| Contenido del usuario | Sí | No | Diario, progreso, mensajes, comunidad y apuntes |
+| Fotos o videos | Sí | No | Fotos y dibujos que el usuario agrega a sus apuntes |
 | Interacción con el producto | No | No | Analytics |
 | Datos de fallos | No | No | Estabilidad |
 
