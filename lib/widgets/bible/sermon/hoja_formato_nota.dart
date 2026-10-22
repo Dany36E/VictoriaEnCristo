@@ -208,7 +208,7 @@ class _HojaFormato extends StatelessWidget {
                   _Colores(
                     theme: t,
                     nombres: richNoteTextColors,
-                    colores: t.isDark ? coloresTextoOscuro : coloresTextoClaro,
+                    colores: t.oscuro ? coloresTextoOscuro : coloresTextoClaro,
                     elegido: estado.color,
                     habilitado: hayTexto,
                     onElegir: (c) => acciones.formato(RichNoteFormat.color, valor: c),

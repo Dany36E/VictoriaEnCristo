@@ -50,7 +50,7 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                   horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: t.isDark
+                color: t.oscuro
                     ? Colors.white.withValues(alpha: 0.04)
                     : Colors.black.withValues(alpha: 0.03),
                 borderRadius: BorderRadius.circular(10),

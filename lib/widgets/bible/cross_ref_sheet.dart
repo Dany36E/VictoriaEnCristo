@@ -226,7 +226,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
-        backgroundColor: t.isDark ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
+        backgroundColor: t.oscuro ? Colors.white10 : Colors.black.withValues(alpha: 0.05),
         selectedColor: t.accent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         side: BorderSide.none,
@@ -246,7 +246,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
         margin: const EdgeInsets.only(bottom: 8),
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          color: t.isDark
+          color: t.oscuro
               ? Colors.white.withValues(alpha: 0.04)
               : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(10),

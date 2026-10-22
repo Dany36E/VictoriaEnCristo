@@ -1331,7 +1331,11 @@ class AppTheme {
           color: VecColores.papel,
           fontSize: 16,
         ),
-        actionTextColor: VecColores.mostazaClaro,
+        // En los papeles oscuros la barra es crema: la mostaza no se lee y va
+        // la terracota del papel claro.
+        actionTextColor: VecColores.oscuro
+            ? VecPaleta.claro.terracota
+            : VecColores.mostazaClaro,
         shape: BordeConSombraVec.pildora(presionado: true),
         behavior: SnackBarBehavior.floating,
         elevation: 0,

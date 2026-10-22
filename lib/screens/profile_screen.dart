@@ -236,7 +236,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       child: Icon(
                         Icons.edit_rounded,
                         size: 14,
-                        color: t.isDark ? Colors.black : Colors.white,
+                        color: t.sobreAcento,
                       ),
                     ),
             ),

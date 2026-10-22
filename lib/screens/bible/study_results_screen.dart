@@ -137,7 +137,7 @@ class StudyResultsScreen extends StatelessWidget {
                   vertical: 12,
                 ),
                 decoration: BoxDecoration(
-                  color: t.isDark
+                  color: t.oscuro
                       ? Colors.white.withValues(alpha: 0.04)
                       : Colors.black.withValues(alpha: 0.03),
                   borderRadius: BorderRadius.circular(12),
@@ -187,7 +187,7 @@ class StudyResultsScreen extends StatelessWidget {
               onPressed: _sharePdf,
               style: ElevatedButton.styleFrom(
                 backgroundColor: t.accent,
-                foregroundColor: t.isDark ? Colors.black : Colors.white,
+                foregroundColor: t.sobreAcento,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

@@ -78,6 +78,11 @@ class AppThemeData {
   /// Si la pantalla se ve oscura (también los papeles kraft y noche).
   bool get oscuro => paleta?.oscura ?? isDark;
 
+  /// Texto o ícono sobre un relleno de [accent]: en los temas papel el que más
+  /// se lea (en los oscuros el acento es claro); en los demás, negro o blanco.
+  Color get sobreAcento =>
+      isPaper ? textoSobre(accent) : (isDark ? Colors.black : Colors.white);
+
   /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
   /// cada página pinta el papel con textura (FondoPapel) por detrás.
   Color get pageBg => isPaper ? Colors.transparent : scaffoldBg;

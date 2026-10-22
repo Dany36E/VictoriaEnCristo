@@ -6,7 +6,6 @@ import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
 import '../services/audio_engine.dart';
 import '../models/content_item.dart';
-import '../vec/vec_tema.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../utils/journal_export.dart';
@@ -93,7 +92,7 @@ class _JournalScreenState extends State<JournalScreen> {
         label: const Text('Nueva oración'),
         backgroundColor: t.accent,
         foregroundColor: t.isPaper
-            ? textoSobre(t.accent)
+            ? t.sobreAcento
             : (isDark ? Colors.black87 : Colors.white),
       ),
     );
@@ -258,7 +257,9 @@ class _JournalScreenState extends State<JournalScreen> {
               label: const Text('Escribir sobre esto'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: t.accent,
-                foregroundColor: isDark ? Colors.black87 : Colors.white,
+                foregroundColor: t.isPaper
+                    ? t.sobreAcento
+                    : (isDark ? Colors.black87 : Colors.white),
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),

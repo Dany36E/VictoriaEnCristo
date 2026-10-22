@@ -433,7 +433,7 @@ class _QuestionsToolbar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 12),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.025)
             : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(10),
@@ -1541,7 +1541,7 @@ class _QuestionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.04)
             : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(10),

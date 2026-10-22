@@ -289,7 +289,7 @@ class _StudyEntryTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.isDark
+          color: t.oscuro
               ? Colors.white.withValues(alpha: 0.04)
               : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(10),

@@ -5,6 +5,7 @@ import 'package:app_quitar/models/bible/bible_verse.dart';
 import 'package:app_quitar/models/bible/bible_version.dart';
 import 'package:app_quitar/services/learning/book_progress_service.dart';
 import 'package:app_quitar/services/learning/book_repository.dart';
+import 'package:app_quitar/screens/bible/lienzo_dibujo_screen.dart';
 import 'package:app_quitar/screens/battle_partner/add_partner_screen.dart';
 import 'package:app_quitar/screens/bible/all_chapter_notes_screen.dart';
 import 'package:app_quitar/screens/bible/all_notes_screen.dart';
@@ -109,6 +110,7 @@ void main() {
   themeMatrix('blb_setup', () => const BlbSetupScreen());
   themeMatrix('collections', () => const CollectionsScreen());
   themeMatrix('gospel_harmony', () => const GospelHarmonyScreen());
+  themeMatrix('lienzo_dibujo', () => const LienzoDibujoScreen());
   themeMatrix('ot_quotes', () => const OTQuotesScreen());
   themeMatrix('saved_verses', () => const SavedVersesScreen());
   themeMatrix('sermon_notes_saved', () => const SermonNotesSavedScreen());

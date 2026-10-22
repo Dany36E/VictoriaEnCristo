@@ -26,16 +26,21 @@ class CategoryHubScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaPadding = MediaQuery.paddingOf(context);
-    if (AppThemeData.of(context).isPaper) {
+    final tema = AppThemeData.of(context);
+    if (tema.isPaper) {
       // Tema papel: sin cosmos ni velo oscuro, la página es la hoja de papel.
       return Scaffold(
         backgroundColor: Colors.transparent,
         appBar: AppBar(
           title: Text(title),
-          systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
-            statusBarColor: Colors.transparent,
-            systemNavigationBarColor: VecColores.crema,
-          ),
+          systemOverlayStyle:
+              (tema.oscuro
+                      ? SystemUiOverlayStyle.light
+                      : SystemUiOverlayStyle.dark)
+                  .copyWith(
+                    statusBarColor: Colors.transparent,
+                    systemNavigationBarColor: VecColores.crema,
+                  ),
         ),
         body: ListView(
           physics: const BouncingScrollPhysics(),

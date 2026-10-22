@@ -113,7 +113,7 @@ class _ScriptureCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     final fg = t.textPrimary;
-    final glassOverlay = t.isDark ? Colors.white : Colors.black;
+    final glassOverlay = t.oscuro ? Colors.white : Colors.black;
     return Semantics(
       button: true,
       label: 'Versículo del día: ${dailyVerse.reference}. Toca para leer en contexto',

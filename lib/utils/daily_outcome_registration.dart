@@ -123,7 +123,10 @@ Future<DailyOutcomeChoice?> showDailyOutcomeChoiceSheet(BuildContext context) {
   return showModalBottomSheet<DailyOutcomeChoice>(
     context: context,
     showDragHandle: true,
-    backgroundColor: isDark ? const Color(0xFF15151F) : Colors.white,
+    // En los temas papel, la hoja es una tarjeta del mismo papel.
+    backgroundColor: theme.isPaper
+        ? theme.cardBg
+        : (isDark ? const Color(0xFF15151F) : Colors.white),
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),

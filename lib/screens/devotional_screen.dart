@@ -211,7 +211,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
       accent: t.accent,
       textPrimary: t.textPrimary,
       textSecondary: t.textSecondary,
-      isDark: t.isDark,
+      isDark: t.oscuro,
     );
   }
 
@@ -789,7 +789,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor:
                     _completed ? const Color(0xFF2E7D32) : t.accent,
-                foregroundColor: t.isDark ? Colors.black : Colors.white,
+                foregroundColor: t.sobreAcento,
                 disabledBackgroundColor: const Color(0xFF2E7D32),
                 disabledForegroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
@@ -1194,7 +1194,7 @@ class _DevotionalHistorySheetState extends State<_DevotionalHistorySheet> {
             Color textColor;
             if (isDone) {
               bg = t.accent;
-              textColor = t.isDark ? Colors.black : Colors.white;
+              textColor = t.sobreAcento;
             } else if (isToday) {
               bg = t.accent.withValues(alpha: 0.18);
               textColor = t.accent;

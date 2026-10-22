@@ -170,7 +170,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         );
 
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
 
         return Scaffold(
@@ -274,7 +274,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: t.isDark
+                color: t.oscuro
                     ? Colors.white.withValues(alpha: 0.06)
                     : Colors.black.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(8),
@@ -464,7 +464,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           height: 72,
           padding: const EdgeInsets.symmetric(horizontal: 20),
           decoration: BoxDecoration(
-            color: t.isDark
+            color: t.oscuro
                 ? Colors.white.withValues(alpha: 0.04)
                 : Colors.black.withValues(alpha: 0.03),
             borderRadius: BorderRadius.circular(12),
@@ -662,7 +662,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           separatorBuilder: (_, _) => const SizedBox(width: 10),
           itemBuilder: (context, index) {
             final tool = quickTools[index];
-            final fondoHerramienta = t.isDark
+            final fondoHerramienta = t.oscuro
                 ? Colors.white.withValues(alpha: 0.05)
                 : Colors.black.withValues(alpha: 0.04);
             return GestureDetector(
@@ -810,7 +810,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           onTap: tool.onTap,
           child: Container(
             decoration: BoxDecoration(
-              color: t.isDark
+              color: t.oscuro
                   ? Colors.white.withValues(alpha: 0.04)
                   : Colors.black.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(10),

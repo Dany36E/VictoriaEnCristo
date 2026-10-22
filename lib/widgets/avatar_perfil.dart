@@ -261,7 +261,7 @@ class _OpcionAvatar extends StatelessWidget {
                           child: Icon(
                             Icons.check_rounded,
                             size: 15,
-                            color: t.isDark ? Colors.black : Colors.white,
+                            color: t.sobreAcento,
                           ),
                         ),
                 ),

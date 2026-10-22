@@ -25,7 +25,7 @@ class HomeHeader extends StatelessWidget {
     final t = AppThemeData.of(context);
     // Header sits on top of the dark hero image, but for light themes
     // the gradient may encroach; use theme-adaptive colors.
-    final fg = t.isDark ? Colors.white : t.textPrimary;
+    final fg = t.oscuro ? Colors.white : t.textPrimary;
     User? user;
     try {
       user = FirebaseAuth.instance.currentUser;

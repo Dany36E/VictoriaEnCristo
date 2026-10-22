@@ -875,14 +875,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? t.accent
-              : (isDark ? t.surface : Colors.grey.shade100),
+              : (isDark || t.oscuro ? t.surface : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           '${speed}x',
           style: TextStyle(
             color: isSelected
-                ? (isDark ? Colors.black87 : Colors.white)
+                ? (t.isPaper
+                      ? t.sobreAcento
+                      : (isDark ? Colors.black87 : Colors.white))
                 : t.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),

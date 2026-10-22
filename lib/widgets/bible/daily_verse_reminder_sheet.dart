@@ -153,7 +153,7 @@ class _DailyVerseReminderSheetState extends State<_DailyVerseReminderSheet> {
                 label: Text('Recordarme a las ${_fmt(time)}'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: t.accent,
-                  foregroundColor: t.isDark ? Colors.black : Colors.white,
+                  foregroundColor: t.sobreAcento,
                   minimumSize: const Size.fromHeight(50),
                   textStyle: const TextStyle(
                     fontSize: 15,

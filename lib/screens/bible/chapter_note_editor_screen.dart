@@ -158,7 +158,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
         );
 
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
 
         return Scaffold(
@@ -301,7 +301,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
-                        color: t.isDark
+                        color: t.oscuro
                             ? Colors.white.withValues(alpha: 0.08)
                             : Colors.black.withValues(alpha: 0.05),
                         borderRadius: BorderRadius.circular(12),
@@ -333,7 +333,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             height: 36,
             padding: const EdgeInsets.symmetric(horizontal: 12),
             decoration: BoxDecoration(
-              color: t.isDark
+              color: t.oscuro
                   ? Colors.white.withValues(alpha: 0.04)
                   : Colors.black.withValues(alpha: 0.03),
               borderRadius: BorderRadius.circular(8),

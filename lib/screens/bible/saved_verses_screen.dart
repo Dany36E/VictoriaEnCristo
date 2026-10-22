@@ -25,7 +25,7 @@ class SavedVersesScreen extends StatelessWidget {
         );
 
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
 
         return Scaffold(

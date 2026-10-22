@@ -64,6 +64,11 @@ class BibleReaderThemeData {
   /// Si la página se ve oscura (también los papeles kraft y noche).
   bool get oscuro => paleta?.oscura ?? isDark;
 
+  /// Texto o ícono sobre un relleno de [accent]: en los temas papel el que más
+  /// se lea (en los oscuros el acento es claro); en los demás, negro o blanco.
+  Color get sobreAcento =>
+      isPaper ? textoSobre(accent) : (isDark ? Colors.black : Colors.white);
+
   /// Highlight underline alpha
   Color highlightOverlay(Color highlightColor) =>
       highlightColor.withValues(alpha: oscuro ? 0.18 : 0.25);
@@ -76,8 +81,12 @@ class BibleReaderThemeData {
   Color get redLetterColor =>
       oscuro ? const Color(0xFFE57373) : const Color(0xFFC62828);
 
-  /// Swatch color for theme selector
-  Color get swatchColor => background;
+  /// Swatch color for theme selector. La opción de papel muestra el papel
+  /// que de verdad se aplica (sigue al de la app).
+  Color get swatchColor => isPaper ? papelActivo.background : background;
+
+  /// Si la muestra del selector es oscura (para la palomita encima).
+  bool get muestraOscura => isPaper ? papelActivo.oscuro : isDark;
 
   /// Texto secundario atenuado (fechas, contadores, avisos): [textSecondary]
   /// con la opacidad [alpha]. Si así no llega a contraste 4.5 (WCAG AA) sobre
@@ -260,7 +269,7 @@ class BibleReaderThemeData {
   /// El papel del lector sigue al de la app (claro, kraft o noche): los
   /// colores del kit (VecColores) son uno solo para toda la app, así que el
   /// lector no puede ir en un papel distinto. Por eso en los selectores del
-  /// lector hay una sola opción «Papel».
+  /// lector hay una sola opción de papel («Papel recortado»).
   static BibleReaderThemeData get papelActivo {
     final paleta = VecColores.actual;
     if (identical(paleta, VecPaleta.kraftOscuro)) return paperKraft;
@@ -288,6 +297,11 @@ class BibleReaderThemeData {
         return 'sepia_night';
       case 'light':
         return 'clean_page';
+      // Con «usar el tema de la app» llegan los ids de los papeles oscuros: en
+      // el lector son la misma opción de papel (ver papelActivo).
+      case 'papel_kraft':
+      case 'papel_noche':
+        return 'papel';
       default:
         return oldId;
     }

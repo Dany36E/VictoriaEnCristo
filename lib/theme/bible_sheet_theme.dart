@@ -18,13 +18,13 @@ class BibleSheetTheme {
   static Color get divider => _t.textSecondary.withValues(alpha: 0.15);
   static Color get accent => const Color(0xFFD4AF37);
   static Color get inputBackground =>
-      _t.isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04);
+      _t.oscuro ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04);
   static Color get hintColor =>
-      _t.isDark ? Colors.white24 : Colors.black26;
+      _t.oscuro ? Colors.white24 : Colors.black26;
   static Color get handleColor =>
-      _t.isDark ? Colors.white24 : Colors.black26;
+      _t.oscuro ? Colors.white24 : Colors.black26;
   static Color get subtleText =>
-      _t.isDark ? Colors.white38 : Colors.black38;
+      _t.oscuro ? Colors.white38 : Colors.black38;
 
   static BoxDecoration get sheetDecoration => BoxDecoration(
         color: background,

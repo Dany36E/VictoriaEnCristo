@@ -152,7 +152,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.03)
             : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(12),

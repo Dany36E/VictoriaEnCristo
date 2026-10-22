@@ -59,7 +59,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
           BibleReaderThemeData.migrateId(themeId),
         );
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
           backgroundColor: t.pageBg,

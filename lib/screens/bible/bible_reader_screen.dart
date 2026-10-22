@@ -196,7 +196,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           BibleReaderThemeData.migrateId(themeId),
         );
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
           backgroundColor: t.pageBg,
@@ -464,7 +464,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           decoration: BoxDecoration(color: t.accent, shape: BoxShape.circle),
           child: Icon(
             _ctrl.ttsActive ? Icons.stop_rounded : Icons.play_arrow_rounded,
-            color: t.isDark ? Colors.black : Colors.white,
+            color: t.sobreAcento,
             size: 20,
           ),
         ),

@@ -291,7 +291,7 @@ class BibleSettingsScreen extends StatelessWidget {
                                 child: isActive
                                     ? Icon(
                                         Icons.check,
-                                        color: theme.isDark
+                                        color: theme.muestraOscura
                                             ? Colors.white70
                                             : Colors.black54,
                                         size: 16,

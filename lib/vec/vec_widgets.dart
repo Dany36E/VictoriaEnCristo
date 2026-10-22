@@ -10,6 +10,10 @@ import 'vec_tema.dart';
 
 const _rutaTextura = 'assets/vec/texturas/papel_tile_512.png';
 
+/// Sombra sólida chica (globos, círculos, avatares): café en el papel claro y
+/// negra en los oscuros, donde el café no se nota.
+Color get _sombraSolida => VecColores.oscuro ? const Color(0x59000000) : const Color(0x402B2622);
+
 /// Fondo de papel crema con textura que se repite (no uses fondos planos).
 class FondoPapel extends StatelessWidget {
   const FondoPapel({super.key, required this.child});
@@ -291,7 +295,7 @@ class Subtitulo extends StatelessWidget {
       DecoratedBox(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
-          boxShadow: const [BoxShadow(color: Color(0x402B2622), offset: Offset(0, 4))],
+          boxShadow: [BoxShadow(color: _sombraSolida, offset: const Offset(0, 4))],
         ),
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
@@ -343,6 +347,9 @@ class Globo extends StatelessWidget {
 }
 
 class _Piquito extends CustomPainter {
+  // Se vuelve a pintar si cambia el papel del tema.
+  final _paleta = VecColores.actual;
+
   @override
   void paint(Canvas c, Size s) {
     final p = Path()
@@ -354,7 +361,7 @@ class _Piquito extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _Piquito oldDelegate) => !identical(oldDelegate._paleta, _paleta);
 }
 
 /// Imagen de los assets (ya traen su borde blanco y sombra), con giro opcional.
@@ -478,7 +485,7 @@ class CirculoIcono extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           shape: BoxShape.circle,
-          boxShadow: sombra ? const [BoxShadow(color: Color(0x402B2622), offset: Offset(0, 5))] : null,
+          boxShadow: sombra ? [BoxShadow(color: _sombraSolida, offset: const Offset(0, 5))] : null,
         ),
         child: iconoVec != null ? IconoVec(iconoVec!, color: colorIcono, tamano: t) : Icon(icono, color: colorIcono, size: t),
       ),
@@ -588,10 +595,14 @@ class HojaRayada extends StatelessWidget {
 }
 
 class _Renglones extends CustomPainter {
+  // Se vuelve a pintar si cambia el papel del tema.
+  final _paleta = VecColores.actual;
+
   @override
   void paint(Canvas c, Size s) {
     final p = Paint()
-      ..color = const Color(0xFFD7E3EE) // raya de --vec-hoja
+      // Raya de --vec-hoja; en los papeles oscuros, el azul del kit tenue.
+      ..color = VecColores.oscuro ? VecColores.azul.withValues(alpha: 0.22) : const Color(0xFFD7E3EE)
       ..strokeWidth = 2;
     for (var y = 39.0; y < s.height; y += 40) {
       c.drawLine(Offset(-24, y), Offset(s.width + 24, y), p);
@@ -599,7 +610,7 @@ class _Renglones extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _Renglones oldDelegate) => !identical(oldDelegate._paleta, _paleta);
 }
 
 /// Avatar redondo de los personajes (.vec-avatar).
@@ -613,9 +624,9 @@ class AvatarVec extends StatelessWidget {
     return Container(
       width: tamano,
       height: tamano,
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         shape: BoxShape.circle,
-        boxShadow: [BoxShadow(color: Color(0x402B2622), offset: Offset(0, 5))],
+        boxShadow: [BoxShadow(color: _sombraSolida, offset: const Offset(0, 5))],
       ),
       child: ClipOval(child: Image.asset(ruta, fit: BoxFit.cover, filterQuality: FilterQuality.medium)),
     );

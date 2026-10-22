@@ -290,12 +290,13 @@ class _HomeScreenState extends State<HomeScreen>
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     // Forzar íconos claros en status bar: el fondo hero siempre es oscuro arriba
-    // (en el tema papel la hoja es clara: íconos oscuros).
+    // (en el papel claro la hoja es clara: íconos oscuros).
+    final hojaClara = t.isPaper && !t.oscuro;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: t.isPaper ? Brightness.dark : Brightness.light,
-        statusBarBrightness: t.isPaper ? Brightness.light : Brightness.dark,
+        statusBarIconBrightness: hojaClara ? Brightness.dark : Brightness.light,
+        statusBarBrightness: hojaClara ? Brightness.light : Brightness.dark,
       ),
       child: Scaffold(
         backgroundColor: t.pageBg,

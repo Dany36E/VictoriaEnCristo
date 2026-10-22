@@ -236,7 +236,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         );
 
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
 
         return Scaffold(
@@ -279,12 +279,12 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               height: 40,
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: t.isDark
+                color: t.oscuro
                     ? Colors.white.withValues(alpha: 0.06)
                     : Colors.black.withValues(alpha: 0.04),
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: t.isDark
+                  color: t.oscuro
                       ? Colors.white.withValues(alpha: 0.08)
                       : Colors.black.withValues(alpha: 0.06),
                   width: 1,
@@ -302,7 +302,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   hintStyle: AppFonts.manrope(
                     color: t.textoAtenuado(
                       sobre: Color.alphaBlend(
-                        t.isDark
+                        t.oscuro
                             ? Colors.white.withValues(alpha: 0.06)
                             : Colors.black.withValues(alpha: 0.04),
                         t.fondoVisible,
@@ -681,7 +681,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          color: t.isDark
+          color: t.oscuro
               ? Colors.white.withValues(alpha: 0.04)
               : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(8),
@@ -845,7 +845,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     vertical: 5,
                   ),
                   decoration: BoxDecoration(
-                    color: t.isDark
+                    color: t.oscuro
                         ? Colors.white.withValues(alpha: 0.04)
                         : Colors.black.withValues(alpha: 0.03),
                     borderRadius: BorderRadius.circular(14),
@@ -960,7 +960,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   vertical: 6,
                 ),
                 decoration: BoxDecoration(
-                  color: t.isDark
+                  color: t.oscuro
                       ? Colors.white.withValues(alpha: 0.06)
                       : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(16),
@@ -1035,7 +1035,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.05)
             : Colors.black.withValues(alpha: 0.04),
         borderRadius: BorderRadius.circular(8),

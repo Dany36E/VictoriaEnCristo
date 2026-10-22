@@ -473,7 +473,7 @@ class _VerseComparisonRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       decoration: BoxDecoration(
-        color: t.isDark ? Colors.white.withValues(alpha: 0.025) : Colors.black.withValues(alpha: 0.025),
+        color: t.oscuro ? Colors.white.withValues(alpha: 0.025) : Colors.black.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),

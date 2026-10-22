@@ -1566,11 +1566,11 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           BibleReaderThemeData.migrateId(themeId),
         );
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         _notesController
           ..colorMarcas = t.accent
-          ..fondoOscuro = t.isDark;
+          ..fondoOscuro = t.oscuro;
         return Scaffold(
           backgroundColor: t.pageBg,
           body: SafeArea(
@@ -2580,7 +2580,7 @@ class _PanelCard extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.04)
             : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(10),
@@ -3704,7 +3704,7 @@ class _TypographySheet extends StatelessWidget {
                         child: isActive
                             ? Icon(
                                 Icons.check,
-                                color: th.isDark
+                                color: th.muestraOscura
                                     ? Colors.white70
                                     : Colors.black54,
                                 size: 16,
