@@ -1,0 +1,173 @@
+/* ==========================================================================
+   Victoria en Cristo — estilo «papel recortado» para apps y sitios web
+   Tokens (colores, letras, sombras, radios) + componentes listos para usar.
+   Uso: <link rel="stylesheet" href="vec-estilo.css"> y clases .vec-*
+   ========================================================================== */
+
+@font-face { font-family: 'Lilita One'; src: url('../fonts/LilitaOne-Regular.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Patrick Hand'; src: url('../fonts/PatrickHand-Regular.woff2') format('woff2'); font-display: swap; }
+@font-face { font-family: 'Caveat Brush'; src: url('../fonts/CaveatBrush-Regular.woff2') format('woff2'); font-display: swap; }
+
+:root {
+  /* ---- papel ---- */
+  --vec-papel: #fbf7ee;          /* tarjetas, globos, bordes de sticker */
+  --vec-crema: #f3ecdf;          /* fondo general */
+  --vec-crema-oscuro: #efe6d6;   /* casillas apagadas, separadores */
+  --vec-kraft: #b98f5e;          /* madera, cartón */
+  /* ---- tinta ---- */
+  --vec-tinta: #2b2622;          /* texto principal (nunca negro puro) */
+  --vec-lapiz: #3a332c;          /* contornos */
+  --vec-gris: #8a7a64;           /* texto secundario, etiquetas de versión */
+  /* ---- acentos ---- */
+  --vec-terracota: #c8553d;      /* color principal: palabras clave, Victoria */
+  --vec-azul: #3d6890;           /* Timoteo */
+  --vec-azul-claro: #4f7fa8;
+  --vec-mostaza: #e0a73a;        /* cinta, cruz, estrellas */
+  --vec-mostaza-claro: #efc56a;
+  --vec-verde: #2f7f7a;          /* confirmaciones, "sí" */
+  --vec-noche: #2f4a68;          /* modo noche, "próximamente" */
+  --vec-rosa: #f1a9a0;
+  --vec-salvia: #9dbb8e;
+  /* ---- letras ---- */
+  --vec-fuente-titulo: 'Lilita One', 'Arial Rounded MT Bold', system-ui, sans-serif;
+  --vec-fuente-texto: 'Patrick Hand', 'Segoe Print', sans-serif;
+  --vec-fuente-mano: 'Caveat Brush', 'Segoe Script', cursive;
+  /* ---- formas ---- */
+  --vec-radio-s: 10px;
+  --vec-radio-m: 14px;
+  --vec-radio-l: 22px;
+  --vec-radio-pildora: 999px;
+  --vec-borde-sticker: 6px;
+  /* ---- sombras: una sólida hacia abajo (papel grueso) + una difusa cálida ---- */
+  --vec-sombra-papel: 0 9px 0 rgba(43, 38, 34, .18), 0 16px 26px rgba(74, 48, 22, .22);
+  --vec-sombra-chip: 0 8px 0 rgba(43, 38, 34, .28);
+  --vec-sombra-presionado: 0 3px 0 rgba(43, 38, 34, .28);
+  --vec-brillo: 0 0 0 8px rgba(255, 214, 140, .55), 0 0 60px 18px rgba(255, 200, 110, .55);
+  /* ---- cinta adhesiva (washi tape) ---- */
+  --vec-cinta: repeating-linear-gradient(45deg, #e0a73a 0 10px, #efc56a 10px 20px);
+  /* ---- movimiento ---- */
+  --vec-rebote: cubic-bezier(.34, 1.56, .64, 1);   /* como back.out: entra, se pasa un poquito y regresa */
+  --vec-duracion: 420ms;
+}
+
+/* ---------- fondo de papel ---------- */
+.vec-fondo {
+  background: var(--vec-crema) url('../assets/texturas/papel_tile_512.png') repeat;
+  background-size: 512px;
+  color: var(--vec-tinta);
+  font-family: var(--vec-fuente-texto);
+}
+
+/* ---------- títulos ---------- */
+.vec-titulo { font-family: var(--vec-fuente-titulo); color: var(--vec-tinta); line-height: 1.05; margin: 0; }
+.vec-titulo .clave, .vec-clave { color: var(--vec-terracota); }
+/* letrero grande con contorno (portadas) */
+.vec-letrero {
+  font-family: var(--vec-fuente-titulo); color: var(--vec-papel); line-height: 1.05; text-align: center;
+  -webkit-text-stroke: 8px var(--vec-tinta); paint-order: stroke fill;
+  text-shadow: 0 6px 0 rgba(43, 38, 34, .35); transform: rotate(-2deg);
+}
+.vec-letrero .clave { color: #f6c34a; }
+.vec-mano { font-family: var(--vec-fuente-mano); }
+
+/* ---------- tarjeta de papel con cinta ---------- */
+.vec-tarjeta {
+  position: relative; background: var(--vec-papel); border-radius: var(--vec-radio-m);
+  padding: 22px 24px 20px; box-shadow: var(--vec-sombra-papel); transform: rotate(-1deg);
+}
+.vec-tarjeta::before { /* la cinta */
+  content: ''; position: absolute; left: -26px; top: -12px; width: 96px; height: 30px;
+  background: var(--vec-cinta); opacity: .86; transform: rotate(-24deg);
+}
+.vec-tarjeta.derecha { transform: rotate(1deg); }
+.vec-tarjeta.derecha::before { left: auto; right: -16px; transform: rotate(24deg); }
+.vec-tarjeta.brilla { box-shadow: var(--vec-brillo), 0 10px 0 rgba(43, 38, 34, .18); }
+.vec-tarjeta h3 { font-family: var(--vec-fuente-titulo); font-size: 1.5em; margin: 0 0 8px; color: var(--vec-terracota); font-weight: 400; }
+
+/* versículo: referencia en terracota + versión en gris */
+.vec-versiculo .ref { font-family: var(--vec-fuente-titulo); color: var(--vec-terracota); font-size: 1.6em; }
+.vec-versiculo .ver { font-family: var(--vec-fuente-titulo); color: var(--vec-gris); font-size: .8em; margin-left: 6px; }
+.vec-versiculo p { font-family: var(--vec-fuente-texto); font-size: 1.25em; line-height: 1.3; margin: 8px 0 0; }
+
+/* hoja rayada (cartas, notas) */
+.vec-hoja {
+  background: repeating-linear-gradient(var(--vec-papel) 0 38px, #d7e3ee 38px 40px);
+  font-family: var(--vec-fuente-mano); color: var(--vec-noche); line-height: 40px; font-size: 1.5em;
+}
+
+/* ---------- chips / píldoras ---------- */
+.vec-chip {
+  display: inline-flex; align-items: center; gap: 10px; padding: 10px 22px 9px 14px;
+  border-radius: var(--vec-radio-pildora); background: var(--vec-terracota); color: var(--vec-papel);
+  font-family: var(--vec-fuente-titulo); font-size: 1.15em; box-shadow: var(--vec-sombra-chip);
+  transform: rotate(-1.5deg); white-space: nowrap;
+}
+.vec-chip svg, .vec-chip img { width: 1.4em; height: 1.4em; color: var(--vec-papel); }
+.vec-chip.verde { background: var(--vec-verde); }
+.vec-chip.azul { background: var(--vec-azul-claro); }
+.vec-chip.mostaza { background: var(--vec-mostaza); }
+.vec-chip.noche { background: var(--vec-noche); }
+.vec-chip:nth-child(even) { transform: rotate(1.2deg); }
+
+/* ---------- botones (se hunden al tocarlos) ---------- */
+.vec-boton {
+  appearance: none; border: 0; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px;
+  padding: 14px 28px 12px; border-radius: var(--vec-radio-pildora); background: var(--vec-terracota); color: var(--vec-papel);
+  font-family: var(--vec-fuente-titulo); font-size: 1.25em; box-shadow: var(--vec-sombra-chip);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.vec-boton:active { transform: translateY(5px); box-shadow: var(--vec-sombra-presionado); }
+.vec-boton.secundario { background: var(--vec-papel); color: var(--vec-tinta); }
+.vec-boton.verde { background: var(--vec-verde); }
+
+/* ---------- campo de texto ---------- */
+.vec-campo {
+  width: 100%; box-sizing: border-box; padding: 12px 16px; border: 4px solid var(--vec-tinta); border-radius: var(--vec-radio-s);
+  background: var(--vec-papel); font-family: var(--vec-fuente-texto); font-size: 1.2em; color: var(--vec-azul-claro); outline: none;
+}
+.vec-campo:focus { border-color: var(--vec-terracota); box-shadow: 0 0 0 4px rgba(200, 85, 61, .2); }
+
+/* ---------- interruptor ---------- */
+.vec-switch { position: relative; width: 64px; height: 36px; border-radius: 99px; background: var(--vec-crema-oscuro); border: 4px solid var(--vec-tinta); }
+.vec-switch::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: var(--vec-papel); border: 3px solid var(--vec-tinta); transition: left 200ms var(--vec-rebote); }
+.vec-switch.on { background: var(--vec-verde); }
+.vec-switch.on::after { left: 29px; }
+
+/* ---------- etiqueta de quién habla + subtítulo (como en los videos) ---------- */
+.vec-hablante { display: inline-block; padding: 3px 14px 1px; border-radius: 10px; background: var(--vec-terracota); color: var(--vec-papel); font-family: var(--vec-fuente-titulo); font-size: .95em; }
+.vec-hablante.timoteo { background: var(--vec-azul); }
+.vec-subtitulo {
+  display: inline; font-family: var(--vec-fuente-titulo); font-size: 1.6em; line-height: 1.45; color: var(--vec-tinta);
+  background: var(--vec-papel); padding: 4px 14px; border-radius: 12px; box-decoration-break: clone; -webkit-box-decoration-break: clone;
+  box-shadow: 0 4px 0 rgba(43, 38, 34, .25), inset 6px 0 0 var(--vec-terracota);
+}
+.vec-subtitulo.timoteo { box-shadow: 0 4px 0 rgba(43, 38, 34, .25), inset 6px 0 0 var(--vec-azul); }
+
+/* ---------- globo de diálogo ---------- */
+.vec-globo { position: relative; display: inline-block; padding: 14px 22px 12px; background: var(--vec-papel); border: 4px solid var(--vec-tinta); border-radius: 26px; font-family: var(--vec-fuente-titulo); font-size: 1.3em; }
+.vec-globo::after { content: ''; position: absolute; left: 34px; bottom: -22px; border: 12px solid transparent; border-top: 18px solid var(--vec-tinta); }
+
+/* ---------- imágenes tipo sticker (para PNG sin borde) ---------- */
+.vec-sticker {
+  filter: drop-shadow(3px 0 0 var(--vec-papel)) drop-shadow(-3px 0 0 var(--vec-papel)) drop-shadow(0 3px 0 var(--vec-papel)) drop-shadow(0 -3px 0 var(--vec-papel))
+          drop-shadow(0 8px 6px rgba(74, 48, 22, .3));
+}
+/* los PNG de assets/ ya traen su borde blanco y sombra: no les pongas .vec-sticker */
+
+/* ---------- avatar ---------- */
+.vec-avatar { width: 64px; height: 64px; border-radius: 50%; box-shadow: 0 5px 0 rgba(43, 38, 34, .25); }
+
+/* ---------- barra inferior ---------- */
+.vec-tabbar { display: flex; justify-content: space-around; padding: 10px 8px 14px; background: var(--vec-papel); border-radius: 22px 22px 0 0; box-shadow: 0 -6px 0 rgba(43, 38, 34, .08); }
+.vec-tab { display: flex; flex-direction: column; align-items: center; gap: 2px; font-family: var(--vec-fuente-titulo); font-size: .85em; color: var(--vec-gris); }
+.vec-tab .ico { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; background: var(--vec-crema-oscuro); color: var(--vec-gris); }
+.vec-tab.activo { color: var(--vec-terracota); }
+.vec-tab.activo .ico { background: var(--vec-terracota); color: var(--vec-papel); box-shadow: 0 5px 0 rgba(43, 38, 34, .25); transform: rotate(-4deg); }
+.vec-tab svg { width: 28px; height: 28px; }
+
+/* ---------- movimiento ---------- */
+@keyframes vec-pop { from { opacity: 0; transform: scale(.5) rotate(-6deg); } to { opacity: 1; transform: scale(1) rotate(var(--rot, -1deg)); } }
+.vec-pop { animation: vec-pop var(--vec-duracion) var(--vec-rebote) both; }
+@keyframes vec-flota { 50% { transform: translateY(-8px) rotate(var(--rot, -1deg)); } }
+.vec-flota { animation: vec-flota 2.4s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .vec-pop, .vec-flota { animation: none; } }

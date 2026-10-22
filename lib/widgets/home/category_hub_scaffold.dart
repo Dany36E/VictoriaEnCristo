@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
 
 class CategoryHubScaffold extends StatelessWidget {
   final String title;
@@ -24,6 +26,29 @@ class CategoryHubScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final mediaPadding = MediaQuery.paddingOf(context);
+    if (AppThemeData.of(context).isPaper) {
+      // Tema papel: sin cosmos ni velo oscuro, la página es la hoja de papel.
+      return Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: Text(title),
+          systemOverlayStyle: SystemUiOverlayStyle.dark.copyWith(
+            statusBarColor: Colors.transparent,
+            systemNavigationBarColor: VecColores.crema,
+          ),
+        ),
+        body: ListView(
+          physics: const BouncingScrollPhysics(),
+          padding: EdgeInsets.fromLTRB(
+            AppDesignSystem.spacingM,
+            AppDesignSystem.spacingL,
+            AppDesignSystem.spacingM,
+            mediaPadding.bottom + AppDesignSystem.spacingXL,
+          ),
+          children: children,
+        ),
+      );
+    }
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: _overlayStyle,

@@ -1,29 +1,8 @@
 # Problemas visuales que ya existían en "game_race". No agregues
 # líneas a mano: corrige el problema. Se regenera con
 # ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-charcoal: "1" contraste < 3.0
 charcoal: "Las más conocidas · 0 preguntas" contraste < 4.5
-clean_page: "1" contraste < 3.0
-clean_page: "De Egipto a Jerusalén" contraste < 3.0
-clean_page: "Jugador 1" contraste < 4.5
-grey_editorial: "1" contraste < 3.0
-grey_editorial: "De Egipto a Jerusalén" contraste < 3.0
-grey_editorial: "Jugador 1" contraste < 4.5
-lavender: "1" contraste < 3.0
-lavender: "De Egipto a Jerusalén" contraste < 3.0
-lavender: "Jugador 1" contraste < 4.5
 mint: "1 Samuel 17:47" contraste < 4.5
-mint: "1" contraste < 3.0
 mint: "20 casillas · Hebreos 12:1" contraste < 4.5
-mint: "De Egipto a Jerusalén" contraste < 3.0
-mint: "Jugador 1" contraste < 4.5
 mint: "Las más conocidas · 0 preguntas" contraste < 4.5
-night_pure: "1" contraste < 3.0
-parchment: "1" contraste < 3.0
-parchment: "De Egipto a Jerusalén" contraste < 3.0
-parchment: "Jugador 1" contraste < 4.5
-peach: "1" contraste < 3.0
-peach: "De Egipto a Jerusalén" contraste < 3.0
-peach: "Jugador 1" contraste < 4.5
-sepia_night: "1" contraste < 3.0
 sepia_night: "Las más conocidas · 0 preguntas" contraste < 4.5

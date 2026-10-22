@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../services/bible/bible_audio_service.dart';
 import '../../services/bible/bible_tts_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -39,7 +39,7 @@ class AudioPlayerBar extends StatelessWidget {
         border: Border(
           bottom: BorderSide(
             color: isRealAudio
-                ? const Color(0xFFD4AF37).withValues(alpha: 0.3)
+                ? t.accent.withValues(alpha: 0.3)
                 : t.accent.withValues(alpha: 0.15),
           ),
         ),
@@ -93,16 +93,16 @@ class AudioPlayerBar extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(6),
               child: buffering
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 20, height: 20,
                       child: CircularProgressIndicator(
                         strokeWidth: 2,
-                        color: Color(0xFFD4AF37),
+                        color: t.accent,
                       ),
                     )
                   : Icon(
                       playing ? Icons.pause_rounded : Icons.play_arrow_rounded,
-                      color: const Color(0xFFD4AF37),
+                      color: t.accent,
                       size: 22,
                     ),
             ),
@@ -150,24 +150,24 @@ class AudioPlayerBar extends StatelessWidget {
                   width: 10, height: 10,
                   child: CircularProgressIndicator(
                     strokeWidth: 1.5,
-                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7),
+                    color: t.accent.withValues(alpha: 0.7),
                   ),
                 ),
                 const SizedBox(width: 3),
                 Text('Cargando...',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 8,
-                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7),
+                    color: t.accent.withValues(alpha: 0.7),
                   ),
                 ),
               ] else ...[
                 Icon(Icons.graphic_eq, size: 10,
-                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7)),
+                    color: t.accent.withValues(alpha: 0.7)),
                 const SizedBox(width: 3),
                 Text('Audio bíblico',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 8,
-                    color: const Color(0xFFD4AF37).withValues(alpha: 0.7),
+                    color: t.accent.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -185,7 +185,7 @@ class AudioPlayerBar extends StatelessWidget {
             color: t.textSecondary.withValues(alpha: 0.5)),
         const SizedBox(width: 3),
         Text('Lectura sintetizada',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 8,
             color: t.textSecondary.withValues(alpha: 0.5),
           ),
@@ -201,7 +201,7 @@ class AudioPlayerBar extends StatelessWidget {
         builder: (_, verse, _) {
           return Text(
             verse != null ? '$bookChapter:$verse' : bookChapter,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textSecondary, fontSize: 13),
           );
         },
@@ -224,7 +224,7 @@ class AudioPlayerBar extends StatelessWidget {
               ),
               child: Text(
                 mode == TtsReadMode.both ? 'V+C' : 'COM',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     color: t.accent, fontSize: 10, fontWeight: FontWeight.w700),
               ),
             );
@@ -236,7 +236,7 @@ class AudioPlayerBar extends StatelessWidget {
             builder: (_, idx, _) {
               return Text(
                 idx >= 0 ? '$bookChapter:${idx + 1}' : bookChapter,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     color: t.textSecondary, fontSize: 13),
               );
             },
@@ -261,8 +261,8 @@ class AudioPlayerBar extends StatelessWidget {
               child: LinearProgressIndicator(
                 value: progress,
                 backgroundColor:
-                    const Color(0xFFD4AF37).withValues(alpha: 0.15),
-                valueColor: const AlwaysStoppedAnimation(Color(0xFFD4AF37)),
+                    t.accent.withValues(alpha: 0.15),
+                valueColor: AlwaysStoppedAnimation(t.accent),
                 minHeight: 2,
               ),
             ),
@@ -271,11 +271,11 @@ class AudioPlayerBar extends StatelessWidget {
               child: Row(
                 children: [
                   Text(_fmt(pos),
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                           fontSize: 9, color: t.textSecondary)),
                   const Spacer(),
                   Text(_fmt(dur),
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                           fontSize: 9, color: t.textSecondary)),
                 ],
               ),

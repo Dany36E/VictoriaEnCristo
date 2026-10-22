@@ -43,7 +43,7 @@ class ManaResultScreen extends StatelessWidget {
         : 'Cada día rinde fruto. Lo que aprendiste queda.';
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppDesignSystem.spacingL),

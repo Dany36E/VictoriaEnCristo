@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 
 /// Modelo de una acción para el grid.
@@ -61,8 +61,8 @@ class BibleActionGrid extends StatelessWidget {
             const SizedBox(height: 14),
             Text(
               title!.toUpperCase(),
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.5),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.5),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.5,
@@ -117,7 +117,7 @@ class _ActionCell extends StatelessWidget {
             Text(
               action.label,
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: theme.textSecondary,
                 fontSize: 10,
                 fontWeight: FontWeight.w500,

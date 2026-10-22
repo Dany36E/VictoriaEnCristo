@@ -334,7 +334,7 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -570,8 +570,8 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
             ),
             child: Text(
               num,
-              style: const TextStyle(
-                color: AppDesignSystem.gold,
+              style: TextStyle(
+                color: AppDesignSystem.oroTexto(context, pastilla: 0.18),
                 fontWeight: FontWeight.w800,
                 fontSize: 13,
               ),

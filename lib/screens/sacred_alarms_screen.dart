@@ -248,7 +248,7 @@ class _SacredAlarmsScreenState extends State<SacredAlarmsScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(title: const Text('Campanas Sagradas')),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
@@ -748,9 +748,11 @@ class _SectionTitle extends StatelessWidget {
         children: [
           Icon(icon, size: 18, color: color),
           const SizedBox(width: 8),
-          Text(
-            title,
-            style: TextStyle(color: t.textPrimary, fontWeight: FontWeight.w700),
+          Expanded(
+            child: Text(
+              title,
+              style: TextStyle(color: t.textPrimary, fontWeight: FontWeight.w700),
+            ),
           ),
         ],
       ),

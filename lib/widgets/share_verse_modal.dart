@@ -3,10 +3,14 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
+import '../theme/app_theme_data.dart';
 import '../utils/share_utils.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
+import 'compartir/tarjeta_compartir_papel.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════════
 /// SHARE VERSE MODAL - Modal de Previsualización y Compartir
@@ -52,8 +56,11 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
   static const Color _darkBg = Color(0xFF0A0E14);
   static const Color _goldAccent = Color(0xFFD4A853);
 
+  bool get _papel => AppThemeData.of(context).isPaper;
+
   @override
   Widget build(BuildContext context) {
+    if (_papel) return _buildPapel(context);
     final screenHeight = MediaQuery.of(context).size.height;
     
     return Container(
@@ -108,7 +115,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                       children: [
                         Text(
                           'Compartir Versículo',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 18,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -117,7 +124,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                         const SizedBox(height: 2),
                         Text(
                           'Descarga la imagen para compartir',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 13,
                             color: Colors.white54,
                           ),
@@ -238,6 +245,149 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
     );
   }
 
+  /// Tema papel: hoja crema con la tarjeta de papel recortado del kit.
+  Widget _buildPapel(BuildContext context) {
+    final proporcion = _selectedFormat == 0 ? 1.0 : 0.8;
+    return Container(
+      constraints: BoxConstraints(
+        maxHeight: MediaQuery.of(context).size.height * 0.88,
+      ),
+      decoration: const BoxDecoration(
+        color: VecColores.crema,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+      ),
+      child: SingleChildScrollView(
+        child: Padding(
+          padding: EdgeInsets.fromLTRB(
+            22,
+            12,
+            22,
+            MediaQuery.of(context).padding.bottom + 16,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  // Gris del kit: el crema oscuro casi no se veía sobre la
+                  // hoja (contraste de más de 3:1, como pide WCAG 1.4.11).
+                  color: VecColores.gris,
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 14),
+              Row(
+                children: [
+                  const CirculoIcono(icono: Icons.share_rounded, tamano: 42),
+                  const SizedBox(width: 12),
+                  const Expanded(
+                    child: TituloVec(
+                      'Compartir versículo',
+                      clave: 'versículo',
+                      tamano: 24,
+                    ),
+                  ),
+                  IconButton(
+                    tooltip: 'Cerrar',
+                    onPressed: () => Navigator.pop(context),
+                    icon: const Icon(
+                      Icons.close_rounded,
+                      color: VecColores.tinta,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  for (final (i, etiqueta) in [
+                    (0, 'Cuadrado 1:1'),
+                    (1, 'Vertical 4:5'),
+                  ]) ...[
+                    if (i > 0) const SizedBox(width: 10),
+                    Expanded(
+                      child: Semantics(
+                        button: true,
+                        selected: _selectedFormat == i,
+                        child: GestureDetector(
+                          onTap: () => setState(() => _selectedFormat = i),
+                          child: Container(
+                            constraints: const BoxConstraints(minHeight: 48),
+                            alignment: Alignment.center,
+                            decoration: BoxDecoration(
+                              color: _selectedFormat == i
+                                  ? VecColores.terracota
+                                  : VecColores.papel,
+                              borderRadius: BorderRadius.circular(
+                                VecRadios.pildora,
+                              ),
+                              boxShadow: VecSombras.chip,
+                            ),
+                            child: Text(
+                              etiqueta,
+                              style: TextStyle(
+                                fontFamily: VecFuentes.titulo,
+                                fontSize: 16,
+                                color: _selectedFormat == i
+                                    ? VecColores.papel
+                                    : VecColores.tinta,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 18),
+              // Se captura dentro del FittedBox: la imagen sale de 1080 px
+              // de ancho aunque la vista previa sea más chica. El borde de
+              // lápiz y la sombra marcan dónde termina la imagen sobre la
+              // hoja (no salen en ella).
+              Container(
+                decoration: const BoxDecoration(boxShadow: VecSombras.papel),
+                foregroundDecoration: BoxDecoration(
+                  border: Border.all(color: VecColores.lapiz, width: 1.5),
+                ),
+                child: FittedBox(
+                  child: RepaintBoundary(
+                    key: _quoteCardKey,
+                    child: TarjetaCompartirPapel(
+                      texto: widget.verse.verse,
+                      referencia: widget.verse.reference,
+                      etiqueta: 'Versículo',
+                      proporcion: proporcion,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              BotonVec(
+                texto: 'Descargar imagen',
+                icono: Icons.download_rounded,
+                cargando: _isGenerating,
+                expandido: true,
+                onPressed: _shareAsImage,
+              ),
+              const SizedBox(height: 12),
+              BotonVec(
+                texto: 'Copiar solo texto',
+                icono: Icons.copy_rounded,
+                color: VecColores.papel,
+                colorTexto: VecColores.tinta,
+                expandido: true,
+                onPressed: _copyText,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   /// Genera la imagen y la descarga
   Future<void> _shareAsImage() async {
     if (_isGenerating) return;
@@ -303,11 +453,11 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
             const SizedBox(width: 12),
             Text(
               message,
-              style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+              style: AppFonts.manrope(fontWeight: FontWeight.w600),
             ),
           ],
         ),
-        backgroundColor: _goldAccent,
+        backgroundColor: _papel ? VecColores.verde : _goldAccent,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -324,7 +474,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
             const SizedBox(width: 12),
             Text(
               message,
-              style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+              style: AppFonts.manrope(fontWeight: FontWeight.w600),
             ),
           ],
         ),
@@ -434,7 +584,7 @@ class _QuoteCard extends StatelessWidget {
                   Text(
                     verse.verse,
                     textAlign: TextAlign.center,
-                    style: GoogleFonts.crimsonPro(
+                    style: AppFonts.crimsonPro(
                       fontSize: _calculateFontSize(verse.verse.length),
                       fontWeight: FontWeight.w500,
                       fontStyle: FontStyle.italic,
@@ -467,7 +617,7 @@ class _QuoteCard extends StatelessWidget {
                   // Referencia
                   Text(
                     verse.reference,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: accentColor,
@@ -483,16 +633,16 @@ class _QuoteCard extends StatelessWidget {
                     children: [
                       Icon(
                         Icons.church_rounded,
-                        color: Colors.white.withValues(alpha: 0.4),
+                        color: Colors.white.withValues(alpha: 0.65),
                         size: 16,
                       ),
                       const SizedBox(width: 8),
                       Text(
                         'Victoria en Cristo',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
-                          color: Colors.white.withValues(alpha: 0.4),
+                          color: Colors.white.withValues(alpha: 0.65),
                           letterSpacing: 1,
                         ),
                       ),
@@ -569,7 +719,7 @@ class _FormatChip extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
                     color: isSelected ? const Color(0xFFD4A853) : Colors.white70,
@@ -577,9 +727,9 @@ class _FormatChip extends StatelessWidget {
                 ),
                 Text(
                   subtitle,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 11,
-                    color: Colors.white38,
+                    color: Colors.white70,
                   ),
                 ),
               ],
@@ -592,6 +742,9 @@ class _FormatChip extends StatelessWidget {
 }
 
 class _PrimaryShareButton extends StatelessWidget {
+  /// Texto oscuro sobre el dorado: el blanco no llega a contraste 3:1.
+  static const _tinta = Color(0xFF0A0E14);
+
   final bool isLoading;
   final String label;
   final IconData icon;
@@ -633,18 +786,18 @@ class _PrimaryShareButton extends StatelessWidget {
                 height: 20,
                 child: CircularProgressIndicator(
                   strokeWidth: 2,
-                  valueColor: AlwaysStoppedAnimation(Colors.white),
+                  valueColor: AlwaysStoppedAnimation(_tinta),
                 ),
               )
             else
-              Icon(icon, color: Colors.white, size: 22),
+              Icon(icon, color: _tinta, size: 22),
             const SizedBox(width: 10),
             Text(
               isLoading ? 'Generando...' : label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
-                color: Colors.white,
+                color: _tinta,
                 letterSpacing: 0.5,
               ),
             ),
@@ -688,7 +841,7 @@ class _SecondaryButton extends StatelessWidget {
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: Colors.white70,

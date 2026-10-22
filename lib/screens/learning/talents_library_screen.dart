@@ -18,6 +18,8 @@ import '../../theme/app_theme_data.dart';
 import '../../widgets/learning/collectible_story_art.dart';
 import '../../widgets/learning/talents_badge.dart';
 import 'talents_book_detail_screen.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 
 class TalentsLibraryScreen extends StatefulWidget {
   const TalentsLibraryScreen({super.key});
@@ -35,7 +37,7 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
     final allBooks = BookRepository.I.all;
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBg,
+      backgroundColor: theme.pageBg,
       appBar: AppBar(
         backgroundColor: theme.surface,
         title: Text(
@@ -122,6 +124,70 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
     int completeBooks,
     double progress,
   ) {
+    if (theme.isPaper) {
+      return Padding(
+        padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
+        child: TarjetaPapel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const CirculoIcono(
+                    iconoVec: 'biblia',
+                    color: VecColores.mostaza,
+                    tamano: 48,
+                    giro: -4,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const TituloVec(
+                          'Mural de la Historia',
+                          clave: 'Historia',
+                          tamano: 24,
+                        ),
+                        Text(
+                          '$totalUnlocked/$totalAvailable piezas · $completeBooks/66 libros completos',
+                          style: const TextStyle(
+                            fontFamily: VecFuentes.texto,
+                            fontSize: 16,
+                            color: VecColores.gris,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(VecRadios.pildora),
+                child: LinearProgressIndicator(value: progress, minHeight: 12),
+              ),
+              const SizedBox(height: 16),
+              const Wrap(
+                spacing: 10,
+                runSpacing: 12,
+                children: [
+                  ChipVec(
+                    texto: '+10 mín. por libro',
+                    color: VecColores.verde,
+                  ),
+                  ChipVec(
+                    texto: '5 actos por mural',
+                    color: VecColores.azulClaro,
+                    giro: 1.2,
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      );
+    }
     return Container(
       margin: const EdgeInsets.all(AppDesignSystem.spacingM),
       padding: const EdgeInsets.all(AppDesignSystem.spacingL),
@@ -231,13 +297,17 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
               label: Text(filter.$2),
               selected: selected,
               onSelected: (_) => setState(() => _filter = filter.$1),
-              selectedColor: AppDesignSystem.gold,
-              backgroundColor: theme.cardBg,
-              labelStyle: AppDesignSystem.labelMedium(
-                context,
-                color: selected ? AppDesignSystem.midnightDeep : theme.textPrimary,
-              ),
-              side: BorderSide(color: selected ? AppDesignSystem.gold : theme.cardBorder),
+              selectedColor: theme.isPaper ? null : AppDesignSystem.gold,
+              backgroundColor: theme.isPaper ? null : theme.cardBg,
+              labelStyle: theme.isPaper
+                  ? null
+                  : AppDesignSystem.labelMedium(
+                      context,
+                      color: selected ? AppDesignSystem.midnightDeep : theme.textPrimary,
+                    ),
+              side: theme.isPaper
+                  ? null
+                  : BorderSide(color: selected ? AppDesignSystem.gold : theme.cardBorder),
             ),
           );
         }).toList(),

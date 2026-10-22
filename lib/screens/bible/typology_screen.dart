@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/typology.dart';
 import '../../services/bible/typology_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import 'typology_detail_screen.dart';
 
@@ -70,12 +71,12 @@ class _TypologyScreenState extends State<TypologyScreen> {
           BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         title: Text(
           'Tipologías Bíblicas',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: t.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -94,12 +95,11 @@ class _TypologyScreenState extends State<TypologyScreen> {
                   child: TextField(
                     controller: _searchController,
                     onChanged: (v) => setState(() => _searchQuery = v),
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                         color: t.textPrimary, fontSize: 14),
                     decoration: InputDecoration(
                       hintText: 'Buscar tipología...',
-                      hintStyle: GoogleFonts.manrope(
-                          color: t.textPrimary.withValues(alpha: 0.3)),
+                      hintStyle: AppFonts.manrope(color: t.textoAtenuado()),
                       prefixIcon: Icon(Icons.search,
                           color: t.accent.withValues(alpha: 0.5)),
                       filled: true,
@@ -134,8 +134,8 @@ class _TypologyScreenState extends State<TypologyScreen> {
                     alignment: Alignment.centerLeft,
                     child: Text(
                       '${_filtered.length} tipologías',
-                      style: GoogleFonts.manrope(
-                        color: t.textPrimary.withValues(alpha: 0.3),
+                      style: AppFonts.manrope(
+                        color: t.textoAtenuado(),
                         fontSize: 11,
                       ),
                     ),
@@ -151,7 +151,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                           children: [
                             Icon(Icons.search_off, size: 48, color: t.textPrimary.withValues(alpha: 0.3)),
                             const SizedBox(height: 12),
-                            Text('Sin resultados', style: GoogleFonts.manrope(color: t.textPrimary.withValues(alpha: 0.5), fontSize: 14)),
+                            Text('Sin resultados', style: AppFonts.manrope(color: t.textoAtenuado(), fontSize: 14)),
                           ],
                         ),
                       )
@@ -174,8 +174,8 @@ class _TypologyScreenState extends State<TypologyScreen> {
         label: Text(label),
         selected: active,
         onSelected: (_) => setState(() => _activeTag = tag),
-        labelStyle: GoogleFonts.manrope(
-          color: active ? t.background : t.textPrimary.withValues(alpha: 0.6),
+        labelStyle: AppFonts.manrope(
+          color: active ? t.background : t.textoAtenuado(sobre: t.surface),
           fontSize: 11,
           fontWeight: FontWeight.w600,
         ),
@@ -217,7 +217,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                 Expanded(
                   child: Text(
                     typology.title,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -231,8 +231,8 @@ class _TypologyScreenState extends State<TypologyScreen> {
             const SizedBox(height: 6),
             Text(
               typology.description,
-              style: GoogleFonts.manrope(
-                color: t.textPrimary.withValues(alpha: 0.5),
+              style: AppFonts.manrope(
+                color: t.textoAtenuado(sobre: t.surface),
                 fontSize: 12,
                 height: 1.4,
               ),
@@ -247,6 +247,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                   'AT',
                   typology.oldTestament.reference,
                   const Color(0xFFFF7043),
+                  t.surface,
                 ),
                 const Padding(
                   padding: EdgeInsets.symmetric(horizontal: 6),
@@ -258,6 +259,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
                   'NT',
                   typology.newTestament.reference,
                   const Color(0xFF42A5F5),
+                  t.surface,
                 ),
                 const Spacer(),
                 // Tags
@@ -271,8 +273,13 @@ class _TypologyScreenState extends State<TypologyScreen> {
                       ),
                       child: Text(
                         tag,
-                        style: GoogleFonts.manrope(
-                          color: t.textPrimary.withValues(alpha: 0.3),
+                        style: AppFonts.manrope(
+                          color: t.textoAtenuado(
+                            sobre: Color.alphaBlend(
+                              t.textPrimary.withValues(alpha: 0.05),
+                              t.surface,
+                            ),
+                          ),
                           fontSize: 9,
                         ),
                       ),
@@ -285,7 +292,7 @@ class _TypologyScreenState extends State<TypologyScreen> {
     );
   }
 
-  Widget _refBadge(String testament, String osis, Color color) {
+  Widget _refBadge(String testament, String osis, Color color, Color base) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
       decoration: BoxDecoration(
@@ -294,8 +301,8 @@ class _TypologyScreenState extends State<TypologyScreen> {
       ),
       child: Text(
         '$testament · ${_formatOsis(osis)}',
-        style: GoogleFonts.manrope(
-          color: color,
+        style: AppFonts.manrope(
+          color: legibleEnPastilla(color, 0.1, base),
           fontSize: 10,
           fontWeight: FontWeight.w600,
         ),

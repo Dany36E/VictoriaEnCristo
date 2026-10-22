@@ -26,7 +26,6 @@ Lista de tareas para subir Victoria en Cristo a Google Play Store con todos los 
 - [x] BLB API key migrada con flag idempotente.
 - [x] Consentimiento expreso separado para datos sensibles y versión de aceptación.
 - [x] Analytics y Crashlytics desactivados por defecto, con controles revocables.
-- [x] YouTube integrado bloqueado hasta consentimiento específico.
 
 ## 🔧 Pendiente — Acciones manuales en Google / Firebase Console
 

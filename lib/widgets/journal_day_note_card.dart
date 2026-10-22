@@ -6,9 +6,11 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/journal_service.dart';
 import '../services/feedback_engine.dart';
+import '../services/theme_service.dart';
+import '../vec/vec_tema.dart';
 
 class JournalDayNoteCard extends StatelessWidget {
   final DateTime selectedDate;
@@ -17,10 +19,12 @@ class JournalDayNoteCard extends StatelessWidget {
   final VoidCallback onTapEdit;
   final VoidCallback onTapCreate;
 
-  static const Color _gold = Color(0xFFD4A853);
-  static const Color _textPrimary = Color(0xFFF0F0F0);
-  static const Color _textMuted = Color(0xFF8A8A9A);
-  static const Color _warmBg = Color(0xFF1A1520);
+  // En el tema «papel recortado» es una tarjeta de papel con colores del kit.
+  static bool get _papel => ThemeService().currentTheme.isPaper;
+  static Color get _gold => _papel ? VecColores.terracota : const Color(0xFFD4A853);
+  static Color get _textPrimary => _papel ? VecColores.tinta : const Color(0xFFF0F0F0);
+  static Color get _textMuted => _papel ? VecColores.gris : const Color(0xFF8A8A9A);
+  static Color get _warmBg => _papel ? VecColores.papel : const Color(0xFF1A1520);
 
   const JournalDayNoteCard({
     super.key,
@@ -43,7 +47,13 @@ class JournalDayNoteCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
+      decoration: _papel
+          ? BoxDecoration(
+              color: _warmBg,
+              borderRadius: BorderRadius.circular(VecRadios.m),
+              boxShadow: VecSombras.papel,
+            )
+          : BoxDecoration(
         color: _warmBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
@@ -103,7 +113,7 @@ class JournalDayNoteCard extends StatelessWidget {
             children: [
               Text(
                 'Mi diario',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: _textPrimary,
@@ -111,7 +121,7 @@ class JournalDayNoteCard extends StatelessWidget {
               ),
               Text(
                 dateStr,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 12,
                   color: _textMuted.withValues(alpha: 0.7),
                 ),
@@ -177,7 +187,7 @@ class JournalDayNoteCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       JournalService.moodLabels[entry!.mood] ?? '',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 13,
                         color: _gold.withValues(alpha: 0.8),
                         fontWeight: FontWeight.w600,
@@ -186,7 +196,7 @@ class JournalDayNoteCard extends StatelessWidget {
                     const Spacer(),
                     Text(
                       '🕐 $timeStr',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 11,
                         color: _textMuted.withValues(alpha: 0.5),
                       ),
@@ -197,7 +207,7 @@ class JournalDayNoteCard extends StatelessWidget {
               ],
               Text(
                 snippet,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   color: _textPrimary.withValues(alpha: 0.85),
                   height: 1.55,
@@ -237,7 +247,7 @@ class JournalDayNoteCard extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 _isToday ? '¿Cómo te fue hoy?' : 'Sin entrada este día',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _textMuted.withValues(alpha: 0.6),
@@ -246,7 +256,7 @@ class JournalDayNoteCard extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 _isToday ? 'Escribe sobre tu día' : 'Puedes agregar una reflexión',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 12,
                   color: _textMuted.withValues(alpha: 0.4),
                 ),
@@ -297,7 +307,7 @@ class JournalDayNoteCard extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: isPrimary ? _gold : _textMuted,

@@ -29,62 +29,85 @@ class JesusWidgetService {
   static const String _spritesPath = 'assets/widget/jesus';
   static const String _backgroundsPath = 'assets/widget/backgrounds';
 
+  // Tema «Papel recortado»: mismos estados dibujados con el kit.
+  static const String _spritesPapel = 'assets/vec/personajes';
+  static const String _fondosPapel = 'assets/vec/fondos';
+
+  String _sprite(String original, String papelId, bool papel) => papel
+      ? '$_spritesPapel/jesus_$papelId.webp'
+      : '$_spritesPath/$original.webp';
+
+  String _fondo(String original, String papelId, bool papel) => papel
+      ? '$_fondosPapel/racha_$papelId.webp'
+      : '$_backgroundsPath/$original.webp';
+
   // ═══════════════════════════════════════════════════════════════════════════
   // SPRITE (Jesús)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Devuelve el path del sprite de Jesús según estado actual
+  /// Devuelve el path del sprite de Jesús según estado actual.
+  /// [papel]: versión del tema «Papel recortado».
   String getSprite({
     required int streakDays,
     required bool completedToday,
     required bool isNewUser,
+    bool papel = false,
   }) {
     // Usuario nuevo → bienvenida
     if (isNewUser) {
-      return '$_spritesPath/NUEVO USUARIO.webp';
+      return _sprite('NUEVO USUARIO', 'nuevo', papel);
     }
 
     // Hitos altos — muestran sprite épico aunque completó hoy
-    if (streakDays >= 365) return '$_spritesPath/Un año glorioso.webp';
-    if (streakDays >= 100) return '$_spritesPath/Centurión de la fe.webp';
-    if (streakDays >= 30) return '$_spritesPath/Un mes.webp';
+    if (streakDays >= 365) return _sprite('Un año glorioso', 'anio', papel);
+    if (streakDays >= 100) {
+      return _sprite('Centurión de la fe', 'centurion', papel);
+    }
+    if (streakDays >= 30) return _sprite('Un mes', 'mes', papel);
 
     // Completó hoy (racha < 30) → celebración genérica
     if (completedToday) {
-      return '$_spritesPath/VICTORIA DEL DÍA.webp';
+      return _sprite('VICTORIA DEL DÍA', 'victoria', papel);
     }
 
     // Hitos medios sin completar hoy
-    if (streakDays >= 7) return '$_spritesPath/Primera semana.webp';
+    if (streakDays >= 7) return _sprite('Primera semana', 'semana', papel);
 
     // Racha perdida (0 días y no es nuevo)
     if (streakDays == 0) {
-      return '$_spritesPath/RACHA PERDIDA.webp';
+      return _sprite('RACHA PERDIDA', 'perdida', papel);
     }
 
     // Racha activa pero no completó hoy → ánimo
     if (streakDays >= 1) {
-      return '$_spritesPath/ÁNIMO  EMPUJAR AL USUARIO.webp';
+      return _sprite('ÁNIMO  EMPUJAR AL USUARIO', 'animo', papel);
     }
 
     // Fallback: esperando
-    return '$_spritesPath/ESPERANDO AL USUARIO.webp';
+    return _sprite('ESPERANDO AL USUARIO', 'esperando', papel);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // BACKGROUND (Fondo)
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Devuelve el path del fondo según la racha
-  String getBackground({required int streakDays}) {
-    if (streakDays >= 365) return '$_backgroundsPath/Guardia Eterna.webp';
-    if (streakDays >= 100) return '$_backgroundsPath/Armadura dorada.webp';
-    if (streakDays >= 30) return '$_backgroundsPath/Batalla espiritual.webp';
-    if (streakDays >= 14) return '$_backgroundsPath/Noche estrellada.webp';
-    if (streakDays >= 7) return '$_backgroundsPath/Atardecer glorioso.webp';
-    if (streakDays >= 3) return '$_backgroundsPath/Cielo de la fe.webp';
-    if (streakDays >= 1) return '$_backgroundsPath/Pradera del amanecer.webp';
-    return '$_backgroundsPath/Listo para empezar.webp';
+  /// Devuelve el path del fondo según la racha.
+  /// [papel]: escena del tema «Papel recortado».
+  String getBackground({required int streakDays, bool papel = false}) {
+    if (streakDays >= 365) return _fondo('Guardia Eterna', 'guardia', papel);
+    if (streakDays >= 100) return _fondo('Armadura dorada', 'armadura', papel);
+    if (streakDays >= 30) {
+      return _fondo('Batalla espiritual', 'batalla', papel);
+    }
+    if (streakDays >= 14) return _fondo('Noche estrellada', 'noche', papel);
+    if (streakDays >= 7) {
+      return _fondo('Atardecer glorioso', 'atardecer', papel);
+    }
+    if (streakDays >= 3) return _fondo('Cielo de la fe', 'cielo', papel);
+    if (streakDays >= 1) {
+      return _fondo('Pradera del amanecer', 'pradera', papel);
+    }
+    return _fondo('Listo para empezar', 'listo', papel);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

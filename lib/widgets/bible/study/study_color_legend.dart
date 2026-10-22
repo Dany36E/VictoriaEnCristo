@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/study_word_highlight.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -48,7 +48,7 @@ class StudyColorLegend extends StatelessWidget {
               SizedBox(width: compact ? 6 : 8),
               Text(
                 c.label,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary,
                   fontSize: compact ? 10.5 : 11.5,
                   fontWeight: FontWeight.w600,

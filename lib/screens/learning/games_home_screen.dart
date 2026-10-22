@@ -49,7 +49,7 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -199,8 +199,8 @@ class _GamesHomeScreenState extends State<GamesHomeScreen> {
                         ),
                         child: Text(
                           badge,
-                          style: const TextStyle(
-                            color: AppDesignSystem.gold,
+                          style: TextStyle(
+                            color: AppDesignSystem.oroTexto(context, pastilla: 0.15),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),

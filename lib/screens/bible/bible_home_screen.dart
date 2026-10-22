@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
@@ -12,6 +12,7 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
 import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../widgets/bible/collapsible_section.dart';
 import '../../widgets/bible/concordance_sheet.dart';
 import '../../widgets/bible/bible_home_onboarding_overlay.dart';
@@ -30,9 +31,7 @@ import 'bible_map_screen.dart';
 import 'gospel_harmony_screen.dart';
 import 'typology_screen.dart';
 import 'ot_quotes_screen.dart';
-import 'sermon_notes_mode_screen.dart';
-import 'sermon_notes_saved_screen.dart';
-import 'study_mode_screen.dart';
+import 'entradas_biblia.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE HOME SCREEN — Edición editorial premium
@@ -175,7 +174,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: _loading
                 ? Center(
@@ -226,7 +225,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           Expanded(
             child: Text(
               'La Biblia',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 20,
                 fontWeight: FontWeight.w600,
@@ -283,10 +282,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               child: TextField(
                 controller: _searchController,
                 focusNode: _searchFocus,
-                style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 14),
+                style: AppFonts.manrope(color: t.textPrimary, fontSize: 14),
                 decoration: InputDecoration(
                   hintText: 'Buscar en la Biblia...',
-                  hintStyle: GoogleFonts.manrope(
+                  hintStyle: AppFonts.manrope(
                     color: t.textSecondary.withValues(alpha: 0.4),
                     fontSize: 14,
                   ),
@@ -417,8 +416,11 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         children: [
           Text(
             section.name.toUpperCase(),
-            style: GoogleFonts.manrope(
-              color: t.accent.withValues(alpha: 0.7),
+            style: AppFonts.manrope(
+              color: legibleSobre(
+                t.accent.withValues(alpha: 0.7),
+                t.fondoVisible,
+              ),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.4,
@@ -427,8 +429,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           const SizedBox(height: 2),
           Text(
             section.description,
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.4),
+            style: AppFonts.manrope(
+              color: t.textoTenue(0.4),
               fontSize: 11,
             ),
           ),
@@ -483,8 +485,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   children: [
                     Text(
                       'Continuar leyendo',
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                      style: AppFonts.manrope(
+                        color: t.textoTenue(0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
@@ -493,7 +495,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     const SizedBox(height: 2),
                     Text(
                       '$_lastBookName $_lastChapter',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: t.textPrimary,
                         fontSize: 17,
                         fontWeight: FontWeight.w500,
@@ -541,7 +543,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   const SizedBox(width: 3),
                   Text(
                     '$streak días',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: const Color(0xFFFF6B35),
                       fontSize: 12,
                       fontWeight: FontWeight.w600,
@@ -565,8 +567,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   const SizedBox(width: 5),
                   Text(
                     '${pct.toStringAsFixed(1)}%',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.4),
                       fontSize: 10,
                     ),
                   ),
@@ -580,53 +582,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   }
 
   // ─── Quick Study Tools Strip ────────────────────────────────────────
-
-  void _openStudyMode({
-    bool openRoomDialogOnStart = false,
-    bool openSetupOnStart = true,
-    bool openSavedStudiesOnStart = false,
-  }) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => StudyModeScreen(
-          bookNumber: _lastBookNumber ?? 1,
-          bookName: _lastBookName ?? 'Génesis',
-          chapter: _lastChapter ?? 1,
-          version: _version,
-          openRoomDialogOnStart: openRoomDialogOnStart,
-          openSetupOnStart: openSetupOnStart,
-          openSavedStudiesOnStart: openSavedStudiesOnStart,
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openStudyEntryOptions() async {
-    final action = await showModalBottomSheet<_StudyEntryAction>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _StudyEntrySheet(theme: _currentTheme()),
-    );
-    if (!mounted || action == null) return;
-    switch (action) {
-      case _StudyEntryAction.newStudy:
-        _openStudyMode(openSetupOnStart: true);
-        break;
-      case _StudyEntryAction.savedStudies:
-        _openStudyMode(openSetupOnStart: false, openSavedStudiesOnStart: true);
-        break;
-      case _StudyEntryAction.friendsStudy:
-        _openStudyMode(openSetupOnStart: false, openRoomDialogOnStart: true);
-        break;
-    }
-  }
-
-  BibleReaderThemeData _currentTheme() => BibleReaderThemeData.fromId(
-    BibleReaderThemeData.migrateId(
-      BibleUserDataService.I.readerThemeNotifier.value,
-    ),
-  );
 
   void _openParallelReader() {
     Navigator.push(
@@ -642,48 +597,18 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     );
   }
 
-  void _openSermonNotesMode() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => SermonNotesModeScreen(
-          bookNumber: _lastBookNumber ?? 1,
-          bookName: _lastBookName ?? 'Genesis',
-          chapter: _lastChapter ?? 1,
-          version: _version,
-        ),
-      ),
-    );
-  }
-
-  void _openSavedSermonNotes() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (_) => const SermonNotesSavedScreen()),
-    );
-  }
-
-  Future<void> _openSermonEntryOptions() async {
-    final action = await showModalBottomSheet<_SermonEntryAction>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (_) => _SermonEntrySheet(theme: _currentTheme()),
-    );
-    if (!mounted || action == null) return;
-    switch (action) {
-      case _SermonEntryAction.newNote:
-        _openSermonNotesMode();
-        break;
-      case _SermonEntryAction.savedNotes:
-        _openSavedSermonNotes();
-        break;
-    }
-  }
-
   Widget _buildQuickToolsStrip(BibleReaderThemeData t) {
     final quickTools = [
-      _ToolItem(Icons.menu_book, 'Estudio', _openStudyEntryOptions),
-      _ToolItem(Icons.edit_note, 'Apuntes', _openSermonEntryOptions),
+      _ToolItem(
+        Icons.menu_book,
+        'Estudio',
+        () => EntradasBiblia.abrirEstudio(context),
+      ),
+      _ToolItem(
+        Icons.edit_note,
+        'Apuntes',
+        () => EntradasBiblia.abrirApuntes(context),
+      ),
       _ToolItem(Icons.view_column_outlined, '2 versiones', _openParallelReader),
       _ToolItem(
         Icons.bookmark_outline,
@@ -737,6 +662,9 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           separatorBuilder: (_, _) => const SizedBox(width: 10),
           itemBuilder: (context, index) {
             final tool = quickTools[index];
+            final fondoHerramienta = t.isDark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.04);
             return GestureDetector(
               onTap: tool.onTap,
               child: Container(
@@ -745,9 +673,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: t.isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : Colors.black.withValues(alpha: 0.04),
+                  color: fondoHerramienta,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: t.accent.withValues(alpha: 0.12)),
                 ),
@@ -758,8 +684,14 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     const SizedBox(height: 4),
                     Text(
                       tool.label,
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.6),
+                      style: AppFonts.manrope(
+                        // El fondo de la herramienta es un poco más oscuro
+                        // que la página.
+                        color: legibleSobre(
+                          t.textoTenue(0.6),
+                          Color.alphaBlend(fondoHerramienta, t.fondoVisible),
+                          minimo: 4.7,
+                        ),
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -891,8 +823,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   tool.label,
                   textAlign: TextAlign.center,
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.6),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     height: 1.2,
@@ -938,14 +870,14 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Expanded(
                   child: Text(
                     book.name,
-                    style: GoogleFonts.lora(color: t.textPrimary, fontSize: 16),
+                    style: AppFonts.lora(color: t.textPrimary, fontSize: 16),
                   ),
                 ),
                 // Genre label
                 Text(
                   book.genre.label,
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.32),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.32),
                     fontSize: 10,
                     letterSpacing: 0.4,
                   ),
@@ -953,8 +885,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 const SizedBox(width: 10),
                 Text(
                   '${book.totalChapters}',
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.5),
                     fontSize: 13,
                   ),
                 ),
@@ -975,8 +907,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       return Center(
         child: Text(
           'Escribe al menos 3 caracteres',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
             fontSize: 13,
           ),
         ),
@@ -993,8 +925,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       return Center(
         child: Text(
           'Sin resultados',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
             fontSize: 14,
           ),
         ),
@@ -1037,8 +969,8 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
               children: [
                 Text(
                   '${verse.reference} — ${verse.version}',
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
@@ -1062,7 +994,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     if (query.isEmpty) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -1079,7 +1011,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     if (matchIndex < 0) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -1097,13 +1029,13 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             text: text.substring(matchIndex, matchIndex + query.length),
             style: TextStyle(
               color: t.background,
-              backgroundColor: const Color(0xFFD4AF37),
+              backgroundColor: t.accent,
               fontWeight: FontWeight.w600,
             ),
           ),
           TextSpan(text: text.substring(matchIndex + query.length)),
         ],
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -1111,212 +1043,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       ),
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
-    );
-  }
-}
-
-enum _StudyEntryAction { newStudy, savedStudies, friendsStudy }
-
-enum _SermonEntryAction { newNote, savedNotes }
-
-class _StudyEntrySheet extends StatelessWidget {
-  final BibleReaderThemeData theme;
-
-  const _StudyEntrySheet({required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: t.textSecondary.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Modo Estudio',
-              style: GoogleFonts.cinzel(
-                color: t.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _StudyEntryTile(
-              icon: Icons.add_circle_outline,
-              title: 'Empezar nuevo estudio',
-              subtitle: 'Elegir pasaje, rango y versiones.',
-              theme: t,
-              onTap: () => Navigator.pop(context, _StudyEntryAction.newStudy),
-            ),
-            const SizedBox(height: 8),
-            _StudyEntryTile(
-              icon: Icons.folder_open_outlined,
-              title: 'Estudios guardados',
-              subtitle: 'Continuar respuestas y notas anteriores.',
-              theme: t,
-              onTap: () =>
-                  Navigator.pop(context, _StudyEntryAction.savedStudies),
-            ),
-            const SizedBox(height: 8),
-            _StudyEntryTile(
-              icon: Icons.groups_outlined,
-              title: 'Estudio con amigos',
-              subtitle: 'Crear o unirte a una sala. Lean juntos en '
-                  'distintas versiones y rotándolas.',
-              theme: t,
-              onTap: () =>
-                  Navigator.pop(context, _StudyEntryAction.friendsStudy),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _SermonEntrySheet extends StatelessWidget {
-  final BibleReaderThemeData theme;
-
-  const _SermonEntrySheet({required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return Container(
-      decoration: BoxDecoration(
-        color: t.surface,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-      ),
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
-      child: SafeArea(
-        top: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 3,
-                decoration: BoxDecoration(
-                  color: t.textSecondary.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Apuntes de predicacion',
-              style: GoogleFonts.cinzel(
-                color: t.textPrimary,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-            const SizedBox(height: 12),
-            _StudyEntryTile(
-              icon: Icons.add_circle_outline,
-              title: 'Nuevo apunte',
-              subtitle: 'Abrir lectura y tomar notas de la predicacion.',
-              theme: t,
-              onTap: () => Navigator.pop(context, _SermonEntryAction.newNote),
-            ),
-            const SizedBox(height: 8),
-            _StudyEntryTile(
-              icon: Icons.folder_open_outlined,
-              title: 'Apuntes guardados',
-              subtitle: 'Buscar por pastor, fecha, titulo o pasaje.',
-              theme: t,
-              onTap: () =>
-                  Navigator.pop(context, _SermonEntryAction.savedNotes),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _StudyEntryTile extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final BibleReaderThemeData theme;
-  final VoidCallback onTap;
-
-  const _StudyEntryTile({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.theme,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return InkWell(
-      borderRadius: BorderRadius.circular(10),
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: t.isDark
-              ? Colors.white.withValues(alpha: 0.04)
-              : Colors.black.withValues(alpha: 0.03),
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: t.textSecondary.withValues(alpha: 0.09)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: t.accent, size: 22),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: GoogleFonts.manrope(
-                      color: t.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    subtitle,
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.7),
-                      fontSize: 11,
-                      height: 1.3,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right, color: t.textSecondary, size: 20),
-          ],
-        ),
-      ),
     );
   }
 }

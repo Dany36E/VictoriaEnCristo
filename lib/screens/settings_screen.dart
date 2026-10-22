@@ -543,7 +543,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 subtitle: Text(
-                  'Controla analítica, diagnósticos, YouTube y consulta tus derechos',
+                  'Controla analítica, diagnósticos y consulta tus derechos',
                   style: TextStyle(color: t.textSecondary),
                 ),
                 trailing: Icon(Icons.chevron_right, color: t.textSecondary),

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../services/bible/bible_user_data_service.dart';
+import '../../../theme/app_theme_data.dart';
 import '../../../theme/bible_reader_theme.dart';
+import 'selector_letra_lectura.dart';
 
 class ReaderTypographyPanel extends StatelessWidget {
   final BibleReaderThemeData theme;
@@ -44,8 +46,8 @@ class ReaderTypographyPanel extends StatelessWidget {
                 children: [
                   Text(
                     'TIPOGRAFÍA',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.5),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2,
@@ -68,7 +70,7 @@ class ReaderTypographyPanel extends StatelessWidget {
                   return Row(
                     children: [
                       Text('A',
-                          style: GoogleFonts.lora(
+                          style: AppFonts.lora(
                               color: t.textSecondary, fontSize: 14)),
                       Expanded(
                         child: Semantics(
@@ -87,12 +89,16 @@ class ReaderTypographyPanel extends StatelessWidget {
                         ),
                       ),
                       Text('A',
-                          style: GoogleFonts.lora(
+                          style: AppFonts.lora(
                               color: t.textSecondary, fontSize: 26)),
                     ],
                   );
                 },
               ),
+              if (AppThemeData.of(context).isPaper) ...[
+                const SizedBox(height: 8),
+                SelectorLetraLectura(theme: t),
+              ],
               const SizedBox(height: 12),
               ValueListenableBuilder<String>(
                 valueListenable: BibleUserDataService.I.readerThemeNotifier,

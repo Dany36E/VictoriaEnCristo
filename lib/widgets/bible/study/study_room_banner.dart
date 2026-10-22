@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/study_room.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -112,7 +112,7 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
               const SizedBox(width: 8),
               Text(
                 'Sala ${r.code}',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.accent,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -124,7 +124,7 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
               const SizedBox(width: 4),
               Text(
                 timerLabel,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textSecondary,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -173,7 +173,7 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
                 ),
                 child: Text(
                   '${m.displayName} · ${m.versionId}',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
@@ -198,7 +198,7 @@ class _StudyRoomBannerState extends State<StudyRoomBanner> {
               icon: const Icon(Icons.flag_outlined, size: 17),
               label: Text(
                 'Terminar y ver resultados',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontWeight: FontWeight.w700,
                   fontSize: 12.5,
                 ),

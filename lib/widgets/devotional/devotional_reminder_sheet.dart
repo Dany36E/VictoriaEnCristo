@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../services/notification_service.dart';
 
@@ -151,7 +151,7 @@ class _SuggestionSheet extends StatelessWidget {
             Text(
               '¿Quieres un recordatorio diario?',
               textAlign: TextAlign.center,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: p.textPrimary,
                 fontSize: 18,
                 fontWeight: FontWeight.w700,
@@ -162,7 +162,7 @@ class _SuggestionSheet extends StatelessWidget {
               'Acabas de leer tu devocional. Puedo recordarte cada día para que '
               'no pierdas tu momento con Dios.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: p.textSecondary,
                 fontSize: 13.5,
                 height: 1.5,
@@ -184,7 +184,7 @@ class _SuggestionSheet extends StatelessWidget {
                   const SizedBox(width: 8),
                   Text(
                     'Sugerido: ${_fmt(suggestedTime)}',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: p.accent,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -264,7 +264,7 @@ class _SuggestionSheet extends StatelessWidget {
               onPressed: () => Navigator.pop(context),
               child: Text(
                 'Ahora no',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: p.textSecondary,
                   fontWeight: FontWeight.w600,
                 ),
@@ -345,7 +345,7 @@ class _WeekdayEditorState extends State<_WeekdayEditor> {
             Text(
               'Horario por día',
               textAlign: TextAlign.center,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: p.textPrimary,
                 fontSize: 17,
                 fontWeight: FontWeight.w700,
@@ -355,7 +355,7 @@ class _WeekdayEditorState extends State<_WeekdayEditor> {
             Text(
               'Define la hora de cada día. Apaga los días que no quieras.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: p.textSecondary,
                 fontSize: 12.5,
                 height: 1.4,
@@ -401,7 +401,7 @@ class _WeekdayEditorState extends State<_WeekdayEditor> {
           Expanded(
             child: Text(
               _kWeekdayLabels[index],
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: on ? p.textPrimary : p.textSecondary,
                 fontSize: 14.5,
                 fontWeight: FontWeight.w600,
@@ -413,7 +413,7 @@ class _WeekdayEditorState extends State<_WeekdayEditor> {
               onPressed: () => _pickTime(weekday, time),
               child: Text(
                 _fmt(time),
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: p.accent,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,

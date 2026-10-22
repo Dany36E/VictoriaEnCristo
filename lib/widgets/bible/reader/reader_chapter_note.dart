@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/chapter_study_note.dart';
 import '../../../services/bible/chapter_note_service.dart';
@@ -82,7 +82,7 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                             children: [
                               Text(
                                 note.title,
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color: t.textPrimary,
                                   fontSize: 13,
                                   fontWeight: FontWeight.w600,
@@ -93,7 +93,7 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                               if (note.content.isNotEmpty)
                                 Text(
                                   note.content,
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     color: t.textSecondary
                                         .withValues(alpha: 0.4),
                                     fontSize: 12,
@@ -105,9 +105,9 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                           )
                         : Text(
                             'Agregar nota de estudio...',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color:
-                                  t.textSecondary.withValues(alpha: 0.3),
+                                  t.textoTenue(0.3),
                               fontSize: 13,
                             ),
                           ),

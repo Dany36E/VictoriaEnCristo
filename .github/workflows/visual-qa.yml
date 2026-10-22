@@ -55,16 +55,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - id: phone_small-series
-            label: phone_small / series
-            profile: phone_small
-            suite: series
-            text_scale: all
-          - id: tablet-series
-            label: tablet / series
-            profile: tablet
-            suite: series
-            text_scale: all
           - id: phone_small-access-1_0
             label: phone_small / access / 1.0x
             profile: phone_small
@@ -126,6 +116,12 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-metrics -camera-back none -camera-front none
           disable-animations: true
           script: pwsh -File scripts/run_android_qa_matrix.ps1 -Device emulator-5554 -Flutter flutter -Adb adb -Profiles "${{ matrix.profile }}" -Suites "${{ matrix.suite }}"
+      # The driver output only reaches the artifact; print its end so a
+      # failure can be diagnosed from the job log.
+      - name: Show native suite log
+        if: failure()
+        shell: bash
+        run: tail -n 150 build/qa/native/*/*.log || true
       - name: Build inspection gallery
         if: always()
         shell: pwsh
@@ -170,11 +166,10 @@ jobs:
           echo "SIMULATOR_UDID=$UDID" >> "$GITHUB_ENV"
           xcrun simctl boot "$UDID" || true
           xcrun simctl bootstatus "$UDID" -b
-      - name: Run native Series and access suites
+      - name: Run native access suite
         env:
           QA_DEVICE_PROFILE: ${{ matrix.family }}
         run: |
-          flutter drive --driver=test_driver/visual_qa_driver.dart --target=integration_test/series_native_qa_test.dart -d "$SIMULATOR_UDID"
           flutter drive --driver=test_driver/visual_qa_driver.dart --target=integration_test/access_native_qa_test.dart -d "$SIMULATOR_UDID"
       - name: Build inspection gallery
         if: always()

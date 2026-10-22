@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
 import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 
 /// Mini-card que muestra racha de lectura bíblica y progreso.
 /// Se alimenta del ValueNotifier de BibleReadingStatsService.
@@ -28,16 +30,26 @@ class BibleReadingStreak extends StatelessWidget {
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: BoxDecoration(
-              color: t.cardBg.withValues(alpha: 0.85),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: t.accent.withValues(alpha: 0.15),
-              ),
-            ),
+            decoration: t.isPaper
+                ? t.cardDecoration
+                : BoxDecoration(
+                    color: t.cardBg.withValues(alpha: 0.85),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: t.accent.withValues(alpha: 0.15),
+                    ),
+                  ),
             child: Row(
               children: [
                 // Icono Biblia
+                if (t.isPaper)
+                  const CirculoIcono(
+                    iconoVec: 'biblia',
+                    color: VecColores.azul,
+                    tamano: 42,
+                    giro: -4,
+                  )
+                else
                 Container(
                   width: 40,
                   height: 40,
@@ -62,7 +74,7 @@ class BibleReadingStreak extends StatelessWidget {
                         streak > 0
                             ? '$streak día${streak == 1 ? '' : 's'} leyendo la Biblia'
                             : '$chaptersRead capítulo${chaptersRead == 1 ? '' : 's'} leído${chaptersRead == 1 ? '' : 's'}',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
                           color: t.textPrimary,
@@ -86,7 +98,7 @@ class BibleReadingStreak extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             '${percentRead.toStringAsFixed(1)}%',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                               color: t.textSecondary.withValues(alpha: 0.7),

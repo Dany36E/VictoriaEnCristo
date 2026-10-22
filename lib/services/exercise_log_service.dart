@@ -68,6 +68,11 @@ class ExerciseLogService extends ChangeNotifier {
   static const String _kPrefsKey = 'exercise_log_v1';
   static const int _kMaxLocal = 200;
 
+  /// `completedAt` (ISO UTC) del registro más nuevo que ya está en la nube.
+  /// Con esto, al abrir la app solo se descarga lo que llegó después en vez
+  /// de los 200 registros completos.
+  static const String _kSyncKey = 'exercise_log_sync_v1';
+
   final List<ExerciseCompletion> _entries = [];
   bool _initialized = false;
 
@@ -100,6 +105,7 @@ class ExerciseLogService extends ChangeNotifier {
     try {
       final prefs = await SharedPreferences.getInstance();
       await prefs.remove(_kPrefsKey);
+      await prefs.remove(_kSyncKey);
     } catch (_) {}
     notifyListeners();
   }
@@ -111,52 +117,103 @@ class ExerciseLogService extends ChangeNotifier {
   /// Estrategia: union last-write-wins por `id` (millis). La nube es
   /// autoritativa para entradas que sólo existen allí; entradas locales
   /// que no están en cloud se suben en background.
+  ///
+  /// Para no gastar lecturas en cada arranque, después de la primera vez
+  /// solo pide los registros más nuevos que la última sincronización, y solo
+  /// sube los locales que faltan en la nube.
   Future<void> hydrateFromCloud() async {
     if (!_initialized) await init();
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user == null) return;
-      final snap = await FirebaseFirestore.instance
+      final prefs = await SharedPreferences.getInstance();
+      final marca = _entries.isEmpty ? null : prefs.getString(_kSyncKey);
+      Query<Map<String, dynamic>> consulta = FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
-          .collection('exerciseLogs')
+          .collection('exerciseLogs');
+      if (marca != null) {
+        consulta = consulta.where('completedAt', isGreaterThan: marca);
+      }
+      final snap = await consulta
           .orderBy('completedAt', descending: true)
           .limit(_kMaxLocal)
           .get();
-      if (snap.docs.isEmpty) {
-        // Si hay data local y no hay cloud, sube el local.
-        unawaited(_backfillRemote());
-        return;
-      }
+
+      final enNube = <String>{};
+      String? masNuevaEnNube;
       // Merge: byId, prefer cloud.
       final byId = <String, ExerciseCompletion>{
         for (final e in _entries) e.id: e,
       };
       for (final doc in snap.docs) {
         try {
-          final c = ExerciseCompletion.fromJson(doc.data());
+          final data = doc.data();
+          final c = ExerciseCompletion.fromJson(data);
           byId[c.id] = c;
+          enNube.add(c.id);
+          final iso = data['completedAt'] as String?;
+          if (iso != null &&
+              (masNuevaEnNube == null || iso.compareTo(masNuevaEnNube) > 0)) {
+            masNuevaEnNube = iso;
+          }
         } catch (_) {}
       }
-      final merged = byId.values.toList()
-        ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
-      _entries
-        ..clear()
-        ..addAll(merged.take(_kMaxLocal));
-      notifyListeners();
-      unawaited(_persistLocal());
-      // Subir locales que no estén en cloud (idempotente por id).
-      unawaited(_backfillRemote());
-      debugPrint('🏋️ [ExerciseLog] Hydrated ${_entries.length} entries from cloud');
+      if (snap.docs.isNotEmpty) {
+        final merged = byId.values.toList()
+          ..sort((a, b) => b.completedAt.compareTo(a.completedAt));
+        _entries
+          ..clear()
+          ..addAll(merged.take(_kMaxLocal));
+        notifyListeners();
+        unawaited(_persistLocal());
+      }
+      // Subir solo los locales que faltan en la nube (los anteriores a la
+      // marca ya se subieron en una sincronización pasada).
+      final pendientes = porSubir(_entries, enNube: enNube, marca: marca);
+      final subidos = await _backfillRemote(pendientes);
+      if (subidos) {
+        final candidatos = [
+          ?marca,
+          ?masNuevaEnNube,
+          for (final e in pendientes) _iso(e),
+        ];
+        if (candidatos.isNotEmpty) {
+          candidatos.sort();
+          await prefs.setString(_kSyncKey, candidatos.last);
+        }
+      }
+      debugPrint(
+        '🏋️ [ExerciseLog] ${snap.docs.length} nuevos de la nube, '
+        '${pendientes.length} por subir',
+      );
     } catch (e) {
       debugPrint('⚠️ [ExerciseLog] hydrateFromCloud error: $e');
     }
   }
 
-  /// Sube las entradas locales que aún no existen en Firestore (best-effort).
-  Future<void> _backfillRemote() async {
+  static String _iso(ExerciseCompletion e) =>
+      e.completedAt.toUtc().toIso8601String();
+
+  /// Locales que faltan en la nube: no vinieron en la descarga y son más
+  /// nuevos que la última sincronización (lo anterior ya se subió).
+  @visibleForTesting
+  static List<ExerciseCompletion> porSubir(
+    List<ExerciseCompletion> locales, {
+    required Set<String> enNube,
+    String? marca,
+  }) => [
+    for (final e in locales)
+      if (!enNube.contains(e.id) &&
+          (marca == null || _iso(e).compareTo(marca) > 0))
+        e,
+  ];
+
+  /// Sube [entradas] (best-effort). Devuelve false si falló la subida.
+  Future<bool> _backfillRemote(List<ExerciseCompletion> entradas) async {
     final user = FirebaseAuth.instance.currentUser;
-    if (user == null || _entries.isEmpty) return;
+    if (user == null) return false;
+    if (entradas.isEmpty) return true;
     try {
       final col = FirebaseFirestore.instance
           .collection('users')
@@ -164,13 +221,14 @@ class ExerciseLogService extends ChangeNotifier {
           .collection('exerciseLogs');
       // Batch de hasta 50 writes (Firestore admite 500 por batch).
       final batch = FirebaseFirestore.instance.batch();
-      final slice = _entries.take(50).toList(growable: false);
-      for (final e in slice) {
+      for (final e in entradas.take(50)) {
         batch.set(col.doc(e.id), e.toJson(), SetOptions(merge: true));
       }
       await batch.commit();
+      return entradas.length <= 50;
     } catch (e) {
       debugPrint('⚠️ [ExerciseLog] backfill skipped: $e');
+      return false;
     }
   }
 

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../theme/app_theme_data.dart';
 import '../services/theme_service.dart';
 
-/// Selector visual de temas — 9 swatches circulares reutilizable
+/// Selector visual de temas — 10 swatches circulares reutilizable
 /// Usado en Settings y Profile.
 class ThemeSelectorWidget extends StatelessWidget {
   /// Si true, muestra nombres debajo de cada swatch
@@ -84,7 +84,7 @@ class ThemeSelectorWidget extends StatelessWidget {
                         textAlign: TextAlign.center,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 10,
                           fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
                           color: AppThemeData.of(context).textSecondary,

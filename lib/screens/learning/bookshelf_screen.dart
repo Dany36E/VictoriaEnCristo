@@ -14,6 +14,7 @@ import '../../services/learning/book_progress_service.dart';
 import '../../services/learning/book_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../theme/contraste.dart';
 import 'book_detail_screen.dart';
 
 class BookshelfScreen extends StatefulWidget {
@@ -44,7 +45,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -56,7 +57,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
         bottom: TabBar(
           controller: _tabs,
           onTap: (_) => FeedbackEngine.I.tabChange(),
-          labelColor: AppDesignSystem.gold,
+          labelColor: AppDesignSystem.oroTexto(context),
           unselectedLabelColor: t.textSecondary,
           indicatorColor: AppDesignSystem.gold,
           tabs: const [
@@ -109,7 +110,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
+                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.oroTexto(context)),
               ),
             ],
           ),
@@ -148,7 +149,7 @@ class _BookshelfScreenState extends State<BookshelfScreen> with SingleTickerProv
               padding: const EdgeInsets.only(left: 4, top: 8, bottom: 8),
               child: Text(
                 cat,
-                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.gold),
+                style: AppDesignSystem.headlineSmall(context, color: AppDesignSystem.oroTexto(context)),
               ),
             ),
             GridView.builder(
@@ -201,9 +202,61 @@ class _BookSpine extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Letra con la que la palabra más larga del nombre cabe en un renglón
+  /// (si no, «Deuteronomio» se partía en «Deuterono / mio»). Se mide con el
+  /// escalado de letra del sistema, que en Android 14+ no es lineal: agranda
+  /// más las letras chicas.
+  double _tamanoSinPartir(BuildContext context, TextStyle estilo, double ancho) {
+    final tamano = estilo.fontSize ?? 16;
+    final palabra = book.name
+        .split(' ')
+        .reduce((a, b) => a.length >= b.length ? a : b);
+    final escalador = MediaQuery.textScalerOf(context);
+    // 5 % de margen: justo a la medida, el redondeo podía mandar la última
+    // letra al renglón siguiente.
+    final disponible = ancho * 0.95;
+    bool cabe(double t) {
+      final medida = TextPainter(
+        text: TextSpan(text: palabra, style: estilo.copyWith(fontSize: t)),
+        textDirection: TextDirection.ltr,
+        textScaler: escalador,
+        maxLines: 1,
+      )..layout();
+      final ancho = medida.width;
+      medida.dispose();
+      return ancho <= disponible;
+    }
+
+    if (cabe(tamano)) return tamano;
+    // Sin piso fijo: con letra del sistema al doble en un teléfono angosto,
+    // ni a 6 cabe «Deuteronomio» y se prefiere chica a partida.
+    var (chico, grande) = (1.0, tamano);
+    while (grande - chico > 0.25) {
+      final medio = (chico + grande) / 2;
+      if (cabe(medio)) {
+        chico = medio;
+      } else {
+        grande = medio;
+      }
+    }
+    return chico;
+  }
+
+  /// Tono claro del lomo de los libros estudiados (el peor caso para texto
+  /// claro sobre el degradado café).
+  static const _lomoClaro = Color(0xFF6B4E20);
+
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
+    // El lomo estudiado es café oscuro en todos los temas: letra clara.
+    final oro = studied
+        ? legibleSobre(AppDesignSystem.gold, _lomoClaro)
+        : AppDesignSystem.oroTexto(context);
+    final titulo = studied ? AppDesignSystem.pureWhite : t.textPrimary;
+    final secundario = studied
+        ? legibleSobre(AppDesignSystem.coolGray, _lomoClaro)
+        : t.textSecondary;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
@@ -235,7 +288,7 @@ class _BookSpine extends StatelessWidget {
               children: [
                 Text(
                   '#${book.order}',
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                  style: AppDesignSystem.labelSmall(context, color: oro),
                 ),
                 if (studied)
                   const Icon(Icons.check_circle_rounded, color: AppDesignSystem.gold, size: 14),
@@ -244,19 +297,33 @@ class _BookSpine extends StatelessWidget {
             const SizedBox(height: 6),
             Expanded(
               child: Center(
-                child: Text(
-                  book.name,
-                  textAlign: TextAlign.center,
-                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                child: LayoutBuilder(
+                  builder: (context, restricciones) {
+                    final estilo = AppDesignSystem.headlineSmall(
+                      context,
+                      color: titulo,
+                    );
+                    return Text(
+                      book.name,
+                      textAlign: TextAlign.center,
+                      style: estilo.copyWith(
+                        fontSize: _tamanoSinPartir(
+                          context,
+                          estilo,
+                          restricciones.maxWidth,
+                        ),
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    );
+                  },
                 ),
               ),
             ),
             Text(
               '${book.chapters} cap.',
               textAlign: TextAlign.center,
-              style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
+              style: AppDesignSystem.labelSmall(context, color: secundario),
             ),
             if (studied && score > 0)
               Padding(
@@ -264,7 +331,7 @@ class _BookSpine extends StatelessWidget {
                 child: Text(
                   '$score/3 ✓',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                  style: AppDesignSystem.labelSmall(context, color: oro),
                 ),
               ),
           ],

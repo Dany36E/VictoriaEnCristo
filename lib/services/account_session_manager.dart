@@ -28,6 +28,7 @@ import 'bible/bible_user_data_service.dart';
 import 'bible/bible_reading_stats_service.dart';
 import 'bible/collection_service.dart';
 import 'bible/chapter_note_service.dart';
+import 'bible/adjuntos_nota_service.dart';
 import 'bible/sermon_note_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
@@ -43,6 +44,8 @@ import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 import 'notification_service.dart';
+import 'atajos_service.dart';
+import 'avatar_perfil_service.dart';
 import '../utils/safe_log.dart';
 import 'exercise_log_service.dart';
 import 'fcm_service.dart';
@@ -226,6 +229,7 @@ class AccountSessionManager {
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
     SermonNoteService.I.stop();
+    unawaited(AdjuntosNotaService.I.borrarCacheLocal());
     StudyModeService.I.stop();
     await StudyRoomService.I.stop();
     CollectionService.I.stop();
@@ -386,6 +390,8 @@ class AccountSessionManager {
 
       // Keys de preferencias/progreso que ahora tienen sync propio.
       await UserPrefCloudSyncService.I.clearLocalCache();
+      await AvatarPerfilService.I.cargar();
+      await AtajosService.I.cargar();
       await LearningCloudSync.I.clearLocalCache();
       await prefs.remove('learning.talents.v1');
       await prefs.remove('learning.talents.ledger.v1');
@@ -449,6 +455,8 @@ class AccountSessionManager {
         await Future.wait([
           ThemeService().initialize(),
           NotificationService().reloadSettings(),
+          AvatarPerfilService.I.cargar(),
+          AtajosService.I.cargar(),
         ]);
         await Future.wait([
           PlansRepository.I.reloadActivePlanFromPrefs(),
@@ -501,6 +509,8 @@ class AccountSessionManager {
       await Future.wait([
         ThemeService().initialize(),
         NotificationService().reloadSettings(),
+        AvatarPerfilService.I.cargar(),
+        AtajosService.I.cargar(),
       ]);
       await Future.wait([
         PlansRepository.I.reloadActivePlanFromPrefs(),

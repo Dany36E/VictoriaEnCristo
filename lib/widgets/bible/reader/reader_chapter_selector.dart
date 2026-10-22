@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../services/bible/bible_user_data_service.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -63,13 +63,13 @@ void showBookChapterSelector(
                             horizontal: 20, vertical: 4),
                         child: TextField(
                           controller: searchCtrl,
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textPrimary,
                             fontSize: 14,
                           ),
                           decoration: InputDecoration(
                             hintText: 'Buscar libro...',
-                            hintStyle: GoogleFonts.manrope(
+                            hintStyle: AppFonts.manrope(
                               color: t.textSecondary.withValues(alpha: 0.5),
                               fontSize: 14,
                             ),
@@ -135,7 +135,7 @@ void showBookChapterSelector(
                                         Expanded(
                                           child: Text(
                                             book.name,
-                                            style: GoogleFonts.manrope(
+                                            style: AppFonts.manrope(
                                               color: isCurrent
                                                   ? t.accent
                                                   : t.textPrimary,
@@ -148,7 +148,7 @@ void showBookChapterSelector(
                                         ),
                                         Text(
                                           '${book.totalChapters}',
-                                          style: GoogleFonts.manrope(
+                                          style: AppFonts.manrope(
                                             color: t.textSecondary
                                                 .withValues(alpha: 0.5),
                                             fontSize: 12,
@@ -210,7 +210,7 @@ class _ChapterGrid extends StatelessWidget {
               const SizedBox(width: 8),
               Text(
                 bookName,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -238,7 +238,7 @@ class _ChapterGrid extends StatelessWidget {
                   alignment: Alignment.center,
                   child: Text(
                     '$chapter',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: isCurrent ? t.accent : t.textSecondary,
                       fontSize: 13,
                       fontWeight:

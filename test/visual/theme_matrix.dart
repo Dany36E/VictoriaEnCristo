@@ -2,8 +2,10 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:app_quitar/services/bible/bible_user_data_service.dart';
+import 'package:app_quitar/services/theme_service.dart';
 import 'package:app_quitar/theme/app_theme.dart';
 import 'package:app_quitar/theme/app_theme_data.dart';
+import 'package:app_quitar/vec/vec_widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 // Firebase's own test transport; no calls reach a remote backend.
 // ignore: depend_on_referenced_packages
@@ -54,6 +56,22 @@ void setUpThemeMatrix() {
     await (FontLoader(
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
+    // Familia de pubspec.yaml que usan las plantillas clásicas para compartir
+    // (google_fonts la registra aparte como «Crimson Pro»).
+    await (FontLoader('CrimsonPro')..addFont(
+          rootBundle.load('google_fonts/CrimsonPro-VariableFont_wght.ttf'),
+        ))
+        .load();
+    // Letras del kit del tema «Papel recortado».
+    for (final (familia, archivo) in [
+      ('LilitaOne', 'LilitaOne-Regular.ttf'),
+      ('PatrickHand', 'PatrickHand-Regular.ttf'),
+      ('CaveatBrush', 'CaveatBrush-Regular.ttf'),
+    ]) {
+      await (FontLoader(
+        familia,
+      )..addFont(rootBundle.load('assets/vec/fuentes/$archivo'))).load();
+    }
     // Solo los pesos que existen en google_fonts/: pedir otro hace que
     // google_fonts intente descargarlo y la prueba falle.
     const medios = [FontWeight.w400, FontWeight.w500, FontWeight.w600];
@@ -66,11 +84,15 @@ void setUpThemeMatrix() {
       final fuente = 'google_fonts/$archivo-VariableFont_wght.ttf';
       await (FontLoader(familia)..addFont(rootBundle.load(fuente))).load();
       for (final peso in pesos) {
-        final nombre = GoogleFonts.getFont(
-          familia,
-          fontWeight: peso,
-        ).fontFamily!;
-        await (FontLoader(nombre)..addFont(rootBundle.load(fuente))).load();
+        // La cursiva no está en google_fonts/: se dibuja inclinando la normal.
+        for (final estilo in FontStyle.values) {
+          final nombre = GoogleFonts.getFont(
+            familia,
+            fontWeight: peso,
+            fontStyle: estilo,
+          ).fontFamily!;
+          await (FontLoader(nombre)..addFont(rootBundle.load(fuente))).load();
+        }
       }
     }
   });
@@ -90,10 +112,15 @@ void setUpThemeMatrix() {
 /// (versículo o devocional del día). En la lista de conocidos sus textos
 /// con poco contraste se guardan por su orden en la pantalla, no por lo que
 /// dicen, para que la prueba no falle solo porque cambió el día.
+///
+/// [esperarCarga]: antes de capturar, dar tiempo real para que termine lo que
+/// la pantalla lee de assets o preferencias (si no, el primer tema se captura
+/// a veces con el indicador de carga).
 void themeMatrix(
   String nombre,
   Widget Function() pantalla, {
   bool contenidoDelDia = false,
+  bool esperarCarga = true,
 }) {
   final archivo = File('test/visual/problemas_conocidos/$nombre.txt');
   final conocidos = archivo.existsSync()
@@ -136,22 +163,47 @@ void themeMatrix(
       addTearDown(tester.view.resetDevicePixelRatio);
       // Las pantallas de la Biblia usan su propio tema de lectura (mismos ids).
       BibleUserDataService.I.readerThemeNotifier.value = theme.id;
+      // AppFonts elige las letras del kit según el tema activo del servicio.
+      await tester.runAsync(() => ThemeService().setTheme(theme.id));
       final boundaryKey = GlobalKey();
+      final fondo = theme.isPaper
+          ? FondoPapel.decoracion
+          : const BoxDecoration();
       try {
         await tester.pumpWidget(
           MaterialApp(
             debugShowCheckedModeBanner: false,
-            theme: AppTheme.lightTheme,
+            // Igual que main.dart: el tema papel tiene su propio ThemeData y
+            // el papel con textura detrás de todas las rutas.
+            theme: theme.isPaper ? AppTheme.paperTheme : AppTheme.lightTheme,
             darkTheme: AppTheme.darkTheme,
             themeMode: theme.isDark ? ThemeMode.dark : ThemeMode.light,
-            builder: (context, child) =>
-                AppThemeData.provider(theme: theme, child: child!),
-            home: RepaintBoundary(key: boundaryKey, child: pantalla()),
+            builder: (context, child) => AppThemeData.provider(
+              theme: theme,
+              child: DecoratedBox(decoration: fondo, child: child!),
+            ),
+            // El papel también dentro de la captura: las pantallas del tema
+            // papel son transparentes y sin él saldría negro.
+            home: RepaintBoundary(
+              key: boundaryKey,
+              child: DecoratedBox(decoration: fondo, child: pantalla()),
+            ),
           ),
         );
         // Sin pumpAndSettle: varias pantallas tienen animaciones infinitas.
         for (var i = 0; i < 20; i++) {
           await tester.pump(const Duration(milliseconds: 100));
+        }
+        // Lo que se lee de assets o preferencias termina con E/S real, que el
+        // reloj falso no avanza: sin esta espera el primer tema capturaba
+        // solo el indicador de carga. pump() sin duración dibuja lo cargado
+        // sin mover las animaciones, para que todos los temas se capturen en
+        // el mismo momento.
+        for (var i = 0; i < (esperarCarga ? 3 : 0); i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 100)),
+          );
+          await tester.pump();
         }
 
         final limite =

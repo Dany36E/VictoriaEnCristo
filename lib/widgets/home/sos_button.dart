@@ -6,6 +6,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../navigation/app_navigation.dart';
 import '../../theme/app_theme.dart';
 import '../../services/feedback_engine.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_widgets.dart';
 
 class BreathingSosButton extends StatefulWidget {
   const BreathingSosButton({super.key});
@@ -38,6 +40,20 @@ class _BreathingSosButtonState extends State<BreathingSosButton> with TickerProv
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) {
+      // Tema papel: botón de píldora terracota que se hunde, sin resplandor.
+      return PopIn(
+        retraso: const Duration(milliseconds: 300),
+        child: BotonVec(
+          texto: '¡Necesito ayuda!',
+          iconoWidget: const IconoVec('mano_alto'),
+          onPressed: () {
+            FeedbackEngine.I.confirm();
+            AppNavigation.openEmergency(context);
+          },
+        ),
+      );
+    }
     return AnimatedBuilder(
           animation: Listenable.merge([_breatheController, _glowController]),
           builder: (context, child) {

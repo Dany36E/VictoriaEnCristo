@@ -5,7 +5,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:confetti/confetti.dart';
 import '../models/badge_definition.dart';
 import '../services/badge_service.dart';
@@ -45,7 +45,7 @@ class BadgeCelebration {
             Expanded(
               child: Text(
                 '${event.category.displayName}: ¡${event.level.displayName}!',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
                   color: color,
@@ -157,7 +157,7 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
               // Title
               Text(
                 '¡Nueva Insignia!',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 22,
                   fontWeight: FontWeight.w800,
                   color: AppThemeData.of(context).textPrimary,
@@ -173,7 +173,7 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
                   const SizedBox(width: 6),
                   Text(
                     '${event.category.displayName} — ${event.level.displayName}',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: color,
@@ -187,7 +187,7 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
               Text(
                 message,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   color: AppThemeData.of(context).textSecondary,
                   height: 1.4,
@@ -212,7 +212,7 @@ class _BadgeCelebrationSheetState extends State<_BadgeCelebrationSheet> {
                   ),
                   child: Text(
                     '¡Gloria a Dios! 🙏',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                     ),

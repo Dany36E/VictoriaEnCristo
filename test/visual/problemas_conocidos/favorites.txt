@@ -1,7 +1,0 @@
-# Problemas visuales que ya existían en "favorites". No agregues
-# líneas a mano: corrige el problema. Se regenera con
-# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-charcoal: "Explorar Versículos" contraste < 3.0
-clean_page: "Explorar Versículos" contraste < 3.0
-grey_editorial: "Explorar Versículos" contraste < 3.0
-mint: "Explorar Versículos" contraste < 3.0

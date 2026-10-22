@@ -1,5 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:app_quitar/models/badge_definition.dart';
+import 'package:app_quitar/services/badge_service.dart';
 
 /// Tests unitarios para lógica de badges.
 /// No dependen de SharedPreferences ni Firebase — testean lógica pura.
@@ -151,6 +152,14 @@ void main() {
       for (final cat in BadgeCategory.values) {
         expect(cat.displayName, isNotEmpty);
       }
+    });
+
+    test('los planes de lectura no se muestran por ahora', () {
+      expect(BadgeService.visibles, isNot(contains(BadgeCategory.reading)));
+      expect(
+        BadgeService.visibles,
+        hasLength(BadgeCategory.values.length - 1),
+      );
     });
   });
 }

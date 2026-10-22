@@ -2,7 +2,7 @@ name: app_quitar
 description: "Victoria en Cristo - App cristiana para superar tentaciones y vicios"
 publish_to: 'none'
 
-version: 1.0.29+39
+version: 1.0.30+40
 
 environment:
   sdk: ^3.10.1
@@ -14,6 +14,7 @@ dependencies:
   firebase_core: ^3.8.1
   firebase_auth: ^5.3.4
   cloud_firestore: ^5.6.0
+  firebase_storage: ^12.4.0  # Fotos y dibujos de Apuntes en la nube
   cloud_functions: ^5.2.0  # For Callable Cloud Functions (deleteUserData)
   firebase_crashlytics: ^4.3.2  # Crash reporting
   firebase_analytics: ^11.4.2   # Usage analytics
@@ -27,6 +28,7 @@ dependencies:
   # Share as Image Dependencies
   share_plus: ^10.1.4  # Native share functionality
   path_provider: ^2.1.5 # File system access
+  image_picker: ^1.1.2  # Fotos con la cámara o la galería en Apuntes
   pdf: ^3.11.3  # Exportar estudios bíblicos a PDF
   # Text-to-Speech
   flutter_tts: ^4.2.0   # Native TTS functionality
@@ -60,7 +62,7 @@ dependencies:
   dio_cache_interceptor_file_store: ^1.2.3
   # Connectivity monitoring
   connectivity_plus: ^6.1.4
-  youtube_player_iframe: ^6.0.2
+  flutter_svg: ^2.3.0
 
 dev_dependencies:
   flutter_test:
@@ -123,6 +125,12 @@ flutter:
     # Fuentes bundled (descubiertas por google_fonts y disponibles como
     # fontFamily nativo para fallback offline sin descargas en runtime).
     - google_fonts/
+    # Kit de estilo «papel recortado» (victoria-en-cristo-estilo)
+    - assets/vec/personajes/
+    - assets/vec/objetos/
+    - assets/vec/fondos/
+    - assets/vec/texturas/
+    - assets/vec/iconos/
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 
@@ -158,6 +166,16 @@ flutter:
           weight: 700
         - asset: google_fonts/Lato-Italic.ttf
           style: italic
+    # Kit de estilo «papel recortado» (licencias OFL en assets/vec/fuentes/)
+    - family: LilitaOne
+      fonts:
+        - asset: assets/vec/fuentes/LilitaOne-Regular.ttf
+    - family: PatrickHand
+      fonts:
+        - asset: assets/vec/fuentes/PatrickHand-Regular.ttf
+    - family: CaveatBrush
+      fonts:
+        - asset: assets/vec/fuentes/CaveatBrush-Regular.ttf
   #   - images/a_dot_burr.jpeg
   #   - images/a_dot_ham.jpeg
 

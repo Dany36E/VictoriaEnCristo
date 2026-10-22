@@ -1,0 +1,74 @@
+{
+  "nombre": "Victoria en Cristo — papel recortado",
+  "color": {
+    "papel": "#fbf7ee",
+    "crema": "#f3ecdf",
+    "crema_oscuro": "#efe6d6",
+    "kraft": "#b98f5e",
+    "tinta": "#2b2622",
+    "lapiz": "#3a332c",
+    "gris": "#8a7a64",
+    "terracota": "#c8553d",
+    "azul": "#3d6890",
+    "azul_claro": "#4f7fa8",
+    "mostaza": "#e0a73a",
+    "mostaza_claro": "#efc56a",
+    "verde": "#2f7f7a",
+    "noche": "#2f4a68",
+    "rosa": "#f1a9a0",
+    "salvia": "#9dbb8e",
+    "piel_timoteo": "#c68b62",
+    "piel_victoria": "#e8b892",
+    "camisa_timoteo": "#4f7fa8",
+    "blusa_victoria": "#d9714f"
+  },
+  "fuente": {
+    "titulo": "Lilita One",
+    "texto": "Patrick Hand",
+    "mano": "Caveat Brush"
+  },
+  "tamano_texto_px": {
+    "letrero": 44,
+    "titulo": 30,
+    "subtitulo": 22,
+    "cuerpo": 17,
+    "versiculo": 20,
+    "etiqueta": 14
+  },
+  "radio_px": {
+    "s": 10,
+    "m": 14,
+    "l": 22,
+    "pildora": 999
+  },
+  "borde_sticker_px": {
+    "objetos": 6,
+    "personajes": 10
+  },
+  "sombra": {
+    "papel": "0 9px 0 rgba(43,38,34,.18), 0 16px 26px rgba(74,48,22,.22)",
+    "chip": "0 8px 0 rgba(43,38,34,.28)",
+    "presionado": "0 3px 0 rgba(43,38,34,.28)",
+    "brillo": "0 0 0 8px rgba(255,214,140,.55), 0 0 60px 18px rgba(255,200,110,.55)"
+  },
+  "cinta": {
+    "rayas": [
+      "#e0a73a",
+      "#efc56a"
+    ],
+    "ancho_raya_px": 10,
+    "angulo_grados": 45,
+    "giro_grados": -24,
+    "opacidad": 0.86
+  },
+  "giro_grados": {
+    "tarjeta": -1,
+    "chip": -1.5,
+    "letrero": -2
+  },
+  "movimiento": {
+    "duracion_ms": 420,
+    "curva": "cubic-bezier(.34,1.56,.64,1)",
+    "entrada": "escala 0.5→1 con rebote y giro -6°→-1°"
+  }
+}

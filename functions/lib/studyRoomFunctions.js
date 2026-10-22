@@ -51,6 +51,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.studyRoomAutoSwap = exports.rotateStudyVersions = exports.startStudyRoomSwapTimer = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
+const limites_1 = require("./limites");
 const adminFirestore = __importStar(require("firebase-admin/firestore"));
 const crypto = __importStar(require("crypto"));
 const db = adminFirestore.getFirestore();
@@ -115,7 +116,7 @@ function computeNextSwapAt(lastSwapAt, swapIntervalMinutes) {
 // ═══════════════════════════════════════════════════════════════════════════
 // CREATE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
-exports.createStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.createStudyRoom = (0, limites_1.enRegion)().https.onCall(async (data, context) => {
     var _a, _b, _c, _d;
     try {
         if (!context.auth) {
@@ -209,7 +210,7 @@ exports.createStudyRoom = functions.region("us-central1").https.onCall(async (da
 // ═══════════════════════════════════════════════════════════════════════════
 // JOIN ROOM
 // ═══════════════════════════════════════════════════════════════════════════
-exports.joinStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.joinStudyRoom = (0, limites_1.enRegion)().https.onCall(async (data, context) => {
     var _a, _b, _c;
     try {
         if (!context.auth) {
@@ -272,7 +273,7 @@ exports.joinStudyRoom = functions.region("us-central1").https.onCall(async (data
 // ═══════════════════════════════════════════════════════════════════════════
 // LEAVE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
-exports.leaveStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.leaveStudyRoom = (0, limites_1.enRegion)().https.onCall(async (data, context) => {
     var _a;
     try {
         if (!context.auth) {
@@ -284,6 +285,7 @@ exports.leaveStudyRoom = functions.region("us-central1").https.onCall(async (dat
             throw new functions.https.HttpsError("invalid-argument", "Código inválido.");
         }
         const ref = db.collection("studyRooms").doc(code);
+        let quedoVacia = false;
         await db.runTransaction(async (tx) => {
             var _a, _b;
             const snap = await tx.get(ref);
@@ -298,6 +300,7 @@ exports.leaveStudyRoom = functions.region("us-central1").https.onCall(async (dat
             // Si era el host, transferir; si queda vacía, borrar.
             if (Object.keys(members).length === 0) {
                 tx.delete(ref);
+                quedoVacia = true;
                 return;
             }
             const newHost = room.hostUid === uid ? memberOrder[0] : room.hostUid;
@@ -314,6 +317,13 @@ exports.leaveStudyRoom = functions.region("us-central1").https.onCall(async (dat
             }
             tx.update(ref, updates);
         });
+        if (quedoVacia) {
+            // Subrayados y respuestas de la sala: si no se borran quedan
+            // huérfanos ocupando espacio para siempre.
+            await db.recursiveDelete(ref).catch((e) => {
+                console.warn(`[study-room] cleanup ${code} failed:`, e);
+            });
+        }
         return { ok: true };
     }
     catch (err) {
@@ -362,7 +372,7 @@ async function rotateRoomVersions(code, force) {
         return Object.assign(Object.assign({}, room), { members: Object.fromEntries(memberOrder.map((u, i) => [u, Object.assign(Object.assign({}, room.members[u]), { versionId: rotated[i] })])) });
     });
 }
-exports.startStudyRoomSwapTimer = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.startStudyRoomSwapTimer = (0, limites_1.enRegion)().https.onCall(async (data, context) => {
     var _a;
     try {
         if (!context.auth) {
@@ -403,7 +413,7 @@ exports.startStudyRoomSwapTimer = functions.region("us-central1").https.onCall(a
         rethrow(err);
     }
 });
-exports.rotateStudyVersions = functions.region("us-central1").https.onCall(async (data, context) => {
+exports.rotateStudyVersions = (0, limites_1.enRegion)().https.onCall(async (data, context) => {
     var _a, _b, _c;
     try {
         if (!context.auth) {
@@ -435,7 +445,7 @@ exports.rotateStudyVersions = functions.region("us-central1").https.onCall(async
 // Filtra el query con `where(nextSwapAt <= now)` y `where(memberCount >= 2)`
 // para no escanear toda la colección. Además, limpia salas huérfanas
 // (sin actividad por más de 24h) para evitar acumulación de basura.
-exports.studyRoomAutoSwap = functions.region("us-central1").pubsub
+exports.studyRoomAutoSwap = (0, limites_1.enRegion)({ maxInstances: 1 }).pubsub
     .schedule("every 5 minutes")
     .onRun(async () => {
     const now = adminFirestore.Timestamp.now();
@@ -458,7 +468,8 @@ exports.studyRoomAutoSwap = functions.region("us-central1").pubsub
         .limit(20)
         .get();
     for (const doc of staleSnap.docs) {
-        tasks.push(doc.ref.delete().catch((e) => {
+        // recursiveDelete también borra subrayados y respuestas de la sala.
+        tasks.push(db.recursiveDelete(doc.ref).catch((e) => {
             console.warn(`[study-room] delete stale ${doc.id} failed:`, e);
         }));
     }

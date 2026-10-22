@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_tts/flutter_tts.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -19,6 +19,8 @@ import '../services/notification_service.dart';
 import '../services/user_pref_cloud_sync_service.dart';
 import '../services/bible/bible_user_data_service.dart';
 import '../theme/bible_reader_theme.dart';
+import '../theme/contraste.dart';
+import '../widgets/compartir/tarjeta_compartir_papel.dart';
 import '../utils/bible_navigation_helper.dart';
 import '../utils/time_utils.dart';
 import '../widgets/bible/reader/reader_typography_panel.dart';
@@ -298,6 +300,10 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
       );
     } catch (e) {
       debugPrint('📖 [DEVOC] Error sharing image: $e');
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No se pudo crear la imagen.')),
+      );
     }
   }
 
@@ -327,7 +333,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               ),
               Text(
                 'Compartir versículo',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w700,
@@ -338,14 +344,14 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                 leading: Icon(Icons.text_snippet_rounded, color: t.accent),
                 title: Text(
                   'Como texto',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 subtitle: Text(
                   'Versículo + referencia',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontSize: 12,
                   ),
@@ -359,14 +365,14 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                 leading: Icon(Icons.image_rounded, color: t.accent),
                 title: Text(
                   'Como imagen',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
                 subtitle: Text(
                   'Tarjeta visual para redes sociales',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontSize: 12,
                   ),
@@ -414,7 +420,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
         final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Stack(
               children: [
@@ -438,15 +444,45 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                     theme: t,
                     onClose: () => setState(() => _showTypography = false),
                   ),
-                // Widget oculto para captura de imagen — Opacity(0) lo pinta
-                // en memoria sin mostrarlo; IgnorePointer evita interacciones.
+                // Tarjeta para capturar como imagen: fuera de la pantalla pero
+                // pintada (con Opacity(0) Flutter no la pinta y toImage
+                // falla), sin toques ni lector de pantalla.
                 if (_entry != null)
-                  IgnorePointer(
-                    child: Opacity(
-                      opacity: 0.0,
-                      child: RepaintBoundary(
-                        key: _shareKey,
-                        child: _DevotionalShareCard(entry: _entry!, theme: t),
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: ExcludeSemantics(
+                        child: Transform.translate(
+                          offset: const Offset(-100000, 0),
+                          child: Align(
+                            alignment: Alignment.topLeft,
+                            // Tema papel: la tarjeta de papel recortado,
+                            // siempre a 360×450 (sale de 1080 px a 3x),
+                            // aunque la pantalla sea más chica.
+                            child: t.id == BibleReaderThemeData.paper.id
+                              ? OverflowBox(
+                                  alignment: Alignment.topLeft,
+                                  maxWidth: TarjetaCompartirPapel.ancho,
+                                  maxHeight: double.infinity,
+                                  child: RepaintBoundary(
+                                    key: _shareKey,
+                                    child: TarjetaCompartirPapel(
+                                      texto: _entry!.verse,
+                                      referencia: _entry!.verseReference,
+                                      etiqueta: 'Devocional',
+                                      pie: 'La Chequera del Banco de la Fe',
+                                      proporcion: 0.8,
+                                    ),
+                                  ),
+                                )
+                              : RepaintBoundary(
+                                  key: _shareKey,
+                                  child: _DevotionalShareCard(
+                                    entry: _entry!,
+                                    theme: t,
+                                  ),
+                                ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -484,7 +520,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               children: [
                 Text(
                   'Devocional',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.accent,
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
@@ -493,7 +529,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                 ),
                 Text(
                   entry?.dateLabel ?? '',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -563,7 +599,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
           children: [
             Text(
               entry.dateLabel,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 22,
                 fontWeight: FontWeight.w700,
@@ -583,8 +619,8 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                 ),
                 child: Text(
                   'HOY',
-                  style: GoogleFonts.manrope(
-                    color: t.accent,
+                  style: AppFonts.manrope(
+                    color: legibleEnPastilla(t.accent, 0.15, t.fondoVisible),
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
                     letterSpacing: 1.2,
@@ -617,9 +653,10 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                       : streak == 1
                       ? '1 día seguido'
                       : '$streak días seguidos',
-                  style: GoogleFonts.manrope(
-                    color:
-                        streak > 0 ? t.textPrimary : t.textSecondary,
+                  style: AppFonts.manrope(
+                    color: streak > 0
+                        ? t.textPrimary
+                        : legibleSobre(t.textSecondary, t.surface),
                     fontSize: 13,
                     fontWeight:
                         streak > 0 ? FontWeight.w700 : FontWeight.w500,
@@ -628,7 +665,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                 const Spacer(),
                 Text(
                   'Ver historial',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -656,7 +693,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               const SizedBox(height: 8),
               SelectableText(
                 entry.verse,
-                style: GoogleFonts.lora(
+                style: AppFonts.lora(
                   color: t.textPrimary,
                   fontSize: fontSize + 1,
                   fontStyle: FontStyle.italic,
@@ -666,8 +703,8 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               const SizedBox(height: 12),
               Text(
                 '— ${entry.verseReference}',
-                style: GoogleFonts.manrope(
-                  color: t.accent,
+                style: AppFonts.manrope(
+                  color: legibleSobre(t.accent, t.surface),
                   fontSize: fontSize - 5,
                   fontWeight: FontWeight.w700,
                 ),
@@ -714,7 +751,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
             padding: const EdgeInsets.only(bottom: 16),
             child: SelectableText(
               p,
-              style: GoogleFonts.lora(
+              style: AppFonts.lora(
                 color: t.textPrimary,
                 fontSize: fontSize,
                 height: 1.75,
@@ -801,7 +838,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
           '«La Chequera del Banco de la Fe», por Charles H. Spurgeon.\n'
           'Traducción: Allan Aviles · Gospel Translations (Dominio Público).\n'
           'Texto bíblico: Reina-Valera.',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textSecondary,
             fontSize: 11,
             height: 1.5,
@@ -835,7 +872,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
             if (!trailing) const SizedBox(width: 4),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary,
                 fontSize: 12.5,
                 fontWeight: FontWeight.w600,
@@ -867,8 +904,8 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
             const SizedBox(width: 6),
             Text(
               label,
-              style: GoogleFonts.manrope(
-                color: t.accent,
+              style: AppFonts.manrope(
+                color: legibleSobre(t.accent, t.surface),
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
               ),
@@ -897,7 +934,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               const SizedBox(width: 8),
               Text(
                 'Mi reflexión',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.textPrimary,
                   fontSize: 15,
                   fontWeight: FontWeight.w700,
@@ -913,7 +950,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
             keyboardType: TextInputType.multiline,
             textCapitalization: TextCapitalization.sentences,
             onChanged: (_) => setState(() {}),
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: fontSize - 1,
               height: 1.6,
@@ -922,7 +959,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
               hintText:
                   '¿Qué te habló Dios hoy? Escribe tu reflexión o una '
                   'oración…',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary,
                 fontSize: fontSize - 2,
                 height: 1.5,
@@ -1037,7 +1074,7 @@ class _DevotionalHistorySheetState extends State<_DevotionalHistorySheet> {
           Text(
             'Historial de devocionales',
             textAlign: TextAlign.center,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 17,
               fontWeight: FontWeight.w700,
@@ -1071,7 +1108,7 @@ class _DevotionalHistorySheetState extends State<_DevotionalHistorySheet> {
                         : _streak == 1
                         ? '1 día seguido'
                         : '$_streak días seguidos',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: _streak > 0 ? t.accent : t.textSecondary,
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
@@ -1102,7 +1139,7 @@ class _DevotionalHistorySheetState extends State<_DevotionalHistorySheet> {
           padding: const EdgeInsets.only(bottom: 6),
           child: Text(
             '${_monthNames[month.month - 1]} ${month.year}',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.accent,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -1117,7 +1154,7 @@ class _DevotionalHistorySheetState extends State<_DevotionalHistorySheet> {
                   child: Center(
                     child: Text(
                       d,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textSecondary,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -1180,7 +1217,7 @@ class _DevotionalHistorySheetState extends State<_DevotionalHistorySheet> {
               child: Center(
                 child: Text(
                   '$day',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: textColor,
                     fontSize: 10,
                     fontWeight:
@@ -1221,7 +1258,7 @@ class _DevotionalShareCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             entry.verse,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 17,
               fontStyle: FontStyle.italic,
@@ -1231,7 +1268,7 @@ class _DevotionalShareCard extends StatelessWidget {
           const SizedBox(height: 14),
           Text(
             '— ${entry.verseReference}',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.accent,
               fontSize: 13,
               fontWeight: FontWeight.w700,
@@ -1246,7 +1283,7 @@ class _DevotionalShareCard extends StatelessWidget {
               Flexible(
                 child: Text(
                   'La Chequera del Banco de la Fe',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontSize: 10,
                   ),
@@ -1254,7 +1291,7 @@ class _DevotionalShareCard extends StatelessWidget {
               ),
               Text(
                 'Victoria en Cristo',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.accent,
                   fontSize: 10,
                   fontWeight: FontWeight.w600,

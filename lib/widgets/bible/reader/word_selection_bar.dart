@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/study_word_highlight.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -64,7 +64,7 @@ class WordSelectionBar extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -84,7 +84,7 @@ class WordSelectionBar extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Text(
                   'Todo',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,

@@ -56,7 +56,8 @@ class VerseOfDayWidgetProvider : AppWidgetProvider() {
 
                 val textColor = if (isLight) Color.parseColor("#212121") else Color.WHITE
                 val labelColor = if (isLight) Color.parseColor("#757575") else Color.parseColor("#B0B0B0")
-                val accentColor = Color.parseColor("#D4AF37")
+                // En la tarjeta clara el dorado no se lee: dorado oscuro.
+                val accentColor = if (isLight) Color.parseColor("#8B6914") else Color.parseColor("#D4AF37")
 
                 views.setTextColor(R.id.verse_widget_label, labelColor)
                 views.setTextViewText(R.id.verse_widget_text, verseText)

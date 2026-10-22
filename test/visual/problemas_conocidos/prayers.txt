@@ -1,25 +1,11 @@
 # Problemas visuales que ya existían en "prayers". No agregues
 # líneas a mano: corrige el problema. Se regenera con
 # ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-charcoal: "4" contraste < 4.5
 charcoal: "Oraciones" contraste < 3.0
-clean_page: "4" contraste < 4.5
-clean_page: "4" contraste < 4.5
-grey_editorial: "4" contraste < 4.5
-grey_editorial: "4" contraste < 4.5
 grey_editorial: "Oraciones" contraste < 3.0
-lavender: "4" contraste < 4.5
-lavender: "4" contraste < 4.5
 lavender: "Oraciones" contraste < 3.0
-mint: "4" contraste < 4.5
-mint: "4" contraste < 4.5
 mint: "Oraciones" contraste < 3.0
 night_pure: "Oraciones" contraste < 3.0
-parchment: "4" contraste < 4.5
-parchment: "4" contraste < 4.5
 parchment: "Oraciones" contraste < 3.0
-peach: "4" contraste < 4.5
-peach: "4" contraste < 4.5
 peach: "Oraciones" contraste < 3.0
-sepia_night: "4" contraste < 4.5
 sepia_night: "Oraciones" contraste < 3.0

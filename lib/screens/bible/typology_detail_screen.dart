@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/typology.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -18,12 +18,12 @@ class TypologyDetailScreen extends StatelessWidget {
           BibleUserDataService.I.readerThemeNotifier.value),
     );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         title: Text(
           'Tipología',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: t.textPrimary,
             fontSize: 16,
             fontWeight: FontWeight.w700,
@@ -37,7 +37,7 @@ class TypologyDetailScreen extends StatelessWidget {
           // Title
           Text(
             typology.title,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 22,
               fontWeight: FontWeight.w800,
@@ -46,7 +46,7 @@ class TypologyDetailScreen extends StatelessWidget {
           const SizedBox(height: 8),
           Text(
             typology.description,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.6),
               fontSize: 14,
               height: 1.5,
@@ -59,7 +59,7 @@ class TypologyDetailScreen extends StatelessWidget {
             children: typology.tags
                 .map((tag) => Chip(
                       label: Text(tag),
-                      labelStyle: GoogleFonts.manrope(
+                      labelStyle: AppFonts.manrope(
                         color: t.accent,
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
@@ -91,7 +91,7 @@ class TypologyDetailScreen extends StatelessWidget {
                       color: t.accent.withValues(alpha: 0.3), size: 24),
                   Text(
                     'Se cumple en',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent.withValues(alpha: 0.4),
                       fontSize: 10,
                       fontWeight: FontWeight.w600,
@@ -158,7 +158,7 @@ class TypologyDetailScreen extends StatelessWidget {
                 const SizedBox(width: 8),
                 Text(
                   label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: color,
                     fontSize: 10,
                     fontWeight: FontWeight.w800,
@@ -170,7 +170,7 @@ class TypologyDetailScreen extends StatelessWidget {
             const SizedBox(height: 12),
             Text(
               _formatFullRef(ref.reference),
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -179,7 +179,7 @@ class TypologyDetailScreen extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               ref.text,
-              style: GoogleFonts.crimsonPro(
+              style: AppFonts.crimsonPro(
                 color: t.textPrimary.withValues(alpha: 0.7),
                 fontSize: 16,
                 fontStyle: FontStyle.italic,
@@ -203,7 +203,7 @@ class TypologyDetailScreen extends StatelessWidget {
                     Expanded(
                       child: Text(
                         ref.aspect,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textPrimary.withValues(alpha: 0.5),
                           fontSize: 12,
                           height: 1.4,
@@ -220,7 +220,7 @@ class TypologyDetailScreen extends StatelessWidget {
               children: [
                 Text(
                   'Ir al pasaje',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: color.withValues(alpha: 0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,

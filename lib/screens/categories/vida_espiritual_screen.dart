@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 import '../../widgets/home/category_hub_scaffold.dart';
 import '../../widgets/home/glassmorphic_menu_button.dart';
 import '../verses_screen.dart';
@@ -23,7 +26,7 @@ class VidaEspiritualScreen extends StatelessWidget {
     return CategoryHubScaffold(
       title: 'Vida Espiritual',
       children: [
-        _buildIntro(),
+        _buildIntro(context),
         const SizedBox(height: AppDesignSystem.spacingL),
         Row(
           children: [
@@ -96,7 +99,28 @@ class VidaEspiritualScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildIntro() {
+  Widget _buildIntro(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) {
+      // Tema papel: Victoria presenta la sección, como en los videos.
+      return const PopIn(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Sticker('assets/vec/personajes/victoria_ora.png', alto: 120),
+            SizedBox(width: 8),
+            Expanded(
+              child: Subtitulo(
+                quien: 'Victoria',
+                texto:
+                    'Tu encuentro diario con Dios: oración, palabra y reflexión.',
+                clave: 'Dios',
+                color: VecColores.terracota,
+              ),
+            ),
+          ],
+        ),
+      );
+    }
     return Container(
           padding: const EdgeInsets.all(AppDesignSystem.spacingM),
           decoration: BoxDecoration(

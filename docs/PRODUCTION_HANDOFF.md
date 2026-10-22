@@ -40,13 +40,18 @@ Este documento separa las tareas que requieren decisiones, datos o cuentas del t
 
 ## 4. Google Play Console
 
-1. Crear la versión de producción y cargar el AAB firmado de `1.0.29+39`.
-2. Completar **Seguridad de los datos** usando `google_play_submission.md`; declarar cuenta, contenido del usuario, identificadores, actividad, diagnósticos y datos sensibles voluntarios según el comportamiento final.
-3. Declarar la eliminación de cuenta y colocar `https://victoria-en-cristo.web.app/data_deletion.html`.
-4. Completar acceso a la app, anuncios, público objetivo, clasificación de contenido y aplicaciones de salud si la consola las solicita.
-5. Usar una cuenta de revisión separada si alguna pantalla no es accesible sin inicio de sesión.
-6. Ejecutar primero una prueba interna, instalar desde Play y probar registro, acceso, notificaciones, enlaces legales, muro, audio y eliminación.
-7. Corregir todos los avisos del informe previo al lanzamiento antes de promover a producción.
+1. Compilar el AAB de la versión que diga `pubspec.yaml` (hoy `1.0.30+40`; el de `1.0.29+39` de arriba ya no es el último) en la computadora que tiene `android/key.properties` (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`; `storeFile` se resuelve desde `android/`) y el keystore de subida. Sin ese archivo el build de release se detiene.
+   - `flutter build appbundle --release` deja `build/app/outputs/bundle/release/app-release.aab`.
+   - Versión: `bundletool dump manifest --bundle=build/app/outputs/bundle/release/app-release.aab --xpath=/manifest/@android:versionCode` debe decir `40` (y `.../@android:versionName`, `1.0.30`). `bundletool validate --bundle=...` sin errores.
+   - Firma: `jarsigner -verify -verbose -certs build/app/outputs/bundle/release/app-release.aab` debe mostrar el certificado de subida, no `CN=Android Debug`.
+   - Guardar una copia como `dist/VictoriaEnCristo-1.0.30+40.aab` y anotar su SHA-256 en «Entregables técnicos verificados».
+2. Crear la versión de producción y cargar ese AAB.
+3. Completar **Seguridad de los datos** usando `google_play_submission.md`; declarar cuenta, contenido del usuario, identificadores, actividad, diagnósticos y datos sensibles voluntarios según el comportamiento final.
+4. Declarar la eliminación de cuenta y colocar `https://victoria-en-cristo.web.app/data_deletion.html`.
+5. Completar acceso a la app, anuncios, público objetivo, clasificación de contenido y aplicaciones de salud si la consola las solicita.
+6. Usar una cuenta de revisión separada si alguna pantalla no es accesible sin inicio de sesión.
+7. Ejecutar primero una prueba interna, instalar desde Play y probar registro, acceso, notificaciones, enlaces legales, muro, audio y eliminación.
+8. Corregir todos los avisos del informe previo al lanzamiento antes de promover a producción.
 
 ## 5. App Store Connect e instalación en iPad
 

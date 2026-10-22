@@ -72,7 +72,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
     final date = widget.existingEntry?.date ?? DateTime.now();
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         title: Text(
           widget.existingEntry != null

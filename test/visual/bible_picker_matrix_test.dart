@@ -17,7 +17,7 @@ import 'package:app_quitar/services/bible/bible_user_data_service.dart';
 import 'package:app_quitar/screens/bible/study_mode_screen.dart';
 import 'package:app_quitar/widgets/bible/study/study_chapter_picker.dart';
 import 'package:app_quitar/theme/bible_reader_theme.dart';
-import 'series_matrix_test.dart' show profiles;
+import 'viewport_profiles.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/app_theme_data.dart';
+import '../../widgets/bible/reader/selector_letra_lectura.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_download_service.dart';
@@ -44,13 +46,13 @@ class BibleSettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
         title: Text(
           'AJUSTES',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             fontSize: 18,
             fontWeight: FontWeight.w600,
             letterSpacing: 2.0,
@@ -113,7 +115,7 @@ class BibleSettingsScreen extends StatelessWidget {
                               children: [
                                 Text(
                                   v.displayName,
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     color: t.textPrimary,
                                     fontSize: 14,
                                     fontWeight: selected
@@ -123,10 +125,8 @@ class BibleSettingsScreen extends StatelessWidget {
                                 ),
                                 Text(
                                   '${v.shortName} · ${v.language.label}',
-                                  style: GoogleFonts.manrope(
-                                    color: t.textSecondary.withValues(
-                                      alpha: 0.5,
-                                    ),
+                                  style: AppFonts.manrope(
+                                    color: t.textoTenue(0.5),
                                     fontSize: 12,
                                   ),
                                 ),
@@ -161,7 +161,7 @@ class BibleSettingsScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'Porque de tal manera amó Dios al mundo, que ha dado a su Hijo unigénito...',
-                      style: GoogleFonts.crimsonPro(
+                      style: AppFonts.crimsonPro(
                         color: t.textPrimary.withValues(alpha: 0.7),
                         fontSize: fontSize,
                         fontStyle: FontStyle.italic,
@@ -175,8 +175,8 @@ class BibleSettingsScreen extends StatelessWidget {
                     children: [
                       Text(
                         'A',
-                        style: GoogleFonts.crimsonPro(
-                          color: t.textSecondary.withValues(alpha: 0.5),
+                        style: AppFonts.crimsonPro(
+                          color: t.textoTenue(0.5),
                           fontSize: 14,
                         ),
                       ),
@@ -201,7 +201,7 @@ class BibleSettingsScreen extends StatelessWidget {
                       ),
                       Text(
                         'A',
-                        style: GoogleFonts.crimsonPro(
+                        style: AppFonts.crimsonPro(
                           color: t.textPrimary.withValues(alpha: 0.7),
                           fontSize: 28,
                         ),
@@ -210,8 +210,8 @@ class BibleSettingsScreen extends StatelessWidget {
                   ),
                   Text(
                     '${fontSize.toInt()} pt',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.5),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -219,6 +219,12 @@ class BibleSettingsScreen extends StatelessWidget {
               );
             },
           ),
+
+          // En el tema papel: Lora o letra manuscrita para leer.
+          if (AppThemeData.of(context).isPaper) ...[
+            const SizedBox(height: 20),
+            SelectorLetraLectura(theme: t),
+          ],
 
           const SizedBox(height: 24),
 
@@ -242,7 +248,7 @@ class BibleSettingsScreen extends StatelessWidget {
                     ),
                     child: Text(
                       'Porque de tal manera amó Dios al mundo...',
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: currentTheme.textPrimary,
                         fontSize: 16,
                         fontStyle: FontStyle.italic,
@@ -295,10 +301,10 @@ class BibleSettingsScreen extends StatelessWidget {
                               const SizedBox(height: 4),
                               Text(
                                 theme.name,
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color: isActive
                                       ? t.accent
-                                      : t.textSecondary.withValues(alpha: 0.6),
+                                      : t.textoTenue(0.6),
                                   fontSize: 9,
                                 ),
                               ),
@@ -346,7 +352,7 @@ class BibleSettingsScreen extends StatelessWidget {
                         children: [
                           Text(
                             'Palabras de Cristo en rojo',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textPrimary,
                               fontSize: 14,
                               fontWeight: FontWeight.w500,
@@ -354,7 +360,7 @@ class BibleSettingsScreen extends StatelessWidget {
                           ),
                           Text(
                             'Resalta las palabras de Jesús en los Evangelios',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textPrimary.withValues(alpha: 0.4),
                               fontSize: 11,
                             ),
@@ -406,7 +412,7 @@ class BibleSettingsScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Diccionario Bíblico',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -414,7 +420,7 @@ class BibleSettingsScreen extends StatelessWidget {
                             ),
                             Text(
                               'Easton + Hitchcock – Dominio público',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textPrimary.withValues(alpha: 0.4),
                                 fontSize: 11,
                               ),
@@ -467,7 +473,7 @@ class BibleSettingsScreen extends StatelessWidget {
                           children: [
                             Text(
                               'Análisis bíblico: David Guzik',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textPrimary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -475,7 +481,7 @@ class BibleSettingsScreen extends StatelessWidget {
                             ),
                             Text(
                               '©1996–present Enduring Word · Usado con permiso',
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textPrimary.withValues(alpha: 0.4),
                                 fontSize: 11,
                               ),
@@ -569,7 +575,7 @@ class _DailyVerseReminderRowState extends State<_DailyVerseReminderRow> {
                   children: [
                     Text(
                       'Versículo del Día',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textPrimary,
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
@@ -579,7 +585,7 @@ class _DailyVerseReminderRowState extends State<_DailyVerseReminderRow> {
                       enabled
                           ? 'Recordatorio activo a las ${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}'
                           : 'Recibe un aviso diario con el versículo del día',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textPrimary.withValues(alpha: 0.4),
                         fontSize: 11,
                       ),
@@ -653,7 +659,7 @@ class _DownloadsSection extends StatelessWidget {
                       Expanded(
                         child: Text(
                           '$downloadedCount de ${downloadableVersions.length} versiones disponibles',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             color: t.textPrimary.withValues(alpha: 0.7),
                             fontSize: 13,
                           ),
@@ -664,7 +670,7 @@ class _DownloadsSection extends StatelessWidget {
                           onTap: () => dl.downloadAll(),
                           child: Text(
                             'Descargar todo',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.accent,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
@@ -705,7 +711,7 @@ class _DownloadsSection extends StatelessWidget {
                             children: [
                               Text(
                                 version.displayName,
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color: t.textPrimary,
                                   fontSize: 14,
                                   fontWeight: FontWeight.w500,
@@ -721,8 +727,8 @@ class _DownloadsSection extends StatelessWidget {
                                     : canDownload
                                     ? '${version.shortName} · ${version.language.label} · ~5 MB'
                                     : '${version.shortName} · ${version.language.label} · Requiere fuente autorizada',
-                                style: GoogleFonts.manrope(
-                                  color: t.textSecondary.withValues(alpha: 0.5),
+                                style: AppFonts.manrope(
+                                  color: t.textoTenue(0.5),
                                   fontSize: 12,
                                 ),
                               ),
@@ -853,14 +859,14 @@ class _DownloadsSection extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         title: Text(
           'Eliminar descarga',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textPrimary,
             fontWeight: FontWeight.w600,
           ),
         ),
         content: Text(
           '¿Eliminar ${version.displayName} del almacenamiento local?\n\nPodrás descargarla de nuevo en cualquier momento.',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: t.textPrimary.withValues(alpha: 0.7),
             fontSize: 14,
           ),
@@ -870,7 +876,7 @@ class _DownloadsSection extends StatelessWidget {
             onPressed: () => Navigator.pop(ctx),
             child: Text(
               'Cancelar',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary.withValues(alpha: 0.6),
               ),
             ),
@@ -882,7 +888,7 @@ class _DownloadsSection extends StatelessWidget {
             },
             child: Text(
               'Eliminar',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: Colors.redAccent,
                 fontWeight: FontWeight.w600,
               ),
@@ -910,7 +916,7 @@ class _SettingsSection extends StatelessWidget {
       padding: const EdgeInsets.only(bottom: 12),
       child: Text(
         title,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           color: themeColor,
           fontSize: 11,
           fontWeight: FontWeight.w700,

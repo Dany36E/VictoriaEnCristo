@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/saved_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -29,7 +29,7 @@ class SavedVersesScreen extends StatelessWidget {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -58,7 +58,7 @@ class SavedVersesScreen extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             'Versículos guardados',
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 20,
               fontWeight: FontWeight.w600,
@@ -80,8 +80,8 @@ class SavedVersesScreen extends StatelessWidget {
               child: Text(
                 'Los versículos que guardes\naparecerán aquí',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                style: AppFonts.manrope(
+                  color: t.textoTenue(0.4),
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -112,8 +112,8 @@ class SavedVersesScreen extends StatelessWidget {
         padding: const EdgeInsets.only(right: 16),
         child: Text(
           'Eliminar',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -167,8 +167,8 @@ class SavedVersesScreen extends StatelessWidget {
             children: [
               Text(
                 sv.reference.toUpperCase(),
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5),
+                style: AppFonts.manrope(
+                  color: t.textoTenue(0.5),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.5,
@@ -177,7 +177,7 @@ class SavedVersesScreen extends StatelessWidget {
               const SizedBox(height: 6),
               Text(
                 sv.text,
-                style: GoogleFonts.lora(
+                style: AppFonts.lora(
                   color: t.textPrimary,
                   fontSize: 15,
                   height: 1.6,

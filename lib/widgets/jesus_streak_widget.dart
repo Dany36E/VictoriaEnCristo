@@ -6,9 +6,13 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
+import '../theme/app_theme_data.dart';
 import '../services/jesus_widget_service.dart';
 import '../services/victory_scoring_service.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
+import 'escena_racha_papel.dart';
 
 class JesusStreakWidget extends StatelessWidget {
   final int streakDays;
@@ -34,6 +38,7 @@ class JesusStreakWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) return _buildPapel(context);
     final service = JesusWidgetService.I;
     final spritePath = service.getSprite(
       streakDays: streakDays,
@@ -164,7 +169,7 @@ class JesusStreakWidget extends StatelessWidget {
                             // Mensaje motivacional
                             Text(
                               message,
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w500,
                                 color: Colors.white.withValues(alpha: 0.9),
@@ -206,6 +211,154 @@ class JesusStreakWidget extends StatelessWidget {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // TEMA PAPEL — Jesús sobre la escena de la racha, enmarcada como foto de papel
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildPapel(BuildContext context) {
+    final message = JesusWidgetService.I.getMessage(
+      streakDays: streakDays,
+      completedToday: completedToday,
+      victoryToday: victoryToday,
+      isNewUser: isNewUser,
+    );
+    final canRegister =
+        !completedToday && VictoryScoringService.I.canLogVictoryNow();
+    final label = completedToday
+        ? victoryToday
+              ? 'Ver mi progreso'
+              : 'Gracia registrada'
+        : canRegister
+        ? 'Registrar día'
+        : JesusWidgetService.I.getBadgeText(
+            completedToday: completedToday,
+            victoryToday: victoryToday,
+            isNewUser: isNewUser,
+            checkinDone: checkinDone,
+          );
+    final dias = isNewUser ? 0 : streakDays;
+
+    return Semantics(
+      label: completedToday
+          ? 'Racha actual: $streakDays días. Día de hoy ya registrado.'
+          : 'Racha actual: $streakDays días.',
+      child: Padding(
+        padding: const EdgeInsets.only(top: 22),
+        child: PopIn(
+          giroFinal: -1,
+          child: GestureDetector(
+            onTap: onTapCard ?? onRegisterVictory,
+            child: TarjetaPapel(
+              giro: 0,
+              padding: const EdgeInsets.fromLTRB(14, 18, 18, 18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Row(
+                    children: [
+                      EscenaRachaPapel(
+                        streakDays: streakDays,
+                        completedToday: completedToday && victoryToday,
+                        isNewUser: isNewUser,
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (isLoading)
+                              const SizedBox(
+                                width: 36,
+                                height: 36,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 4,
+                                ),
+                              )
+                            else
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Flexible(
+                                    child: FittedBox(
+                                      fit: BoxFit.scaleDown,
+                                      alignment: Alignment.centerLeft,
+                                      child: Text(
+                                        '$dias',
+                                        style: const TextStyle(
+                                          fontFamily: VecFuentes.titulo,
+                                          fontSize: 64,
+                                          height: 1,
+                                          color: VecColores.terracota,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Padding(
+                                    padding: const EdgeInsets.only(bottom: 6),
+                                    child: Text(
+                                      dias == 1
+                                          ? 'día de\nvictoria'
+                                          : 'días de\nvictoria',
+                                      style: const TextStyle(
+                                        fontFamily: VecFuentes.titulo,
+                                        fontSize: 17,
+                                        height: 1.05,
+                                        color: VecColores.tinta,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            if (completedToday && !isLoading) ...[
+                              const SizedBox(height: 8),
+                              ChipVec(
+                                texto: victoryToday ? 'Hoy ✓' : 'Con gracia',
+                                color: VecColores.verde,
+                                iconoWidget: const IconoVec(
+                                  'palomita',
+                                  color: VecColores.papel,
+                                ),
+                              ),
+                            ],
+                            const SizedBox(height: 10),
+                            Text(
+                              message,
+                              maxLines: 4,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontFamily: VecFuentes.texto,
+                                fontSize: 18,
+                                height: 1.25,
+                                color: VecColores.tinta,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  BotonVec(
+                    texto: label,
+                    expandido: true,
+                    iconoWidget: IconoVec(
+                      completedToday ? 'corazon' : 'escudo',
+                    ),
+                    color: completedToday
+                        ? VecColores.azul
+                        : VecColores.terracota,
+                    onPressed: isLoading ? null : onRegisterVictory,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // STREAK COUNTER
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -239,7 +392,7 @@ class JesusStreakWidget extends StatelessWidget {
               alignment: Alignment.centerLeft,
               child: Text(
                 isNewUser ? '0' : '$streakDays',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   fontSize: streakDays >= 1000
                       ? 30.0
                       : streakDays >= 100
@@ -264,7 +417,7 @@ class JesusStreakWidget extends StatelessWidget {
                 children: [
                   Text(
                     streakDays == 1 ? 'DÍA' : 'DÍAS',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 11,
                       fontWeight: FontWeight.w800,
                       letterSpacing: streakDays >= 10 ? 0.5 : 1.5,
@@ -276,7 +429,7 @@ class JesusStreakWidget extends StatelessWidget {
                   if (streakDays < 100 && !(completedToday && streakDays >= 10))
                     Text(
                       'DE VICTORIA',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 9,
                         fontWeight: FontWeight.w600,
                         color: Colors.white.withValues(alpha: 0.6),
@@ -396,7 +549,7 @@ class JesusStreakWidget extends StatelessWidget {
             Flexible(
               child: Text(
                 label,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                   color: const Color(0xFFD4AF37),

@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 
+import '../vec/vec_tema.dart';
+
 /// ═══════════════════════════════════════════════════════════════════════════
-/// APP THEME DATA — 9 temas seleccionables para toda la app
+/// APP THEME DATA — 10 temas seleccionables para toda la app
 /// ═══════════════════════════════════════════════════════════════════════════
 ///
 /// Extiende el concepto de BibleReaderThemeData a la UI general.
-/// Mismos 9 IDs, paletas derivadas para scaffold, cards, texto, acentos.
+/// Mismos 10 IDs, paletas derivadas para scaffold, cards, texto, acentos.
+/// El tema 'papel' usa el kit victoria-en-cristo-estilo (lib/vec): además
+/// cambia tipografía, formas, sombras y fondo de papel (ver isPaper).
 ///
 /// Uso: final t = AppThemeData.of(context);
-///      Scaffold(backgroundColor: t.scaffoldBg, ...)
+///      Scaffold(backgroundColor: t.pageBg, ...)
 /// ═══════════════════════════════════════════════════════════════════════════
 
 class AppThemeData {
@@ -42,6 +46,19 @@ class AppThemeData {
     required this.isDark,
   });
 
+  /// Tema "Papel recortado": activa las letras, sombras, radios y fondo de
+  /// papel del kit victoria-en-cristo-estilo en toda la app.
+  bool get isPaper => id == paper.id;
+
+  /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
+  /// cada página pinta el papel con textura (FondoPapel) por detrás.
+  Color get pageBg => isPaper ? Colors.transparent : scaffoldBg;
+
+  /// El color que se ve detrás del texto de la página, para calcular colores
+  /// legibles (`legibleSobre`). En el tema papel es el tono de la textura,
+  /// más oscuro que [scaffoldBg].
+  Color get fondoVisible => isPaper ? VecColores.papelTexturado : scaffoldBg;
+
   // Helpers derivados
   Color get overlayBg => isDark
       ? Colors.white.withValues(alpha: 0.06)
@@ -55,15 +72,20 @@ class AppThemeData {
       ? Colors.white.withValues(alpha: 0.1)
       : Colors.black.withValues(alpha: 0.08);
 
-  /// Gradient para headers (sutil, del surface hacia scaffoldBg)
+  /// Gradient para headers (sutil, del surface hacia scaffoldBg).
+  /// En el tema papel no hay degradado: se ve la hoja con textura.
   LinearGradient get headerGradient => LinearGradient(
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
-    colors: [surface, scaffoldBg],
+    colors: isPaper
+        ? const [Colors.transparent, Colors.transparent]
+        : [surface, scaffoldBg],
   );
 
   /// Shadow adaptativo
-  List<BoxShadow> get cardShadow => isDark
+  List<BoxShadow> get cardShadow => isPaper
+      ? VecSombras.papel
+      : isDark
       ? [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.2),
@@ -87,13 +109,14 @@ class AppThemeData {
   /// Card decoration completa
   BoxDecoration get cardDecoration => BoxDecoration(
     color: cardBg,
-    borderRadius: BorderRadius.circular(16),
-    border: Border.all(color: cardBorder, width: 1),
+    borderRadius: BorderRadius.circular(isPaper ? VecRadios.m : 16),
+    // Los recortes de papel no llevan contorno: solo sombra sólida + cálida.
+    border: isPaper ? null : Border.all(color: cardBorder, width: 1),
     boxShadow: cardShadow,
   );
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 9 TEMAS — mismos IDs que BibleReaderThemeData
+  // 10 TEMAS — mismos IDs que BibleReaderThemeData
   // ══════════════════════════════════════════════════════════════════════════
 
   // ─── DARK THEMES ───────────────────────────────────────────────────────
@@ -244,6 +267,27 @@ class AppThemeData {
     isDark: false,
   );
 
+  // ─── PAPER THEME ───────────────────────────────────────────────────────
+
+  /// Estilo «papel recortado» de los videos (kit victoria-en-cristo-estilo).
+  static const paper = AppThemeData(
+    id: 'papel',
+    name: 'Papel recortado',
+    scaffoldBg: VecColores.crema,
+    surface: VecColores.papel,
+    cardBg: VecColores.papel,
+    cardBorder: VecColores.cremaOscuro,
+    textPrimary: VecColores.tinta,
+    // El texto secundario de toda la app necesita ≥ 4.5:1 (WCAG AA) sobre el
+    // papel con textura, así que usa el lápiz del kit en vez del gris.
+    textSecondary: VecColores.lapiz,
+    accent: VecColores.terracota,
+    accentSoft: Color(0x26A8452F), // terracota 15%
+    divider: VecColores.cremaOscuro,
+    inputBg: VecColores.papel,
+    isDark: false,
+  );
+
   /// Todos los temas disponibles
   static const List<AppThemeData> all = [
     nightPure,
@@ -255,6 +299,7 @@ class AppThemeData {
     lavender,
     mint,
     peach,
+    paper,
   ];
 
   /// Obtener tema por ID (default: noche pura)

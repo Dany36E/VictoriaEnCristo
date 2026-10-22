@@ -40,7 +40,7 @@ class _ParablesGalleryScreenState extends State<ParablesGalleryScreen> {
     final t = AppThemeData.of(context);
     final parables = ParableRepository.I.all;
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -146,8 +146,8 @@ class _ParablesGalleryScreenState extends State<ParablesGalleryScreen> {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: AppDesignSystem.gold,
+        style: TextStyle(
+          color: AppDesignSystem.oroTexto(context, pastilla: 0.12),
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),
@@ -232,7 +232,7 @@ class _ParableCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     parable.reference,
-                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.gold),
+                    style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.oroTexto(context)),
                   ),
                 ],
               ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/interlinear_word.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -68,7 +68,7 @@ class InterlinearWordCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 10,
                   color: t.textPrimary.withValues(alpha: 0.45),
                   fontStyle: FontStyle.italic,
@@ -95,7 +95,7 @@ class InterlinearWordCard extends StatelessWidget {
               textAlign: TextAlign.center,
               maxLines: 2,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 12,
                 color: t.textPrimary.withValues(alpha: 0.9),
                 fontWeight: FontWeight.w600,
@@ -110,7 +110,7 @@ class InterlinearWordCard extends StatelessWidget {
                 textAlign: TextAlign.center,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 9,
                   color: t.textPrimary.withValues(alpha: 0.4),
                 ),
@@ -155,7 +155,7 @@ class _StrongBadge extends StatelessWidget {
     ),
     child: Text(
       strongNumber,
-      style: GoogleFonts.manrope(
+      style: AppFonts.manrope(
         fontSize: 9,
         color: theme.accent.withValues(alpha: 0.7),
         fontWeight: FontWeight.w600,
@@ -233,7 +233,7 @@ class InterlinearSection extends StatelessWidget {
             children: [
               Text(
                 'TEXTO EN ESPAÑOL ($versionLabel)',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.accent.withValues(alpha: 0.6),
                   fontSize: 10,
                   fontWeight: FontWeight.w600,
@@ -243,7 +243,7 @@ class InterlinearSection extends StatelessWidget {
               const SizedBox(height: 8),
               Text(
                 verseText,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.8),
                   fontSize: 15,
                   height: 1.6,
@@ -268,7 +268,7 @@ class InterlinearSection extends StatelessWidget {
               isOT
                   ? 'TEXTO ORIGINAL EN HEBREO (OSHB)'
                   : 'TEXTO ORIGINAL EN GRIEGO (SBLGNT)',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent.withValues(alpha: 0.7),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
@@ -304,7 +304,7 @@ class InterlinearSection extends StatelessWidget {
             const SizedBox(width: 6),
             Text(
               'Toca cualquier palabra para ver el análisis completo',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 11,
                 color: t.textPrimary.withValues(alpha: 0.35),
                 fontStyle: FontStyle.italic,

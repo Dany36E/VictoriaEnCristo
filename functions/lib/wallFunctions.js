@@ -42,6 +42,7 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.banAbuseHash = exports.blockWallAuthor = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
+const limites_1 = require("./limites");
 const adminFirestore = __importStar(require("firebase-admin/firestore"));
 const crypto = __importStar(require("crypto"));
 const db = adminFirestore.getFirestore();
@@ -211,9 +212,7 @@ function moderationMessage(type, action) {
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. CREATE WALL POST
 // ═══════════════════════════════════════════════════════════════════════════
-exports.createWallPost = functions
-    .runWith({ secrets: ["WALL_ABUSE_SALT"] })
-    .region("us-central1")
+exports.createWallPost = (0, limites_1.enRegion)({ secrets: ["WALL_ABUSE_SALT"] })
     .https.onCall(async (data, context) => {
     // Auth check
     if (!context.auth) {
@@ -304,9 +303,7 @@ exports.createWallPost = functions
 // ═══════════════════════════════════════════════════════════════════════════
 // 2. CREATE WALL COMMENT
 // ═══════════════════════════════════════════════════════════════════════════
-exports.createWallComment = functions
-    .runWith({ secrets: ["WALL_ABUSE_SALT"] })
-    .region("us-central1")
+exports.createWallComment = (0, limites_1.enRegion)({ secrets: ["WALL_ABUSE_SALT"] })
     .https.onCall(async (data, context) => {
     var _a;
     if (!context.auth) {
@@ -395,8 +392,7 @@ exports.createWallComment = functions
 // ═══════════════════════════════════════════════════════════════════════════
 // 3. MODERATE CONTENT (admin only)
 // ═══════════════════════════════════════════════════════════════════════════
-exports.moderateContent = functions
-    .region("us-central1")
+exports.moderateContent = (0, limites_1.enRegion)()
     .https.onCall(async (data, context) => {
     var _a, _b;
     if (!context.auth) {
@@ -517,9 +513,7 @@ exports.moderateContent = functions
 // ═══════════════════════════════════════════════════════════════════════════
 // 4. REPORT CONTENT
 // ═══════════════════════════════════════════════════════════════════════════
-exports.reportContent = functions
-    .runWith({ secrets: ["WALL_ABUSE_SALT"] })
-    .region("us-central1")
+exports.reportContent = (0, limites_1.enRegion)({ secrets: ["WALL_ABUSE_SALT"] })
     .https.onCall(async (data, context) => {
     if (!context.auth) {
         throw new functions.https.HttpsError("unauthenticated", "Debes iniciar sesión.");
@@ -589,9 +583,7 @@ exports.reportContent = functions
  * identificadores arbitrarios. El bloqueo se guarda dentro del árbol privado
  * del usuario y se elimina automáticamente al borrar la cuenta.
  */
-exports.blockWallAuthor = functions
-    .runWith({ secrets: ["WALL_ABUSE_SALT"] })
-    .region("us-central1")
+exports.blockWallAuthor = (0, limites_1.enRegion)({ secrets: ["WALL_ABUSE_SALT"] })
     .https.onCall(async (data, context) => {
     var _a, _b;
     if (!context.auth) {
@@ -651,8 +643,7 @@ exports.blockWallAuthor = functions
 // ═══════════════════════════════════════════════════════════════════════════
 // 6. BAN USER (admin only)
 // ═══════════════════════════════════════════════════════════════════════════
-exports.banAbuseHash = functions
-    .region("us-central1")
+exports.banAbuseHash = (0, limites_1.enRegion)()
     .https.onCall(async (data, context) => {
     if (!context.auth) {
         throw new functions.https.HttpsError("unauthenticated", "Debes iniciar sesión.");

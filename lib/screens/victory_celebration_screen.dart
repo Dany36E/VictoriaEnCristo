@@ -7,12 +7,16 @@ library;
 import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/jesus_widget_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/audio_engine.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_theme_data.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
+import '../widgets/escena_racha_papel.dart';
 
 class VictoryCelebrationScreen extends StatefulWidget {
   final int streakDays;
@@ -93,6 +97,9 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
     final message = _getCelebrationMessage();
     final weeklyData = VictoryScoringService.I.getWeeklyStatus();
     final screenHeight = MediaQuery.of(context).size.height;
+    if (AppThemeData.of(context).isPaper) {
+      return _buildPapel(message, weeklyData);
+    }
 
     return Scaffold(
       backgroundColor: Colors.black,
@@ -275,7 +282,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
       child: Text(
         message,
         textAlign: TextAlign.center,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           fontSize: 16,
           fontWeight: FontWeight.w600,
           color: AppDesignSystem.midnightDeep,
@@ -384,7 +391,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
   Widget _buildStreakLabel(Color streakColor) {
     return Text(
       _streak == 1 ? 'día de victoria' : 'días de victoria',
-      style: GoogleFonts.manrope(
+      style: AppFonts.manrope(
         fontSize: 20,
         fontWeight: FontWeight.w700,
         color: streakColor,
@@ -465,7 +472,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           children: [
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 11,
                 fontWeight: isToday ? FontWeight.w800 : FontWeight.w500,
                 color: isToday
@@ -527,12 +534,149 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
           ),
           child: Text(
             'CONTINUAR',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 16,
               fontWeight: FontWeight.w800,
               letterSpacing: 2,
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
+  // TEMA PAPEL — Jesús celebra sobre la escena de la racha
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildPapel(String message, List<Map<String, dynamic>> weeklyData) {
+    const dayLabels = ['L', 'Ma', 'Mi', 'J', 'V', 'S', 'D'];
+    return FondoPapel(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Stack(
+          children: [
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confettiController,
+                blastDirectionality: BlastDirectionality.explosive,
+                particleDrag: 0.05,
+                emissionFrequency: 0.05,
+                numberOfParticles: 25,
+                gravity: 0.08,
+                shouldLoop: false,
+                colors: const [
+                  VecColores.terracota,
+                  VecColores.mostaza,
+                  VecColores.mostazaClaro,
+                  VecColores.verde,
+                  VecColores.azulClaro,
+                ],
+              ),
+            ),
+            SafeArea(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
+                child: Column(
+                  children: [
+                    PopIn(child: Globo(texto: message.replaceAll('\n', ' '))),
+                    const SizedBox(height: 26),
+                    PopIn(
+                      retraso: const Duration(milliseconds: 150),
+                      child: EscenaRachaPapel(
+                        streakDays: _streak,
+                        completedToday: true,
+                        isNewUser: widget.isNewUser,
+                        ancho: 210,
+                        alto: 270,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    AnimatedBuilder(
+                      animation: _numberAnimation,
+                      builder: (context, _) => Letrero(
+                        '${_numberAnimation.value}',
+                        tamano: 88,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    TituloVec(
+                      _streak == 1 ? 'día de victoria' : 'días de victoria',
+                      clave: 'victoria',
+                      tamano: 26,
+                      alineacion: TextAlign.center,
+                    ),
+                    const SizedBox(height: 26),
+                    PopIn(
+                      retraso: const Duration(milliseconds: 400),
+                      child: Container(
+                        padding: const EdgeInsets.fromLTRB(12, 14, 12, 14),
+                        decoration: BoxDecoration(
+                          color: VecColores.papel,
+                          borderRadius: BorderRadius.circular(VecRadios.m),
+                          boxShadow: VecSombras.papel,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: List.generate(7, (i) {
+                            final day = weeklyData[i];
+                            final completed = day['completed'] as bool;
+                            final isToday = day['isToday'] as bool;
+                            final hecho = completed || isToday;
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  dayLabels[i],
+                                  style: TextStyle(
+                                    fontFamily: VecFuentes.titulo,
+                                    fontSize: 14,
+                                    color: isToday
+                                        ? VecColores.terracota
+                                        : VecColores.gris,
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
+                                hecho
+                                    ? CirculoIcono(
+                                        iconoVec: 'palomita',
+                                        color: isToday
+                                            ? VecColores.terracota
+                                            : VecColores.verde,
+                                        tamano: 34,
+                                        giro: isToday ? -6 : 0,
+                                      )
+                                    : Container(
+                                        width: 34,
+                                        height: 34,
+                                        decoration: const BoxDecoration(
+                                          color: VecColores.cremaOscuro,
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                              ],
+                            );
+                          }),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 34),
+                    BotonVec(
+                      texto: 'Continuar',
+                      icono: Icons.arrow_forward_rounded,
+                      color: VecColores.verde,
+                      expandido: true,
+                      onPressed: () {
+                        FeedbackEngine.I.tap();
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

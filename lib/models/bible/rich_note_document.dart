@@ -2,7 +2,28 @@ import 'dart:convert';
 
 import 'study_note_markup.dart';
 
-enum RichNoteFormat { bold, underline, size }
+enum RichNoteFormat { bold, underline, size, italic, strike, highlight, color }
+
+/// Estilos de párrafo, como en Notas: se aplican a la línea completa.
+enum RichNoteParagraphStyle { title, heading, subheading, body }
+
+/// Colores de resaltado y de texto. Se guardan por nombre para que el tema
+/// decida el tono exacto.
+const List<String> richNoteHighlightColors = [
+  'amarillo',
+  'verde',
+  'azul',
+  'rosa',
+  'naranja',
+];
+const List<String> richNoteTextColors = [
+  'terracota',
+  'azul',
+  'verde',
+  'mostaza',
+  'morado',
+  'gris',
+];
 
 /// Estado de formato "efectivo" de una seleccion (o del caret). Lo usa la barra
 /// flotante para reflejar de forma inteligente —como Word— si el texto elegido
@@ -11,41 +32,73 @@ enum RichNoteFormat { bold, underline, size }
 class RichNoteFormatState {
   final bool bold;
   final bool underline;
+  final bool italic;
+  final bool strike;
   final double? fontSize;
+  final String? highlight;
+  final String? color;
 
   const RichNoteFormatState({
     this.bold = false,
     this.underline = false,
+    this.italic = false,
+    this.strike = false,
     this.fontSize,
+    this.highlight,
+    this.color,
   });
+
+  bool has(RichNoteFormat format) => switch (format) {
+    RichNoteFormat.bold => bold,
+    RichNoteFormat.underline => underline,
+    RichNoteFormat.italic => italic,
+    RichNoteFormat.strike => strike,
+    RichNoteFormat.size => fontSize != null,
+    RichNoteFormat.highlight => highlight != null,
+    RichNoteFormat.color => color != null,
+  };
 }
 
 class RichNoteTextSegment {
   final String text;
   final bool bold;
   final bool underline;
+  final bool italic;
+  final bool strike;
   final double? fontSize;
+  final String? highlight;
+  final String? color;
 
   const RichNoteTextSegment({
     required this.text,
     this.bold = false,
     this.underline = false,
+    this.italic = false,
+    this.strike = false,
     this.fontSize,
+    this.highlight,
+    this.color,
   });
 
-  RichNoteTextSegment copyWith({
-    String? text,
-    bool? bold,
-    bool? underline,
-    double? fontSize,
-  }) {
-    return RichNoteTextSegment(
-      text: text ?? this.text,
-      bold: bold ?? this.bold,
-      underline: underline ?? this.underline,
-      fontSize: fontSize ?? this.fontSize,
-    );
-  }
+  bool sameStyle(RichNoteTextSegment o) =>
+      bold == o.bold &&
+      underline == o.underline &&
+      italic == o.italic &&
+      strike == o.strike &&
+      fontSize == o.fontSize &&
+      highlight == o.highlight &&
+      color == o.color;
+
+  RichNoteTextSegment copyWith({String? text}) => RichNoteTextSegment(
+    text: text ?? this.text,
+    bold: bold,
+    underline: underline,
+    italic: italic,
+    strike: strike,
+    fontSize: fontSize,
+    highlight: highlight,
+    color: color,
+  );
 }
 
 class RichNoteSpan {
@@ -53,23 +106,50 @@ class RichNoteSpan {
   final int end;
   final bool bold;
   final bool underline;
+  final bool italic;
+  final bool strike;
   final double? fontSize;
+  final String? highlight;
+  final String? color;
 
   const RichNoteSpan({
     required this.start,
     required this.end,
     this.bold = false,
     this.underline = false,
+    this.italic = false,
+    this.strike = false,
     this.fontSize,
+    this.highlight,
+    this.color,
   });
 
-  bool get hasFormatting => bold || underline || fontSize != null;
+  bool get hasFormatting =>
+      bold ||
+      underline ||
+      italic ||
+      strike ||
+      fontSize != null ||
+      highlight != null ||
+      color != null;
+
+  bool has(RichNoteFormat format) => switch (format) {
+    RichNoteFormat.bold => bold,
+    RichNoteFormat.underline => underline,
+    RichNoteFormat.italic => italic,
+    RichNoteFormat.strike => strike,
+    RichNoteFormat.size => fontSize != null,
+    RichNoteFormat.highlight => highlight != null,
+    RichNoteFormat.color => color != null,
+  };
 
   RichNoteSpan copyWith({
     int? start,
     int? end,
     bool? bold,
     bool? underline,
+    bool? italic,
+    bool? strike,
     double? fontSize,
   }) {
     return RichNoteSpan(
@@ -77,16 +157,37 @@ class RichNoteSpan {
       end: end ?? this.end,
       bold: bold ?? this.bold,
       underline: underline ?? this.underline,
+      italic: italic ?? this.italic,
+      strike: strike ?? this.strike,
       fontSize: fontSize ?? this.fontSize,
+      highlight: highlight,
+      color: color,
     );
   }
+
+  /// La misma porción sin [format].
+  RichNoteSpan without(RichNoteFormat format) => RichNoteSpan(
+    start: start,
+    end: end,
+    bold: format == RichNoteFormat.bold ? false : bold,
+    underline: format == RichNoteFormat.underline ? false : underline,
+    italic: format == RichNoteFormat.italic ? false : italic,
+    strike: format == RichNoteFormat.strike ? false : strike,
+    fontSize: format == RichNoteFormat.size ? null : fontSize,
+    highlight: format == RichNoteFormat.highlight ? null : highlight,
+    color: format == RichNoteFormat.color ? null : color,
+  );
 
   Map<String, dynamic> toMap() => {
     'start': start,
     'end': end,
     if (bold) 'bold': true,
     if (underline) 'underline': true,
+    if (italic) 'italic': true,
+    if (strike) 'strike': true,
     if (fontSize != null) 'fontSize': fontSize,
+    if (highlight != null) 'highlight': highlight,
+    if (color != null) 'color': color,
   };
 
   factory RichNoteSpan.fromMap(Map<String, dynamic> map) {
@@ -95,7 +196,15 @@ class RichNoteSpan {
       end: _asInt(map['end']),
       bold: map['bold'] == true,
       underline: map['underline'] == true,
+      italic: map['italic'] == true,
+      strike: map['strike'] == true,
       fontSize: (map['fontSize'] as num?)?.toDouble(),
+      highlight: richNoteHighlightColors.contains(map['highlight'])
+          ? map['highlight'] as String
+          : null,
+      color: richNoteTextColors.contains(map['color'])
+          ? map['color'] as String
+          : null,
     );
   }
 }
@@ -175,29 +284,101 @@ class RichNoteDocument {
     );
   }
 
+  /// Aplica un formato al rango, como en Notas:
+  /// - negrita, cursiva, subrayado y tachado se alternan (si todo el rango ya
+  ///   lo tiene, se quita);
+  /// - tamaño, resaltado y color se reemplazan; con valor null se quitan.
   RichNoteDocument applyFormat(
     int start,
     int end,
     RichNoteFormat format, {
     double? fontSize,
+    String? value,
   }) {
     final lo = start.clamp(0, text.length);
     final hi = end.clamp(lo, text.length);
     if (lo == hi) return this;
+    final cleared = _clearInRange(lo, hi, format);
+    final RichNoteSpan? added = switch (format) {
+      RichNoteFormat.bold ||
+      RichNoteFormat.underline ||
+      RichNoteFormat.italic ||
+      RichNoteFormat.strike => formatIn(lo, hi).has(format)
+          ? null
+          : RichNoteSpan(
+              start: lo,
+              end: hi,
+              bold: format == RichNoteFormat.bold,
+              underline: format == RichNoteFormat.underline,
+              italic: format == RichNoteFormat.italic,
+              strike: format == RichNoteFormat.strike,
+            ),
+      RichNoteFormat.size =>
+        fontSize == null
+            ? null
+            : RichNoteSpan(
+                start: lo,
+                end: hi,
+                fontSize: fontSize.clamp(10, 28).toDouble(),
+              ),
+      RichNoteFormat.highlight =>
+        value == null ? null : RichNoteSpan(start: lo, end: hi, highlight: value),
+      RichNoteFormat.color =>
+        value == null ? null : RichNoteSpan(start: lo, end: hi, color: value),
+    };
+    return copyWith(spans: [...cleared, ?added]);
+  }
+
+  /// Estilo de párrafo sobre las líneas completas que toca el rango.
+  RichNoteDocument applyParagraphStyle(
+    int start,
+    int end,
+    RichNoteParagraphStyle style,
+  ) {
+    if (text.isEmpty) return this;
+    final inicio = start.clamp(0, text.length);
+    final from = inicio == 0 ? 0 : text.lastIndexOf('\n', inicio - 1) + 1;
+    final next = text.indexOf('\n', end.clamp(inicio, text.length));
+    final hi = next == -1 ? text.length : next;
+    if (from >= hi) return this;
+    var spans = _clearInRange(from, hi, RichNoteFormat.size);
+    spans = RichNoteDocument(text: text, spans: spans)
+        ._clearInRange(from, hi, RichNoteFormat.bold);
+    final size = switch (style) {
+      RichNoteParagraphStyle.title => 24.0,
+      RichNoteParagraphStyle.heading => 20.0,
+      RichNoteParagraphStyle.subheading => 17.0,
+      RichNoteParagraphStyle.body => null,
+    };
     return copyWith(
       spans: [
         ...spans,
-        RichNoteSpan(
-          start: lo,
-          end: hi,
-          bold: format == RichNoteFormat.bold,
-          underline: format == RichNoteFormat.underline,
-          fontSize: format == RichNoteFormat.size
-              ? (fontSize ?? 16).clamp(10, 28).toDouble()
-              : null,
-        ),
+        if (size != null)
+          RichNoteSpan(start: from, end: hi, bold: true, fontSize: size),
       ],
     );
+  }
+
+  /// Spans sin [format] dentro de [lo, hi); fuera del rango no cambian.
+  List<RichNoteSpan> _clearInRange(int lo, int hi, RichNoteFormat format) {
+    final out = <RichNoteSpan>[];
+    for (final span in spans) {
+      if (!span.has(format) || span.end <= lo || span.start >= hi) {
+        out.add(span);
+        continue;
+      }
+      if (span.start < lo) out.add(span.copyWith(end: lo));
+      out.add(
+        span
+            .without(format)
+            .copyWith(
+              start: span.start < lo ? lo : span.start,
+              end: span.end > hi ? hi : span.end,
+            ),
+      );
+      if (span.end > hi) out.add(span.copyWith(start: hi));
+    }
+    return out;
   }
 
   RichNoteDocument replaceText(String newText) {
@@ -221,9 +402,9 @@ class RichNoteDocument {
 
   /// Formato efectivo de un rango. Si el rango es un caret (colapsado) hereda
   /// el formato del caracter a la izquierda, tal como el cursor de Word toma el
-  /// estilo del texto que le precede. Para una seleccion real, negrita/subrayado
-  /// solo se consideran activos si el rango entero los tiene, y el tamaño solo
-  /// se reporta si es uniforme (si mezcla tamaños devuelve null).
+  /// estilo del texto que le precede. Para una seleccion real, los formatos
+  /// solo se consideran activos si el rango entero los tiene, y el tamaño,
+  /// el resaltado y el color solo se reportan si son uniformes.
   RichNoteFormatState formatIn(int start, int end) {
     if (text.isEmpty) return const RichNoteFormatState();
     final lo = start.clamp(0, text.length);
@@ -232,44 +413,55 @@ class RichNoteDocument {
       if (lo == 0) return const RichNoteFormatState();
       return _effectiveAt(lo - 1);
     }
-    var allBold = true;
-    var allUnderline = true;
-    double? uniformSize;
-    var sizeUniform = true;
-    var first = true;
-    for (var pos = lo; pos < hi; pos++) {
+    final first = _effectiveAt(lo);
+    var bold = first.bold, underline = first.underline;
+    var italic = first.italic, strike = first.strike;
+    double? size = first.fontSize;
+    String? highlight = first.highlight, color = first.color;
+    for (var pos = lo + 1; pos < hi; pos++) {
       final f = _effectiveAt(pos);
-      allBold = allBold && f.bold;
-      allUnderline = allUnderline && f.underline;
-      if (first) {
-        uniformSize = f.fontSize;
-        first = false;
-      } else if (f.fontSize != uniformSize) {
-        sizeUniform = false;
-      }
+      bold = bold && f.bold;
+      underline = underline && f.underline;
+      italic = italic && f.italic;
+      strike = strike && f.strike;
+      if (f.fontSize != size) size = null;
+      if (f.highlight != highlight) highlight = null;
+      if (f.color != color) color = null;
     }
     return RichNoteFormatState(
-      bold: allBold,
-      underline: allUnderline,
-      fontSize: sizeUniform ? uniformSize : null,
+      bold: bold,
+      underline: underline,
+      italic: italic,
+      strike: strike,
+      fontSize: size,
+      highlight: highlight,
+      color: color,
     );
   }
 
   RichNoteFormatState _effectiveAt(int pos) {
-    var bold = false;
-    var underline = false;
+    var bold = false, underline = false, italic = false, strike = false;
     double? fontSize;
+    String? highlight, color;
     for (final span in spans) {
       if (pos >= span.start && pos < span.end) {
         bold = bold || span.bold;
         underline = underline || span.underline;
+        italic = italic || span.italic;
+        strike = strike || span.strike;
         if (span.fontSize != null) fontSize = span.fontSize;
+        if (span.highlight != null) highlight = span.highlight;
+        if (span.color != null) color = span.color;
       }
     }
     return RichNoteFormatState(
       bold: bold,
       underline: underline,
+      italic: italic,
+      strike: strike,
       fontSize: fontSize,
+      highlight: highlight,
+      color: color,
     );
   }
 
@@ -286,34 +478,24 @@ class RichNoteDocument {
       final start = points[index];
       final end = points[index + 1];
       if (start >= end) continue;
-      var bold = false;
-      var underline = false;
-      double? fontSize;
-      for (final span in spans) {
-        if (start >= span.start && end <= span.end) {
-          bold = bold || span.bold;
-          underline = underline || span.underline;
-          if (span.fontSize != null) fontSize = span.fontSize;
-        }
-      }
+      final f = _effectiveAt(start);
       final piece = text.substring(start, end);
       if (piece.isEmpty) continue;
       final nextSegment = RichNoteTextSegment(
         text: piece,
-        bold: bold,
-        underline: underline,
-        fontSize: fontSize,
+        bold: f.bold,
+        underline: f.underline,
+        italic: f.italic,
+        strike: f.strike,
+        fontSize: f.fontSize,
+        highlight: f.highlight,
+        color: f.color,
       );
-      if (segments.isNotEmpty) {
-        final last = segments.last;
-        if (last.bold == nextSegment.bold &&
-            last.underline == nextSegment.underline &&
-            last.fontSize == nextSegment.fontSize) {
-          segments[segments.length - 1] = last.copyWith(
-            text: last.text + piece,
-          );
-          continue;
-        }
+      if (segments.isNotEmpty && segments.last.sameStyle(nextSegment)) {
+        segments[segments.length - 1] = segments.last.copyWith(
+          text: segments.last.text + piece,
+        );
+        continue;
       }
       segments.add(nextSegment);
     }

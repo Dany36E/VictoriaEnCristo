@@ -19,8 +19,15 @@
 
 import * as adminFirestore from "firebase-admin/firestore";
 import * as functions from "firebase-functions/v1";
+import {enRegion} from "./limites";
 import * as crypto from "crypto";
-import {publicNameFor, assertActivePartners, pushToUser} from "./battlePartnerFunctions";
+import {
+  publicNameFor,
+  assertActivePartners,
+  pushToUser,
+  consumeDailyLimit,
+  utcDayKey,
+} from "./battlePartnerFunctions";
 
 const db = () => adminFirestore.getFirestore();
 const pinPattern = /^\d{4,8}$/;
@@ -58,8 +65,7 @@ function hashPin(pin: string, saltHex: string): string {
 // ─────────────────────────────────────────────────────────────────────────────
 // 1. requestGuardianLock — P pide a un compañero (G) que sea su guardián.
 // ─────────────────────────────────────────────────────────────────────────────
-export const requestGuardianLock = functions
-  .region("us-central1")
+export const requestGuardianLock = enRegion()
   .https.onCall(async (data, context) => {
     const protegeUid = requireAuth(context);
     const guardianUid = typeof data?.guardianUid === "string" ? data.guardianUid : "";
@@ -67,6 +73,8 @@ export const requestGuardianLock = functions
       throw new functions.https.HttpsError("invalid-argument", "Compañero inválido.");
     }
     await assertActivePartners(protegeUid, guardianUid);
+    // Cada solicitud manda una notificación al compañero: máximo 5 al día.
+    await consumeDailyLimit(`guardian_${protegeUid}_${utcDayKey()}`, 5);
 
     const existing = await lockRef(protegeUid).get();
     if (existing.exists && existing.data()?.active === true) {
@@ -118,8 +126,7 @@ export const requestGuardianLock = functions
 // ─────────────────────────────────────────────────────────────────────────────
 // 2. setGuardianPin — G define (o cambia) el PIN del protegido.
 // ─────────────────────────────────────────────────────────────────────────────
-export const setGuardianPin = functions
-  .region("us-central1")
+export const setGuardianPin = enRegion()
   .https.onCall(async (data, context) => {
     const guardianUid = requireAuth(context);
     const protegeUid = typeof data?.protegeUid === "string" ? data.protegeUid : "";
@@ -189,8 +196,7 @@ export const setGuardianPin = functions
 // ─────────────────────────────────────────────────────────────────────────────
 // 3. verifyGuardianPin — P intenta desbloquear. Verificación + rate-limit server.
 // ─────────────────────────────────────────────────────────────────────────────
-export const verifyGuardianPin = functions
-  .region("us-central1")
+export const verifyGuardianPin = enRegion()
   .https.onCall(async (data, context) => {
     const protegeUid = requireAuth(context);
     const pin = typeof data?.pin === "string" ? data.pin : "";
@@ -227,8 +233,7 @@ export const verifyGuardianPin = functions
 // ─────────────────────────────────────────────────────────────────────────────
 // 4. removeGuardianPin — G quita el candado (sin PIN); P puede quitarlo con PIN.
 // ─────────────────────────────────────────────────────────────────────────────
-export const removeGuardianPin = functions
-  .region("us-central1")
+export const removeGuardianPin = enRegion()
   .https.onCall(async (data, context) => {
     const callerUid = requireAuth(context);
     const protegeUid = typeof data?.protegeUid === "string" ? data.protegeUid : "";

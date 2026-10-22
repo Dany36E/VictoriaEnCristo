@@ -16,7 +16,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'access_matrix_test.dart' show platformFor;
-import 'series_matrix_test.dart' show profiles;
+import 'viewport_profiles.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

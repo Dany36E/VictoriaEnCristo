@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../models/plan.dart';
@@ -1017,7 +1017,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               const SizedBox(height: 24),
               Text(
                 '¡PLAN COMPLETADO!',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: const Color(0xFFD4AF37),
                   fontSize: 20,
                   fontWeight: FontWeight.w700,
@@ -1028,7 +1028,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               Text(
                 widget.plan.title,
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: td.textPrimary,
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -1037,7 +1037,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
               const SizedBox(height: 8),
               Text(
                 '${widget.plan.durationDays} días completados',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: td.textSecondary,
                   fontSize: 13,
                 ),
@@ -1060,7 +1060,7 @@ class _PlanReaderScreenState extends State<PlanReaderScreen>
                   ),
                   child: Text(
                     'Continuar',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontWeight: FontWeight.w600,
                       fontSize: 15,
                     ),

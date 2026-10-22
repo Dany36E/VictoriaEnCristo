@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../../theme/app_theme.dart';
 import '../../services/onboarding_service.dart';
@@ -143,7 +143,7 @@ class _IntensityScreenState extends State<IntensityScreen>
         SnackBar(
           content: Text(
             'Selecciona una frecuencia',
-            style: GoogleFonts.manrope(fontWeight: FontWeight.w500),
+            style: AppFonts.manrope(fontWeight: FontWeight.w500),
           ),
           backgroundColor: AppDesignSystem.midnightLight,
           behavior: SnackBarBehavior.floating,
@@ -329,7 +329,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                     SnackBar(
                       content: Text(
                         'No se pudo cargar la música',
-                        style: GoogleFonts.manrope(fontWeight: FontWeight.w500),
+                        style: AppFonts.manrope(fontWeight: FontWeight.w500),
                       ),
                       backgroundColor: Colors.red.shade700,
                       behavior: SnackBarBehavior.floating,
@@ -386,7 +386,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                 ),
                 child: Text(
                   'Paso 2 de 2',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
                     color: AppDesignSystem.gold,
@@ -427,7 +427,7 @@ class _IntensityScreenState extends State<IntensityScreen>
             child: Text(
               '¿CON QUÉ FRECUENCIA?',
               textAlign: TextAlign.center,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 fontSize: 26,
                 fontWeight: FontWeight.w700,
                 color: Colors.white,
@@ -441,7 +441,7 @@ class _IntensityScreenState extends State<IntensityScreen>
           Text(
             '¿Qué tan seguido enfrentas esta batalla?\nEsto nos ayuda a personalizar tu plan.',
             textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 15,
               fontWeight: FontWeight.w400,
               color: AppDesignSystem.pureWhite.withValues(alpha: 0.75),
@@ -533,7 +533,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                 children: [
                   Text(
                     intensity['label'],
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       fontSize: 15,
                       fontWeight: FontWeight.w700,
                       color: isSelected
@@ -545,7 +545,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                   const SizedBox(height: 4),
                   Text(
                     intensity['subtitle'],
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 13,
                       fontWeight: FontWeight.w400,
                       color: isSelected
@@ -628,7 +628,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                   const SizedBox(width: 10),
                   Text(
                     '¡PREPARAR MI ARSENAL!',
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
                       color: hasSelection
@@ -725,7 +725,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                         child: Text(
                           '¡TU ARSENAL\nESTÁ LISTO!',
                           textAlign: TextAlign.center,
-                          style: GoogleFonts.cinzel(
+                          style: AppFonts.cinzel(
                             fontSize: 32,
                             fontWeight: FontWeight.w700,
                             color: Colors.white,
@@ -744,7 +744,7 @@ class _IntensityScreenState extends State<IntensityScreen>
                       child: Text(
                         'Hemos preparado tu plan de batalla\npersonalizado.',
                         textAlign: TextAlign.center,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontSize: 16,
                           fontWeight: FontWeight.w400,
                           color: AppDesignSystem.pureWhite.withValues(alpha: 0.8),

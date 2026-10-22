@@ -14,6 +14,7 @@ import '../../services/feedback_engine.dart';
 import '../../services/learning/verse_memory_service.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../theme/contraste.dart';
 import 'verse_study_screen.dart';
 
 class ArmoryDeckScreen extends StatefulWidget {
@@ -118,7 +119,7 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -138,7 +139,7 @@ class _ArmoryDeckScreenState extends State<ArmoryDeckScreen> {
                   icon: const Icon(Icons.menu_book_rounded, size: 18),
                   label: Text(v.shortName),
                   style: TextButton.styleFrom(
-                    foregroundColor: AppDesignSystem.gold,
+                    foregroundColor: AppDesignSystem.oroTexto(context),
                     textStyle: AppDesignSystem.labelLarge(context),
                   ),
                 ),
@@ -250,6 +251,8 @@ class _SectionTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // La barrita conserva el color; el texto, ajustado para leerse.
+    final tinta = legibleSobre(color, AppThemeData.of(context).fondoVisible);
     return Padding(
       padding: const EdgeInsets.only(
         left: 4,
@@ -262,15 +265,12 @@ class _SectionTitle extends StatelessWidget {
           const SizedBox(width: 8),
           Text(
             label.toUpperCase(),
-            style: AppDesignSystem.labelMedium(context, color: color),
+            style: AppDesignSystem.labelMedium(context, color: tinta),
           ),
           const SizedBox(width: 6),
           Text(
             '($count)',
-            style: AppDesignSystem.labelMedium(
-              context,
-              color: color.withValues(alpha: 0.7),
-            ),
+            style: AppDesignSystem.labelMedium(context, color: tinta),
           ),
         ],
       ),

@@ -19,4 +19,12 @@
     <!-- Jesus Streak Widget -->
     <string name="jesus_widget_name">Victoria en Cristo</string>
     <string name="jesus_widget_description">Tu racha de victorias diarias con Jesús</string>
+
+    <!-- Atajos: widget y accesos del ícono de la app -->
+    <string name="atajos_widget_name">Atajos</string>
+    <string name="atajos_widget_description">Abre tus atajos de la app: Biblia, estudio, apuntes y más</string>
+    <string name="atajo_biblia_corto">Biblia</string>
+    <string name="atajo_estudio_corto">Estudio</string>
+    <string name="atajo_apuntes_corto">Apuntes</string>
+    <string name="atajo_abrir">Abrir %1$s</string>
 </resources>

@@ -40,7 +40,7 @@ class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
     final t = AppThemeData.of(context);
     final lessons = TimelineRepository.I.all;
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -149,8 +149,8 @@ class _TimelineLessonsScreenState extends State<TimelineLessonsScreen> {
       ),
       child: Text(
         text,
-        style: const TextStyle(
-          color: AppDesignSystem.gold,
+        style: TextStyle(
+          color: AppDesignSystem.oroTexto(context, pastilla: 0.12),
           fontSize: 12,
           fontWeight: FontWeight.w600,
         ),

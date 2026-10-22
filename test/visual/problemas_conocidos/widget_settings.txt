@@ -1,33 +1,9 @@
 # Problemas visuales que ya existían en "widget_settings". No agregues
 # líneas a mano: corrige el problema. Se regenera con
 # ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-charcoal: "Filipenses 4:13" contraste < 4.5
-charcoal: "RECORDATORIO · 2×2" contraste < 4.5
-charcoal: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5
-clean_page: "Filipenses 4:13" contraste < 4.5
-clean_page: "RECORDATORIO · 2×2" contraste < 4.5
-clean_page: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5
 clean_page: "👁️ Vista Previa" contraste < 3.0
-grey_editorial: "Filipenses 4:13" contraste < 4.5
-grey_editorial: "RECORDATORIO · 2×2" contraste < 4.5
-grey_editorial: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5
 grey_editorial: "👁️ Vista Previa" contraste < 3.0
-lavender: "Filipenses 4:13" contraste < 4.5
-lavender: "RECORDATORIO · 2×2" contraste < 4.5
-lavender: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5
 lavender: "👁️ Vista Previa" contraste < 3.0
-mint: "Filipenses 4:13" contraste < 4.5
-mint: "RECORDATORIO · 2×2" contraste < 4.5
-mint: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5
 mint: "👁️ Vista Previa" contraste < 3.0
-parchment: "Filipenses 4:13" contraste < 4.5
-parchment: "RECORDATORIO · 2×2" contraste < 4.5
-parchment: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5
 parchment: "👁️ Vista Previa" contraste < 3.0
-peach: "Filipenses 4:13" contraste < 4.5
-peach: "RECORDATORIO · 2×2" contraste < 4.5
-peach: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5
 peach: "👁️ Vista Previa" contraste < 3.0
-sepia_night: "Filipenses 4:13" contraste < 4.5
-sepia_night: "RECORDATORIO · 2×2" contraste < 4.5
-sepia_night: "VERSÍCULO DEL DÍA · 4×2" contraste < 4.5

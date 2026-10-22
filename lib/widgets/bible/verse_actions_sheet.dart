@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/share_template.dart';
@@ -59,6 +59,10 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
   BibleUserDataService get _data => BibleUserDataService.I;
   BibleReaderThemeData get _t => widget.theme;
 
+  /// Con el tema papel, las plantillas de papel van primero.
+  List<ShareCardTemplate> get _plantillas =>
+      plantillasCompartir(papel: _t.id == BibleReaderThemeData.paper.id);
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -108,7 +112,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
       children: [
         Text(
           '${widget.verse.reference} (${widget.verse.version})'.toUpperCase(),
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 10,
             color: _t.accent,
             fontWeight: FontWeight.w700,
@@ -118,7 +122,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         const SizedBox(height: 4),
         Text(
           widget.verse.text,
-          style: GoogleFonts.crimsonPro(
+          style: AppFonts.crimsonPro(
             fontSize: 14,
             color: _t.textPrimary.withValues(alpha: 0.85),
             fontStyle: FontStyle.italic,
@@ -190,7 +194,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               },
               child: Text(
                 'Ver todas →',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 10,
                   color: _t.accent,
                   fontWeight: FontWeight.w600,
@@ -205,7 +209,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: kShareTemplates.length,
+          itemCount: _plantillas.length,
           itemBuilder: (_, i) => _buildTemplateThumbnail(i),
         ),
       ),
@@ -213,7 +217,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         padding: const EdgeInsets.fromLTRB(20, 6, 20, 0),
         child: Text(
           'Toca para compartir  ·  Mantén para editar',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             fontSize: 9,
             color: _t.textSecondary.withValues(alpha: 0.35),
           ),
@@ -223,7 +227,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
   );
 
   Widget _buildTemplateThumbnail(int index) {
-    final template = kShareTemplates[index];
+    final template = _plantillas[index];
     return GestureDetector(
       onTap: () => _shareWithTemplate(template),
       onLongPress: () {
@@ -292,7 +296,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
                 right: 4,
                 child: Text(
                   template.name,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 8,
                     color: Colors.white,
                     fontWeight: FontWeight.w600,
@@ -331,7 +335,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
       }
 
       // Sin caché → abrir TemplatePickerScreen con plantilla preseleccionada
-      final idx = kShareTemplates.indexOf(template);
+      final idx = _plantillas.indexOf(template);
       Navigator.pop(context);
       Navigator.push(
         context,
@@ -391,7 +395,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               const SizedBox(height: 3),
               Text(
                 label,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 9,
                   color: _t.accent,
                   fontWeight: FontWeight.w600,
@@ -537,7 +541,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               const SizedBox(height: 3),
               Text(
                 label,
-                style: GoogleFonts.manrope(fontSize: 9, color: c),
+                style: AppFonts.manrope(fontSize: 9, color: c),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -551,7 +555,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
   // ── Helpers ──
   Widget _sectionLabel(String text) => Text(
     text,
-    style: GoogleFonts.manrope(
+    style: AppFonts.manrope(
       fontSize: 9,
       color: _t.textSecondary.withValues(alpha: 0.5),
       fontWeight: FontWeight.w700,

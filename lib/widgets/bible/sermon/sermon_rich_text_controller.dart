@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../models/bible/colores_nota.dart';
+import '../../../models/bible/etiquetas_nota.dart';
+import '../../../models/bible/listas_nota.dart';
 import '../../../models/bible/rich_note_document.dart';
+import '../../../vec/vec_tema.dart';
 
 class NoteDecorationRange {
   final int start;
@@ -29,6 +33,12 @@ class SermonRichTextController extends TextEditingController {
   final List<_RichNoteSnapshot> _undoStack = <_RichNoteSnapshot>[];
   final List<_RichNoteSnapshot> _redoStack = <_RichNoteSnapshot>[];
 
+  /// Color de viñetas, números y casillas de tareas.
+  Color colorMarcas = VecColores.terracota;
+
+  /// El fondo es oscuro: los colores de texto usan su variante clara.
+  bool fondoOscuro = false;
+
   RichNoteDocument get document => _document;
   bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
@@ -48,8 +58,8 @@ class SermonRichTextController extends TextEditingController {
     notifyListeners();
   }
 
-  void applyFormat(RichNoteFormat format, {double? fontSize}) {
-    final selection = value.selection;
+  void applyFormat(RichNoteFormat format, {double? fontSize, String? value}) {
+    final selection = this.value.selection;
     if (!selection.isValid || selection.isCollapsed) return;
     _pushUndoState();
     _document = _document.applyFormat(
@@ -57,7 +67,43 @@ class SermonRichTextController extends TextEditingController {
       selection.end,
       format,
       fontSize: fontSize,
+      value: value,
     );
+    notifyListeners();
+  }
+
+  /// Título, encabezado, subencabezado o cuerpo para las líneas del cursor.
+  void applyParagraphStyle(RichNoteParagraphStyle style) {
+    final selection = value.selection;
+    if (!selection.isValid) return;
+    _pushUndoState();
+    _document = _document.applyParagraphStyle(
+      selection.start,
+      selection.end,
+      style,
+    );
+    notifyListeners();
+  }
+
+  /// Aplica varias ediciones de texto (listas, tareas) como un solo paso de
+  /// deshacer, ajustando el formato de cada una por separado.
+  void aplicarEdiciones(ResultadoEdicion resultado) {
+    if (resultado.ediciones.isEmpty) return;
+    _pushUndoState();
+    var texto = text;
+    for (final e in resultado.ediciones) {
+      texto = texto.replaceRange(e.inicio, e.fin, e.texto);
+      _document = _document.replaceText(texto);
+    }
+    _updatingProgrammatically = true;
+    super.value = TextEditingValue(
+      text: texto,
+      selection: TextSelection.collapsed(
+        offset: resultado.cursor.clamp(0, texto.length),
+      ),
+    );
+    _updatingProgrammatically = false;
+    _redoStack.clear();
     notifyListeners();
   }
 
@@ -142,87 +188,171 @@ class SermonRichTextController extends TextEditingController {
       return TextSpan(style: style, text: text);
     }
 
+    // Marcas de lista al inicio de cada línea y líneas de tareas hechas.
+    final marcas = <NoteDecorationRange>[];
+    final hechas = <NoteDecorationRange>[];
+    var inicio = 0;
+    while (inicio <= text.length) {
+      final fin = finDeLinea(text, inicio);
+      final lista = listaEn(text, inicio);
+      if (lista != null) {
+        marcas.add(NoteDecorationRange(start: inicio, end: inicio + lista.largo));
+        if (lista.hecha && fin > inicio + lista.largo) {
+          hechas.add(NoteDecorationRange(start: inicio + lista.largo, end: fin));
+        }
+      }
+      if (fin >= text.length) break;
+      inicio = fin + 1;
+    }
+
+    // #etiquetas en color, como en Notas de Apple.
+    final etiquetas = [
+      for (final (a, b) in rangosEtiquetas(text))
+        NoteDecorationRange(start: a, end: b),
+    ];
+
     final breakpoints = <int>{0, text.length};
+    void agregar(int a, int b) {
+      breakpoints.add(a.clamp(0, text.length));
+      breakpoints.add(b.clamp(0, text.length));
+    }
+
     for (final span in _document.spans) {
-      breakpoints.add(span.start.clamp(0, text.length));
-      breakpoints.add(span.end.clamp(0, text.length));
+      agregar(span.start, span.end);
     }
     for (final suggestion in _spellSuggestions) {
-      breakpoints.add(suggestion.range.start.clamp(0, text.length));
-      breakpoints.add(suggestion.range.end.clamp(0, text.length));
+      agregar(suggestion.range.start, suggestion.range.end);
     }
-    for (final reference in _referenceRanges) {
-      breakpoints.add(reference.start.clamp(0, text.length));
-      breakpoints.add(reference.end.clamp(0, text.length));
+    for (final r in [..._referenceRanges, ...marcas, ...hechas, ...etiquetas]) {
+      agregar(r.start, r.end);
     }
     if (withComposing && value.composing.isValid) {
-      breakpoints.add(value.composing.start.clamp(0, text.length));
-      breakpoints.add(value.composing.end.clamp(0, text.length));
+      agregar(value.composing.start, value.composing.end);
     }
+
+    bool dentro(List<NoteDecorationRange> rangos, int a, int b) =>
+        rangos.any((r) => a >= r.start && b <= r.end);
 
     final points = breakpoints.toList()..sort();
     final children = <InlineSpan>[];
+    final colores = fondoOscuro ? coloresTextoOscuro : coloresTextoClaro;
 
     for (var index = 0; index < points.length - 1; index++) {
       final start = points[index];
       final end = points[index + 1];
       if (start >= end) continue;
 
-      var bold = false;
-      var underline = false;
-      double? fontSize;
-      for (final span in _document.spans) {
-        if (start >= span.start && end <= span.end) {
-          bold = bold || span.bold;
-          underline = underline || span.underline;
-          if (span.fontSize != null) fontSize = span.fontSize;
-        }
-      }
-
+      final f = _document.formatIn(start, end);
       final isMisspelled = _spellSuggestions.any(
         (suggestion) =>
             start >= suggestion.range.start && end <= suggestion.range.end,
       );
-      final isReference = _referenceRanges.any(
-        (reference) => start >= reference.start && end <= reference.end,
-      );
+      final isReference = dentro(_referenceRanges, start, end);
+      final isMarca = dentro(marcas, start, end);
+      final isHecha = dentro(hechas, start, end);
+      final isEtiqueta = dentro(etiquetas, start, end);
       final isComposing =
           withComposing &&
           value.composing.isValid &&
           start >= value.composing.start &&
           end <= value.composing.end;
 
-      TextDecoration? decoration;
+      final decorations = <TextDecoration>[];
       TextDecorationStyle? decorationStyle;
       Color? decorationColor;
       if (isMisspelled) {
-        decoration = TextDecoration.underline;
+        decorations.add(TextDecoration.underline);
         decorationStyle = TextDecorationStyle.wavy;
         decorationColor = const Color(0xFFD64045);
       } else if (isReference) {
-        decoration = TextDecoration.underline;
-        decorationStyle = TextDecorationStyle.solid;
+        decorations.add(TextDecoration.underline);
         decorationColor = const Color(0xFFC78D1B);
-      } else if (underline) {
-        decoration = TextDecoration.underline;
-      } else if (isComposing) {
-        decoration = TextDecoration.underline;
+      } else if (f.underline || isComposing) {
+        decorations.add(TextDecoration.underline);
+      }
+      if (f.strike || isHecha) decorations.add(TextDecoration.lineThrough);
+
+      final baseColor = style?.color;
+      Color? color = f.color != null && colores[f.color] != null
+          ? Color(colores[f.color]!)
+          : null;
+      if (isMarca || (isEtiqueta && color == null)) color = colorMarcas;
+      if (isHecha) color = (baseColor ?? VecColores.gris).withValues(alpha: 0.55);
+      final highlight = f.highlight == null ? null : coloresResaltado[f.highlight];
+
+      final estilo = style?.copyWith(
+        fontSize: f.fontSize,
+        fontWeight: f.bold || isMarca
+            ? FontWeight.w800
+            : isEtiqueta
+            ? FontWeight.w600
+            : style.fontWeight,
+        fontStyle: f.italic ? FontStyle.italic : style.fontStyle,
+        color: color,
+        backgroundColor: highlight == null ? null : Color(highlight),
+        decoration: decorations.isEmpty
+            ? TextDecoration.none
+            : TextDecoration.combine(decorations),
+        decorationStyle: decorationStyle,
+        decorationColor: decorationColor,
+      );
+      final trozo = text.substring(start, end);
+      final casilla = isMarca ? _indiceCasilla(trozo) : -1;
+      if (casilla >= 0) {
+        // La casilla ocupa el mismo carácter que «☐»/«☑», así que el cursor
+        // y la selección no cambian; solo se dibuja igual en todo teléfono.
+        if (casilla > 0) {
+          children.add(TextSpan(text: trozo.substring(0, casilla), style: estilo));
+        }
+        children.add(
+          _casillaTarea(
+            hecha: trozo[casilla] == tareaHecha[0],
+            tamano: (f.fontSize ?? style?.fontSize ?? 15),
+            style: estilo,
+          ),
+        );
+        if (casilla + 1 < trozo.length) {
+          children.add(TextSpan(text: trozo.substring(casilla + 1), style: estilo));
+        }
+        continue;
       }
 
-      children.add(
-        TextSpan(
-          text: text.substring(start, end),
-          style: style?.copyWith(
-            fontSize: fontSize,
-            fontWeight: bold ? FontWeight.w800 : style.fontWeight,
-            decoration: decoration,
-            decorationStyle: decorationStyle,
-            decorationColor: decorationColor,
-          ),
-        ),
-      );
+      children.add(TextSpan(text: trozo, style: estilo));
     }
 
     return TextSpan(style: style, children: children);
+  }
+
+  static int _indiceCasilla(String trozo) {
+    for (var i = 0; i < trozo.length; i++) {
+      if (trozo[i] == tareaPendiente[0] || trozo[i] == tareaHecha[0]) return i;
+    }
+    return -1;
+  }
+
+  /// Casilla de tarea dibujada en lugar del carácter «☐»/«☑».
+  InlineSpan _casillaTarea({
+    required bool hecha,
+    required double tamano,
+    TextStyle? style,
+  }) {
+    final lado = (tamano * 1.05).roundToDouble();
+    final color = colorMarcas;
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      style: style,
+      child: Container(
+        width: lado,
+        height: lado,
+        decoration: BoxDecoration(
+          color: hecha ? color : null,
+          borderRadius: BorderRadius.circular(lado * 0.28),
+          border: Border.all(color: color, width: 1.8),
+        ),
+        child: hecha
+            ? Icon(Icons.check_rounded, size: lado * 0.8, color: Colors.white)
+            : null,
+      ),
+    );
   }
 }

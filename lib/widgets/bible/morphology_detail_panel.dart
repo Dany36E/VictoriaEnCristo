@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/interlinear_word.dart';
 import '../../models/bible/strong_lexicon_entry.dart';
@@ -101,7 +101,7 @@ class MorphologyDetailPanel extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             'Lema: ${word.lemma}',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.7),
               fontSize: 14,
               fontStyle: FontStyle.italic,
@@ -118,7 +118,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             ),
             child: Text(
               word.strongNumber!,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.accent,
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
@@ -130,7 +130,7 @@ class MorphologyDetailPanel extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             word.gloss,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.6),
               fontSize: 13,
             ),
@@ -148,7 +148,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             const SizedBox(width: 4),
             Text(
               isOT ? 'Hebreo' : 'Griego',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.5),
                 fontSize: 12,
               ),
@@ -200,7 +200,7 @@ class MorphologyDetailPanel extends StatelessWidget {
         children: [
           Text(
             label.toUpperCase(),
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.accent.withValues(alpha: 0.6),
               fontSize: 9,
               fontWeight: FontWeight.w600,
@@ -210,7 +210,7 @@ class MorphologyDetailPanel extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             value,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary,
               fontSize: 13,
               fontWeight: FontWeight.w600,
@@ -224,7 +224,7 @@ class MorphologyDetailPanel extends StatelessWidget {
       return Tooltip(
         message: tooltip,
         preferBelow: false,
-        textStyle: GoogleFonts.manrope(color: t.background, fontSize: 12),
+        textStyle: AppFonts.manrope(color: t.background, fontSize: 12),
         decoration: BoxDecoration(
           color: t.accent,
           borderRadius: BorderRadius.circular(8),
@@ -290,7 +290,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             child: Text(
               'Esta forma no tiene todavía un vínculo Strong inequívoco. Aun así puedes buscar todas sus apariciones por la palabra original.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.55),
                 fontSize: 12,
                 height: 1.45,
@@ -305,7 +305,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             children: [
               Text(
                 'LÉXICO STRONG LOCAL',
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.accent,
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
@@ -316,7 +316,7 @@ class MorphologyDetailPanel extends StatelessWidget {
               ...entries.take(3).map(_buildLexiconEntry),
               Text(
                 'Definiciones históricas en inglés. Fuente: Open Scriptures; disponibles sin conexión.',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.4),
                   fontSize: 10,
                   height: 1.4,
@@ -345,7 +345,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             children: [
               Text(
                 entry.strongNumber,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -357,7 +357,7 @@ class MorphologyDetailPanel extends StatelessWidget {
                   child: Text(
                     entry.transliteration,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary.withValues(alpha: 0.65),
                       fontSize: 12,
                       fontStyle: FontStyle.italic,
@@ -371,7 +371,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             const SizedBox(height: 7),
             Text(
               entry.definition,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.82),
                 fontSize: 12,
                 height: 1.45,
@@ -382,7 +382,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             const SizedBox(height: 5),
             Text(
               'Uso KJV: ${entry.biblicalUsage}',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.5),
                 fontSize: 11,
                 height: 1.35,
@@ -426,7 +426,7 @@ class MorphologyDetailPanel extends StatelessWidget {
           icon: const Icon(Icons.manage_search, size: 18),
           label: Text(
             'Ver todas sus apariciones',
-            style: GoogleFonts.manrope(fontWeight: FontWeight.w700),
+            style: AppFonts.manrope(fontWeight: FontWeight.w700),
           ),
         ),
       ),

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
 
 /// Acción contextual para el panel desplegable del header.
@@ -155,7 +155,7 @@ class _ContextualHeaderState extends State<ContextualHeader>
                             child: Text(
                               widget.title,
                               overflow: TextOverflow.ellipsis,
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 color: t.textSecondary,
                                 fontSize: 14,
                                 fontWeight: FontWeight.w500,
@@ -238,7 +238,7 @@ class _ContextualHeaderState extends State<ContextualHeader>
               const SizedBox(width: 5),
               Text(
                 widget.versionLabel!,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 12.5,
                   fontWeight: FontWeight.w700,
@@ -328,7 +328,7 @@ class _ContextualHeaderState extends State<ContextualHeader>
                 const SizedBox(width: 12),
                 Text(
                   _expanded ? 'Ocultar panel' : 'Herramientas',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 14,
                   ),
@@ -351,7 +351,7 @@ class _ContextualHeaderState extends State<ContextualHeader>
                   const SizedBox(width: 12),
                   Text(
                     action.label,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontSize: 14,
                     ),
@@ -391,9 +391,10 @@ class _ContextualActionButton extends StatelessWidget {
         },
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
             children: [
               Icon(
                 action.icon,
@@ -401,12 +402,16 @@ class _ContextualActionButton extends StatelessWidget {
                 size: 20,
               ),
               const SizedBox(height: 2),
+              // La letra del tema papel es más alta: una línea compacta para
+              // que no se desborde la barra.
               Text(
                 action.label,
-                style: GoogleFonts.manrope(
+                maxLines: 1,
+                style: AppFonts.manrope(
+                  height: 1.1,
                   color: action.isActive
                       ? theme.accent
-                      : theme.textSecondary.withValues(alpha: 0.6),
+                      : theme.textoTenue(0.6),
                   fontSize: 10,
                   fontWeight: FontWeight.w500,
                 ),

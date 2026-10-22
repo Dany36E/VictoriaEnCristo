@@ -146,6 +146,19 @@
                 android:name="android.appwidget.provider"
                 android:resource="@xml/jesus_widget_info" />
         </receiver>
+
+        <!-- Atajos Widget Provider (atajos elegidos en la app) -->
+        <receiver
+            android:name=".AtajosWidgetProvider"
+            android:exported="true"
+            android:label="@string/atajos_widget_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/atajos_widget_info" />
+        </receiver>
     </application>
     <!-- Required to query activities that can process text, see:
          https://developer.android.com/training/package-visibility and

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
 import '../../models/bible/bible_map_models.dart';
 import '../../services/bible/bible_maps_service.dart';
@@ -101,8 +101,8 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               const SizedBox(width: 8),
               Text(
                 'HERRAMIENTAS DEL CAPÍTULO',
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                style: AppFonts.manrope(
+                  color: t.textoTenue(0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2.0,
@@ -152,7 +152,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               const SizedBox(width: 8),
               Text(
                 'Sobre este capítulo',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -163,7 +163,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
           const SizedBox(height: 8),
           Text(
             _chapterIntro!,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.75),
               fontSize: 13,
               height: 1.6,
@@ -195,7 +195,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               const SizedBox(width: 8),
               Text(
                 'Mapas relacionados',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -204,8 +204,8 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               const Spacer(),
               Text(
                 '${_relatedMaps.length}',
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                style: AppFonts.manrope(
+                  color: t.textoTenue(0.4),
                   fontSize: 11,
                 ),
               ),
@@ -232,7 +232,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                         Expanded(
                           child: Text(
                             map.title,
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textPrimary.withValues(alpha: 0.7),
                               fontSize: 13,
                             ),
@@ -284,7 +284,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                 children: [
                   Text(
                     'Introducción a ${widget.bookName}',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -292,8 +292,8 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   ),
                   Text(
                     'Autor, contexto, temas y estructura',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -345,7 +345,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                 children: [
                   Text(
                     'Lectura paralela',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -353,8 +353,8 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   ),
                   Text(
                     'Comparar versiones lado a lado',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -404,7 +404,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                 children: [
                   Text(
                     'Comentario Enduring Word',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 13,
                       fontWeight: FontWeight.w600,
@@ -412,8 +412,8 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   ),
                   Text(
                     'David Guzik — análisis del capítulo',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.4),
                       fontSize: 11,
                     ),
                   ),

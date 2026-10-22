@@ -22,7 +22,7 @@
   </header>
   <main id="contenido" class="legal-main">
     <h1>Aviso de Privacidad Integral</h1>
-    <p class="legal-meta"><strong>Victoria en Cristo</strong> · versión del 13 de septiembre de 2026</p>
+    <p class="legal-meta"><strong>Victoria en Cristo</strong> · versión del 21 de octubre de 2026</p>
     <p class="legal-notice"><strong>Contacto operativo:</strong> para soporte, privacidad y solicitudes sobre datos, escribe a <a href="mailto:gonzaleztalamantes836@gmail.com">gonzaleztalamantes836@gmail.com</a>.</p>
     <p class="legal-notice risk"><strong>Pendiente para el lanzamiento en tiendas:</strong> deben incorporarse el nombre o razón social y el domicilio del responsable. No se inventaron esos datos.</p>
 
@@ -32,7 +32,8 @@
     <h2>2. Datos tratados</h2>
     <ul>
       <li><strong>Cuenta:</strong> UID, correo, nombre, foto y proveedor de inicio de sesión.</li>
-      <li><strong>Contenido que decides registrar:</strong> progreso, hábitos, planes, preferencias, favoritos, notas bíblicas, diario, oraciones, alarmas y mensajes enviados a un compañero.</li>
+      <li><strong>Contenido que decides registrar:</strong> progreso, hábitos, planes, preferencias, favoritos, notas bíblicas, apuntes de predicación, diario, oraciones, alarmas y mensajes enviados a un compañero.</li>
+      <li><strong>Fotos y dibujos de Apuntes:</strong> las fotos que tomas o eliges y los dibujos que haces dentro de un apunte. Se guardan en tu teléfono y en tu espacio privado de Firebase Storage para que no se pierdan; sólo tu cuenta puede leerlos.</li>
       <li><strong>Comunidad:</strong> publicaciones, comentarios, reportes, alias y un hash seudónimo con sal secreta para moderación. El UID no se muestra públicamente, pero el contenido no debe describirse como anónimo en sentido absoluto.</li>
       <li><strong>Notificaciones:</strong> token técnico de Firebase Cloud Messaging y preferencias.</li>
       <li><strong>Opcionales:</strong> eventos agregados de uso mediante Firebase Analytics y diagnósticos mediante Firebase Crashlytics, sólo después de habilitarlos.</li>
@@ -41,16 +42,15 @@
 
     <h2>3. Finalidades</h2>
     <p><strong>Necesarias:</strong> autenticar, prestar funciones solicitadas, guardar o sincronizar contenido, entregar notificaciones activadas, moderar la comunidad, prevenir abuso, mantener seguridad y atender eliminación de cuenta.</p>
-    <p><strong>Opcionales:</strong> medir uso agregado, diagnosticar fallos y reproducir videos integrados. Puedes negarte o retirar estas opciones en <em>Configuración → Privacidad y datos</em> sin perder las funciones principales.</p>
+    <p><strong>Opcionales:</strong> medir uso agregado y diagnosticar fallos. Puedes negarte o retirar estas opciones en <em>Configuración → Privacidad y datos</em> sin perder las funciones principales.</p>
 
     <h2>4. Base y consentimiento</h2>
     <p>El tratamiento necesario se realiza para prestarte el servicio solicitado y con el consentimiento informado aplicable. Los datos sensibles requieren una casilla expresa y separada. La versión y fecha de aceptación se conservan en tu documento privado de cuenta. El consentimiento opcional puede revocarse desde la app.</p>
 
     <h2>5. Proveedores y transferencias</h2>
     <ul>
-      <li><strong>Google Firebase:</strong> Authentication, Firestore, Cloud Functions, FCM y, sólo si aceptas, Analytics y Crashlytics.</li>
+      <li><strong>Google Firebase:</strong> Authentication, Firestore, Storage (fotos y dibujos de Apuntes), Cloud Functions, FCM y, sólo si aceptas, Analytics y Crashlytics.</li>
       <li><strong>Google y Apple:</strong> inicio de sesión cuando eliges ese proveedor.</li>
-      <li><strong>YouTube:</strong> IP y datos técnicos al permitir o abrir un video.</li>
       <li><strong>CleanBrowsing:</strong> consultas DNS cifradas cuando activas voluntariamente el Escudo de Pureza en Android; Victoria en Cristo no recibe tu historial DNS.</li>
       <li><strong>Esri, Bible Brain, Blue Letter Bible, RapidAPI/iq-bible y Enduring Word:</strong> reciben la solicitud técnica necesaria al usar esas funciones externas.</li>
       <li><strong>Unsplash:</strong> el servidor de imágenes recibe datos técnicos al cargar imágenes remotas.</li>
@@ -58,10 +58,10 @@
     <p>No vendemos datos ni los utilizamos para publicidad dirigida. Los proveedores deben tratar la información según sus propias condiciones y garantías aplicables.</p>
 
     <h2>6. Conservación y eliminación</h2>
-    <p>Los datos de cuenta y el contenido sincronizado se conservan mientras la cuenta esté activa. Al confirmar <em>Perfil → Eliminar cuenta</em>, la función de servidor elimina el documento y subcolecciones del usuario, credenciales, códigos de invitación y contenido comunitario vinculable por el hash interno. Copias de seguridad y registros técnicos de proveedores pueden sujetarse a sus ciclos de retención y obligaciones legales.</p>
+    <p>Los datos de cuenta y el contenido sincronizado se conservan mientras la cuenta esté activa. Al confirmar <em>Perfil → Eliminar cuenta</em>, la función de servidor elimina el documento y subcolecciones del usuario, las fotos y dibujos guardados en Storage, credenciales, códigos de invitación y contenido comunitario vinculable por el hash interno. Copias de seguridad y registros técnicos de proveedores pueden sujetarse a sus ciclos de retención y obligaciones legales.</p>
 
     <h2>7. Seguridad y minimización</h2>
-    <p>Usamos cifrado en tránsito, reglas de acceso por UID, almacenamiento seguro del sistema para secretos, App Check y registros de producción reducidos. No solicitamos contactos, ubicación, cámara ni micrófono. Ninguna medida elimina todo riesgo; evita escribir datos de terceros o información innecesaria.</p>
+    <p>Usamos cifrado en tránsito, reglas de acceso por UID, almacenamiento seguro del sistema para secretos, App Check y registros de producción reducidos. No solicitamos contactos, ubicación ni micrófono. La cámara y las fotos sólo se usan cuando tú decides agregar una imagen a un apunte, y el sistema te pide permiso la primera vez. Ninguna medida elimina todo riesgo; evita escribir datos de terceros o información innecesaria.</p>
 
     <h2>8. Derechos y revocación</h2>
     <p>Puedes corregir tu perfil, desactivar opciones desde el Centro de privacidad, exportar contenido disponible y eliminar cuenta y datos desde Perfil. Para solicitudes de acceso, rectificación, cancelación u oposición, escribe a <a href="mailto:gonzaleztalamantes836@gmail.com?subject=Solicitud%20de%20privacidad%20Victoria%20en%20Cristo">gonzaleztalamantes836@gmail.com</a> e indica el correo asociado a la cuenta, el derecho que deseas ejercer y un medio para recibir respuesta. Nunca envíes tu contraseña ni códigos de acceso; podremos solicitar información razonable para verificar la identidad. Consulta también la <a href="data_deletion.html">guía de eliminación</a>.</p>

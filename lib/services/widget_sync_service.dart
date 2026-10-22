@@ -5,6 +5,7 @@
 library;
 
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/services.dart';
@@ -15,8 +16,10 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/widget_constants.dart';
 import '../models/widget_config.dart';
 import '../data/bible_verses.dart';
+import 'atajos_service.dart';
 import 'daily_verse_service.dart';
 import 'jesus_widget_service.dart';
+import 'theme_service.dart';
 import 'user_pref_cloud_sync_service.dart';
 import 'victory_scoring_service.dart';
 import '../utils/platform_capabilities.dart';
@@ -222,14 +225,18 @@ class WidgetSyncService {
         streakColor.toARGB32(),
       );
 
-      // Guardar imágenes de sprite y fondo para el widget nativo
+      // Guardar imágenes de sprite y fondo para el widget nativo (con el
+      // tema «Papel recortado» activo, los dibujos de papel)
+      final papel = ThemeService().currentTheme.isPaper;
       final spritePath = JesusWidgetService.I.getSprite(
         streakDays: payload.streakValue,
         completedToday: completedToday && victoryToday,
         isNewUser: isNewUser,
+        papel: papel,
       );
       final bgPath = JesusWidgetService.I.getBackground(
         streakDays: payload.streakValue,
+        papel: papel,
       );
       final spriteFile = await _saveAssetToWidgetDir(
         spritePath,
@@ -404,6 +411,12 @@ class WidgetSyncService {
         qualifiedAndroidName: kAndroidJesusWidgetQualifiedName,
         iOSName: kIOSJesusWidgetName,
       );
+
+      // Widget de atajos (claro/oscuro según widget_is_light)
+      await HomeWidget.updateWidget(
+        androidName: kAndroidAtajosWidgetProvider,
+        qualifiedAndroidName: kAndroidAtajosWidgetQualifiedName,
+      );
     } catch (e) {
       debugPrint('📱 [WIDGET] Update error: $e');
     }
@@ -535,6 +548,49 @@ class WidgetSyncService {
       return true;
     } catch (e) {
       debugPrint('📱 [WIDGET] Pin request error: $e');
+      return false;
+    }
+  }
+
+  static const String _keyAtajos = 'atajos_widget_json';
+  static const MethodChannel _canalAtajos = MethodChannel('victoria/atajos');
+
+  /// Pasa los primeros atajos elegidos al widget «Atajos» y a los accesos
+  /// del ícono de la app (Android). Sin atajos elegidos usa los
+  /// predeterminados, para que el widget nunca quede vacío.
+  Future<void> sincronizarAtajos(List<String> ids) async {
+    if (!isSupported) return;
+    final atajos = (ids.isEmpty ? AtajosService.predeterminados : ids)
+        .map(AtajosService.porId)
+        .whereType<Atajo>()
+        .take(AtajosService.maximoTelefono)
+        .map((a) => {'id': a.id, 'titulo': a.tituloCorto})
+        .toList(growable: false);
+    try {
+      await HomeWidget.saveWidgetData(_keyAtajos, jsonEncode(atajos));
+      await HomeWidget.updateWidget(
+        androidName: kAndroidAtajosWidgetProvider,
+        qualifiedAndroidName: kAndroidAtajosWidgetQualifiedName,
+      );
+      await _canalAtajos.invokeMethod<bool>('actualizar', atajos);
+    } catch (e) {
+      debugPrint('📱 [WIDGET] Atajos sync error: $e');
+    }
+  }
+
+  /// Solicita al usuario que añada el widget de atajos (Android).
+  /// Retorna false si el sistema no admite pedirlo desde la app.
+  Future<bool> requestAtajosPin() async {
+    if (!isSupported) return false;
+    try {
+      if (await HomeWidget.isRequestPinWidgetSupported() != true) return false;
+      await HomeWidget.requestPinWidget(
+        androidName: kAndroidAtajosWidgetProvider,
+        qualifiedAndroidName: kAndroidAtajosWidgetQualifiedName,
+      );
+      return true;
+    } catch (e) {
+      debugPrint('📱 [WIDGET] Atajos pin request error: $e');
       return false;
     }
   }

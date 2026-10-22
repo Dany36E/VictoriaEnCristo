@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/rich_note_document.dart';
 import '../../../models/bible/study_chapter_answers.dart';
@@ -172,7 +172,7 @@ class _HopeMessageCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Mensaje de esperanza',
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -185,8 +185,8 @@ class _HopeMessageCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Resume la esperanza central que Dios te muestra en este texto.',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.65),
+            style: AppFonts.manrope(
+              color: t.textoTenue(0.65),
               fontSize: 11,
               height: 1.35,
             ),
@@ -197,14 +197,14 @@ class _HopeMessageCard extends StatelessWidget {
             onChanged: onChanged,
             maxLines: null,
             minLines: 3,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
             ),
             decoration: InputDecoration(
               hintText: 'Ej. Jesús quiere sanarte y darte vida nueva.',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
@@ -233,7 +233,7 @@ class _HopeMessageCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   'Verso Principal',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 13,
                     fontWeight: FontWeight.w800,
@@ -245,8 +245,8 @@ class _HopeMessageCard extends StatelessWidget {
           const SizedBox(height: 6),
           Text(
             'Selecciona uno o varios versículos que sostienen ese mensaje.',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.62),
+            style: AppFonts.manrope(
+              color: t.textoTenue(0.62),
               fontSize: 11,
               height: 1.35,
             ),
@@ -269,9 +269,9 @@ class _HopeMessageCard extends StatelessWidget {
             ),
             child: Text(
               mainVerseReference,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: selectedVerses.isEmpty
-                    ? t.textSecondary.withValues(alpha: 0.65)
+                    ? t.textoTenue(0.65)
                     : t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -303,8 +303,8 @@ class _VerseChips extends StatelessWidget {
     if (verseNumbers.isEmpty) {
       return Text(
         'No hay versículos cargados para seleccionar.',
-        style: GoogleFonts.manrope(
-          color: t.textSecondary.withValues(alpha: 0.62),
+        style: AppFonts.manrope(
+          color: t.textoTenue(0.62),
           fontSize: 12,
           fontStyle: FontStyle.italic,
         ),
@@ -359,7 +359,7 @@ class _MainVerseChip extends StatelessWidget {
             : t.textSecondary.withValues(alpha: 0.16),
       ),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      labelStyle: GoogleFonts.manrope(
+      labelStyle: AppFonts.manrope(
         color: selected ? t.accent : t.textPrimary,
         fontSize: 12,
         fontWeight: FontWeight.w800,
@@ -449,8 +449,8 @@ class _QuestionsToolbar extends StatelessWidget {
                   'Tus respuestas · $reference',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.75),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.75),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
@@ -578,7 +578,7 @@ class _QuestionToolChip extends StatelessWidget {
                 label,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: foreground,
                   fontSize: 12,
                   fontWeight: FontWeight.w700,
@@ -857,7 +857,7 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
               Expanded(
                 child: Text(
                   'Notas generales',
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 15,
                     fontWeight: FontWeight.w700,
@@ -870,8 +870,8 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
           const SizedBox(height: 6),
           Text(
             'Ideas libres, resumen, observaciones, acuerdos del grupo o pendientes para revisar.',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.65),
+            style: AppFonts.manrope(
+              color: t.textoTenue(0.65),
               fontSize: 11,
               height: 1.35,
             ),
@@ -885,8 +885,8 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
                   children: [
                     Text(
                       'Selecciona texto para darle formato.',
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.66),
+                      style: AppFonts.manrope(
+                        color: t.textoTenue(0.66),
                         fontSize: 11.5,
                       ),
                     ),
@@ -942,14 +942,14 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
               spellCheckService: _spellBridge,
             ),
             contextMenuBuilder: _buildContextMenu,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
             ),
             decoration: InputDecoration(
               hintText: 'Escribe notas libres de este estudio…',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),
@@ -1111,7 +1111,7 @@ class _FormatSizeButton extends StatelessWidget {
           ),
           child: Text(
             label,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.accent,
               fontSize: 12,
               fontWeight: FontWeight.w800,
@@ -1144,7 +1144,7 @@ class _StudyNotesPreview extends StatelessWidget {
       ),
       child: RichText(
         text: TextSpan(
-          style: GoogleFonts.lora(
+          style: AppFonts.lora(
             color: t.textPrimary,
             fontSize: 14,
             height: 1.5,
@@ -1223,7 +1223,7 @@ class _StudySaveStatusChip extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: GoogleFonts.manrope(
+        style: AppFonts.manrope(
           color: color,
           fontSize: 10.5,
           fontWeight: FontWeight.w800,
@@ -1267,7 +1267,7 @@ class _StudyNotesFontSheet extends StatelessWidget {
             const SizedBox(height: 16),
             Text(
               'Tamano del texto',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.textPrimary,
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
@@ -1276,8 +1276,8 @@ class _StudyNotesFontSheet extends StatelessWidget {
             const SizedBox(height: 6),
             Text(
               'Selecciona una parte de la nota y despues elige el tamano que quieras aplicar.',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.72),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.72),
                 fontSize: 12,
                 height: 1.35,
               ),
@@ -1341,7 +1341,7 @@ class _StudyNotesFontTile extends StatelessWidget {
               ),
               child: Text(
                 size.toInt().toString(),
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.accent,
                   fontSize: 13,
                   fontWeight: FontWeight.w800,
@@ -1355,7 +1355,7 @@ class _StudyNotesFontTile extends StatelessWidget {
                 children: [
                   Text(
                     preview,
-                    style: GoogleFonts.lora(
+                    style: AppFonts.lora(
                       color: t.textPrimary,
                       fontSize: size,
                       height: 1.1,
@@ -1364,8 +1364,8 @@ class _StudyNotesFontTile extends StatelessWidget {
                   const SizedBox(height: 3),
                   Text(
                     'Aplicar a la seleccion actual',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.72),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.72),
                       fontSize: 11.5,
                     ),
                   ),
@@ -1437,7 +1437,7 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
                   token,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w800,
@@ -1446,8 +1446,8 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
                 const SizedBox(height: 2),
                 Text(
                   'Sugerencia: $replacement',
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.76),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.76),
                     fontSize: 11,
                     height: 1.25,
                   ),
@@ -1507,8 +1507,8 @@ class _StudyGeneralNotesHint extends StatelessWidget {
           Expanded(
             child: Text(
               'Ahora tus notas generales usan formato real dentro del editor. Las palabras dudosas se subrayan en rojo y puedes corregirlas desde el menu o la sugerencia contextual.',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.76),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.76),
                 fontSize: 11.5,
                 height: 1.35,
               ),
@@ -1562,7 +1562,7 @@ class _QuestionCard extends StatelessWidget {
                 ),
                 child: Text(
                   '$index',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.accent,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -1573,7 +1573,7 @@ class _QuestionCard extends StatelessWidget {
               Expanded(
                 child: Text(
                   question.prompt,
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
@@ -1588,8 +1588,8 @@ class _QuestionCard extends StatelessWidget {
             padding: const EdgeInsets.only(left: 34),
             child: Text(
               question.hint,
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.6),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.6),
                 fontSize: 11,
                 height: 1.3,
               ),
@@ -1601,14 +1601,14 @@ class _QuestionCard extends StatelessWidget {
             onChanged: onChanged,
             maxLines: null,
             minLines: 2,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 14,
               height: 1.5,
             ),
             decoration: InputDecoration(
               hintText: 'Escribe tu respuesta…',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.5),
                 fontSize: 14,
               ),

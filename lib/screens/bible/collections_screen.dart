@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/verse_collection.dart';
 import '../../services/bible/collection_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -27,7 +27,7 @@ class CollectionsScreen extends StatelessWidget {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -45,7 +45,7 @@ class CollectionsScreen extends StatelessWidget {
                       Expanded(
                         child: Text(
                           'Colecciones',
-                          style: GoogleFonts.cinzel(
+                          style: AppFonts.cinzel(
                             color: t.textPrimary,
                             fontSize: 22,
                             fontWeight: FontWeight.w600,
@@ -79,9 +79,9 @@ class CollectionsScreen extends StatelessWidget {
                               const SizedBox(height: 12),
                               Text(
                                 'Sin colecciones',
-                                style: GoogleFonts.manrope(
+                                style: AppFonts.manrope(
                                   color:
-                                      t.textSecondary.withValues(alpha: 0.4),
+                                      t.textoTenue(0.4),
                                   fontSize: 14,
                                 ),
                               ),
@@ -91,7 +91,7 @@ class CollectionsScreen extends StatelessWidget {
                                     _showCreateDialog(context, t),
                                 child: Text(
                                   'Crear primera colección',
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     color: t.accent,
                                     fontSize: 14,
                                     fontWeight: FontWeight.w600,
@@ -146,7 +146,7 @@ class CollectionsScreen extends StatelessWidget {
                 children: [
                   Text(
                     c.name,
-                    style: GoogleFonts.lora(
+                    style: AppFonts.lora(
                       color: t.textPrimary,
                       fontSize: 16,
                     ),
@@ -155,8 +155,8 @@ class CollectionsScreen extends StatelessWidget {
                       c.description!.isNotEmpty)
                     Text(
                       c.description!,
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                      style: AppFonts.manrope(
+                        color: t.textoTenue(0.5),
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -167,8 +167,8 @@ class CollectionsScreen extends StatelessWidget {
             ),
             Text(
               '${c.verseCount}',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.4),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.4),
                 fontSize: 13,
               ),
             ),
@@ -209,7 +209,7 @@ class CollectionsScreen extends StatelessWidget {
                 children: [
                   Text(
                     'Nueva colección',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -244,11 +244,11 @@ class CollectionsScreen extends StatelessWidget {
                   TextField(
                     controller: nameCtrl,
                     autofocus: true,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                         color: t.textPrimary, fontSize: 15),
                     decoration: InputDecoration(
                       hintText: 'Nombre de la colección',
-                      hintStyle: GoogleFonts.manrope(
+                      hintStyle: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.4),
                         fontSize: 15,
                       ),
@@ -257,11 +257,11 @@ class CollectionsScreen extends StatelessWidget {
                   ),
                   TextField(
                     controller: descCtrl,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                         color: t.textSecondary, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Descripción (opcional)',
-                      hintStyle: GoogleFonts.manrope(
+                      hintStyle: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.3),
                         fontSize: 13,
                       ),
@@ -294,7 +294,7 @@ class CollectionsScreen extends StatelessWidget {
                       ),
                       child: Text(
                         'Crear',
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           fontWeight: FontWeight.w600,
                           fontSize: 15,
                         ),
@@ -317,15 +317,15 @@ class CollectionsScreen extends StatelessWidget {
       builder: (ctx) => AlertDialog(
         backgroundColor: t.surface,
         title: Text('Eliminar "${c.name}"?',
-            style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 16)),
+            style: AppFonts.manrope(color: t.textPrimary, fontSize: 16)),
         content: Text('Se eliminará la colección y todos sus versículos.',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
                 color: t.textSecondary, fontSize: 14)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('Cancelar',
-                style: GoogleFonts.manrope(color: t.textSecondary)),
+                style: AppFonts.manrope(color: t.textSecondary)),
           ),
           TextButton(
             onPressed: () {
@@ -333,7 +333,7 @@ class CollectionsScreen extends StatelessWidget {
               Navigator.pop(ctx);
             },
             child: Text('Eliminar',
-                style: GoogleFonts.manrope(color: Colors.redAccent)),
+                style: AppFonts.manrope(color: Colors.redAccent)),
           ),
         ],
       ),

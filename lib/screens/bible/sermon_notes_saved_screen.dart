@@ -1,13 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 
+import '../../models/bible/etiquetas_nota.dart';
 import '../../models/bible/rich_note_document.dart';
 import '../../models/bible/sermon_note.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/sermon_note_service.dart';
 import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
+import '../../widgets/bible/sermon/adjuntos_nota.dart';
 import 'bible_reader_screen.dart';
 import 'sermon_notes_mode_screen.dart';
 
@@ -24,6 +27,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
   String _searchQuery = '';
   String? _speakerFilter;
   DateTime? _dateFilter;
+  String? _etiqueta;
   _SermonNoteSort _sort = _SermonNoteSort.updatedDesc;
   bool _loading = true;
 
@@ -58,7 +62,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
           t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: _loading
                 ? Center(
@@ -105,7 +109,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
               Expanded(
                 child: Text(
                   'Apuntes Guardados',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                     color: t.textPrimary,
                     fontSize: 19,
                     fontWeight: FontWeight.w600,
@@ -119,11 +123,11 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
             controller: _searchController,
             focusNode: _searchFocus,
             onChanged: (value) => setState(() => _searchQuery = value),
-            style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13),
+            style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
             decoration: InputDecoration(
-              hintText: 'Buscar por titulo, pastor o pasaje',
-              hintStyle: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.55),
+              hintText: 'Buscar por título, predicador o pasaje',
+              hintStyle: AppFonts.manrope(
+                color: t.textoAtenuado(),
                 fontSize: 13,
               ),
               prefixIcon: Icon(Icons.search, color: t.textSecondary, size: 18),
@@ -156,13 +160,14 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
 
   Widget _buildFilters(BibleReaderThemeData t) {
     final speakers = SermonNoteService.I.speakers;
-    final hasFilters =
-        _speakerFilter != null ||
-        _dateFilter != null ||
-        _searchQuery.trim().isNotEmpty;
+    final hasFilters = _hayFiltros;
+    final etiquetas = _todasLasEtiquetas();
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
-      child: Wrap(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Wrap(
         spacing: 8,
         runSpacing: 8,
         children: [
@@ -176,7 +181,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   value: sort,
                   child: Text(
                     _sortLabel(sort),
-                    style: GoogleFonts.manrope(color: t.textPrimary),
+                    style: AppFonts.manrope(color: t.textPrimary),
                   ),
                 ),
             ],
@@ -188,15 +193,15 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
             ),
           ),
           PopupMenuButton<String?>(
-            tooltip: 'Filtrar por pastor',
+            tooltip: 'Filtrar por predicador',
             color: t.surface,
             onSelected: (value) => setState(() => _speakerFilter = value),
             itemBuilder: (_) => [
               PopupMenuItem<String?>(
                 value: null,
                 child: Text(
-                  'Todos los pastores',
-                  style: GoogleFonts.manrope(color: t.textPrimary),
+                  'Todos los predicadores',
+                  style: AppFonts.manrope(color: t.textPrimary),
                 ),
               ),
               for (final speaker in speakers)
@@ -204,14 +209,14 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   value: speaker,
                   child: Text(
                     speaker,
-                    style: GoogleFonts.manrope(color: t.textPrimary),
+                    style: AppFonts.manrope(color: t.textPrimary),
                   ),
                 ),
             ],
             child: _FilterShell(
               theme: t,
               icon: Icons.person_outline,
-              label: _speakerFilter ?? 'Todos los pastores',
+              label: _speakerFilter ?? 'Todos los predicadores',
               selected: _speakerFilter != null,
             ),
           ),
@@ -235,6 +240,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   _searchQuery = '';
                   _speakerFilter = null;
                   _dateFilter = null;
+                  _etiqueta = null;
                 });
               },
               child: _ChoiceChipShell(
@@ -245,8 +251,61 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
               ),
             ),
         ],
+          ),
+          // Etiquetas escritas como #palabra en los apuntes.
+          if (etiquetas.isNotEmpty) ...[
+            const SizedBox(height: 10),
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  for (final etiqueta in etiquetas)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: Semantics(
+                        button: true,
+                        selected: _etiqueta == etiqueta,
+                        label: 'Etiqueta $etiqueta',
+                        excludeSemantics: true,
+                        child: GestureDetector(
+                          onTap: () => setState(
+                            () => _etiqueta =
+                                _etiqueta == etiqueta ? null : etiqueta,
+                          ),
+                          child: _ChoiceChipShell(
+                            theme: t,
+                            icon: Icons.tag_rounded,
+                            label: etiqueta,
+                            selected: _etiqueta == etiqueta,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ],
       ),
     );
+  }
+
+  bool get _hayFiltros =>
+      _speakerFilter != null ||
+      _dateFilter != null ||
+      _etiqueta != null ||
+      _searchQuery.trim().isNotEmpty;
+
+  List<String> _etiquetasDeNota(SermonNote note) => etiquetasDe(
+    '${note.title}\n${richNotePlainText(note.notes)}\n${note.takeaway}',
+  );
+
+  List<String> _todasLasEtiquetas() {
+    final todas = <String>{};
+    for (final note in SermonNoteService.I.allNotes) {
+      todas.addAll(_etiquetasDeNota(note));
+    }
+    return todas.toList()..sort();
   }
 
   Widget _buildBody(BibleReaderThemeData t) {
@@ -255,20 +314,17 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
       builder: (context, notesMap, child) {
         final filtered = _filteredNotes();
         if (filtered.isEmpty) {
-          final hasFilters =
-              _speakerFilter != null ||
-              _dateFilter != null ||
-              _searchQuery.trim().isNotEmpty;
+          final hasFilters = _hayFiltros;
           return Center(
             child: Padding(
               padding: const EdgeInsets.all(28),
               child: Text(
                 hasFilters
                     ? 'No hay apuntes con esos filtros.'
-                    : 'Tus apuntes de predicacion guardados apareceran aqui.',
+                    : 'Tus apuntes de predicación guardados aparecerán aquí.',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.45),
+                style: AppFonts.manrope(
+                  color: t.textoAtenuado(),
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -277,10 +333,21 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
           );
         }
 
-        return ListView.builder(
+        // Como en Notas: los fijados van arriba, en su propia sección.
+        final fijados = filtered.where((n) => n.fijada).toList();
+        final resto = filtered.where((n) => !n.fijada).toList();
+        final filas = <Widget>[
+          if (fijados.isNotEmpty) ...[
+            _encabezadoSeccion(t, Icons.push_pin_rounded, 'Fijados'),
+            for (final note in fijados) _buildNoteTile(t, note),
+            if (resto.isNotEmpty)
+              _encabezadoSeccion(t, Icons.notes_rounded, 'Todos los apuntes'),
+          ],
+          for (final note in resto) _buildNoteTile(t, note),
+        ];
+        return ListView(
           padding: const EdgeInsets.fromLTRB(20, 8, 20, 28),
-          itemCount: filtered.length,
-          itemBuilder: (context, index) => _buildNoteTile(t, filtered[index]),
+          children: filas,
         );
       },
     );
@@ -295,6 +362,9 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
         return false;
       }
       if (_dateFilter != null && !_isSameDate(note.sermonDate, _dateFilter!)) {
+        return false;
+      }
+      if (_etiqueta != null && !_etiquetasDeNota(note).contains(_etiqueta)) {
         return false;
       }
       if (query.isEmpty) return true;
@@ -322,7 +392,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
 
   String _noteTitle(SermonNote note) {
     final title = note.title.trim();
-    return title.isEmpty ? 'Apunte sin titulo' : title;
+    return title.isEmpty ? 'Apunte sin título' : title;
   }
 
   String _noteSearchText(SermonNote note) {
@@ -334,6 +404,11 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
       ..write(richNotePlainText(note.notes))
       ..write(' ')
       ..write(note.takeaway);
+    for (final adjunto in note.adjuntos) {
+      buffer
+        ..write(' ')
+        ..write(adjunto.pie);
+    }
     final central = note.centralPassage;
     if (central != null) {
       buffer
@@ -354,141 +429,176 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
     return _normalize(buffer.toString());
   }
 
-  Future<void> _deleteNote(BibleReaderThemeData t, SermonNote note) async {
-    final title = _noteTitle(note);
-    final confirmed =
-        await showDialog<bool>(
+  Future<bool> _confirmarEliminar(BibleReaderThemeData t, SermonNote note) async {
+    final adjuntos = note.adjuntos.length;
+    return await showDialog<bool>(
           context: context,
           builder: (ctx) => AlertDialog(
             backgroundColor: t.surface,
             title: Text(
               'Eliminar apunte',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textPrimary,
                 fontSize: 16,
+                fontWeight: FontWeight.w700,
               ),
             ),
             content: Text(
-              'Eliminar "$title"?',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary,
-                fontSize: 14,
-              ),
+              adjuntos == 0
+                  ? '¿Eliminar «${_noteTitle(note)}»?'
+                  : '¿Eliminar «${_noteTitle(note)}» y '
+                        '${adjuntos == 1 ? 'su foto o dibujo' : 'sus $adjuntos fotos y dibujos'}?',
+              style: AppFonts.manrope(color: t.textSecondary, fontSize: 14),
             ),
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
                 child: Text(
                   'Cancelar',
-                  style: GoogleFonts.manrope(color: t.textSecondary),
+                  style: AppFonts.manrope(color: t.textSecondary),
                 ),
               ),
               TextButton(
                 onPressed: () => Navigator.pop(ctx, true),
                 child: Text(
                   'Eliminar',
-                  style: GoogleFonts.manrope(color: Colors.red),
+                  style: AppFonts.manrope(color: const Color(0xFFC0392B)),
                 ),
               ),
             ],
           ),
         ) ??
         false;
-    if (!confirmed) return;
+  }
+
+  Future<void> _deleteNote(BibleReaderThemeData t, SermonNote note) async {
+    if (!await _confirmarEliminar(t, note)) return;
     await SermonNoteService.I.deleteNote(note.id);
+  }
+
+  void _alternarFijada(SermonNote note) {
+    HapticFeedback.selectionClick();
+    SermonNoteService.I.fijar(note.id, !note.fijada);
+  }
+
+  Widget _encabezadoSeccion(BibleReaderThemeData t, IconData icono, String texto) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, top: 4),
+      child: Row(
+        children: [
+          Icon(icono, size: 15, color: t.accent),
+          const SizedBox(width: 6),
+          Text(
+            texto,
+            style: AppFonts.manrope(
+              color: t.textSecondary,
+              fontSize: 12.5,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 0.4,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _fondoDeslizar(
+    BibleReaderThemeData t, {
+    required IconData icono,
+    required String texto,
+    required Color color,
+    required Alignment alineacion,
+  }) {
+    return Container(
+      alignment: alineacion,
+      margin: const EdgeInsets.only(bottom: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 18),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.14),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icono, size: 18, color: color),
+          const SizedBox(width: 6),
+          Text(
+            texto,
+            style: AppFonts.manrope(
+              color: color,
+              fontSize: 13,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _abrirNota(SermonNote note) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            SermonNotesModeScreen(noteId: note.id),
+        transitionDuration: const Duration(milliseconds: 150),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    );
+  }
+
+  void _abrirPasaje(SermonCentralPassage central) {
+    Navigator.push(
+      context,
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            BibleReaderScreen(
+              bookNumber: central.bookNumber,
+              bookName: central.bookName,
+              chapter: central.chapter,
+              version: BibleUserDataService.I.preferredVersionNotifier.value,
+            ),
+        transitionDuration: const Duration(milliseconds: 150),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) =>
+            FadeTransition(opacity: animation, child: child),
+      ),
+    );
   }
 
   Widget _buildNoteTile(BibleReaderThemeData t, SermonNote note) {
     final preview = _previewText(note);
     final central = note.centralPassage;
+    final etiquetas = _etiquetasDeNota(note);
+    const peligro = Color(0xFFC0392B);
     return Dismissible(
       key: ValueKey(note.id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 16),
-        child: Text(
-          'Eliminar',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
-            fontSize: 12,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
+      // Deslizar a la derecha fija; a la izquierda elimina (como en Notas).
+      background: _fondoDeslizar(
+        t,
+        icono: note.fijada ? Icons.push_pin_outlined : Icons.push_pin_rounded,
+        texto: note.fijada ? 'Soltar' : 'Fijar',
+        color: t.accent,
+        alineacion: Alignment.centerLeft,
       ),
-      confirmDismiss: (_) async {
-        return await showDialog<bool>(
-              context: context,
-              builder: (ctx) => AlertDialog(
-                backgroundColor: t.surface,
-                title: Text(
-                  'Eliminar apunte',
-                  style: GoogleFonts.manrope(
-                    color: t.textPrimary,
-                    fontSize: 16,
-                  ),
-                ),
-                content: Text(
-                  '¿Eliminar "${note.title.trim().isEmpty ? 'Apunte sin titulo' : note.title}"?',
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary,
-                    fontSize: 14,
-                  ),
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, false),
-                    child: Text(
-                      'Cancelar',
-                      style: GoogleFonts.manrope(color: t.textSecondary),
-                    ),
-                  ),
-                  TextButton(
-                    onPressed: () => Navigator.pop(ctx, true),
-                    child: Text(
-                      'Eliminar',
-                      style: GoogleFonts.manrope(color: Colors.red),
-                    ),
-                  ),
-                ],
-              ),
-            ) ??
-            false;
+      secondaryBackground: _fondoDeslizar(
+        t,
+        icono: Icons.delete_outline_rounded,
+        texto: 'Eliminar',
+        color: peligro,
+        alineacion: Alignment.centerRight,
+      ),
+      confirmDismiss: (direccion) async {
+        if (direccion == DismissDirection.startToEnd) {
+          _alternarFijada(note);
+          return false;
+        }
+        return _confirmarEliminar(t, note);
       },
       onDismissed: (_) => SermonNoteService.I.deleteNote(note.id),
       child: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                SermonNotesModeScreen(noteId: note.id),
-            transitionDuration: const Duration(milliseconds: 150),
-            transitionsBuilder:
-                (context, animation, secondaryAnimation, child) =>
-                    FadeTransition(opacity: animation, child: child),
-          ),
-        ),
-        onLongPress: central == null
-            ? null
-            : () => Navigator.push(
-                context,
-                PageRouteBuilder(
-                  pageBuilder: (context, animation, secondaryAnimation) =>
-                      BibleReaderScreen(
-                        bookNumber: central.bookNumber,
-                        bookName: central.bookName,
-                        chapter: central.chapter,
-                        version: BibleUserDataService
-                            .I
-                            .preferredVersionNotifier
-                            .value,
-                      ),
-                  transitionDuration: const Duration(milliseconds: 150),
-                  transitionsBuilder:
-                      (context, animation, secondaryAnimation, child) =>
-                          FadeTransition(opacity: animation, child: child),
-                ),
-              ),
+        onTap: () => _abrirNota(note),
+        onLongPress: central == null ? null : () => _abrirPasaje(central),
         behavior: HitTestBehavior.opaque,
         child: Container(
           padding: const EdgeInsets.fromLTRB(0, 0, 0, 18),
@@ -503,50 +613,99 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
             children: [
               Row(
                 children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    margin: const EdgeInsets.only(right: 8),
-                    decoration: BoxDecoration(
-                      color: t.accent,
-                      shape: BoxShape.circle,
+                  if (note.fijada)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: Icon(
+                        Icons.push_pin_rounded,
+                        size: 15,
+                        color: t.accent,
+                        semanticLabel: 'Fijado',
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 6,
+                      height: 6,
+                      margin: const EdgeInsets.only(right: 8),
+                      decoration: BoxDecoration(
+                        color: t.accent,
+                        shape: BoxShape.circle,
+                      ),
                     ),
-                  ),
                   Expanded(
                     child: Text(
-                      _noteTitle(note).toUpperCase(),
+                      _noteTitle(note),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textPrimary,
-                        fontSize: 12,
+                        fontSize: 15,
                         fontWeight: FontWeight.w800,
-                        letterSpacing: 0.6,
                       ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     _formatDate(note.sermonDate),
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
-                      fontSize: 11,
+                    style: AppFonts.manrope(
+                      color: t.textSecondary.withValues(alpha: 0.7),
+                      fontSize: 11.5,
                     ),
                   ),
-                  const SizedBox(width: 4),
-                  IconButton(
-                    tooltip: 'Eliminar apunte',
-                    visualDensity: VisualDensity.compact,
-                    splashRadius: 18,
-                    onPressed: () => _deleteNote(t, note),
+                  PopupMenuButton<String>(
+                    tooltip: 'Opciones del apunte',
+                    color: t.surface,
                     icon: Icon(
-                      Icons.delete_outline,
-                      size: 18,
-                      color: t.textSecondary.withValues(alpha: 0.72),
+                      Icons.more_vert_rounded,
+                      size: 20,
+                      color: t.textSecondary.withValues(alpha: 0.8),
                     ),
+                    onSelected: (accion) {
+                      if (accion == 'fijar') _alternarFijada(note);
+                      if (accion == 'eliminar') _deleteNote(t, note);
+                    },
+                    itemBuilder: (_) => [
+                      PopupMenuItem(
+                        value: 'fijar',
+                        child: Row(
+                          children: [
+                            Icon(
+                              note.fijada
+                                  ? Icons.push_pin_outlined
+                                  : Icons.push_pin_rounded,
+                              size: 18,
+                              color: t.accent,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              note.fijada ? 'Soltar de arriba' : 'Fijar arriba',
+                              style: AppFonts.manrope(color: t.textPrimary),
+                            ),
+                          ],
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'eliminar',
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.delete_outline_rounded,
+                              size: 18,
+                              color: peligro,
+                            ),
+                            const SizedBox(width: 10),
+                            Text(
+                              'Eliminar',
+                              style: AppFonts.manrope(color: peligro),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),
-              const SizedBox(height: 6),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
@@ -565,6 +724,13 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                       label: central.label,
                       selected: true,
                     ),
+                  for (final etiqueta in etiquetas.take(3))
+                    _ChoiceChipShell(
+                      theme: t,
+                      icon: Icons.tag_rounded,
+                      label: etiqueta,
+                      selected: false,
+                    ),
                 ],
               ),
               if (preview.isNotEmpty) ...[
@@ -573,12 +739,16 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   preview,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: GoogleFonts.lora(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 14.5,
                     height: 1.55,
                   ),
                 ),
+              ],
+              if (note.adjuntos.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                _MiniaturasAdjuntos(theme: t, note: note),
               ],
             ],
           ),
@@ -675,6 +845,7 @@ class _FilterShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
+    final acento = legibleEnPastilla(t.accent, 0.13, t.fondoVisible);
     return Container(
       constraints: const BoxConstraints(maxWidth: 230),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -692,15 +863,15 @@ class _FilterShell extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: selected ? t.accent : t.textSecondary, size: 15),
+          Icon(icon, color: selected ? acento : t.textSecondary, size: 15),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
               label,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.manrope(
-                color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.78),
+              style: AppFonts.manrope(
+                color: selected ? acento : t.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -709,7 +880,7 @@ class _FilterShell extends StatelessWidget {
           const SizedBox(width: 3),
           Icon(
             Icons.expand_more,
-            color: selected ? t.accent : t.textSecondary,
+            color: selected ? acento : t.textSecondary,
             size: 15,
           ),
         ],
@@ -754,7 +925,7 @@ class _ChoiceChipShell extends StatelessWidget {
           const SizedBox(width: 5),
           Text(
             label,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.76),
               fontSize: 11,
               fontWeight: FontWeight.w800,
@@ -769,4 +940,82 @@ class _ChoiceChipShell extends StatelessWidget {
 String _formatDate(DateTime date) {
   String two(int value) => value.toString().padLeft(2, '0');
   return '${two(date.day)}/${two(date.month)}/${date.year}';
+}
+
+/// Hasta cuatro miniaturas de fotos y dibujos del apunte, con «+N» si hay más.
+class _MiniaturasAdjuntos extends StatelessWidget {
+  final BibleReaderThemeData theme;
+  final SermonNote note;
+
+  const _MiniaturasAdjuntos({required this.theme, required this.note});
+
+  static const double _lado = 64;
+
+  @override
+  Widget build(BuildContext context) {
+    final t = theme;
+    final adjuntos = note.adjuntos;
+    final visibles = adjuntos.take(4).toList();
+    final extra = adjuntos.length - visibles.length;
+    return Semantics(
+      label: adjuntos.length == 1
+          ? '1 foto o dibujo'
+          : '${adjuntos.length} fotos y dibujos',
+      excludeSemantics: true,
+      child: Row(
+        children: [
+          for (var i = 0; i < visibles.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(right: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(10),
+                child: Container(
+                  width: _lado,
+                  height: _lado,
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: t.textSecondary.withValues(alpha: 0.16),
+                    ),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.cover,
+                        clipBehavior: Clip.hardEdge,
+                        child: SizedBox(
+                          width: 240,
+                          height:
+                              240 / visibles[i].proporcion.clamp(0.45, 2.4),
+                          child: VistaAdjunto(
+                            notaId: note.id,
+                            adjunto: visibles[i],
+                            theme: t,
+                          ),
+                        ),
+                      ),
+                      if (i == visibles.length - 1 && extra > 0)
+                        ColoredBox(
+                          color: Colors.black.withValues(alpha: 0.45),
+                          child: Center(
+                            child: Text(
+                              '+$extra',
+                              style: AppFonts.manrope(
+                                color: Colors.white,
+                                fontSize: 15,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }

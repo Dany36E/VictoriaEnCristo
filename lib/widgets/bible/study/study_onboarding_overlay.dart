@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
+import '../../../theme/app_theme_data.dart';
+import '../../../vec/vec_tema.dart';
+import '../../../vec/vec_widgets.dart';
 
 import '../../../models/bible/study_word_highlight.dart';
 
@@ -36,11 +39,17 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
     ),
   ];
 
+  // Tema «papel recortado»: hoja de papel con letras y colores del kit.
+  bool get _papel => AppThemeData.of(context).isPaper;
+  Color get _texto => _papel ? VecColores.tinta : Colors.white;
+
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: const Color(0xFF161616),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      backgroundColor: _papel ? null : const Color(0xFF161616),
+      shape: _papel
+          ? null
+          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       insetPadding: const EdgeInsets.all(24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 460, maxHeight: 520),
@@ -49,8 +58,8 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
             const SizedBox(height: 20),
             Text(
               'Modo Estudio',
-              style: GoogleFonts.cinzel(
-                color: Colors.white,
+              style: AppFonts.cinzel(
+                color: _texto,
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
               ),
@@ -72,15 +81,22 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
                 children: [
                   TextButton(
                     onPressed: () => Navigator.pop(context),
-                    child: Text('Saltar', style: GoogleFonts.manrope(color: Colors.white54)),
+                    child: Text(
+                      'Saltar',
+                      style: AppFonts.manrope(
+                        color: _papel ? VecColores.gris : Colors.white54,
+                      ),
+                    ),
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD4A853),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                    ),
+                    style: _papel
+                        ? null
+                        : ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD4A853),
+                            foregroundColor: Colors.black,
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          ),
                     onPressed: () {
                       if (_index < _slides.length - 1) {
                         _controller.nextPage(
@@ -93,7 +109,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
                     },
                     child: Text(
                       _index < _slides.length - 1 ? 'Siguiente' : 'Empezar',
-                      style: GoogleFonts.manrope(fontWeight: FontWeight.w600),
+                      style: AppFonts.manrope(fontWeight: FontWeight.w600),
                     ),
                   ),
                 ],
@@ -111,13 +127,16 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(s.icon, color: const Color(0xFFD4A853), size: 56),
+          if (_papel)
+            CirculoIcono(icono: s.icon, tamano: 72, giro: -4)
+          else
+            Icon(s.icon, color: const Color(0xFFD4A853), size: 56),
           const SizedBox(height: 18),
           Text(
             s.title,
             textAlign: TextAlign.center,
-            style: GoogleFonts.cinzel(
-              color: Colors.white,
+            style: AppFonts.cinzel(
+              color: _texto,
               fontSize: 18,
               fontWeight: FontWeight.w600,
             ),
@@ -126,7 +145,11 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
           Text(
             s.body,
             textAlign: TextAlign.center,
-            style: GoogleFonts.lora(color: Colors.white70, fontSize: 14, height: 1.5),
+            style: AppFonts.lora(
+              color: _papel ? VecColores.tinta : Colors.white70,
+              fontSize: 14,
+              height: 1.5,
+            ),
           ),
           const SizedBox(height: 14),
           if (s.title.contains('colores')) _buildColorRow(),
@@ -151,8 +174,8 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
               ),
               child: Text(
                 c.label,
-                style: GoogleFonts.manrope(
-                  color: Colors.white,
+                style: AppFonts.manrope(
+                  color: _texto,
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                 ),
@@ -174,7 +197,9 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
           width: active ? 18 : 6,
           height: 6,
           decoration: BoxDecoration(
-            color: active ? const Color(0xFFD4A853) : Colors.white24,
+            color: active
+                ? (_papel ? VecColores.terracota : const Color(0xFFD4A853))
+                : (_papel ? VecColores.cremaOscuro : Colors.white24),
             borderRadius: BorderRadius.circular(3),
           ),
         );

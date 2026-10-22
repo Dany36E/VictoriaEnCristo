@@ -45,7 +45,7 @@ class _KingdomLessonScreenState extends State<KingdomLessonScreen> {
     final t = AppThemeData.of(context);
     final progress = _progressValue;
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,

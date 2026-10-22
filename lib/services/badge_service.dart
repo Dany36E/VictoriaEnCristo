@@ -104,9 +104,15 @@ class BadgeService {
     return highest;
   }
 
+  /// Categorías que se muestran y se evalúan. Los planes de lectura están
+  /// ocultos por ahora: su insignia vuelve cuando regresen los planes.
+  static final List<BadgeCategory> visibles = BadgeCategory.values
+      .where((c) => c != BadgeCategory.reading)
+      .toList(growable: false);
+
   /// Obtiene el progreso de todas las categorías
   List<BadgeProgress> getAllProgress() {
-    return BadgeCategory.values.map((cat) {
+    return visibles.map((cat) {
       final value = _getMetric(cat);
       final level = _computeLevel(cat, value);
       final nextIdx = level != null ? level.index + 1 : 0;
@@ -141,7 +147,7 @@ class BadgeService {
   /// Total de insignias desbloqueadas (suma de niveles de todas las categorías)
   int get totalUnlocked {
     int count = 0;
-    for (final cat in BadgeCategory.values) {
+    for (final cat in visibles) {
       final value = _getMetric(cat);
       final level = _computeLevel(cat, value);
       if (level != null) count += level.index + 1;
@@ -149,8 +155,8 @@ class BadgeService {
     return count;
   }
 
-  /// Total posible (7 categorías × 7 niveles)
-  int get totalPossible => BadgeCategory.values.length * BadgeLevel.values.length;
+  /// Total posible (categorías visibles × 7 niveles)
+  int get totalPossible => visibles.length * BadgeLevel.values.length;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // DETECCIÓN DE NUEVAS INSIGNIAS
@@ -162,7 +168,7 @@ class BadgeService {
     await init();
     final newBadges = <BadgeUnlockEvent>[];
 
-    for (final cat in BadgeCategory.values) {
+    for (final cat in visibles) {
       final value = _getMetric(cat);
       final level = _computeLevel(cat, value);
       if (level == null) continue;

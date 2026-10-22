@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 
 import '../../services/bible/bible_user_data_service.dart';
@@ -67,7 +67,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         foregroundColor: t.textPrimary,
@@ -77,7 +77,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
           children: [
             Text(
               '${widget.bookName} ${widget.chapter}',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 color: t.accent,
@@ -85,7 +85,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
             ),
             Text(
               'Enduring Word — David Guzik',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 11,
                 color: t.textSecondary,
               ),
@@ -122,7 +122,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
             Text(
               _error!,
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 color: t.textSecondary,
                 fontSize: 14,
                 height: 1.5,
@@ -152,7 +152,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
       padding: const EdgeInsets.only(bottom: 20),
       child: Text(
         title,
-        style: GoogleFonts.cinzel(
+        style: AppFonts.cinzel(
           color: t.accent,
           fontSize: 18,
           fontWeight: FontWeight.w700,
@@ -183,7 +183,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
               ),
               child: Text(
                 section.heading,
-                style: GoogleFonts.cinzel(
+                style: AppFonts.cinzel(
                   color: t.accent,
                   fontSize: 14,
                   fontWeight: FontWeight.w700,
@@ -198,7 +198,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
                 padding: const EdgeInsets.only(bottom: 8),
                 child: Text(
                   p,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary.withValues(alpha: 0.85),
                     fontSize: 14,
                     height: 1.7,
@@ -216,7 +216,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Sección copiada',
-            style: GoogleFonts.manrope(color: t.textPrimary)),
+            style: AppFonts.manrope(color: t.textPrimary)),
         backgroundColor: t.surface,
         duration: const Duration(seconds: 2),
       ),

@@ -6,7 +6,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../theme/app_theme_data.dart';
 
 class VictorySummaryHeader extends StatelessWidget {
@@ -79,7 +79,7 @@ class VictorySummaryHeader extends StatelessWidget {
                   children: [
                     Text(
                       'Racha actual',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 13,
                         fontWeight: FontWeight.w500,
                         color: t.textSecondary,
@@ -92,7 +92,7 @@ class VictorySummaryHeader extends StatelessWidget {
                       children: [
                         Text(
                           '$currentStreak',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: currentStreak >= 100 ? 38 : 48,
                             fontWeight: FontWeight.w800,
                             color: t.textPrimary,
@@ -102,7 +102,7 @@ class VictorySummaryHeader extends StatelessWidget {
                         const SizedBox(width: 8),
                         Text(
                           currentStreak == 1 ? 'día' : 'días',
-                          style: GoogleFonts.manrope(
+                          style: AppFonts.manrope(
                             fontSize: 18,
                             fontWeight: FontWeight.w500,
                             color: t.textSecondary,
@@ -168,7 +168,7 @@ class VictorySummaryHeader extends StatelessWidget {
               children: [
                 Text(
                   label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 11,
                     fontWeight: FontWeight.w500,
                     color: t.textSecondary.withValues(alpha: 0.7),
@@ -176,7 +176,7 @@ class VictorySummaryHeader extends StatelessWidget {
                 ),
                 Text(
                   value,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
                     color: t.textPrimary,
@@ -207,7 +207,7 @@ class VictorySummaryHeader extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               '¡Victoria registrada hoy!',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: _victory,
@@ -234,7 +234,7 @@ class VictorySummaryHeader extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               'Disponible después de las 6pm',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: t.textSecondary.withValues(alpha: 0.5),
@@ -264,7 +264,7 @@ class VictorySummaryHeader extends StatelessWidget {
             const SizedBox(width: 10),
             Text(
               'Registrar victoria de hoy',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 color: t.accent,

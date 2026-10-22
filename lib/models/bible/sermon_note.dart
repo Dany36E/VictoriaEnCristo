@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+import 'adjunto_nota.dart';
 import 'bible_verse.dart';
 import 'study_word_highlight.dart';
 
@@ -108,6 +111,12 @@ class SermonNote {
   final String takeaway;
   final List<SermonVerseReference> verses;
   final List<StudyWordHighlight> highlights;
+
+  /// Fotos y dibujos de la sección Notas, en el orden en que se muestran.
+  final List<AdjuntoNota> adjuntos;
+
+  /// Fijada arriba en la lista de apuntes, como en Notas.
+  final bool fijada;
   final DateTime createdAt;
   final DateTime updatedAt;
 
@@ -123,6 +132,8 @@ class SermonNote {
     required this.takeaway,
     required this.verses,
     required this.highlights,
+    this.adjuntos = const [],
+    this.fijada = false,
     required this.createdAt,
     required this.updatedAt,
   });
@@ -157,7 +168,8 @@ class SermonNote {
       takeaway.trim().isNotEmpty ||
       centralPassage != null ||
       verses.isNotEmpty ||
-      highlights.isNotEmpty;
+      highlights.isNotEmpty ||
+      adjuntos.isNotEmpty;
 
   Map<String, dynamic> toMap() => {
     'title': title,
@@ -170,9 +182,22 @@ class SermonNote {
     'takeaway': takeaway,
     'verses': verses.map((v) => v.toMap()).toList(),
     'highlights': highlights.map(_highlightToMap).toList(),
+    'adjuntos': [for (final a in adjuntos) a.toMap()],
+    'fijada': fijada,
     'createdAt': Timestamp.fromDate(createdAt),
     'updatedAt': Timestamp.fromDate(updatedAt),
   };
+
+  /// Todo lo que se guarda menos la fecha de edición. Si no cambió desde el
+  /// último guardado, no hace falta volver a escribir el apunte.
+  String get huellaContenido {
+    final mapa = toMap()..remove('updatedAt');
+    return jsonEncode(
+      mapa,
+      toEncodable: (o) =>
+          o is Timestamp ? '${o.seconds}.${o.nanoseconds}' : o.toString(),
+    );
+  }
 
   factory SermonNote.fromMap(String id, Map<String, dynamic> map) {
     return SermonNote(
@@ -212,6 +237,11 @@ class SermonNote {
               )
               .toList() ??
           const [],
+      adjuntos: [
+        for (final a in (map['adjuntos'] as List? ?? const []).whereType<Map>())
+          ?AdjuntoNota.fromMap(Map<String, dynamic>.from(a)),
+      ],
+      fijada: map['fijada'] == true,
       createdAt: _dateFromAny(map['createdAt'] ?? map['createdAtMs']),
       updatedAt: _dateFromAny(map['updatedAt'] ?? map['updatedAtMs']),
     );
@@ -229,6 +259,8 @@ class SermonNote {
     String? takeaway,
     List<SermonVerseReference>? verses,
     List<StudyWordHighlight>? highlights,
+    List<AdjuntoNota>? adjuntos,
+    bool? fijada,
   }) {
     return SermonNote(
       id: id,
@@ -244,6 +276,8 @@ class SermonNote {
       takeaway: takeaway ?? this.takeaway,
       verses: verses ?? this.verses,
       highlights: highlights ?? this.highlights,
+      adjuntos: adjuntos ?? this.adjuntos,
+      fijada: fijada ?? this.fijada,
       createdAt: createdAt,
       updatedAt: DateTime.now(),
     );

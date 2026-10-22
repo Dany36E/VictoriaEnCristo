@@ -63,7 +63,7 @@ class ExercisesScreen extends StatelessWidget {
         .toList();
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         title: const Text('Ejercicios'),
         backgroundColor: Colors.transparent,
@@ -749,7 +749,7 @@ class _ExerciseDetailScreenState extends State<ExerciseDetailScreen>
         : (_currentStep + 1) / steps.length;
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
 import '../services/favorites_service.dart';
+import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
+import '../theme/contraste.dart';
+import '../vec/vec_widgets.dart';
 import '../widgets/share_verse_modal.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════════
@@ -45,7 +48,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: CustomScrollView(
         physics: const BouncingScrollPhysics(),
         slivers: [
@@ -53,18 +56,27 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           // APP BAR PREMIUM
           // ═══════════════════════════════════════════════════════════════════
           SliverAppBar(
-            expandedHeight: 180,
+            // Alto suficiente para que el ícono no quede bajo la flecha de
+            // regreso de la barra (56 px).
+            expandedHeight: 220,
             floating: false,
             pinned: true,
-            backgroundColor: t.surface,
+            backgroundColor: t.isPaper ? Colors.transparent : t.surface,
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios_rounded, color: t.textPrimary),
               onPressed: () => Navigator.pop(context),
             ),
-            flexibleSpace: FlexibleSpaceBar(
+            flexibleSpace: Stack(
+              fit: StackFit.expand,
+              children: [
+                // Tema papel: la barra fija también es hoja con textura.
+                if (t.isPaper) const FondoPapel(child: SizedBox.expand()),
+                FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
+                  gradient: t.isPaper
+                      ? null
+                      : LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
@@ -76,6 +88,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 child: Stack(
                   children: [
                     // Decoración de fondo
+                    if (!t.isPaper)
                     Positioned(
                       top: -30,
                       right: -30,
@@ -117,7 +130,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           const SizedBox(height: 16),
                           Text(
                             'Mis Favoritos',
-                            style: GoogleFonts.cinzel(
+                            style: AppFonts.cinzel(
                               fontSize: 28,
                               fontWeight: FontWeight.w700,
                               color: t.textPrimary,
@@ -126,8 +139,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '${_favoritesService.count} versículos guardados',
-                            style: GoogleFonts.manrope(
+                            _favoritesService.count == 1
+                                ? '1 versículo guardado'
+                                : '${_favoritesService.count} versículos guardados',
+                            style: AppFonts.manrope(
                               fontSize: 14,
                               color: t.textSecondary,
                             ),
@@ -138,6 +153,8 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   ],
                 ),
               ),
+            ),
+              ],
             ),
           ),
 
@@ -201,7 +218,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             const SizedBox(height: 24),
             Text(
               'Sin favoritos aún',
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
                 color: t.textPrimary,
@@ -211,7 +228,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             Text(
               'Los versículos que guardes aparecerán aquí.\nToca el ícono de marcador en cualquier versículo para guardarlo.',
               textAlign: TextAlign.center,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 14,
                 color: t.textSecondary,
                 height: 1.6,
@@ -223,9 +240,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [t.accent, t.accentSoft],
-                  ),
+                  // Fondo sólido: con el degradado a accentSoft (casi
+                  // transparente) el texto se perdía en la mitad derecha.
+                  color: t.accent,
                   borderRadius: BorderRadius.circular(30),
                   boxShadow: [
                     BoxShadow(
@@ -237,10 +254,14 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                 ),
                 child: Text(
                   'Explorar Versículos',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: Colors.white,
+                    color:
+                        contrasteWcag(Colors.white, t.accent) >=
+                            contrasteWcag(AppDesignSystem.midnightDeep, t.accent)
+                        ? Colors.white
+                        : AppDesignSystem.midnightDeep,
                   ),
                 ),
               ),
@@ -281,14 +302,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             const SizedBox(width: 12),
             Text(
               message,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontWeight: FontWeight.w600,
                 color: Colors.white,
               ),
             ),
           ],
         ),
-        backgroundColor: const Color(0xFF0A0E14),
+        backgroundColor: AppThemeData.of(context).isPaper
+            ? null
+            : const Color(0xFF0A0E14),
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
@@ -362,7 +385,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                 ),
                 child: Text(
                   verse.category.toUpperCase(),
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
                     color: t.accent,
@@ -376,7 +399,7 @@ class _FavoriteVerseCard extends StatelessWidget {
               // Versículo
               Text(
                 '"${verse.verse}"',
-                style: GoogleFonts.crimsonPro(
+                style: AppFonts.crimsonPro(
                   fontSize: 17,
                   fontWeight: FontWeight.w400,
                   fontStyle: FontStyle.italic,
@@ -392,7 +415,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                 children: [
                   Text(
                     verse.reference,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: t.accent,

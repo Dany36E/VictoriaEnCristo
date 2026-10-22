@@ -13,6 +13,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'firebase_options.dart';
 import 'theme/app_theme.dart';
 import 'theme/app_theme_data.dart';
+import 'vec/vec_tema.dart';
+import 'vec/vec_widgets.dart';
 import 'screens/home_screen.dart';
 import 'widgets/error_boundary.dart';
 import 'screens/login_screen.dart';
@@ -22,7 +24,10 @@ import 'screens/emergency_screen.dart';
 import 'screens/sacred_alarm_active_screen.dart';
 import 'screens/sacred_alarms_screen.dart';
 import 'navigation/app_navigation.dart';
+import 'widgets/home/atajos_inicio.dart';
 import 'services/theme_service.dart';
+import 'services/atajos_service.dart';
+import 'services/avatar_perfil_service.dart';
 import 'services/favorites_service.dart';
 import 'services/onboarding_service.dart';
 import 'services/audio_engine.dart';
@@ -196,6 +201,8 @@ Future<StartupServices> _initializeStartupServices() async {
   await _timedStartup('Fase 1 servicios críticos', () async {
     await Future.wait([
       themeService.initialize(),
+      AvatarPerfilService.I.cargar(),
+      AtajosService.I.cargar(),
       onboardingService.init(),
       favoritesService.init(),
       audioEngine.init(),
@@ -266,6 +273,8 @@ Future<void> _startDeferredServices() async {
     await Future.wait([
       BibleParserService.I.init(),
       notificationService.scheduleAllNotifications(),
+      // Planes ocultos por ahora: sin recordatorios que lleven a ellos.
+      notificationService.cancelarRecordatoriosDePlanes(),
     ]);
     if (PlatformCapabilities.supportsHomeWidgets) {
       WidgetSyncService.I.syncWidget();
@@ -441,6 +450,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
   /// Fecha conocida para detectar cambio de día al volver del background
   String _lastKnownDate = TimeUtils.todayISO();
 
+  /// Si el widget de inicio se sincronizó con los dibujos del tema papel.
+  late bool _widgetEnPapel = widget.themeService.currentTheme.isPaper;
+
   @override
   void initState() {
     super.initState();
@@ -454,6 +466,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       WidgetSyncService.I.registerInteractionCallback(
         navigatorKey: _navigatorKey,
       );
+      // El widget «Atajos» y los accesos del ícono siguen la elección de Inicio.
+      AtajosService.I.elegidos.addListener(_sincronizarAtajos);
+      _sincronizarAtajos();
     }
 
     // Deep-link desde notificaciones locales.
@@ -464,8 +479,15 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     });
   }
 
+  void _sincronizarAtajos() {
+    unawaited(
+      WidgetSyncService.I.sincronizarAtajos(AtajosService.I.elegidos.value),
+    );
+  }
+
   @override
   void dispose() {
+    AtajosService.I.elegidos.removeListener(_sincronizarAtajos);
     _navigationChannel.setMethodCallHandler(null);
     NotificationService.lastTapPayload.removeListener(_onNotificationPayload);
     widget.themeService.removeListener(_onThemeChanged);
@@ -643,6 +665,26 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       _isDarkMode = widget.themeService.isDarkMode;
     });
     _updateSystemUI();
+    _rebuildAllChildren();
+    // El widget de inicio usa los dibujos de papel solo con ese tema.
+    final papel = widget.themeService.currentTheme.isPaper;
+    if (papel != _widgetEnPapel) {
+      _widgetEnPapel = papel;
+      if (PlatformCapabilities.supportsHomeWidgets) {
+        unawaited(WidgetSyncService.I.syncWidget());
+      }
+    }
+  }
+
+  /// AppFonts depende del tema activo pero no es un InheritedWidget, así que
+  /// forzamos rebuild de todo el árbol (sin perder estado) al cambiar de tema.
+  void _rebuildAllChildren() {
+    void rebuild(Element el) {
+      el.markNeedsBuild();
+      el.visitChildren(rebuild);
+    }
+
+    if (mounted) (context as Element).visitChildren(rebuild);
   }
 
   void _updateSystemUI() {
@@ -654,7 +696,9 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
             : Brightness.dark,
         systemNavigationBarColor: _isDarkMode
             ? AppTheme.darkBackground
-            : AppTheme.backgroundColor,
+            : (widget.themeService.currentTheme.isPaper
+                  ? VecColores.crema
+                  : AppTheme.backgroundColor),
         systemNavigationBarIconBrightness: _isDarkMode
             ? Brightness.light
             : Brightness.dark,
@@ -672,7 +716,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       scaffoldMessengerKey: AppErrorHandler.I.messengerKey,
       title: 'Victoria en Cristo',
       debugShowCheckedModeBanner: false,
-      theme: AppTheme.lightTheme,
+      theme: appTheme.isPaper ? AppTheme.paperTheme : AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       navigatorObservers: [
@@ -693,9 +737,17 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         );
       },
       builder: (context, child) {
+        final content = child ?? const SizedBox.shrink();
         return AppThemeData.provider(
           theme: appTheme,
-          child: child ?? const SizedBox.shrink(),
+          // Papel con textura detrás de todas las rutas en el tema papel.
+          // Misma estructura en todos los temas: el Navigator conserva su estado.
+          child: DecoratedBox(
+            decoration: appTheme.isPaper
+                ? FondoPapel.decoracion
+                : const BoxDecoration(),
+            child: content,
+          ),
         );
       },
       home: _buildHomeOrOnboarding(),
@@ -1209,6 +1261,13 @@ class _NavigationHandlerState extends State<_NavigationHandler> {
           showAlreadyVictoryCelebration: true,
         ),
       );
+      return;
+    }
+
+    // Atajos del widget de Android y del ícono de la app (/atajo/<id>).
+    if (route.startsWith(prefijoRutaAtajo)) {
+      widget.onRouteConsumed();
+      abrirAtajo(context, route.substring(prefijoRutaAtajo.length));
       return;
     }
 

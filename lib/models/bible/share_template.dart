@@ -24,10 +24,11 @@ class ShareTextStyle {
 /// Layout del texto sobre el fondo.
 enum ShareLayout {
   centered, // texto centrado en el medio
-  bottom,   // texto en banda inferior
-  topLeft,  // texto alineado arriba-izquierda
-  keyword,  // palabra clave gigante + texto pequeño
+  bottom, // texto en banda inferior
+  topLeft, // texto alineado arriba-izquierda
+  keyword, // palabra clave gigante + texto pequeño
   circular, // texto orbital con CustomPainter
+  papel, // tarjeta «papel recortado» del kit (TarjetaCompartirPapel)
 }
 
 /// Plantilla de imagen para compartir versículos.
@@ -53,7 +54,8 @@ class ShareCardTemplate {
   });
 }
 
-/// Las 10 plantillas premium con fondos pregenerados (DALL-E 3).
+/// Las 10 plantillas premium con fondos pregenerados (DALL-E 3) y las 2 de
+/// papel recortado.
 const List<ShareCardTemplate> kShareTemplates = [
   // ── 1. Cosmos ──
   ShareCardTemplate(
@@ -225,4 +227,41 @@ const List<ShareCardTemplate> kShareTemplates = [
     ),
     layout: ShareLayout.centered,
   ),
+  // ── 11 y 12. Papel recortado (el estilo del tema papel) ──
+  ShareCardTemplate(
+    id: 'papel_victoria',
+    name: 'Victoria',
+    backgroundAsset: 'assets/vec/texturas/papel_tile_512.png',
+    isDark: false,
+    textStyle: _estiloPapel,
+    layout: ShareLayout.papel,
+  ),
+  ShareCardTemplate(
+    id: 'papel_timoteo',
+    name: 'Timoteo',
+    backgroundAsset: 'assets/vec/texturas/papel_tile_512.png',
+    isDark: false,
+    textStyle: _estiloPapel,
+    layout: ShareLayout.papel,
+  ),
 ];
+
+/// Las plantillas de papel dibujan su propio texto; esto solo describe sus
+/// letras y colores (kit victoria-en-cristo-estilo).
+const _estiloPapel = ShareTextStyle(
+  verseFont: 'PatrickHand',
+  verseFontSize: 34,
+  verseColor: Color(0xFF2B2622),
+  referenceFont: 'LilitaOne',
+  referenceFontSize: 22,
+  referenceColor: Color(0xFFA8452F),
+  appNameColor: Color(0xFF2B2622),
+);
+
+/// Plantillas en el orden en que se muestran: con el tema papel, las de papel
+/// van primero.
+List<ShareCardTemplate> plantillasCompartir({required bool papel}) {
+  final dePapel = kShareTemplates.where((t) => t.layout == ShareLayout.papel);
+  final resto = kShareTemplates.where((t) => t.layout != ShareLayout.papel);
+  return papel ? [...dePapel, ...resto] : [...resto, ...dePapel];
+}

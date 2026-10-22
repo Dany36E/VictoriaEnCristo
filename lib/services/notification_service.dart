@@ -739,6 +739,22 @@ class NotificationService {
 
   int _planNotificationId(String planId) => planId.hashCode & 0x7fffffff;
 
+  /// Los planes están ocultos por ahora: cancela los recordatorios de plan
+  /// que hayan quedado programados para no llevar a una sección que no existe.
+  Future<void> cancelarRecordatoriosDePlanes() async {
+    try {
+      if (!_notificationsInitialized) await _initNotifications();
+      final pendientes = await _flnp.pendingNotificationRequests();
+      for (final p in pendientes) {
+        if (p.payload?.startsWith(payloadPlanPrefix) ?? false) {
+          await _flnp.cancel(p.id);
+        }
+      }
+    } catch (e) {
+      debugPrint('⚠️ cancelarRecordatoriosDePlanes error: $e');
+    }
+  }
+
   /// Obtener mensaje para notificación matutina
   String getMorningMessage() {
     final verse = BibleVerses.getRandomVerse();

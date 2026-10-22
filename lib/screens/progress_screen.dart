@@ -2,13 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:confetti/confetti.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../theme/app_theme_data.dart';
 import '../services/feedback_engine.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/audio_engine.dart';
 import '../services/journal_service.dart';
-import '../services/plan_progress_service.dart';
 import '../services/widget_sync_service.dart';
 import '../widgets/monthly_victory_calendar.dart';
 import '../widgets/journal_day_note_card.dart';
@@ -39,7 +38,6 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
   late DateTime _selectedDate;
   Set<String> _victoryDaysISO = {};
   Set<String> _journalDaysISO = {};
-  Set<String> _planDaysISO = {};
   JournalEntry? _selectedJournalEntry;
   bool _isLoadingJournal = false;
   final JournalService _journalService = JournalService();
@@ -162,26 +160,17 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
       final days = VictoryScoringService.I.getVictoryDaysInMonth(month);
       // Overlay data: journal entries for this month
       final journalDays = <String>{};
-      final planDays = <String>{};
       final lastDay = DateTime(month.year, month.month + 1, 0).day;
       for (int d = 1; d <= lastDay; d++) {
         final date = DateTime(month.year, month.month, d);
         final iso = '${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}';
         if (_journalService.getEntriesForDate(date).isNotEmpty) journalDays.add(iso);
       }
-      // Plan: use lastCompletedAt from each plan
-      for (final pp in PlanProgressService.I.allProgress) {
-        final lc = pp.lastCompletedAt;
-        if (lc != null && lc.month == month.month && lc.year == month.year) {
-          planDays.add('${lc.year}-${lc.month.toString().padLeft(2, '0')}-${lc.day.toString().padLeft(2, '0')}');
-        }
-      }
       if (mounted) {
         final now = DateTime.now();
         setState(() {
           _victoryDaysISO = days;
           _journalDaysISO = journalDays;
-          _planDaysISO = planDays;
           // Actualizar si hoy está registrado
           if (month.month == now.month && month.year == now.year) {
             _isLoggedToday = VictoryScoringService.I.isLoggedToday();
@@ -389,7 +378,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     final t = AppThemeData.of(context);
     if (_isLoading) {
       return Scaffold(
-        backgroundColor: t.scaffoldBg,
+        backgroundColor: t.pageBg,
         body: Center(
           child: CircularProgressIndicator(
             color: t.accent,
@@ -400,7 +389,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     }
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       body: Stack(
         children: [
           // Golden confetti
@@ -471,7 +460,6 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                             onSelectDay: _onDaySelected,
                             onMonthChanged: _onMonthChanged,
                             journalDaysISO: _journalDaysISO,
-                            planDaysISO: _planDaysISO,
                           ),
                         ),
                       ),
@@ -567,7 +555,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                   children: [
                     Text(
                       'Mi Progreso',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 22,
                         fontWeight: FontWeight.w800,
                         color: t.textPrimary,
@@ -575,7 +563,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                     ),
                     Text(
                       _getHeaderSubtitle(),
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 13,
                         color: t.textSecondary.withValues(alpha: 0.7),
                       ),
@@ -678,7 +666,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 12.5,
                 fontWeight: FontWeight.w500,
                 color: t.textSecondary.withValues(alpha: 0.8),

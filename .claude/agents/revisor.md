@@ -33,7 +33,7 @@ no solo el diff.
    - Toda pantalla debe estar en `test/visual/screens_theme_matrix_test.dart`
      (`themeMatrix('<nombre>', () => const MiPantalla())`). Si una pantalla
      nueva o cambiada no está, agrégala (es el único archivo que puedes
-     tocar). `themeMatrix` la dibuja en los 9 temas, guarda capturas en
+     tocar). `themeMatrix` la dibuja en todos los temas, guarda capturas en
      `build/qa/` y revisa desbordes y errores, que el fondo de cada botón
      cubra su texto y el contraste WCAG del texto contra su fondo real.
    - Corre `flutter test --no-pub test/visual/` y reporta cada problema

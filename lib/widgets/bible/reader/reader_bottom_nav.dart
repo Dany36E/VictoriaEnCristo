@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../theme/bible_reader_theme.dart';
 
@@ -48,8 +48,8 @@ class ReaderBottomNav extends StatelessWidget {
                           Flexible(
                             child: Text(
                               'Cap. ${controller.currentChapter - 1}',
-                              style: GoogleFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.4),
+                              style: AppFonts.manrope(
+                                color: t.textoTenue(0.4),
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -70,8 +70,8 @@ class ReaderBottomNav extends StatelessWidget {
             },
             child: Text(
               '${controller.bookName} ${controller.currentChapter}',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.4),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.4),
                 fontSize: 11,
                 letterSpacing: 1.0,
               ),
@@ -92,7 +92,7 @@ class ReaderBottomNav extends StatelessWidget {
                               Flexible(
                                 child: Text(
                                   nextBook.name,
-                                  style: GoogleFonts.manrope(
+                                  style: AppFonts.manrope(
                                     color: t.accent.withValues(alpha: 0.6),
                                     fontSize: 13,
                                   ),
@@ -121,8 +121,8 @@ class ReaderBottomNav extends StatelessWidget {
                           Flexible(
                             child: Text(
                               'Cap. ${controller.currentChapter + 1}',
-                              style: GoogleFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.4),
+                              style: AppFonts.manrope(
+                                color: t.textoTenue(0.4),
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,

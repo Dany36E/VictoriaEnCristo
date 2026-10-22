@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../theme/contraste.dart';
 import '../../models/wall_post.dart';
 import '../../models/content_enums.dart';
 import '../../services/wall_service.dart';
@@ -177,7 +178,7 @@ class _WallScreenState extends State<WallScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.surface,
+      backgroundColor: t.isPaper ? t.pageBg : t.surface,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -347,7 +348,9 @@ class _GiantChip extends StatelessWidget {
           style: TextStyle(
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
-            color: selected ? t.accent : t.textSecondary,
+            color: selected
+                ? legibleEnPastilla(t.accent, 0.2, t.fondoVisible)
+                : t.textSecondary,
           ),
         ),
       ),

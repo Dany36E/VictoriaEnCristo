@@ -3,7 +3,7 @@ param(
     [string]$Flutter = 'C:\Users\danie\flutter\bin\flutter.bat',
     [string]$Adb = 'C:\Users\danie\AppData\Local\Android\Sdk\platform-tools\adb.exe',
     [ValidateSet('phone_small', 'tablet')][string[]]$Profiles = @('phone_small', 'tablet'),
-    [ValidateSet('series', 'access')][string[]]$Suites = @('series', 'access')
+    [ValidateSet('access')][string[]]$Suites = @('access')
 )
 $ErrorActionPreference = 'Stop'
 $previousProfile = $env:QA_DEVICE_PROFILE

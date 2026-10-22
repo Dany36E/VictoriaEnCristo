@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/bible_reader_theme.dart';
 
@@ -89,8 +89,8 @@ class _CollapsibleSectionState extends State<CollapsibleSection>
                 Expanded(
                   child: Text(
                     widget.title,
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.6),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.6),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),

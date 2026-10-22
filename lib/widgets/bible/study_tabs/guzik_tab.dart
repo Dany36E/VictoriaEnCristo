@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/bible_verse.dart';
 import '../../../services/bible/enduring_word_service.dart';
@@ -59,7 +59,7 @@ class _GuzikTabState extends State<GuzikTab> {
                 const SizedBox(height: 12),
                 Text(
                   'Cargando comentario de David Guzik…',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontSize: 12,
                   ),
@@ -135,7 +135,7 @@ class _GuzikTabState extends State<GuzikTab> {
               children: [
                 Text(
                   'Enduring Word — David Guzik',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -143,7 +143,7 @@ class _GuzikTabState extends State<GuzikTab> {
                 ),
                 Text(
                   'enduringword.com',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textSecondary,
                     fontSize: 11,
                   ),
@@ -201,7 +201,7 @@ class _GuzikTabState extends State<GuzikTab> {
         ),
         child: Text(
           label,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: selected ? t.accent : t.textPrimary.withValues(alpha: 0.64),
             fontSize: 12,
             fontWeight: selected ? FontWeight.w700 : FontWeight.w600,
@@ -227,7 +227,7 @@ class _GuzikTabState extends State<GuzikTab> {
             ),
             child: Text(
               section.heading,
-              style: GoogleFonts.cinzel(
+              style: AppFonts.cinzel(
                 color: t.accent,
                 fontSize: 13,
                 fontWeight: FontWeight.w700,
@@ -240,7 +240,7 @@ class _GuzikTabState extends State<GuzikTab> {
               padding: const EdgeInsets.only(bottom: 6),
               child: Text(
                 paragraph,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.85),
                   fontSize: 14,
                   height: 1.7,
@@ -268,7 +268,7 @@ class _GuzikTabState extends State<GuzikTab> {
           Text(
             message,
             textAlign: TextAlign.center,
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               color: t.textPrimary.withValues(alpha: 0.5),
               fontSize: 14,
               height: 1.5,

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../services/bible/iq_bible_service.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
 
 /// Wizard paso-a-paso para configurar la API key de IQ Bible (RapidAPI).
 class ApiSetupWizardScreen extends StatefulWidget {
@@ -12,6 +15,23 @@ class ApiSetupWizardScreen extends StatefulWidget {
 }
 
 class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
+  // Tema «papel recortado»: hoja de papel y colores del kit; en los demás
+  // temas, la paleta nocturna original.
+  bool get _papel => AppThemeData.of(context).isPaper;
+  Color get _fondo => _papel ? Colors.transparent : const Color(0xFF0A0E1A);
+  Color get _barra => _papel ? Colors.transparent : const Color(0xFF121729);
+  Color get _superficie => _papel ? VecColores.papel : const Color(0xFF121729);
+  Color get _oro => _papel ? VecColores.terracota : const Color(0xFFD4AF37);
+  Color get _sobreOro => _papel ? VecColores.papel : const Color(0xFF0A0E1A);
+  Color get _verde => _papel ? VecColores.verde : const Color(0xFF4CAF50);
+  Color get _error => _papel ? VecColores.terracota : const Color(0xFFE57373);
+  Color get _texto => _papel ? VecColores.tinta : Colors.white;
+  Color get _texto2 => _papel ? VecColores.tinta : Colors.white70;
+  Color get _texto3 => _papel ? VecColores.gris : Colors.white54;
+  Color get _texto4 => _papel ? VecColores.gris : Colors.white38;
+  Color get _linea => _papel ? VecColores.cremaOscuro : Colors.white12;
+  Color get _linea2 => _papel ? VecColores.cremaOscuro : Colors.white24;
+
   final _pageController = PageController();
   final _keyController = TextEditingController();
   int _currentPage = 0;
@@ -101,22 +121,22 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF0A0E1A),
+      backgroundColor: _fondo,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF121729),
+        backgroundColor: _barra,
         elevation: 0,
         title: Text(
           'CONFIGURAR API',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             letterSpacing: 2.0,
-            color: const Color(0xFFD4AF37),
+            color: _oro,
           ),
         ),
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white70),
+          icon: Icon(Icons.close, color: _texto2),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -133,8 +153,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
                     margin: const EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
                       color: i <= _currentPage
-                          ? const Color(0xFFD4AF37)
-                          : Colors.white12,
+                          ? _oro
+                          : _linea,
                       borderRadius: BorderRadius.circular(2),
                     ),
                   ),
@@ -167,12 +187,12 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.api, color: Color(0xFFD4AF37), size: 48),
+          Icon(Icons.api, color: _oro, size: 48),
           const SizedBox(height: 20),
           Text(
             'IQ Bible API',
-            style: GoogleFonts.cinzel(
-              color: Colors.white,
+            style: AppFonts.cinzel(
+              color: _texto,
               fontSize: 24,
               fontWeight: FontWeight.w700,
             ),
@@ -182,8 +202,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             'Para acceder a herramientas avanzadas de estudio bíblico '
             '(interlineal, Strong\'s, referencias cruzadas, audio), '
             'necesitas una API key gratuita de RapidAPI.',
-            style: GoogleFonts.manrope(
-              color: Colors.white70,
+            style: AppFonts.manrope(
+              color: _texto2,
               fontSize: 14,
               height: 1.6,
             ),
@@ -204,12 +224,12 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
               icon: const Icon(Icons.open_in_new, size: 18),
               label: Text(
                 'Ir a RapidAPI',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     fontSize: 14, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4AF37),
-                foregroundColor: const Color(0xFF0A0E1A),
+                backgroundColor: _oro,
+                foregroundColor: _sobreOro,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -221,8 +241,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             child: TextButton(
               onPressed: _nextPage,
               child: Text('Ya tengo mi API Key',
-                  style: GoogleFonts.manrope(
-                      color: const Color(0xFFD4AF37), fontSize: 13)),
+                  style: AppFonts.manrope(
+                      color: _oro, fontSize: 13)),
             ),
           ),
         ],
@@ -237,12 +257,12 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Icon(Icons.key, color: Color(0xFFD4AF37), size: 48),
+          Icon(Icons.key, color: _oro, size: 48),
           const SizedBox(height: 20),
           Text(
             'Pega tu API Key',
-            style: GoogleFonts.cinzel(
-              color: Colors.white,
+            style: AppFonts.cinzel(
+              color: _texto,
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -251,8 +271,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           Text(
             'Copia la key de tu dashboard de RapidAPI '
             '(sección "X-RapidAPI-Key").',
-            style: GoogleFonts.manrope(
-              color: Colors.white54,
+            style: AppFonts.manrope(
+              color: _texto3,
               fontSize: 13,
               height: 1.5,
             ),
@@ -261,30 +281,30 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           TextField(
             controller: _keyController,
             style: GoogleFonts.sourceCodePro(
-              color: Colors.white,
+              color: _texto,
               fontSize: 13,
             ),
             decoration: InputDecoration(
               hintText: 'xxxxxxxxxxxxxxxxxxxxxxxx',
               hintStyle: GoogleFonts.sourceCodePro(
-                color: Colors.white24,
+                color: _linea2,
                 fontSize: 13,
               ),
               filled: true,
-              fillColor: const Color(0xFF121729),
+              fillColor: _superficie,
               contentPadding:
                   const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide:
-                    BorderSide(color: const Color(0xFFD4AF37).withValues(alpha: 0.3)),
+                    BorderSide(color: _oro.withValues(alpha: 0.3)),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
-                borderSide: const BorderSide(color: Color(0xFFD4AF37)),
+                borderSide: BorderSide(color: _oro),
               ),
               suffixIcon: IconButton(
-                icon: const Icon(Icons.paste, color: Colors.white38, size: 20),
+                icon: Icon(Icons.paste, color: _texto4, size: 20),
                 onPressed: () async {
                   final data = await Clipboard.getData('text/plain');
                   if (data?.text != null) {
@@ -298,8 +318,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             const SizedBox(height: 8),
             Text(
               'La API key no es válida. Verifica que la copiaste correctamente.',
-              style: GoogleFonts.manrope(
-                  color: const Color(0xFFE57373), fontSize: 12),
+              style: AppFonts.manrope(
+                  color: _error, fontSize: 12),
             ),
           ],
           const Spacer(),
@@ -308,22 +328,22 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             child: ElevatedButton.icon(
               onPressed: _verifying ? null : _verifyAndSave,
               icon: _verifying
-                  ? const SizedBox(
+                  ? SizedBox(
                       width: 16,
                       height: 16,
                       child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          color: Color(0xFF0A0E1A)),
+                          color: _sobreOro),
                     )
                   : const Icon(Icons.verified_outlined, size: 18),
               label: Text(
                 _verifying ? 'Verificando...' : 'Verificar y guardar',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     fontSize: 14, fontWeight: FontWeight.w700),
               ),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4AF37),
-                foregroundColor: const Color(0xFF0A0E1A),
+                backgroundColor: _oro,
+                foregroundColor: _sobreOro,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
@@ -335,8 +355,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             child: TextButton(
               onPressed: _prevPage,
               child: Text('Atrás',
-                  style: GoogleFonts.manrope(
-                      color: Colors.white54, fontSize: 13)),
+                  style: AppFonts.manrope(
+                      color: _texto3, fontSize: 13)),
             ),
           ),
         ],
@@ -355,16 +375,16 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: const Color(0xFF4CAF50).withValues(alpha: 0.15),
+              color: _verde.withValues(alpha: 0.15),
             ),
-            child: const Icon(Icons.check_circle,
-                color: Color(0xFF4CAF50), size: 64),
+            child: Icon(Icons.check_circle,
+                color: _verde, size: 64),
           ),
           const SizedBox(height: 24),
           Text(
             '¡Configuración exitosa!',
-            style: GoogleFonts.cinzel(
-              color: Colors.white,
+            style: AppFonts.cinzel(
+              color: _texto,
               fontSize: 22,
               fontWeight: FontWeight.w700,
             ),
@@ -377,8 +397,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             '• Números Strong\'s\n'
             '• Referencias cruzadas\n'
             '• Audio de capítulos\n',
-            style: GoogleFonts.manrope(
-              color: Colors.white70,
+            style: AppFonts.manrope(
+              color: _texto2,
               fontSize: 14,
               height: 1.6,
             ),
@@ -390,15 +410,15 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             child: ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFD4AF37),
-                foregroundColor: const Color(0xFF0A0E1A),
+                backgroundColor: _oro,
+                foregroundColor: _sobreOro,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12)),
               ),
               child: Text(
                 'Comenzar a estudiar',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                     fontSize: 14, fontWeight: FontWeight.w700),
               ),
             ),
@@ -417,14 +437,14 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
             width: 28,
             height: 28,
             decoration: BoxDecoration(
-              color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+              color: _oro.withValues(alpha: 0.15),
               shape: BoxShape.circle,
             ),
             child: Center(
               child: Text(
                 number,
-                style: GoogleFonts.manrope(
-                  color: const Color(0xFFD4AF37),
+                style: AppFonts.manrope(
+                  color: _oro,
                   fontSize: 13,
                   fontWeight: FontWeight.w700,
                 ),
@@ -435,8 +455,8 @@ class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
           Expanded(
             child: Text(
               text,
-              style: GoogleFonts.manrope(
-                color: Colors.white70,
+              style: AppFonts.manrope(
+                color: _texto2,
                 fontSize: 13,
                 height: 1.4,
               ),

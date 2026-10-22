@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../vec/vec_tema.dart';
+import 'contraste.dart';
+
 /// ═══════════════════════════════════════════════════════════════════════════
-/// BIBLE READER THEME - 9 temas editoriales premium
+/// BIBLE READER THEME - 10 temas editoriales premium
 /// ═══════════════════════════════════════════════════════════════════════════
 ///
 /// Cada tema define una paleta completa para el lector:
@@ -48,8 +51,43 @@ class BibleReaderThemeData {
   /// Swatch color for theme selector
   Color get swatchColor => background;
 
+  /// Texto secundario atenuado (fechas, contadores, avisos): [textSecondary]
+  /// con la opacidad [alpha]. Si así no llega a contraste 4.5 (WCAG AA) sobre
+  /// la página, usa [textoAtenuado], que sí llega: el gris con poca opacidad
+  /// casi desaparece en los temas claros y sobre el papel con textura.
+  Color textoTenue(double alpha) {
+    final color = textSecondary.withValues(alpha: alpha);
+    if (contrasteWcag(color, fondoVisible) >= 4.7) return color;
+    return textoAtenuado(alpha: alpha);
+  }
+
+  /// Texto de apoyo (pistas de búsqueda, avisos de lista vacía) que se nota
+  /// más suave que el principal pero sigue siendo legible: [textPrimary] con
+  /// la opacidad [alpha], subiéndola hasta llegar a contraste 4.5 (WCAG AA)
+  /// sobre [sobre] (por defecto, el fondo). Algunos temas tienen un
+  /// `textSecondary` muy claro.
+  Color textoAtenuado({double alpha = 0.72, Color? sobre}) {
+    final fondo = sobre ?? fondoVisible;
+    for (var a = alpha; a < 1; a += 0.04) {
+      final color = textPrimary.withValues(alpha: a);
+      // Un poco de margen: el fondo real varía un poco (redondeo, mezclas).
+      if (contrasteWcag(color, fondo) >= 4.7) return color;
+    }
+    return textPrimary;
+  }
+
+  /// El color que se ve detrás del texto de la página, para calcular colores
+  /// legibles (`legibleSobre`). En el tema papel es el tono de la textura,
+  /// más oscuro que [background].
+  Color get fondoVisible =>
+      id == paper.id ? VecColores.papelTexturado : background;
+
+  /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
+  /// cada página pinta el papel con textura (FondoPapel) por detrás.
+  Color get pageBg => id == paper.id ? Colors.transparent : background;
+
   // ══════════════════════════════════════════════════════════════════════════
-  // 9 TEMAS
+  // 10 TEMAS
   // ══════════════════════════════════════════════════════════════════════════
 
   static const nightPure = BibleReaderThemeData(
@@ -160,6 +198,21 @@ class BibleReaderThemeData {
     isDark: false,
   );
 
+  /// Estilo «papel recortado» (kit victoria-en-cristo-estilo, VecColores).
+  static const paper = BibleReaderThemeData(
+    id: 'papel',
+    name: 'Papel recortado',
+    background: VecColores.crema,
+    surface: VecColores.papel,
+    textPrimary: VecColores.tinta,
+    // Un poco más oscuro que VecColores.gris para que los textos chicos del
+    // lector se lean bien sobre el papel (5.8:1 sobre crema).
+    textSecondary: Color(0xFF66584A),
+    accent: VecColores.terracota,
+    toolbarBg: VecColores.papel,
+    isDark: false,
+  );
+
   /// Todos los temas disponibles
   static const List<BibleReaderThemeData> all = [
     nightPure,
@@ -171,6 +224,7 @@ class BibleReaderThemeData {
     lavender,
     mint,
     peach,
+    paper,
   ];
 
   /// Obtener tema por ID (default: noche pura)

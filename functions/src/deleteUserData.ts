@@ -1,7 +1,8 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
  * DELETE USER DATA - Cloud Function
- * Elimina recursivamente todos los datos del usuario en Firestore + Auth.
+ * Elimina recursivamente todos los datos del usuario en Firestore, sus
+ * archivos en Cloud Storage y su cuenta de Auth.
  *
  * Uso de admin.firestore().recursiveDelete() para asegurar que TODAS las
  * subcolecciones (conocidas y futuras) sean borradas, evitando huérfanos.
@@ -15,8 +16,10 @@
  */
 
 import * as functions from "firebase-functions/v1";
+import {enRegion} from "./limites";
 import * as adminFirestore from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
+import {getStorage} from "firebase-admin/storage";
 import * as crypto from "crypto";
 
 const db = adminFirestore.getFirestore();
@@ -49,6 +52,7 @@ const KNOWN_USER_SUBCOLLECTIONS = [
   "verseCollections",
   "learning",
   "blockedWallAuthors",
+  "sermonNotes",
 ];
 
 async function countSubcollection(
@@ -67,13 +71,13 @@ async function countSubcollection(
  * Callable function: deleteUserData
  * Borra los datos del propio usuario (uid del token).
  */
-export const deleteUserData = functions
-  .region("us-central1")
-  .runWith({
-    timeoutSeconds: 540,
-    memory: "512MB",
-    secrets: ["WALL_ABUSE_SALT"],
-  })
+export const deleteUserData = enRegion({
+  timeoutSeconds: 540,
+  memory: "512MB",
+  secrets: ["WALL_ABUSE_SALT"],
+  // Borrar una cuenta es raro y pesado: pocas a la vez.
+  maxInstances: 3,
+})
   .https.onCall(async (_data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -154,6 +158,29 @@ export const deleteUserData = functions
         "No se pudieron eliminar todos los datos. Intenta de nuevo en unos minutos.",
         {phase: "firestore"}
       );
+    }
+
+    // Archivos del usuario en Cloud Storage (fotos y dibujos de Apuntes,
+    // bajo users/{uid}/). Si el proyecto no tiene bucket no hay nada que
+    // borrar; cualquier otro error se reporta para que el cliente reintente.
+    try {
+      const bucket = getStorage().bucket();
+      const prefix = `users/${uid}/`;
+      const [files] = await bucket.getFiles({prefix});
+      await bucket.deleteFiles({prefix});
+      deletionStats["storageFiles"] = files.length;
+    } catch (err: any) {
+      const status = err?.code ?? err?.response?.status;
+      if (status === 404) {
+        deletionStats["storageFiles"] = 0;
+      } else {
+        console.error(`❌ [DELETE] Storage cleanup failed:`, err);
+        throw new functions.https.HttpsError(
+          "internal",
+          "No se pudieron eliminar tus fotos y dibujos. Intenta de nuevo en unos minutos.",
+          {phase: "storage"}
+        );
+      }
     }
 
     // Borrar códigos de invitación del usuario en /inviteCodes (colección

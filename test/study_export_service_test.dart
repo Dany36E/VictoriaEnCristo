@@ -4,12 +4,18 @@ import 'package:app_quitar/models/bible/bible_verse.dart';
 import 'package:app_quitar/models/bible/rich_note_document.dart';
 import 'package:app_quitar/models/bible/study_chapter_answers.dart';
 import 'package:app_quitar/services/bible/study_export_service.dart';
+import 'package:firebase_core/firebase_core.dart';
+// Firebase simulado: el estilo del PDF lee el tema de la Biblia.
+// ignore: depend_on_referenced_packages
+import 'package:firebase_core_platform_interface/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
+  setupFirebaseCoreMocks();
+  setUpAll(() async => Firebase.initializeApp());
 
   late Directory tempDir;
 

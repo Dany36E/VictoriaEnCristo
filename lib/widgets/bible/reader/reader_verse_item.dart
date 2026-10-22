@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/bible_verse.dart';
 import '../../../models/bible/highlight.dart';
@@ -95,8 +95,8 @@ class ReaderVerseItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: isTtsActive ? theme.selectionBg : null,
             border: isTtsActive
-                ? const Border(
-                    left: BorderSide(color: Color(0xFFD4AF37), width: 3),
+                ? Border(
+                    left: BorderSide(color: theme.accent, width: 3),
                   )
                 : null,
           ),
@@ -109,10 +109,10 @@ class ReaderVerseItem extends StatelessWidget {
                     offset: const Offset(0, -2),
                     child: Text(
                       '${verse.verse} ',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: isSelected || isTtsActive
                             ? theme.accent
-                            : theme.textSecondary.withValues(alpha: 0.5),
+                            : theme.textoTenue(0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -224,7 +224,7 @@ class ReaderVerseItem extends StatelessWidget {
               padding: const EdgeInsets.only(right: 6, top: 3),
               child: Text(
                 '${verse.verse}',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: theme.accent,
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
@@ -271,7 +271,7 @@ class ReaderVerseItem extends StatelessWidget {
         ),
         child: Text(
           word,
-          style: GoogleFonts.lora(
+          style: AppFonts.lora(
             color: theme.textPrimary,
             fontSize: fontSize,
             height: 1.35,
@@ -293,7 +293,7 @@ class ReaderVerseItem extends StatelessWidget {
     final textColor = isRedLetter ? theme.redLetterColor : theme.textPrimary;
     // Selección = subrayado punteado (estilo YouVersion): marca clara sin
     // tapar el color de resaltado ni entorpecer la lectura.
-    final baseStyle = GoogleFonts.lora(
+    final baseStyle = AppFonts.lora(
       color: textColor,
       fontSize: fontSize,
       height: 1.8,
@@ -337,7 +337,7 @@ class ReaderVerseItem extends StatelessWidget {
         text: text.substring(idx, end.clamp(0, text.length)),
         style: baseStyle.copyWith(
           color: theme.background,
-          backgroundColor: const Color(0xFFD4AF37),
+          backgroundColor: theme.accent,
           fontWeight: FontWeight.w600,
         ),
       ),
@@ -464,7 +464,7 @@ class _InlineStudyActions extends StatelessWidget {
                 const SizedBox(width: 3),
                 Text(
                   label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: theme.accent.withValues(alpha: 0.8),
                     fontSize: 9,
                     fontWeight: FontWeight.w700,

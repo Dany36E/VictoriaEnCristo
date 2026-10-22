@@ -5,10 +5,12 @@
 library;
 
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../models/content_enums.dart';
+import '../services/theme_service.dart';
+import '../vec/vec_tema.dart';
 
 class GiantDayEditor extends StatefulWidget {
   final DateTime date;
@@ -28,10 +30,12 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
   Map<String, int> _giantStates = {};
   bool _isLoading = true;
 
-  static const Color _textPrimary = Color(0xFFF0F0F0);
-  static const Color _textMuted = Color(0xFF8A8A9A);
-  static const Color _victory = Color(0xFF66BB6A);
-  static const Color _warmBg = Color(0xFF1A1520);
+  // En el tema «papel recortado» es una tarjeta de papel con colores del kit.
+  static bool get _papel => ThemeService().currentTheme.isPaper;
+  static Color get _textPrimary => _papel ? VecColores.tinta : const Color(0xFFF0F0F0);
+  static Color get _textMuted => _papel ? VecColores.gris : const Color(0xFF8A8A9A);
+  static Color get _victory => _papel ? VecColores.verde : const Color(0xFF66BB6A);
+  static Color get _warmBg => _papel ? VecColores.papel : const Color(0xFF1A1520);
 
   @override
   void initState() {
@@ -132,7 +136,13 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: BoxDecoration(
+      decoration: _papel
+          ? BoxDecoration(
+              color: _warmBg,
+              borderRadius: BorderRadius.circular(VecRadios.m),
+              boxShadow: VecSombras.papel,
+            )
+          : BoxDecoration(
         color: _warmBg,
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
@@ -155,7 +165,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             const SizedBox(height: 16),
             Text(
               'Detalle por área',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: _textMuted,
@@ -180,7 +190,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
                   const SizedBox(width: 10),
                   Text(
                     'Día futuro',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       fontSize: 14,
                       color: _textMuted,
                     ),
@@ -220,7 +230,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             children: [
               Text(
                 _formattedDate,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 17,
                   fontWeight: FontWeight.w700,
                   color: _textPrimary,
@@ -228,7 +238,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
               ),
               Text(
                 'Progreso del día',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 12,
                   color: _textMuted.withValues(alpha: 0.7),
                 ),
@@ -252,7 +262,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
           ),
           child: Text(
             '$_victoriesCount/$_totalGiants',
-            style: GoogleFonts.manrope(
+            style: AppFonts.manrope(
               fontSize: 15,
               fontWeight: FontWeight.w700,
               color: _isVictoryDay ? _victory : _textMuted,
@@ -309,7 +319,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             const SizedBox(width: 8),
             Text(
               label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
                 color: color,
@@ -350,7 +360,7 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
             Expanded(
               child: Text(
                 name,
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: _textPrimary.withValues(alpha: 0.9),

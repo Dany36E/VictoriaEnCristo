@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 
 import '../../../models/bible/study_chapter_answers.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -64,7 +64,7 @@ class StudyHeaderBar extends StatelessWidget {
                 children: [
                   Text(
                     'Modo Estudio',
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.textPrimary,
                       fontSize: 18,
                       fontWeight: FontWeight.w600,
@@ -81,7 +81,7 @@ class StudyHeaderBar extends StatelessWidget {
                       children: [
                         Text(
                           '$bookName $chapter',
-                          style: GoogleFonts.lora(
+                          style: AppFonts.lora(
                             color: t.accent,
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
@@ -122,7 +122,7 @@ class StudyHeaderBar extends StatelessWidget {
                 borderRadius: BorderRadius.circular(18),
                 side: BorderSide(color: t.accent.withValues(alpha: 0.22)),
               ),
-              textStyle: GoogleFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
+              textStyle: AppFonts.manrope(fontSize: 12, fontWeight: FontWeight.w800),
             ),
           ),
           const SizedBox(width: 4),
@@ -160,7 +160,7 @@ class StudyHeaderBar extends StatelessWidget {
                     'Modo Estudio',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.cinzel(
+                    style: AppFonts.cinzel(
                       color: t.textPrimary,
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -171,7 +171,7 @@ class StudyHeaderBar extends StatelessWidget {
                     '$bookName $chapter · $rangeLabel',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -198,7 +198,7 @@ class StudyHeaderBar extends StatelessWidget {
                   const SizedBox(width: 5),
                   Text(
                     'Texto',
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.accent,
                       fontSize: 12,
                       fontWeight: FontWeight.w800,
@@ -278,7 +278,7 @@ class StudyHeaderBar extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   label,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -299,7 +299,7 @@ class StudyHeaderBar extends StatelessWidget {
   ) {
     return PopupMenuItem(
       value: value,
-      child: Text(label, style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 13)),
+      child: Text(label, style: AppFonts.manrope(color: t.textPrimary, fontSize: 13)),
     );
   }
 }

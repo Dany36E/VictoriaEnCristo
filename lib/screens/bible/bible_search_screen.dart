@@ -1,13 +1,14 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_search_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/advanced_search_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import 'bible_reader_screen.dart';
 import 'chapter_selector_screen.dart';
 import '../../services/bible/bible_parser_service.dart';
@@ -239,7 +240,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -293,16 +294,28 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 controller: _controller,
                 focusNode: _focus,
                 cursorColor: t.textPrimary,
-                style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 16),
+                style: AppFonts.manrope(color: t.textPrimary, fontSize: 16),
                 decoration: InputDecoration(
                   hintText: _advancedMode
                       ? 'Palabra hebrea, griega o número Strong...'
                       : 'Buscar libros, capítulos o versículos...',
-                  hintStyle: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                  hintStyle: AppFonts.manrope(
+                    color: t.textoAtenuado(
+                      sobre: Color.alphaBlend(
+                        t.isDark
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : Colors.black.withValues(alpha: 0.04),
+                        t.fondoVisible,
+                      ),
+                    ),
                     fontSize: 16,
                   ),
+                  // Sin el relleno ni los bordes del tema de la app: el fondo
+                  // y el borde son los de la cajita.
+                  filled: false,
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                   isCollapsed: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -402,10 +415,10 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               ),
               child: Text(
                 'Avanzado',
-                style: GoogleFonts.manrope(
+                style: AppFonts.manrope(
                   color: _advancedMode
-                      ? t.accent
-                      : t.textSecondary.withValues(alpha: 0.6),
+                      ? legibleEnPastilla(t.accent, 0.15, t.fondoVisible)
+                      : t.textoTenue(0.6),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -419,8 +432,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               return Center(
                 child: Text(
                   version.shortName,
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.5),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -447,16 +460,16 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             const SizedBox(height: 12),
             Text(
               'Busca libros, capítulos o versículos',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.4),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.4),
                 fontSize: 14,
               ),
             ),
             const SizedBox(height: 4),
             Text(
               'Ej: "Salmos 23", "Juan 3:16", "amor"',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.3),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.3),
                 fontSize: 12,
               ),
             ),
@@ -474,8 +487,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             children: [
               Text(
                 'Recientes',
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5),
+                style: AppFonts.manrope(
+                  color: t.textoTenue(0.5),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
@@ -489,7 +502,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 },
                 child: Text(
                   'Borrar',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent.withValues(alpha: 0.7),
                     fontSize: 12,
                   ),
@@ -508,7 +521,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             ),
             title: Text(
               q,
-              style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 15),
+              style: AppFonts.manrope(color: t.textPrimary, fontSize: 15),
             ),
             trailing: GestureDetector(
               onTap: () async {
@@ -551,8 +564,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       return Center(
         child: Text(
           'Sin resultados',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.5),
             fontSize: 14,
           ),
         ),
@@ -567,8 +580,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(
             'REFERENCIA DIRECTA',
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.5),
+            style: AppFonts.manrope(
+              color: t.textoTenue(0.5),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
@@ -583,8 +596,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       headerItems.addAll([
         Text(
           '${result.verses.length} versículo${result.verses.length == 1 ? '' : 's'}',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.5),
             fontSize: 12,
             letterSpacing: 0.5,
           ),
@@ -611,8 +624,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               children: [
                 Text(
                   verse.reference,
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -684,7 +697,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     result.intent == SearchIntent.bookAndChapter
                         ? '${result.bookName}, capítulo ${result.chapter}'
                         : '${result.bookName} — ${result.totalChapters} capítulos',
-                    style: GoogleFonts.lora(color: t.textPrimary, fontSize: 16),
+                    style: AppFonts.lora(color: t.textPrimary, fontSize: 16),
                   ),
                 ],
               ),
@@ -696,7 +709,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   result.intent == SearchIntent.bookAndChapter
                       ? 'Ir al capítulo'
                       : 'Abrir libro',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 13,
                     fontWeight: FontWeight.w600,
@@ -720,7 +733,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     if (query.isEmpty) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -737,7 +750,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     if (matchIndex < 0) {
       return Text(
         text,
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -755,13 +768,13 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             text: text.substring(matchIndex, matchIndex + query.length),
             style: TextStyle(
               color: t.background,
-              backgroundColor: const Color(0xFFD4AF37),
+              backgroundColor: t.accent,
               fontWeight: FontWeight.w600,
             ),
           ),
           TextSpan(text: text.substring(matchIndex + query.length)),
         ],
-        style: GoogleFonts.lora(
+        style: AppFonts.lora(
           color: t.textPrimary,
           fontSize: 15,
           height: 1.5,
@@ -789,8 +802,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             children: [
               Text(
                 'HISTORIAL DE BÚSQUEDA',
-                style: GoogleFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                style: AppFonts.manrope(
+                  color: t.textoTenue(0.4),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.5,
@@ -804,7 +817,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 },
                 child: Text(
                   'Borrar',
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.accent.withValues(alpha: 0.7),
                     fontSize: 12,
                   ),
@@ -851,7 +864,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                       const SizedBox(width: 4),
                       Text(
                         h,
-                        style: GoogleFonts.manrope(
+                        style: AppFonts.manrope(
                           color: t.textPrimary.withValues(alpha: 0.8),
                           fontSize: 12,
                         ),
@@ -868,8 +881,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         // --- Book range filter ---
         Text(
           'RANGO DE LIBROS',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -927,8 +940,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         // Theme search section
         Text(
           'BUSCAR POR TEMA',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -954,7 +967,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 ),
                 child: Text(
                   theme,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     color: t.textPrimary,
                     fontSize: 13,
                   ),
@@ -969,8 +982,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         // Original-language word search
         Text(
           'PALABRA ORIGINAL',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -979,8 +992,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         const SizedBox(height: 8),
         Text(
           'Copia una palabra hebrea o griega desde el Interlineal. La búsqueda reúne sus apariciones por forma escrita, lema y Strong cuando existe vínculo local.',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.55),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.55),
             fontSize: 12,
             height: 1.45,
           ),
@@ -991,8 +1004,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         // Strong number search
         Text(
           'NÚMERO STRONG',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -1001,8 +1014,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         const SizedBox(height: 8),
         Text(
           'También puedes escribir un número completo (por ejemplo H430 o G2316). El léxico y el índice funcionan sin conexión.',
-          style: GoogleFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
             fontSize: 12,
           ),
         ),
@@ -1033,8 +1046,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           isExpanded: true,
           hint: Text(
             hint,
-            style: GoogleFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.5),
+            style: AppFonts.manrope(
+              color: t.textoTenue(0.5),
               fontSize: 12,
             ),
           ),
@@ -1044,14 +1057,14 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             color: t.textSecondary.withValues(alpha: 0.4),
             size: 18,
           ),
-          style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 12),
+          style: AppFonts.manrope(color: t.textPrimary, fontSize: 12),
           items: books
               .map(
                 (b) => DropdownMenuItem<int>(
                   value: b.number,
                   child: Text(
                     b.name,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontSize: 12,
                     ),
@@ -1153,8 +1166,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             const SizedBox(height: 12),
             Text(
               'Buscando...',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.5),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.5),
                 fontSize: 13,
               ),
             ),
@@ -1191,7 +1204,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   children: [
                     Text(
                       result.title,
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         color: t.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.w600,
@@ -1199,8 +1212,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     ),
                     Text(
                       result.subtitle,
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                      style: AppFonts.manrope(
+                        color: t.textoTenue(0.5),
                         fontSize: 12,
                       ),
                     ),
@@ -1210,8 +1223,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                         result.description!,
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
-                        style: GoogleFonts.manrope(
-                          color: t.textSecondary.withValues(alpha: 0.65),
+                        style: AppFonts.manrope(
+                          color: t.textoTenue(0.65),
                           fontSize: 11,
                           height: 1.4,
                         ),
@@ -1237,8 +1250,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               ? Center(
                   child: Text(
                     'Sin resultados',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.4),
                       fontSize: 14,
                     ),
                   ),
@@ -1272,8 +1285,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                           children: [
                             Text(
                               v.reference,
-                              style: GoogleFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.5),
+                              style: AppFonts.manrope(
+                                color: t.textoTenue(0.5),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1333,7 +1346,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   const SizedBox(width: 8),
                   Text(
                     entry.key,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                       color: t.textPrimary,
                       fontSize: 14,
                       fontWeight: FontWeight.w700,
@@ -1342,8 +1355,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   const SizedBox(width: 6),
                   Text(
                     '(${entry.value.length})',
-                    style: GoogleFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.5),
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -1370,8 +1383,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     children: [
                       Text(
                         '${v.chapter}:${v.verse}',
-                        style: GoogleFonts.manrope(
-                          color: t.textSecondary.withValues(alpha: 0.5),
+                        style: AppFonts.manrope(
+                          color: t.textoTenue(0.5),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1425,10 +1438,10 @@ class _FilterChip extends StatelessWidget {
         ),
         child: Text(
           label,
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: isSelected
-                ? theme.accent
-                : theme.textSecondary.withValues(alpha: 0.6),
+                ? legibleEnPastilla(theme.accent, 0.15, theme.fondoVisible)
+                : theme.textoTenue(0.6),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),

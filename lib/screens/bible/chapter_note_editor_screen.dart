@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../models/bible/chapter_study_note.dart';
 import '../../services/bible/chapter_note_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -111,20 +111,20 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
         return AlertDialog(
           backgroundColor: t.surface,
           title: Text('Eliminar nota',
-              style: GoogleFonts.manrope(color: t.textPrimary, fontSize: 16)),
+              style: AppFonts.manrope(color: t.textPrimary, fontSize: 16)),
           content: Text('¿Eliminar esta nota de estudio?',
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                   color: t.textSecondary, fontSize: 14)),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
               child: Text('Cancelar',
-                  style: GoogleFonts.manrope(color: t.textSecondary)),
+                  style: AppFonts.manrope(color: t.textSecondary)),
             ),
             TextButton(
               onPressed: () => Navigator.pop(ctx, true),
               child: Text('Eliminar',
-                  style: GoogleFonts.manrope(color: Colors.red)),
+                  style: AppFonts.manrope(color: Colors.red)),
             ),
           ],
         );
@@ -162,7 +162,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
         );
 
         return Scaffold(
-          backgroundColor: t.background,
+          backgroundColor: t.pageBg,
           body: SafeArea(
             child: Column(
               children: [
@@ -189,8 +189,8 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           Expanded(
             child: Text(
               '${widget.bookName} ${widget.chapter}',
-              style: GoogleFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.6),
+              style: AppFonts.manrope(
+                color: t.textoTenue(0.6),
                 fontSize: 13,
               ),
               textAlign: TextAlign.center,
@@ -232,14 +232,14 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           // Title
           TextField(
             controller: _titleController,
-            style: GoogleFonts.cinzel(
+            style: AppFonts.cinzel(
               color: t.textPrimary,
               fontSize: 22,
               fontWeight: FontWeight.w600,
             ),
             decoration: InputDecoration(
               hintText: 'Título de la nota...',
-              hintStyle: GoogleFonts.cinzel(
+              hintStyle: AppFonts.cinzel(
                 color: t.textSecondary.withValues(alpha: 0.3),
                 fontSize: 22,
                 fontWeight: FontWeight.w600,
@@ -311,7 +311,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                         children: [
                           Text(
                             tag,
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               color: t.textSecondary,
                               fontSize: 12,
                             ),
@@ -346,11 +346,11 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                 Expanded(
                   child: TextField(
                     controller: _tagController,
-                    style: GoogleFonts.manrope(
+                    style: AppFonts.manrope(
                         color: t.textPrimary, fontSize: 13),
                     decoration: InputDecoration(
                       hintText: 'Agregar etiqueta...',
-                      hintStyle: GoogleFonts.manrope(
+                      hintStyle: AppFonts.manrope(
                         color: t.textSecondary.withValues(alpha: 0.3),
                         fontSize: 13,
                       ),
@@ -383,7 +383,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           // Content
           TextField(
             controller: _contentController,
-            style: GoogleFonts.lora(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 16,
               height: 1.8,
@@ -391,7 +391,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             decoration: InputDecoration(
               hintText:
                   'Escribe tus reflexiones sobre este capítulo...',
-              hintStyle: GoogleFonts.lora(
+              hintStyle: AppFonts.lora(
                 color: t.textSecondary.withValues(alpha: 0.25),
                 fontSize: 16,
                 height: 1.8,

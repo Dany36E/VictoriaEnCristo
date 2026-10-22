@@ -3,7 +3,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme_data.dart';
 import 'user_pref_cloud_sync_service.dart';
 
-/// Servicio para manejar el tema seleccionable de la app (9 temas)
+/// Servicio para manejar el tema seleccionable de la app (10 temas)
 class ThemeService extends ChangeNotifier {
   // Legacy keys (para migración)
   static const String _legacyThemeModeKey = 'theme_mode';
@@ -11,6 +11,7 @@ class ThemeService extends ChangeNotifier {
   static const String _autoThemeKey = 'auto_theme';
   static const String _lastDarkThemeKey = 'last_dark_theme';
   static const String _lastLightThemeKey = 'last_light_theme';
+  static const String _lecturaManuscritaKey = 'papel_lectura_manuscrita';
 
   // Singleton con ChangeNotifier
   static final ThemeService _instance = ThemeService._internal();
@@ -21,6 +22,10 @@ class ThemeService extends ChangeNotifier {
   bool _autoTheme = false;
   String _lastDarkTheme = 'night_pure';
   String _lastLightTheme = 'clean_page';
+
+  /// En el tema papel, versículos y apuntes se leen en Lora; con esta opción
+  /// usan la letra manuscrita del kit (Patrick Hand).
+  final ValueNotifier<bool> lecturaManuscrita = ValueNotifier(false);
 
   /// Notifier para escuchar cambios de tema
   final ValueNotifier<String> themeIdNotifier = ValueNotifier('night_pure');
@@ -61,6 +66,7 @@ class ThemeService extends ChangeNotifier {
     _autoTheme = prefs.getBool(_autoThemeKey) ?? false;
     _lastDarkTheme = prefs.getString(_lastDarkThemeKey) ?? 'night_pure';
     _lastLightTheme = prefs.getString(_lastLightThemeKey) ?? 'clean_page';
+    lecturaManuscrita.value = prefs.getBool(_lecturaManuscritaKey) ?? false;
     themeIdNotifier.value = _themeId;
   }
 
@@ -89,6 +95,15 @@ class ThemeService extends ChangeNotifier {
     }
 
     await _saveSettings();
+    notifyListeners();
+  }
+
+  /// Elegir la letra de lectura del tema papel (Lora o manuscrita).
+  Future<void> setLecturaManuscrita(bool manuscrita) async {
+    if (lecturaManuscrita.value == manuscrita) return;
+    lecturaManuscrita.value = manuscrita;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_lecturaManuscritaKey, manuscrita);
     notifyListeners();
   }
 

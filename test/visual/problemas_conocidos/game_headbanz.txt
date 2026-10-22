@@ -2,29 +2,5 @@
 # líneas a mano: corrige el problema. Se regenera con
 # ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
 charcoal: "Más conocidos · 8 cartas" contraste < 4.5
-clean_page: "1" contraste < 4.5
-clean_page: "2" contraste < 4.5
-clean_page: "3" contraste < 4.5
-clean_page: "4" contraste < 4.5
-grey_editorial: "1" contraste < 4.5
-grey_editorial: "2" contraste < 4.5
-grey_editorial: "3" contraste < 4.5
-grey_editorial: "4" contraste < 4.5
-lavender: "1" contraste < 4.5
-lavender: "2" contraste < 4.5
-lavender: "3" contraste < 4.5
-lavender: "4" contraste < 4.5
-mint: "1" contraste < 4.5
-mint: "2" contraste < 4.5
-mint: "3" contraste < 4.5
-mint: "4" contraste < 4.5
 mint: "Más conocidos · 8 cartas" contraste < 4.5
-parchment: "1" contraste < 4.5
-parchment: "2" contraste < 4.5
-parchment: "3" contraste < 4.5
-parchment: "4" contraste < 4.5
-peach: "1" contraste < 4.5
-peach: "2" contraste < 4.5
-peach: "3" contraste < 4.5
-peach: "4" contraste < 4.5
 sepia_night: "Más conocidos · 8 cartas" contraste < 4.5

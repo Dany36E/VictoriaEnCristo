@@ -99,7 +99,7 @@ class _SacredAlarmActiveScreenState extends State<SacredAlarmActiveScreen> {
     return PopScope(
       canPop: event == null || event.status == SacredAlarmEventStatus.completed,
       child: Scaffold(
-        backgroundColor: t.scaffoldBg,
+        backgroundColor: t.pageBg,
         appBar: AppBar(
           automaticallyImplyLeading: event == null,
           title: const Text('Campana Sagrada'),

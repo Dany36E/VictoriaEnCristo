@@ -5,15 +5,11 @@ screenshots are written to `build/qa` even for initial layout failures.
 
 ## Verified scope
 
-The first suite uses the real SeriesDetailScreen and production series catalog.
-It covers six logical viewports (320x568, 360x800, 430x932, 768x1024,
-1024x768, 1366x768), each at text scale 1 and 1.6. Bundled Manrope and
-MaterialIcons fonts are loaded. Missed taps are fatal. Each season header is
-scrolled into view and tapped, with framework errors checked after each action.
-It does not play videos or certify successful external links.
+The visual suites share six logical viewports (320x568, 360x800, 430x932,
+768x1024, 1024x768, 1366x768), defined in `test/visual/viewport_profiles.dart`.
 
-The Bible picker suite adds 108 viewport/text-scale/theme cases using the real
-66-book RVR1960 index (six viewports, two text scales and all nine reader
+The Bible picker suite covers 108 viewport/text-scale/theme cases using the real
+66-book RVR1960 index (six viewports, text scales 1 and 1.6 and all nine reader
 themes). It opens the production modal, captures its rendering,
 checks framework errors and taps the clipboard banner. It asserts that
 Juan 3:16-18 returns book 43, chapter 3, verse 16 and verseEnd 18.
@@ -33,7 +29,7 @@ product UI.
 
 ## Iteration protocol
 
-`./scripts/run_android_qa_matrix.ps1` exercises Series and access sequentially
+`./scripts/run_android_qa_matrix.ps1` exercises the access suite
 on small-phone (320x568 at 160 dpi, logical 320x568) and tablet
 (768x1024 at 160 dpi, logical 768x1024) configurations of the same emulator.
 These deliberately low-pixel-count profiles stress layout while reducing
@@ -67,7 +63,7 @@ The agent performs fixes during an active authorized task. This script executes
 tests, not an autonomous code-writing model. No unattended scheduler is installed.
 
 The local access visual matrix covers login validation and the welcome CTA on
-the same six viewport profiles and two text scales as Series. It sets the target
+the six viewport profiles at text scales 1 and 1.6. It sets the target
 platform per profile so Android, iOS-family and Windows branches render as they
 would for that platform. Firebase Core uses its test transport, no auth action is
 submitted, and no remote account or Firestore document is created. It also
@@ -97,7 +93,6 @@ available simulator UDID (obtain with `xcrun simctl list devices available`):
 ```sh
 xcrun simctl boot <UDID>
 xcrun simctl bootstatus <UDID> -b
-flutter drive --driver=test_driver/visual_qa_driver.dart --target=integration_test/series_native_qa_test.dart -d <UDID>
 flutter drive --driver=test_driver/visual_qa_driver.dart --target=integration_test/access_native_qa_test.dart -d <UDID>
 ```
 
@@ -133,16 +128,8 @@ runner scrolls virtualized onboarding content into a tappable position.
 Local full suite after the picker, access and onboarding fixes: 349 tests passed.
 This is the scope of existing unit/widget tests, not 349 end-to-end functions.
 
-Native Series runner: `./scripts/run_native_qa.ps1 -Device emulator-5554`.
-Uses the real catalog and UI, exercises five season expansions/collapses and
-back navigation, and saves emulator screenshots via the host driver under
-`build/qa/native`. Does not sign in, modify user records or play episodes.
-Verified native run: Android emulator `Medium_Phone_API_36.1`, 1080x2400,
-420 dpi, completed successfully. Seven nonempty PNGs were produced. Catalog
-and season 2 screenshots were visually inspected. Log: `build/qa/native-run.log`.
-ADB initially reported unauthorized; restarting the host ADB server restored
-the emulator connection without resetting its data.
-Do not pass `--no-pub` after a release build: it can leave the development
+If ADB reports the emulator as unauthorized, restarting the host ADB server
+restores the connection without resetting its data. Do not pass `--no-pub` after a release build: it can leave the development
 integration_test plugin absent from GeneratedPluginRegistrant.
 
 - Full Bible reading, study and sermon flows beyond the picker/clipboard range.

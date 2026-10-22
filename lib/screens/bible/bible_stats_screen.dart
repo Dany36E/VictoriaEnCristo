@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
@@ -19,7 +19,7 @@ class BibleStatsScreen extends StatelessWidget {
           BibleReaderThemeData.migrateId(themeId),
         );
     return Scaffold(
-      backgroundColor: t.background,
+      backgroundColor: t.pageBg,
       body: SafeArea(
         child: Column(
           children: [
@@ -75,7 +75,7 @@ class BibleStatsScreen extends StatelessWidget {
                                   const SizedBox(width: 10),
                                   Text(
                                     'Progreso Total',
-                                    style: GoogleFonts.manrope(
+                                    style: AppFonts.manrope(
                                       color: t.textPrimary,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
@@ -88,7 +88,7 @@ class BibleStatsScreen extends StatelessWidget {
                               Center(
                                 child: Text(
                                   '${pct.toStringAsFixed(1)}%',
-                                  style: GoogleFonts.instrumentSerif(
+                                  style: AppFonts.instrumentSerif(
                                     color: t.accent,
                                     fontSize: 48,
                                     fontWeight: FontWeight.w400,
@@ -108,8 +108,8 @@ class BibleStatsScreen extends StatelessWidget {
                               const SizedBox(height: 8),
                               Text(
                                 '$chaptersRead / ${BibleReadingStatsService.totalBibleChapters} capítulos',
-                                style: GoogleFonts.manrope(
-                                  color: t.textSecondary.withValues(alpha: 0.5),
+                                style: AppFonts.manrope(
+                                  color: t.textoTenue(0.5),
                                   fontSize: 12,
                                 ),
                               ),
@@ -126,8 +126,8 @@ class BibleStatsScreen extends StatelessWidget {
                               padding: const EdgeInsets.all(24),
                               child: Text(
                                 'Comienza a leer y tu progreso aparecerá aquí',
-                                style: GoogleFonts.manrope(
-                                  color: t.textSecondary.withValues(alpha: 0.4),
+                                style: AppFonts.manrope(
+                                  color: t.textoTenue(0.4),
                                   fontSize: 14,
                                 ),
                                 textAlign: TextAlign.center,
@@ -169,7 +169,7 @@ class BibleStatsScreen extends StatelessWidget {
           const SizedBox(width: 16),
           Text(
             'Estadísticas de Lectura',
-            style: GoogleFonts.instrumentSerif(
+            style: AppFonts.instrumentSerif(
               color: t.textPrimary,
               fontSize: 20,
             ),
@@ -211,8 +211,8 @@ class BibleStatsScreen extends StatelessWidget {
               children: [
                 Text(
                   title,
-                  style: GoogleFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.6),
+                  style: AppFonts.manrope(
+                    color: t.textoTenue(0.6),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -224,7 +224,7 @@ class BibleStatsScreen extends StatelessWidget {
                   children: [
                     Text(
                       value,
-                      style: GoogleFonts.instrumentSerif(
+                      style: AppFonts.instrumentSerif(
                         color: t.textPrimary,
                         fontSize: 32,
                       ),
@@ -232,8 +232,8 @@ class BibleStatsScreen extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       subtitle,
-                      style: GoogleFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.4),
+                      style: AppFonts.manrope(
+                        color: t.textoTenue(0.4),
                         fontSize: 13,
                       ),
                     ),

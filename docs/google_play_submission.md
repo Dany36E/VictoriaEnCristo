@@ -1,6 +1,6 @@
 # Material de envío a Google Play — Android
 
-Versión preparada: **1.0.29 (39)**
+Versión preparada: **1.0.30 (40)**
 
 Paquete: **com.victoriaencristo.app**
 Categoría recomendada: **Estilo de vida**
@@ -15,13 +15,21 @@ Crece en fe, vence tentaciones y encuentra apoyo cristiano cada día.
 
 Victoria en Cristo es un espacio cristiano para fortalecer tu vida espiritual y avanzar con intención frente a hábitos y tentaciones.
 
-Lee la Biblia sin conexión, sigue planes devocionales, registra tus días de victoria, configura recordatorios de oración y encuentra ayuda inmediata cuando más la necesitas.
+Lee la Biblia sin conexión, toma apuntes con fotos y dibujos, comparte versículos como imagen, registra tus días de victoria, configura recordatorios de oración y encuentra ayuda inmediata cuando más la necesitas.
 
 También puedes caminar acompañado mediante el Compañero de Batalla y participar con una identidad seudónima en un muro moderado. El contenido público se revisa antes de aparecer; puedes reportar publicaciones y bloquear a cualquier autor que no quieras volver a ver.
 
 En Android, el Escudo de Pureza es una herramienta opcional que usa una VPN local para filtrar dominios de contenido adulto. Sólo procesa consultas DNS, mantiene una notificación visible mientras funciona y cifra las consultas permitidas mediante DNS-over-HTTPS. No inspeccionamos páginas ni vendemos tu actividad.
 
 La app no sustituye atención médica, psicológica ni servicios de emergencia.
+
+### Novedades de la versión 1.0.30 (máx. 500 caracteres)
+
+- Nuevo tema «Papel recortado», con Victoria, Timoteo y Jesús dibujados.
+- Apuntes con fotos, dibujo a mano, formato y listas de tareas.
+- Atajos que tú eliges en Inicio, en un widget y en el ícono de la app.
+- Imágenes para compartir y PDF con el nuevo estilo.
+- Mejor contraste y letra más legible en los temas claros.
 
 ## Declaración de VpnService
 
@@ -51,6 +59,7 @@ Las Alarmas Sagradas son recordatorios configurados por el usuario para oración
 | Email, nombre, foto y UID | Cuenta, perfil y sincronización | Recopilado; cifrado en tránsito; eliminable |
 | Progreso y configuración | Funcionalidad y sincronización | Recopilado; cifrado en tránsito; eliminable |
 | Mensajes con compañeros | Función social privada | Recopilado; cifrado en tránsito; eliminable |
+| Fotos y dibujos de Apuntes | Adjuntos privados de cada apunte (Firebase Storage) | Recopilado sólo si el usuario agrega una imagen; cifrado en tránsito; eliminable con el apunte o la cuenta |
 | Publicaciones del Muro | Comunidad seudónima y moderación | Recopilado; sin UID visible; eliminable junto con la cuenta conforme al flujo documentado |
 | Identificadores de dispositivo | Token FCM | Recopilado para notificaciones; eliminable |
 | Diagnóstico y actividad | Crashlytics y Analytics | Recopilado para estabilidad y métricas; sin AD_ID |

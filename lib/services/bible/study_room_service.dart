@@ -54,6 +54,7 @@ class StudyRoomService {
     _roomHighlightsSub = null;
     _roomAnswersSub = null;
     currentRoomNotifier.value = null;
+    _ultimaHuellaPublicada = null;
     roomHighlightsNotifier.value = const [];
     roomAnswerSnapshotsNotifier.value = const [];
   }
@@ -116,6 +117,7 @@ class StudyRoomService {
       _roomHighlightsSub = null;
       _roomAnswersSub = null;
       currentRoomNotifier.value = null;
+      _ultimaHuellaPublicada = null;
       roomHighlightsNotifier.value = const [];
       roomAnswerSnapshotsNotifier.value = const [];
     }
@@ -220,6 +222,18 @@ class StudyRoomService {
     );
     _upsertAnswerSnapshot(snapshot);
 
+    // El temporizador de la sala publica cada pocos minutos: si nada cambió,
+    // no se escribe (ahorra la escritura y una lectura por compañero).
+    final huella = jsonEncode([
+      room.code,
+      snapshot.versionId,
+      snapshot.answers,
+      snapshot.generalNotes,
+      snapshot.hopeMessage,
+      snapshot.mainVerses,
+    ]);
+    if (huella == _ultimaHuellaPublicada) return;
+
     try {
       await _db
           .collection('studyRooms')
@@ -227,10 +241,14 @@ class StudyRoomService {
           .collection('answerSnapshots')
           .doc(uid)
           .set(snapshot.toMap(), SetOptions(merge: true));
+      _ultimaHuellaPublicada = huella;
     } catch (e) {
       debugPrint('[STUDY-ROOM] publishAnswerSnapshot error: $e');
     }
   }
+
+  /// Lo último que se subió a la sala, para no repetir escrituras iguales.
+  String? _ultimaHuellaPublicada;
 
   StudyWordHighlight _ownedHighlight(StudyWordHighlight highlight, StudyRoom room, String uid) {
     return highlight.copyWith(ownerUid: uid, ownerName: _displayNameFor(uid, room));
@@ -362,6 +380,7 @@ class StudyRoomService {
       (snap) {
         if (!snap.exists) {
           currentRoomNotifier.value = null;
+          _ultimaHuellaPublicada = null;
           roomHighlightsNotifier.value = const [];
           roomAnswerSnapshotsNotifier.value = const [];
           if (!completer.isCompleted) {

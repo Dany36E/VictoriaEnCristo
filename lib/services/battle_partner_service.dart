@@ -743,16 +743,16 @@ class BattlePartnerService {
         payload['trustedPartnerUid'] = FieldValue.delete();
       }
 
+      // Tu progreso se guarda aparte: si el reflejo en algún compañero
+      // falla (p. ej. ya no existe el vínculo), no se pierde.
+      await _db
+          .collection('users')
+          .doc(uid)
+          .collection('publicProgress')
+          .doc('latest')
+          .set(payload, SetOptions(merge: true));
+
       final batch = _db.batch();
-      batch.set(
-        _db
-            .collection('users')
-            .doc(uid)
-            .collection('publicProgress')
-            .doc('latest'),
-        payload,
-        SetOptions(merge: true),
-      );
 
       final activePartnerUids = partnersNotifier.value
           .where((p) => p.status == PartnerStatus.active)
@@ -781,7 +781,7 @@ class BattlePartnerService {
         );
       }
 
-      await batch.commit();
+      if (activePartnerUids.isNotEmpty) await batch.commit();
 
       debugPrint(
         '🤝 [BATTLE] Public progress synced: '
@@ -1143,8 +1143,10 @@ class BattlePartnerService {
   }
 
   void _onStreakChanged() {
+    // 30 s agrupa los toques seguidos (marcar y desmarcar gigantes) en una
+    // sola escritura, y llega antes de que la persona cierre la app.
     _publicProgressDebounce?.cancel();
-    _publicProgressDebounce = Timer(const Duration(minutes: 5), () {
+    _publicProgressDebounce = Timer(const Duration(seconds: 30), () {
       if (_uid != null) {
         unawaited(syncPublicProgress());
       }

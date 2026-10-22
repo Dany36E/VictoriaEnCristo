@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../theme/app_fonts.dart';
 import 'package:latlong2/latlong.dart';
 
 import '../../models/bible/bible_map_models.dart';
@@ -413,7 +413,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                     Expanded(
                       child: Text(
                         'MAPAS BÍBLICOS',
-                        style: GoogleFonts.cinzel(
+                        style: AppFonts.cinzel(
                           color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w700,
@@ -451,7 +451,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                             _selectPeriod(period.id),
                         backgroundColor: Colors.black54,
                         selectedColor: _kGold,
-                        labelStyle: GoogleFonts.manrope(
+                        labelStyle: AppFonts.manrope(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                           color: isActive
@@ -503,7 +503,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('Capas',
-                  style: GoogleFonts.cinzel(
+                  style: AppFonts.cinzel(
                       fontSize: 13,
                       fontWeight: FontWeight.w700,
                       color: _kDarkText)),
@@ -560,7 +560,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
           Icon(icon, size: 16, color: _kDarkGold),
           const SizedBox(width: 6),
           Text(label,
-              style: GoogleFonts.manrope(
+              style: AppFonts.manrope(
                   fontSize: 12, color: _kDarkText)),
           const SizedBox(width: 6),
           SizedBox(
@@ -682,7 +682,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                         children: [
                           Text(
                             place.nameEs,
-                            style: GoogleFonts.cinzel(
+                            style: AppFonts.cinzel(
                               fontSize: 18,
                               fontWeight: FontWeight.w700,
                               color: _kDarkGold,
@@ -690,7 +690,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                           ),
                           Text(
                             '${_placeTypeLabel(place.type)}${place.periods.isNotEmpty ? ' · ${_periodLabel(place.periods.first)}' : ''}',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               fontSize: 12,
                               color: Colors.grey.shade600,
                             ),
@@ -710,7 +710,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                 // Description
                 Text(
                   place.description,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 13,
                     height: 1.6,
                     color: _kDarkText.withValues(alpha: 0.8),
@@ -721,7 +721,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                 if (place.references.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   Text('Referencias',
-                      style: GoogleFonts.manrope(
+                      style: AppFonts.manrope(
                         fontSize: 11,
                         fontWeight: FontWeight.w700,
                         color: Colors.grey.shade500,
@@ -749,7 +749,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                                     vertical: 5),
                             child: Text(
                               display,
-                              style: GoogleFonts.manrope(
+                              style: AppFonts.manrope(
                                 fontSize: 12,
                                 fontWeight: FontWeight.w600,
                                 color: _kDarkGold,
@@ -853,7 +853,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                         children: [
                           Text(
                             event.title,
-                            style: GoogleFonts.cinzel(
+                            style: AppFonts.cinzel(
                               fontSize: 17,
                               fontWeight: FontWeight.w700,
                               color: _eventColor(event.type),
@@ -861,7 +861,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                           ),
                           Text(
                             '${_eventTypeLabel(event.type)} · ${_periodLabel(event.period)}',
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               fontSize: 12,
                               color: Colors.grey.shade600,
                             ),
@@ -881,7 +881,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                 // Description
                 Text(
                   event.description,
-                  style: GoogleFonts.manrope(
+                  style: AppFonts.manrope(
                     fontSize: 13,
                     height: 1.6,
                     color: _kDarkText.withValues(alpha: 0.8),
@@ -908,7 +908,7 @@ class _BibleMapScreenState extends State<BibleMapScreen>
                           const SizedBox(width: 6),
                           Text(
                             event.reference.replaceAll('.', ' '),
-                            style: GoogleFonts.manrope(
+                            style: AppFonts.manrope(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               color: _eventColor(event.type),

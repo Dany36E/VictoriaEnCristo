@@ -2,7 +2,8 @@
 /**
  * ═══════════════════════════════════════════════════════════════════════════
  * DELETE USER DATA - Cloud Function
- * Elimina recursivamente todos los datos del usuario en Firestore + Auth.
+ * Elimina recursivamente todos los datos del usuario en Firestore, sus
+ * archivos en Cloud Storage y su cuenta de Auth.
  *
  * Uso de admin.firestore().recursiveDelete() para asegurar que TODAS las
  * subcolecciones (conocidas y futuras) sean borradas, evitando huérfanos.
@@ -50,8 +51,10 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteUserData = void 0;
 const functions = __importStar(require("firebase-functions/v1"));
+const limites_1 = require("./limites");
 const adminFirestore = __importStar(require("firebase-admin/firestore"));
 const auth_1 = require("firebase-admin/auth");
+const storage_1 = require("firebase-admin/storage");
 const crypto = __importStar(require("crypto"));
 const db = adminFirestore.getFirestore();
 const auth = (0, auth_1.getAuth)();
@@ -82,6 +85,7 @@ const KNOWN_USER_SUBCOLLECTIONS = [
     "verseCollections",
     "learning",
     "blockedWallAuthors",
+    "sermonNotes",
 ];
 async function countSubcollection(userDocRef, subcollectionName) {
     try {
@@ -96,14 +100,15 @@ async function countSubcollection(userDocRef, subcollectionName) {
  * Callable function: deleteUserData
  * Borra los datos del propio usuario (uid del token).
  */
-exports.deleteUserData = functions
-    .region("us-central1")
-    .runWith({
+exports.deleteUserData = (0, limites_1.enRegion)({
     timeoutSeconds: 540,
     memory: "512MB",
     secrets: ["WALL_ABUSE_SALT"],
+    // Borrar una cuenta es raro y pesado: pocas a la vez.
+    maxInstances: 3,
 })
     .https.onCall(async (_data, context) => {
+    var _a, _b;
     if (!context.auth) {
         throw new functions.https.HttpsError("unauthenticated", "Debes iniciar sesión para eliminar tu cuenta.");
     }
@@ -167,6 +172,26 @@ exports.deleteUserData = functions
     catch (err) {
         console.error(`❌ [DELETE] recursiveDelete failed:`, err);
         throw new functions.https.HttpsError("internal", "No se pudieron eliminar todos los datos. Intenta de nuevo en unos minutos.", { phase: "firestore" });
+    }
+    // Archivos del usuario en Cloud Storage (fotos y dibujos de Apuntes,
+    // bajo users/{uid}/). Si el proyecto no tiene bucket no hay nada que
+    // borrar; cualquier otro error se reporta para que el cliente reintente.
+    try {
+        const bucket = (0, storage_1.getStorage)().bucket();
+        const prefix = `users/${uid}/`;
+        const [files] = await bucket.getFiles({ prefix });
+        await bucket.deleteFiles({ prefix });
+        deletionStats["storageFiles"] = files.length;
+    }
+    catch (err) {
+        const status = (_a = err === null || err === void 0 ? void 0 : err.code) !== null && _a !== void 0 ? _a : (_b = err === null || err === void 0 ? void 0 : err.response) === null || _b === void 0 ? void 0 : _b.status;
+        if (status === 404) {
+            deletionStats["storageFiles"] = 0;
+        }
+        else {
+            console.error(`❌ [DELETE] Storage cleanup failed:`, err);
+            throw new functions.https.HttpsError("internal", "No se pudieron eliminar tus fotos y dibujos. Intenta de nuevo en unos minutos.", { phase: "storage" });
+        }
     }
     // Borrar códigos de invitación del usuario en /inviteCodes (colección
     // top-level, fuera del árbol de /users/{uid}, así que recursiveDelete no

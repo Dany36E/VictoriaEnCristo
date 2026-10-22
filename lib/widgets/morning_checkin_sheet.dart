@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme.dart';
@@ -178,7 +178,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         const SizedBox(height: 12),
         Text(
           '$_greeting, guerrero',
-          style: GoogleFonts.cinzel(
+          style: AppFonts.cinzel(
             color: td.textPrimary,
             fontSize: 22,
             fontWeight: FontWeight.w600,
@@ -188,7 +188,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         Text(
           stageMsg,
           textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(color: td.textSecondary, fontSize: 14, height: 1.5),
+          style: AppFonts.manrope(color: td.textSecondary, fontSize: 14, height: 1.5),
         ),
       ],
     );
@@ -202,7 +202,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         const SizedBox(height: 12),
         Text(
           'Versículo del día',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: AppDesignSystem.gold,
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -213,7 +213,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         Text(
           '"${verse.verse}"',
           textAlign: TextAlign.center,
-          style: GoogleFonts.crimsonPro(
+          style: AppFonts.crimsonPro(
             color: td.textPrimary,
             fontSize: 17,
             fontStyle: FontStyle.italic,
@@ -223,7 +223,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         const SizedBox(height: 8),
         Text(
           '— ${verse.reference}',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: td.textSecondary,
             fontSize: 12,
             fontWeight: FontWeight.w600,
@@ -241,7 +241,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         const SizedBox(height: 12),
         Text(
           'Intención del día',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: AppDesignSystem.victory,
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -254,7 +254,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
               ? _todayIntention
               : 'Hoy elijo caminar en victoria.\nCon la ayuda de Dios, resistiré toda tentación.\nNo dependo de mis fuerzas, sino de Su poder.',
           textAlign: TextAlign.center,
-          style: GoogleFonts.manrope(color: td.textPrimary, fontSize: 15, height: 1.6),
+          style: AppFonts.manrope(color: td.textPrimary, fontSize: 15, height: 1.6),
         ),
       ],
     );
@@ -268,7 +268,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
         const SizedBox(height: 12),
         Text(
           'Oración breve',
-          style: GoogleFonts.manrope(
+          style: AppFonts.manrope(
             color: const Color(0xFFE8C97A),
             fontSize: 11,
             fontWeight: FontWeight.w700,
@@ -281,7 +281,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
               ? _todayPrayer
               : 'Señor, te entrego este día.\nCúbreme con Tu gracia.\nGuarda mis ojos, mis manos y mi corazón.\nQue cada paso me acerque más a Ti.\nAmén.',
           textAlign: TextAlign.center,
-          style: GoogleFonts.crimsonPro(
+          style: AppFonts.crimsonPro(
             color: td.textPrimary,
             fontSize: 16,
             fontStyle: FontStyle.italic,
@@ -305,7 +305,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
           },
           child: Text(
             'Saltar',
-            style: GoogleFonts.manrope(color: td.textSecondary.withValues(alpha: 0.5), fontSize: 13),
+            style: AppFonts.manrope(color: td.textSecondary.withValues(alpha: 0.5), fontSize: 13),
           ),
         ),
         const Spacer(),
@@ -344,7 +344,7 @@ class _MorningCheckinSheetState extends State<MorningCheckinSheet> {
           ),
           child: Text(
             isLast ? 'Comenzar' : 'Siguiente',
-            style: GoogleFonts.manrope(fontWeight: FontWeight.w600, fontSize: 13),
+            style: AppFonts.manrope(fontWeight: FontWeight.w600, fontSize: 13),
           ),
         ),
       ],

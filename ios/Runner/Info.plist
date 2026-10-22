@@ -41,6 +41,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>Victoria en Cristo usa la cámara para tomar fotos y agregarlas a tus apuntes.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Victoria en Cristo abre tus fotos para que elijas cuáles agregar a tus apuntes.</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'app_fonts.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
+import 'app_theme_data.dart';
+import 'contraste.dart';
 import 'dart:ui';
 
 /// ============================================================================
@@ -35,6 +39,12 @@ class AppDesignSystem {
   static const Color goldDark = Color(0xFFC19A3E);
   static const Color goldMuted = Color(0xFFB8956E);
   static const Color goldSubtle = Color(0x33D4A853); // 20% opacity
+
+  /// [gold] para texto: en los temas claros se oscurece lo justo para leerse
+  /// (WCAG AA) sobre el fondo de la página, o sobre una pastilla dorada de
+  /// opacidad [pastilla] encima de ella. En los oscuros queda igual.
+  static Color oroTexto(BuildContext context, {double pastilla = 0}) =>
+      legibleEnPastilla(gold, pastilla, AppThemeData.of(context).fondoVisible);
   
   /// Neutral: Pure Light - Represents purity, peace, clarity
   static const Color pureWhite = Color(0xFFFFFBF5);
@@ -77,7 +87,7 @@ class AppDesignSystem {
   /// Display - For hero moments, scripture headers
   /// Cinzel: Elegant, timeless, sacred feeling
   static TextStyle displayLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.cinzel(
+    return AppFonts.cinzel(
       fontSize: 48,
       fontWeight: FontWeight.w300, // Light - elegant
       letterSpacing: 2.0,
@@ -87,7 +97,7 @@ class AppDesignSystem {
   }
   
   static TextStyle displayMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.cinzel(
+    return AppFonts.cinzel(
       fontSize: 36,
       fontWeight: FontWeight.w400,
       letterSpacing: 1.5,
@@ -97,7 +107,7 @@ class AppDesignSystem {
   }
   
   static TextStyle displaySmall(BuildContext context, {Color? color}) {
-    return GoogleFonts.cinzel(
+    return AppFonts.cinzel(
       fontSize: 28,
       fontWeight: FontWeight.w400,
       letterSpacing: 1.0,
@@ -108,7 +118,7 @@ class AppDesignSystem {
   
   /// Headlines - Section titles, card headers
   static TextStyle headlineLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 24,
       fontWeight: FontWeight.w600,
       letterSpacing: -0.5,
@@ -118,7 +128,7 @@ class AppDesignSystem {
   }
   
   static TextStyle headlineMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 20,
       fontWeight: FontWeight.w600,
       letterSpacing: -0.3,
@@ -128,7 +138,7 @@ class AppDesignSystem {
   }
   
   static TextStyle headlineSmall(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 18,
       fontWeight: FontWeight.w500,
       letterSpacing: 0,
@@ -139,7 +149,7 @@ class AppDesignSystem {
   
   /// Labels - Buttons, tags, small UI elements
   static TextStyle labelLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 14,
       fontWeight: FontWeight.w600,
       letterSpacing: 1.2, // Wide tracking for elegance
@@ -149,7 +159,7 @@ class AppDesignSystem {
   }
   
   static TextStyle labelMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 12,
       fontWeight: FontWeight.w500,
       letterSpacing: 1.5,
@@ -159,7 +169,7 @@ class AppDesignSystem {
   }
   
   static TextStyle labelSmall(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 10,
       fontWeight: FontWeight.w500,
       letterSpacing: 2.0, // Very wide for tiny text
@@ -170,7 +180,7 @@ class AppDesignSystem {
   
   /// Body - Reading text, descriptions
   static TextStyle bodyLarge(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 16,
       fontWeight: FontWeight.w400,
       letterSpacing: 0.2,
@@ -180,7 +190,7 @@ class AppDesignSystem {
   }
   
   static TextStyle bodyMedium(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 14,
       fontWeight: FontWeight.w400,
       letterSpacing: 0.1,
@@ -191,7 +201,7 @@ class AppDesignSystem {
   
   /// Scripture - Special style for Bible verses
   static TextStyle scripture(BuildContext context, {Color? color}) {
-    return GoogleFonts.crimsonPro(
+    return AppFonts.crimsonPro(
       fontSize: 20,
       fontWeight: FontWeight.w400,
       fontStyle: FontStyle.italic,
@@ -202,7 +212,7 @@ class AppDesignSystem {
   }
   
   static TextStyle scriptureReference(BuildContext context, {Color? color}) {
-    return GoogleFonts.manrope(
+    return AppFonts.manrope(
       fontSize: 12,
       fontWeight: FontWeight.w600,
       letterSpacing: 2.0,
@@ -388,6 +398,18 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) {
+      // Tema papel: sin vidrio esmerilado; recorte de papel con su sombra.
+      return Container(
+        padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
+        decoration: BoxDecoration(
+          color: VecColores.papel,
+          borderRadius: BorderRadius.circular(VecRadios.m),
+          boxShadow: VecSombras.papel,
+        ),
+        child: child,
+      );
+    }
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius ?? AppDesignSystem.radiusM),
       child: BackdropFilter(
@@ -481,6 +503,7 @@ class _PremiumButtonState extends State<PremiumButton>
 
   @override
   Widget build(BuildContext context) {
+    if (AppThemeData.of(context).isPaper) return _buildPapel();
     return GestureDetector(
       onTapDown: _onTapDown,
       onTapUp: _onTapUp,
@@ -514,6 +537,46 @@ class _PremiumButtonState extends State<PremiumButton>
             ),
           );
         },
+      ),
+    );
+  }
+}
+
+/// Tema papel: píldora de color sólido del kit que se hunde 5 px al tocarla.
+extension on _PremiumButtonState {
+  Widget _buildPapel() {
+    final fondo = widget.isOutlined
+        ? VecColores.papel
+        : widget.backgroundColor == AppDesignSystem.victory
+        ? VecColores.verde
+        : VecColores.terracota;
+    return GestureDetector(
+      onTapDown: _onTapDown,
+      onTapUp: _onTapUp,
+      onTapCancel: _onTapCancel,
+      onTap: widget.onPressed,
+      child: AnimatedBuilder(
+        animation: _controller,
+        builder: (context, child) {
+          final abajo = _controller.value > 0;
+          return AnimatedContainer(
+            duration: const Duration(milliseconds: 110),
+            width: widget.width,
+            transform: Matrix4.translationValues(0, abajo ? 5 : 0, 0),
+            padding: widget.padding ??
+                const EdgeInsets.symmetric(
+                  horizontal: AppDesignSystem.spacingL,
+                  vertical: AppDesignSystem.spacingM,
+                ),
+            decoration: BoxDecoration(
+              color: fondo,
+              borderRadius: BorderRadius.circular(VecRadios.pildora),
+              boxShadow: abajo ? VecSombras.presionado : VecSombras.chip,
+            ),
+            child: child,
+          );
+        },
+        child: Center(child: widget.child),
       ),
     );
   }
@@ -564,7 +627,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.manrope(
+        titleTextStyle: AppFonts.manrope(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
@@ -605,7 +668,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -617,7 +680,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppDesignSystem.midnight,
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -640,7 +703,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -687,11 +750,11 @@ class AppTheme {
             width: 2,
           ),
         ),
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray,
           fontWeight: FontWeight.w500,
         ),
-        hintStyle: GoogleFonts.manrope(
+        hintStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
         ),
       ),
@@ -703,12 +766,12 @@ class AppTheme {
         unselectedItemColor: AppDesignSystem.coolGray,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: GoogleFonts.manrope(
+        selectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
-        unselectedLabelStyle: GoogleFonts.manrope(
+        unselectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
@@ -743,7 +806,7 @@ class AppTheme {
       // Snackbar
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppDesignSystem.midnight,
-        contentTextStyle: GoogleFonts.manrope(
+        contentTextStyle: AppFonts.manrope(
           color: AppDesignSystem.pureWhite,
           fontWeight: FontWeight.w500,
         ),
@@ -794,7 +857,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: true,
-        titleTextStyle: GoogleFonts.manrope(
+        titleTextStyle: AppFonts.manrope(
           fontSize: 18,
           fontWeight: FontWeight.w600,
           letterSpacing: -0.3,
@@ -835,7 +898,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -847,7 +910,7 @@ class AppTheme {
       textButtonTheme: TextButtonThemeData(
         style: TextButton.styleFrom(
           foregroundColor: AppDesignSystem.goldLight,
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 0.5,
@@ -870,7 +933,7 @@ class AppTheme {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
           ),
-          textStyle: GoogleFonts.manrope(
+          textStyle: AppFonts.manrope(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             letterSpacing: 1.0,
@@ -917,11 +980,11 @@ class AppTheme {
             width: 2,
           ),
         ),
-        labelStyle: GoogleFonts.manrope(
+        labelStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray,
           fontWeight: FontWeight.w500,
         ),
-        hintStyle: GoogleFonts.manrope(
+        hintStyle: AppFonts.manrope(
           color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
         ),
       ),
@@ -933,12 +996,12 @@ class AppTheme {
         unselectedItemColor: AppDesignSystem.coolGray,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: GoogleFonts.manrope(
+        selectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w600,
           letterSpacing: 0.5,
         ),
-        unselectedLabelStyle: GoogleFonts.manrope(
+        unselectedLabelStyle: AppFonts.manrope(
           fontSize: 12,
           fontWeight: FontWeight.w500,
           letterSpacing: 0.5,
@@ -973,7 +1036,7 @@ class AppTheme {
       // Snackbar
       snackBarTheme: SnackBarThemeData(
         backgroundColor: AppDesignSystem.gold,
-        contentTextStyle: GoogleFonts.manrope(
+        contentTextStyle: AppFonts.manrope(
           color: AppDesignSystem.midnightDeep,
           fontWeight: FontWeight.w500,
         ),
@@ -1000,6 +1063,338 @@ class AppTheme {
       progressIndicatorTheme: const ProgressIndicatorThemeData(
         color: AppDesignSystem.gold,
         linearTrackColor: AppDesignSystem.midnightLight,
+      ),
+    );
+  }
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // PAPER THEME — «papel recortado» (kit victoria-en-cristo-estilo)
+  // ══════════════════════════════════════════════════════════════════════════
+  //
+  // Parte de vecTema() del kit y lo extiende a todos los componentes de
+  // Material con los mismos tokens (VecColores, VecFuentes, VecSombras,
+  // VecRadios). Se usa cuando AppThemeData.isPaper es true.
+
+  static const TextStyle _vecTitulo = TextStyle(
+    fontFamily: VecFuentes.titulo,
+    color: VecColores.tinta,
+  );
+  static const TextStyle _vecTexto = TextStyle(
+    fontFamily: VecFuentes.texto,
+    color: VecColores.tinta,
+  );
+
+  /// Botón de píldora: color sólido, texto crema en Lilita One y sombra
+  /// sólida que baja de 8 a 3 px al presionarlo.
+  static ButtonStyle _vecBoton({
+    required Color fondo,
+    required Color texto,
+  }) {
+    return ButtonStyle(
+      backgroundColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? VecColores.cremaOscuro : fondo,
+      ),
+      foregroundColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? VecColores.gris : texto,
+      ),
+      iconColor: WidgetStateProperty.resolveWith(
+        (s) => s.contains(WidgetState.disabled) ? VecColores.gris : texto,
+      ),
+      overlayColor: WidgetStatePropertyAll(texto.withValues(alpha: 0.08)),
+      elevation: const WidgetStatePropertyAll(0),
+      shadowColor: const WidgetStatePropertyAll(Colors.transparent),
+      surfaceTintColor: const WidgetStatePropertyAll(Colors.transparent),
+      padding: const WidgetStatePropertyAll(
+        EdgeInsets.fromLTRB(26, 14, 26, 12),
+      ),
+      shape: WidgetStateProperty.resolveWith(
+        (s) => BordeConSombraVec.pildora(
+          presionado: s.contains(WidgetState.pressed),
+        ),
+      ),
+      textStyle: const WidgetStatePropertyAll(
+        TextStyle(fontFamily: VecFuentes.titulo, fontSize: 18),
+      ),
+    );
+  }
+
+  static ThemeData get paperTheme {
+    final base = vecTema();
+    final tituloTema = base.textTheme;
+
+    return base.copyWith(
+      // Cada página pinta su papel con textura (TransicionPapel/FondoPapel).
+      scaffoldBackgroundColor: Colors.transparent,
+      canvasColor: VecColores.papel,
+      textTheme: tituloTema.copyWith(
+        displayMedium: _vecTitulo.copyWith(fontSize: 38, height: 1.05),
+        displaySmall: _vecTitulo.copyWith(fontSize: 32, height: 1.05),
+        headlineLarge: _vecTitulo.copyWith(fontSize: 32, height: 1.05),
+        headlineSmall: _vecTitulo.copyWith(fontSize: 24, height: 1.05),
+        titleSmall: _vecTitulo.copyWith(fontSize: 16),
+        labelMedium: _vecTitulo.copyWith(fontSize: 14),
+        labelSmall: _vecTitulo.copyWith(fontSize: 12),
+        bodySmall: _vecTexto.copyWith(fontSize: 15, color: VecColores.gris),
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: TransicionPapel(
+            PredictiveBackPageTransitionsBuilder(),
+          ),
+          TargetPlatform.iOS: TransicionPapel(CupertinoPageTransitionsBuilder()),
+          TargetPlatform.macOS: TransicionPapel(
+            CupertinoPageTransitionsBuilder(),
+          ),
+          TargetPlatform.windows: TransicionPapel(ZoomPageTransitionsBuilder()),
+          TargetPlatform.linux: TransicionPapel(ZoomPageTransitionsBuilder()),
+        },
+      ),
+
+      appBarTheme: const AppBarTheme(
+        backgroundColor: Colors.transparent,
+        foregroundColor: VecColores.tinta,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        titleTextStyle: TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 24,
+          color: VecColores.tinta,
+        ),
+        iconTheme: IconThemeData(color: VecColores.tinta, size: 26),
+      ),
+
+      cardTheme: CardThemeData(
+        color: VecColores.papel,
+        elevation: 0,
+        shadowColor: Colors.transparent,
+        surfaceTintColor: Colors.transparent,
+        shape: BordeConSombraVec.tarjeta(),
+        margin: EdgeInsets.zero,
+      ),
+
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: _vecBoton(fondo: VecColores.terracota, texto: VecColores.papel),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: _vecBoton(fondo: VecColores.terracota, texto: VecColores.papel),
+      ),
+      // Botón secundario (.vec-boton.secundario): papel con texto tinta.
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: _vecBoton(
+          fondo: VecColores.papel,
+          texto: VecColores.tinta,
+        ).copyWith(side: const WidgetStatePropertyAll(BorderSide.none)),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          foregroundColor: VecColores.terracota,
+          shape: const StadiumBorder(),
+          textStyle: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 17),
+        ),
+      ),
+
+      floatingActionButtonTheme: FloatingActionButtonThemeData(
+        backgroundColor: VecColores.terracota,
+        foregroundColor: VecColores.papel,
+        elevation: 0,
+        focusElevation: 0,
+        hoverElevation: 0,
+        highlightElevation: 0,
+        // Estadio: círculo en el FAB normal y píldora en el extendido.
+        shape: BordeConSombraVec(
+          forma: const StadiumBorder(),
+          sombras: VecSombras.chip,
+        ),
+        extendedTextStyle: const TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 18,
+        ),
+      ),
+
+      chipTheme: ChipThemeData(
+        backgroundColor: VecColores.cremaOscuro,
+        selectedColor: VecColores.terracota,
+        disabledColor: VecColores.cremaOscuro,
+        checkmarkColor: VecColores.papel,
+        labelStyle: const TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 15,
+          color: VecColores.tinta,
+        ),
+        secondaryLabelStyle: const TextStyle(
+          fontFamily: VecFuentes.titulo,
+          fontSize: 15,
+          color: VecColores.papel,
+        ),
+        side: BorderSide.none,
+        shape: BordeConSombraVec(
+          forma: const StadiumBorder(),
+          sombras: VecSombras.presionado,
+        ),
+        elevation: 0,
+        pressElevation: 0,
+      ),
+
+      inputDecorationTheme: base.inputDecorationTheme.copyWith(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.tinta, width: 4),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(VecRadios.s),
+          borderSide: const BorderSide(color: VecColores.cremaOscuro, width: 4),
+        ),
+        labelStyle: _vecTexto.copyWith(color: VecColores.gris, fontSize: 18),
+        floatingLabelStyle: _vecTitulo.copyWith(
+          color: VecColores.terracota,
+          fontSize: 16,
+        ),
+        errorStyle: _vecTexto.copyWith(color: VecColores.terracota, fontSize: 15),
+        prefixIconColor: VecColores.gris,
+        suffixIconColor: VecColores.gris,
+      ),
+
+      switchTheme: base.switchTheme.copyWith(
+        trackOutlineWidth: const WidgetStatePropertyAll(3),
+      ),
+      checkboxTheme: CheckboxThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? VecColores.verde
+              : VecColores.papel,
+        ),
+        checkColor: const WidgetStatePropertyAll(VecColores.papel),
+        side: const BorderSide(color: VecColores.tinta, width: 3),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(6),
+        ),
+      ),
+      radioTheme: RadioThemeData(
+        fillColor: WidgetStateProperty.resolveWith(
+          (s) => s.contains(WidgetState.selected)
+              ? VecColores.verde
+              : VecColores.tinta,
+        ),
+      ),
+      sliderTheme: const SliderThemeData(
+        activeTrackColor: VecColores.terracota,
+        inactiveTrackColor: VecColores.cremaOscuro,
+        thumbColor: VecColores.terracota,
+      ),
+
+      dialogTheme: DialogThemeData(
+        backgroundColor: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: BordeConSombraVec.tarjeta(radio: VecRadios.l),
+        titleTextStyle: _vecTitulo.copyWith(fontSize: 24),
+        contentTextStyle: _vecTexto.copyWith(fontSize: 18, height: 1.3),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        modalBackgroundColor: VecColores.papel,
+        dragHandleColor: VecColores.cremaOscuro,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(VecRadios.l),
+          ),
+        ),
+      ),
+      popupMenuTheme: PopupMenuThemeData(
+        color: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        shape: BordeConSombraVec.tarjeta(),
+        textStyle: _vecTexto.copyWith(fontSize: 18),
+      ),
+      snackBarTheme: SnackBarThemeData(
+        backgroundColor: VecColores.tinta,
+        contentTextStyle: _vecTitulo.copyWith(
+          color: VecColores.papel,
+          fontSize: 16,
+        ),
+        actionTextColor: VecColores.mostazaClaro,
+        shape: BordeConSombraVec.pildora(presionado: true),
+        behavior: SnackBarBehavior.floating,
+        elevation: 0,
+      ),
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: VecColores.tinta,
+          borderRadius: BorderRadius.circular(VecRadios.s),
+        ),
+        textStyle: _vecTitulo.copyWith(color: VecColores.papel, fontSize: 14),
+      ),
+
+      // Barra inferior (.vec-tabbar): papel, activo en terracota.
+      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+        backgroundColor: VecColores.papel,
+        selectedItemColor: VecColores.terracota,
+        unselectedItemColor: VecColores.gris,
+        type: BottomNavigationBarType.fixed,
+        elevation: 0,
+        selectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+        unselectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        backgroundColor: VecColores.papel,
+        surfaceTintColor: Colors.transparent,
+        indicatorColor: VecColores.terracota,
+        indicatorShape: const CircleBorder(),
+        iconTheme: WidgetStateProperty.resolveWith(
+          (s) => IconThemeData(
+            color: s.contains(WidgetState.selected)
+                ? VecColores.papel
+                : VecColores.gris,
+          ),
+        ),
+        labelTextStyle: WidgetStateProperty.resolveWith(
+          (s) => _vecTitulo.copyWith(
+            fontSize: 13,
+            color: s.contains(WidgetState.selected)
+                ? VecColores.terracota
+                : VecColores.gris,
+          ),
+        ),
+      ),
+      tabBarTheme: TabBarThemeData(
+        labelColor: VecColores.terracota,
+        unselectedLabelColor: VecColores.gris,
+        indicatorColor: VecColores.terracota,
+        dividerColor: VecColores.cremaOscuro,
+        labelStyle: _vecTitulo.copyWith(fontSize: 16),
+        unselectedLabelStyle: _vecTitulo.copyWith(fontSize: 16),
+      ),
+
+      dividerTheme: const DividerThemeData(
+        color: VecColores.cremaOscuro,
+        thickness: 2,
+        space: 1,
+      ),
+      listTileTheme: ListTileThemeData(
+        iconColor: VecColores.tinta,
+        textColor: VecColores.tinta,
+        titleTextStyle: _vecTitulo.copyWith(fontSize: 17),
+        subtitleTextStyle: _vecTexto.copyWith(
+          fontSize: 16,
+          color: VecColores.gris,
+        ),
+      ),
+      iconTheme: const IconThemeData(color: VecColores.tinta, size: 24),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(
+        color: VecColores.terracota,
+        linearTrackColor: VecColores.cremaOscuro,
+        circularTrackColor: VecColores.cremaOscuro,
       ),
     );
   }

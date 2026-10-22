@@ -35,6 +35,13 @@ const String kAndroidJesusWidgetProvider = 'JesusWidgetProvider';
 const String kAndroidJesusWidgetQualifiedName =
     '$kAndroidPackageName.$kAndroidJesusWidgetProvider';
 
+/// Provider del widget de atajos (Biblia, Estudio bíblico y Apuntes)
+const String kAndroidAtajosWidgetProvider = 'AtajosWidgetProvider';
+
+/// Nombre completo calificado del provider de atajos
+const String kAndroidAtajosWidgetQualifiedName =
+    '$kAndroidPackageName.$kAndroidAtajosWidgetProvider';
+
 /// Nombre del widget de Jesús en iOS  
 const String kIOSJesusWidgetName = 'JesusWidget';
 

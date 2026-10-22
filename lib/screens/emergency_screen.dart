@@ -8,6 +8,8 @@ import '../services/feedback_engine.dart';
 import '../services/emergency_sos_service.dart';
 import 'battle_partner/battle_partner_screen.dart';
 import 'wall/wall_screen.dart';
+import '../vec/vec_tema.dart';
+import '../vec/vec_widgets.dart';
 
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
@@ -112,6 +114,65 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
   void _showPostSosCheckin() {
     FeedbackEngine.I.confirm();
     final t = AppThemeData.of(context);
+    if (t.isPaper) {
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (ctx) => Dialog(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const PopIn(
+                  child: Sticker(
+                    'assets/vec/personajes/victoria_piensa.png',
+                    alto: 140,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                const TituloVec(
+                  '¿Cómo te sientes ahora?',
+                  clave: 'ahora',
+                  tamano: 24,
+                  alineacion: TextAlign.center,
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'No hay respuesta incorrecta. Solo queremos acompañarte.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: VecFuentes.texto,
+                    fontSize: 18,
+                    color: VecColores.gris,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                BotonVec(
+                  texto: 'Ya estoy bien',
+                  iconoWidget: const IconoVec('palomita'),
+                  color: VecColores.verde,
+                  expandido: true,
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _showVictoryDialog();
+                  },
+                ),
+                const SizedBox(height: 8),
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                    _showEscalationSheet();
+                  },
+                  child: const Text('Sigo luchando'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -307,6 +368,58 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
   void _showVictoryDialog() {
     FeedbackEngine.I.confirm();
     final t = AppThemeData.of(context);
+    if (t.isPaper) {
+      // Mensaje de éxito: Victoria celebra contigo.
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Dialog(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.fromLTRB(22, 20, 22, 22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const PopIn(
+                  child: Sticker(
+                    'assets/vec/personajes/victoria_corazon.png',
+                    alto: 150,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                const Letrero('¡VICTORIA!', tamano: 40),
+                const SizedBox(height: 10),
+                const Text(
+                  'Has resistido la tentación. Cada victoria te hace más fuerte.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontFamily: VecFuentes.texto,
+                    fontSize: 18,
+                    height: 1.3,
+                    color: VecColores.tinta,
+                  ),
+                ),
+                const SizedBox(height: 22),
+                const TarjetaVersiculo(
+                  referencia: 'Santiago 4:7',
+                  texto: 'Resistid al diablo, y huirá de vosotros.',
+                ),
+                const SizedBox(height: 22),
+                BotonVec(
+                  texto: 'Continuar en victoria',
+                  color: VecColores.verde,
+                  expandido: true,
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      return;
+    }
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -417,7 +530,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
     final t = AppThemeData.of(context);
 
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -437,7 +550,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
       ),
       body: Stack(
         children: [
-          // Animated background gradient
+          // Animated background gradient (en papel, la hoja con textura)
+          if (!t.isPaper)
           AnimatedBuilder(
             animation: _breatheController,
             builder: (context, child) {
@@ -486,6 +600,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
 
   Widget _buildGiantBadge() {
     final t = AppThemeData.of(context);
+    if (t.isPaper) {
+      return PopIn(
+        child: ChipVec(
+          texto: 'Plan personalizado: $_giantName',
+          color: VecColores.terracota,
+          iconoWidget: const IconoVec('escudo', color: VecColores.papel),
+        ),
+      );
+    }
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppDesignSystem.spacingM,
@@ -517,7 +640,14 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
           margin: const EdgeInsets.symmetric(horizontal: 4),
           width: isCurrent ? 36 : 12,
           height: 12,
-          decoration: BoxDecoration(
+          decoration: t.isPaper
+              ? BoxDecoration(
+                  color: isActive
+                      ? VecColores.terracota
+                      : VecColores.cremaOscuro,
+                  borderRadius: BorderRadius.circular(VecRadios.pildora),
+                )
+              : BoxDecoration(
             gradient: isActive ? AppDesignSystem.goldShimmer : null,
             color: isActive ? null : t.textSecondary.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(6),
@@ -528,8 +658,102 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
     ).animate().fadeIn(delay: 100.ms);
   }
 
+  /// Personaje que acompaña cada paso en el tema papel.
+  static const _personajesPaso = [
+    'assets/vec/personajes/victoria_preocupado.png',
+    'assets/vec/personajes/timoteo_explica.png',
+    'assets/vec/personajes/victoria_ora.png',
+    'assets/vec/personajes/timoteo_corazon.png',
+    'assets/vec/personajes/victoria_presenta.png',
+  ];
+
+  Widget _buildStepContentPapel(PersonalizedStep step) {
+    return SingleChildScrollView(
+      physics: const BouncingScrollPhysics(),
+      child: Column(
+        children: [
+          const SizedBox(height: 8),
+          PopIn(
+            key: ValueKey('personaje-$_currentStep'),
+            child: Sticker(
+              _personajesPaso[_currentStep % _personajesPaso.length],
+              alto: 160,
+            ),
+          ),
+          const SizedBox(height: 10),
+          TituloVec(
+            step.title,
+            tamano: 34,
+            alineacion: TextAlign.center,
+          ),
+          const SizedBox(height: 22),
+          PopIn(
+            key: ValueKey('tarjeta-$_currentStep'),
+            retraso: const Duration(milliseconds: 120),
+            child: TarjetaPapel(
+              child: Column(
+                children: [
+                  Text(
+                    step.instruction,
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontFamily: VecFuentes.texto,
+                      fontSize: 21,
+                      height: 1.3,
+                      color: VecColores.tinta,
+                    ),
+                  ),
+                  if (step.detail != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      step.detail!,
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(
+                        fontFamily: VecFuentes.texto,
+                        fontSize: 17,
+                        height: 1.3,
+                        color: VecColores.gris,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          if (step.verse != null) ...[
+            const SizedBox(height: 26),
+            TarjetaVersiculo(
+              referencia: step.verse!.reference,
+              texto: step.verse!.title,
+              version: '',
+            ),
+          ],
+          if (step.prayer != null) ...[
+            const SizedBox(height: 26),
+            const Row(
+              children: [
+                CirculoIcono(
+                  iconoVec: 'orar',
+                  color: VecColores.noche,
+                  tamano: 38,
+                  giro: -4,
+                ),
+                SizedBox(width: 10),
+                TituloVec('Oración', tamano: 22),
+              ],
+            ),
+            const SizedBox(height: 20),
+            HojaRayada(child: Text(step.prayer!)),
+          ],
+          const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
   Widget _buildStepContent(PersonalizedStep step) {
     final t = AppThemeData.of(context);
+    if (t.isPaper) return _buildStepContentPapel(step);
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
       child: Column(
@@ -648,6 +872,15 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
   Widget _buildNextButton() {
     final t = AppThemeData.of(context);
     final isLastStep = _currentStep == _steps.length - 1;
+    if (t.isPaper) {
+      return BotonVec(
+        texto: isLastStep ? '¡Lo logré!' : 'Siguiente paso',
+        icono: isLastStep ? Icons.celebration_rounded : Icons.arrow_forward_rounded,
+        color: isLastStep ? VecColores.verde : VecColores.terracota,
+        expandido: true,
+        onPressed: _nextStep,
+      );
+    }
 
     return SizedBox(
           width: double.infinity,
@@ -715,13 +948,18 @@ class _EscalationTile extends StatelessWidget {
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-            decoration: BoxDecoration(
+            decoration: t.isPaper
+                ? t.cardDecoration
+                : BoxDecoration(
               color: t.scaffoldBg,
               borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
               border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.18)),
             ),
             child: Row(
               children: [
+                if (t.isPaper)
+                  CirculoIcono(icono: icon, color: VecColores.azul, tamano: 40)
+                else
                 Icon(icon, color: AppDesignSystem.gold, size: 26),
                 const SizedBox(width: AppDesignSystem.spacingM),
                 Expanded(
@@ -765,7 +1003,13 @@ class _CrisisLine extends StatelessWidget {
               style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
             ),
           ),
-          Text(number, style: AppDesignSystem.bodyLarge(context, color: AppDesignSystem.gold)),
+          Text(
+            number,
+            style: AppDesignSystem.bodyLarge(
+              context,
+              color: t.isPaper ? VecColores.terracota : AppDesignSystem.gold,
+            ),
+          ),
         ],
       ),
     );

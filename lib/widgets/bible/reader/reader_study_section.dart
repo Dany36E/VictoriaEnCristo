@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import '../../../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../theme/bible_reader_theme.dart';
@@ -15,22 +15,22 @@ class ReaderStudyBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFD4AF37).withValues(alpha: 0.08),
+          color: theme.accent.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+            color: theme.accent.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
           children: [
-            const Icon(Icons.auto_stories,
-                color: Color(0xFFD4AF37), size: 16),
+            Icon(Icons.auto_stories,
+                color: theme.accent, size: 16),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Modo Estudio · David Guzik · Enduring Word',
-                style: GoogleFonts.manrope(
-                  color: const Color(0xFFD4AF37).withValues(alpha: 0.8),
+                style: AppFonts.manrope(
+                  color: theme.accent.withValues(alpha: 0.8),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.3,
@@ -77,7 +77,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
               : Colors.black.withValues(alpha: 0.03),
           border: Border(
             left: BorderSide(
-              color: const Color(0xFFD4AF37).withValues(alpha: 0.6),
+              color: theme.accent.withValues(alpha: 0.6),
               width: 3,
             ),
           ),
@@ -99,8 +99,8 @@ class ReaderAnnotationBlock extends StatelessWidget {
                     Expanded(
                       child: Text(
                         section.heading,
-                        style: GoogleFonts.manrope(
-                          color: const Color(0xFFD4AF37),
+                        style: AppFonts.manrope(
+                          color: theme.accent,
                           fontSize: (fontSize - 2).clamp(9.0, 26.0),
                           fontWeight: FontWeight.w600,
                           height: 1.4,
@@ -121,7 +121,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                     padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
                     child: Text(
                       p,
-                      style: GoogleFonts.lora(
+                      style: AppFonts.lora(
                         color: theme.textPrimary.withValues(alpha: 0.88),
                         fontSize: (fontSize - 1).clamp(10.0, 27.0),
                         height: 1.7,
@@ -156,7 +156,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
                 : Colors.black.withValues(alpha: 0.02),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+              color: theme.accent.withValues(alpha: 0.15),
             ),
           ),
           child: Column(
@@ -165,8 +165,8 @@ class ReaderGuzikAttribution extends StatelessWidget {
                 '©1996–present The Enduring Word Bible Commentary\n'
                 'by David Guzik – enduringword.com',
                 textAlign: TextAlign.center,
-                style: GoogleFonts.manrope(
-                  color: theme.textSecondary.withValues(alpha: 0.5),
+                style: AppFonts.manrope(
+                  color: theme.textoTenue(0.5),
                   fontSize: 10,
                   height: 1.5,
                 ),
@@ -174,8 +174,8 @@ class ReaderGuzikAttribution extends StatelessWidget {
               const SizedBox(height: 4),
               Text(
                 'Used with permission.',
-                style: GoogleFonts.manrope(
-                  color: theme.textSecondary.withValues(alpha: 0.35),
+                style: AppFonts.manrope(
+                  color: theme.textoTenue(0.35),
                   fontSize: 9,
                   fontStyle: FontStyle.italic,
                 ),

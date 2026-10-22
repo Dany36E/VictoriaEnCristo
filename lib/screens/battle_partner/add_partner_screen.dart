@@ -10,6 +10,9 @@ import '../../models/battle_partner_data.dart';
 import '../../services/battle_partner_service.dart';
 import '../../services/feedback_engine.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/app_theme_data.dart';
+import '../../vec/vec_tema.dart';
+import '../../vec/vec_widgets.dart';
 
 class AddPartnerScreen extends StatefulWidget {
   const AddPartnerScreen({super.key});
@@ -44,8 +47,11 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
     super.dispose();
   }
 
+  bool get _papel => AppThemeData.of(context).isPaper;
+
   @override
   Widget build(BuildContext context) {
+    if (_papel) return _buildPapel();
     return Scaffold(
       backgroundColor: AppTheme.darkBackground,
       appBar: AppBar(
@@ -312,6 +318,228 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // TEMA PAPEL
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  Widget _buildPapel() {
+    final codeReady = _codeController.text.trim().length == 8;
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      appBar: AppBar(title: const Text('Agregar compañero')),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const PopIn(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: [
+                    Sticker(
+                      'assets/vec/personajes/victoria_explica.png',
+                      alto: 130,
+                    ),
+                    SizedBox(width: 8),
+                    Expanded(
+                      child: Subtitulo(
+                        quien: 'Victoria',
+                        texto: 'Ingresa el código de tu compañero',
+                        clave: 'código',
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 14),
+              const Text(
+                'Pide a tu amigo que te comparta su código de 8 caracteres desde su pantalla.',
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontFamily: VecFuentes.texto,
+                  fontSize: 17,
+                  height: 1.25,
+                  color: VecColores.gris,
+                ),
+              ),
+              const SizedBox(height: 22),
+              TextField(
+                controller: _codeController,
+                maxLength: 8,
+                textCapitalization: TextCapitalization.characters,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontFamily: VecFuentes.titulo,
+                  fontSize: 30,
+                  letterSpacing: 4,
+                  color: VecColores.tinta,
+                ),
+                decoration: const InputDecoration(
+                  hintText: 'XXXXXXXX',
+                  counterText: '',
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[A-Za-z0-9]')),
+                  UpperCaseTextFormatter(),
+                ],
+                onChanged: (_) {
+                  if (_lookupResult != null) {
+                    setState(() => _lookupResult = null);
+                  }
+                },
+              ),
+              const SizedBox(height: 20),
+              BotonVec(
+                texto: 'Buscar compañero',
+                icono: Icons.search_rounded,
+                expandido: true,
+                cargando: _searching,
+                onPressed: codeReady ? _lookup : null,
+              ),
+              const SizedBox(height: 30),
+              if (_lookupResult != null) _buildResultPapel(_lookupResult!),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildResultPapel(InviteResult result) {
+    if (result.type == InviteResultType.success) {
+      final nombre = result.targetName ?? 'Usuario';
+      return PopIn(
+        child: TarjetaPapel(
+          child: Column(
+            children: [
+              Container(
+                width: 60,
+                height: 60,
+                alignment: Alignment.center,
+                decoration: const BoxDecoration(
+                  color: VecColores.azul,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(color: Color(0x402B2622), offset: Offset(0, 5)),
+                  ],
+                ),
+                child: Text(
+                  nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
+                  style: const TextStyle(
+                    fontFamily: VecFuentes.titulo,
+                    fontSize: 28,
+                    color: VecColores.papel,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              TituloVec(nombre, tamano: 24, alineacion: TextAlign.center),
+              const SizedBox(height: 4),
+              const Text(
+                '¿Enviar solicitud de compañero?',
+                style: TextStyle(
+                  fontFamily: VecFuentes.texto,
+                  fontSize: 17,
+                  color: VecColores.gris,
+                ),
+              ),
+              const SizedBox(height: 16),
+              BotonVec(
+                texto: _sending ? 'Enviando...' : 'Enviar solicitud',
+                iconoWidget: const IconoVec('manos'),
+                color: VecColores.verde,
+                cargando: _sending,
+                onPressed: _sendInvite,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+    final (icono, titulo, descripcion) = switch (result.type) {
+      InviteResultType.selfInvite => (
+        'idea',
+        'Ese es tu propio código',
+        'No puedes invitarte a ti mismo.',
+      ),
+      InviteResultType.alreadyLinked => (
+        'enlace',
+        'Ya están vinculados',
+        'Este compañero ya está en tu lista o tiene una invitación pendiente.',
+      ),
+      InviteResultType.limitReached => (
+        'personas',
+        'Límite alcanzado',
+        'Solo puedes tener $kMaxBattlePartners compañeros. Desvincula uno para agregar otro.',
+      ),
+      InviteResultType.notFound => (
+        'ojo',
+        'Código no encontrado',
+        'Verifica que el código sea correcto e intenta de nuevo.',
+      ),
+      InviteResultType.targetPaused => (
+        'reloj',
+        'Invitaciones pausadas',
+        'Esta persona ha pausado las nuevas invitaciones por ahora. Inténtalo más adelante.',
+      ),
+      _ => (
+        'mano_alto',
+        'Error',
+        result.errorMessage ?? 'Intenta de nuevo más tarde.',
+      ),
+    };
+    return PopIn(
+      child: Column(
+        children: [
+          const Sticker(
+            'assets/vec/personajes/timoteo_preocupado.png',
+            alto: 140,
+          ),
+          const SizedBox(height: 10),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: AppThemeData.of(context).cardDecoration,
+            child: Row(
+              children: [
+                CirculoIcono(
+                  iconoVec: icono,
+                  color: VecColores.mostaza,
+                  tamano: 44,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        titulo,
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.titulo,
+                          fontSize: 18,
+                          color: VecColores.tinta,
+                        ),
+                      ),
+                      Text(
+                        descripcion,
+                        style: const TextStyle(
+                          fontFamily: VecFuentes.texto,
+                          fontSize: 16,
+                          height: 1.2,
+                          color: VecColores.gris,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // ACTIONS
   // ═══════════════════════════════════════════════════════════════════════════
 
@@ -337,10 +565,14 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
       if (result.isSuccess) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('✅ Solicitud enviada a ${result.targetName}'),
-            backgroundColor: AppDesignSystem.midnightLight,
+            content: Text(
+              '${_papel ? '' : '✅ '}Solicitud enviada a ${result.targetName}',
+            ),
+            backgroundColor: _papel ? null : AppDesignSystem.midnightLight,
             behavior: SnackBarBehavior.floating,
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+            shape: _papel
+                ? null
+                : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
           ),
         );
         Navigator.pop(context);

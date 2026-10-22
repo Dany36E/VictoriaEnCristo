@@ -48,7 +48,7 @@ class _BibleOrderScreenState extends State<BibleOrderScreen> with SingleTickerPr
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.scaffoldBg,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: t.surface,
         elevation: 0,
@@ -60,7 +60,7 @@ class _BibleOrderScreenState extends State<BibleOrderScreen> with SingleTickerPr
         bottom: TabBar(
           controller: _tabs,
           onTap: (_) => FeedbackEngine.I.tabChange(),
-          labelColor: AppDesignSystem.gold,
+          labelColor: AppDesignSystem.oroTexto(context),
           unselectedLabelColor: t.textSecondary,
           indicatorColor: AppDesignSystem.gold,
           tabs: const [
@@ -114,7 +114,7 @@ class _BibleOrderScreenState extends State<BibleOrderScreen> with SingleTickerPr
               ),
               Text(
                 '${(pct * 100).round()}%',
-                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.gold),
+                style: AppDesignSystem.labelMedium(context, color: AppDesignSystem.oroTexto(context)),
               ),
             ],
           ),
@@ -339,9 +339,14 @@ class _CategoryCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onLearn,
                       icon: const Icon(Icons.school_rounded, size: 16),
-                      label: const Text('Aprender'),
+                      // En el tema papel la letra es más ancha: a 360 px no
+                      // cabía en medio ancho y se partía la palabra.
+                      label: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('Aprender', maxLines: 1),
+                      ),
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: AppDesignSystem.gold,
+                        foregroundColor: AppDesignSystem.oroTexto(context),
                         side: BorderSide(color: AppDesignSystem.gold.withValues(alpha: 0.7)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
@@ -355,7 +360,10 @@ class _CategoryCard extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: onPractice,
                       icon: const Icon(Icons.play_arrow_rounded, size: 16),
-                      label: Text(completed ? 'Practicar' : 'Practicar'),
+                      label: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('Practicar', maxLines: 1),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppDesignSystem.gold,
                         foregroundColor: Colors.black,
