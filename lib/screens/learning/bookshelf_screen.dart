@@ -202,24 +202,44 @@ class _BookSpine extends StatelessWidget {
     required this.onTap,
   });
 
-  /// Cuánto achicar la letra para que la palabra más larga del nombre quepa
-  /// en un renglón (si no, «Deuteronomio» se partía en «Deuterono / mio»).
-  double _escalaSinPartir(BuildContext context, TextStyle estilo, double ancho) {
+  /// Letra con la que la palabra más larga del nombre cabe en un renglón
+  /// (si no, «Deuteronomio» se partía en «Deuterono / mio»). Se mide con el
+  /// escalado de letra del sistema, que en Android 14+ no es lineal: agranda
+  /// más las letras chicas.
+  double _tamanoSinPartir(BuildContext context, TextStyle estilo, double ancho) {
+    final tamano = estilo.fontSize ?? 16;
     final palabra = book.name
         .split(' ')
         .reduce((a, b) => a.length >= b.length ? a : b);
-    final medida = TextPainter(
-      text: TextSpan(text: palabra, style: estilo),
-      textDirection: TextDirection.ltr,
-      textScaler: MediaQuery.textScalerOf(context),
-      maxLines: 1,
-    )..layout();
+    final escalador = MediaQuery.textScalerOf(context);
     // 5 % de margen: justo a la medida, el redondeo podía mandar la última
-    // letra al renglón siguiente («Deuteronomi / o»).
+    // letra al renglón siguiente.
     final disponible = ancho * 0.95;
-    final escala = medida.width > disponible ? disponible / medida.width : 1.0;
-    medida.dispose();
-    return escala;
+    bool cabe(double t) {
+      final medida = TextPainter(
+        text: TextSpan(text: palabra, style: estilo.copyWith(fontSize: t)),
+        textDirection: TextDirection.ltr,
+        textScaler: escalador,
+        maxLines: 1,
+      )..layout();
+      final ancho = medida.width;
+      medida.dispose();
+      return ancho <= disponible;
+    }
+
+    if (cabe(tamano)) return tamano;
+    // Sin piso fijo: con letra del sistema al doble en un teléfono angosto,
+    // ni a 6 cabe «Deuteronomio» y se prefiere chica a partida.
+    var (chico, grande) = (1.0, tamano);
+    while (grande - chico > 0.25) {
+      final medio = (chico + grande) / 2;
+      if (cabe(medio)) {
+        chico = medio;
+      } else {
+        grande = medio;
+      }
+    }
+    return chico;
   }
 
   /// Tono claro del lomo de los libros estudiados (el peor caso para texto
@@ -287,13 +307,11 @@ class _BookSpine extends StatelessWidget {
                       book.name,
                       textAlign: TextAlign.center,
                       style: estilo.copyWith(
-                        fontSize:
-                            (estilo.fontSize ?? 16) *
-                            _escalaSinPartir(
-                              context,
-                              estilo,
-                              restricciones.maxWidth,
-                            ),
+                        fontSize: _tamanoSinPartir(
+                          context,
+                          estilo,
+                          restricciones.maxWidth,
+                        ),
                       ),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,

@@ -61,9 +61,10 @@ class TarjetaCompartirPapel extends StatelessWidget {
   final bool mostrarMarca;
   final TextAlign alineacion;
 
-  /// Multiplica la letra del versículo después de ajustarla a la tarjeta (el
-  /// control «Tamaño» de las plantillas). Más de 1 agranda el versículo
-  /// frente a la referencia; si ya no cabe, se achica todo junto.
+  /// Multiplica la letra que se busca para el versículo (el control «Tamaño»
+  /// de las plantillas). Crece hasta llenar la tarjeta y nunca se pasa: si
+  /// el versículo ya la llena, no cambia (agrandarlo obligaría a achicar todo
+  /// y se vería más chico).
   final double escalaTexto;
 
   double get _alto => ancho / proporcion;
@@ -230,11 +231,16 @@ class _Contenido extends StatelessWidget {
     return alto;
   }
 
-  /// La letra más grande, hasta [tamano], con la que todo cabe en [alto]
+  /// La letra más grande, hasta [tope], con la que todo cabe en [alto]
   /// usando el ancho completo. Así un versículo largo se acomoda en más
   /// renglones a lo ancho, en vez de achicarse la tarjeta entera (con la
   /// referencia) y dejar márgenes vacíos. Búsqueda binaria: unas 8 medidas.
-  double _tamanoQueCabe(TextStyle base, double ancho, double alto) {
+  double _tamanoQueCabe(
+    TextStyle base,
+    double ancho,
+    double alto,
+    double tope,
+  ) {
     final fijo =
         _altoDe(TextSpan(text: '“', style: _comillas), base, ancho) +
         _separacion +
@@ -243,17 +249,21 @@ class _Contenido extends StatelessWidget {
         fijo +
             _altoDe(TextSpan(text: texto, style: _estiloTexto(t)), base, ancho) <=
         alto;
-    if (cabe(tamano)) return tamano;
-    var (chico, grande) = (10.0, tamano);
-    while (grande - chico > 0.25) {
-      final medio = (chico + grande) / 2;
-      if (cabe(medio)) {
+    if (cabe(tope)) return tope;
+    // Sobre cuartos de punto: el resultado no depende del tope, así subir el
+    // control nunca da una letra un poco más chica.
+    final maximo = (tope * 4).floor();
+    if (cabe(maximo / 4)) return maximo / 4;
+    var (chico, grande) = (40, maximo);
+    while (grande - chico > 1) {
+      final medio = (chico + grande) ~/ 2;
+      if (cabe(medio / 4)) {
         chico = medio;
       } else {
         grande = medio;
       }
     }
-    return chico;
+    return chico / 4;
   }
 
   @override
@@ -262,13 +272,12 @@ class _Contenido extends StatelessWidget {
       builder: (context, restricciones) {
         final ancho = restricciones.maxWidth;
         final base = DefaultTextStyle.of(context).style;
-        final tamanoFinal =
-            (restricciones.hasBoundedHeight
-                ? _tamanoQueCabe(base, ancho, restricciones.maxHeight)
-                : tamano) *
-            escala;
-        // Si no cabe (letra más chica que 10 o agrandada con [escala]), se
-        // achica todo junto en vez de cortarse.
+        final tope = tamano * escala;
+        final tamanoFinal = restricciones.hasBoundedHeight
+            ? _tamanoQueCabe(base, ancho, restricciones.maxHeight, tope)
+            : tope;
+        // Si aun con letra de 10 no cabe, se achica todo junto en vez de
+        // cortarse.
         return FittedBox(
           fit: BoxFit.scaleDown,
           child: SizedBox(

@@ -121,30 +121,57 @@ void main() {
     expect(find.byType(FondoPapel), findsNothing);
   });
 
-  testWidgets('el control de tamaño agranda o achica el versículo', (
+  // Tamaño con que se ve el versículo: la letra por la reducción del
+  // FittedBox (el ancho dibujado entre el ancho de su caja).
+  double tamanoVisible(WidgetTester tester, String texto) {
+    final hallado = find.text(texto);
+    final parrafo = tester.renderObject<RenderParagraph>(hallado);
+    final reduccion = tester.getSize(hallado).width / parrafo.size.width;
+    return tester.widget<Text>(hallado).style!.fontSize! * reduccion;
+  }
+
+  testWidgets('el control de tamaño agranda el versículo sin achicarlo', (
     tester,
   ) async {
     tester.view.devicePixelRatio = 1;
     tester.view.physicalSize = const Size(400, 800);
     addTearDown(tester.view.resetPhysicalSize);
     addTearDown(tester.view.resetDevicePixelRatio);
-    final tamanos = <double>[];
-    for (final escala in [0.8, 1.0, 1.3, 1.6]) {
-      await tester.pumpWidget(
-        MaterialApp(
-          home: Center(
-            child: TarjetaCompartirPapel(
-              texto: _largo,
-              referencia: '1 Corintios 10:13',
-              escalaTexto: escala,
+    // El deslizador va de 34 a 56: escala de 1 a 1.65.
+    for (final (texto, proporcion) in [
+      (_corto, 1.0),
+      (_largo, 1.0),
+      (_largo, 0.8),
+    ]) {
+      final tamanos = <double>[];
+      for (final escala in [1.0, 1.3, 1.65]) {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: Center(
+              child: TarjetaCompartirPapel(
+                texto: texto,
+                referencia: '1 Corintios 10:13',
+                proporcion: proporcion,
+                escalaTexto: escala,
+              ),
             ),
           ),
-        ),
-      );
-      tamanos.add(tester.widget<Text>(find.text(_largo)).style!.fontSize!);
-    }
-    for (var i = 1; i < tamanos.length; i++) {
-      expect(tamanos[i], greaterThan(tamanos[i - 1]), reason: '$tamanos');
+        );
+        tamanos.add(tamanoVisible(tester, texto));
+      }
+      final caso = '${texto.length} letras, proporción $proporcion: $tamanos';
+      for (var i = 1; i < tamanos.length; i++) {
+        // Nunca se ve más chico al subir el control.
+        expect(
+          tamanos[i],
+          greaterThanOrEqualTo(tamanos[i - 1] - 0.01),
+          reason: caso,
+        );
+      }
+      if (texto == _corto) {
+        // Un versículo corto tiene lugar: sí crece.
+        expect(tamanos.last, greaterThan(tamanos.first * 1.3), reason: caso);
+      }
     }
   });
 }

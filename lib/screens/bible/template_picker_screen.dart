@@ -147,12 +147,13 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   // ── Top bar ──
   Widget _buildTopBar(BibleReaderThemeData t) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: Icon(Icons.arrow_back_ios, color: t.textSecondary, size: 20),
+          IconButton(
+            onPressed: () => Navigator.pop(context),
+            tooltip: 'Volver',
+            icon: Icon(Icons.arrow_back_ios, color: t.textSecondary, size: 20),
           ),
           const Spacer(),
           Text(
@@ -165,7 +166,8 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             ),
           ),
           const Spacer(),
-          const SizedBox(width: 20),
+          // Mismo ancho que el botón de volver, para centrar el título.
+          const SizedBox(width: 48),
         ],
       ),
     );
@@ -272,32 +274,43 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        // Toggle header
-        GestureDetector(
-          onTap: () => setState(() => _customOpen = !_customOpen),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            child: Row(
-              children: [
-                Icon(Icons.tune, size: 16, color: t.textoTenue(0.6)),
-                const SizedBox(width: 8),
-                Text(
-                  'Personalizar',
-                  style: AppFonts.manrope(
-                    fontSize: 13,
-                    color: t.textoTenue(0.6),
-                    fontWeight: FontWeight.w600,
-                  ),
+        // Toggle header (48 de alto: área táctil mínima).
+        Semantics(
+          button: true,
+          expanded: _customOpen,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => setState(() => _customOpen = !_customOpen),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 48),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 10,
                 ),
-                const Spacer(),
-                Icon(
-                  _customOpen
-                      ? Icons.keyboard_arrow_up
-                      : Icons.keyboard_arrow_down,
-                  size: 20,
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                child: Row(
+                  children: [
+                    Icon(Icons.tune, size: 16, color: t.textoTenue(0.6)),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Personalizar',
+                      style: AppFonts.manrope(
+                        fontSize: 13,
+                        color: t.textoTenue(0.6),
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const Spacer(),
+                    Icon(
+                      _customOpen
+                          ? Icons.keyboard_arrow_up
+                          : Icons.keyboard_arrow_down,
+                      size: 20,
+                      color: t.textSecondary.withValues(alpha: 0.4),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -375,7 +388,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                 ),
                 const SizedBox(height: 12),
 
-                // Alignment + Logo toggle
+                // Alineación (cada ícono ocupa 48: ya quedan separados).
                 Row(
                   children: [
                     Text(
@@ -387,24 +400,41 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                         letterSpacing: 1.5,
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    _alignIcon(Icons.format_align_left, TextAlign.left, t),
-                    const SizedBox(width: 6),
-                    _alignIcon(Icons.format_align_center, TextAlign.center, t),
-                    const SizedBox(width: 6),
-                    _alignIcon(Icons.format_align_right, TextAlign.right, t),
-                    const Spacer(),
-                    Text(
-                      'Logo',
-                      style: AppFonts.manrope(
-                        color: t.textoTenue(0.5),
-                        fontSize: 12,
-                      ),
+                    const SizedBox(width: 8),
+                    _alignIcon(
+                      Icons.format_align_left,
+                      TextAlign.left,
+                      'Alinear a la izquierda',
+                      t,
                     ),
-                    const SizedBox(width: 4),
-                    SizedBox(
-                      height: 28,
-                      child: Switch(
+                    _alignIcon(
+                      Icons.format_align_center,
+                      TextAlign.center,
+                      'Centrar',
+                      t,
+                    ),
+                    _alignIcon(
+                      Icons.format_align_right,
+                      TextAlign.right,
+                      'Alinear a la derecha',
+                      t,
+                    ),
+                  ],
+                ),
+                // Logo en su propia fila: junto a la alineación no cabía en
+                // 360 px, y así el lector de pantalla nombra el interruptor.
+                MergeSemantics(
+                  child: Row(
+                    children: [
+                      Text(
+                        'Mostrar logo',
+                        style: AppFonts.manrope(
+                          color: t.textoTenue(0.5),
+                          fontSize: 12,
+                        ),
+                      ),
+                      const Spacer(),
+                      Switch(
                         value: _showLogo,
                         onChanged: (v) => setState(() => _showLogo = v),
                         activeThumbColor: t.accent,
@@ -412,8 +442,8 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                           alpha: 0.12,
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
@@ -427,9 +457,32 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
     );
   }
 
+  /// Área táctil de 48 alrededor de un control chico, sin cambiar cómo se ve.
+  Widget _tocable({
+    required Widget child,
+    required VoidCallback onTap,
+    required bool seleccionado,
+    String? etiqueta,
+  }) {
+    return Semantics(
+      button: true,
+      selected: seleccionado,
+      label: etiqueta,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 48, minWidth: 48),
+          child: Align(widthFactor: 1, heightFactor: 1, child: child),
+        ),
+      ),
+    );
+  }
+
   Widget _aspectChip(int index, BibleReaderThemeData t) {
     final isSelected = _aspectIndex == index;
-    return GestureDetector(
+    return _tocable(
+      seleccionado: isSelected,
       onTap: () => setState(() => _aspectIndex = index),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
@@ -448,17 +501,24 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: isSelected
-                ? t.accent
-                : t.textSecondary.withValues(alpha: 0.45),
+                ? legibleEnPastilla(t.accent, 0.15, t.fondoVisible)
+                : t.textoTenue(0.45),
           ),
         ),
       ),
     );
   }
 
-  Widget _alignIcon(IconData icon, TextAlign align, BibleReaderThemeData t) {
+  Widget _alignIcon(
+    IconData icon,
+    TextAlign align,
+    String etiqueta,
+    BibleReaderThemeData t,
+  ) {
     final isSelected = _textAlign == align;
-    return GestureDetector(
+    return _tocable(
+      seleccionado: isSelected,
+      etiqueta: etiqueta,
       onTap: () => setState(() => _textAlign = align),
       child: Container(
         padding: const EdgeInsets.all(6),
@@ -473,7 +533,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
         ),
         child: Icon(
           icon,
-          color: isSelected ? t.accent : t.textSecondary.withValues(alpha: 0.4),
+          color: isSelected ? t.accent : t.textoTenue(0.6),
           size: 16,
         ),
       ),
@@ -546,8 +606,8 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  // Sin el relleno vertical del tema (16): en 46 de alto
-                  // recortaba el texto por abajo.
+                  // Sin el relleno vertical del tema (16): con él, el texto
+                  // salía recortado por abajo.
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   // Acento ajustado para que el texto del color del fondo
                   // se lea encima.
