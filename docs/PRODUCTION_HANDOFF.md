@@ -40,7 +40,7 @@ Este documento separa las tareas que requieren decisiones, datos o cuentas del t
 
 ## 4. Google Play Console
 
-1. Crear la versión de producción y cargar el AAB firmado de `1.0.29+39`.
+1. Crear la versión de producción y cargar el AAB firmado de la versión que diga `pubspec.yaml` (hoy `1.0.30+40`; el de `1.0.29+39` de arriba ya no es el último).
 2. Completar **Seguridad de los datos** usando `google_play_submission.md`; declarar cuenta, contenido del usuario, identificadores, actividad, diagnósticos y datos sensibles voluntarios según el comportamiento final.
 3. Declarar la eliminación de cuenta y colocar `https://victoria-en-cristo.web.app/data_deletion.html`.
 4. Completar acceso a la app, anuncios, público objetivo, clasificación de contenido y aplicaciones de salud si la consola las solicita.
