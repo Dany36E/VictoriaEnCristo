@@ -6,6 +6,7 @@ import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_timeline_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import 'bible_reader_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -215,9 +216,21 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       child: Text(
                         '${period.yearStart < 0 ? "${period.yearStart.abs()}" : period.yearStart}',
                         style: AppFonts.manrope(
+                          // Sobre la barra sólida, blanco u oscuro según
+                          // cuál se lea mejor; sobre la barra tenue, el texto
+                          // del tema ajustado para llegar a 4.5.
                           color: selected
-                              ? Colors.white
-                              : t.textoTenue(0.6),
+                              ? (contrasteWcag(Colors.white, color) >=
+                                        contrasteWcag(t.textPrimary, color)
+                                    ? Colors.white
+                                    : t.textPrimary)
+                              : legibleSobre(
+                                  t.textPrimary,
+                                  Color.alphaBlend(
+                                    color.withValues(alpha: 0.3),
+                                    t.fondoVisible,
+                                  ),
+                                ),
                           fontSize: 9,
                           fontWeight: FontWeight.w600,
                         ),
@@ -345,7 +358,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       Text(
                         period.yearRange,
                         style: AppFonts.manrope(
-                          color: color,
+                          color: legibleSobre(color, t.fondoVisible),
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
                         ),
@@ -427,7 +440,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
               Text(
                 period.yearRange,
                 style: AppFonts.manrope(
-                  color: color,
+                  color: legibleEnPastilla(color, 0.1, t.fondoVisible),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -536,7 +549,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       Text(
                         event.yearFormatted,
                         style: AppFonts.manrope(
-                          color: color.withValues(alpha: 0.7),
+                          color: legibleSobre(color, t.fondoVisible),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -588,7 +601,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                 child: Text(
                   character.name[0],
                   style: AppFonts.cinzel(
-                    color: color,
+                    color: legibleEnPastilla(color, 0.15, t.fondoVisible),
                     fontSize: 16,
                     fontWeight: FontWeight.w700,
                   ),
@@ -612,7 +625,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                     Text(
                       character.roles.join(' · '),
                       style: AppFonts.manrope(
-                        color: color.withValues(alpha: 0.7),
+                        color: legibleSobre(color, t.fondoVisible),
                         fontSize: 11,
                       ),
                     ),
@@ -671,7 +684,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
             Text(
               event.yearFormatted,
               style: AppFonts.manrope(
-                color: t.accent,
+                color: legibleSobre(t.accent, t.fondoVisible),
                 fontSize: 13,
                 fontWeight: FontWeight.w600,
               ),
@@ -716,7 +729,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       child: Text(
                         ref.display,
                         style: AppFonts.manrope(
-                          color: t.accent,
+                          color: legibleEnPastilla(t.accent, 0.1, t.fondoVisible),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),
@@ -777,7 +790,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                     child: Text(
                       character.name[0],
                       style: AppFonts.cinzel(
-                        color: color,
+                        color: legibleEnPastilla(color, 0.15, t.fondoVisible),
                         fontSize: 20,
                         fontWeight: FontWeight.w700,
                       ),
@@ -801,7 +814,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                         Text(
                           character.roles.join(' · '),
                           style: AppFonts.manrope(
-                            color: color.withValues(alpha: 0.7),
+                            color: legibleSobre(color, t.fondoVisible),
                             fontSize: 12,
                           ),
                         ),
@@ -860,7 +873,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       child: Text(
                         ref.display,
                         style: AppFonts.manrope(
-                          color: t.accent,
+                          color: legibleEnPastilla(t.accent, 0.1, t.fondoVisible),
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
                         ),

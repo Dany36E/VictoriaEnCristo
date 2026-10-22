@@ -5,6 +5,7 @@ import '../../../models/bible/colores_nota.dart';
 import '../../../models/bible/etiquetas_nota.dart';
 import '../../../models/bible/listas_nota.dart';
 import '../../../models/bible/rich_note_document.dart';
+import '../../../vec/vec_tema.dart';
 
 class NoteDecorationRange {
   final int start;
@@ -33,7 +34,7 @@ class SermonRichTextController extends TextEditingController {
   final List<_RichNoteSnapshot> _redoStack = <_RichNoteSnapshot>[];
 
   /// Color de viñetas, números y casillas de tareas.
-  Color colorMarcas = const Color(0xFFC8553D);
+  Color colorMarcas = VecColores.terracota;
 
   /// El fondo es oscuro: los colores de texto usan su variante clara.
   bool fondoOscuro = false;
@@ -276,7 +277,7 @@ class SermonRichTextController extends TextEditingController {
           ? Color(colores[f.color]!)
           : null;
       if (isMarca || (isEtiqueta && color == null)) color = colorMarcas;
-      if (isHecha) color = (baseColor ?? const Color(0xFF8A7A64)).withValues(alpha: 0.55);
+      if (isHecha) color = (baseColor ?? VecColores.gris).withValues(alpha: 0.55);
       final highlight = f.highlight == null ? null : coloresResaltado[f.highlight];
 
       final estilo = style?.copyWith(

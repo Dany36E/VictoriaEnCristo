@@ -830,9 +830,10 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
               child: ChipVec(
                 texto: emotion.label,
                 color: color,
+                // Sin color propio: el chip les da el de su texto.
                 iconoWidget: iconoVec != null
-                    ? IconoVec(iconoVec, color: VecColores.papel)
-                    : Icon(icono, color: VecColores.papel, size: 22),
+                    ? IconoVec(iconoVec)
+                    : Icon(icono, size: 22),
               ),
             ),
             const SizedBox(height: 34),

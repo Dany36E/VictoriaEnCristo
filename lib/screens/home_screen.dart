@@ -1191,7 +1191,7 @@ class _QuickGlanceChip extends StatelessWidget {
         child: ChipVec(
           texto: label,
           color: VecColores.mostaza,
-          iconoWidget: const IconoVec('escudo', color: VecColores.papel),
+          iconoWidget: const IconoVec('escudo'),
         ),
       );
     }

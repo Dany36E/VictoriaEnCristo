@@ -217,8 +217,10 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 title: Text(
                   v.displayName,
                   style: AppFonts.manrope(
+                    // La versión del otro lado está deshabilitada: tenue a
+                    // propósito (un control inactivo no necesita contraste).
                     color: isOtherSide
-                        ? t.textoTenue(0.3)
+                        ? t.textSecondary.withValues(alpha: 0.3)
                         : t.textPrimary,
                     fontSize: 14,
                     fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,

@@ -64,7 +64,8 @@ List<String> problemasDeBotones(WidgetTester tester) {
 /// detrás. El color del texto sale de su estilo (con la opacidad de sus
 /// ancestros) y el del fondo del color más frecuente de la captura en el área
 /// del texto. Atrapa letras oscuras sobre fondo oscuro al cambiar a modo
-/// oscuro, y viceversa.
+/// oscuro, y viceversa. El relleno de un texto con contorno se mide contra
+/// el color del contorno.
 ///
 /// [captura] son los píxeles RGBA de [limite] (ver [capturarPixeles]).
 void expectReadableText(
@@ -87,10 +88,7 @@ List<String> problemasDeContraste(
   ByteData captura,
 ) {
   final problemas = <String>[];
-  _visit(limite, (node) {
-    if (node is! RenderParagraph || !node.hasSize || node.size.isEmpty) return;
-    final opacidad = _opacidadVisible(node, limite);
-    if (opacidad == null) return;
+  Rect? rectEnCaptura(RenderParagraph node) {
     final rect =
         MatrixUtils.transformRect(
           node.getTransformTo(limite),
@@ -98,7 +96,39 @@ List<String> problemasDeContraste(
         ).intersect(
           Offset.zero & Size(imagen.width.toDouble(), imagen.height.toDouble()),
         );
-    if (rect.width < 2 || rect.height < 2) return;
+    return rect.width < 2 || rect.height < 2 ? null : rect;
+  }
+
+  // Texto con contorno (letreros): el mismo texto se pinta dos veces, una con
+  // trazo grueso (`foreground` de tipo stroke) y otra encima con el relleno.
+  // El relleno se lee contra el contorno, no contra el fondo de la pantalla.
+  final contornos = <(Rect, Color)>[];
+  _visit(limite, (node) {
+    if (node is! RenderParagraph || !node.hasSize || node.size.isEmpty) return;
+    final trazo = _trazoGrueso(node.text);
+    if (trazo == null) return;
+    final rect = rectEnCaptura(node);
+    if (rect != null) contornos.add((rect, trazo.color));
+  });
+  Color? contornoDe(Rect rect) {
+    for (final (r, color) in contornos) {
+      final comun = r.intersect(rect);
+      if (comun.width > 0 &&
+          comun.height > 0 &&
+          comun.width * comun.height >= rect.width * rect.height * 0.9) {
+        return color;
+      }
+    }
+    return null;
+  }
+
+  _visit(limite, (node) {
+    if (node is! RenderParagraph || !node.hasSize || node.size.isEmpty) return;
+    final opacidad = _opacidadVisible(node, limite);
+    if (opacidad == null) return;
+    final rect = rectEnCaptura(node);
+    if (rect == null) return;
+    final contorno = contornoDe(rect);
     final modaGeneral = _colorMasFrecuente(captura, imagen.width, rect)!;
     node.text.visitChildren((span) {
       if (span is! TextSpan) return true;
@@ -112,6 +142,7 @@ List<String> problemasDeContraste(
       // (en textos gruesos las letras pueden ocupar más área que el fondo).
       final aprox = Color.alphaBlend(conOpacidad, modaGeneral);
       final fondo =
+          contorno ??
           _colorMasFrecuente(captura, imagen.width, rect, excepto: aprox) ??
           aprox;
       final frente = Color.alphaBlend(conOpacidad, fondo);
@@ -174,6 +205,22 @@ RenderBox? _hijoEn(RenderIndexedStack stack, int index) {
     if (i++ == index) encontrado = c as RenderBox;
   });
   return encontrado;
+}
+
+/// El `foreground` de trazo grueso de un texto con contorno, si lo tiene
+/// (Text.rich envuelve los spans en uno con el estilo por defecto).
+Paint? _trazoGrueso(InlineSpan span) {
+  final f = span.style?.foreground;
+  if (f != null && f.style == PaintingStyle.stroke && f.strokeWidth >= 3) {
+    return f;
+  }
+  if (span is TextSpan) {
+    for (final hijo in span.children ?? const <InlineSpan>[]) {
+      final trazo = _trazoGrueso(hijo);
+      if (trazo != null) return trazo;
+    }
+  }
+  return null;
 }
 
 TextStyle? _estiloEfectivo(InlineSpan raiz, InlineSpan objetivo) {

@@ -57,7 +57,7 @@ class BibleReaderThemeData {
   /// casi desaparece en los temas claros y sobre el papel con textura.
   Color textoTenue(double alpha) {
     final color = textSecondary.withValues(alpha: alpha);
-    if (contrasteWcag(color, fondoVisible) >= 4.5) return color;
+    if (contrasteWcag(color, fondoVisible) >= 4.7) return color;
     return textoAtenuado(alpha: alpha);
   }
 
@@ -70,7 +70,8 @@ class BibleReaderThemeData {
     final fondo = sobre ?? fondoVisible;
     for (var a = alpha; a < 1; a += 0.04) {
       final color = textPrimary.withValues(alpha: a);
-      if (contrasteWcag(color, fondo) >= 4.5) return color;
+      // Un poco de margen: el fondo real varía un poco (redondeo, mezclas).
+      if (contrasteWcag(color, fondo) >= 4.7) return color;
     }
     return textPrimary;
   }

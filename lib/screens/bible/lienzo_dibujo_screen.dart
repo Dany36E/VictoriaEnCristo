@@ -965,12 +965,15 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
   }
 
   String _nombreColor(Color c) {
-    const nombres = {
-      0xFF2B2622: 'tinta',
+    final nombres = {
+      VecColores.tinta.toARGB32(): 'tinta',
+      VecColores.terracota.toARGB32(): 'terracota',
+      VecColores.azul.toARGB32(): 'azul',
+      VecColores.verde.toARGB32(): 'verde',
+      VecColores.mostaza.toARGB32(): 'mostaza',
+      // Tonos del kit antes de oscurecerlos (dibujos ya guardados).
       0xFFC8553D: 'terracota',
-      0xFF3D6890: 'azul',
       0xFF2F7F7A: 'verde',
-      0xFFE0A73A: 'mostaza',
       0xFF7E57C2: 'morado',
       0xFFE5739A: 'rosa',
       0xFFFFFFFF: 'blanco',

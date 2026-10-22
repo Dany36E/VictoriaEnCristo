@@ -192,6 +192,7 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
         ),
         backgroundColor: chipColor.withValues(alpha: 0.1),
         selectedColor: tinta,
+        checkmarkColor: t.background,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         side: BorderSide.none,
         padding: const EdgeInsets.symmetric(horizontal: 4),

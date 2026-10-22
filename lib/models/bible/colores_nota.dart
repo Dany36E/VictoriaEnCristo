@@ -13,12 +13,12 @@ const Map<String, int> coloresResaltado = {
 
 /// Color de texto sobre fondo claro.
 const Map<String, int> coloresTextoClaro = {
-  'terracota': 0xFFC8553D,
+  'terracota': 0xFFA8452F,
   'azul': 0xFF3D6890,
-  'verde': 0xFF2F7F7A,
+  'verde': 0xFF276F6A,
   'mostaza': 0xFFB07D1F,
   'morado': 0xFF7E57C2,
-  'gris': 0xFF8A7A64,
+  'gris': 0xFF6F6150,
 };
 
 /// Color de texto sobre fondo oscuro (más luminoso para que se lea).

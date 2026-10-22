@@ -339,7 +339,12 @@ class _CategoryCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onLearn,
                       icon: const Icon(Icons.school_rounded, size: 16),
-                      label: const Text('Aprender'),
+                      // En el tema papel la letra es más ancha: a 360 px no
+                      // cabía en medio ancho y se partía la palabra.
+                      label: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('Aprender', maxLines: 1),
+                      ),
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppDesignSystem.oroTexto(context),
                         side: BorderSide(color: AppDesignSystem.gold.withValues(alpha: 0.7)),
@@ -355,7 +360,10 @@ class _CategoryCard extends StatelessWidget {
                     child: ElevatedButton.icon(
                       onPressed: onPractice,
                       icon: const Icon(Icons.play_arrow_rounded, size: 16),
-                      label: Text(completed ? 'Practicar' : 'Practicar'),
+                      label: const FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text('Practicar', maxLines: 1),
+                      ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppDesignSystem.gold,
                         foregroundColor: Colors.black,

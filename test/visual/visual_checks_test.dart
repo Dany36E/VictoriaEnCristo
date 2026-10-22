@@ -87,6 +87,50 @@ void main() {
     );
   });
 
+  // Letrero: el texto con contorno se pinta dos veces (trazo grueso y
+  // relleno encima). El relleno se mide contra el color del contorno.
+  Widget letrero(Color contorno, Color relleno) {
+    const base = TextStyle(fontSize: 40);
+    return Material(
+      color: const Color(0xFFF3ECDF),
+      child: Center(
+        child: Stack(
+          alignment: Alignment.center,
+          children: [
+            Text(
+              'Letrero',
+              style: base.copyWith(
+                foreground: Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 8
+                  ..color = contorno,
+              ),
+            ),
+            Text('Letrero', style: base.copyWith(color: relleno)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  testWidgets('letrero claro con contorno oscuro pasa', (tester) async {
+    await revisarTexto(
+      tester,
+      letrero(const Color(0xFF2B2622), const Color(0xFFFBF7EE)),
+    );
+  });
+
+  testWidgets('letrero con contorno del mismo tono que el relleno falla', (
+    tester,
+  ) async {
+    await debeFallar(
+      revisarTexto(
+        tester,
+        letrero(const Color(0xFFEFE6D6), const Color(0xFFFBF7EE)),
+      ),
+    );
+  });
+
   testWidgets('FAB extendido con forma de círculo falla', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

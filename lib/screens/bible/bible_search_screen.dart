@@ -8,6 +8,7 @@ import '../../services/bible/bible_search_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/advanced_search_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import 'bible_reader_screen.dart';
 import 'chapter_selector_screen.dart';
 import '../../services/bible/bible_parser_service.dart';
@@ -299,10 +300,22 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                       ? 'Palabra hebrea, griega o número Strong...'
                       : 'Buscar libros, capítulos o versículos...',
                   hintStyle: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoAtenuado(
+                      sobre: Color.alphaBlend(
+                        t.isDark
+                            ? Colors.white.withValues(alpha: 0.06)
+                            : Colors.black.withValues(alpha: 0.04),
+                        t.fondoVisible,
+                      ),
+                    ),
                     fontSize: 16,
                   ),
+                  // Sin el relleno ni los bordes del tema de la app: el fondo
+                  // y el borde son los de la cajita.
+                  filled: false,
                   border: InputBorder.none,
+                  enabledBorder: InputBorder.none,
+                  focusedBorder: InputBorder.none,
                   isCollapsed: true,
                   contentPadding: const EdgeInsets.symmetric(vertical: 10),
                 ),
@@ -404,7 +417,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 'Avanzado',
                 style: AppFonts.manrope(
                   color: _advancedMode
-                      ? t.accent
+                      ? legibleEnPastilla(t.accent, 0.15, t.fondoVisible)
                       : t.textoTenue(0.6),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
@@ -1427,7 +1440,7 @@ class _FilterChip extends StatelessWidget {
           label,
           style: AppFonts.manrope(
             color: isSelected
-                ? theme.accent
+                ? legibleEnPastilla(theme.accent, 0.15, theme.fondoVisible)
                 : theme.textoTenue(0.6),
             fontSize: 12,
             fontWeight: FontWeight.w600,

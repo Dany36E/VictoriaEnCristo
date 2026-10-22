@@ -7,6 +7,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+import '../../../../vec/vec_tema.dart';
+
 /// Herramientas de la bandeja (las cuatro de tinta, el borrador y el lazo).
 enum HerramientaLienzo { pluma, lapiz, marcador, resaltador, borrador, lazo }
 
@@ -207,7 +209,7 @@ class _PintorPluma extends CustomPainter {
             ),
           Paint()..color = const Color(0xFFF1A9A0),
         );
-        figura(cuerpo(24, 30), Paint()..color = const Color(0xFF2F7F7A));
+        figura(cuerpo(24, 30), Paint()..color = VecColores.verde);
       case HerramientaLienzo.lazo:
         final lazo = Paint()
           ..color = _contorno

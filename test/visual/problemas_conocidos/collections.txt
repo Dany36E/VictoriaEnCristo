@@ -2,7 +2,6 @@
 # líneas a mano: corrige el problema. Se regenera con
 # ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
 clean_page: "Crear primera colección" contraste < 4.5
-clean_page: "Sin colecciones" contraste < 4.5
 grey_editorial: "Crear primera colección" contraste < 4.5
 parchment: "Crear primera colección" contraste < 4.5
 peach: "Crear primera colección" contraste < 4.5
