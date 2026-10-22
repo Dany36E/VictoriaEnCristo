@@ -50,6 +50,7 @@ import 'package:app_quitar/screens/learning/talents_library_screen.dart';
 import 'package:app_quitar/screens/learning/timeline_lessons_screen.dart';
 import 'package:app_quitar/screens/legal_consent_screen.dart';
 import 'package:app_quitar/screens/login_screen.dart';
+import 'package:app_quitar/screens/onboarding/giant_frequency_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
 import 'package:app_quitar/screens/plan_library_screen.dart';
@@ -167,6 +168,10 @@ void main() {
   themeMatrix('timeline_lessons', () => const TimelineLessonsScreen());
   themeMatrix('legal_consent', () => const LegalConsentScreen());
   themeMatrix('giant_selection', () => const GiantSelectionScreen());
+  themeMatrix(
+    'giant_frequency',
+    () => const GiantFrequencyScreen(selectedGiants: ['digital', 'mental']),
+  );
   themeMatrix('onboarding_welcome', () => const OnboardingWelcomeScreen());
   themeMatrix('plan_library', () => const PlanLibraryScreen());
   themeMatrix('prayers', () => const PrayersScreen());

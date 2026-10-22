@@ -178,7 +178,9 @@ class ChipVec extends StatelessWidget {
             const SizedBox(width: 8),
           ]
           else if (icono != null) ...[Icon(icono, color: colorTexto, size: 22), const SizedBox(width: 8)],
-          Text(texto, style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 18, color: colorTexto)),
+          // Con letra grande en pantallas angostas el texto baja de renglón
+          // en vez de salirse del chip.
+          Flexible(child: Text(texto, style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 18, color: colorTexto))),
         ]),
       ),
     );

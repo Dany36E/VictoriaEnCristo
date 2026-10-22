@@ -140,7 +140,14 @@ void main() {
       await tester.tap(continueButton);
       await tester.pumpAndSettle();
       expect(find.text('¿Con qué frecuencia luchas?'), findsOneWidget);
+      // Con letra grande y pantalla chica, «Diario» puede no estar
+      // construido todavía en la lista: se baja hasta encontrarlo.
       final daily = find.text('Diario');
+      await tester.scrollUntilVisible(
+        daily,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await Scrollable.ensureVisible(tester.element(daily), alignment: 0.35);
       await tester.pumpAndSettle();
       expect(daily.hitTestable(), findsOneWidget);
