@@ -80,5 +80,29 @@ void main() {
 
       expect(missing, <String>{'battle.trustedPartnerUid', 'daily_practice_v1:2026-05-01'});
     });
+
+    test('no vuelve a escribir si la nube ya tiene lo mismo', () {
+      expect(
+        UserPrefCloudSyncService.mismoValorForTesting(
+          <String, dynamic>{'a': 1, 'b': <dynamic>['x', 2], 'c': <String, dynamic>{'d': true}},
+          <String, dynamic>{'c': <String, dynamic>{'d': true}, 'b': <dynamic>['x', 2], 'a': 1},
+        ),
+        isTrue,
+      );
+      expect(
+        UserPrefCloudSyncService.mismoValorForTesting(
+          <String, dynamic>{'a': 1},
+          <String, dynamic>{'a': 2},
+        ),
+        isFalse,
+      );
+      expect(
+        UserPrefCloudSyncService.mismoValorForTesting(
+          <String, dynamic>{'a': 1},
+          <String, dynamic>{'a': 1, 'b': 0},
+        ),
+        isFalse,
+      );
+    });
   });
 }

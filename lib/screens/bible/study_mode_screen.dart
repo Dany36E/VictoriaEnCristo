@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/foundation.dart' show mapEquals, setEquals;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_fonts.dart';
@@ -416,7 +417,11 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       mainVerses: _mainVerseNumbers.toList(),
       versionId: _version.id,
     );
-    if (!updated.hasContent) {
+    // Cerrar o cambiar de capítulo sin editar nada ya no vuelve a escribir
+    // el estudio (ni sus copias en las notas del capítulo).
+    final sinCambios =
+        existing != null && _mismoContenido(existing, updated);
+    if (!updated.hasContent || sinCambios) {
       if (mounted && !_cerrando) {
         setState(() {
           _isSaving = false;
@@ -441,6 +446,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       _hasPendingChanges = false;
     }
   }
+
+  static bool _mismoContenido(StudyChapterAnswers a, StudyChapterAnswers b) =>
+      mapEquals(a.answers, b.answers) &&
+      a.generalNotes == b.generalNotes &&
+      a.hopeMessage == b.hopeMessage &&
+      setEquals(a.mainVerses.toSet(), b.mainVerses.toSet()) &&
+      a.versionId == b.versionId;
 
   /// Sube manualmente las respuestas actuales a la sala.
   /// También es llamado por el timer periódico de 3 min.

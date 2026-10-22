@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'adjunto_nota.dart';
@@ -185,6 +187,17 @@ class SermonNote {
     'createdAt': Timestamp.fromDate(createdAt),
     'updatedAt': Timestamp.fromDate(updatedAt),
   };
+
+  /// Todo lo que se guarda menos la fecha de edición. Si no cambió desde el
+  /// último guardado, no hace falta volver a escribir el apunte.
+  String get huellaContenido {
+    final mapa = toMap()..remove('updatedAt');
+    return jsonEncode(
+      mapa,
+      toEncodable: (o) =>
+          o is Timestamp ? '${o.seconds}.${o.nanoseconds}' : o.toString(),
+    );
+  }
 
   factory SermonNote.fromMap(String id, Map<String, dynamic> map) {
     return SermonNote(

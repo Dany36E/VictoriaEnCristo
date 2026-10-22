@@ -525,9 +525,18 @@ class BibleUserDataService {
     await _savePreferences();
   }
 
+  /// El deslizador de tamaño cambia varias veces por segundo: se guarda una
+  /// sola vez cuando la persona deja de moverlo (antes, una escritura en la
+  /// nube por cada paso).
+  Timer? _fontSizeDebounce;
+
   Future<void> setFontSize(double size) async {
     fontSizeNotifier.value = size;
-    await _savePreferences();
+    _fontSizeDebounce?.cancel();
+    _fontSizeDebounce = Timer(
+      const Duration(milliseconds: 1200),
+      () => unawaited(_savePreferences()),
+    );
   }
 
   Future<void> setReaderTheme(String theme) async {

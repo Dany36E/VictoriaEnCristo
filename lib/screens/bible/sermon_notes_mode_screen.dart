@@ -188,6 +188,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     final existing = SermonNoteService.I.noteById(widget.noteId);
     if (existing != null) {
       _note = existing;
+      _huellaGuardada = existing.huellaContenido;
       _highlightController.seed(existing.highlights);
       _primaryVersion = BibleDownloadService.I.bestAvailableVersion(
         BibleVersion.fromId(existing.primaryVersionId),
@@ -1008,6 +1009,11 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   /// true desde dispose: el guardado final ya no toca el estado.
   bool _cerrando = false;
 
+  /// Contenido del último guardado: cerrar o cambiar de versión sin editar
+  /// nada ya no vuelve a escribir el apunte (ni lo sube al primer lugar de
+  /// «Más recientes»).
+  String? _huellaGuardada;
+
   Future<void> _flushNote() async {
     _saveDebounce?.cancel();
     _saveDebounce = null;
@@ -1030,8 +1036,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       primaryVersionId: _primaryVersion.id,
       secondaryVersionId: _secondaryVersion.id,
     );
-    _note = updated;
-    if (!updated.hasContent) {
+    final sinCambios = updated.huellaContenido == _huellaGuardada;
+    if (!sinCambios) _note = updated;
+    if (!updated.hasContent || sinCambios) {
       if (mounted && !_cerrando) {
         setState(() {
           _isSaving = false;
@@ -1044,6 +1051,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       return;
     }
     await SermonNoteService.I.saveNote(updated);
+    _huellaGuardada = updated.huellaContenido;
     if (mounted && !_cerrando) {
       setState(() {
         _lastSavedAt = updated.updatedAt;

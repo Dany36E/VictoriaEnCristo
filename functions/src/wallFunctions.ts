@@ -7,6 +7,7 @@
  */
 
 import * as functions from "firebase-functions/v1";
+import {enRegion} from "./limites";
 import * as adminFirestore from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
@@ -227,9 +228,7 @@ function moderationMessage(type: string, action: string): string {
 // 1. CREATE WALL POST
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const createWallPost = functions
-  .runWith({ secrets: ["WALL_ABUSE_SALT"] })
-  .region("us-central1")
+export const createWallPost = enRegion({secrets: ["WALL_ABUSE_SALT"]})
   .https.onCall(async (data, context) => {
     // Auth check
     if (!context.auth) {
@@ -357,9 +356,7 @@ export const createWallPost = functions
 // 2. CREATE WALL COMMENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const createWallComment = functions
-  .runWith({ secrets: ["WALL_ABUSE_SALT"] })
-  .region("us-central1")
+export const createWallComment = enRegion({secrets: ["WALL_ABUSE_SALT"]})
   .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -492,8 +489,7 @@ export const createWallComment = functions
 // 3. MODERATE CONTENT (admin only)
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const moderateContent = functions
-  .region("us-central1")
+export const moderateContent = enRegion()
   .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -658,9 +654,7 @@ export const moderateContent = functions
 // 4. REPORT CONTENT
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const reportContent = functions
-  .runWith({ secrets: ["WALL_ABUSE_SALT"] })
-  .region("us-central1")
+export const reportContent = enRegion({secrets: ["WALL_ABUSE_SALT"]})
   .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -763,9 +757,7 @@ export const reportContent = functions
  * identificadores arbitrarios. El bloqueo se guarda dentro del árbol privado
  * del usuario y se elimina automáticamente al borrar la cuenta.
  */
-export const blockWallAuthor = functions
-  .runWith({secrets: ["WALL_ABUSE_SALT"]})
-  .region("us-central1")
+export const blockWallAuthor = enRegion({secrets: ["WALL_ABUSE_SALT"]})
   .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -853,8 +845,7 @@ export const blockWallAuthor = functions
 // 6. BAN USER (admin only)
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const banAbuseHash = functions
-  .region("us-central1")
+export const banAbuseHash = enRegion()
   .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(

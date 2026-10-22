@@ -170,13 +170,13 @@ class LearningCloudSync {
 
   void _schedulePush() {
     _timer?.cancel();
-    _timer = Timer(_debounce, () => unawaited(_push()));
+    _timer = Timer(_debounce, () => unawaited(_pushCoalescido()));
   }
 
   /// Fuerza un push inmediato (logout, dispose).
   Future<void> flush() async {
     _timer?.cancel();
-    if (_dirty) await _push();
+    if (_dirty) await _pushCoalescido();
   }
 
   void resetForSignOut() {
@@ -243,6 +243,26 @@ class LearningCloudSync {
       }
     }
     return out;
+  }
+
+  /// Subida que ya va en camino. Al pasar la app a segundo plano llegan
+  /// varios eventos seguidos (inactive, hidden, paused) y cada uno pedía su
+  /// propia subida (1 lectura + 1 escritura); ahora esperan a la primera.
+  Future<void>? _pushEnCurso;
+
+  Future<void> _pushCoalescido() async {
+    final previo = _pushEnCurso;
+    if (previo != null) {
+      await previo;
+      if (!_dirty) return;
+    }
+    final actual = _push();
+    _pushEnCurso = actual;
+    try {
+      await actual;
+    } finally {
+      if (identical(_pushEnCurso, actual)) _pushEnCurso = null;
+    }
   }
 
   Future<void> _push() async {

@@ -11,6 +11,7 @@
  */
 
 import * as functions from "firebase-functions/v1";
+import {enRegion} from "./limites";
 import * as adminFirestore from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
 
@@ -23,8 +24,7 @@ const STALE_TOKEN_DAYS = 90;
  * Otorga o revoca el custom claim `admin` a otro usuario.
  * Solo callable por usuarios con `admin === true` en su token actual.
  */
-export const setAdminClaim = functions
-  .region("us-central1")
+export const setAdminClaim = enRegion()
   .https.onCall(async (data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -72,9 +72,7 @@ export const setAdminClaim = functions
  *
  * Schedule: cada día a las 03:00 UTC.
  */
-export const cleanStaleFcmTokens = functions
-  .region("us-central1")
-  .runWith({timeoutSeconds: 540, memory: "512MB"})
+export const cleanStaleFcmTokens = enRegion({timeoutSeconds: 540, memory: "512MB", maxInstances: 1})
   .pubsub.schedule("0 3 * * *")
   .timeZone("UTC")
   .onRun(async () => {
@@ -111,8 +109,7 @@ export const cleanStaleFcmTokens = functions
  *  2. Borra todos los documentos en `users/{uid}/fcmTokens` para detener
  *     notificaciones a dispositivos viejos.
  */
-export const signOutAllDevices = functions
-  .region("us-central1")
+export const signOutAllDevices = enRegion()
   .https.onCall(async (_data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(

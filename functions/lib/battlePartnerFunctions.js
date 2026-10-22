@@ -52,12 +52,15 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.sendBattleSos = exports.sendBattleMessage = exports.acceptPartnerInvite = exports.sendPartnerInvite = void 0;
+exports.utcDayKey = utcDayKey;
 exports.publicNameFor = publicNameFor;
 exports.assertActivePartners = assertActivePartners;
+exports.consumeDailyLimit = consumeDailyLimit;
 exports.pushToUser = pushToUser;
 const adminFirestore = __importStar(require("firebase-admin/firestore"));
 const adminMessaging = __importStar(require("firebase-admin/messaging"));
 const functions = __importStar(require("firebase-functions/v1"));
+const limites_1 = require("./limites");
 const db = () => adminFirestore.getFirestore();
 const maxBattlePartners = 5;
 const maxMessagesPerDay = 3;
@@ -136,8 +139,7 @@ async function partnerCount(tx, uid) {
 // These functions are the only write path allowed by Firestore rules for
 // critical partner creates/messages, so modified clients cannot skip limits.
 // ═══════════════════════════════════════════════════════════════════════════
-exports.sendPartnerInvite = functions
-    .region("us-central1")
+exports.sendPartnerInvite = (0, limites_1.enRegion)()
     .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const inviteCode = safeText(data === null || data === void 0 ? void 0 : data.inviteCode, "", 8).toUpperCase();
@@ -189,8 +191,7 @@ exports.sendPartnerInvite = functions
         return { targetUid, targetName };
     });
 });
-exports.acceptPartnerInvite = functions
-    .region("us-central1")
+exports.acceptPartnerInvite = (0, limites_1.enRegion)()
     .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const inviteId = safeText(data === null || data === void 0 ? void 0 : data.inviteId, "", 128);
@@ -242,8 +243,7 @@ exports.acceptPartnerInvite = functions
     });
     return { ok: true };
 });
-exports.sendBattleMessage = functions
-    .region("us-central1")
+exports.sendBattleMessage = (0, limites_1.enRegion)()
     .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const toUid = safeText(data === null || data === void 0 ? void 0 : data.toUid, "", 128);
@@ -266,8 +266,7 @@ exports.sendBattleMessage = functions
     await db().collection("users").doc(uid).collection("battlePartners").doc(toUid).set({ lastMessageSentAt: adminFirestore.FieldValue.serverTimestamp() }, { merge: true });
     return { ok: true };
 });
-exports.sendBattleSos = functions
-    .region("us-central1")
+exports.sendBattleSos = (0, limites_1.enRegion)()
     .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const partners = await db()
@@ -398,8 +397,7 @@ async function pushToUser(uid, notification, data, options = {}) {
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. onPartnerInviteCreated
 // ═══════════════════════════════════════════════════════════════════════════
-exports.onPartnerInviteCreated = functions
-    .region("us-central1")
+exports.onPartnerInviteCreated = (0, limites_1.enRegion)()
     .firestore.document("users/{uid}/partnerInvites/{inviteId}")
     .onCreate(async (snap, context) => {
     var _a, _b, _c;
@@ -422,8 +420,7 @@ exports.onPartnerInviteCreated = functions
 // ═══════════════════════════════════════════════════════════════════════════
 // 2. onBattleMessageCreated
 // ═══════════════════════════════════════════════════════════════════════════
-exports.onBattleMessageCreated = functions
-    .region("us-central1")
+exports.onBattleMessageCreated = (0, limites_1.enRegion)()
     .firestore.document("users/{uid}/battleMessages/{messageId}")
     .onCreate(async (snap, context) => {
     var _a, _b, _c, _d, _e;
@@ -465,8 +462,7 @@ exports.onBattleMessageCreated = functions
 // 3. purgeOldPartnerInvites — scheduled 1x/día
 // Borra invites con status != 'pending' y >30 días de antigüedad.
 // ═══════════════════════════════════════════════════════════════════════════
-exports.purgeOldPartnerInvites = functions
-    .region("us-central1")
+exports.purgeOldPartnerInvites = (0, limites_1.enRegion)({ maxInstances: 1 })
     .pubsub.schedule("every 24 hours")
     .timeZone("Etc/UTC")
     .onRun(async () => {

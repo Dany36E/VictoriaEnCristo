@@ -13,7 +13,6 @@ import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import '../repositories/progress_repository.dart';
-import 'battle_partner_service.dart';
 import '../utils/time_utils.dart';
 import 'victory_scoring_service.dart';
 
@@ -38,13 +37,10 @@ class ProgressSyncAdapter {
     
     // Write-through: cada vez que el usuario escribe en VictoryScoringService,
     // sincronizar automáticamente a Firestore.
-    VictoryScoringService.I.onDayChanged = (date) {
-      syncDayToCloud(date);
-      // Sync public progress para compañeros de batalla (fire-and-forget)
-      if (BattlePartnerService.I.isInitialized) {
-        BattlePartnerService.I.syncPublicProgress();
-      }
-    };
+    // El progreso público para compañeros de batalla lo sube
+    // BattlePartnerService cuando cambian la racha o la victoria del día,
+    // agrupando varios cambios seguidos en una sola escritura.
+    VictoryScoringService.I.onDayChanged = syncDayToCloud;
     
     debugPrint('🔄 [SYNC_ADAPTER] Initialized (passive mode + write-through)');
   }
@@ -71,16 +67,13 @@ class ProgressSyncAdapter {
       final selectedGiants = scoring.selectedGiants;
       final threshold = scoring.threshold;
       
-      // Actualizar cada estado de gigante
-      for (final entry in states.entries) {
-        await ProgressRepository.I.setDayGiantState(
-          date,
-          entry.key,
-          entry.value,
-          selectedGiants: selectedGiants,
-          threshold: threshold,
-        );
-      }
+      // Todos los gigantes del día en una sola escritura.
+      await ProgressRepository.I.setDayGiantStates(
+        date,
+        states,
+        selectedGiants: selectedGiants,
+        threshold: threshold,
+      );
       
       debugPrint('☁️ [SYNC_ADAPTER] Synced ${_dateToISO(date)} to cloud');
     } catch (e) {

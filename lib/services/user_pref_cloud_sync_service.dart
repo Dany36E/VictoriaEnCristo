@@ -146,7 +146,7 @@ class UserPrefCloudSyncService {
 
   Future<void> flush() async {
     _timer?.cancel();
-    if (_dirty) await _push();
+    if (_dirty) await _pushCoalescido();
   }
 
   void resetForSignOut() {
@@ -293,9 +293,53 @@ class UserPrefCloudSyncService {
     return _ownedKeysFrom(localKeys).difference(_ownedKeysFrom(remoteKeys));
   }
 
+  /// Compara mapas, listas y valores simples sin importar el orden de las
+  /// llaves.
+  static bool _mismoValor(Object? a, Object? b) {
+    if (a is Map && b is Map) {
+      if (a.length != b.length) return false;
+      for (final entry in a.entries) {
+        if (!b.containsKey(entry.key)) return false;
+        if (!_mismoValor(entry.value, b[entry.key])) return false;
+      }
+      return true;
+    }
+    if (a is List && b is List) {
+      if (a.length != b.length) return false;
+      for (var i = 0; i < a.length; i++) {
+        if (!_mismoValor(a[i], b[i])) return false;
+      }
+      return true;
+    }
+    return a == b;
+  }
+
+  @visibleForTesting
+  static bool mismoValorForTesting(Object? a, Object? b) => _mismoValor(a, b);
+
   void _schedulePush() {
     _timer?.cancel();
-    _timer = Timer(_debounce, () => unawaited(_push()));
+    _timer = Timer(_debounce, () => unawaited(_pushCoalescido()));
+  }
+
+  /// Subida que ya va en camino. Al pasar la app a segundo plano llegan
+  /// varios eventos seguidos (inactive, hidden, paused) y cada uno pedía su
+  /// propia subida (1 lectura + 1 escritura); ahora esperan a la primera.
+  Future<void>? _pushEnCurso;
+
+  Future<void> _pushCoalescido() async {
+    final previo = _pushEnCurso;
+    if (previo != null) {
+      await previo;
+      if (!_dirty) return;
+    }
+    final actual = _push();
+    _pushEnCurso = actual;
+    try {
+      await actual;
+    } finally {
+      if (identical(_pushEnCurso, actual)) _pushEnCurso = null;
+    }
   }
 
   Future<void> _push() async {
@@ -311,6 +355,11 @@ class UserPrefCloudSyncService {
         (snap.data()?['prefs'] as Map?) ?? const <String, dynamic>{},
       );
       final mergedPrefs = _mergeOwnedPrefs(remotePrefs, localPrefs);
+      if (snap.exists && _mismoValor(mergedPrefs, remotePrefs)) {
+        // La nube ya tiene lo mismo: no se gasta una escritura.
+        _dirty = false;
+        return;
+      }
       await ref.set({
         'prefs': mergedPrefs,
         'updatedAtMs': updatedAtMs,

@@ -16,6 +16,7 @@
  */
 
 import * as functions from "firebase-functions/v1";
+import {enRegion} from "./limites";
 import * as adminFirestore from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
 import {getStorage} from "firebase-admin/storage";
@@ -70,13 +71,13 @@ async function countSubcollection(
  * Callable function: deleteUserData
  * Borra los datos del propio usuario (uid del token).
  */
-export const deleteUserData = functions
-  .region("us-central1")
-  .runWith({
-    timeoutSeconds: 540,
-    memory: "512MB",
-    secrets: ["WALL_ABUSE_SALT"],
-  })
+export const deleteUserData = enRegion({
+  timeoutSeconds: 540,
+  memory: "512MB",
+  secrets: ["WALL_ABUSE_SALT"],
+  // Borrar una cuenta es raro y pesado: pocas a la vez.
+  maxInstances: 3,
+})
   .https.onCall(async (_data, context) => {
     if (!context.auth) {
       throw new functions.https.HttpsError(

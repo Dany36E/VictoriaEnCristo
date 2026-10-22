@@ -20,6 +20,7 @@
 import * as adminFirestore from "firebase-admin/firestore";
 import * as adminMessaging from "firebase-admin/messaging";
 import * as functions from "firebase-functions/v1";
+import {enRegion} from "./limites";
 
 const db = () => adminFirestore.getFirestore();
 const maxBattlePartners = 5;
@@ -42,7 +43,7 @@ function requireAuth(context: functions.https.CallableContext): string {
   return uid;
 }
 
-function utcDayKey(): string {
+export function utcDayKey(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
@@ -76,7 +77,7 @@ export async function assertActivePartners(fromUid: string, toUid: string): Prom
   }
 }
 
-async function consumeDailyLimit(key: string, maxCount: number): Promise<void> {
+export async function consumeDailyLimit(key: string, maxCount: number): Promise<void> {
   const ref = db().collection("battleRateLimits").doc(key);
   await db().runTransaction(async (tx) => {
     const snap = await tx.get(ref);
@@ -114,8 +115,7 @@ async function partnerCount(tx: adminFirestore.Transaction, uid: string): Promis
 // critical partner creates/messages, so modified clients cannot skip limits.
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const sendPartnerInvite = functions
-  .region("us-central1")
+export const sendPartnerInvite = enRegion()
   .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const inviteCode = safeText(data?.inviteCode, "", 8).toUpperCase();
@@ -178,8 +178,7 @@ export const sendPartnerInvite = functions
     });
   });
 
-export const acceptPartnerInvite = functions
-  .region("us-central1")
+export const acceptPartnerInvite = enRegion()
   .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const inviteId = safeText(data?.inviteId, "", 128);
@@ -242,8 +241,7 @@ export const acceptPartnerInvite = functions
     return {ok: true};
   });
 
-export const sendBattleMessage = functions
-  .region("us-central1")
+export const sendBattleMessage = enRegion()
   .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const toUid = safeText(data?.toUid, "", 128);
@@ -272,8 +270,7 @@ export const sendBattleMessage = functions
     return {ok: true};
   });
 
-export const sendBattleSos = functions
-  .region("us-central1")
+export const sendBattleSos = enRegion()
   .https.onCall(async (data, context) => {
     const uid = requireAuth(context);
     const partners = await db()
@@ -422,8 +419,7 @@ export async function pushToUser(
 // ═══════════════════════════════════════════════════════════════════════════
 // 1. onPartnerInviteCreated
 // ═══════════════════════════════════════════════════════════════════════════
-export const onPartnerInviteCreated = functions
-  .region("us-central1")
+export const onPartnerInviteCreated = enRegion()
   .firestore.document("users/{uid}/partnerInvites/{inviteId}")
   .onCreate(async (snap, context) => {
     const data = snap.data() ?? {};
@@ -450,8 +446,7 @@ export const onPartnerInviteCreated = functions
 // ═══════════════════════════════════════════════════════════════════════════
 // 2. onBattleMessageCreated
 // ═══════════════════════════════════════════════════════════════════════════
-export const onBattleMessageCreated = functions
-  .region("us-central1")
+export const onBattleMessageCreated = enRegion()
   .firestore.document("users/{uid}/battleMessages/{messageId}")
   .onCreate(async (snap, context) => {
     const data = snap.data() ?? {};
@@ -504,8 +499,7 @@ export const onBattleMessageCreated = functions
 // 3. purgeOldPartnerInvites — scheduled 1x/día
 // Borra invites con status != 'pending' y >30 días de antigüedad.
 // ═══════════════════════════════════════════════════════════════════════════
-export const purgeOldPartnerInvites = functions
-  .region("us-central1")
+export const purgeOldPartnerInvites = enRegion({maxInstances: 1})
   .pubsub.schedule("every 24 hours")
   .timeZone("Etc/UTC")
   .onRun(async () => {

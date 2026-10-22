@@ -26,8 +26,13 @@ class AdjuntosNotaService {
 
   static const _clavePendientes = 'apuntes_adjuntos_pendientes_v1';
 
-  /// Mismo límite que storage.rules.
+  /// Mismos límites que storage.rules: 5 MB para dibujos y 3 MB para fotos
+  /// (una foto de 2048 px al 82 % pesa mucho menos).
   static const int limiteBytes = 5 * 1024 * 1024;
+  static const int limiteFoto = 3 * 1024 * 1024;
+
+  static int limiteDe(String archivo) =>
+      archivo.endsWith('.jpg') ? limiteFoto : limiteBytes;
 
   /// Estado de cada archivo, por `<notaId>/<archivo>`.
   final ValueNotifier<Map<String, EstadoNube>> estados = ValueNotifier(
@@ -310,8 +315,8 @@ class AdjuntosNotaService {
     try {
       final local = await _archivoLocal(uid, notaId, archivo);
       if (!await local.exists()) return true;
-      if (await local.length() > limiteBytes) {
-        debugPrint('[ADJUNTOS] $archivo pasa de 5 MB; se queda en el teléfono');
+      if (await local.length() >= limiteDe(archivo)) {
+        debugPrint('[ADJUNTOS] $archivo pasa del límite; se queda en el teléfono');
         return true;
       }
       _marcar(notaId, archivo, EstadoNube.subiendo);

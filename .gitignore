@@ -122,3 +122,8 @@ VictoriaEnCristo-windows-*.zip
 
 # Firebase Hosting local deployment cache
 .firebase/
+
+# Pruebas de reglas (dependencias locales)
+tools/pruebas-reglas/node_modules/
+tools/pruebas-reglas/package-lock.json
+tools/pruebas-reglas/*.log

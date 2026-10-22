@@ -16,6 +16,7 @@
  */
 
 import * as functions from "firebase-functions/v1";
+import {enRegion} from "./limites";
 import * as adminFirestore from "firebase-admin/firestore";
 import * as crypto from "crypto";
 
@@ -128,7 +129,7 @@ function computeNextSwapAt(
 // CREATE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const createStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
+export const createStudyRoom = enRegion().https.onCall(async (data, context) => {
   try {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -236,7 +237,7 @@ export const createStudyRoom = functions.region("us-central1").https.onCall(asyn
 // JOIN ROOM
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const joinStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
+export const joinStudyRoom = enRegion().https.onCall(async (data, context) => {
   try {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -314,7 +315,7 @@ export const joinStudyRoom = functions.region("us-central1").https.onCall(async 
 // LEAVE ROOM
 // ═══════════════════════════════════════════════════════════════════════════
 
-export const leaveStudyRoom = functions.region("us-central1").https.onCall(async (data, context) => {
+export const leaveStudyRoom = enRegion().https.onCall(async (data, context) => {
   try {
     if (!context.auth) {
       throw new functions.https.HttpsError(
@@ -327,6 +328,7 @@ export const leaveStudyRoom = functions.region("us-central1").https.onCall(async
         "invalid-argument", "Código inválido.");
     }
     const ref = db.collection("studyRooms").doc(code);
+    let quedoVacia = false;
     await db.runTransaction(async (tx) => {
       const snap = await tx.get(ref);
       if (!snap.exists) return;
@@ -338,6 +340,7 @@ export const leaveStudyRoom = functions.region("us-central1").https.onCall(async
       // Si era el host, transferir; si queda vacía, borrar.
       if (Object.keys(members).length === 0) {
         tx.delete(ref);
+        quedoVacia = true;
         return;
       }
       const newHost = room.hostUid === uid ? memberOrder[0] : room.hostUid;
@@ -354,6 +357,13 @@ export const leaveStudyRoom = functions.region("us-central1").https.onCall(async
       }
       tx.update(ref, updates);
     });
+    if (quedoVacia) {
+      // Subrayados y respuestas de la sala: si no se borran quedan
+      // huérfanos ocupando espacio para siempre.
+      await db.recursiveDelete(ref).catch((e) => {
+        console.warn(`[study-room] cleanup ${code} failed:`, e);
+      });
+    }
     return {ok: true};
   } catch (err) {
     rethrow(err);
@@ -402,7 +412,7 @@ async function rotateRoomVersions(code: string, force: boolean): Promise<RoomDoc
   });
 }
 
-export const startStudyRoomSwapTimer = functions.region("us-central1").https.onCall(
+export const startStudyRoomSwapTimer = enRegion().https.onCall(
   async (data, context) => {
     try {
       if (!context.auth) {
@@ -453,7 +463,7 @@ export const startStudyRoomSwapTimer = functions.region("us-central1").https.onC
     }
   });
 
-export const rotateStudyVersions = functions.region("us-central1").https.onCall(
+export const rotateStudyVersions = enRegion().https.onCall(
   async (data, context) => {
     try {
       if (!context.auth) {
@@ -489,7 +499,7 @@ export const rotateStudyVersions = functions.region("us-central1").https.onCall(
 // Filtra el query con `where(nextSwapAt <= now)` y `where(memberCount >= 2)`
 // para no escanear toda la colección. Además, limpia salas huérfanas
 // (sin actividad por más de 24h) para evitar acumulación de basura.
-export const studyRoomAutoSwap = functions.region("us-central1").pubsub
+export const studyRoomAutoSwap = enRegion({maxInstances: 1}).pubsub
   .schedule("every 5 minutes")
   .onRun(async () => {
     const now = adminFirestore.Timestamp.now();
@@ -514,7 +524,8 @@ export const studyRoomAutoSwap = functions.region("us-central1").pubsub
       .limit(20)
       .get();
     for (const doc of staleSnap.docs) {
-      tasks.push(doc.ref.delete().catch((e) => {
+      // recursiveDelete también borra subrayados y respuestas de la sala.
+      tasks.push(db.recursiveDelete(doc.ref).catch((e) => {
         console.warn(`[study-room] delete stale ${doc.id} failed:`, e);
       }));
     }

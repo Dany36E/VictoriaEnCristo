@@ -363,6 +363,40 @@ class ProgressRepository {
     debugPrint('📊 [PROGRESS_REPO] $dateISO.$giantId = $value');
   }
 
+  /// Establecer varios gigantes de un día con una sola escritura (antes se
+  /// escribía el mismo documento una vez por gigante).
+  Future<void> setDayGiantStates(
+    DateTime date,
+    Map<String, int> states, {
+    required List<String> selectedGiants,
+    required double threshold,
+  }) async {
+    if (!_isInitialized) await init();
+    if (_isFuture(date) || states.isEmpty) return;
+
+    final dateISO = _dateToISO(date);
+    final giants = getDayGiantStates(date, selectedGiants);
+    states.forEach((giantId, value) => giants[giantId] = value.clamp(0, 1));
+
+    final victoryDay = VictoryDay.create(
+      dateISO: dateISO,
+      giants: giants,
+      threshold: threshold,
+    );
+
+    _cache[dateISO] = victoryDay;
+    await _saveLocalCache();
+
+    final uid = _currentUid;
+    if (uid != null) {
+      await _saveToCloud(uid, victoryDay);
+    } else {
+      _addPendingWrite(dateISO);
+    }
+
+    _updateAllNotifiers();
+  }
+
   /// Establecer todos los gigantes para un día
   Future<void> setDayAllGiants(
     DateTime date,

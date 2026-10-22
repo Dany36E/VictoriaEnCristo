@@ -50,8 +50,11 @@ service cloud.firestore {
 
       // battlePartners: solo el owner lee/escribe sus propios partners.
       // El compañero (uid==partnerId) puede UPDATE únicamente para cambiar
-      // su `status` (p.ej. pausar/activar) o los timestamps relacionados;
-      // no puede tocar `partnerUid`, `partnerName`, `addedAt` ni inyectar
+      // su `status` (p.ej. pausar/activar), los timestamps relacionados y el
+      // reflejo de SU propio progreso (racha, victoria de hoy, si acepta
+      // invitaciones y el gigante compartido). Así cada quien lee el progreso
+      // de sus compañeros en su propio doc, sin leer publicProgress de cada
+      // uno. No puede tocar `partnerUid`, `partnerName`, `addedAt` ni inyectar
       // campos arbitrarios (H5).
       match /battlePartners/{partnerId} {
         allow read: if isSignedIn() && isOwner(userId);
@@ -64,11 +67,15 @@ service cloud.firestore {
             request.auth.uid == partnerId &&
             request.resource.data.diff(resource.data)
               .affectedKeys()
-              .hasOnly(['status', 'updatedAt', 'pausedAt']) &&
+              .hasOnly(['status', 'updatedAt', 'pausedAt',
+                        'streakDays', 'victoryToday', 'lastOpenedAt',
+                        'progressUpdatedAt', 'acceptingInvites',
+                        'sharedGiantId']) &&
             (
               !('status' in request.resource.data.diff(resource.data).affectedKeys()) ||
               request.resource.data.status in ['active', 'paused', 'inactive']
-            )
+            ) &&
+            isValidPartnerMirror(request.resource.data)
           )
         );
         allow delete: if isSignedIn() && isOwner(userId);
@@ -192,6 +199,13 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Versión mínima de la app (ForceUpdateService). Antes no tenía regla y
+    // cada arranque hacía una lectura que siempre se rechazaba.
+    match /app_config/{docId} {
+      allow read: if isSignedIn();
+      allow write: if false;
+    }
+
     /* ─────────────────────────────────────────────
        6. WALL POSTS (Muro de Batalla)
        /wallPosts/{postId}
@@ -293,6 +307,16 @@ service cloud.firestore {
     /* ─────────────────────────────────────────────
        HELPERS (dentro del scope de {database})
        ───────────────────────────────────────────── */
+
+    // Reflejo del progreso de un compañero en mi doc de vínculo.
+    function isValidPartnerMirror(d) {
+      return (!('streakDays' in d) || (d.streakDays is int && d.streakDays >= 0 && d.streakDays <= 100000))
+          && (!('victoryToday' in d) || d.victoryToday is bool)
+          && (!('acceptingInvites' in d) || d.acceptingInvites is bool)
+          && (!('sharedGiantId' in d) || (d.sharedGiantId is string && d.sharedGiantId.size() <= 64))
+          && (!('lastOpenedAt' in d) || d.lastOpenedAt is timestamp)
+          && (!('progressUpdatedAt' in d) || d.progressUpdatedAt is timestamp);
+    }
 
     function isSignedIn() {
       return request.auth != null;
