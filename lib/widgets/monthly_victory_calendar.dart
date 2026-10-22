@@ -8,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../theme/app_fonts.dart';
 import '../services/feedback_engine.dart';
-import '../services/theme_service.dart';
 import '../vec/vec_tema.dart';
 
 class MonthlyVictoryCalendar extends StatelessWidget {
@@ -23,15 +22,14 @@ class MonthlyVictoryCalendar extends StatelessWidget {
 
   // En el tema «papel recortado» el calendario es una tarjeta de papel con
   // los colores del kit (VecColores); en los demás, la paleta oscura cálida.
-  static bool get _papel => ThemeService().currentTheme.isPaper;
-  static Color get _gold => _papel ? VecColores.mostaza : const Color(0xFFD4A853);
-  static Color get _textPrimary => _papel ? VecColores.tinta : const Color(0xFFF0F0F0);
-  static Color get _textMuted => _papel ? VecColores.gris : const Color(0xFF8A8A9A);
-  static Color get _victory => _papel ? VecColores.verde : const Color(0xFF66BB6A);
-  static Color get _warmBg => _papel ? VecColores.papel : const Color(0xFF1A1520);
-  static Color get _journal => _papel ? VecColores.terracota : const Color(0xFFCE93D8);
-  static Color get _bible => _papel ? VecColores.mostaza : const Color(0xFFE8C97A);
-  static Color get _plan => _papel ? VecColores.azulClaro : const Color(0xFF64B5F6);
+  static Color get _gold => VecColores.mostaza;
+  static Color get _textPrimary => VecColores.tinta;
+  static Color get _textMuted => VecColores.gris;
+  static Color get _victory => VecColores.verde;
+  static Color get _warmBg => VecColores.papel;
+  static Color get _journal => VecColores.terracota;
+  static Color get _bible => VecColores.mostaza;
+  static Color get _plan => VecColores.azulClaro;
 
   const MonthlyVictoryCalendar({
     super.key,
@@ -49,24 +47,11 @@ class MonthlyVictoryCalendar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(18),
-      decoration: _papel
-          ? BoxDecoration(
+      decoration: BoxDecoration(
               color: _warmBg,
               borderRadius: BorderRadius.circular(VecRadios.m),
               boxShadow: VecSombras.papel,
-            )
-          : BoxDecoration(
-        color: _warmBg,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+            ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -123,10 +108,8 @@ class MonthlyVictoryCalendar extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(6),
         decoration: BoxDecoration(
-          color: _papel
-              ? VecColores.cremaOscuro
-              : Colors.white.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(_papel ? VecRadios.pildora : 10),
+          color: VecColores.cremaOscuro,
+          borderRadius: BorderRadius.circular(VecRadios.pildora),
         ),
         child: Icon(icon, color: _textPrimary.withValues(alpha: 0.7), size: 24),
       ),

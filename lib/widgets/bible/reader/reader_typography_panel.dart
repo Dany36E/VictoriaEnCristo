@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_fonts.dart';
 import '../../../services/bible/bible_user_data_service.dart';
-import '../../../theme/app_theme_data.dart';
 import '../../../theme/bible_reader_theme.dart';
 import 'selector_letra_lectura.dart';
+import '../../selector_modo_papel.dart';
 
 class ReaderTypographyPanel extends StatelessWidget {
   final BibleReaderThemeData theme;
@@ -32,7 +32,7 @@ class ReaderTypographyPanel extends StatelessWidget {
             color: t.surface.withValues(alpha: 0.98),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: t.isDark ? 0.3 : 0.05),
+                color: Colors.black.withValues(alpha: 0.05),
                 blurRadius: 8,
                 offset: const Offset(0, 4),
               ),
@@ -95,53 +95,11 @@ class ReaderTypographyPanel extends StatelessWidget {
                   );
                 },
               ),
-              if (AppThemeData.of(context).isPaper) ...[
-                const SizedBox(height: 8),
-                SelectorLetraLectura(theme: t),
-              ],
-              const SizedBox(height: 12),
-              ValueListenableBuilder<String>(
-                valueListenable: BibleUserDataService.I.readerThemeNotifier,
-                builder: (context, currentId, _) {
-                  final migrated = BibleReaderThemeData.migrateId(currentId);
-                  return Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: BibleReaderThemeData.all.map((theme) {
-                      final isActive = theme.id == migrated;
-                      return Semantics(
-                        label: 'Tema ${theme.name}',
-                        button: true,
-                        selected: isActive,
-                        child: GestureDetector(
-                          onTap: () => BibleUserDataService.I
-                              .setReaderTheme(theme.id),
-                          child: Container(
-                            width: 28,
-                            height: 28,
-                            decoration: BoxDecoration(
-                              color: theme.swatchColor,
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: isActive
-                                    ? t.accent
-                                    : t.textSecondary.withValues(alpha: 0.2),
-                                width: isActive ? 2.5 : 1,
-                              ),
-                            ),
-                            child: isActive
-                                ? Icon(Icons.check,
-                                    color: theme.muestraOscura
-                                        ? Colors.white70
-                                        : Colors.black54,
-                                    size: 14)
-                                : null,
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  );
-                },
-              ),
+              const SizedBox(height: 8),
+              SelectorLetraLectura(theme: t),
+              const SizedBox(height: 16),
+              // Claro, oscuro o automático: el lector va en el papel de la app.
+              const SelectorModoPapel(),
             ],
           ),
         ),

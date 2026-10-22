@@ -59,9 +59,8 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
   BibleUserDataService get _data => BibleUserDataService.I;
   BibleReaderThemeData get _t => widget.theme;
 
-  /// Con el tema papel, las plantillas de papel van primero.
-  List<ShareCardTemplate> get _plantillas =>
-      plantillasCompartir(papel: _t.isPaper);
+  /// Las plantillas de papel van primero.
+  List<ShareCardTemplate> get _plantillas => plantillasCompartir();
 
   @override
   Widget build(BuildContext context) {

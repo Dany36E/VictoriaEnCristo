@@ -1,11 +1,8 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import '../theme/app_fonts.dart';
-import '../theme/app_theme.dart';
 import '../data/dummy_plans.dart';
 import '../services/audio_service.dart';
-import '../theme/app_theme_data.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 
@@ -113,224 +110,12 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
     );
   }
 
-  /// Tema «papel recortado» activo.
-  bool get _papel => AppThemeData.of(context).isPaper;
 
   @override
   Widget build(BuildContext context) {
     final day = widget.plan.daysList[widget.dayIndex];
     final isCompleted = day.isCompleted;
-    if (_papel) return _buildPapel(day, isCompleted);
-
-    return Scaffold(
-      backgroundColor: const Color(0xFFFBFBFB), // Crema muy claro
-      body: CustomScrollView(
-        controller: _scrollController,
-        physics: const BouncingScrollPhysics(),
-        slivers: [
-          // ═══════════════════════════════════════════════════════════════════
-          // APP BAR MINIMALISTA
-          // ═══════════════════════════════════════════════════════════════════
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: const Color(0xFFFBFBFB),
-            elevation: 0,
-            systemOverlayStyle: SystemUiOverlayStyle.dark,
-            leading: IconButton(
-              icon: const Icon(Icons.arrow_back, color: AppDesignSystem.midnight),
-              onPressed: () {
-                _audioService.stop();
-                Navigator.pop(context);
-              },
-            ),
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  widget.plan.title,
-                  style: AppFonts.manrope(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                    color: AppDesignSystem.coolGray,
-                    letterSpacing: 0.5,
-                  ),
-                ),
-                Text(
-                  'Día ${day.dayNumber} de ${widget.plan.days}',
-                  style: AppFonts.manrope(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                    color: AppDesignSystem.midnight,
-                  ),
-                ),
-              ],
-            ),
-            actions: [
-              // Botón de audio con estados: play, pause, resume
-              IconButton(
-                icon: Icon(
-                  _isPlaying 
-                      ? Icons.pause_circle_filled 
-                      : (_isPaused ? Icons.play_circle_filled : Icons.play_circle_outline),
-                  color: (_isPlaying || _isPaused) ? AppDesignSystem.gold : AppDesignSystem.midnight,
-                  size: 28,
-                ),
-                onPressed: _toggleAudio,
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-
-          // ═══════════════════════════════════════════════════════════════════
-          // CONTENIDO DE LECTURA
-          // ═══════════════════════════════════════════════════════════════════
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
-                  
-                  // ═══════════════════════════════════════════════════════════
-                  // TÍTULO DEL DÍA
-                  // ═══════════════════════════════════════════════════════════
-                  Text(
-                    day.title,
-                    style: AppFonts.cinzel(
-                      fontSize: 28,
-                      fontWeight: FontWeight.w600,
-                      color: AppDesignSystem.midnight,
-                      height: 1.2,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ═══════════════════════════════════════════════════════════
-                  // VERSÍCULO DESTACADO
-                  // ═══════════════════════════════════════════════════════════
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppDesignSystem.midnight,
-                          AppDesignSystem.midnightLight,
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppDesignSystem.midnight.withValues(alpha: 0.2),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        // Icono decorativo
-                        Icon(
-                          Icons.format_quote,
-                          color: AppDesignSystem.gold.withValues(alpha: 0.5),
-                          size: 32,
-                        ),
-                        const SizedBox(height: 16),
-                        // Versículo
-                        Text(
-                          day.scripture,
-                          style: AppFonts.crimsonPro(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w400,
-                            fontStyle: FontStyle.italic,
-                            color: AppDesignSystem.pureWhite,
-                            height: 1.6,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 16),
-                        // Referencia
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: AppDesignSystem.gold.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            day.scriptureReference,
-                            style: AppFonts.manrope(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppDesignSystem.gold,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  
-                  // Línea divisoria dorada
-                  Center(
-                    child: Container(
-                      width: 80,
-                      height: 3,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppDesignSystem.gold.withValues(alpha: 0.2),
-                            AppDesignSystem.gold,
-                            AppDesignSystem.gold.withValues(alpha: 0.2),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // ═══════════════════════════════════════════════════════════
-                  // CONTENIDO DEL DEVOCIONAL
-                  // ═══════════════════════════════════════════════════════════
-                  ..._buildContentSections(day.content),
-                  
-                  const SizedBox(height: 40),
-
-                  // ═══════════════════════════════════════════════════════════
-                  // BOTÓN COMPLETAR
-                  // ═══════════════════════════════════════════════════════════
-                  if (!isCompleted)
-                    _buildCompleteButton()
-                  else
-                    _buildCompletedBadge(),
-
-                  SizedBox(height: 40 + MediaQuery.of(context).padding.bottom),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
-      // FAB alternativo (visible al scrollear)
-      floatingActionButton: (_showFab && !isCompleted)
-          ? FloatingActionButton.extended(
-              onPressed: _completeDay,
-              backgroundColor: AppDesignSystem.gold,
-              icon: const Icon(Icons.check, color: AppDesignSystem.midnight),
-              label: Text(
-                'COMPLETAR',
-                style: AppFonts.manrope(
-                  fontWeight: FontWeight.w700,
-                  color: AppDesignSystem.midnight,
-                ),
-              ),
-            )
-          : null,
-    );
+    return _buildPapel(day, isCompleted);
   }
 
   List<Widget> _buildContentSections(String content) {
@@ -444,8 +229,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
 
   /// Construye un párrafo normal
   Widget _buildParagraph(String text) {
-    if (_papel) {
-      return Padding(
+    return Padding(
         padding: const EdgeInsets.only(bottom: 16),
         child: Text(
           text,
@@ -457,26 +241,11 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           ),
         ),
       );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
-      child: Text(
-        text,
-        style: AppFonts.manrope(
-          fontSize: 17,
-          fontWeight: FontWeight.w400,
-          color: AppDesignSystem.midnight.withValues(alpha: 0.85),
-          height: 1.7,
-          letterSpacing: 0.2,
-        ),
-      ),
-    );
   }
 
   /// Construye un encabezado de sección con icono
   Widget _buildSectionHeader(String title, IconData icon) {
-    if (_papel) {
-      return Padding(
+    return Padding(
         padding: const EdgeInsets.only(top: 24, bottom: 12),
         child: Row(
           children: [
@@ -491,35 +260,11 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           ],
         ),
       );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 12),
-      child: Row(
-        children: [
-          Icon(
-            icon,
-            color: AppDesignSystem.gold,
-            size: 20,
-          ),
-          const SizedBox(width: 10),
-          Text(
-            title,
-            style: AppFonts.cinzel(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: AppDesignSystem.midnight,
-              letterSpacing: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   /// Sección de REFLEXIÓN con estilo destacado
   Widget _buildReflexionSection(String content) {
-    if (_papel) {
-      return TarjetaPapel(
+    return TarjetaPapel(
         giro: 1,
         cintaDerecha: true,
         child: Column(
@@ -550,83 +295,11 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           ],
         ),
       );
-    }
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FC), // Gris muy claro azulado
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppDesignSystem.midnight.withValues(alpha: 0.08),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Encabezado con icono
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withValues(alpha: 0.15),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.lightbulb_outline,
-                  color: AppDesignSystem.gold,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Text(
-                'REFLEXIÓN',
-                style: AppFonts.cinzel(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w700,
-                  color: AppDesignSystem.midnight,
-                  letterSpacing: 2,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          // Línea decorativa dorada
-          Container(
-            height: 2,
-            width: 60,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  AppDesignSystem.gold,
-                  AppDesignSystem.gold.withValues(alpha: 0.3),
-                ],
-              ),
-              borderRadius: BorderRadius.circular(1),
-            ),
-          ),
-          const SizedBox(height: 16),
-          // Contenido
-          Text(
-            content,
-            style: AppFonts.manrope(
-              fontSize: 16,
-              fontWeight: FontWeight.w400,
-              color: AppDesignSystem.midnight.withValues(alpha: 0.8),
-              height: 1.7,
-            ),
-          ),
-        ],
-      ),
-    );
   }
 
   /// Sección de ORACIÓN con estilo especial (card diferenciada)
   Widget _buildOracionSection(String content) {
-    if (_papel) {
-      // La oración se escribe a mano, como una carta en hoja rayada.
-      return Column(
+    return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
@@ -645,186 +318,8 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
           HojaRayada(child: Text(content)),
         ],
       );
-    }
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: const Color(0xFFFFFBF5), // Crema cálido muy suave
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: AppDesignSystem.gold.withValues(alpha: 0.2),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: AppDesignSystem.gold.withValues(alpha: 0.08),
-            blurRadius: 20,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Borde izquierdo grueso dorado
-            Container(
-              width: 5,
-              decoration: const BoxDecoration(
-                color: AppDesignSystem.gold,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  bottomLeft: Radius.circular(16),
-                ),
-              ),
-            ),
-            // Contenido
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Encabezado con icono
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppDesignSystem.gold.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            '🙏',
-                            style: TextStyle(fontSize: 18),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'ORACIÓN',
-                          style: AppFonts.cinzel(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                            color: AppDesignSystem.midnight,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Línea decorativa
-                    Container(
-                      height: 2,
-                      width: 50,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppDesignSystem.gold,
-                            AppDesignSystem.gold.withValues(alpha: 0.2),
-                          ],
-                        ),
-                        borderRadius: BorderRadius.circular(1),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    // Texto de la oración en itálica
-                    Text(
-                      content,
-                      style: AppFonts.crimsonPro(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w400,
-                        fontStyle: FontStyle.italic,
-                        color: AppDesignSystem.midnight.withValues(alpha: 0.85),
-                        height: 1.7,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 
-  Widget _buildCompleteButton() {
-    return Container(
-      width: double.infinity,
-      height: 64,
-      decoration: BoxDecoration(
-        gradient: AppDesignSystem.goldShimmer,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: AppDesignSystem.gold.withValues(alpha: 0.4),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          borderRadius: BorderRadius.circular(20),
-          onTap: _completeDay,
-          child: Center(
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.check_circle_outline,
-                  color: AppDesignSystem.midnight,
-                  size: 26,
-                ),
-                const SizedBox(width: 12),
-                Text(
-                  'COMPLETAR DEVOCIONAL',
-                  style: AppFonts.manrope(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: AppDesignSystem.midnight,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildCompletedBadge() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: AppDesignSystem.victory.withValues(alpha: 0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppDesignSystem.victory.withValues(alpha: 0.3)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(
-            Icons.check_circle,
-            color: AppDesignSystem.victory,
-            size: 28,
-          ),
-          const SizedBox(width: 12),
-          Text(
-            'DEVOCIONAL COMPLETADO',
-            style: AppFonts.manrope(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: AppDesignSystem.victory,
-              letterSpacing: 1.5,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TEMA PAPEL
@@ -979,9 +474,7 @@ class _CompletionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) {
-      // Mensaje de éxito: Victoria celebra con el usuario.
-      return Dialog(
+    return Dialog(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(24, 20, 24, 24),
           child: Column(
@@ -1028,94 +521,5 @@ class _CompletionDialog extends StatelessWidget {
           ),
         ),
       );
-    }
-    return Dialog(
-      backgroundColor: Colors.transparent,
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: AppDesignSystem.midnight,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: AppDesignSystem.gold.withValues(alpha: 0.2),
-              blurRadius: 30,
-              spreadRadius: 5,
-            ),
-          ],
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Icono de celebración
-            Container(
-              width: 80,
-              height: 80,
-              decoration: const BoxDecoration(
-                gradient: AppDesignSystem.goldShimmer,
-                shape: BoxShape.circle,
-              ),
-              child: Icon(
-                isLastDay ? Icons.emoji_events : Icons.check,
-                color: AppDesignSystem.midnight,
-                size: 40,
-              ),
-            ),
-            const SizedBox(height: 24),
-            
-            // Título
-            Text(
-              isLastDay ? '¡PLAN COMPLETADO!' : '¡DÍA $dayNumber COMPLETADO!',
-              style: AppFonts.cinzel(
-                fontSize: 20,
-                fontWeight: FontWeight.w600,
-                color: AppDesignSystem.gold,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 12),
-            
-            // Mensaje
-            Text(
-              isLastDay 
-                  ? '¡Felicidades! Has terminado "$planTitle". Tu dedicación espiritual es inspiradora.'
-                  : 'Excelente progreso. El día ${dayNumber + 1} ya está desbloqueado.',
-              style: AppFonts.manrope(
-                fontSize: 14,
-                color: AppDesignSystem.coolGray,
-                height: 1.5,
-              ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 32),
-            
-            // Botón confirmar
-            SizedBox(
-              width: double.infinity,
-              height: 52,
-              child: ElevatedButton(
-                onPressed: onConfirm,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppDesignSystem.gold,
-                  foregroundColor: AppDesignSystem.midnight,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  elevation: 0,
-                ),
-                child: Text(
-                  isLastDay ? '¡CELEBRAR!' : 'CONTINUAR',
-                  style: AppFonts.manrope(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 1.2,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

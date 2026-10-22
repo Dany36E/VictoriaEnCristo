@@ -3,6 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 import 'package:app_quitar/services/onboarding_service.dart';
+import 'package:app_quitar/vec/vec_widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 // Firebase's own test transport; no calls reach a remote backend.
 // ignore: depend_on_referenced_packages
@@ -16,6 +17,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'access_matrix_test.dart' show platformFor;
+import 'letras_kit.dart';
 import 'viewport_profiles.dart';
 
 void main() {
@@ -47,6 +49,7 @@ void main() {
         }
       }
     }
+    await cargarLetrasDelKit();
     WidgetController.hitTestWarningShouldBeFatal = true;
   });
 
@@ -99,18 +102,12 @@ void main() {
           );
           expect(tester.takeException(), isNull);
 
-          final disabledContinue = find.text('SELECCIONA AL MENOS UNO');
+          final disabledContinue = find.text('Selecciona al menos uno');
           expect(disabledContinue, findsOneWidget);
+          // Sin elegir, el botón está apagado: tocarlo no avanza.
           await tester.tap(disabledContinue);
           await tester.pumpAndSettle();
-          expect(
-            find.text('Selecciona al menos un área de batalla'),
-            findsOneWidget,
-          );
-          ScaffoldMessenger.of(
-            tester.element(find.byType(GiantSelectionScreen)),
-          ).hideCurrentSnackBar();
-          await tester.pumpAndSettle();
+          expect(find.byType(GiantSelectionScreen), findsOneWidget);
 
           final digital = find.text('MUNDO DIGITAL');
           await tester.scrollUntilVisible(
@@ -125,8 +122,14 @@ void main() {
           await tester.pumpAndSettle();
           await tester.tap(digital);
           await tester.pumpAndSettle();
-          expect(find.text('CONTINUAR (1)'), findsOneWidget);
-          expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+          expect(find.text('Continuar (1)'), findsOneWidget);
+          // La tarjeta elegida lleva la palomita del kit.
+          expect(
+            find.byWidgetPredicate(
+              (w) => w is CirculoIcono && w.iconoVec == 'palomita',
+            ),
+            findsOneWidget,
+          );
           await tester.runAsync(
             () => capture(
               boundaryKey,

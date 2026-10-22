@@ -4,18 +4,15 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 
-import '../../theme/bible_reader_theme.dart';
-import 'bible_user_data_service.dart';
 
 /// Paleta y letras de los PDF de Apuntes y de Estudio.
 ///
-/// Con el tema «papel recortado» el documento toma el estilo del kit
-/// victoria-en-cristo-estilo: hoja crema, tinta café, terracota, cinta
-/// mostaza, títulos en Lilita One y notas a mano en Caveat Brush. Con los
-/// demás temas queda el estilo clásico dorado.
+/// Estilo «papel recortado» del kit victoria-en-cristo-estilo: hoja crema,
+/// tinta café, terracota, cinta mostaza, títulos en Lilita One y notas a mano
+/// en Caveat Brush. Siempre en el papel claro, aunque la app esté en un papel
+/// oscuro: es un documento para imprimir o compartir.
 class EstiloPdf {
   EstiloPdf._({
-    required this.papel,
     required this.tema,
     required this.titulo,
     required this.mano,
@@ -35,8 +32,6 @@ class EstiloPdf {
     this.ascensoMano = 0,
     this.altoMano = 0,
   });
-
-  final bool papel;
 
   /// Medidas de la letra a mano en fracciones de su tamaño, como las usa el
   /// paquete pdf: de arriba de la línea a la base ([ascensoMano]) y alto de
@@ -89,48 +84,10 @@ class EstiloPdf {
   /// Fondo de la hoja en el tema papel (crema del kit).
   static const fondoPagina = _crema;
 
-  /// ¿El tema de lectura de la Biblia es papel? Apuntes y Estudio son
-  /// pantallas de la Biblia: el PDF sale con el mismo tema que se ve en ellas
-  /// (igual que las imágenes para compartir de la Biblia), aunque la Biblia
-  /// tenga un tema distinto al de la app.
-  static bool get temaPapelActivo =>
-      BibleReaderThemeData.fromId(
-        BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value,
-        ),
-      ).isPaper;
-
-  /// Carga las letras del estilo que corresponde al tema activo.
-  static Future<EstiloPdf> cargar({bool? papel}) async {
-    final esPapel = papel ?? temaPapelActivo;
+  /// Carga las letras del estilo.
+  static Future<EstiloPdf> cargar() async {
     Future<pw.Font> fuente(String ruta) async =>
         pw.Font.ttf(await rootBundle.load(ruta));
-
-    if (!esPapel) {
-      return EstiloPdf._(
-        papel: false,
-        tema: pw.ThemeData.withFont(
-          base: await fuente('google_fonts/Lato-Regular.ttf'),
-          bold: await fuente('google_fonts/Lato-Bold.ttf'),
-          italic: await fuente('google_fonts/Lato-Italic.ttf'),
-        ),
-        titulo: null,
-        mano: null,
-        lectura: null,
-        lecturaCursiva: null,
-        acento: const PdfColor(0.70, 0.58, 0.24),
-        tinta: const PdfColor(0.20, 0.16, 0.10),
-        tintaSuave: const PdfColor(0.34, 0.27, 0.16),
-        etiqueta: const PdfColor(0.45, 0.36, 0.20),
-        cuerpo: const PdfColor(0.17, 0.17, 0.18),
-        secundario: PdfColors.grey700,
-        tenue: PdfColors.grey600,
-        fondoTarjeta: const PdfColor(0.985, 0.975, 0.955),
-        bordeTarjeta: const PdfColor(0.88, 0.85, 0.77),
-        fondoDestacado: const PdfColor(0.97, 0.95, 0.90),
-        bordeDestacado: const PdfColor(0.86, 0.78, 0.58),
-      );
-    }
 
     final datosMano = await rootBundle.load(
       'assets/vec/fuentes/CaveatBrush-Regular.ttf',
@@ -140,7 +97,6 @@ class EstiloPdf {
     // Lora-*.ttf del proyecto son la fuente variable y el PDF solo usa su
     // peso normal). Los versículos van en Lora, como en la Biblia de la app.
     return EstiloPdf._(
-      papel: true,
       tema: pw.ThemeData.withFont(
         base: await fuente('google_fonts/Lato-Regular.ttf'),
         bold: await fuente('google_fonts/Lato-Bold.ttf'),
@@ -191,9 +147,7 @@ class EstiloPdf {
     return pw.PageTheme(
       margin: margin,
       theme: tema,
-      buildBackground: !papel
-          ? null
-          : (context) => pw.FullPage(
+      buildBackground: (context) => pw.FullPage(
               ignoreMargins: true,
               child: pw.Stack(
                 children: [
@@ -265,9 +219,7 @@ class EstiloPdf {
             padding: const pw.EdgeInsets.only(left: 3.5),
             child: caja,
           );
-    if (!papel) {
-      return pw.Container(margin: margin, child: conFranja);
-    }
+    
     // Sombra sólida del papel grueso: una copia más oscura desplazada.
     return pw.Container(
       margin: margin,
@@ -288,20 +240,14 @@ class EstiloPdf {
       children: [
         pw.Text(
           texto,
-          style: papel
-              ? estiloTitulo(fontSize: 16, color: acento)
-              : pw.TextStyle(
-                  fontSize: 14,
-                  fontWeight: pw.FontWeight.bold,
-                  color: tintaSuave,
-                ),
+          style: estiloTitulo(fontSize: 16, color: acento),
         ),
         pw.SizedBox(height: 4),
         pw.Container(
-          width: papel ? 46 : 38,
-          height: papel ? 4 : 2.5,
+          width: 46,
+          height: 4,
           decoration: pw.BoxDecoration(
-            color: papel ? _mostaza : acento,
+            color: _mostaza,
             borderRadius: pw.BorderRadius.circular(2),
           ),
         ),
@@ -317,9 +263,7 @@ class EstiloPdf {
         alignment: pw.Alignment.centerRight,
         child: pw.Text(
           'Victoria en Cristo · Página ${context.pageNumber} de ${context.pagesCount}',
-          style: papel
-              ? estiloTitulo(fontSize: 9.5, color: tenue)
-              : const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+          style: estiloTitulo(fontSize: 9.5, color: tenue),
         ),
       ),
     );
@@ -330,10 +274,10 @@ class EstiloPdf {
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: pw.BoxDecoration(
-        color: papel ? _papel : PdfColors.white,
+        color: _papel,
         borderRadius: pw.BorderRadius.circular(12),
         border: pw.Border.all(
-          color: papel ? _cremaOscuro : const PdfColor(0.86, 0.82, 0.72),
+          color: _cremaOscuro,
           width: 0.6,
         ),
       ),
@@ -342,19 +286,13 @@ class EstiloPdf {
           children: [
             pw.TextSpan(
               text: '$etiquetaTexto: ',
-              style: papel
-                  ? estiloTitulo(fontSize: 10.5, color: etiqueta)
-                  : pw.TextStyle(
-                      fontSize: 10.5,
-                      fontWeight: pw.FontWeight.bold,
-                      color: etiqueta,
-                    ),
+              style: estiloTitulo(fontSize: 10.5, color: etiqueta),
             ),
             pw.TextSpan(
               text: valor,
-              style: pw.TextStyle(
+              style: const pw.TextStyle(
                 fontSize: 10.5,
-                color: papel ? _tinta : PdfColors.grey900,
+                color: _tinta,
               ),
             ),
           ],
@@ -379,27 +317,7 @@ class EstiloPdf {
   /// Nota a mano sobre hoja rayada (estilo HojaRayada del kit) para la
   /// reflexión final; en el clásico, recuadro dorado en negrita.
   pw.Widget notaAMano(String texto) {
-    if (!papel) {
-      return pw.Container(
-        width: double.infinity,
-        padding: const pw.EdgeInsets.fromLTRB(12, 10, 12, 11),
-        decoration: pw.BoxDecoration(
-          color: fondoDestacado,
-          borderRadius: pw.BorderRadius.circular(7),
-          border: pw.Border.all(color: bordeDestacado, width: 0.6),
-        ),
-        child: pw.Text(
-          texto,
-          style: pw.TextStyle(
-            fontSize: 11.4,
-            lineSpacing: 3.5,
-            color: tinta,
-            fontWeight: pw.FontWeight.bold,
-          ),
-          overflow: pw.TextOverflow.span,
-        ),
-      );
-    }
+    
     const tamano = 15.0;
     const interlineado = 6.0;
     final letra = pw.Text(

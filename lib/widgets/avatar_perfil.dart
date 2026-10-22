@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/avatar_perfil_service.dart';
-import '../theme/app_fonts.dart';
-import '../theme/app_theme_data.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 
@@ -24,7 +22,6 @@ class AvatarPerfilImagen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final papel = AppThemeData.of(context).isPaper;
     return ValueListenableBuilder<String?>(
       valueListenable: AvatarPerfilService.I.avatarId,
       builder: (context, id, _) {
@@ -33,19 +30,7 @@ class AvatarPerfilImagen extends StatelessWidget {
         return Semantics(
           image: true,
           label: 'Avatar de perfil',
-          child: papel
-              ? AvatarVec(ruta: ruta, tamano: tamano)
-              : SizedBox(
-                  width: tamano,
-                  height: tamano,
-                  child: ClipOval(
-                    child: Image.asset(
-                      ruta,
-                      fit: BoxFit.cover,
-                      filterQuality: FilterQuality.medium,
-                    ),
-                  ),
-                ),
+          child: AvatarVec(ruta: ruta, tamano: tamano),
         );
       },
     );
@@ -59,9 +44,7 @@ Future<void> mostrarSelectorAvatar(BuildContext context) {
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    backgroundColor: AppThemeData.of(context).isPaper
-        ? null
-        : AppThemeData.of(context).surface,
+    backgroundColor: null,
     builder: (_) => const _SelectorAvatar(),
   );
 }
@@ -71,22 +54,11 @@ class _SelectorAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
     final alto = MediaQuery.of(context).size.height * 0.85;
 
     Widget seccion(String titulo) => Padding(
       padding: const EdgeInsets.only(top: 18, bottom: 10),
-      child: t.isPaper
-          ? EtiquetaSeccion(titulo)
-          : Text(
-              titulo.toUpperCase(),
-              style: AppFonts.manrope(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.2,
-                color: t.textSecondary,
-              ),
-            ),
+      child: EtiquetaSeccion(titulo),
     );
 
     return ConstrainedBox(
@@ -103,27 +75,15 @@ class _SelectorAvatar extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (t.isPaper)
-                const TituloVec('Elige tu avatar', clave: 'avatar', tamano: 28)
-              else
-                Text(
-                  'Elige tu avatar',
-                  style: AppFonts.manrope(
-                    fontSize: 22,
-                    fontWeight: FontWeight.w800,
-                    color: t.textPrimary,
-                  ),
-                ),
+              const TituloVec('Elige tu avatar', clave: 'avatar', tamano: 28),
               const SizedBox(height: 4),
               Text(
                 'Así te verás en tu perfil y en Inicio.',
-                style: t.isPaper
-                    ? TextStyle(
+                style: TextStyle(
                         fontFamily: VecFuentes.texto,
                         fontSize: 18,
                         color: VecColores.lapiz,
-                      )
-                    : AppFonts.manrope(fontSize: 14, color: t.textSecondary),
+                      ),
               ),
               seccion('Hombres'),
               _Rejilla(avatares: AvatarPerfilService.hombres, elegido: elegido),
@@ -139,16 +99,10 @@ class _SelectorAvatar extends StatelessWidget {
                     },
                     child: Text(
                       'Quitar avatar',
-                      style: t.isPaper
-                          ? TextStyle(
+                      style: TextStyle(
                               fontFamily: VecFuentes.titulo,
                               fontSize: 17,
                               color: VecColores.terracota,
-                            )
-                          : AppFonts.manrope(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w700,
-                              color: t.accent,
                             ),
                     ),
                   ),
@@ -192,8 +146,7 @@ class _OpcionAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
-    final colorMarca = t.isPaper ? VecColores.terracota : t.accent;
+    final colorMarca = VecColores.terracota;
     return Semantics(
       button: true,
       selected: seleccionado,
@@ -220,14 +173,12 @@ class _OpcionAvatar extends StatelessWidget {
                     border: seleccionado
                         ? Border.all(color: colorMarca, width: 3)
                         : null,
-                    boxShadow: t.isPaper
-                        ? const [
+                    boxShadow: const [
                             BoxShadow(
                               color: Color(0x402B2622),
                               offset: Offset(0, 4),
                             ),
-                          ]
-                        : null,
+                          ],
                   ),
                   child: Padding(
                     padding: EdgeInsets.all(seleccionado ? 3 : 0),
@@ -245,24 +196,10 @@ class _OpcionAvatar extends StatelessWidget {
                 Positioned(
                   right: -2,
                   bottom: -2,
-                  child: t.isPaper
-                      ? CirculoIcono(
+                  child: CirculoIcono(
                           iconoVec: 'palomita',
                           color: VecColores.papel,
                           tamano: 24,
-                        )
-                      : Container(
-                          width: 22,
-                          height: 22,
-                          decoration: BoxDecoration(
-                            color: colorMarca,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            Icons.check_rounded,
-                            size: 15,
-                            color: t.sobreAcento,
-                          ),
                         ),
                 ),
             ],

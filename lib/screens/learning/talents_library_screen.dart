@@ -124,8 +124,7 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
     int completeBooks,
     double progress,
   ) {
-    if (theme.isPaper) {
-      return Padding(
+    return Padding(
         padding: const EdgeInsets.fromLTRB(16, 24, 16, 16),
         child: TarjetaPapel(
           child: Column(
@@ -187,95 +186,6 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
           ),
         ),
       );
-    }
-    return Container(
-      margin: const EdgeInsets.all(AppDesignSystem.spacingM),
-      padding: const EdgeInsets.all(AppDesignSystem.spacingL),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            AppDesignSystem.midnightLight,
-            AppDesignSystem.midnightDeep,
-            AppDesignSystem.goldDark.withValues(alpha: 0.28),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.4)),
-        boxShadow: [
-          BoxShadow(
-            color: AppDesignSystem.gold.withValues(alpha: 0.12),
-            blurRadius: 22,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: AppDesignSystem.gold.withValues(alpha: 0.18),
-                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-                  border: Border.all(color: AppDesignSystem.gold.withValues(alpha: 0.32)),
-                ),
-                child: const Icon(Icons.auto_awesome_mosaic_rounded, color: AppDesignSystem.gold),
-              ),
-              const SizedBox(width: AppDesignSystem.spacingM),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mural de la Historia',
-                      style: AppDesignSystem.headlineSmall(
-                        context,
-                        color: AppDesignSystem.pureWhite,
-                      ),
-                    ),
-                    Text(
-                      '$totalUnlocked/$totalAvailable piezas · $completeBooks/66 libros completos',
-                      style: AppDesignSystem.bodyMedium(context, color: AppDesignSystem.coolGray),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppDesignSystem.spacingM),
-          ClipRRect(
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusFull),
-            child: LinearProgressIndicator(
-              value: progress,
-              minHeight: 9,
-              backgroundColor: Colors.white.withValues(alpha: 0.12),
-              valueColor: const AlwaysStoppedAnimation(AppDesignSystem.gold),
-            ),
-          ),
-          const SizedBox(height: AppDesignSystem.spacingM),
-          const Row(
-            children: [
-              Expanded(
-                child: _HeaderStat(
-                  icon: Icons.workspace_premium_rounded,
-                  value: '+10',
-                  label: 'mín. por libro',
-                ),
-              ),
-              SizedBox(width: AppDesignSystem.spacingS),
-              Expanded(
-                child: _HeaderStat(icon: Icons.route_rounded, value: '5', label: 'actos por mural'),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 
   Widget _buildFilters(BuildContext context, AppThemeData theme) {
@@ -297,17 +207,10 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
               label: Text(filter.$2),
               selected: selected,
               onSelected: (_) => setState(() => _filter = filter.$1),
-              selectedColor: theme.isPaper ? null : AppDesignSystem.gold,
-              backgroundColor: theme.isPaper ? null : theme.cardBg,
-              labelStyle: theme.isPaper
-                  ? null
-                  : AppDesignSystem.labelMedium(
-                      context,
-                      color: selected ? AppDesignSystem.midnightDeep : theme.textPrimary,
-                    ),
-              side: theme.isPaper
-                  ? null
-                  : BorderSide(color: selected ? AppDesignSystem.gold : theme.cardBorder),
+              selectedColor: null,
+              backgroundColor: null,
+              labelStyle: null,
+              side: null,
             ),
           );
         }).toList(),
@@ -316,48 +219,6 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
   }
 }
 
-class _HeaderStat extends StatelessWidget {
-  final IconData icon;
-  final String value;
-  final String label;
-
-  const _HeaderStat({required this.icon, required this.value, required this.label});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: AppDesignSystem.goldLight, size: 18),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: AppDesignSystem.labelLarge(context, color: AppDesignSystem.pureWhite),
-                ),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.coolGray),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 class _BookTile extends StatelessWidget {
   final BibleBook book;

@@ -21,7 +21,7 @@ const String _eventsKey = 'sacred_alarm_events_v1';
 Widget _wrap(Widget child) {
   return MaterialApp(
     home: AppThemeData.provider(
-      theme: AppThemeData.nightPure,
+      theme: AppThemeData.paper,
       child: child,
     ),
   );

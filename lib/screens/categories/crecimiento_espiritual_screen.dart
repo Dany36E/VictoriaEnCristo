@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
-import '../../theme/app_theme_data.dart';
 import '../../vec/vec_tema.dart';
 import '../../vec/vec_widgets.dart';
 import '../../widgets/home/category_hub_scaffold.dart';
@@ -16,7 +14,6 @@ import '../bible/bible_home_screen.dart';
 class CrecimientoEspiritualScreen extends StatelessWidget {
   const CrecimientoEspiritualScreen({super.key});
 
-  static const Color _accent = Color(0xFFE8C97A);
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +60,7 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
   }
 
   Widget _buildIntro(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) {
-      // Tema papel: Timoteo presenta la sección, como en los videos.
-      return PopIn(
+    return PopIn(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -86,33 +81,5 @@ class CrecimientoEspiritualScreen extends StatelessWidget {
           ],
         ),
       );
-    }
-    return Container(
-          padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-          decoration: BoxDecoration(
-            color: _accent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-            border: Border.all(color: _accent.withValues(alpha: 0.2), width: 0.5),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.trending_up_rounded, color: _accent, size: 22),
-              const SizedBox(width: AppDesignSystem.spacingS),
-              Expanded(
-                child: Text(
-                  'Profundiza en la Palabra y crece en tu caminar con Dios.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.86),
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: -0.1, end: 0, curve: Curves.easeOutCubic);
   }
 }

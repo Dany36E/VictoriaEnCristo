@@ -142,8 +142,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     super.dispose();
   }
 
-  /// Tema «papel recortado» activo.
-  bool get _papel => AppThemeData.of(context).isPaper;
 
   @override
   Widget build(BuildContext context) {
@@ -511,27 +509,13 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             title: const Text('Modo discreto'),
             subtitle: Text(
               isDiscreet ? 'Sin términos religiosos ni sensibles' : 'Contenido cristiano visible',
-              style: _papel
-                  ? null
-                  : TextStyle(color: isDark ? Colors.white60 : Colors.black54, fontSize: 13),
+              style: null,
             ),
-            secondary: _papel
-                ? CirculoIcono(
+            secondary: CirculoIcono(
                     iconoVec: isDiscreet ? 'escudo' : 'ojo',
                     color: isDiscreet ? VecColores.verde : VecColores.azul,
                     tamano: 42,
-                  )
-                : Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: (isDiscreet ? Colors.green : AppTheme.primaryColor).withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Icon(
-                isDiscreet ? Icons.shield : Icons.visibility,
-                color: isDiscreet ? Colors.green : AppTheme.primaryColor,
-              ),
-            ),
+                  ),
             value: isDiscreet,
             onChanged: (value) {
               FeedbackEngine.I.tap();
@@ -547,10 +531,10 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                   ? WidgetTitlePresets.defaultDiscreet
                   : WidgetTitlePresets.defaultNormal;
             },
-            activeThumbColor: _papel ? null : Colors.green,
+            activeThumbColor: null,
           ),
 
-          if (isDiscreet && _papel)
+          if (isDiscreet)
             Container(
               margin: const EdgeInsets.fromLTRB(16, 0, 16, 16),
               padding: const EdgeInsets.all(12),
@@ -619,32 +603,16 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           children: [
             Text(
               'Título del widget',
-              style: _papel
-                  ? TextStyle(
+              style: TextStyle(
                       fontFamily: VecFuentes.titulo,
                       fontSize: 17,
                       color: VecColores.tinta,
-                    )
-                  : TextStyle(
-                      fontWeight: FontWeight.w600,
-                      color: isDark ? Colors.white : Colors.black87,
                     ),
             ),
             const SizedBox(height: 8),
             TextField(
               controller: _titleController,
-              decoration: _papel
-                  ? InputDecoration(hintText: 'Ej: ${titlePresets.first}')
-                  : InputDecoration(
-                hintText: 'Ej: ${titlePresets.first}',
-                filled: true,
-                fillColor: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              ),
+              decoration: InputDecoration(hintText: 'Ej: ${titlePresets.first}'),
               onChanged: (value) {
                 _updateConfig(_config.copyWith(titleText: value));
               },
@@ -655,8 +623,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
               runSpacing: 4,
               children: titlePresets.map((title) {
                 final isSelected = _titleController.text == title;
-                if (_papel) {
-                  return Padding(
+                return Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: GestureDetector(
                       onTap: () {
@@ -683,24 +650,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                             ),
                     ),
                   );
-                }
-                return ActionChip(
-                  label: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: isSelected ? Colors.white : (isDark ? Colors.white70 : Colors.black87),
-                    ),
-                  ),
-                  backgroundColor: isSelected
-                      ? AppTheme.primaryColor
-                      : (isDark ? Colors.white.withValues(alpha: 0.1) : Colors.grey.shade200),
-                  onPressed: () {
-                    FeedbackEngine.I.tap();
-                    _titleController.text = title;
-                    _updateConfig(_config.copyWith(titleText: title));
-                  },
-                );
               }).toList(),
             ),
           ],
@@ -755,11 +704,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     required bool isDark,
     required bool isLight,
   }) {
-    final bgColor = isLight ? Colors.white : const Color(0xFF1E1E2E);
-    final textColor = isLight ? Colors.black87 : Colors.white;
-
-    if (_papel) {
-      return GestureDetector(
+    return GestureDetector(
         onTap: onTap,
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
@@ -790,48 +735,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           ),
         ),
       );
-    }
-
-    return GestureDetector(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isSelected
-                ? AppTheme.primaryColor
-                : (isDark ? Colors.white24 : Colors.grey.shade300),
-            width: isSelected ? 2 : 1,
-          ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: AppTheme.primaryColor.withValues(alpha: 0.3),
-                    blurRadius: 8,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: textColor, size: 28),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: TextStyle(fontWeight: FontWeight.w600, color: textColor),
-            ),
-            if (isSelected) ...[
-              const SizedBox(height: 4),
-              const Icon(Icons.check_circle, color: AppTheme.primaryColor, size: 18),
-            ],
-          ],
-        ),
-      ),
-    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -839,8 +742,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildActionsSection(bool isDark) {
-    if (_papel) {
-      return Column(
+    return Column(
         children: [
           BotonVec(
             texto: 'Guardar configuración',
@@ -886,91 +788,6 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           ),
         ],
       );
-    }
-    return Column(
-      children: [
-        // Botón principal: Guardar
-        SizedBox(
-          width: double.infinity,
-          child: ElevatedButton.icon(
-            onPressed: _hasChanges ? _saveConfig : null,
-            icon: const Icon(Icons.save),
-            label: const Text('Guardar Configuración'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppTheme.primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              disabledBackgroundColor: isDark ? Colors.grey.shade800 : Colors.grey.shade300,
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Botón secundario: Añadir a inicio
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _addWidgetToHomeScreen,
-            icon: const Icon(Icons.add_to_home_screen),
-            label: const Text('Añadir Widget a Inicio'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 12),
-
-        // Widget de atajos: Biblia, Estudio bíblico y Apuntes
-        SizedBox(
-          width: double.infinity,
-          child: OutlinedButton.icon(
-            onPressed: _addAtajosWidget,
-            icon: const Icon(Icons.widgets_outlined),
-            label: const Text('Añadir Widget de Atajos'),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-              side: BorderSide(color: isDark ? Colors.white24 : Colors.grey.shade400),
-            ),
-          ),
-        ),
-
-        const SizedBox(height: 16),
-
-        // Instrucciones
-        Container(
-          padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: isDark ? Colors.white.withValues(alpha: 0.05) : Colors.grey.shade100,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Row(
-            children: [
-              Icon(
-                Icons.info_outline,
-                color: isDark ? Colors.white54 : Colors.grey.shade600,
-                size: 20,
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Text(
-                  'También puedes añadir el widget desde la pantalla de inicio de tu teléfono.',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: isDark ? Colors.white54 : Colors.grey.shade600,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -978,55 +795,26 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
   // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildSectionHeader(String title, bool isDark) {
-    if (_papel) {
-      // Sin el emoji del título: el estilo usa solo letras.
-      final sinEmoji = title.contains(' ')
-          ? title.substring(title.indexOf(' ') + 1)
-          : title;
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 12),
-        child: EtiquetaSeccion(sinEmoji),
-      );
-    }
+    // Sin el emoji del título: el estilo usa solo letras.
+    final sinEmoji = title.contains(' ')
+        ? title.substring(title.indexOf(' ') + 1)
+        : title;
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.bold,
-          color: isDark ? Colors.white : Colors.black87,
-        ),
-      ),
+      child: EtiquetaSeccion(sinEmoji),
     );
   }
 
   Widget _buildCard({required bool isDark, required Widget child}) {
-    if (_papel) {
-      final deco = AppThemeData.of(context).cardDecoration;
-      return Container(
-        decoration: deco,
-        child: ClipRRect(
-          borderRadius: deco.borderRadius!,
-          // Material propio para que los ListTile pinten su tinta encima
-          // del papel de la tarjeta.
-          child: Material(type: MaterialType.transparency, child: child),
-        ),
-      );
-    }
+    final deco = AppThemeData.of(context).cardDecoration;
     return Container(
-      decoration: BoxDecoration(
-        color: isDark ? const Color(0xFF1E1E2E) : Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+      decoration: deco,
+      child: ClipRRect(
+        borderRadius: deco.borderRadius!,
+        // Material propio para que los ListTile pinten su tinta encima
+        // del papel de la tarjeta.
+        child: Material(type: MaterialType.transparency, child: child),
       ),
-      child: ClipRRect(borderRadius: BorderRadius.circular(16), child: child),
     );
   }
 
@@ -1040,8 +828,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
     required bool isFirst,
     required bool isLast,
   }) {
-    if (_papel) {
-      return Column(
+    return Column(
         children: [
           if (!isFirst) const Divider(height: 1),
           ListTile(
@@ -1072,33 +859,5 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
           ),
         ],
       );
-    }
-    return Column(
-      children: [
-        if (!isFirst) const Divider(height: 1),
-        ListTile(
-          leading: Container(
-            padding: const EdgeInsets.all(8),
-            decoration: BoxDecoration(
-              color: (isSelected ? AppTheme.primaryColor : Colors.grey).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Icon(icon, color: isSelected ? AppTheme.primaryColor : Colors.grey),
-          ),
-          title: Text(
-            title,
-            style: TextStyle(fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal),
-          ),
-          subtitle: Text(
-            subtitle,
-            style: TextStyle(fontSize: 12, color: isDark ? Colors.white54 : Colors.black54),
-          ),
-          trailing: isSelected
-              ? const Icon(Icons.check_circle, color: AppTheme.primaryColor)
-              : Icon(Icons.circle_outlined, color: Colors.grey.shade400),
-          onTap: onTap,
-        ),
-      ],
-    );
   }
 }

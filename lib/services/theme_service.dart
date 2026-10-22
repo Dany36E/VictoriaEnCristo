@@ -4,35 +4,43 @@ import '../theme/app_theme_data.dart';
 import '../vec/vec_tema.dart';
 import 'user_pref_cloud_sync_service.dart';
 
-/// Servicio para manejar el tema seleccionable de la app (10 temas)
-class ThemeService extends ChangeNotifier {
-  // Legacy keys (para migración)
-  static const String _legacyThemeModeKey = 'theme_mode';
-  static const String _themeIdKey = 'app_theme_id';
-  static const String _autoThemeKey = 'auto_theme';
-  static const String _lastDarkThemeKey = 'last_dark_theme';
-  static const String _lastLightThemeKey = 'last_light_theme';
+/// Cómo se elige el papel: siempre claro, siempre oscuro o según el teléfono.
+enum ModoTema { claro, oscuro, automatico }
+
+/// Tema de la app: el papel claro o uno de los papeles oscuros (kraft o
+/// noche), según el [ModoTema] que elija la persona.
+class ThemeService extends ChangeNotifier with WidgetsBindingObserver {
+  static const String _modoKey = 'tema_modo';
+  static const String _papelOscuroKey = 'tema_papel_oscuro';
   static const String _lecturaManuscritaKey = 'papel_lectura_manuscrita';
+
+  // Claves de antes (10 temas y tema automático por hora): solo para migrar.
+  static const String _legacyThemeModeKey = 'theme_mode';
+  static const String _legacyThemeIdKey = 'app_theme_id';
+  static const String _legacyAutoThemeKey = 'auto_theme';
 
   // Singleton con ChangeNotifier
   static final ThemeService _instance = ThemeService._internal();
   factory ThemeService() => _instance;
   ThemeService._internal();
 
-  String _themeId = 'night_pure';
-  bool _autoTheme = false;
-  String _lastDarkTheme = 'night_pure';
-  String _lastLightTheme = 'clean_page';
+  ModoTema _modo = ModoTema.claro;
+  String _papelOscuro = AppThemeData.paperKraft.id;
+  String _themeId = AppThemeData.paper.id;
+  bool _observando = false;
 
   /// En el tema papel, versículos y apuntes se leen en Lora; con esta opción
   /// usan la letra manuscrita del kit (Patrick Hand).
   final ValueNotifier<bool> lecturaManuscrita = ValueNotifier(false);
 
-  /// Notifier para escuchar cambios de tema
-  final ValueNotifier<String> themeIdNotifier = ValueNotifier('night_pure');
+  /// Id del tema que se ve ahora ('papel', 'papel_kraft' o 'papel_noche').
+  final ValueNotifier<String> themeIdNotifier = ValueNotifier('papel');
 
   String get themeId => _themeId;
-  bool get autoTheme => _autoTheme;
+  ModoTema get modo => _modo;
+
+  /// El papel oscuro elegido (se usa en modo oscuro y en automático de noche).
+  String get papelOscuro => _papelOscuro;
   AppThemeData get currentTheme => AppThemeData.fromId(_themeId);
   bool get isDarkMode => currentTheme.oscuro;
   ThemeMode get themeMode => isDarkMode ? ThemeMode.dark : ThemeMode.light;
@@ -40,72 +48,125 @@ class ThemeService extends ChangeNotifier {
   /// Inicializar servicio
   Future<void> initialize() async {
     await _loadSettings();
-    if (_autoTheme) {
-      _applyAutoTheme();
+    if (!_observando) {
+      // En automático, el papel cambia cuando el teléfono cambia de modo.
+      WidgetsBinding.instance.addObserver(this);
+      _observando = true;
     }
+    _recalcular();
     notifyListeners();
   }
 
-  /// Cargar configuración guardada (con migración de legacy)
-  Future<void> _loadSettings() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    // Migración: si existe theme_mode pero no theme_id
-    final savedThemeId = prefs.getString(_themeIdKey);
-    if (savedThemeId != null) {
-      _themeId = savedThemeId;
-    } else {
-      // Migrar desde el sistema legacy light/dark
-      final legacyIndex = prefs.getInt(_legacyThemeModeKey);
-      if (legacyIndex != null) {
-        // 0=system, 1=light, 2=dark → mapear
-        _themeId = (legacyIndex == 2) ? 'night_pure' : 'clean_page';
-        await prefs.setString(_themeIdKey, _themeId);
-      }
-    }
-
-    _autoTheme = prefs.getBool(_autoThemeKey) ?? false;
-    _lastDarkTheme = prefs.getString(_lastDarkThemeKey) ?? 'night_pure';
-    _lastLightTheme = prefs.getString(_lastLightThemeKey) ?? 'clean_page';
-    lecturaManuscrita.value = prefs.getBool(_lecturaManuscritaKey) ?? false;
-    _aplicarPaleta();
-    themeIdNotifier.value = _themeId;
+  @override
+  void didChangePlatformBrightness() {
+    if (_modo == ModoTema.automatico && _recalcular()) notifyListeners();
   }
 
-  /// Guardar configuración
-  Future<void> _saveSettings() async {
+  /// Cargar configuración guardada (con migración de los temas de antes)
+  Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_themeIdKey, _themeId);
-    await prefs.setBool(_autoThemeKey, _autoTheme);
-    await prefs.setString(_lastDarkThemeKey, _lastDarkTheme);
-    await prefs.setString(_lastLightThemeKey, _lastLightTheme);
+    final modo = prefs.getString(_modoKey);
+    if (modo != null) {
+      _modo = ModoTema.values.firstWhere(
+        (m) => m.name == modo,
+        orElse: () => ModoTema.claro,
+      );
+      _papelOscuro = _papelOscuroValido(prefs.getString(_papelOscuroKey));
+    } else {
+      _migrar(prefs);
+      await _guardar(prefs);
+    }
+    lecturaManuscrita.value = prefs.getBool(_lecturaManuscritaKey) ?? false;
+  }
+
+  /// Los temas de antes pasan al papel: los oscuros (noche pura, carbón,
+  /// sepia nocturno) al papel kraft y los claros al papel claro. El tema
+  /// automático por hora pasa a seguir al teléfono.
+  void _migrar(SharedPreferences prefs) {
+    var id = prefs.getString(_legacyThemeIdKey);
+    if (id == null) {
+      // Sistema más viejo: 0 = sistema, 1 = claro, 2 = oscuro.
+      final indice = prefs.getInt(_legacyThemeModeKey);
+      if (indice == 2) id = 'night_pure';
+    }
+    const oscurosDeAntes = {'night_pure', 'charcoal_editorial', 'sepia_night'};
+    if (id == AppThemeData.paperKraft.id || id == AppThemeData.paperNoche.id) {
+      _modo = ModoTema.oscuro;
+      _papelOscuro = id!;
+    } else if (oscurosDeAntes.contains(id)) {
+      _modo = ModoTema.oscuro;
+      _papelOscuro = AppThemeData.paperKraft.id;
+    } else {
+      _modo = ModoTema.claro;
+    }
+    if (prefs.getBool(_legacyAutoThemeKey) ?? false) {
+      _modo = ModoTema.automatico;
+    }
+  }
+
+  String _papelOscuroValido(String? id) =>
+      id == AppThemeData.paperNoche.id ? id! : AppThemeData.paperKraft.id;
+
+  Future<void> _guardar([SharedPreferences? prefs]) async {
+    prefs ??= await SharedPreferences.getInstance();
+    await prefs.setString(_modoKey, _modo.name);
+    await prefs.setString(_papelOscuroKey, _papelOscuro);
     UserPrefCloudSyncService.I.markDirty();
   }
 
-  /// Cambiar tema por ID
-  Future<void> setTheme(String id) async {
-    if (_themeId == id) return;
+  /// Calcula el tema que se ve con el modo y el papel oscuro. Devuelve si
+  /// cambió.
+  bool _recalcular() {
+    final oscuro = switch (_modo) {
+      ModoTema.claro => false,
+      ModoTema.oscuro => true,
+      ModoTema.automatico =>
+        WidgetsBinding.instance.platformDispatcher.platformBrightness ==
+            Brightness.dark,
+    };
+    final id = oscuro ? _papelOscuro : AppThemeData.paper.id;
+    final cambio = id != _themeId;
     _themeId = id;
-    _aplicarPaleta();
+    // Los colores del kit (VecColores) siguen al papel del tema. Quien
+    // escucha el cambio vuelve a construir todo (ver main.dart).
+    VecColores.actual = currentTheme.paleta;
     themeIdNotifier.value = id;
+    return cambio;
+  }
 
-    // Recordar último tema claro/oscuro
-    final theme = AppThemeData.fromId(id);
-    if (theme.oscuro) {
-      _lastDarkTheme = id;
-    } else {
-      _lastLightTheme = id;
-    }
-
-    await _saveSettings();
+  /// Elegir claro, oscuro o automático (según el teléfono).
+  Future<void> setModo(ModoTema modo) async {
+    if (_modo == modo) return;
+    _modo = modo;
+    _recalcular();
+    await _guardar();
     notifyListeners();
   }
 
-  /// Los colores del kit (VecColores) siguen al papel del tema: claro,
-  /// kraft oscuro o noche azul. Los temas clásicos usan el papel claro.
-  /// Quien escucha el cambio vuelve a construir todo (ver main.dart).
-  void _aplicarPaleta() {
-    VecColores.actual = currentTheme.paleta ?? VecPaleta.claro;
+  /// Elegir el papel oscuro ('papel_kraft' o 'papel_noche').
+  Future<void> setPapelOscuro(String id) async {
+    final valido = _papelOscuroValido(id);
+    if (_papelOscuro == valido) return;
+    _papelOscuro = valido;
+    _recalcular();
+    await _guardar();
+    notifyListeners();
+  }
+
+  /// Poner un tema por su id: el papel claro es el modo claro y los papeles
+  /// oscuros, el modo oscuro con ese papel.
+  Future<void> setTheme(String id) async {
+    if (id == AppThemeData.paper.id) {
+      await setModo(ModoTema.claro);
+      return;
+    }
+    final papel = _papelOscuroValido(id);
+    if (_modo == ModoTema.oscuro && _papelOscuro == papel) return;
+    _modo = ModoTema.oscuro;
+    _papelOscuro = papel;
+    _recalcular();
+    await _guardar();
+    notifyListeners();
   }
 
   /// Elegir la letra de lectura del tema papel (Lora o manuscrita).
@@ -115,42 +176,5 @@ class ThemeService extends ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setBool(_lecturaManuscritaKey, manuscrita);
     notifyListeners();
-  }
-
-  /// Alternar entre último tema claro y oscuro (conveniencia)
-  Future<void> toggleTheme() async {
-    final next = isDarkMode ? _lastLightTheme : _lastDarkTheme;
-    await setTheme(next);
-  }
-
-  /// Habilitar/deshabilitar tema automático
-  Future<void> setAutoTheme(bool enabled) async {
-    _autoTheme = enabled;
-    if (enabled) {
-      _applyAutoTheme();
-    }
-    await _saveSettings();
-    notifyListeners();
-  }
-
-  /// Aplicar tema según la hora del día
-  void _applyAutoTheme() {
-    final hour = DateTime.now().hour;
-    // Oscuro de 7pm a 6am
-    final shouldBeDark = hour >= 19 || hour < 6;
-    final targetId = shouldBeDark ? _lastDarkTheme : _lastLightTheme;
-    if (_themeId != targetId) {
-      _themeId = targetId;
-      _aplicarPaleta();
-      themeIdNotifier.value = _themeId;
-      notifyListeners();
-    }
-  }
-
-  /// Verificar y actualizar tema automático (llamar periódicamente)
-  void checkAutoTheme() {
-    if (_autoTheme) {
-      _applyAutoTheme();
-    }
   }
 }

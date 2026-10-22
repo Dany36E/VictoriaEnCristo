@@ -7,7 +7,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../../models/bible/dibujo_nota.dart';
-import '../../theme/contraste.dart';
 import '../../theme/app_theme_data.dart';
 import '../../utils/tinta.dart';
 import '../../vec/vec_tema.dart';
@@ -591,13 +590,9 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
     final t = AppThemeData.of(context);
     // La hoja del lienzo siempre es clara (también en los papeles oscuros,
     // como en el PDF); la mesa alrededor sí sigue al papel.
-    final mesa = t.isPaper
-        ? (t.oscuro ? VecColores.crema : const Color(0xFFE6DAC4))
-        : t.isDark
-        ? const Color(0xFF16161C)
-        : const Color(0xFFE4E4E8);
-    final superficie = t.isPaper ? VecColores.papel : t.surface;
-    final texto = t.isPaper ? VecColores.tinta : t.textPrimary;
+    final mesa = (t.oscuro ? VecColores.crema : const Color(0xFFE6DAC4));
+    final superficie = VecColores.papel;
+    final texto = VecColores.tinta;
     if (!identical(_grabadoDe, _trazos)) {
       _grabado?.dispose();
       _grabado = grabarTrazos(_trazos);
@@ -634,8 +629,8 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
                       // temas papel el panel también va en papel claro para
                       // que se vean.
                       child: _panelInferior(
-                        t.isPaper ? VecPaleta.claro.papel : superficie,
-                        t.isPaper ? VecPaleta.claro.tinta : texto,
+                        VecPaleta.claro.papel,
+                        VecPaleta.claro.tinta,
                         t,
                       ),
                     ),
@@ -650,7 +645,7 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
   }
 
   Widget _barraSuperior(Color superficie, Color texto, AppThemeData t) {
-    final acento = t.isPaper ? VecColores.terracota : t.accent;
+    final acento = VecColores.terracota;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: superficie,
@@ -673,9 +668,9 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontFamily: t.isPaper ? VecFuentes.titulo : null,
-                  fontSize: t.isPaper ? 20 : 17,
-                  fontWeight: t.isPaper ? FontWeight.w400 : FontWeight.w700,
+                  fontFamily: VecFuentes.titulo,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
                   color: texto,
                 ),
               ),
@@ -699,9 +694,7 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
                 backgroundColor: acento,
                 // El fondo de la página sobre el acento no siempre llega a 4.5
                 // (pergamino): se ajusta lo justo.
-                foregroundColor: t.isPaper
-                    ? t.sobreAcento
-                    : legibleSobre(t.scaffoldBg, t.accent),
+                foregroundColor: t.sobreAcento,
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: _listo,

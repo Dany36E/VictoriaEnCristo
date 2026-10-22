@@ -35,7 +35,7 @@ class VerseSelectionBar extends StatelessWidget {
         border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: t.isDark ? 0.35 : 0.10),
+            color: Colors.black.withValues(alpha: 0.10),
             blurRadius: 14,
             offset: const Offset(0, 4),
           ),

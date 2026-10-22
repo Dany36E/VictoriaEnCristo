@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:share_plus/share_plus.dart';
-import 'dart:ui';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../models/plan.dart';
@@ -92,7 +91,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.isPaper ? t.pageBg : t.surface,
+      backgroundColor: t.pageBg,
       body: _isLoading
           ? _buildLoadingState()
           : Stack(
@@ -244,9 +243,7 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
   }
 
   Widget _buildBackButton(BuildContext context) {
-    final t = AppThemeData.of(context);
-    if (t.isPaper) {
-      return Padding(
+    return Padding(
         padding: const EdgeInsets.all(8),
         child: _botonPapel(
           icono: Icons.arrow_back_rounded,
@@ -254,63 +251,18 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           onTap: () => Navigator.of(context).pop(),
         ),
       );
-    }
-    return Padding(
-      padding: const EdgeInsets.all(8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-          child: Container(
-            decoration: BoxDecoration(
-              color: t.surface.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: const Icon(Icons.arrow_back_ios_new, size: 20),
-              color: t.textPrimary,
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildShareButton() {
-    final t = AppThemeData.of(context);
-    if (t.isPaper) {
-      return _botonPapel(
+    return _botonPapel(
         icono: Icons.share_rounded,
         tooltip: 'Compartir',
         onTap: _sharePlan,
       );
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-        child: Container(
-          width: 40,
-          height: 40,
-          decoration: BoxDecoration(
-            color: t.surface.withValues(alpha: 0.3),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.share_outlined, size: 20),
-            color: t.textPrimary,
-            onPressed: _sharePlan,
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildReminderButton() {
-    final t = AppThemeData.of(context);
-    if (t.isPaper) {
-      return Padding(
+    return Padding(
         padding: const EdgeInsets.only(left: 8),
         child: _botonPapel(
           icono: _hasReminder
@@ -321,34 +273,6 @@ class _PlanDetailScreenV2State extends State<PlanDetailScreenV2> {
           onTap: _toggleReminder,
         ),
       );
-    }
-    return Padding(
-      padding: const EdgeInsets.only(left: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-          child: Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: _hasReminder 
-                  ? t.accent.withValues(alpha: 0.3)
-                  : t.surface.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: IconButton(
-              icon: Icon(
-                _hasReminder ? Icons.notifications_active : Icons.notifications_outlined,
-                size: 20,
-              ),
-              color: _hasReminder ? t.accent : t.textPrimary,
-              onPressed: _toggleReminder,
-            ),
-          ),
-        ),
-      ),
-    );
   }
 
   Widget _buildCoverImage() {

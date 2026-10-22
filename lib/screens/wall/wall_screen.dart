@@ -178,7 +178,7 @@ class _WallScreenState extends State<WallScreen> {
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
     return Scaffold(
-      backgroundColor: t.isPaper ? t.pageBg : t.surface,
+      backgroundColor: t.pageBg,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,

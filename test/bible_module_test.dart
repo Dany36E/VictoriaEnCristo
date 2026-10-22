@@ -1,3 +1,4 @@
+import 'package:app_quitar/vec/vec_tema.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:app_quitar/services/bible/bible_search_service.dart';
 import 'package:app_quitar/services/bible/advanced_search_service.dart';
@@ -76,39 +77,32 @@ void main() {
   // 3. BibleReaderThemeData.fromId / migrateId
   // ─────────────────────────────────────────────────────────────────────────
   group('BibleReaderThemeData', () {
-    test('fromId returns correct theme', () {
-      final t = BibleReaderThemeData.fromId('clean_page');
-      expect(t.id, 'clean_page');
-      expect(t.isDark, false);
+    test('fromId sigue al papel de la app', () {
+      addTearDown(() => VecColores.actual = VecPaleta.claro);
+      VecColores.actual = VecPaleta.kraftOscuro;
+      expect(BibleReaderThemeData.fromId('papel').id, 'papel_kraft');
+      VecColores.actual = VecPaleta.nocheAzul;
+      expect(BibleReaderThemeData.fromId('nonexistent').id, 'papel_noche');
+      VecColores.actual = VecPaleta.claro;
+      expect(BibleReaderThemeData.fromId('papel_noche').id, 'papel');
     });
 
-    test('fromId returns nightPure for unknown id', () {
-      final t = BibleReaderThemeData.fromId('nonexistent');
-      expect(t.id, 'night_pure');
+    test('los ids de los temas de antes pasan al papel', () {
+      for (final id in ['charcoal_editorial', 'night_pure', 'dark', 'papel']) {
+        expect(BibleReaderThemeData.migrateId(id), 'papel', reason: id);
+        expect(BibleReaderThemeData.fromId(id).id, 'papel', reason: id);
+      }
     });
 
-    test('migrateId converts legacy ids', () {
-      expect(BibleReaderThemeData.migrateId('dark'), 'night_pure');
-      expect(BibleReaderThemeData.migrateId('sepia'), 'sepia_night');
-      expect(BibleReaderThemeData.migrateId('light'), 'clean_page');
+    test('oscuro es correcto en los tres papeles', () {
+      expect(BibleReaderThemeData.paper.oscuro, false);
+      expect(BibleReaderThemeData.paperKraft.oscuro, true);
+      expect(BibleReaderThemeData.paperNoche.oscuro, true);
     });
 
-    test('migrateId passes through modern ids', () {
-      expect(
-        BibleReaderThemeData.migrateId('charcoal_editorial'),
-        'charcoal_editorial',
-      );
-    });
-
-    test('isDark is correct for all themes', () {
-      expect(BibleReaderThemeData.nightPure.isDark, true);
-      expect(BibleReaderThemeData.cleanPage.isDark, false);
-      expect(BibleReaderThemeData.parchment.isDark, false);
-    });
-
-    test('computed redLetterColor differs by isDark', () {
-      const dark = BibleReaderThemeData.nightPure;
-      const light = BibleReaderThemeData.cleanPage;
+    test('computed redLetterColor differs by oscuro', () {
+      final dark = BibleReaderThemeData.paperKraft;
+      final light = BibleReaderThemeData.paper;
       expect(dark.redLetterColor, isNot(equals(light.redLetterColor)));
     });
   });

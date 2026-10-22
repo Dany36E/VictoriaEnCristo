@@ -67,10 +67,8 @@ class _NoteEditorSheetState extends State<NoteEditorSheet> {
     final noteFontSize = (BibleUserDataService.I.fontSizeNotifier.value * 0.82)
         .clamp(15.0, 21.0)
         .toDouble();
-    final fieldBg = t.isDark
-        ? Color.lerp(t.surface, Colors.white, 0.08)!
-        : Color.lerp(t.surface, t.accent, 0.06)!;
-    final fieldBorder = t.accent.withValues(alpha: t.isDark ? 0.52 : 0.34);
+    final fieldBg = Color.lerp(t.surface, t.accent, 0.06)!;
+    final fieldBorder = t.accent.withValues(alpha: 0.34);
     return Container(
       decoration: BoxDecoration(
         color: t.surface,

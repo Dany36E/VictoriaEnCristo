@@ -15,7 +15,7 @@ import '../visual/theme_matrix.dart';
 void main() {
   setUpThemeMatrix();
 
-  for (final tema in ['papel', 'night_pure']) {
+  for (final tema in ['papel', 'papel_kraft']) {
     testWidgets('el Devocional se puede capturar como imagen ($tema)', (
       tester,
     ) async {
@@ -40,11 +40,7 @@ void main() {
         await tester.pump(const Duration(milliseconds: 100));
       }
 
-      final tarjeta = tema == 'papel'
-          ? find.byType(TarjetaCompartirPapel)
-          : find.byWidgetPredicate(
-              (w) => w.runtimeType.toString() == '_DevotionalShareCard',
-            );
+      final tarjeta = find.byType(TarjetaCompartirPapel);
       expect(tarjeta, findsOneWidget);
       final limite = tester.renderObject<RenderRepaintBoundary>(
         find
@@ -58,12 +54,8 @@ void main() {
         imagen.dispose();
         return medidas;
       }))!;
-      if (tema == 'papel') {
-        // 360×450 lógicos a 3x, aunque la pantalla sea más chica.
-        expect((ancho, alto), (1080, 1350));
-      } else {
-        expect(ancho, greaterThan(0));
-      }
+      // 360×450 lógicos a 3x, aunque la pantalla sea más chica.
+      expect((ancho, alto), (1080, 1350));
 
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pump(const Duration(seconds: 11));

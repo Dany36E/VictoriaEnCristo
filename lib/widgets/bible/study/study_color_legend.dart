@@ -33,7 +33,7 @@ class StudyColorLegend extends StatelessWidget {
             vertical: compact ? 4 : 6,
           ),
           decoration: BoxDecoration(
-            color: color.withValues(alpha: t.isDark ? 0.18 : 0.18),
+            color: color.withValues(alpha: 0.18),
             borderRadius: BorderRadius.circular(20),
             border: Border.all(color: color.withValues(alpha: 0.65), width: 1),
           ),

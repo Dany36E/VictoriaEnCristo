@@ -7,13 +7,12 @@ import '../services/theme_service.dart';
 import '../vec/vec_tema.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
-/// APP FONTS — Tipografía dependiente del tema
+/// APP FONTS — Tipografía de la app
 /// ═══════════════════════════════════════════════════════════════════════════
 ///
-/// Reemplazo directo de `GoogleFonts.manrope/cinzel/lora/crimsonPro/
-/// instrumentSerif(...)` (misma firma). En los temas normales devuelve
-/// exactamente lo mismo; con el tema "Papel recortado" usa las letras del kit
-/// victoria-en-cristo-estilo (VecFuentes):
+/// Mismas firmas que `GoogleFonts.manrope/cinzel/lora/crimsonPro/
+/// instrumentSerif(...)`, con las letras del kit victoria-en-cristo-estilo
+/// (VecFuentes):
 ///   • Lilita One  → títulos, botones, chips, etiquetas (Cinzel y Manrope ≥ w600)
 ///   • Patrick Hand → texto corrido de interfaz (Manrope < w600)
 ///   • Lora y Crimson Pro se mantienen para leer versículos y apuntes, salvo
@@ -25,12 +24,10 @@ import '../vec/vec_tema.dart';
 class AppFonts {
   AppFonts._();
 
-  static bool get _isPaper => ThemeService().currentTheme.isPaper;
-
   /// Patrick Hand se ve más chica que Manrope/Lora al mismo tamaño.
   static const double _escalaTexto = 1.15;
 
-  /// Fuente de interfaz (Manrope → Lilita One / Patrick Hand en tema papel).
+  /// Fuente de interfaz (en lugar de Manrope: Lilita One o Patrick Hand).
   static TextStyle manrope({
     TextStyle? textStyle,
     Color? color,
@@ -52,37 +49,14 @@ class AppFonts {
     TextDecorationStyle? decorationStyle,
     double? decorationThickness,
   }) {
-    if (_isPaper) {
-      final peso = (fontWeight ?? textStyle?.fontWeight ?? FontWeight.w400);
-      final esTitulo = peso.value >= FontWeight.w600.value;
-      return _papel(
-        esTitulo ? VecFuentes.titulo : VecFuentes.texto,
-        textStyle: textStyle,
-        color: color,
-        backgroundColor: backgroundColor,
-        fontSize: fontSize,
-        fontStyle: fontStyle,
-        letterSpacing: letterSpacing,
-        wordSpacing: wordSpacing,
-        textBaseline: textBaseline,
-        height: height,
-        locale: locale,
-        foreground: foreground,
-        background: background,
-        shadows: shadows,
-        decoration: decoration,
-        decorationColor: decorationColor,
-        decorationStyle: decorationStyle,
-        decorationThickness: decorationThickness,
-      );
-    }
-    return GoogleFonts.getFont(
-      'Manrope',
+    final peso = (fontWeight ?? textStyle?.fontWeight ?? FontWeight.w400);
+    final esTitulo = peso.value >= FontWeight.w600.value;
+    return _papel(
+      esTitulo ? VecFuentes.titulo : VecFuentes.texto,
       textStyle: textStyle,
       color: color,
       backgroundColor: backgroundColor,
       fontSize: fontSize,
-      fontWeight: fontWeight,
       fontStyle: fontStyle,
       letterSpacing: letterSpacing,
       wordSpacing: wordSpacing,
@@ -92,7 +66,6 @@ class AppFonts {
       foreground: foreground,
       background: background,
       shadows: shadows,
-      fontFeatures: fontFeatures,
       decoration: decoration,
       decorationColor: decorationColor,
       decorationStyle: decorationStyle,
@@ -100,7 +73,7 @@ class AppFonts {
     );
   }
 
-  /// Títulos "sagrados" (Cinzel → Lilita One en tema papel).
+  /// Títulos "sagrados" (en lugar de Cinzel: Lilita One).
   static TextStyle cinzel({
     TextStyle? textStyle,
     Color? color,
@@ -123,7 +96,6 @@ class AppFonts {
     double? decorationThickness,
   }) {
     return _conFamilia(
-      'Cinzel',
       VecFuentes.titulo,
       textStyle: textStyle,
       color: color,
@@ -147,8 +119,8 @@ class AppFonts {
     );
   }
 
-  /// Serifa de lectura para versículos y textos largos. En el tema papel
-  /// sigue siendo Lora, salvo que se elija la letra manuscrita en Tipografía.
+  /// Serifa de lectura para versículos y textos largos: Lora, salvo que se
+  /// elija la letra manuscrita en Tipografía.
   static TextStyle lora({
     TextStyle? textStyle,
     Color? color,
@@ -194,8 +166,8 @@ class AppFonts {
     );
   }
 
-  /// Serifa de versículos (Crimson Pro). En el tema papel se comporta igual
-  /// que [lora]: letra real o manuscrita según Tipografía.
+  /// Serifa de versículos (Crimson Pro). Igual que [lora]: letra real o
+  /// manuscrita según Tipografía.
   static TextStyle crimsonPro({
     TextStyle? textStyle,
     Color? color,
@@ -241,7 +213,7 @@ class AppFonts {
     );
   }
 
-  /// Serifa editorial (Instrument Serif → Lilita One en tema papel).
+  /// Serifa editorial (en lugar de Instrument Serif: Lilita One).
   static TextStyle instrumentSerif({
     TextStyle? textStyle,
     Color? color,
@@ -264,7 +236,6 @@ class AppFonts {
     double? decorationThickness,
   }) {
     return _conFamilia(
-      'Instrument Serif',
       VecFuentes.titulo,
       textStyle: textStyle,
       color: color,
@@ -288,8 +259,8 @@ class AppFonts {
     );
   }
 
-  /// Letra de lectura: la serifa original en todos los temas; en el tema
-  /// papel sólo cambia a la manuscrita del kit si la persona la eligió.
+  /// Letra de lectura: la serifa original, o la manuscrita del kit si la
+  /// persona la eligió.
   static TextStyle _lectura(
     String googleFont, {
     TextStyle? textStyle,
@@ -312,7 +283,7 @@ class AppFonts {
     TextDecorationStyle? decorationStyle,
     double? decorationThickness,
   }) {
-    if (_isPaper && ThemeService().lecturaManuscrita.value) {
+    if (ThemeService().lecturaManuscrita.value) {
       return _papel(
         VecFuentes.texto,
         textStyle: textStyle,
@@ -358,9 +329,8 @@ class AppFonts {
     );
   }
 
-  /// Google Font original en temas normales; [familiaPapel] en tema papel.
+  /// Letra del kit [familiaPapel] (sin peso propio: ver [_papel]).
   static TextStyle _conFamilia(
-    String googleFont,
     String familiaPapel, {
     TextStyle? textStyle,
     Color? color,
@@ -382,8 +352,7 @@ class AppFonts {
     TextDecorationStyle? decorationStyle,
     double? decorationThickness,
   }) {
-    if (_isPaper) {
-      return _papel(
+    return _papel(
         familiaPapel,
         textStyle: textStyle,
         color: color,
@@ -403,29 +372,6 @@ class AppFonts {
         decorationStyle: decorationStyle,
         decorationThickness: decorationThickness,
       );
-    }
-    return GoogleFonts.getFont(
-      googleFont,
-      textStyle: textStyle,
-      color: color,
-      backgroundColor: backgroundColor,
-      fontSize: fontSize,
-      fontWeight: fontWeight,
-      fontStyle: fontStyle,
-      letterSpacing: letterSpacing,
-      wordSpacing: wordSpacing,
-      textBaseline: textBaseline,
-      height: height,
-      locale: locale,
-      foreground: foreground,
-      background: background,
-      shadows: shadows,
-      fontFeatures: fontFeatures,
-      decoration: decoration,
-      decorationColor: decorationColor,
-      decorationStyle: decorationStyle,
-      decorationThickness: decorationThickness,
-    );
   }
 
   /// Estilo con una letra del kit (fuente declarada en pubspec, un solo peso).

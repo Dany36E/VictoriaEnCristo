@@ -178,26 +178,19 @@ class BotonEditarAtajos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
     return TextButton.icon(
       onPressed: () => mostrarEditorAtajos(context),
       icon: Icon(
         Icons.tune_rounded,
         size: 18,
-        color: t.isPaper ? VecColores.azul : t.accent,
+        color: VecColores.azul,
       ),
       label: Text(
         'Editar',
-        style: t.isPaper
-            ? TextStyle(
+        style: TextStyle(
                 fontFamily: VecFuentes.texto,
                 fontSize: 18,
                 color: VecColores.azul,
-              )
-            : TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: t.accent,
               ),
       ),
     );
@@ -224,8 +217,7 @@ class _TarjetaAtajoState extends State<_TarjetaAtajo> {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
-    final contenido = t.isPaper ? _papel() : _normal(t);
+    final contenido = _papel();
     return Semantics(
       button: true,
       label: widget.atajo.titulo,
@@ -286,42 +278,6 @@ class _TarjetaAtajoState extends State<_TarjetaAtajo> {
       ),
     );
   }
-
-  Widget _normal(AppThemeData t) {
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 14, 8, 12),
-      decoration: BoxDecoration(
-        color: t.cardBg,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: t.cardBorder, width: 0.5),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Container(
-            width: 46,
-            height: 46,
-            decoration: BoxDecoration(
-              color: t.accentSoft,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(widget.atajo.icono, color: t.accent, size: 24),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            widget.atajo.titulo,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.2,
-              fontWeight: FontWeight.w600,
-              color: t.textPrimary,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
 }
 
 /// Sin atajos elegidos: invitación a agregarlos.
@@ -330,26 +286,13 @@ class _SinAtajos extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
-    if (t.isPaper) {
-      return BotonVec(
+    return BotonVec(
         texto: 'Agregar atajos',
         icono: Icons.add_rounded,
         color: VecColores.azul,
         expandido: true,
         onPressed: () => mostrarEditorAtajos(context),
       );
-    }
-    return OutlinedButton.icon(
-      onPressed: () => mostrarEditorAtajos(context),
-      icon: const Icon(Icons.add_rounded),
-      label: const Text('Agregar atajos'),
-      style: OutlinedButton.styleFrom(
-        foregroundColor: t.accent,
-        side: BorderSide(color: t.cardBorder),
-        minimumSize: const Size.fromHeight(48),
-      ),
-    );
   }
 }
 
@@ -400,9 +343,7 @@ class _EditorAtajosState extends State<_EditorAtajos> {
     final tema = Theme.of(context);
     final lleno = _elegidos.length >= AtajosService.maximo;
     final telefono = PlatformCapabilities.supportsHomeWidgets;
-    final titulo = t.isPaper
-        ? const TituloVec('Tus atajos', tamano: 26)
-        : Text('Tus atajos', style: tema.textTheme.titleLarge);
+    const titulo = TituloVec('Tus atajos', tamano: 26);
     final elegidos = _elegidos
         .map(AtajosService.porId)
         .whereType<Atajo>()
@@ -455,7 +396,7 @@ class _EditorAtajosState extends State<_EditorAtajos> {
                     accion: IconButton(
                       tooltip: 'Quitar ${elegidos[i].titulo}',
                       icon: const Icon(Icons.remove_circle_outline_rounded),
-                      color: t.isPaper ? VecColores.terracota : t.textSecondary,
+                      color: VecColores.terracota,
                       onPressed: () => _quitar(elegidos[i].id),
                     ),
                     arrastre: ReorderableDragStartListener(
@@ -472,7 +413,7 @@ class _EditorAtajosState extends State<_EditorAtajos> {
               ..._disponibles(grupo, lleno, t),
             if (telefono) ...[
               const SizedBox(height: 16),
-              _BotonWidgetTelefono(papel: t.isPaper),
+              const _BotonWidgetTelefono(),
             ],
           ],
         ),
@@ -495,7 +436,7 @@ class _EditorAtajosState extends State<_EditorAtajos> {
           accion: IconButton(
             tooltip: 'Agregar ${atajo.titulo}',
             icon: const Icon(Icons.add_circle_outline_rounded),
-            color: t.isPaper ? VecColores.azul : t.accent,
+            color: VecColores.azul,
             onPressed: lleno ? null : () => _agregar(atajo.id),
           ),
         ),
@@ -510,22 +451,11 @@ class _Grupo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.only(top: 18, bottom: 4),
       child: Semantics(
         header: true,
-        child: t.isPaper
-            ? EtiquetaSeccion(texto)
-            : Text(
-                texto.toUpperCase(),
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.1,
-                  color: t.textSecondary,
-                ),
-              ),
+        child: EtiquetaSeccion(texto),
       ),
     );
   }
@@ -551,16 +481,13 @@ class _FilaAtajo extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
-    final icono = t.isPaper
-        ? Image.asset(
+    final icono = Image.asset(
             atajo.dibujo,
             width: 40,
             height: 40,
             fit: BoxFit.contain,
             excludeFromSemantics: true,
-          )
-        : Icon(atajo.icono, color: t.accent);
+          );
     return ListTile(
       contentPadding: EdgeInsets.zero,
       enabled: habilitado,
@@ -577,9 +504,7 @@ class _FilaAtajo extends StatelessWidget {
 }
 
 class _BotonWidgetTelefono extends StatelessWidget {
-  const _BotonWidgetTelefono({required this.papel});
-
-  final bool papel;
+  const _BotonWidgetTelefono();
 
   Future<void> _pedir(BuildContext context) async {
     final ok = await WidgetSyncService.I.requestAtajosPin();
@@ -596,20 +521,12 @@ class _BotonWidgetTelefono extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (papel) {
-      return BotonVec(
-        texto: 'Agregar widget de atajos',
-        icono: Icons.widgets_outlined,
-        color: VecColores.verde,
-        expandido: true,
-        onPressed: () => _pedir(context),
-      );
-    }
-    return FilledButton.icon(
+    return BotonVec(
+      texto: 'Agregar widget de atajos',
+      icono: Icons.widgets_outlined,
+      color: VecColores.verde,
+      expandido: true,
       onPressed: () => _pedir(context),
-      icon: const Icon(Icons.widgets_outlined),
-      label: const Text('Agregar widget de atajos'),
-      style: FilledButton.styleFrom(minimumSize: const Size.fromHeight(48)),
     );
   }
 }

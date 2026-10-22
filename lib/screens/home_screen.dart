@@ -3,7 +3,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../widgets/brand_backdrop.dart';
 import '../widgets/home/atajos_inicio.dart';
 import '../widgets/home/daily_verse_section.dart';
 import '../widgets/home/home_header.dart';
@@ -291,7 +290,7 @@ class _HomeScreenState extends State<HomeScreen>
     final t = AppThemeData.of(context);
     // Forzar íconos claros en status bar: el fondo hero siempre es oscuro arriba
     // (en el papel claro la hoja es clara: íconos oscuros).
-    final hojaClara = t.isPaper && !t.oscuro;
+    final hojaClara = !t.oscuro;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
@@ -305,29 +304,10 @@ class _HomeScreenState extends State<HomeScreen>
           children: [
             // CAPA 1: Portada editorial propia (sin rastreo ni asset externo)
             // En el tema papel la portada es la propia hoja con textura.
-            if (!t.isPaper)
-              Positioned.fill(child: BrandBackdrop(accent: t.accent)),
+            
 
             // CAPA 2: Overlay gradiente (adapta opacidad según tema)
-            if (!t.isPaper)
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        t.scaffoldBg.withValues(alpha: 0.95),
-                        t.scaffoldBg.withValues(alpha: 0.7),
-                        t.scaffoldBg.withValues(alpha: 0.3),
-                        t.scaffoldBg.withValues(alpha: 0.1),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.15, 0.35, 0.55, 1.0],
-                    ),
-                  ),
-                ),
-              ),
+            
 
             // CAPA 3: Contenido principal
             SafeArea(
@@ -667,53 +647,17 @@ class _HomeScreenState extends State<HomeScreen>
     int animationDelayMs = 300,
     Widget? trailing,
   }) {
-    if (AppThemeData.of(context).isPaper) {
-      final etiqueta = PopIn(
-        retraso: Duration(milliseconds: animationDelayMs),
-        child: EtiquetaSeccion(label),
-      );
-      // Aire abajo para la cinta de la primera tarjeta.
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: trailing == null
-            ? etiqueta
-            : Row(children: [Expanded(child: etiqueta), trailing]),
-      );
-    }
-    final color = accent ?? Colors.white;
-    return Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppDesignSystem.spacingS),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-                border: Border.all(
-                  color: color.withValues(alpha: 0.25),
-                  width: 0.5,
-                ),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(width: AppDesignSystem.spacingS),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
-                color: Colors.white70,
-              ),
-            ),
-            if (trailing != null) ...[const Spacer(), trailing],
-          ],
-        )
-        .animate()
-        .fadeIn(
-          delay: Duration(milliseconds: animationDelayMs),
-          duration: 400.ms,
-        )
-        .slideX(begin: -0.1, end: 0);
+    final etiqueta = PopIn(
+      retraso: Duration(milliseconds: animationDelayMs),
+      child: EtiquetaSeccion(label),
+    );
+    // Aire abajo para la cinta de la primera tarjeta.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: trailing == null
+          ? etiqueta
+          : Row(children: [Expanded(child: etiqueta), trailing]),
+    );
   }
 }
 
@@ -1186,8 +1130,7 @@ class _QuickGlanceChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) {
-      return GestureDetector(
+    return GestureDetector(
         onTap: onTap,
         child: ChipVec(
           texto: label,
@@ -1195,37 +1138,5 @@ class _QuickGlanceChip extends StatelessWidget {
           iconoWidget: const IconoVec('escudo'),
         ),
       );
-    }
-    return GestureDetector(
-      onTap: () {
-        if (onTap != null) {
-          FeedbackEngine.I.tap();
-          onTap!();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.25), width: 0.5),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 14)),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

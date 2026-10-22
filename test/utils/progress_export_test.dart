@@ -29,13 +29,15 @@ void main() {
 
   testWidgets('la imagen de progreso lleva el fondo del tema', (tester) async {
     await tester.runAsync(() async {
-      final oscuro = AppThemeData.all.firstWhere((t) => t.isDark);
-      final conOscuro = await ProgressExport.conFondo(
+      // Papel oscuro: café con la textura teñida, opaco y oscuro.
+      final conKraft = await ProgressExport.conFondo(
         await transparente(),
-        oscuro,
+        AppThemeData.paperKraft,
       );
-      expect(await pixel(conOscuro), oscuro.scaffoldBg.withAlpha(255));
-      conOscuro.dispose();
+      final kraft = await pixel(conKraft);
+      expect((kraft.a * 255).round(), 255);
+      expect(kraft.computeLuminance(), lessThan(0.05));
+      conKraft.dispose();
 
       // Papel: crema con la textura encima, opaco y claro.
       final conPapel = await ProgressExport.conFondo(

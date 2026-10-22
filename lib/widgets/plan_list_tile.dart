@@ -3,7 +3,6 @@ import '../theme/app_theme.dart';
 import '../models/plan.dart';
 import '../models/content_enums.dart';
 import 'plan_cover.dart';
-import '../services/theme_service.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 
@@ -34,27 +33,18 @@ class PlanListTile extends StatelessWidget {
       progress?.progressPercentage(plan.durationDays) ?? 0.0;
 
   // Tema «papel recortado»: tarjeta de papel con colores del kit.
-  static bool get _papel => ThemeService().currentTheme.isPaper;
-  static Color get _oro => _papel ? VecColores.terracota : AppDesignSystem.gold;
-  static Color get _texto => _papel ? VecColores.tinta : AppDesignSystem.pureWhite;
-  static Color get _gris => _papel ? VecColores.gris : AppDesignSystem.coolGray;
-  static Color get _sobreOro => _papel ? VecColores.papel : AppDesignSystem.midnight;
+  static Color get _oro => VecColores.terracota;
+  static Color get _texto => VecColores.tinta;
+  static Color get _gris => VecColores.gris;
+  static Color get _sobreOro => VecColores.papel;
 
   @override
   Widget build(BuildContext context) {
     return Card(
-      color: _papel ? VecColores.papel : AppDesignSystem.midnightLight,
-      elevation: _papel ? 0 : 2,
-      margin: EdgeInsets.symmetric(horizontal: 16, vertical: _papel ? 10 : 6),
-      shape: _papel ? BordeConSombraVec.tarjeta() : RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
-        side: BorderSide(
-          color: _isCompleted 
-              ? AppDesignSystem.gold.withValues(alpha: 0.3) 
-              : Colors.transparent,
-          width: 1,
-        ),
-      ),
+      color: VecColores.papel,
+      elevation: 0,
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      shape: BordeConSombraVec.tarjeta(),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),

@@ -258,10 +258,9 @@ const _estiloPapel = ShareTextStyle(
   appNameColor: Color(0xFF2B2622),
 );
 
-/// Plantillas en el orden en que se muestran: con el tema papel, las de papel
-/// van primero.
-List<ShareCardTemplate> plantillasCompartir({required bool papel}) {
+/// Plantillas en el orden en que se muestran: las de papel van primero.
+List<ShareCardTemplate> plantillasCompartir() {
   final dePapel = kShareTemplates.where((t) => t.layout == ShareLayout.papel);
   final resto = kShareTemplates.where((t) => t.layout != ShareLayout.papel);
-  return papel ? [...dePapel, ...resto] : [...resto, ...dePapel];
+  return [...dePapel, ...resto];
 }

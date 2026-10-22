@@ -458,8 +458,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                             // Tema papel: la tarjeta de papel recortado,
                             // siempre a 360×450 (sale de 1080 px a 3x),
                             // aunque la pantalla sea más chica.
-                            child: t.isPaper
-                              ? OverflowBox(
+                            child: OverflowBox(
                                   alignment: Alignment.topLeft,
                                   maxWidth: TarjetaCompartirPapel.ancho,
                                   maxHeight: double.infinity,
@@ -472,13 +471,6 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                                       pie: 'La Chequera del Banco de la Fe',
                                       proporcion: 0.8,
                                     ),
-                                  ),
-                                )
-                              : RepaintBoundary(
-                                  key: _shareKey,
-                                  child: _DevotionalShareCard(
-                                    entry: _entry!,
-                                    theme: t,
                                   ),
                                 ),
                           ),
@@ -1238,69 +1230,3 @@ class _DevotionalHistorySheetState extends State<_DevotionalHistorySheet> {
 // SHARE CARD — tarjeta visual capturada con RepaintBoundary
 // ════════════════════════════════════════════════════════════════════════════
 
-class _DevotionalShareCard extends StatelessWidget {
-  final FaithCheckbookEntry entry;
-  final BibleReaderThemeData theme;
-
-  const _DevotionalShareCard({required this.entry, required this.theme});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = theme;
-    return Container(
-      padding: const EdgeInsets.all(28),
-      color: t.background,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(Icons.format_quote_rounded, color: t.accent, size: 30),
-          const SizedBox(height: 14),
-          Text(
-            entry.verse,
-            style: AppFonts.lora(
-              color: t.textPrimary,
-              fontSize: 17,
-              fontStyle: FontStyle.italic,
-              height: 1.65,
-            ),
-          ),
-          const SizedBox(height: 14),
-          Text(
-            '— ${entry.verseReference}',
-            style: AppFonts.manrope(
-              color: t.accent,
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Divider(color: t.textSecondary.withValues(alpha: 0.2)),
-          const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Flexible(
-                child: Text(
-                  'La Chequera del Banco de la Fe',
-                  style: AppFonts.manrope(
-                    color: t.textSecondary,
-                    fontSize: 10,
-                  ),
-                ),
-              ),
-              Text(
-                'Victoria en Cristo',
-                style: AppFonts.cinzel(
-                  color: t.accent,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}

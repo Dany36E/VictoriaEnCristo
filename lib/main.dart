@@ -450,9 +450,6 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
   /// Fecha conocida para detectar cambio de día al volver del background
   String _lastKnownDate = TimeUtils.todayISO();
 
-  /// Si el widget de inicio se sincronizó con los dibujos del tema papel.
-  late bool _widgetEnPapel = widget.themeService.currentTheme.isPaper;
-
   @override
   void initState() {
     super.initState();
@@ -666,14 +663,6 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     });
     _updateSystemUI();
     _rebuildAllChildren();
-    // El widget de inicio usa los dibujos de papel solo con ese tema.
-    final papel = widget.themeService.currentTheme.isPaper;
-    if (papel != _widgetEnPapel) {
-      _widgetEnPapel = papel;
-      if (PlatformCapabilities.supportsHomeWidgets) {
-        unawaited(WidgetSyncService.I.syncWidget());
-      }
-    }
   }
 
   /// AppFonts depende del tema activo pero no es un InheritedWidget, así que
@@ -694,11 +683,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         statusBarIconBrightness: _isDarkMode
             ? Brightness.light
             : Brightness.dark,
-        systemNavigationBarColor: widget.themeService.currentTheme.isPaper
-            ? VecColores.crema
-            : _isDarkMode
-            ? AppTheme.darkBackground
-            : AppTheme.backgroundColor,
+        systemNavigationBarColor: VecColores.crema,
         systemNavigationBarIconBrightness: _isDarkMode
             ? Brightness.light
             : Brightness.dark,
@@ -716,8 +701,8 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       scaffoldMessengerKey: AppErrorHandler.I.messengerKey,
       title: 'Victoria en Cristo',
       debugShowCheckedModeBanner: false,
-      theme: appTheme.isPaper ? AppTheme.paperTheme : AppTheme.lightTheme,
-      darkTheme: appTheme.isPaper ? AppTheme.paperTheme : AppTheme.darkTheme,
+      theme: AppTheme.paperTheme,
+      darkTheme: AppTheme.paperTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       navigatorObservers: [
         routeObserver,
@@ -743,9 +728,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
           // Papel con textura detrás de todas las rutas en el tema papel.
           // Misma estructura en todos los temas: el Navigator conserva su estado.
           child: DecoratedBox(
-            decoration: appTheme.isPaper
-                ? FondoPapel.decoracion
-                : const BoxDecoration(),
+            decoration: FondoPapel.decoracion,
             child: content,
           ),
         );

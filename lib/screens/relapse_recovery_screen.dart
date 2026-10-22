@@ -240,11 +240,9 @@ class RelapseRecoveryScreen extends StatelessWidget {
     if (pushRoute != null) {
       // Deferir a ruta opcional — si no existe, simplemente se ignora.
       final nav = Navigator.of(context);
-      if (nav.canPop() || true) {
-        try {
+      try {
           nav.pushNamed(pushRoute);
         } catch (_) {}
-      }
     }
   }
 }

@@ -346,25 +346,23 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     final groupedItems = _buildGroupedItems();
     // Build section lookup: position of each null → section
     final Map<int, BibleCanonSection> headerAtIndex = {};
-    {
-      int sectionIdx = 0;
-      for (int i = 0; i < groupedItems.length; i++) {
-        if (groupedItems[i] == null) {
-          if (sectionIdx < bibleCanonSections.length) {
-            // find canonical section for the next book in the list
-            BibleBook? nextBook;
-            for (int j = i + 1; j < groupedItems.length; j++) {
-              if (groupedItems[j] is BibleBook) {
-                nextBook = groupedItems[j] as BibleBook;
-                break;
-              }
-            }
-            if (nextBook != null) {
-              headerAtIndex[i] = nextBook.canonSection;
+    int sectionIdx = 0;
+    for (int i = 0; i < groupedItems.length; i++) {
+      if (groupedItems[i] == null) {
+        if (sectionIdx < bibleCanonSections.length) {
+          // find canonical section for the next book in the list
+          BibleBook? nextBook;
+          for (int j = i + 1; j < groupedItems.length; j++) {
+            if (groupedItems[j] is BibleBook) {
+              nextBook = groupedItems[j] as BibleBook;
+              break;
             }
           }
-          sectionIdx++;
+          if (nextBook != null) {
+            headerAtIndex[i] = nextBook.canonSection;
+          }
         }
+        sectionIdx++;
       }
     }
 

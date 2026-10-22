@@ -64,38 +64,36 @@ class ProgressExport {
       Paint()..color = tema.scaffoldBg,
     );
     ui.Image? textura;
-    if (tema.isPaper) {
-      final datos = await rootBundle.load(
-        'assets/vec/texturas/papel_tile_512.png',
-      );
-      final codec = await ui.instantiateImageCodec(datos.buffer.asUint8List());
-      textura = (await codec.getNextFrame()).image;
-      codec.dispose();
-      // FondoPapel la repite a escala 2 (256 lógicos) y a media opacidad; en
-      // los papeles oscuros, teñida del fondo y más opaca.
-      final oscura = tema.paleta!.oscura;
-      final ajuste = Matrix4.diagonal3Values(_escala / 2, _escala / 2, 1);
-      lienzo.drawRect(
-        rect,
-        Paint()
-          ..shader = ImageShader(
-            textura,
-            TileMode.repeated,
-            TileMode.repeated,
-            ajuste.storage,
-          )
-          ..colorFilter = oscura
-              ? ColorFilter.mode(tema.scaffoldBg, BlendMode.modulate)
-              : null
-          ..color = Color(oscura ? 0x99000000 : 0x80000000),
-      );
-    }
+    final datos = await rootBundle.load(
+      'assets/vec/texturas/papel_tile_512.png',
+    );
+    final codec = await ui.instantiateImageCodec(datos.buffer.asUint8List());
+    textura = (await codec.getNextFrame()).image;
+    codec.dispose();
+    // FondoPapel la repite a escala 2 (256 lógicos) y a media opacidad; en
+    // los papeles oscuros, teñida del fondo y más opaca.
+    final oscura = tema.paleta.oscura;
+    final ajuste = Matrix4.diagonal3Values(_escala / 2, _escala / 2, 1);
+    lienzo.drawRect(
+      rect,
+      Paint()
+        ..shader = ImageShader(
+          textura,
+          TileMode.repeated,
+          TileMode.repeated,
+          ajuste.storage,
+        )
+        ..colorFilter = oscura
+            ? ColorFilter.mode(tema.scaffoldBg, BlendMode.modulate)
+            : null
+        ..color = Color(oscura ? 0x99000000 : 0x80000000),
+    );
     lienzo.drawImage(captura, Offset.zero, Paint());
     final dibujo = grabadora.endRecording();
     final resultado = await dibujo.toImage(captura.width, captura.height);
     // Se liberan después de dibujar: el shader todavía usa la textura.
     dibujo.dispose();
-    textura?.dispose();
+    textura.dispose();
     captura.dispose();
     return resultado;
   }

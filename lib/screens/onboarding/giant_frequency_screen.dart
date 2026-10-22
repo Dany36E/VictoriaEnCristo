@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../../theme/app_theme.dart';
 import '../../models/giant_frequency.dart';
 import '../../services/onboarding_service.dart';
 import '../../services/feedback_engine.dart';
 import '../../repositories/profile_repository.dart';
-import '../../theme/app_theme_data.dart';
 import '../../vec/vec_tema.dart';
 import '../../vec/vec_widgets.dart';
 import 'onboarding_papel.dart';
@@ -35,7 +33,6 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
 
   // Animación de entrada
   late AnimationController _animationController;
-  late Animation<double> _fadeAnimation;
 
   // Estado de guardado
   bool _isSaving = false;
@@ -76,10 +73,6 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
     _animationController = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
-    );
-
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
   }
 
@@ -199,27 +192,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
 
   @override
   Widget build(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) return _buildPapel();
-    return Scaffold(
-      backgroundColor: AppDesignSystem.midnight,
-      body: SafeArea(
-        child: FadeTransition(
-          opacity: _fadeAnimation,
-          child: Column(
-            children: [
-              // Header
-              _buildHeader(),
-
-              // Lista de gigantes
-              Expanded(child: _buildGiantsList()),
-
-              // Botón continuar
-              _buildContinueButton(),
-            ],
-          ),
-        ),
-      ),
-    );
+    return _buildPapel();
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -395,308 +368,6 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
               }).toList(),
             ),
           ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          // Título
-          Text(
-            '¿CON QUÉ FRECUENCIA LUCHAS?',
-            style: AppFonts.cinzel(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppDesignSystem.gold,
-              letterSpacing: 2,
-            ),
-            textAlign: TextAlign.center,
-          ),
-
-          const SizedBox(height: 8),
-
-          // Subtítulo
-          Text(
-            'Configura cada batalla. Puedes cambiarlo después.',
-            style: AppFonts.manrope(fontSize: 14, color: Colors.white70),
-            textAlign: TextAlign.center,
-          ),
-
-          const SizedBox(height: 16),
-
-          // Indicador de progreso
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                _isComplete ? Icons.check_circle : Icons.radio_button_unchecked,
-                color: _isComplete ? AppDesignSystem.victory : Colors.white38,
-                size: 16,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                '$_completedCount de ${widget.selectedGiants.length} configurados',
-                style: AppFonts.manrope(
-                  fontSize: 13,
-                  color: _isComplete ? AppDesignSystem.victory : Colors.white54,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildGiantsList() {
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _giants.length,
-      itemBuilder: (context, index) {
-        final giant = _giants[index];
-        return _buildGiantCard(giant, index);
-      },
-    );
-  }
-
-  Widget _buildGiantCard(GiantWithFrequency giant, int index) {
-    final isComplete = giant.hasFrequency;
-
-    return TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0.0, end: 1.0),
-      duration: Duration(milliseconds: 400 + (index * 100)),
-      curve: Curves.easeOutCubic,
-      builder: (context, value, child) {
-        return Transform.translate(
-          offset: Offset(0, 20 * (1 - value)),
-          child: Opacity(opacity: value, child: child),
-        );
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: isComplete
-              ? AppDesignSystem.midnightLight.withValues(alpha: 0.8)
-              : AppDesignSystem.midnightLight,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(
-            color: isComplete
-                ? AppDesignSystem.gold.withValues(alpha: 0.5)
-                : Colors.white12,
-            width: isComplete ? 2 : 1,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Header del gigante
-              Row(
-                children: [
-                  // Emoji
-                  Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: AppDesignSystem.midnight,
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Center(
-                      child: Text(
-                        giant.emoji,
-                        style: const TextStyle(fontSize: 24),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 12),
-
-                  // Nombre y descripción
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          giant.name,
-                          style: AppFonts.manrope(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          giant.description,
-                          style: AppFonts.manrope(
-                            fontSize: 12,
-                            color: Colors.white54,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  // Check de completado
-                  if (isComplete)
-                    const Icon(
-                      Icons.check_circle,
-                      color: AppDesignSystem.victory,
-                      size: 24,
-                    ),
-                ],
-              ),
-
-              const SizedBox(height: 16),
-
-              // Selector de frecuencia (chips)
-              _buildFrequencySelector(giant),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildFrequencySelector(GiantWithFrequency giant) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: BattleFrequency.values.map((frequency) {
-        final isSelected = giant.frequency == frequency;
-
-        return GestureDetector(
-          onTap: () => _updateFrequency(giant.id, frequency),
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 200),
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? AppDesignSystem.gold.withValues(alpha: 0.15)
-                  : Colors.transparent,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: isSelected ? AppDesignSystem.gold : Colors.white24,
-                width: isSelected ? 2 : 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(frequency.emoji, style: const TextStyle(fontSize: 14)),
-                const SizedBox(width: 6),
-                Flexible(
-                  child: Text(
-                    frequency.displayName,
-                    style: AppFonts.manrope(
-                      fontSize: 12,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.w500,
-                      color: isSelected
-                          ? AppDesignSystem.gold
-                          : Colors.white70,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildContinueButton() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            AppDesignSystem.midnight.withValues(alpha: 0),
-            AppDesignSystem.midnight,
-          ],
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: AnimatedOpacity(
-          duration: const Duration(milliseconds: 300),
-          opacity: _isComplete ? 1.0 : 0.5,
-          child: GestureDetector(
-            onTap: _isComplete ? _saveAndContinue : null,
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              decoration: BoxDecoration(
-                gradient: _isComplete
-                    ? const LinearGradient(
-                        colors: [AppDesignSystem.gold, Color(0xFFB8860B)],
-                      )
-                    : null,
-                color: _isComplete ? null : Colors.white12,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: _isComplete
-                    ? [
-                        BoxShadow(
-                          color: AppDesignSystem.gold.withValues(alpha: 0.4),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        ),
-                      ]
-                    : null,
-              ),
-              child: _isSaving
-                  ? const Center(
-                      child: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      ),
-                    )
-                  : Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Flexible(
-                          child: Text(
-                            _isComplete
-                                ? 'GUARDAR Y CONTINUAR'
-                                : 'COMPLETA TODAS LAS OPCIONES',
-                            textAlign: TextAlign.center,
-                            style: AppFonts.cinzel(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: _isComplete
-                                  ? AppDesignSystem.midnight
-                                  : Colors.white38,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ),
-                        if (_isComplete) ...[
-                          const SizedBox(width: 8),
-                          const Icon(
-                            Icons.arrow_forward_rounded,
-                            color: AppDesignSystem.midnight,
-                            size: 20,
-                          ),
-                        ],
-                      ],
-                    ),
-            ),
-          ),
         ),
       ),
     );

@@ -380,234 +380,7 @@ class _VersesScreenState extends State<VersesScreen>
   // HERO BANNER - Tarjeta CTA Emocional Destacada
   // ═══════════════════════════════════════════════════════════════════════════
   Widget _buildEmotionalHeroBanner() {
-    final t = AppThemeData.of(context);
-    if (t.isPaper) return _buildHeroBannerPapel();
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      child: GestureDetector(
-        onTap: () {
-          FeedbackEngine.I.confirm();  // Haptic + SFX confirm (CTA principal)
-          Navigator.push(
-            context,
-            PageRouteBuilder(
-              pageBuilder: (context, animation, secondaryAnimation) =>
-                  const EmotionalVerseJarScreen(),
-              transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                return FadeTransition(
-                  opacity: animation,
-                  child: child,
-                );
-              },
-              transitionDuration: const Duration(milliseconds: 400),
-            ),
-          );
-        },
-        child: Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            // Fondo oscuro premium de marca
-            gradient: const LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF0D1B2A), // Azul muy oscuro
-                Color(0xFF1A2D42), // Azul medianoche
-              ],
-            ),
-            borderRadius: BorderRadius.circular(24),
-            // Borde dorado sutil
-            border: Border.all(
-              color: t.accent.withValues(alpha: 0.3),
-              width: 1.5,
-            ),
-            // Sombra dramática
-            boxShadow: [
-              BoxShadow(
-                color: const Color(0xFF0D1B2A).withValues(alpha: 0.4),
-                blurRadius: 24,
-                offset: const Offset(0, 12),
-              ),
-              BoxShadow(
-                color: t.accent.withValues(alpha: 0.1),
-                blurRadius: 32,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: Stack(
-              children: [
-                // ═══════════════════════════════════════════════════════════
-                // Patrón decorativo de fondo (círculos sutiles)
-                // ═══════════════════════════════════════════════════════════
-                Positioned(
-                  right: -30,
-                  top: -30,
-                  child: Container(
-                    width: 140,
-                    height: 140,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          t.accent.withValues(alpha: 0.15),
-                          t.accent.withValues(alpha: 0),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                Positioned(
-                  left: -20,
-                  bottom: -20,
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      gradient: RadialGradient(
-                        colors: [
-                          t.accent.withValues(alpha: 0.1),
-                          t.accent.withValues(alpha: 0),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-                
-                // ═══════════════════════════════════════════════════════════
-                // Contenido principal del Hero Banner
-                // ═══════════════════════════════════════════════════════════
-                Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Row(
-                    children: [
-                      // Contenido de texto (lado izquierdo)
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Icono de emoción animado
-                            Row(
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(8),
-                                  decoration: BoxDecoration(
-                                    color: t.accent.withValues(alpha: 0.15),
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Icon(
-                                    Icons.auto_awesome_rounded,
-                                    color: t.accent,
-                                    size: 20,
-                                  ),
-                                ).animate(onPlay: (c) => c.repeat(reverse: true))
-                                  .shimmer(duration: 2000.ms, color: t.accent.withValues(alpha: 0.3)),
-                                const SizedBox(width: 10),
-                                Text(
-                                  'NUEVO',
-                                  style: AppFonts.manrope(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w800,
-                                    color: t.accent,
-                                    letterSpacing: 2,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            
-                            const SizedBox(height: 16),
-                            
-                            // Título principal
-                            Text(
-                              '¿Cómo te sientes hoy?',
-                              style: AppFonts.cinzel(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white,
-                                letterSpacing: 0.3,
-                                height: 1.2,
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 10),
-                            
-                            // Subtítulo descriptivo
-                            Text(
-                              'Descubre una promesa de Dios específica para tu estado de ánimo.',
-                              style: AppFonts.manrope(
-                                fontSize: 13,
-                                fontWeight: FontWeight.w400,
-                                color: Colors.white.withValues(alpha: 0.7),
-                                height: 1.5,
-                              ),
-                            ),
-                            
-                            const SizedBox(height: 20),
-                            
-                            // Botón CTA
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 20,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    t.accent,
-                                    t.accentSoft,
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(30),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: t.accent.withValues(alpha: 0.4),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.spa_rounded,
-                                    color: Colors.white,
-                                    size: 18,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Buscar Consuelo',
-                                    style: AppFonts.manrope(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      letterSpacing: 0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      
-                      // Ilustración decorativa (lado derecho)
-                      const SizedBox(width: 16),
-                      _buildEmotionIcons(),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 500.ms, delay: 100.ms)
-        .slideY(begin: 0.1, end: 0, duration: 500.ms, curve: Curves.easeOutCubic);
+    return _buildHeroBannerPapel();
   }
 
   /// Tema papel: tarjeta con Victoria invitando a abrir el frasco.
@@ -672,42 +445,6 @@ class _VersesScreenState extends State<VersesScreen>
   // ═══════════════════════════════════════════════════════════════════════════
   // ICONOS DE EMOCIONES DECORATIVOS (lado derecho del banner)
   // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildEmotionIcons() {
-    final emotions = [
-      (Icons.sentiment_very_satisfied_rounded, const Color(0xFFFFD700)),
-      (Icons.spa_rounded, const Color(0xFF98FF98)),
-      (Icons.favorite_rounded, const Color(0xFFFF7F50)),
-    ];
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: List.generate(emotions.length, (index) {
-        return Padding(
-          padding: EdgeInsets.only(bottom: index < emotions.length - 1 ? 8 : 0),
-          child: Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: emotions[index].$2.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: emotions[index].$2.withValues(alpha: 0.3),
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              emotions[index].$1,
-              color: emotions[index].$2,
-              size: 22,
-            ),
-          )
-              .animate(delay: Duration(milliseconds: 200 + (index * 100)))
-              .fadeIn(duration: 400.ms)
-              .scale(begin: const Offset(0.8, 0.8), curve: Curves.easeOutBack),
-        );
-      }),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // LISTA DE VERSÍCULOS CON ANIMACIÓN STAGGER
@@ -886,13 +623,9 @@ class _PremiumVerseCard extends StatelessWidget {
             ),
           ],
         ),
-        backgroundColor: AppThemeData.of(context).isPaper
-            ? null
-            : const Color(0xFF0D1B2A),
+        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
-        shape: AppThemeData.of(context).isPaper
-            ? null
-            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        shape: null,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
       ),
@@ -997,13 +730,9 @@ class _FavoriteIconState extends State<_FavoriteIcon> {
               ),
             ],
           ),
-          backgroundColor: AppThemeData.of(context).isPaper
-              ? null
-              : const Color(0xFF0D1B2A),
+          backgroundColor: null,
           behavior: SnackBarBehavior.floating,
-          shape: AppThemeData.of(context).isPaper
-              ? null
-              : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+          shape: null,
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
         ),

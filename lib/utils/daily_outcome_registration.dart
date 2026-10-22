@@ -118,15 +118,12 @@ Future<DailyOutcomeRegistrationResult> promptAndRegisterDailyOutcome(
 
 Future<DailyOutcomeChoice?> showDailyOutcomeChoiceSheet(BuildContext context) {
   final theme = AppThemeData.of(context);
-  final isDark = Theme.of(context).brightness == Brightness.dark;
 
   return showModalBottomSheet<DailyOutcomeChoice>(
     context: context,
     showDragHandle: true,
     // En los temas papel, la hoja es una tarjeta del mismo papel.
-    backgroundColor: theme.isPaper
-        ? theme.cardBg
-        : (isDark ? const Color(0xFF15151F) : Colors.white),
+    backgroundColor: theme.cardBg,
     shape: const RoundedRectangleBorder(
       borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
     ),

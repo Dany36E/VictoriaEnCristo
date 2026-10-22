@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import '../../widgets/selector_modo_papel.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import '../../theme/app_fonts.dart';
@@ -2144,7 +2145,7 @@ class _HerramientaNota extends StatelessWidget {
           label: texto,
           excludeSemantics: true,
           child: Material(
-            color: t.accent.withValues(alpha: t.isDark ? 0.14 : 0.08),
+            color: t.accent.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(14),
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
@@ -2847,7 +2848,7 @@ class _SaveStatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: t.isDark ? 0.16 : 0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: color.withValues(alpha: 0.24)),
       ),
@@ -2885,7 +2886,7 @@ class _ReferenceSuggestionBar extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight.withValues(alpha: t.isDark ? 0.16 : 0.10),
+        color: highlight.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: highlight.withValues(alpha: 0.34)),
       ),
@@ -2941,7 +2942,7 @@ class _ReferenceSuggestionBar extends StatelessWidget {
           FilledButton.tonal(
             onPressed: onInsert,
             style: FilledButton.styleFrom(
-              backgroundColor: highlight.withValues(alpha: t.isDark ? 0.20 : 0.14),
+              backgroundColor: highlight.withValues(alpha: 0.14),
               foregroundColor: highlight,
               visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 34),
@@ -2989,7 +2990,7 @@ class _SpellingSuggestionBar extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight.withValues(alpha: t.isDark ? 0.16 : 0.08),
+        color: highlight.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: highlight.withValues(alpha: 0.26)),
       ),
@@ -3045,7 +3046,7 @@ class _SpellingSuggestionBar extends StatelessWidget {
           FilledButton.tonal(
             onPressed: onReplace,
             style: FilledButton.styleFrom(
-              backgroundColor: highlight.withValues(alpha: t.isDark ? 0.18 : 0.10),
+              backgroundColor: highlight.withValues(alpha: 0.10),
               foregroundColor: highlight,
               visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 34),
@@ -3076,7 +3077,7 @@ class _InlineEditorHint extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.65),
+        color: t.background.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
@@ -3678,44 +3679,8 @@ class _TypographySheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ValueListenableBuilder<String>(
-              valueListenable: BibleUserDataService.I.readerThemeNotifier,
-              builder: (_, currentId, _) {
-                final migrated = BibleReaderThemeData.migrateId(currentId);
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: BibleReaderThemeData.all.map((th) {
-                    final isActive = th.id == migrated;
-                    return GestureDetector(
-                      onTap: () => BibleUserDataService.I.setReaderTheme(th.id),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: th.swatchColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isActive
-                                ? t.accent
-                                : t.textSecondary.withValues(alpha: 0.2),
-                            width: isActive ? 2.5 : 1,
-                          ),
-                        ),
-                        child: isActive
-                            ? Icon(
-                                Icons.check,
-                                color: th.muestraOscura
-                                    ? Colors.white70
-                                    : Colors.black54,
-                                size: 16,
-                              )
-                            : null,
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
+            // Claro, oscuro o automático: va en el papel de la app.
+            const SelectorModoPapel(),
           ],
         ),
       ),
@@ -3860,7 +3825,7 @@ class _PdfExportTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.background.withValues(alpha: t.isDark ? 0.26 : 0.58),
+          color: t.background.withValues(alpha: 0.58),
           borderRadius: BorderRadius.circular(10),
           border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
         ),

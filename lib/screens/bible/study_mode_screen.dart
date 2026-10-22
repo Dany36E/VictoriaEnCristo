@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show mapEquals, setEquals;
 import 'package:flutter/material.dart';
+import '../../widgets/selector_modo_papel.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_fonts.dart';
 
@@ -2246,7 +2247,7 @@ class _SavedStudiesFilters extends StatelessWidget {
               ),
         isDense: true,
         filled: true,
-        fillColor: t.background.withValues(alpha: t.isDark ? 0.78 : 0.88),
+        fillColor: t.background.withValues(alpha: 0.88),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 12,
           vertical: 12,
@@ -2289,7 +2290,7 @@ class _SavedStudiesFilters extends StatelessWidget {
               ),
         isDense: true,
         filled: true,
-        fillColor: t.background.withValues(alpha: t.isDark ? 0.78 : 0.88),
+        fillColor: t.background.withValues(alpha: 0.88),
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
         border: _inputBorder(t),
         enabledBorder: _inputBorder(t),
@@ -2530,7 +2531,7 @@ class _SavedFilterChoiceChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
           color: selected
-              ? t.accent.withValues(alpha: t.isDark ? 0.22 : 0.14)
+              ? t.accent.withValues(alpha: 0.14)
               : t.textSecondary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
@@ -4063,44 +4064,8 @@ class _TypographySheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 12),
-            ValueListenableBuilder<String>(
-              valueListenable: BibleUserDataService.I.readerThemeNotifier,
-              builder: (_, currentId, _) {
-                final migrated = BibleReaderThemeData.migrateId(currentId);
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: BibleReaderThemeData.all.map((th) {
-                    final isActive = th.id == migrated;
-                    return GestureDetector(
-                      onTap: () => BibleUserDataService.I.setReaderTheme(th.id),
-                      child: Container(
-                        width: 36,
-                        height: 36,
-                        decoration: BoxDecoration(
-                          color: th.swatchColor,
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: isActive
-                                ? t.accent
-                                : t.textSecondary.withValues(alpha: 0.2),
-                            width: isActive ? 2.5 : 1,
-                          ),
-                        ),
-                        child: isActive
-                            ? Icon(
-                                Icons.check,
-                                color: th.muestraOscura
-                                    ? Colors.white70
-                                    : Colors.black54,
-                                size: 16,
-                              )
-                            : null,
-                      ),
-                    );
-                  }).toList(),
-                );
-              },
-            ),
+            // Claro, oscuro o automático: va en el papel de la app.
+            const SelectorModoPapel(),
           ],
         ),
       ),

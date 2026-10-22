@@ -177,16 +177,7 @@ void main() {
   themeMatrix('verses', () => const VersesScreen());
   themeMatrix('wall', () => const WallScreen());
   themeMatrix('widget_settings', () => const WidgetSettingsScreen());
-  // Sin esperarCarga: con la imagen de la racha cargada, night_pure muestra
-  // los mismos problemas de contraste del Inicio clásico que los otros temas
-  // ya tienen en la lista de conocidos, pero en otro orden, y la lista no se
-  // puede ampliar. Hay que corregir el Inicio clásico primero.
-  themeMatrix(
-    'home',
-    () => const HomeScreen(),
-    contenidoDelDia: true,
-    esperarCarga: false,
-  );
+  themeMatrix('home', () => const HomeScreen(), contenidoDelDia: true);
   themeMatrix('login', () => const LoginScreen());
   themeMatrix('profile', () => const ProfileScreen());
   themeMatrix('settings', () => SettingsScreen(onThemeChanged: () {}));

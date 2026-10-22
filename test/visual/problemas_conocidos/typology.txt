@@ -1,7 +1,0 @@
-# Problemas visuales que ya existían en "typology". No agregues
-# líneas a mano: corrige el problema. Se regenera con
-# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-clean_page: "Todos" contraste < 4.5
-grey_editorial: "Todos" contraste < 4.5
-parchment: "Todos" contraste < 4.5
-peach: "Todos" contraste < 4.5

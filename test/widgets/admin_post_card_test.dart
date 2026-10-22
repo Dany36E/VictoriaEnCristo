@@ -48,7 +48,7 @@ void main() {
       ),
     );
 
-    expect(find.text('PENDIENTE'), findsOneWidget);
+    expect(find.text('Pendiente'), findsOneWidget);
     expect(find.text('Aprobar'), findsOneWidget);
     expect(find.text('Rechazar'), findsOneWidget);
     expect(find.text('Ban'), findsOneWidget);
@@ -88,7 +88,7 @@ void main() {
       ),
     );
 
-    expect(find.text('APROBADO'), findsOneWidget);
+    expect(find.text('Aprobado'), findsOneWidget);
     expect(find.text('Aprobar'), findsNothing);
     expect(find.text('Rechazar'), findsOneWidget);
 
@@ -109,7 +109,7 @@ void main() {
       ),
     );
 
-    expect(find.text('RECHAZADO'), findsOneWidget);
+    expect(find.text('Rechazado'), findsOneWidget);
     expect(find.text('Lenguaje inapropiado'), findsOneWidget);
     expect(find.text('Aprobar'), findsNothing);
     expect(find.text('Rechazar'), findsNothing);

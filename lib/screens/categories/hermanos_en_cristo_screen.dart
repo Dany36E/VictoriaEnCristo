@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
-import '../../theme/app_theme_data.dart';
 import '../../vec/vec_tema.dart';
 import '../../vec/vec_widgets.dart';
 import '../../widgets/home/category_hub_scaffold.dart';
@@ -25,7 +23,6 @@ class HermanosEnCristoScreen extends StatefulWidget {
 }
 
 class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
-  static const Color _accent = Color(0xFFFFAB40);
 
   @override
   void initState() {
@@ -134,9 +131,7 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
   }
 
   Widget _buildIntro(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) {
-      // Tema papel: Victoria presenta la sección, como en los videos.
-      return PopIn(
+    return PopIn(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -157,33 +152,5 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
           ],
         ),
       );
-    }
-    return Container(
-          padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-          decoration: BoxDecoration(
-            color: _accent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-            border: Border.all(color: _accent.withValues(alpha: 0.2), width: 0.5),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.groups_rounded, color: _accent, size: 22),
-              const SizedBox(width: AppDesignSystem.spacingS),
-              Expanded(
-                child: Text(
-                  'No caminamos solos. Apóyate en tu compañero y en la comunidad.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.86),
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: -0.1, end: 0, curve: Curves.easeOutCubic);
   }
 }

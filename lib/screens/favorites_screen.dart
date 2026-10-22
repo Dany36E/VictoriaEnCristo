@@ -61,7 +61,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             expandedHeight: 220,
             floating: false,
             pinned: true,
-            backgroundColor: t.isPaper ? Colors.transparent : t.surface,
+            backgroundColor: Colors.transparent,
             leading: IconButton(
               icon: Icon(Icons.arrow_back_ios_rounded, color: t.textPrimary),
               onPressed: () => Navigator.pop(context),
@@ -70,42 +70,16 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               fit: StackFit.expand,
               children: [
                 // Tema papel: la barra fija también es hoja con textura.
-                if (t.isPaper) const FondoPapel(child: SizedBox.expand()),
+                const FondoPapel(child: SizedBox.expand()),
                 FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
-                  gradient: t.isPaper
-                      ? null
-                      : LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      t.surface,
-                      t.scaffoldBg,
-                    ],
-                  ),
+                decoration: const BoxDecoration(
+                  gradient: null,
                 ),
                 child: Stack(
                   children: [
                     // Decoración de fondo
-                    if (!t.isPaper)
-                    Positioned(
-                      top: -30,
-                      right: -30,
-                      child: Container(
-                        width: 150,
-                        height: 150,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              t.accent.withValues(alpha: 0.15),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    
                     // Contenido
                     Positioned(
                       left: 24,
@@ -309,9 +283,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
           ],
         ),
-        backgroundColor: AppThemeData.of(context).isPaper
-            ? null
-            : const Color(0xFF0A0E14),
+        backgroundColor: null,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),

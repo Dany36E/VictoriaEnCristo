@@ -16,7 +16,7 @@ import '../theme/app_theme_data.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 import '../widgets/avatar_perfil.dart';
-import '../widgets/theme_selector.dart';
+import '../widgets/selector_modo_papel.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onLogout;
@@ -167,7 +167,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          const ThemeSelectorWidget(swatchSize: 36),
+                          const SelectorModoPapel(),
                         ],
                       ),
                     ),
@@ -203,7 +203,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
   /// Avatar dibujado elegido (o la foto de la cuenta); al tocarlo se abre el
   /// selector de avatares.
   Widget _buildAvatar(String? photoUrl) {
-    final t = AppThemeData.of(context);
     return Semantics(
       button: true,
       label: 'Cambiar avatar de perfil',
@@ -216,28 +215,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               tamano: 88,
               respaldo: _buildFotoCuenta(photoUrl),
             ),
-            Positioned(
+            const Positioned(
               right: -4,
               bottom: -2,
-              child: t.isPaper
-                  ? const CirculoIcono(
+              child: CirculoIcono(
                       icono: Icons.edit_rounded,
                       tamano: 32,
                       giro: -4,
-                    )
-                  : Container(
-                      width: 28,
-                      height: 28,
-                      decoration: BoxDecoration(
-                        color: t.accent,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: t.pageBg, width: 2),
-                      ),
-                      child: Icon(
-                        Icons.edit_rounded,
-                        size: 14,
-                        color: t.sobreAcento,
-                      ),
                     ),
             ),
           ],
@@ -247,72 +231,32 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Widget _buildFotoCuenta(String? photoUrl) {
-    final t = AppThemeData.of(context);
-    if (t.isPaper) {
-      final sinFoto = CirculoIcono(
-        icono: Icons.person_rounded,
-        color: VecColores.cremaOscuro,
-        colorIcono: VecColores.gris,
-        tamano: 88,
-      );
-      if (photoUrl == null) return sinFoto;
-      return Container(
-        width: 88,
-        height: 88,
-        decoration: const BoxDecoration(
-          shape: BoxShape.circle,
-          boxShadow: [BoxShadow(color: Color(0x402B2622), offset: Offset(0, 5))],
-        ),
-        child: ClipOval(
-          child: Image.network(
-            photoUrl,
-            semanticLabel: 'Foto de perfil',
-            fit: BoxFit.cover,
-            filterQuality: FilterQuality.high,
-            errorBuilder: (c, e, s) => sinFoto,
-          ),
-        ),
-      );
-    }
+    final sinFoto = CirculoIcono(
+      icono: Icons.person_rounded,
+      color: VecColores.cremaOscuro,
+      colorIcono: VecColores.gris,
+      tamano: 88,
+    );
+    if (photoUrl == null) return sinFoto;
     return Container(
       width: 88,
       height: 88,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         shape: BoxShape.circle,
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            t.accent.withValues(alpha: 0.3),
-            t.accent.withValues(alpha: 0.1),
-          ],
-        ),
-        border: Border.all(color: t.accent.withValues(alpha: 0.4), width: 3),
-        boxShadow: [
-          BoxShadow(
-            color: t.accent.withValues(alpha: 0.15),
-            blurRadius: 16,
-            spreadRadius: 2,
-          ),
-        ],
+        boxShadow: [BoxShadow(color: Color(0x402B2622), offset: Offset(0, 5))],
       ),
       child: ClipOval(
-        child: photoUrl != null
-            ? Image.network(
-                photoUrl,
-                semanticLabel: 'Foto de perfil',
-                fit: BoxFit.cover,
-                filterQuality: FilterQuality.high,
-                errorBuilder: (c, e, s) => _buildDefaultAvatar(),
-              )
-            : _buildDefaultAvatar(),
+        child: Image.network(
+          photoUrl,
+          semanticLabel: 'Foto de perfil',
+          fit: BoxFit.cover,
+          filterQuality: FilterQuality.high,
+          errorBuilder: (c, e, s) => sinFoto,
+        ),
       ),
     );
   }
 
-  Widget _buildDefaultAvatar() {
-    return const Center(child: Text('😊', style: TextStyle(fontSize: 38)));
-  }
 
   Widget _buildStatsRow() {
     final streak = VictoryScoringService.I.getCurrentStreak();
@@ -349,9 +293,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Column(
           children: [
-            t.isPaper
-                ? IconoVec(iconoPapel, color: VecColores.terracota, tamano: 24)
-                : Text(emoji, style: const TextStyle(fontSize: 20)),
+            IconoVec(iconoPapel, color: VecColores.terracota, tamano: 24),
             const SizedBox(height: 4),
             Text(
               value,

@@ -33,7 +33,7 @@ void main() {
     for (final t in AppThemeData.all) (t.id, const Size(360, 800), 1.0),
     // Teléfono chico con letra del sistema al doble.
     ('papel', const Size(320, 568), 2.0),
-    ('night_pure', const Size(320, 568), 2.0),
+    ('papel_noche', const Size(320, 568), 2.0),
   ]) {
     testWidgets('plantillas con Personalizar abierto ($tema, '
         '${tamano.width.round()} px, letra ${letra}x)', (
@@ -49,7 +49,7 @@ void main() {
       final manejador = tester.ensureSemantics();
       await tester.pumpWidget(
         MaterialApp(
-          theme: theme.isPaper ? AppTheme.paperTheme : AppTheme.darkTheme,
+          theme: AppTheme.paperTheme,
           builder: (context, child) => MediaQuery(
             data: MediaQuery.of(
               context,
@@ -60,9 +60,7 @@ void main() {
             key: llave,
             // Como en la app: en papel la hoja con textura va detrás.
             child: DecoratedBox(
-              decoration: theme.isPaper
-                  ? FondoPapel.decoracion
-                  : BoxDecoration(color: theme.scaffoldBg),
+              decoration: FondoPapel.decoracion,
               child: AppThemeData.provider(
                 theme: theme,
                 child: const TemplatePickerScreen(verse: _verso),

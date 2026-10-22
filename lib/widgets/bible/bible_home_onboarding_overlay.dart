@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../theme/app_theme_data.dart';
 import '../../vec/vec_tema.dart';
 import '../../vec/vec_widgets.dart';
 
@@ -91,9 +90,8 @@ class _BibleHomeOnboardingOverlayState
   ];
 
   // Tema «papel recortado»: hoja de papel con letras y colores del kit.
-  bool get _papel => AppThemeData.of(context).isPaper;
-  Color get _texto => _papel ? VecColores.tinta : Colors.white;
-  Color get _acento => _papel ? VecColores.terracota : const Color(0xFFD4A853);
+  Color get _texto => VecColores.tinta;
+  Color get _acento => VecColores.terracota;
 
   void _close() {
     BibleHomeOnboardingOverlay.markSeen();
@@ -103,10 +101,8 @@ class _BibleHomeOnboardingOverlayState
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: _papel ? null : const Color(0xFF161616),
-      shape: _papel
-          ? null
-          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+      backgroundColor: null,
+      shape: null,
       insetPadding: const EdgeInsets.all(24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 460, maxHeight: 540),
@@ -125,7 +121,7 @@ class _BibleHomeOnboardingOverlayState
             Text(
               'Conoce cómo aprovecharla en 60 segundos',
               style: AppFonts.manrope(
-                color: _papel ? VecColores.gris : Colors.white60,
+                color: VecColores.gris,
                 fontSize: 11,
                 letterSpacing: 0.4,
               ),
@@ -149,21 +145,13 @@ class _BibleHomeOnboardingOverlayState
                     child: Text(
                       'Saltar',
                       style: AppFonts.manrope(
-                        color: _papel ? VecColores.gris : Colors.white54,
+                        color: VecColores.gris,
                       ),
                     ),
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    style: _papel
-                        ? null
-                        : ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD4A853),
-                      foregroundColor: Colors.black,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                    ),
+                    style: null,
                     onPressed: () {
                       if (_index < _slides.length - 1) {
                         _controller.nextPage(
@@ -194,22 +182,7 @@ class _BibleHomeOnboardingOverlayState
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (_papel)
-            PopIn(child: CirculoIcono(icono: s.icon, tamano: 84, giro: -4))
-          else
-          Container(
-            width: 84,
-            height: 84,
-            decoration: BoxDecoration(
-              color: const Color(0xFFD4A853).withValues(alpha: 0.12),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: const Color(0xFFD4A853).withValues(alpha: 0.35),
-                width: 1,
-              ),
-            ),
-            child: Icon(s.icon, color: const Color(0xFFD4A853), size: 40),
-          ),
+          PopIn(child: CirculoIcono(icono: s.icon, tamano: 84, giro: -4)),
           const SizedBox(height: 22),
           Text(
             s.title,
@@ -225,7 +198,7 @@ class _BibleHomeOnboardingOverlayState
             s.body,
             textAlign: TextAlign.center,
             style: AppFonts.lora(
-              color: _papel ? VecColores.tinta : Colors.white70,
+              color: VecColores.tinta,
               fontSize: 14,
               height: 1.55,
             ),
@@ -248,7 +221,7 @@ class _BibleHomeOnboardingOverlayState
           decoration: BoxDecoration(
             color: active
                 ? _acento
-                : (_papel ? VecColores.cremaOscuro : Colors.white24),
+                : (VecColores.cremaOscuro),
             borderRadius: BorderRadius.circular(3),
           ),
         );
