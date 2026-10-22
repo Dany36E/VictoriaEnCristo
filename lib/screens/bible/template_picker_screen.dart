@@ -117,25 +117,34 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             ),
 
             // ── Bottom controls ──
-            Container(
-              decoration: BoxDecoration(
-                color: t.surface.withValues(alpha: 0.6),
-                borderRadius: const BorderRadius.vertical(
-                  top: Radius.circular(20),
-                ),
+            // Hasta 60 % de la pantalla y desplazable: con «Personalizar»
+            // abierto y letra grande en un teléfono chico no cabía.
+            ConstrainedBox(
+              constraints: BoxConstraints(
+                maxHeight: MediaQuery.sizeOf(context).height * 0.6,
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const SizedBox(height: 12),
-                  // Template selector (horizontal scroll)
-                  _buildTemplateSelector(t),
-                  // Expandable customization
-                  _buildCustomPanel(t),
-                  // Action buttons
-                  _buildActionButtons(t),
-                  const SizedBox(height: 8),
-                ],
+              child: Container(
+                decoration: BoxDecoration(
+                  color: t.surface.withValues(alpha: 0.6),
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(20),
+                  ),
+                ),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const SizedBox(height: 12),
+                      // Template selector (horizontal scroll)
+                      _buildTemplateSelector(t),
+                      // Expandable customization
+                      _buildCustomPanel(t),
+                      // Action buttons
+                      _buildActionButtons(t),
+                      const SizedBox(height: 8),
+                    ],
+                  ),
+                ),
               ),
             ),
           ],
@@ -306,7 +315,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                           ? Icons.keyboard_arrow_up
                           : Icons.keyboard_arrow_down,
                       size: 20,
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.6),
                     ),
                   ],
                 ),
@@ -339,7 +348,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       '${_fontSize.round()}',
                       style: AppFonts.manrope(
-                        color: t.accent,
+                        color: legibleSobre(t.accent, t.fondoVisible),
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
                       ),
@@ -364,6 +373,16 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     onChanged: (v) => setState(() => _fontSize = v),
                   ),
                 ),
+                // En papel la letra crece solo hasta llenar la tarjeta: con
+                // versículos largos ya la llena y el control no la cambia.
+                if (_papelSeleccionado)
+                  Text(
+                    'La letra crece hasta llenar la tarjeta.',
+                    style: AppFonts.manrope(
+                      color: t.textoTenue(0.5),
+                      fontSize: 11,
+                    ),
+                  ),
 
                 const SizedBox(height: 4),
 
@@ -379,14 +398,20 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                         letterSpacing: 1.5,
                       ),
                     ),
-                    const Spacer(),
-                    for (int i = 0; i < _aspects.length; i++) ...[
-                      if (i > 0) const SizedBox(width: 6),
-                      _aspectChip(i, t),
-                    ],
+                    const SizedBox(width: 8),
+                    // Con letra grande las fichas pasan al renglón de abajo.
+                    Expanded(
+                      child: Wrap(
+                        alignment: WrapAlignment.end,
+                        spacing: 6,
+                        children: [
+                          for (int i = 0; i < _aspects.length; i++)
+                            _aspectChip(i, t),
+                        ],
+                      ),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 12),
 
                 // Alineación (cada ícono ocupa 48: ya quedan separados).
                 Row(
@@ -401,23 +426,30 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    _alignIcon(
-                      Icons.format_align_left,
-                      TextAlign.left,
-                      'Alinear a la izquierda',
-                      t,
-                    ),
-                    _alignIcon(
-                      Icons.format_align_center,
-                      TextAlign.center,
-                      'Centrar',
-                      t,
-                    ),
-                    _alignIcon(
-                      Icons.format_align_right,
-                      TextAlign.right,
-                      'Alinear a la derecha',
-                      t,
+                    // Con letra grande los íconos pasan al renglón de abajo.
+                    Expanded(
+                      child: Wrap(
+                        children: [
+                          _alignIcon(
+                            Icons.format_align_left,
+                            TextAlign.left,
+                            'Alinear a la izquierda',
+                            t,
+                          ),
+                          _alignIcon(
+                            Icons.format_align_center,
+                            TextAlign.center,
+                            'Centrar',
+                            t,
+                          ),
+                          _alignIcon(
+                            Icons.format_align_right,
+                            TextAlign.right,
+                            'Alinear a la derecha',
+                            t,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -651,12 +683,17 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
   Future<void> _shareImage() async {
     setState(() => _sharing = true);
     try {
-      // Intentar caché primero
-      final cached = await ShareCacheService.I.getCachedCard(
-        verseKey: widget.verse.uniqueKey,
-        templateId: _template.id,
-        cardSize: _cardSize,
-      );
+      // La caché solo tiene tarjetas con los ajustes de fábrica: si se
+      // cambió el tamaño, la alineación o el logo, se captura la vista previa.
+      final ajustesDeFabrica =
+          _fontSize == 34 && _textAlign == TextAlign.center && _showLogo;
+      final cached = ajustesDeFabrica
+          ? await ShareCacheService.I.getCachedCard(
+              verseKey: widget.verse.uniqueKey,
+              templateId: _template.id,
+              cardSize: _cardSize,
+            )
+          : null;
       final file = cached ?? await _captureImage();
       if (file == null) return;
       await Share.shareXFiles([XFile(file.path)], text: 'Victoria en Cristo');

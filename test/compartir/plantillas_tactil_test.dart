@@ -7,11 +7,13 @@ import 'package:app_quitar/services/bible/bible_user_data_service.dart';
 import 'package:app_quitar/services/theme_service.dart';
 import 'package:app_quitar/theme/app_theme.dart';
 import 'package:app_quitar/theme/app_theme_data.dart';
+import 'package:app_quitar/vec/vec_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../visual/theme_matrix.dart';
+import '../visual/visual_checks.dart';
 
 const _verso = BibleVerse(
   bookName: 'Filipenses',
@@ -27,12 +29,18 @@ const _verso = BibleVerse(
 void main() {
   setUpThemeMatrix();
 
-  for (final tema in ['papel', 'night_pure']) {
-    testWidgets('plantillas: áreas táctiles y nombres ($tema)', (
+  for (final (tema, tamano, letra) in [
+    for (final t in AppThemeData.all) (t.id, const Size(360, 800), 1.0),
+    // Teléfono chico con letra del sistema al doble.
+    ('papel', const Size(320, 568), 2.0),
+    ('night_pure', const Size(320, 568), 2.0),
+  ]) {
+    testWidgets('plantillas con Personalizar abierto ($tema, '
+        '${tamano.width.round()} px, letra ${letra}x)', (
       tester,
     ) async {
       tester.view.devicePixelRatio = 1;
-      tester.view.physicalSize = const Size(360, 800);
+      tester.view.physicalSize = tamano;
       addTearDown(tester.view.reset);
       BibleUserDataService.I.readerThemeNotifier.value = tema;
       await tester.runAsync(() => ThemeService().setTheme(tema));
@@ -42,11 +50,23 @@ void main() {
       await tester.pumpWidget(
         MaterialApp(
           theme: theme.isPaper ? AppTheme.paperTheme : AppTheme.darkTheme,
+          builder: (context, child) => MediaQuery(
+            data: MediaQuery.of(
+              context,
+            ).copyWith(textScaler: TextScaler.linear(letra)),
+            child: child!,
+          ),
           home: RepaintBoundary(
             key: llave,
-            child: AppThemeData.provider(
-              theme: theme,
-              child: const TemplatePickerScreen(verse: _verso),
+            // Como en la app: en papel la hoja con textura va detrás.
+            child: DecoratedBox(
+              decoration: theme.isPaper
+                  ? FondoPapel.decoracion
+                  : BoxDecoration(color: theme.scaffoldBg),
+              child: AppThemeData.provider(
+                theme: theme,
+                child: const TemplatePickerScreen(verse: _verso),
+              ),
             ),
           ),
         ),
@@ -64,14 +84,29 @@ void main() {
 
       await expectLater(tester, meetsGuideline(androidTapTargetGuideline));
       await expectLater(tester, meetsGuideline(labeledTapTargetGuideline));
+      if (letra == 1) {
+        // Contraste de los textos del panel (en la matriz se dibuja cerrado).
+        final limite =
+            llave.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+        final (imagen, pixeles) = (await tester.runAsync(
+          () => capturarPixeles(limite),
+        ))!;
+        final problemas = problemasDeContraste(limite, imagen, pixeles);
+        imagen.dispose();
+        expect(problemas, isEmpty);
+      }
 
-      // Captura para revisar a ojo el panel abierto.
+      // Captura para revisar a ojo el panel abierto (un cuadro antes: las
+      // imágenes que terminaron de cargar piden redibujar).
+      await tester.pump();
       await tester.runAsync(() async {
         final limite =
             llave.currentContext!.findRenderObject()! as RenderRepaintBoundary;
         final imagen = await limite.toImage();
         final png = await imagen.toByteData(format: ui.ImageByteFormat.png);
-        final archivo = File('build/qa/plantillas_personalizar_$tema.png');
+        final archivo = File(
+          'build/qa/plantillas_personalizar_${tema}_${tamano.width.round()}.png',
+        );
         await archivo.parent.create(recursive: true);
         await archivo.writeAsBytes(png!.buffer.asUint8List());
         imagen.dispose();

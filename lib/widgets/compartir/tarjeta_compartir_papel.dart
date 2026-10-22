@@ -249,9 +249,8 @@ class _Contenido extends StatelessWidget {
         fijo +
             _altoDe(TextSpan(text: texto, style: _estiloTexto(t)), base, ancho) <=
         alto;
-    if (cabe(tope)) return tope;
-    // Sobre cuartos de punto: el resultado no depende del tope, así subir el
-    // control nunca da una letra un poco más chica.
+    // Sobre cuartos de punto (también el tope): el resultado no depende del
+    // tope, así subir el control nunca da una letra un poco más chica.
     final maximo = (tope * 4).floor();
     if (cabe(maximo / 4)) return maximo / 4;
     var (chico, grande) = (40, maximo);

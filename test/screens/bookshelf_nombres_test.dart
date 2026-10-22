@@ -78,30 +78,40 @@ void main() {
           );
           await tester.pump(const Duration(milliseconds: 500));
 
-          var revisados = 0;
-          for (final libro in BookRepository.I.all) {
-            final hallado = find.text(libro.name);
-            if (hallado.evaluate().isEmpty) continue;
-            revisados++;
-            final parrafo = tester.renderObject<RenderParagraph>(hallado.first);
-            var inicio = 0;
-            for (final palabra in libro.name.split(' ')) {
-              // Todas las letras de la palabra en el mismo renglón.
-              final cajas = parrafo.getBoxesForSelection(
-                TextSelection(
-                  baseOffset: inicio,
-                  extentOffset: inicio + palabra.length,
-                ),
-              );
-              expect(
-                cajas.map((c) => c.top.round()).toSet(),
-                hasLength(1),
-                reason: '«${libro.name}» a $ancho px partió «$palabra»',
-              );
-              inicio += palabra.length + 1;
+          // Las dos pestañas: el Nuevo Testamento tiene la palabra más
+          // larga («Tesalonicenses»).
+          for (final pestana in ['Antiguo', 'Nuevo']) {
+            if (pestana == 'Nuevo') {
+              await tester.tap(find.textContaining('Nuevo Testamento'));
+              await tester.pump(const Duration(milliseconds: 600));
             }
+            var revisados = 0;
+            for (final libro in BookRepository.I.all) {
+              final hallado = find.text(libro.name);
+              if (hallado.evaluate().isEmpty) continue;
+              revisados++;
+              final parrafo = tester.renderObject<RenderParagraph>(
+                hallado.first,
+              );
+              var inicio = 0;
+              for (final palabra in libro.name.split(' ')) {
+                // Todas las letras de la palabra en el mismo renglón.
+                final cajas = parrafo.getBoxesForSelection(
+                  TextSelection(
+                    baseOffset: inicio,
+                    extentOffset: inicio + palabra.length,
+                  ),
+                );
+                expect(
+                  cajas.map((c) => c.top.round()).toSet(),
+                  hasLength(1),
+                  reason: '«${libro.name}» a $ancho px partió «$palabra»',
+                );
+                inicio += palabra.length + 1;
+              }
+            }
+            expect(revisados, greaterThan(20), reason: '$pestana, $ancho px');
           }
-          expect(revisados, greaterThan(20), reason: 'a $ancho px');
         }
 
         await tester.pumpWidget(const SizedBox.shrink());
