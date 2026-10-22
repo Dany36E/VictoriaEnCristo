@@ -440,7 +440,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Panel de Diagnóstico de Audio
           _buildSectionHeader('🔧 Diagnóstico de Audio', isDark),
-          _buildAudioDiagnosticPanel(isDark),
+          // El panel va sobre la tarjeta del tema: su texto sigue a lo que se
+          // ve (en los papeles oscuros isDark es false).
+          _buildAudioDiagnosticPanel(t.oscuro),
 
           const SizedBox(height: 24),
 
