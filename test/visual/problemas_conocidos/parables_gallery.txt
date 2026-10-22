@@ -1,0 +1,24 @@
+# Problemas visuales que ya existían en "parables_gallery". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: error: A RenderFlex overflowed by 154 pixels on the right.
+clean_page: "+XP al completar" contraste < 4.5
+clean_page: "0/0 completadas" contraste < 4.5
+clean_page: error: A RenderFlex overflowed by 154 pixels on the right.
+grey_editorial: "+XP al completar" contraste < 4.5
+grey_editorial: "0/0 completadas" contraste < 4.5
+grey_editorial: error: A RenderFlex overflowed by 154 pixels on the right.
+lavender: "+XP al completar" contraste < 4.5
+lavender: "0/0 completadas" contraste < 4.5
+lavender: error: A RenderFlex overflowed by 154 pixels on the right.
+mint: "+XP al completar" contraste < 4.5
+mint: "0/0 completadas" contraste < 4.5
+mint: error: A RenderFlex overflowed by 154 pixels on the right.
+night_pure: error: A RenderFlex overflowed by 154 pixels on the right.
+parchment: "+XP al completar" contraste < 4.5
+parchment: "0/0 completadas" contraste < 4.5
+parchment: error: A RenderFlex overflowed by 154 pixels on the right.
+peach: "+XP al completar" contraste < 4.5
+peach: "0/0 completadas" contraste < 4.5
+peach: error: A RenderFlex overflowed by 154 pixels on the right.
+sepia_night: error: A RenderFlex overflowed by 154 pixels on the right.

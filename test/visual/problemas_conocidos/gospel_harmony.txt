@@ -1,0 +1,77 @@
+# Problemas visuales que ya existían en "gospel_harmony". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "Buscar evento..." contraste < 4.5
+charcoal: "Evento" contraste < 4.5
+clean_page: "1" contraste < 4.5
+clean_page: "2" contraste < 4.5
+clean_page: "3" contraste < 4.5
+clean_page: "Buscar evento..." contraste < 4.5
+clean_page: "Evento" contraste < 4.5
+clean_page: "Jn" contraste < 4.5
+clean_page: "Lc" contraste < 4.5
+clean_page: "Mr" contraste < 4.5
+clean_page: "Mt" contraste < 4.5
+clean_page: "NACIMIENTO E INFANCIA" contraste < 4.5
+clean_page: "PRÓLOGO" contraste < 4.5
+grey_editorial: "1" contraste < 4.5
+grey_editorial: "2" contraste < 4.5
+grey_editorial: "3" contraste < 4.5
+grey_editorial: "Buscar evento..." contraste < 4.5
+grey_editorial: "Evento" contraste < 4.5
+grey_editorial: "Jn" contraste < 4.5
+grey_editorial: "Lc" contraste < 4.5
+grey_editorial: "Mr" contraste < 4.5
+grey_editorial: "Mt" contraste < 4.5
+grey_editorial: "NACIMIENTO E INFANCIA" contraste < 4.5
+grey_editorial: "PRÓLOGO" contraste < 4.5
+lavender: "Buscar evento..." contraste < 4.5
+lavender: "Evento" contraste < 4.5
+mint: "1" contraste < 4.5
+mint: "2" contraste < 4.5
+mint: "2" contraste < 4.5
+mint: "3" contraste < 4.5
+mint: "Buscar evento..." contraste < 4.5
+mint: "Evento" contraste < 4.5
+mint: "NACIMIENTO E INFANCIA" contraste < 4.5
+mint: "PRÓLOGO" contraste < 4.5
+night_pure: "Buscar evento..." contraste < 4.5
+night_pure: "Evento" contraste < 4.5
+parchment: "1" contraste < 4.5
+parchment: "2" contraste < 4.5
+parchment: "2" contraste < 4.5
+parchment: "3" contraste < 4.5
+parchment: "Buscar evento..." contraste < 4.5
+parchment: "Evento" contraste < 4.5
+parchment: "Jn" contraste < 4.5
+parchment: "Lc" contraste < 4.5
+parchment: "Mr" contraste < 4.5
+parchment: "Mt" contraste < 4.5
+parchment: "NACIMIENTO E INFANCIA" contraste < 4.5
+parchment: "PRÓLOGO" contraste < 4.5
+peach: "1" contraste < 4.5
+peach: "2" contraste < 4.5
+peach: "2" contraste < 4.5
+peach: "3" contraste < 4.5
+peach: "Anuncio del nacimiento de Juan el Bautis…" contraste < 4.5
+peach: "Buscar evento..." contraste < 4.5
+peach: "Circuncisión y presentación en el templo" contraste < 4.5
+peach: "El ángel se aparece a José" contraste < 4.5
+peach: "Evento" contraste < 4.5
+peach: "Genealogía de Jesús (línea de María)" contraste < 4.5
+peach: "Genealogía de Jesús (línea real)" contraste < 4.5
+peach: "Jn" contraste < 4.5
+peach: "La anunciación a María" contraste < 4.5
+peach: "La preexistencia de Cristo" contraste < 4.5
+peach: "La visita de los magos" contraste < 4.5
+peach: "Lc" contraste < 4.5
+peach: "Los pastores visitan al niño" contraste < 4.5
+peach: "María visita a Elisabet" contraste < 4.5
+peach: "Mr" contraste < 4.5
+peach: "Mt" contraste < 4.5
+peach: "NACIMIENTO E INFANCIA" contraste < 4.5
+peach: "Nacimiento de Jesús" contraste < 4.5
+peach: "Nacimiento de Juan el Bautista" contraste < 4.5
+peach: "PRÓLOGO" contraste < 4.5
+sepia_night: "Buscar evento..." contraste < 4.5
+sepia_night: "Evento" contraste < 4.5

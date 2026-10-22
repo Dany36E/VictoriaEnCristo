@@ -1,0 +1,9 @@
+# Problemas visuales que ya existían en "prophecies_home". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+clean_page: ""Estas son las que dan testimonio de mí"…" contraste < 3.0
+grey_editorial: ""Estas son las que dan testimonio de mí"…" contraste < 3.0
+lavender: ""Estas son las que dan testimonio de mí"…" contraste < 3.0
+mint: ""Estas son las que dan testimonio de mí"…" contraste < 3.0
+parchment: ""Estas son las que dan testimonio de mí"…" contraste < 3.0
+peach: ""Estas son las que dan testimonio de mí"…" contraste < 3.0

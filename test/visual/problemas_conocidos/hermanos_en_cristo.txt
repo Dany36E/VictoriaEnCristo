@@ -1,0 +1,18 @@
+# Problemas visuales que ya existían en "hermanos_en_cristo". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "De Batalla" contraste < 4.5
+clean_page: "De Batalla" contraste < 4.5
+clean_page: "Hermanos en Cristo" contraste < 3.0
+grey_editorial: "De Batalla" contraste < 4.5
+grey_editorial: "Hermanos en Cristo" contraste < 3.0
+lavender: "De Batalla" contraste < 4.5
+lavender: "Hermanos en Cristo" contraste < 3.0
+mint: "De Batalla" contraste < 4.5
+mint: "Hermanos en Cristo" contraste < 3.0
+night_pure: "De Batalla" contraste < 4.5
+parchment: "De Batalla" contraste < 4.5
+parchment: "Hermanos en Cristo" contraste < 3.0
+peach: "De Batalla" contraste < 4.5
+peach: "Hermanos en Cristo" contraste < 3.0
+sepia_night: "De Batalla" contraste < 4.5

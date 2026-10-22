@@ -1,0 +1,30 @@
+# Problemas visuales que ya existían en "login". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "Contraseña" contraste < 4.5
+charcoal: "Entra al santuario de tu victoria" contraste < 4.5
+charcoal: "— o usa tu correo —" contraste < 4.5
+clean_page: "Contraseña" contraste < 4.5
+clean_page: "Entra al santuario de tu victoria" contraste < 4.5
+clean_page: "— o usa tu correo —" contraste < 4.5
+grey_editorial: "Contraseña" contraste < 4.5
+grey_editorial: "Entra al santuario de tu victoria" contraste < 4.5
+grey_editorial: "— o usa tu correo —" contraste < 4.5
+lavender: "Contraseña" contraste < 4.5
+lavender: "Entra al santuario de tu victoria" contraste < 4.5
+lavender: "— o usa tu correo —" contraste < 4.5
+mint: "Contraseña" contraste < 4.5
+mint: "Entra al santuario de tu victoria" contraste < 4.5
+mint: "— o usa tu correo —" contraste < 4.5
+night_pure: "Contraseña" contraste < 4.5
+night_pure: "Entra al santuario de tu victoria" contraste < 4.5
+night_pure: "— o usa tu correo —" contraste < 4.5
+parchment: "Contraseña" contraste < 4.5
+parchment: "Entra al santuario de tu victoria" contraste < 4.5
+parchment: "— o usa tu correo —" contraste < 4.5
+peach: "Contraseña" contraste < 4.5
+peach: "Entra al santuario de tu victoria" contraste < 4.5
+peach: "— o usa tu correo —" contraste < 4.5
+sepia_night: "Contraseña" contraste < 4.5
+sepia_night: "Entra al santuario de tu victoria" contraste < 4.5
+sepia_night: "— o usa tu correo —" contraste < 4.5

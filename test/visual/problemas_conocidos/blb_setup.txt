@@ -1,0 +1,64 @@
+# Problemas visuales que ya existían en "blb_setup". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "Copia la key del correo y pégala en el c…" contraste < 4.5
+charcoal: "Pega tu API key aquí..." contraste < 4.5
+charcoal: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+charcoal: "Visita Blue Letter Bible y completa el f…" contraste < 4.5
+clean_page: "1" contraste < 3.0
+clean_page: "2" contraste < 3.0
+clean_page: "3" contraste < 3.0
+clean_page: "API KEY" contraste < 4.5
+clean_page: "Blue Letter Bible" contraste < 3.0
+clean_page: "Copia la key del correo y pégala en el c…" contraste < 4.5
+clean_page: "Guardar y verificar" contraste < 4.5
+clean_page: "Herramientas de Estudio" contraste < 3.0
+clean_page: "Pega tu API key aquí..." contraste < 4.5
+clean_page: "Plan Gratuito" contraste < 4.5
+clean_page: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+clean_page: "Visita Blue Letter Bible y completa el f…" contraste < 4.5
+grey_editorial: "1" contraste < 3.0
+grey_editorial: "2" contraste < 3.0
+grey_editorial: "3" contraste < 3.0
+grey_editorial: "API KEY" contraste < 4.5
+grey_editorial: "Blue Letter Bible" contraste < 3.0
+grey_editorial: "Copia la key del correo y pégala en el c…" contraste < 4.5
+grey_editorial: "Guardar y verificar" contraste < 4.5
+grey_editorial: "Herramientas de Estudio" contraste < 3.0
+grey_editorial: "Pega tu API key aquí..." contraste < 4.5
+grey_editorial: "Plan Gratuito" contraste < 4.5
+grey_editorial: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+grey_editorial: "Visita Blue Letter Bible y completa el f…" contraste < 4.5
+lavender: "Accede a Strong's Numbers, Lexicón Grieg…" contraste < 4.5
+lavender: "Copia la key del correo y pégala en el c…" contraste < 4.5
+lavender: "Pega tu API key aquí..." contraste < 4.5
+lavender: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+lavender: "Visita Blue Letter Bible y completa el f…" contraste < 4.5
+mint: "Accede a Strong's Numbers, Lexicón Grieg…" contraste < 4.5
+mint: "Copia la key del correo y pégala en el c…" contraste < 4.5
+mint: "Pega tu API key aquí..." contraste < 4.5
+mint: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+mint: "Visita Blue Letter Bible y completa el f…" contraste < 4.5
+night_pure: "Pega tu API key aquí..." contraste < 4.5
+parchment: "Accede a Strong's Numbers, Lexicón Grieg…" contraste < 4.5
+parchment: "Copia la key del correo y pégala en el c…" contraste < 4.5
+parchment: "Guardar y verificar" contraste < 4.5
+parchment: "Pega tu API key aquí..." contraste < 4.5
+parchment: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+parchment: "Visita Blue Letter Bible y completa el f…" contraste < 4.5
+peach: "1" contraste < 3.0
+peach: "2" contraste < 3.0
+peach: "3" contraste < 3.0
+peach: "API KEY" contraste < 4.5
+peach: "Accede a Strong's Numbers, Lexicón Grieg…" contraste < 4.5
+peach: "Copia la key del correo y pégala en el c…" contraste < 4.5
+peach: "Guardar y verificar" contraste < 4.5
+peach: "Herramientas de Estudio" contraste < 3.0
+peach: "Pega tu API key aquí..." contraste < 4.5
+peach: "Plan Gratuito" contraste < 4.5
+peach: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+peach: "Visita Blue Letter Bible y completa el f…" contraste < 4.5
+sepia_night: "Copia la key del correo y pégala en el c…" contraste < 4.5
+sepia_night: "Pega tu API key aquí..." contraste < 4.5
+sepia_night: "Recibirás tu API key por email. Puede ta…" contraste < 4.5
+sepia_night: "Visita Blue Letter Bible y completa el f…" contraste < 4.5

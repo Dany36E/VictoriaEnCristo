@@ -33,7 +33,10 @@ migrate_working_dir/
 /build/
 /coverage/
 /dist/
-.claude/
+.claude/*
+!.claude/settings.json
+!.claude/agents/
+!.claude/hooks/
 build_*.txt
 analyze_output.txt
 test_out.txt

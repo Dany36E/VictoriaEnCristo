@@ -1,0 +1,189 @@
+# Problemas visuales que ya existían en "ot_quotes". No agregues
+# líneas a mano: corrige el problema. Se regenera con
+# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
+charcoal: "223 citas" contraste < 4.5
+charcoal: "Buscar cita..." contraste < 4.5
+charcoal: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+charcoal: "Matanza de los inocentes" contraste < 4.5
+charcoal: "Ministerio de Juan el Bautista" contraste < 4.5
+charcoal: "Nacimiento virginal de Jesús" contraste < 4.5
+charcoal: "Primera tentación de Jesús" contraste < 4.5
+charcoal: "Regreso de la familia de Egipto" contraste < 4.5
+charcoal: "Segunda tentación: arrojarse del templo" contraste < 4.5
+clean_page: "223 citas" contraste < 4.5
+clean_page: "Alusiones" contraste < 4.5
+clean_page: "Buscar cita..." contraste < 4.5
+clean_page: "Deu 8:3" contraste < 4.5
+clean_page: "Directa" contraste < 4.5
+clean_page: "Directas" contraste < 4.5
+clean_page: "Isa 40:3" contraste < 4.5
+clean_page: "Isa 7:14" contraste < 4.5
+clean_page: "Jer 31:15" contraste < 4.5
+clean_page: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+clean_page: "Mat 1:23" contraste < 4.5
+clean_page: "Mat 2:15" contraste < 4.5
+clean_page: "Mat 2:18" contraste < 4.5
+clean_page: "Mat 2:6" contraste < 4.5
+clean_page: "Mat 3:3" contraste < 4.5
+clean_page: "Mat 4:4" contraste < 4.5
+clean_page: "Mat 4:6" contraste < 4.5
+clean_page: "Matanza de los inocentes" contraste < 4.5
+clean_page: "Ministerio de Juan el Bautista" contraste < 4.5
+clean_page: "Miq 5:2" contraste < 4.5
+clean_page: "Nacimiento virginal de Jesús" contraste < 4.5
+clean_page: "Ose 11:1" contraste < 4.5
+clean_page: "Paráfrasis" contraste < 4.5
+clean_page: "Primera tentación de Jesús" contraste < 4.5
+clean_page: "Regreso de la familia de Egipto" contraste < 4.5
+clean_page: "Sal 91:11-12" contraste < 4.5
+clean_page: "Segunda tentación: arrojarse del templo" contraste < 4.5
+clean_page: "Todas" contraste < 4.5
+grey_editorial: "223 citas" contraste < 4.5
+grey_editorial: "Alusiones" contraste < 4.5
+grey_editorial: "Buscar cita..." contraste < 4.5
+grey_editorial: "Deu 8:3" contraste < 4.5
+grey_editorial: "Directa" contraste < 4.5
+grey_editorial: "Directas" contraste < 4.5
+grey_editorial: "Isa 40:3" contraste < 4.5
+grey_editorial: "Isa 7:14" contraste < 4.5
+grey_editorial: "Jer 31:15" contraste < 4.5
+grey_editorial: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+grey_editorial: "Mat 1:23" contraste < 4.5
+grey_editorial: "Mat 2:15" contraste < 4.5
+grey_editorial: "Mat 2:18" contraste < 4.5
+grey_editorial: "Mat 2:6" contraste < 4.5
+grey_editorial: "Mat 3:3" contraste < 4.5
+grey_editorial: "Mat 4:4" contraste < 4.5
+grey_editorial: "Mat 4:6" contraste < 4.5
+grey_editorial: "Matanza de los inocentes" contraste < 4.5
+grey_editorial: "Ministerio de Juan el Bautista" contraste < 4.5
+grey_editorial: "Miq 5:2" contraste < 4.5
+grey_editorial: "Nacimiento virginal de Jesús" contraste < 4.5
+grey_editorial: "Ose 11:1" contraste < 4.5
+grey_editorial: "Paráfrasis" contraste < 4.5
+grey_editorial: "Primera tentación de Jesús" contraste < 4.5
+grey_editorial: "Regreso de la familia de Egipto" contraste < 4.5
+grey_editorial: "Sal 91:11-12" contraste < 4.5
+grey_editorial: "Segunda tentación: arrojarse del templo" contraste < 4.5
+grey_editorial: "Todas" contraste < 4.5
+lavender: "223 citas" contraste < 4.5
+lavender: "Alusiones" contraste < 4.5
+lavender: "Buscar cita..." contraste < 4.5
+lavender: "Deu 8:3" contraste < 4.5
+lavender: "Directa" contraste < 4.5
+lavender: "Directas" contraste < 4.5
+lavender: "Isa 40:3" contraste < 4.5
+lavender: "Isa 7:14" contraste < 4.5
+lavender: "Jer 31:15" contraste < 4.5
+lavender: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+lavender: "Mat 1:23" contraste < 4.5
+lavender: "Mat 2:15" contraste < 4.5
+lavender: "Mat 2:18" contraste < 4.5
+lavender: "Mat 2:6" contraste < 4.5
+lavender: "Mat 3:3" contraste < 4.5
+lavender: "Mat 4:4" contraste < 4.5
+lavender: "Mat 4:6" contraste < 4.5
+lavender: "Matanza de los inocentes" contraste < 4.5
+lavender: "Ministerio de Juan el Bautista" contraste < 4.5
+lavender: "Miq 5:2" contraste < 4.5
+lavender: "Nacimiento virginal de Jesús" contraste < 4.5
+lavender: "Ose 11:1" contraste < 4.5
+lavender: "Paráfrasis" contraste < 4.5
+lavender: "Primera tentación de Jesús" contraste < 4.5
+lavender: "Regreso de la familia de Egipto" contraste < 4.5
+lavender: "Sal 91:11-12" contraste < 4.5
+lavender: "Segunda tentación: arrojarse del templo" contraste < 4.5
+mint: "223 citas" contraste < 4.5
+mint: "Alusiones" contraste < 4.5
+mint: "Buscar cita..." contraste < 4.5
+mint: "Deu 8:3" contraste < 4.5
+mint: "Directa" contraste < 4.5
+mint: "Directas" contraste < 4.5
+mint: "Isa 40:3" contraste < 4.5
+mint: "Isa 7:14" contraste < 4.5
+mint: "Jer 31:15" contraste < 4.5
+mint: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+mint: "Mat 1:23" contraste < 4.5
+mint: "Mat 2:15" contraste < 4.5
+mint: "Mat 2:18" contraste < 4.5
+mint: "Mat 2:6" contraste < 4.5
+mint: "Mat 3:3" contraste < 4.5
+mint: "Mat 4:4" contraste < 4.5
+mint: "Mat 4:6" contraste < 4.5
+mint: "Matanza de los inocentes" contraste < 4.5
+mint: "Ministerio de Juan el Bautista" contraste < 4.5
+mint: "Miq 5:2" contraste < 4.5
+mint: "Nacimiento virginal de Jesús" contraste < 4.5
+mint: "Ose 11:1" contraste < 4.5
+mint: "Paráfrasis" contraste < 4.5
+mint: "Primera tentación de Jesús" contraste < 4.5
+mint: "Regreso de la familia de Egipto" contraste < 4.5
+mint: "Sal 91:11-12" contraste < 4.5
+mint: "Segunda tentación: arrojarse del templo" contraste < 4.5
+night_pure: "223 citas" contraste < 4.5
+night_pure: "Buscar cita..." contraste < 4.5
+parchment: "223 citas" contraste < 4.5
+parchment: "Alusiones" contraste < 4.5
+parchment: "Buscar cita..." contraste < 4.5
+parchment: "Deu 8:3" contraste < 4.5
+parchment: "Directa" contraste < 4.5
+parchment: "Directas" contraste < 4.5
+parchment: "Isa 40:3" contraste < 4.5
+parchment: "Isa 7:14" contraste < 4.5
+parchment: "Jer 31:15" contraste < 4.5
+parchment: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+parchment: "Mat 1:23" contraste < 4.5
+parchment: "Mat 2:15" contraste < 4.5
+parchment: "Mat 2:18" contraste < 4.5
+parchment: "Mat 2:6" contraste < 4.5
+parchment: "Mat 3:3" contraste < 4.5
+parchment: "Mat 4:4" contraste < 4.5
+parchment: "Mat 4:6" contraste < 4.5
+parchment: "Matanza de los inocentes" contraste < 4.5
+parchment: "Ministerio de Juan el Bautista" contraste < 4.5
+parchment: "Miq 5:2" contraste < 4.5
+parchment: "Nacimiento virginal de Jesús" contraste < 4.5
+parchment: "Ose 11:1" contraste < 4.5
+parchment: "Paráfrasis" contraste < 4.5
+parchment: "Primera tentación de Jesús" contraste < 4.5
+parchment: "Regreso de la familia de Egipto" contraste < 4.5
+parchment: "Sal 91:11-12" contraste < 4.5
+parchment: "Segunda tentación: arrojarse del templo" contraste < 4.5
+parchment: "Todas" contraste < 4.5
+peach: "223 citas" contraste < 4.5
+peach: "Alusiones" contraste < 4.5
+peach: "Buscar cita..." contraste < 4.5
+peach: "Deu 8:3" contraste < 4.5
+peach: "Directa" contraste < 4.5
+peach: "Directas" contraste < 4.5
+peach: "Isa 40:3" contraste < 4.5
+peach: "Isa 7:14" contraste < 4.5
+peach: "Jer 31:15" contraste < 4.5
+peach: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+peach: "Mat 1:23" contraste < 4.5
+peach: "Mat 2:15" contraste < 4.5
+peach: "Mat 2:18" contraste < 4.5
+peach: "Mat 2:6" contraste < 4.5
+peach: "Mat 3:3" contraste < 4.5
+peach: "Mat 4:4" contraste < 4.5
+peach: "Mat 4:6" contraste < 4.5
+peach: "Matanza de los inocentes" contraste < 4.5
+peach: "Ministerio de Juan el Bautista" contraste < 4.5
+peach: "Miq 5:2" contraste < 4.5
+peach: "Nacimiento virginal de Jesús" contraste < 4.5
+peach: "Ose 11:1" contraste < 4.5
+peach: "Paráfrasis" contraste < 4.5
+peach: "Primera tentación de Jesús" contraste < 4.5
+peach: "Regreso de la familia de Egipto" contraste < 4.5
+peach: "Sal 91:11-12" contraste < 4.5
+peach: "Segunda tentación: arrojarse del templo" contraste < 4.5
+peach: "Todas" contraste < 4.5
+sepia_night: "223 citas" contraste < 4.5
+sepia_night: "Buscar cita..." contraste < 4.5
+sepia_night: "Los magos preguntan dónde nacería el Cri…" contraste < 4.5
+sepia_night: "Matanza de los inocentes" contraste < 4.5
+sepia_night: "Ministerio de Juan el Bautista" contraste < 4.5
+sepia_night: "Nacimiento virginal de Jesús" contraste < 4.5
+sepia_night: "Primera tentación de Jesús" contraste < 4.5
+sepia_night: "Regreso de la familia de Egipto" contraste < 4.5
+sepia_night: "Segunda tentación: arrojarse del templo" contraste < 4.5
