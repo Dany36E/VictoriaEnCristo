@@ -166,7 +166,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
               Text(
                 '${widget.bookName} ${widget.chapter}:${widget.verse}',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.6),
+                  color: t.textoTenue(0.6),
                   fontSize: 13,
                 ),
               ),
@@ -194,7 +194,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
                 Text(
                   version.shortName.toUpperCase(),
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
@@ -223,7 +223,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
                 Text(
                   version.shortName.toUpperCase(),
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
@@ -239,7 +239,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
                         ? 'No disponible. Toca para reintentar.'
                         : 'No descargada. Toca para descargar.',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.4),
                       fontSize: 13,
                       fontStyle: FontStyle.italic,
                     ),
@@ -262,7 +262,7 @@ class _VerseCompareScreenState extends State<VerseCompareScreen> {
               Text(
                 version.shortName.toUpperCase(),
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5),
+                  color: t.textoTenue(0.5),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.5,

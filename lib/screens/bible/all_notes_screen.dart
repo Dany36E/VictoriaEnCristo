@@ -172,7 +172,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     : 'Tus reflexiones sobre los\nversículos aparecerán aquí',
                 textAlign: TextAlign.center,
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                  color: t.textoTenue(0.4),
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -205,7 +205,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
         child: Text(
           'Eliminar',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+            color: t.textoTenue(0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -254,7 +254,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                     child: Text(
                       note.reference.toUpperCase(),
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                        color: t.textoTenue(0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 1.5,
@@ -264,7 +264,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
                   Text(
                     _relativeDate(note.updatedAt),
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.3),
+                      color: t.textoTenue(0.3),
                       fontSize: 11,
                     ),
                   ),

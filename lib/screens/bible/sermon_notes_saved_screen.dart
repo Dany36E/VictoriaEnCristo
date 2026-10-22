@@ -738,7 +738,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                   preview,
                   maxLines: 3,
                   overflow: TextOverflow.ellipsis,
-                  style: AppFonts.lectura(
+                  style: AppFonts.lora(
                     color: t.textPrimary,
                     fontSize: 14.5,
                     height: 1.55,

@@ -49,7 +49,7 @@ class ReaderBottomNav extends StatelessWidget {
                             child: Text(
                               'Cap. ${controller.currentChapter - 1}',
                               style: AppFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.4),
+                                color: t.textoTenue(0.4),
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,
@@ -71,7 +71,7 @@ class ReaderBottomNav extends StatelessWidget {
             child: Text(
               '${controller.bookName} ${controller.currentChapter}',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.4),
+                color: t.textoTenue(0.4),
                 fontSize: 11,
                 letterSpacing: 1.0,
               ),
@@ -122,7 +122,7 @@ class ReaderBottomNav extends StatelessWidget {
                             child: Text(
                               'Cap. ${controller.currentChapter + 1}',
                               style: AppFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.4),
+                                color: t.textoTenue(0.4),
                                 fontSize: 13,
                               ),
                               overflow: TextOverflow.ellipsis,

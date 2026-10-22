@@ -155,7 +155,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
                       Text(
                         '${_allRefs.length} refs',
                         style: AppFonts.manrope(
-                          color: t.textSecondary.withValues(alpha: 0.5),
+                          color: t.textoTenue(0.5),
                           fontSize: 12,
                         ),
                       ),
@@ -302,7 +302,7 @@ class _CrossRefSheetState extends State<CrossRefSheet> {
               Text(
                 ref.preview,
                 style: AppFonts.crimsonPro(
-                  color: t.textSecondary.withValues(alpha: 0.7),
+                  color: t.textoTenue(0.7),
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
                   height: 1.4,

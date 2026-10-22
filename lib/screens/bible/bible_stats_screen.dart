@@ -109,7 +109,7 @@ class BibleStatsScreen extends StatelessWidget {
                               Text(
                                 '$chaptersRead / ${BibleReadingStatsService.totalBibleChapters} capítulos',
                                 style: AppFonts.manrope(
-                                  color: t.textSecondary.withValues(alpha: 0.5),
+                                  color: t.textoTenue(0.5),
                                   fontSize: 12,
                                 ),
                               ),
@@ -127,7 +127,7 @@ class BibleStatsScreen extends StatelessWidget {
                               child: Text(
                                 'Comienza a leer y tu progreso aparecerá aquí',
                                 style: AppFonts.manrope(
-                                  color: t.textSecondary.withValues(alpha: 0.4),
+                                  color: t.textoTenue(0.4),
                                   fontSize: 14,
                                 ),
                                 textAlign: TextAlign.center,
@@ -212,7 +212,7 @@ class BibleStatsScreen extends StatelessWidget {
                 Text(
                   title,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.6),
+                    color: t.textoTenue(0.6),
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -233,7 +233,7 @@ class BibleStatsScreen extends StatelessWidget {
                     Text(
                       subtitle,
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.4),
+                        color: t.textoTenue(0.4),
                         fontSize: 13,
                       ),
                     ),

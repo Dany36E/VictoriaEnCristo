@@ -139,7 +139,7 @@ class _CrossRefsPanelState extends State<CrossRefsPanel> {
             const SizedBox(width: 8),
             Text('Cargando referencias...',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.4), fontSize: 12)),
+                color: t.textoTenue(0.4), fontSize: 12)),
           ],
         ),
       );

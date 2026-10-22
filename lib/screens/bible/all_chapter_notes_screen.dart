@@ -174,7 +174,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                         : 'Tus notas de estudio por\ncapítulo aparecerán aquí',
                     textAlign: TextAlign.center,
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.4),
                       fontSize: 14,
                       height: 1.6,
                     ),
@@ -230,7 +230,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
               Text(
                 '${notes.length}',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                  color: t.textoTenue(0.4),
                   fontSize: 11,
                 ),
               ),
@@ -255,7 +255,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
         child: Text(
           'Eliminar',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+            color: t.textoTenue(0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -342,7 +342,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                         Text(
                           'Cap. ${note.chapter}',
                           style: AppFonts.manrope(
-                            color: t.textSecondary.withValues(alpha: 0.5),
+                            color: t.textoTenue(0.5),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -351,7 +351,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                         Text(
                           _timeAgo(note.updatedAt),
                           style: AppFonts.manrope(
-                            color: t.textSecondary.withValues(alpha: 0.3),
+                            color: t.textoTenue(0.3),
                             fontSize: 11,
                           ),
                         ),
@@ -373,7 +373,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
                       Text(
                         note.content,
                         style: AppFonts.lora(
-                          color: t.textSecondary.withValues(alpha: 0.5),
+                          color: t.textoTenue(0.5),
                           fontSize: 13,
                           height: 1.4,
                         ),

@@ -218,7 +218,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                   v.displayName,
                   style: AppFonts.manrope(
                     color: isOtherSide
-                        ? t.textSecondary.withValues(alpha: 0.3)
+                        ? t.textoTenue(0.3)
                         : t.textPrimary,
                     fontSize: 14,
                     fontWeight: isCurrent ? FontWeight.w700 : FontWeight.w400,
@@ -227,7 +227,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 subtitle: Text(
                   v.shortName,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 12,
                   ),
                 ),
@@ -316,7 +316,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                     trailing: Text(
                       '${book.totalChapters} cap.',
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                        color: t.textoTenue(0.5),
                         fontSize: 11,
                       ),
                     ),
@@ -506,7 +506,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           Text(
             '${_parallelFontSize.toInt()}',
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.6),
+              color: t.textoTenue(0.6),
               fontSize: 11,
             ),
           ),
@@ -620,7 +620,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
         child: Text(
           'No se pudieron cargar los versículos',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+            color: t.textoTenue(0.5),
             fontSize: 14,
           ),
         ),
@@ -652,7 +652,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 : 'Descarga otra versión en Ajustes de Biblia para comparar.',
             textAlign: TextAlign.center,
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.55),
+              color: t.textoTenue(0.55),
               fontSize: 13,
               height: 1.4,
             ),
@@ -1024,7 +1024,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
           Text(
             '$_bookName $_currentChapter',
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.5),
+              color: t.textoTenue(0.5),
               fontSize: 12,
             ),
           ),

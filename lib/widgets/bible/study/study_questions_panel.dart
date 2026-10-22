@@ -186,7 +186,7 @@ class _HopeMessageCard extends StatelessWidget {
           Text(
             'Resume la esperanza central que Dios te muestra en este texto.',
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.65),
+              color: t.textoTenue(0.65),
               fontSize: 11,
               height: 1.35,
             ),
@@ -246,7 +246,7 @@ class _HopeMessageCard extends StatelessWidget {
           Text(
             'Selecciona uno o varios versículos que sostienen ese mensaje.',
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.62),
+              color: t.textoTenue(0.62),
               fontSize: 11,
               height: 1.35,
             ),
@@ -271,7 +271,7 @@ class _HopeMessageCard extends StatelessWidget {
               mainVerseReference,
               style: AppFonts.manrope(
                 color: selectedVerses.isEmpty
-                    ? t.textSecondary.withValues(alpha: 0.65)
+                    ? t.textoTenue(0.65)
                     : t.accent,
                 fontSize: 12,
                 fontWeight: FontWeight.w700,
@@ -304,7 +304,7 @@ class _VerseChips extends StatelessWidget {
       return Text(
         'No hay versículos cargados para seleccionar.',
         style: AppFonts.manrope(
-          color: t.textSecondary.withValues(alpha: 0.62),
+          color: t.textoTenue(0.62),
           fontSize: 12,
           fontStyle: FontStyle.italic,
         ),
@@ -450,7 +450,7 @@ class _QuestionsToolbar extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.75),
+                    color: t.textoTenue(0.75),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.3,
@@ -871,7 +871,7 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
           Text(
             'Ideas libres, resumen, observaciones, acuerdos del grupo o pendientes para revisar.',
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.65),
+              color: t.textoTenue(0.65),
               fontSize: 11,
               height: 1.35,
             ),
@@ -886,7 +886,7 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
                     Text(
                       'Selecciona texto para darle formato.',
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.66),
+                        color: t.textoTenue(0.66),
                         fontSize: 11.5,
                       ),
                     ),
@@ -1277,7 +1277,7 @@ class _StudyNotesFontSheet extends StatelessWidget {
             Text(
               'Selecciona una parte de la nota y despues elige el tamano que quieras aplicar.',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.72),
+                color: t.textoTenue(0.72),
                 fontSize: 12,
                 height: 1.35,
               ),
@@ -1365,7 +1365,7 @@ class _StudyNotesFontTile extends StatelessWidget {
                   Text(
                     'Aplicar a la seleccion actual',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.72),
+                      color: t.textoTenue(0.72),
                       fontSize: 11.5,
                     ),
                   ),
@@ -1447,7 +1447,7 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
                 Text(
                   'Sugerencia: $replacement',
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.76),
+                    color: t.textoTenue(0.76),
                     fontSize: 11,
                     height: 1.25,
                   ),
@@ -1508,7 +1508,7 @@ class _StudyGeneralNotesHint extends StatelessWidget {
             child: Text(
               'Ahora tus notas generales usan formato real dentro del editor. Las palabras dudosas se subrayan en rojo y puedes corregirlas desde el menu o la sugerencia contextual.',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.76),
+                color: t.textoTenue(0.76),
                 fontSize: 11.5,
                 height: 1.35,
               ),
@@ -1589,7 +1589,7 @@ class _QuestionCard extends StatelessWidget {
             child: Text(
               question.hint,
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.6),
+                color: t.textoTenue(0.6),
                 fontSize: 11,
                 height: 1.3,
               ),

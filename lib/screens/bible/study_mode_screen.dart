@@ -384,10 +384,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     _saveDebounce = Timer(const Duration(milliseconds: 700), _flushAnswers);
   }
 
+  /// true desde dispose: el guardado final ya no toca el estado.
+  bool _cerrando = false;
+
   Future<void> _flushAnswers() async {
     _saveDebounce?.cancel();
     _saveDebounce = null;
-    if (mounted) {
+    if (mounted && !_cerrando) {
       setState(() => _isSaving = true);
     } else {
       _isSaving = true;
@@ -414,7 +417,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       versionId: _version.id,
     );
     if (!updated.hasContent) {
-      if (mounted) {
+      if (mounted && !_cerrando) {
         setState(() {
           _isSaving = false;
           _hasPendingChanges = false;
@@ -426,7 +429,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       return;
     }
     await StudyModeService.I.saveAnswers(updated);
-    if (mounted) {
+    if (mounted && !_cerrando) {
       setState(() {
         _lastSavedAt = updated.updatedAt;
         _isSaving = false;
@@ -816,6 +819,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     _saveDebounce?.cancel();
     _saveStatusTicker?.cancel();
     _stopRoomSyncTimer();
+    _cerrando = true;
     _flushAnswers(); // sin await — se ejecutará en background
     StudyRoomService.I.currentRoomNotifier.removeListener(_onRoomChanged);
     for (final c in _controllers.values) {
@@ -2093,7 +2097,7 @@ class _SavedStudiesHeader extends StatelessWidget {
                       ? 'Sin estudios todavía'
                       : '$filteredCount de $totalCount',
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.75),
+                    color: t.textoTenue(0.75),
                     fontSize: 11,
                     fontWeight: FontWeight.w700,
                   ),
@@ -2960,7 +2964,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
             Text(
               'Elige una portada mas limpia si quieres un resultado mas sobrio.',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.66),
+                color: t.textoTenue(0.66),
                 fontSize: 12,
                 height: 1.35,
               ),
@@ -2983,7 +2987,7 @@ class _PdfExportActionSheetState extends State<_PdfExportActionSheet> {
               subtitle: Text(
                 'Usa un encabezado mas minimalista y resalta las versiones elegidas.',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.64),
+                  color: t.textoTenue(0.64),
                   fontSize: 11.5,
                 ),
               ),
@@ -3640,7 +3644,7 @@ class _VerseRangeSheetState extends State<_VerseRangeSheet> {
                                 ? 'Toca versículos sueltos para agregarlos.'
                                 : 'Toca un versículo para ajustar el rango.',
                             style: AppFonts.manrope(
-                              color: t.textSecondary.withValues(alpha: 0.65),
+                              color: t.textoTenue(0.65),
                               fontSize: 11,
                               fontStyle: FontStyle.italic,
                             ),
@@ -3995,7 +3999,7 @@ class _TypographySheet extends StatelessWidget {
             Text(
               'TEXTO Y COLORES',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.6),
+                color: t.textoTenue(0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,
@@ -4040,7 +4044,7 @@ class _TypographySheet extends StatelessWidget {
             Text(
               'TEMA',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.6),
+                color: t.textoTenue(0.6),
                 fontSize: 10,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 2,

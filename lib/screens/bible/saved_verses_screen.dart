@@ -81,7 +81,7 @@ class SavedVersesScreen extends StatelessWidget {
                 'Los versículos que guardes\naparecerán aquí',
                 textAlign: TextAlign.center,
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                  color: t.textoTenue(0.4),
                   fontSize: 14,
                   height: 1.6,
                 ),
@@ -113,7 +113,7 @@ class SavedVersesScreen extends StatelessWidget {
         child: Text(
           'Eliminar',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+            color: t.textoTenue(0.5),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),
@@ -168,7 +168,7 @@ class SavedVersesScreen extends StatelessWidget {
               Text(
                 sv.reference.toUpperCase(),
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5),
+                  color: t.textoTenue(0.5),
                   fontSize: 11,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 1.5,

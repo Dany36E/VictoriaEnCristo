@@ -70,7 +70,7 @@ class HarmonySheet extends StatelessWidget {
                           child: Text(
                             'Armonía de los Evangelios',
                             style: AppFonts.cinzel(
-                              color: t.textSecondary.withValues(alpha: 0.5),
+                              color: t.textoTenue(0.5),
                               fontSize: 11,
                               fontWeight: FontWeight.w600,
                             ),
@@ -128,7 +128,7 @@ class HarmonySheet extends StatelessWidget {
                 child: Text(
                   '${section.gospelCount} de 4 evangelios narran este evento',
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.4),
+                    color: t.textoTenue(0.4),
                     fontSize: 11,
                     fontStyle: FontStyle.italic,
                   ),
@@ -177,7 +177,7 @@ class HarmonySheet extends StatelessWidget {
             Text(
               abbr,
               style: AppFonts.cinzel(
-                color: hasRef ? t.accent : t.textSecondary.withValues(alpha: 0.3),
+                color: hasRef ? t.accent : t.textoTenue(0.3),
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
@@ -197,7 +197,7 @@ class HarmonySheet extends StatelessWidget {
               Text(
                 '—',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.2),
+                  color: t.textoTenue(0.2),
                   fontSize: 14,
                 ),
               ),

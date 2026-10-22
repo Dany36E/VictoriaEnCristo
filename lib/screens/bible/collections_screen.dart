@@ -81,7 +81,7 @@ class CollectionsScreen extends StatelessWidget {
                                 'Sin colecciones',
                                 style: AppFonts.manrope(
                                   color:
-                                      t.textSecondary.withValues(alpha: 0.4),
+                                      t.textoTenue(0.4),
                                   fontSize: 14,
                                 ),
                               ),
@@ -156,7 +156,7 @@ class CollectionsScreen extends StatelessWidget {
                     Text(
                       c.description!,
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                        color: t.textoTenue(0.5),
                         fontSize: 12,
                       ),
                       maxLines: 1,
@@ -168,7 +168,7 @@ class CollectionsScreen extends StatelessWidget {
             Text(
               '${c.verseCount}',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.4),
+                color: t.textoTenue(0.4),
                 fontSize: 13,
               ),
             ),

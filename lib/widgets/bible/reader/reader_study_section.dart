@@ -15,22 +15,22 @@ class ReaderStudyBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: const Color(0xFFD4AF37).withValues(alpha: 0.08),
+          color: theme.accent.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: const Color(0xFFD4AF37).withValues(alpha: 0.2),
+            color: theme.accent.withValues(alpha: 0.2),
           ),
         ),
         child: Row(
           children: [
-            const Icon(Icons.auto_stories,
-                color: Color(0xFFD4AF37), size: 16),
+            Icon(Icons.auto_stories,
+                color: theme.accent, size: 16),
             const SizedBox(width: 8),
             Expanded(
               child: Text(
                 'Modo Estudio · David Guzik · Enduring Word',
                 style: AppFonts.manrope(
-                  color: const Color(0xFFD4AF37).withValues(alpha: 0.8),
+                  color: theme.accent.withValues(alpha: 0.8),
                   fontSize: 11,
                   fontWeight: FontWeight.w500,
                   letterSpacing: 0.3,
@@ -77,7 +77,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
               : Colors.black.withValues(alpha: 0.03),
           border: Border(
             left: BorderSide(
-              color: const Color(0xFFD4AF37).withValues(alpha: 0.6),
+              color: theme.accent.withValues(alpha: 0.6),
               width: 3,
             ),
           ),
@@ -100,7 +100,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
                       child: Text(
                         section.heading,
                         style: AppFonts.manrope(
-                          color: const Color(0xFFD4AF37),
+                          color: theme.accent,
                           fontSize: (fontSize - 2).clamp(9.0, 26.0),
                           fontWeight: FontWeight.w600,
                           height: 1.4,
@@ -156,7 +156,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
                 : Colors.black.withValues(alpha: 0.02),
             borderRadius: BorderRadius.circular(8),
             border: Border.all(
-              color: const Color(0xFFD4AF37).withValues(alpha: 0.15),
+              color: theme.accent.withValues(alpha: 0.15),
             ),
           ),
           child: Column(
@@ -166,7 +166,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
                 'by David Guzik – enduringword.com',
                 textAlign: TextAlign.center,
                 style: AppFonts.manrope(
-                  color: theme.textSecondary.withValues(alpha: 0.5),
+                  color: theme.textoTenue(0.5),
                   fontSize: 10,
                   height: 1.5,
                 ),
@@ -175,7 +175,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
               Text(
                 'Used with permission.',
                 style: AppFonts.manrope(
-                  color: theme.textSecondary.withValues(alpha: 0.35),
+                  color: theme.textoTenue(0.35),
                   fontSize: 9,
                   fontStyle: FontStyle.italic,
                 ),

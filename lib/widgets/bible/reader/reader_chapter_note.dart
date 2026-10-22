@@ -107,7 +107,7 @@ class ReaderChapterNoteIndicator extends StatelessWidget {
                             'Agregar nota de estudio...',
                             style: AppFonts.manrope(
                               color:
-                                  t.textSecondary.withValues(alpha: 0.3),
+                                  t.textoTenue(0.3),
                               fontSize: 13,
                             ),
                           ),

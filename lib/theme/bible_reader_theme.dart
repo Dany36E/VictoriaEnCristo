@@ -50,6 +50,13 @@ class BibleReaderThemeData {
   /// Swatch color for theme selector
   Color get swatchColor => background;
 
+  /// Texto secundario atenuado (fechas, contadores, avisos). En el tema papel
+  /// no baja de 0.85 de opacidad: el gris con poca opacidad casi desaparece
+  /// sobre el papel crema. En los demás temas es igual a `withValues`.
+  Color textoTenue(double alpha) => textSecondary.withValues(
+    alpha: id == paper.id && alpha < 0.85 ? 0.85 : alpha,
+  );
+
   /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
   /// cada página pinta el papel con textura (FondoPapel) por detrás.
   Color get pageBg => id == paper.id ? Colors.transparent : background;
@@ -173,7 +180,9 @@ class BibleReaderThemeData {
     background: VecColores.crema,
     surface: VecColores.papel,
     textPrimary: VecColores.tinta,
-    textSecondary: VecColores.gris,
+    // Un poco más oscuro que VecColores.gris para que los textos chicos del
+    // lector se lean bien sobre el papel (5.8:1 sobre crema).
+    textSecondary: Color(0xFF66584A),
     accent: VecColores.terracota,
     toolbarBg: VecColores.papel,
     isDark: false,

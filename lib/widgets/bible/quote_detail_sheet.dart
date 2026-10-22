@@ -62,7 +62,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         Text(
                           'Cita del Antiguo Testamento',
                           style: AppFonts.cinzel(
-                            color: t.textSecondary.withValues(alpha: 0.5),
+                            color: t.textoTenue(0.5),
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
                           ),
@@ -129,7 +129,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         Text(
                           'Contexto',
                           style: AppFonts.cinzel(
-                            color: t.textSecondary.withValues(alpha: 0.5),
+                            color: t.textoTenue(0.5),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),
@@ -149,7 +149,7 @@ class QuoteDetailSheet extends StatelessWidget {
                         Text(
                           'Significado',
                           style: AppFonts.cinzel(
-                            color: t.textSecondary.withValues(alpha: 0.5),
+                            color: t.textoTenue(0.5),
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
                           ),

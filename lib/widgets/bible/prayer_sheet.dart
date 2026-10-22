@@ -121,7 +121,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
                 child: Text(
                   '"${widget.verse.text}"',
                   style: AppFonts.crimsonPro(
-                    color: t.textSecondary.withValues(alpha: 0.6),
+                    color: t.textoTenue(0.6),
                     fontSize: 14,
                     fontStyle: FontStyle.italic,
                     height: 1.5,

@@ -405,7 +405,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 style: AppFonts.manrope(
                   color: _advancedMode
                       ? t.accent
-                      : t.textSecondary.withValues(alpha: 0.6),
+                      : t.textoTenue(0.6),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
@@ -420,7 +420,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 child: Text(
                   version.shortName,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
                   ),
@@ -448,7 +448,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             Text(
               'Busca libros, capítulos o versículos',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.4),
+                color: t.textoTenue(0.4),
                 fontSize: 14,
               ),
             ),
@@ -456,7 +456,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             Text(
               'Ej: "Salmos 23", "Juan 3:16", "amor"',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.3),
+                color: t.textoTenue(0.3),
                 fontSize: 12,
               ),
             ),
@@ -475,7 +475,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               Text(
                 'Recientes',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5),
+                  color: t.textoTenue(0.5),
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                   letterSpacing: 0.5,
@@ -552,7 +552,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         child: Text(
           'Sin resultados',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+            color: t.textoTenue(0.5),
             fontSize: 14,
           ),
         ),
@@ -568,7 +568,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           child: Text(
             'REFERENCIA DIRECTA',
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.5),
+              color: t.textoTenue(0.5),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.5,
@@ -584,7 +584,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           '${result.verses.length} versículo${result.verses.length == 1 ? '' : 's'}',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.5),
+            color: t.textoTenue(0.5),
             fontSize: 12,
             letterSpacing: 0.5,
           ),
@@ -612,7 +612,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 Text(
                   verse.reference,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
@@ -755,7 +755,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             text: text.substring(matchIndex, matchIndex + query.length),
             style: TextStyle(
               color: t.background,
-              backgroundColor: const Color(0xFFD4AF37),
+              backgroundColor: t.accent,
               fontWeight: FontWeight.w600,
             ),
           ),
@@ -790,7 +790,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               Text(
                 'HISTORIAL DE BÚSQUEDA',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                  color: t.textoTenue(0.4),
                   fontSize: 11,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 1.5,
@@ -869,7 +869,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'RANGO DE LIBROS',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -928,7 +928,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'BUSCAR POR TEMA',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -970,7 +970,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'PALABRA ORIGINAL',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -980,7 +980,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'Copia una palabra hebrea o griega desde el Interlineal. La búsqueda reúne sus apariciones por forma escrita, lema y Strong cuando existe vínculo local.',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.55),
+            color: t.textoTenue(0.55),
             fontSize: 12,
             height: 1.45,
           ),
@@ -992,7 +992,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'NÚMERO STRONG',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+            color: t.textoTenue(0.4),
             fontSize: 11,
             fontWeight: FontWeight.w700,
             letterSpacing: 1.5,
@@ -1002,7 +1002,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Text(
           'También puedes escribir un número completo (por ejemplo H430 o G2316). El léxico y el índice funcionan sin conexión.',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+            color: t.textoTenue(0.4),
             fontSize: 12,
           ),
         ),
@@ -1034,7 +1034,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           hint: Text(
             hint,
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.5),
+              color: t.textoTenue(0.5),
               fontSize: 12,
             ),
           ),
@@ -1154,7 +1154,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             Text(
               'Buscando...',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.5),
+                color: t.textoTenue(0.5),
                 fontSize: 13,
               ),
             ),
@@ -1200,7 +1200,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                     Text(
                       result.subtitle,
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                        color: t.textoTenue(0.5),
                         fontSize: 12,
                       ),
                     ),
@@ -1211,7 +1211,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                         maxLines: 4,
                         overflow: TextOverflow.ellipsis,
                         style: AppFonts.manrope(
-                          color: t.textSecondary.withValues(alpha: 0.65),
+                          color: t.textoTenue(0.65),
                           fontSize: 11,
                           height: 1.4,
                         ),
@@ -1238,7 +1238,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   child: Text(
                     'Sin resultados',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.4),
                       fontSize: 14,
                     ),
                   ),
@@ -1273,7 +1273,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                             Text(
                               v.reference,
                               style: AppFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.5),
+                                color: t.textoTenue(0.5),
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
                               ),
@@ -1343,7 +1343,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   Text(
                     '(${entry.value.length})',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.5),
+                      color: t.textoTenue(0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -1371,7 +1371,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                       Text(
                         '${v.chapter}:${v.verse}',
                         style: AppFonts.manrope(
-                          color: t.textSecondary.withValues(alpha: 0.5),
+                          color: t.textoTenue(0.5),
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
                         ),
@@ -1428,7 +1428,7 @@ class _FilterChip extends StatelessWidget {
           style: AppFonts.manrope(
             color: isSelected
                 ? theme.accent
-                : theme.textSecondary.withValues(alpha: 0.6),
+                : theme.textoTenue(0.6),
             fontSize: 12,
             fontWeight: FontWeight.w600,
           ),

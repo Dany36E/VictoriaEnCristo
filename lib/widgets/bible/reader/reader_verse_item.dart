@@ -95,8 +95,8 @@ class ReaderVerseItem extends StatelessWidget {
           decoration: BoxDecoration(
             color: isTtsActive ? theme.selectionBg : null,
             border: isTtsActive
-                ? const Border(
-                    left: BorderSide(color: Color(0xFFD4AF37), width: 3),
+                ? Border(
+                    left: BorderSide(color: theme.accent, width: 3),
                   )
                 : null,
           ),
@@ -112,7 +112,7 @@ class ReaderVerseItem extends StatelessWidget {
                       style: AppFonts.manrope(
                         color: isSelected || isTtsActive
                             ? theme.accent
-                            : theme.textSecondary.withValues(alpha: 0.5),
+                            : theme.textoTenue(0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -337,7 +337,7 @@ class ReaderVerseItem extends StatelessWidget {
         text: text.substring(idx, end.clamp(0, text.length)),
         style: baseStyle.copyWith(
           color: theme.background,
-          backgroundColor: const Color(0xFFD4AF37),
+          backgroundColor: theme.accent,
           fontWeight: FontWeight.w600,
         ),
       ),

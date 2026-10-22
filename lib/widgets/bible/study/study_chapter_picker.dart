@@ -775,7 +775,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
             child: Text(
               row.header!,
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.65),
+                color: t.textoTenue(0.65),
                 fontSize: 10.5,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.6,
@@ -821,7 +821,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                     Text(
                       b.abbreviation,
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.45),
+                        color: t.textoTenue(0.45),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                       ),
@@ -880,7 +880,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
           child: Text(
             'Toca un capítulo para elegir versículos',
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.7),
+              color: t.textoTenue(0.7),
               fontSize: 10.5,
             ),
           ),
@@ -935,7 +935,7 @@ class _StudyChapterPickerState extends State<StudyChapterPicker> {
                             Text(
                               '$verseCount v',
                               style: AppFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.5),
+                                color: t.textoTenue(0.5),
                                 fontSize: 8.5,
                                 fontWeight: FontWeight.w600,
                               ),

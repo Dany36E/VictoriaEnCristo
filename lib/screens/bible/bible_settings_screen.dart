@@ -178,7 +178,7 @@ class BibleSettingsScreen extends StatelessWidget {
                       Text(
                         'A',
                         style: AppFonts.crimsonPro(
-                          color: t.textSecondary.withValues(alpha: 0.5),
+                          color: t.textoTenue(0.5),
                           fontSize: 14,
                         ),
                       ),
@@ -213,7 +213,7 @@ class BibleSettingsScreen extends StatelessWidget {
                   Text(
                     '${fontSize.toInt()} pt',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.5),
+                      color: t.textoTenue(0.5),
                       fontSize: 12,
                     ),
                   ),
@@ -306,7 +306,7 @@ class BibleSettingsScreen extends StatelessWidget {
                                 style: AppFonts.manrope(
                                   color: isActive
                                       ? t.accent
-                                      : t.textSecondary.withValues(alpha: 0.6),
+                                      : t.textoTenue(0.6),
                                   fontSize: 9,
                                 ),
                               ),
@@ -730,7 +730,7 @@ class _DownloadsSection extends StatelessWidget {
                                     ? '${version.shortName} · ${version.language.label} · ~5 MB'
                                     : '${version.shortName} · ${version.language.label} · Requiere fuente autorizada',
                                 style: AppFonts.manrope(
-                                  color: t.textSecondary.withValues(alpha: 0.5),
+                                  color: t.textoTenue(0.5),
                                   fontSize: 12,
                                 ),
                               ),

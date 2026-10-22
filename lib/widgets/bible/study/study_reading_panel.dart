@@ -412,7 +412,7 @@ class _PassageHeader extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.78),
+                color: t.textoTenue(0.78),
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.3,
@@ -545,7 +545,7 @@ class _VersionLabel extends StatelessWidget {
     return Text(
       version.shortName,
       style: AppFonts.manrope(
-        color: muted ? t.textSecondary.withValues(alpha: 0.55) : t.accent,
+        color: muted ? t.textoTenue(0.55) : t.accent,
         fontSize: 10,
         fontWeight: FontWeight.w800,
         letterSpacing: 1.0,
@@ -581,7 +581,7 @@ class _SecondaryVerseText extends StatelessWidget {
           TextSpan(
             text: '$verseNumber ',
             style: AppFonts.cinzel(
-              color: t.textSecondary.withValues(alpha: 0.7),
+              color: t.textoTenue(0.7),
               fontSize: fontSize * 0.62,
               fontWeight: FontWeight.w600,
             ),
@@ -635,7 +635,7 @@ class _VerseRow extends StatelessWidget {
             child: Text(
               '${verse.verse}',
               style: AppFonts.cinzel(
-                color: muted ? t.textSecondary.withValues(alpha: 0.7) : t.accent,
+                color: muted ? t.textoTenue(0.7) : t.accent,
                 fontSize: fontSize * 0.65,
                 fontWeight: FontWeight.w600,
               ),

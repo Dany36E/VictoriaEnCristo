@@ -426,7 +426,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           Text(
             section.description,
             style: AppFonts.manrope(
-              color: t.textSecondary.withValues(alpha: 0.4),
+              color: t.textoTenue(0.4),
               fontSize: 11,
             ),
           ),
@@ -482,7 +482,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     Text(
                       'Continuar leyendo',
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                        color: t.textoTenue(0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
@@ -564,7 +564,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   Text(
                     '${pct.toStringAsFixed(1)}%',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.4),
                       fontSize: 10,
                     ),
                   ),
@@ -680,7 +680,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     Text(
                       tool.label,
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.6),
+                        color: t.textoTenue(0.6),
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),
@@ -813,7 +813,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   tool.label,
                   textAlign: TextAlign.center,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.6),
+                    color: t.textoTenue(0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
                     height: 1.2,
@@ -866,7 +866,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   book.genre.label,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.32),
+                    color: t.textoTenue(0.32),
                     fontSize: 10,
                     letterSpacing: 0.4,
                   ),
@@ -875,7 +875,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   '${book.totalChapters}',
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 13,
                   ),
                 ),
@@ -897,7 +897,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         child: Text(
           'Escribe al menos 3 caracteres',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+            color: t.textoTenue(0.4),
             fontSize: 13,
           ),
         ),
@@ -915,7 +915,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         child: Text(
           'Sin resultados',
           style: AppFonts.manrope(
-            color: t.textSecondary.withValues(alpha: 0.4),
+            color: t.textoTenue(0.4),
             fontSize: 14,
           ),
         ),
@@ -959,7 +959,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                 Text(
                   '${verse.reference} — ${verse.version}',
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
@@ -1018,7 +1018,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             text: text.substring(matchIndex, matchIndex + query.length),
             style: TextStyle(
               color: t.background,
-              backgroundColor: const Color(0xFFD4AF37),
+              backgroundColor: t.accent,
               fontWeight: FontWeight.w600,
             ),
           ),

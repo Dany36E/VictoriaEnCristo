@@ -315,7 +315,7 @@ class _StudyEntryTile extends StatelessWidget {
                   Text(
                     subtitle,
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.7),
+                      color: t.textoTenue(0.7),
                       fontSize: 11,
                       height: 1.3,
                     ),

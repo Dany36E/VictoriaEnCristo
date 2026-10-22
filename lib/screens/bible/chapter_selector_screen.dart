@@ -100,7 +100,7 @@ class ChapterSelectorScreen extends StatelessWidget {
                           Text(
                             'RECIENTES',
                             style: AppFonts.manrope(
-                              color: t.textSecondary.withValues(alpha: 0.4),
+                              color: t.textoTenue(0.4),
                               fontSize: 10,
                               fontWeight: FontWeight.w700,
                               letterSpacing: 1.5,

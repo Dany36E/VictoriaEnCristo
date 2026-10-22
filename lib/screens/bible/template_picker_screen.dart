@@ -277,7 +277,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'TAMAÑO',
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.4),
+                        color: t.textoTenue(0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
@@ -321,7 +321,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'PROPORCIÓN',
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.4),
+                        color: t.textoTenue(0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
@@ -342,7 +342,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'ALINEACIÓN',
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.4),
+                        color: t.textoTenue(0.4),
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 1.5,
@@ -358,7 +358,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                     Text(
                       'Logo',
                       style: AppFonts.manrope(
-                        color: t.textSecondary.withValues(alpha: 0.5),
+                        color: t.textoTenue(0.5),
                         fontSize: 12,
                       ),
                     ),

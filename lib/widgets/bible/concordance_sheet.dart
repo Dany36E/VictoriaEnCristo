@@ -187,7 +187,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                       Text(
                         '${filtered.length} resultados',
                         style: AppFonts.manrope(
-                          color: t.textSecondary.withValues(alpha: 0.5),
+                          color: t.textoTenue(0.5),
                           fontSize: 11,
                         ),
                       ),
@@ -251,7 +251,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                                   ? 'Sin resultados'
                                   : 'Escribe una palabra para buscar',
                               style: AppFonts.manrope(
-                                color: t.textSecondary.withValues(alpha: 0.4),
+                                color: t.textoTenue(0.4),
                                 fontSize: 13,
                               ),
                             ),
@@ -384,7 +384,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                       style: AppFonts.manrope(
                         color: _bookFilter != null
                             ? t.accent
-                            : t.textSecondary.withValues(alpha: 0.5),
+                            : t.textoTenue(0.5),
                         fontSize: 11,
                         fontWeight: FontWeight.w600,
                       ),
@@ -480,7 +480,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                                 : FontWeight.w400)),
                     trailing: Text('$count',
                         style: AppFonts.manrope(
-                            color: t.textSecondary.withValues(alpha: 0.5),
+                            color: t.textoTenue(0.5),
                             fontSize: 11)),
                     onTap: () {
                       Navigator.pop(ctx);
@@ -514,7 +514,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
         child: Text(
           label,
           style: AppFonts.manrope(
-            color: selected ? t.accent : t.textSecondary.withValues(alpha: 0.5),
+            color: selected ? t.accent : t.textoTenue(0.5),
             fontSize: 11,
             fontWeight: FontWeight.w600,
           ),
@@ -571,7 +571,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
               Text(
                 '${items.length}',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                  color: t.textoTenue(0.4),
                   fontSize: 11,
                 ),
               ),
@@ -611,7 +611,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
             Text(
               '${r.chapter}:${r.verse}',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.5),
+                color: t.textoTenue(0.5),
                 fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
@@ -658,7 +658,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
           text: text.substring(idx, idx + query.length),
           style: baseStyle.copyWith(
             color: t.background,
-            backgroundColor: const Color(0xFFD4AF37),
+            backgroundColor: t.accent,
             fontWeight: FontWeight.w600,
           ),
         ),

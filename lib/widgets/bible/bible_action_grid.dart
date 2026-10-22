@@ -62,7 +62,7 @@ class BibleActionGrid extends StatelessWidget {
             Text(
               title!.toUpperCase(),
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.5),
+                color: t.textoTenue(0.5),
                 fontSize: 12,
                 fontWeight: FontWeight.w600,
                 letterSpacing: 1.5,

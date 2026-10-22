@@ -81,7 +81,7 @@ class ReaderSearchOverlay extends StatelessWidget {
                 child: Text(
                   matchText,
                   style: AppFonts.manrope(
-                    color: t.textSecondary.withValues(alpha: 0.5),
+                    color: t.textoTenue(0.5),
                     fontSize: 11,
                   ),
                 ),

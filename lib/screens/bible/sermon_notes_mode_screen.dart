@@ -2041,7 +2041,7 @@ class _NotesEditorCard extends StatelessWidget {
             contextMenuBuilder: contextMenuBuilder,
             onTap: onTapNotas,
             textCapitalization: TextCapitalization.sentences,
-            style: AppFonts.lectura(
+            style: AppFonts.lora(
               color: t.textPrimary,
               fontSize: 15,
               height: 1.55,

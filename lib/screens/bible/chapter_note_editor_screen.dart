@@ -190,7 +190,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             child: Text(
               '${widget.bookName} ${widget.chapter}',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.6),
+                color: t.textoTenue(0.6),
                 fontSize: 13,
               ),
               textAlign: TextAlign.center,

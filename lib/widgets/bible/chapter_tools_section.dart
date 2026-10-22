@@ -102,7 +102,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               Text(
                 'HERRAMIENTAS DEL CAPÍTULO',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                  color: t.textoTenue(0.4),
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
                   letterSpacing: 2.0,
@@ -205,7 +205,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               Text(
                 '${_relatedMaps.length}',
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.4),
+                  color: t.textoTenue(0.4),
                   fontSize: 11,
                 ),
               ),
@@ -293,7 +293,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   Text(
                     'Autor, contexto, temas y estructura',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -354,7 +354,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   Text(
                     'Comparar versiones lado a lado',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.4),
                       fontSize: 11,
                     ),
                   ),
@@ -413,7 +413,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
                   Text(
                     'David Guzik — análisis del capítulo',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.4),
+                      color: t.textoTenue(0.4),
                       fontSize: 11,
                     ),
                   ),

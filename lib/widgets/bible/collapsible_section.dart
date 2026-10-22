@@ -90,7 +90,7 @@ class _CollapsibleSectionState extends State<CollapsibleSection>
                   child: Text(
                     widget.title,
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.6),
+                      color: t.textoTenue(0.6),
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                     ),

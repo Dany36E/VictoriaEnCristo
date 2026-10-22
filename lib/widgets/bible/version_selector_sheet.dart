@@ -50,7 +50,7 @@ void showVersionSelectorSheet(BuildContext context, {VoidCallback? onChanged}) {
                   child: Text(
                     'VERSIÓN',
                     style: AppFonts.manrope(
-                      color: t.textSecondary.withValues(alpha: 0.5),
+                      color: t.textoTenue(0.5),
                       fontSize: 10,
                       fontWeight: FontWeight.w700,
                       letterSpacing: 2.0,

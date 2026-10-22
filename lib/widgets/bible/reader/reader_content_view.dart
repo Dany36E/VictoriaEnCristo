@@ -107,7 +107,7 @@ class ReaderContentView extends StatelessWidget {
                 const SizedBox(width: 6),
                 Text(
                   'Sin conexión · Funciones online no disponibles',
-                  style: AppFonts.manrope(fontSize: 10, color: t.textSecondary.withValues(alpha: 0.5)),
+                  style: AppFonts.manrope(fontSize: 10, color: t.textoTenue(0.5)),
                 ),
               ],
             ),
@@ -127,7 +127,7 @@ class ReaderContentView extends StatelessWidget {
             Text(
               '${controller.currentChapter}',
               style: AppFonts.manrope(
-                color: t.textSecondary.withValues(alpha: 0.25),
+                color: t.textoTenue(0.25),
                 fontSize: 64,
                 fontWeight: FontWeight.w200,
                 height: 1.0,
@@ -138,7 +138,7 @@ class ReaderContentView extends StatelessWidget {
               Text(
                 controller.chapterIntro!,
                 style: AppFonts.manrope(
-                  color: t.textSecondary.withValues(alpha: 0.5),
+                  color: t.textoTenue(0.5),
                   fontSize: 13,
                   fontStyle: FontStyle.italic,
                   height: 1.5,

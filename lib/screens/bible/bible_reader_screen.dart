@@ -266,7 +266,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                                 child: Text(
                                   label,
                                   style: AppFonts.manrope(
-                                    color: t.textSecondary.withValues(alpha: 0.3),
+                                    color: t.textoTenue(0.3),
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
                                   ),
