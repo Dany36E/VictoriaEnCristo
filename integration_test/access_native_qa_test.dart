@@ -92,13 +92,13 @@ void main() {
       );
       expect(audioToggle, findsOneWidget);
       final audioBounds = tester.getRect(find.byType(BotonAudioPapel));
-      // El contenido empieza debajo del botón (la hoja se desplaza por
-      // detrás, con margen arriba).
-      final scrollBounds = tester.getRect(find.byType(Letrero));
+      // Al abrir, el letrero empieza debajo del botón de música. Al
+      // desplazar, la hoja pasa por detrás del botón (es a propósito).
+      final letreroBounds = tester.getRect(find.byType(Letrero));
       expect(
-        scrollBounds.top,
+        letreroBounds.top,
         greaterThanOrEqualTo(audioBounds.bottom),
-        reason: 'Scrollable content must stay below the floating audio toggle',
+        reason: 'El letrero empieza debajo del botón de música',
       );
       final start = find.text('Elegir mis gigantes');
       await Scrollable.ensureVisible(tester.element(start), alignment: 0.5);
