@@ -1,6 +1,6 @@
 # Material de envío a App Store — iPhone y iPad
 
-Versión preparada: **1.0.29 (39)**
+Versión preparada: **1.0.30 (40)**
 
 Bundle ID existente en Firebase: **com.victoriaecristo.app**
 
