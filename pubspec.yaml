@@ -119,8 +119,6 @@ flutter:
     - assets/bible/search/
     - assets/bible/share_backgrounds/
     - assets/bible/share/
-    - assets/widget/jesus/
-    - assets/widget/backgrounds/
     - assets/config.json
     # Fuentes bundled (descubiertas por google_fonts y disponibles como
     # fontFamily nativo para fallback offline sin descargas en runtime).
