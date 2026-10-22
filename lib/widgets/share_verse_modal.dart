@@ -271,8 +271,9 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                 width: 40,
                 height: 4,
                 decoration: BoxDecoration(
-                  // Kraft: el crema oscuro casi no se veía sobre la hoja.
-                  color: VecColores.kraft,
+                  // Gris del kit: el crema oscuro casi no se veía sobre la
+                  // hoja (contraste de más de 3:1, como pide WCAG 1.4.11).
+                  color: VecColores.gris,
                   borderRadius: BorderRadius.circular(2),
                 ),
               ),

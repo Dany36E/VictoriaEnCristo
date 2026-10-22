@@ -56,13 +56,13 @@ void setUpThemeMatrix() {
     await (FontLoader(
       'MaterialIcons',
     )..addFont(rootBundle.load('fonts/MaterialIcons-Regular.otf'))).load();
-    // Letras del kit del tema «Papel recortado».
     // Familia de pubspec.yaml que usan las plantillas clásicas para compartir
     // (google_fonts la registra aparte como «Crimson Pro»).
     await (FontLoader('CrimsonPro')..addFont(
           rootBundle.load('google_fonts/CrimsonPro-VariableFont_wght.ttf'),
         ))
         .load();
+    // Letras del kit del tema «Papel recortado».
     for (final (familia, archivo) in [
       ('LilitaOne', 'LilitaOne-Regular.ttf'),
       ('PatrickHand', 'PatrickHand-Regular.ttf'),

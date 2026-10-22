@@ -489,7 +489,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
           // Download button
           Expanded(
             child: SizedBox(
-              height: 46,
+              height: 48, // área táctil mínima
               child: OutlinedButton.icon(
                 onPressed: _sharing ? null : _downloadImage,
                 icon: const Icon(Icons.download_rounded, size: 18),
@@ -521,7 +521,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
           Expanded(
             flex: 2,
             child: SizedBox(
-              height: 46,
+              height: 48, // área táctil mínima
               child: ElevatedButton.icon(
                 onPressed: _sharing ? null : _shareImage,
                 icon: _sharing

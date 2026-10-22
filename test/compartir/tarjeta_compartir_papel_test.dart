@@ -115,9 +115,36 @@ void main() {
         referencia: '1 Corintios 10:13',
         version: 'RVR1960',
         alineacion: TextAlign.right,
-        tamanoTexto: 30,
+        escalaTexto: 1.3,
       ),
     );
     expect(find.byType(FondoPapel), findsNothing);
+  });
+
+  testWidgets('el control de tamaño agranda o achica el versículo', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(400, 800);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+    final tamanos = <double>[];
+    for (final escala in [0.8, 1.0, 1.3, 1.6]) {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Center(
+            child: TarjetaCompartirPapel(
+              texto: _largo,
+              referencia: '1 Corintios 10:13',
+              escalaTexto: escala,
+            ),
+          ),
+        ),
+      );
+      tamanos.add(tester.widget<Text>(find.text(_largo)).style!.fontSize!);
+    }
+    for (var i = 1; i < tamanos.length; i++) {
+      expect(tamanos[i], greaterThan(tamanos[i - 1]), reason: '$tamanos');
+    }
   });
 }

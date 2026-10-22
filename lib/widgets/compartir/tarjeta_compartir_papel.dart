@@ -39,7 +39,7 @@ class TarjetaCompartirPapel extends StatelessWidget {
     this.personaje = PersonajeCompartir.victoria,
     this.mostrarMarca = true,
     this.alineacion = TextAlign.center,
-    this.tamanoTexto,
+    this.escalaTexto = 1,
   });
 
   /// Ancho lógico fijo del dibujo.
@@ -61,8 +61,10 @@ class TarjetaCompartirPapel extends StatelessWidget {
   final bool mostrarMarca;
   final TextAlign alineacion;
 
-  /// Tamaño de la letra del versículo; si es null se elige por su largo.
-  final double? tamanoTexto;
+  /// Multiplica la letra del versículo después de ajustarla a la tarjeta (el
+  /// control «Tamaño» de las plantillas). Más de 1 agranda el versículo
+  /// frente a la referencia; si ya no cabe, se achica todo junto.
+  final double escalaTexto;
 
   double get _alto => ancho / proporcion;
 
@@ -79,8 +81,9 @@ class TarjetaCompartirPapel extends StatelessWidget {
     final alto = _alto;
     final vertical = proporcion < 0.95;
     // El personaje crece con el lienzo. La tarjeta termina arriba de su
-    // cabeza (se asoma un 8 % por abajo) para que nunca tape el texto.
-    final altoPersonaje = vertical ? math.min(alto * 0.36, 230.0) : 128.0;
+    // cabeza (se asoma un 8 % por abajo) para que nunca tape el texto; por
+    // eso no es más grande: lo que mide de alto se le quita a la tarjeta.
+    final altoPersonaje = vertical ? math.min(alto * 0.3, 190.0) : 112.0;
     final abajoTarjeta = math.max(
       mostrarMarca || pie != null ? 70.0 : 40.0,
       altoPersonaje * 0.92 + 6,
@@ -122,8 +125,9 @@ class TarjetaCompartirPapel extends StatelessWidget {
                       alineacion: alineacion,
                       // En historias (9:16) sobra alto: letra un poco más grande.
                       tamano:
-                          (tamanoTexto ?? tamanoPorLargo(texto.length)) *
+                          tamanoPorLargo(texto.length) *
                           (proporcion < 0.7 ? 1.15 : 1),
+                      escala: escalaTexto,
                     ),
                   ),
                 ),
@@ -161,12 +165,13 @@ class _Contenido extends StatelessWidget {
     required this.color,
     required this.alineacion,
     required this.tamano,
+    required this.escala,
   });
 
   final String texto, referencia, version;
   final Color color;
   final TextAlign alineacion;
-  final double tamano;
+  final double tamano, escala;
 
   CrossAxisAlignment get _cruce => switch (alineacion) {
     TextAlign.left || TextAlign.start => CrossAxisAlignment.start,
@@ -212,9 +217,11 @@ class _Contenido extends StatelessWidget {
 
   static const _separacion = 14.0;
 
-  double _altoDe(InlineSpan texto, double ancho) {
+  /// Alto de [texto] con el estilo que de verdad usa Text (el de
+  /// DefaultTextStyle combinado con el propio).
+  double _altoDe(InlineSpan texto, TextStyle base, double ancho) {
     final pintor = TextPainter(
-      text: texto,
+      text: TextSpan(style: base, children: [texto]),
       textAlign: alineacion,
       textDirection: TextDirection.ltr,
     )..layout(maxWidth: ancho);
@@ -226,19 +233,27 @@ class _Contenido extends StatelessWidget {
   /// La letra más grande, hasta [tamano], con la que todo cabe en [alto]
   /// usando el ancho completo. Así un versículo largo se acomoda en más
   /// renglones a lo ancho, en vez de achicarse la tarjeta entera (con la
-  /// referencia) y dejar márgenes vacíos.
-  double _tamanoQueCabe(double ancho, double alto) {
+  /// referencia) y dejar márgenes vacíos. Búsqueda binaria: unas 8 medidas.
+  double _tamanoQueCabe(TextStyle base, double ancho, double alto) {
     final fijo =
-        _altoDe(TextSpan(text: '“', style: _comillas), ancho) +
+        _altoDe(TextSpan(text: '“', style: _comillas), base, ancho) +
         _separacion +
-        _altoDe(_referencia, ancho);
-    var t = tamano;
-    while (t > 10 &&
-        fijo + _altoDe(TextSpan(text: texto, style: _estiloTexto(t)), ancho) >
-            alto) {
-      t -= 0.5;
+        _altoDe(_referencia, base, ancho);
+    bool cabe(double t) =>
+        fijo +
+            _altoDe(TextSpan(text: texto, style: _estiloTexto(t)), base, ancho) <=
+        alto;
+    if (cabe(tamano)) return tamano;
+    var (chico, grande) = (10.0, tamano);
+    while (grande - chico > 0.25) {
+      final medio = (chico + grande) / 2;
+      if (cabe(medio)) {
+        chico = medio;
+      } else {
+        grande = medio;
+      }
     }
-    return t;
+    return chico;
   }
 
   @override
@@ -246,11 +261,14 @@ class _Contenido extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, restricciones) {
         final ancho = restricciones.maxWidth;
-        final tamanoFinal = restricciones.hasBoundedHeight
-            ? _tamanoQueCabe(ancho, restricciones.maxHeight)
-            : tamano;
-        // Si aun con la letra más chica no cabe, se achica todo junto en vez
-        // de cortarse.
+        final base = DefaultTextStyle.of(context).style;
+        final tamanoFinal =
+            (restricciones.hasBoundedHeight
+                ? _tamanoQueCabe(base, ancho, restricciones.maxHeight)
+                : tamano) *
+            escala;
+        // Si no cabe (letra más chica que 10 o agrandada con [escala]), se
+        // achica todo junto en vez de cortarse.
         return FittedBox(
           fit: BoxFit.scaleDown,
           child: SizedBox(

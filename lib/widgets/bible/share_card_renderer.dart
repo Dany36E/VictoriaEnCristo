@@ -118,11 +118,7 @@ class ShareCardRenderer extends StatelessWidget {
           mostrarMarca: showLogo,
           alineacion: textAlign,
           // El control de tamaño de la pantalla parte de 34.
-          tamanoTexto: customFontSize > 0
-              ? TarjetaCompartirPapel.tamanoPorLargo(verseText.length) *
-                    customFontSize /
-                    34
-              : null,
+          escalaTexto: customFontSize > 0 ? customFontSize / 34 : 1,
         ),
       ),
     );

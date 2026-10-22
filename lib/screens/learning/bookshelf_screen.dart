@@ -214,7 +214,10 @@ class _BookSpine extends StatelessWidget {
       textScaler: MediaQuery.textScalerOf(context),
       maxLines: 1,
     )..layout();
-    final escala = medida.width > ancho ? ancho / medida.width : 1.0;
+    // 5 % de margen: justo a la medida, el redondeo podía mandar la última
+    // letra al renglón siguiente («Deuteronomi / o»).
+    final disponible = ancho * 0.95;
+    final escala = medida.width > disponible ? disponible / medida.width : 1.0;
     medida.dispose();
     return escala;
   }
