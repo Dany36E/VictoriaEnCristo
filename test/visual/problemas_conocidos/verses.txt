@@ -9,6 +9,5 @@ mint: "NUEVO" contraste < 4.5
 mint: "TENTACIÓN" contraste < 4.5
 night_pure: "Buscar Consuelo" contraste < 4.5
 parchment: "NUEVO" contraste < 4.5
-parchment: "TENTACIÓN" contraste < 4.5
 peach: "NUEVO" contraste < 4.5
 sepia_night: "Buscar Consuelo" contraste < 4.5

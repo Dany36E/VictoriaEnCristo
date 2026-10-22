@@ -697,7 +697,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Color del kit e ícono (SVG del kit o Material relleno) por emoción.
-  static const Map<String, (Color, String?, IconData)> _estiloPapel = {
+  static Map<String, (Color, String?, IconData)> get _estiloPapel => {
     'feliz': (VecColores.mostaza, 'sol', Icons.wb_sunny_rounded),
     'ansioso': (VecColores.salvia, null, Icons.air_rounded),
     'agradecido': (VecColores.terracota, 'corazon', Icons.favorite_rounded),
@@ -795,7 +795,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                               const SizedBox(height: 12),
                               Text(
                                 emotion.name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: VecFuentes.titulo,
                                   fontSize: 20,
                                   color: VecColores.tinta,
@@ -928,7 +928,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
             const SizedBox(height: 8),
             Text(
               texto,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: VecFuentes.titulo,
                 fontSize: 15,
                 color: VecColores.tinta,

@@ -268,7 +268,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                             ? VecColores.verde
                             : VecColores.azulClaro,
                         iconoWidget: _isComplete
-                            ? const IconoVec(
+                            ? IconoVec(
                                 'palomita',
                                 color: VecColores.papel,
                               )
@@ -331,7 +331,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                     children: [
                       Text(
                         giant.name,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.titulo,
                           fontSize: 19,
                           color: VecColores.tinta,
@@ -341,7 +341,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                         giant.description,
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.texto,
                           fontSize: 16,
                           height: 1.15,
@@ -383,7 +383,7 @@ class _GiantFrequencyScreenState extends State<GiantFrequencyScreen>
                             ),
                             child: Text(
                               frequency.displayName,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: VecFuentes.titulo,
                                 fontSize: 16,
                                 color: VecColores.tinta,

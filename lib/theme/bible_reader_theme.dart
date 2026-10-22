@@ -22,7 +22,14 @@ class BibleReaderThemeData {
   final Color textSecondary; // verse numbers, subtle UI
   final Color accent;        // #D4AF37 family
   final Color toolbarBg;
+  /// Fondo oscuro con texto claro, para elegir caminos de dibujo. Los temas
+  /// papel dicen false aunque su papel sea oscuro: todos siguen el camino del
+  /// papel claro y sus colores cambian solos (VecColores). Para saber si la
+  /// pantalla de verdad es oscura (barras del sistema, sombras) usa [oscuro].
   final bool isDark;
+
+  /// Papel del kit si es un tema papel (claro, kraft oscuro o noche azul).
+  final VecPaleta? paleta;
 
   const BibleReaderThemeData({
     required this.id,
@@ -34,19 +41,40 @@ class BibleReaderThemeData {
     required this.accent,
     required this.toolbarBg,
     required this.isDark,
+    this.paleta,
   });
+
+  /// Tema «papel recortado» con la [paleta] que se le dé.
+  BibleReaderThemeData._papel(VecPaleta p, {required this.id, required this.name})
+      : paleta = p,
+        background = p.crema,
+        surface = p.papel,
+        textPrimary = p.tinta,
+        // En claro, un poco más oscuro que el gris del kit para que los
+        // textos chicos del lector se lean bien sobre el papel (5.8:1 sobre
+        // crema). En oscuro el gris ya pasa de 4.5 en todas las superficies.
+        textSecondary = p.oscura ? p.gris : const Color(0xFF66584A),
+        accent = p.terracota,
+        toolbarBg = p.papel,
+        isDark = false;
+
+  /// Si es uno de los temas papel.
+  bool get isPaper => paleta != null;
+
+  /// Si la página se ve oscura (también los papeles kraft y noche).
+  bool get oscuro => paleta?.oscura ?? isDark;
 
   /// Highlight underline alpha
   Color highlightOverlay(Color highlightColor) =>
-      highlightColor.withValues(alpha: isDark ? 0.18 : 0.25);
+      highlightColor.withValues(alpha: oscuro ? 0.18 : 0.25);
 
   /// Subtle selection background
   Color get selectionBg =>
-      isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04);
+      oscuro ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04);
 
   /// Color para palabras de Cristo en rojo.
   Color get redLetterColor =>
-      isDark ? const Color(0xFFE57373) : const Color(0xFFC62828);
+      oscuro ? const Color(0xFFE57373) : const Color(0xFFC62828);
 
   /// Swatch color for theme selector
   Color get swatchColor => background;
@@ -57,21 +85,30 @@ class BibleReaderThemeData {
   /// casi desaparece en los temas claros y sobre el papel con textura.
   Color textoTenue(double alpha) {
     final color = textSecondary.withValues(alpha: alpha);
-    if (contrasteWcag(color, fondoVisible) >= 4.7) return color;
+    if (_seLee(color, null)) return color;
     return textoAtenuado(alpha: alpha);
+  }
+
+  /// Contraste 4.7 (4.5 con margen) sobre [sobre] o, si no se da, sobre la
+  /// página. En los temas papel también sobre [surface]: los paneles y
+  /// encabezados del papel son de ese tono, y en los papeles oscuros es más
+  /// claro que la hoja.
+  bool _seLee(Color color, Color? sobre) {
+    if (sobre != null) return contrasteWcag(color, sobre) >= 4.7;
+    return contrasteWcag(color, fondoVisible) >= 4.7 &&
+        (!isPaper || contrasteWcag(color, surface) >= 4.7);
   }
 
   /// Texto de apoyo (pistas de búsqueda, avisos de lista vacía) que se nota
   /// más suave que el principal pero sigue siendo legible: [textPrimary] con
   /// la opacidad [alpha], subiéndola hasta llegar a contraste 4.5 (WCAG AA)
-  /// sobre [sobre] (por defecto, el fondo). Algunos temas tienen un
+  /// sobre [sobre] (por defecto, la página; ver [_seLee]). Algunos temas tienen un
   /// `textSecondary` muy claro.
   Color textoAtenuado({double alpha = 0.72, Color? sobre}) {
-    final fondo = sobre ?? fondoVisible;
     for (var a = alpha; a < 1; a += 0.04) {
       final color = textPrimary.withValues(alpha: a);
       // Un poco de margen: el fondo real varía un poco (redondeo, mezclas).
-      if (contrasteWcag(color, fondo) >= 4.7) return color;
+      if (_seLee(color, sobre)) return color;
     }
     return textPrimary;
   }
@@ -79,12 +116,11 @@ class BibleReaderThemeData {
   /// El color que se ve detrás del texto de la página, para calcular colores
   /// legibles (`legibleSobre`). En el tema papel es el tono de la textura,
   /// más oscuro que [background].
-  Color get fondoVisible =>
-      id == paper.id ? VecColores.papelTexturado : background;
+  Color get fondoVisible => paleta?.papelTexturado ?? background;
 
   /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
   /// cada página pinta el papel con textura (FondoPapel) por detrás.
-  Color get pageBg => id == paper.id ? Colors.transparent : background;
+  Color get pageBg => isPaper ? Colors.transparent : background;
 
   // ══════════════════════════════════════════════════════════════════════════
   // 10 TEMAS
@@ -198,23 +234,17 @@ class BibleReaderThemeData {
     isDark: false,
   );
 
-  /// Estilo «papel recortado» (kit victoria-en-cristo-estilo, VecColores).
-  static const paper = BibleReaderThemeData(
-    id: 'papel',
-    name: 'Papel recortado',
-    background: VecColores.crema,
-    surface: VecColores.papel,
-    textPrimary: VecColores.tinta,
-    // Un poco más oscuro que VecColores.gris para que los textos chicos del
-    // lector se lean bien sobre el papel (5.8:1 sobre crema).
-    textSecondary: Color(0xFF66584A),
-    accent: VecColores.terracota,
-    toolbarBg: VecColores.papel,
-    isDark: false,
-  );
+  /// Estilo «papel recortado» (kit victoria-en-cristo-estilo).
+  static final paper = BibleReaderThemeData._papel(VecPaleta.claro, id: 'papel', name: 'Papel recortado');
+
+  /// Papel oscuro café (kraft).
+  static final paperKraft = BibleReaderThemeData._papel(VecPaleta.kraftOscuro, id: 'papel_kraft', name: 'Papel kraft');
+
+  /// Papel oscuro azul de noche.
+  static final paperNoche = BibleReaderThemeData._papel(VecPaleta.nocheAzul, id: 'papel_noche', name: 'Papel noche');
 
   /// Todos los temas disponibles
-  static const List<BibleReaderThemeData> all = [
+  static final List<BibleReaderThemeData> all = [
     nightPure,
     charcoalEditorial,
     sepiaNocturno,
@@ -227,8 +257,22 @@ class BibleReaderThemeData {
     paper,
   ];
 
+  /// El papel del lector sigue al de la app (claro, kraft o noche): los
+  /// colores del kit (VecColores) son uno solo para toda la app, así que el
+  /// lector no puede ir en un papel distinto. Por eso en los selectores del
+  /// lector hay una sola opción «Papel».
+  static BibleReaderThemeData get papelActivo {
+    final paleta = VecColores.actual;
+    if (identical(paleta, VecPaleta.kraftOscuro)) return paperKraft;
+    if (identical(paleta, VecPaleta.nocheAzul)) return paperNoche;
+    return paper;
+  }
+
   /// Obtener tema por ID (default: noche pura)
   static BibleReaderThemeData fromId(String id) {
+    if (id == paper.id || id == paperKraft.id || id == paperNoche.id) {
+      return papelActivo;
+    }
     return all.firstWhere(
       (t) => t.id == id,
       orElse: () => nightPure,

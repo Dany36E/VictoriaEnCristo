@@ -5,7 +5,6 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../services/theme_service.dart';
 import '../vec/vec_tema.dart';
-import 'app_theme_data.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// APP FONTS — Tipografía dependiente del tema
@@ -26,7 +25,7 @@ import 'app_theme_data.dart';
 class AppFonts {
   AppFonts._();
 
-  static bool get _isPaper => ThemeService().themeId == AppThemeData.paper.id;
+  static bool get _isPaper => ThemeService().currentTheme.isPaper;
 
   /// Patrick Hand se ve más chica que Manrope/Lora al mismo tamaño.
   static const double _escalaTexto = 1.15;

@@ -43,7 +43,7 @@ class BibleReadingStreak extends StatelessWidget {
               children: [
                 // Icono Biblia
                 if (t.isPaper)
-                  const CirculoIcono(
+                  CirculoIcono(
                     iconoVec: 'biblia',
                     color: VecColores.azul,
                     tamano: 42,

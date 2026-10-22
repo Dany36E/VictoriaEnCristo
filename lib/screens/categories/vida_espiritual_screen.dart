@@ -102,12 +102,12 @@ class VidaEspiritualScreen extends StatelessWidget {
   Widget _buildIntro(BuildContext context) {
     if (AppThemeData.of(context).isPaper) {
       // Tema papel: Victoria presenta la sección, como en los videos.
-      return const PopIn(
+      return PopIn(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Sticker('assets/vec/personajes/victoria_ora.png', alto: 120),
-            SizedBox(width: 8),
+            const Sticker('assets/vec/personajes/victoria_ora.png', alto: 120),
+            const SizedBox(width: 8),
             Expanded(
               child: Subtitulo(
                 quien: 'Victoria',

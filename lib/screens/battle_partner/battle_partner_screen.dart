@@ -1155,15 +1155,15 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(18, 8, 18, 32),
             children: [
-              const PopIn(
+              PopIn(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Sticker(
+                    const Sticker(
                       'assets/vec/personajes/timoteo_corazon.png',
                       alto: 120,
                     ),
-                    SizedBox(width: 8),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Subtitulo(
                         quien: 'Timoteo',
@@ -1196,9 +1196,10 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
     required Widget icono,
     required String texto,
     String? subtitulo,
-    Color color = VecColores.mostaza,
+    Color? color,
     VoidCallback? onTap,
   }) {
+    color ??= VecColores.mostaza;
     return Padding(
       padding: const EdgeInsets.only(bottom: 16),
       child: GestureDetector(
@@ -1219,7 +1220,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   children: [
                     Text(
                       texto,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: VecFuentes.titulo,
                         fontSize: 16,
                         color: VecColores.tinta,
@@ -1228,7 +1229,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                     if (subtitulo != null)
                       Text(
                         subtitulo,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.texto,
                           fontSize: 16,
                           color: VecColores.gris,
@@ -1250,7 +1251,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
       builder: (_, accepting, _) {
         if (accepting) return const SizedBox.shrink();
         return _avisoPapel(
-          icono: const CirculoIcono(
+          icono: CirculoIcono(
             icono: Icons.pause_rounded,
             color: VecColores.mostaza,
             tamano: 36,
@@ -1268,7 +1269,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
       builder: (_, requests, _) {
         if (requests.isEmpty) return const SizedBox.shrink();
         return _avisoPapel(
-          icono: const CirculoIcono(
+          icono: CirculoIcono(
             iconoVec: 'escudo',
             color: VecColores.azul,
             tamano: 40,
@@ -1298,7 +1299,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           if (extra != null)
             Text(
               extra,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: VecFuentes.titulo,
                 fontSize: 16,
                 color: VecColores.gris,
@@ -1310,7 +1311,8 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
   }
 
   /// Inicial del compañero en círculo de color (avatar de papel).
-  Widget _inicialPapel(String nombre, {Color color = VecColores.terracota}) {
+  Widget _inicialPapel(String nombre, {Color? color}) {
+    color ??= VecColores.terracota;
     return Container(
       width: 46,
       height: 46,
@@ -1324,7 +1326,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
       ),
       child: Text(
         nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
-        style: const TextStyle(
+        style: TextStyle(
           fontFamily: VecFuentes.titulo,
           fontSize: 22,
           color: VecColores.papel,
@@ -1357,13 +1359,13 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                         children: [
                           Text(
                             invite.fromName,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: VecFuentes.titulo,
                               fontSize: 18,
                               color: VecColores.tinta,
                             ),
                           ),
-                          const Text(
+                          Text(
                             'Quiere ser tu compañero de batalla',
                             style: TextStyle(
                               fontFamily: VecFuentes.texto,
@@ -1379,7 +1381,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                       label: 'Aceptar invitación',
                       child: GestureDetector(
                         onTap: () => _acceptInvite(invite),
-                        child: const CirculoIcono(
+                        child: CirculoIcono(
                           iconoVec: 'palomita',
                           color: VecColores.verde,
                           tamano: 42,
@@ -1392,7 +1394,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                       label: 'Rechazar invitación',
                       child: GestureDetector(
                         onTap: () => _rejectInvite(invite),
-                        child: const CirculoIcono(
+                        child: CirculoIcono(
                           icono: Icons.close_rounded,
                           color: VecColores.terracota,
                           tamano: 42,
@@ -1426,7 +1428,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                 decoration: AppThemeData.of(context).cardDecoration,
                 child: Row(
                   children: [
-                    const CirculoIcono(
+                    CirculoIcono(
                       iconoVec: 'mensaje',
                       color: VecColores.azulClaro,
                       tamano: 40,
@@ -1442,7 +1444,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                                     .firstOrNull
                                     ?.name ??
                                 'Compañero',
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: VecFuentes.titulo,
                               fontSize: 16,
                               color: VecColores.terracota,
@@ -1451,7 +1453,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                           Text(
                             kBattleMessageMap[msg.messageKey]?.textoSinEmoji ??
                                 msg.messageKey,
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontFamily: VecFuentes.texto,
                               fontSize: 17,
                               height: 1.2,
@@ -1538,7 +1540,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           ),
         ),
         const SizedBox(height: 18),
-        const Text(
+        Text(
           'Invita a un hermano de confianza que ore por ti y te acompañe. La app no comparte con él tu diario ni el detalle de tus luchas; sólo verá lo que tú envíes mediante esta función.',
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -1572,7 +1574,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Row(
+                Row(
                   children: [
                     CirculoIcono(
                       iconoVec: 'mano_alto',
@@ -1580,8 +1582,8 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                       tamano: 44,
                       giro: -4,
                     ),
-                    SizedBox(width: 12),
-                    Expanded(
+                    const SizedBox(width: 12),
+                    const Expanded(
                       child: TituloVec(
                         'Oren por mí ahora',
                         clave: 'ahora',
@@ -1591,7 +1593,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   'Envía una alerta urgente a todos tus compañeros de batalla para que oren por ti en este momento.',
                   style: TextStyle(
                     fontFamily: VecFuentes.texto,
@@ -1615,7 +1617,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                     remaining > 0
                         ? 'Disponible 1 vez al día'
                         : 'Vuelve a usarlo mañana',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: VecFuentes.texto,
                       fontSize: 15,
                       color: VecColores.gris,
@@ -1660,7 +1662,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                     children: [
                       Text(
                         _myInviteCode!,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.titulo,
                           fontSize: 28,
                           letterSpacing: 3,
@@ -1668,7 +1670,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                         ),
                       ),
                       const SizedBox(width: 10),
-                      const Icon(
+                      Icon(
                         Icons.copy_rounded,
                         color: VecColores.gris,
                       ),
@@ -1678,7 +1680,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
+            Text(
               'Toca para copiar • Comparte solo con personas de confianza',
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -1696,7 +1698,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               onPressed: _showQrSheet,
             ),
           ] else
-            const Text(
+            Text(
               'Error generando código',
               style: TextStyle(
                 fontFamily: VecFuentes.texto,
@@ -1720,7 +1722,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
             children: [
               const TituloVec('Tu código QR', clave: 'QR', tamano: 24),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 'Que tu compañero lo escanee con otra app escáner',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -1743,11 +1745,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   size: 220,
                   version: QrVersions.auto,
                   backgroundColor: VecColores.papel,
-                  eyeStyle: const QrEyeStyle(
+                  eyeStyle: QrEyeStyle(
                     eyeShape: QrEyeShape.square,
                     color: VecColores.tinta,
                   ),
-                  dataModuleStyle: const QrDataModuleStyle(
+                  dataModuleStyle: QrDataModuleStyle(
                     dataModuleShape: QrDataModuleShape.square,
                     color: VecColores.tinta,
                   ),
@@ -1756,7 +1758,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
               const SizedBox(height: 18),
               Text(
                 code,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.titulo,
                   fontSize: 26,
                   letterSpacing: 4,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../theme/app_theme_data.dart';
+import '../vec/vec_tema.dart';
 import 'user_pref_cloud_sync_service.dart';
 
 /// Servicio para manejar el tema seleccionable de la app (10 temas)
@@ -33,7 +34,7 @@ class ThemeService extends ChangeNotifier {
   String get themeId => _themeId;
   bool get autoTheme => _autoTheme;
   AppThemeData get currentTheme => AppThemeData.fromId(_themeId);
-  bool get isDarkMode => currentTheme.isDark;
+  bool get isDarkMode => currentTheme.oscuro;
   ThemeMode get themeMode => isDarkMode ? ThemeMode.dark : ThemeMode.light;
 
   /// Inicializar servicio
@@ -67,6 +68,7 @@ class ThemeService extends ChangeNotifier {
     _lastDarkTheme = prefs.getString(_lastDarkThemeKey) ?? 'night_pure';
     _lastLightTheme = prefs.getString(_lastLightThemeKey) ?? 'clean_page';
     lecturaManuscrita.value = prefs.getBool(_lecturaManuscritaKey) ?? false;
+    _aplicarPaleta();
     themeIdNotifier.value = _themeId;
   }
 
@@ -84,11 +86,12 @@ class ThemeService extends ChangeNotifier {
   Future<void> setTheme(String id) async {
     if (_themeId == id) return;
     _themeId = id;
+    _aplicarPaleta();
     themeIdNotifier.value = id;
 
     // Recordar último tema claro/oscuro
     final theme = AppThemeData.fromId(id);
-    if (theme.isDark) {
+    if (theme.oscuro) {
       _lastDarkTheme = id;
     } else {
       _lastLightTheme = id;
@@ -96,6 +99,13 @@ class ThemeService extends ChangeNotifier {
 
     await _saveSettings();
     notifyListeners();
+  }
+
+  /// Los colores del kit (VecColores) siguen al papel del tema: claro,
+  /// kraft oscuro o noche azul. Los temas clásicos usan el papel claro.
+  /// Quien escucha el cambio vuelve a construir todo (ver main.dart).
+  void _aplicarPaleta() {
+    VecColores.actual = currentTheme.paleta ?? VecPaleta.claro;
   }
 
   /// Elegir la letra de lectura del tema papel (Lora o manuscrita).
@@ -131,6 +141,7 @@ class ThemeService extends ChangeNotifier {
     final targetId = shouldBeDark ? _lastDarkTheme : _lastLightTheme;
     if (_themeId != targetId) {
       _themeId = targetId;
+      _aplicarPaleta();
       themeIdNotifier.value = _themeId;
       notifyListeners();
     }

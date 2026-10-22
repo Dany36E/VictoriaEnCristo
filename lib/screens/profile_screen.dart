@@ -249,7 +249,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildFotoCuenta(String? photoUrl) {
     final t = AppThemeData.of(context);
     if (t.isPaper) {
-      const sinFoto = CirculoIcono(
+      final sinFoto = CirculoIcono(
         icono: Icons.person_rounded,
         color: VecColores.cremaOscuro,
         colorIcono: VecColores.gris,

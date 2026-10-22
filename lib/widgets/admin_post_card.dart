@@ -263,7 +263,7 @@ class AdminPostCard extends StatelessWidget {
   // TEMA PAPEL
   // ═══════════════════════════════════════════════════════════════════════
 
-  static const _textoPapel = TextStyle(
+  static TextStyle get _textoPapel => TextStyle(
     fontFamily: VecFuentes.texto,
     fontSize: 15,
     color: VecColores.gris,
@@ -307,11 +307,11 @@ class AdminPostCard extends StatelessWidget {
             // ── Alias + hash ──
             Row(
               children: [
-                const IconoVec('escudo', color: VecColores.azul, tamano: 20),
+                IconoVec('escudo', color: VecColores.azul, tamano: 20),
                 const SizedBox(width: 6),
                 Text(
                   post.alias,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: VecFuentes.titulo,
                     fontSize: 17,
                     color: VecColores.azul,
@@ -323,7 +323,7 @@ class AdminPostCard extends StatelessWidget {
                     child: Text(
                       '#${post.abuseHash}',
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 12,
                         fontFamily: 'monospace',
                         color: VecColores.gris,
@@ -337,7 +337,7 @@ class AdminPostCard extends StatelessWidget {
             // ── Cuerpo completo ──
             Text(
               post.body,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: VecFuentes.texto,
                 fontSize: 19,
                 height: 1.3,
@@ -357,7 +357,7 @@ class AdminPostCard extends StatelessWidget {
                 ),
                 child: Row(
                   children: [
-                    const Icon(
+                    Icon(
                       Icons.info_rounded,
                       size: 18,
                       color: VecColores.terracota,
@@ -383,7 +383,7 @@ class AdminPostCard extends StatelessWidget {
               children: [
                 Text(_formatDate(post.createdAt), style: _textoPapel),
                 const SizedBox(width: 12),
-                const Icon(
+                Icon(
                   Icons.chat_bubble_rounded,
                   size: 15,
                   color: VecColores.gris,
@@ -579,7 +579,7 @@ class _AccionPapel extends StatelessWidget {
               const SizedBox(width: 6),
               Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.titulo,
                   fontSize: 16,
                   color: VecColores.papel,

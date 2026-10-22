@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:app_quitar/vec/vec_tema.dart';
 import 'package:app_quitar/vec/vec_widgets.dart';
 import 'package:app_quitar/widgets/compartir/tarjeta_compartir_papel.dart';
 import 'package:flutter/material.dart';
@@ -120,6 +121,42 @@ void main() {
     );
     expect(find.byType(FondoPapel), findsNothing);
   });
+
+  // Con un papel oscuro activo, la imagen sale en ese papel (hoja, tarjeta y
+  // letra), igual que la app.
+  for (final (nombre, paleta) in [
+    ('kraft', VecPaleta.kraftOscuro),
+    ('noche', VecPaleta.nocheAzul),
+  ]) {
+    testWidgets('tarjeta para compartir en papel $nombre', (tester) async {
+      tester.view.devicePixelRatio = 1;
+      tester.view.physicalSize = const Size(400, 800);
+      addTearDown(tester.view.resetPhysicalSize);
+      addTearDown(tester.view.resetDevicePixelRatio);
+      VecColores.actual = paleta;
+      addTearDown(() => VecColores.actual = VecPaleta.claro);
+
+      await _capturar(
+        tester,
+        'cuadrada_$nombre',
+        const TarjetaCompartirPapel(
+          texto: _corto,
+          referencia: 'Filipenses 4:13',
+          version: 'RVR1960',
+          etiqueta: 'Versículo',
+        ),
+      );
+      final hoja = tester.widget<DecoratedBox>(
+        find
+            .descendant(
+              of: find.byType(TarjetaCompartirPapel),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      expect((hoja.decoration as BoxDecoration).color, paleta.crema);
+    });
+  }
 
   // Tamaño con que se ve el versículo: la letra por la reducción del
   // FittedBox (el ancho dibujado entre el ancho de su caja).

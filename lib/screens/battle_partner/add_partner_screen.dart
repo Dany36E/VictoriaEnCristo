@@ -352,7 +352,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
                 ),
               ),
               const SizedBox(height: 14),
-              const Text(
+              Text(
                 'Pide a tu amigo que te comparta su código de 8 caracteres desde su pantalla.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -368,7 +368,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
                 maxLength: 8,
                 textCapitalization: TextCapitalization.characters,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.titulo,
                   fontSize: 30,
                   letterSpacing: 4,
@@ -416,16 +416,16 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
                 width: 60,
                 height: 60,
                 alignment: Alignment.center,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: VecColores.azul,
                   shape: BoxShape.circle,
-                  boxShadow: [
+                  boxShadow: const [
                     BoxShadow(color: Color(0x402B2622), offset: Offset(0, 5)),
                   ],
                 ),
                 child: Text(
                   nombre.isNotEmpty ? nombre[0].toUpperCase() : '?',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: VecFuentes.titulo,
                     fontSize: 28,
                     color: VecColores.papel,
@@ -435,7 +435,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
               const SizedBox(height: 10),
               TituloVec(nombre, tamano: 24, alineacion: TextAlign.center),
               const SizedBox(height: 4),
-              const Text(
+              Text(
                 '¿Enviar solicitud de compañero?',
                 style: TextStyle(
                   fontFamily: VecFuentes.texto,
@@ -513,7 +513,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
                     children: [
                       Text(
                         titulo,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.titulo,
                           fontSize: 18,
                           color: VecColores.tinta,
@@ -521,7 +521,7 @@ class _AddPartnerScreenState extends State<AddPartnerScreen> {
                       ),
                       Text(
                         descripcion,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.texto,
                           fontSize: 16,
                           height: 1.2,

@@ -221,7 +221,7 @@ class BattlePartnerCard extends StatelessWidget {
                 ),
                 child: Text(
                   partner.name.isNotEmpty ? partner.name[0].toUpperCase() : '?',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: VecFuentes.titulo,
                     fontSize: 22,
                     color: VecColores.papel,
@@ -237,7 +237,7 @@ class BattlePartnerCard extends StatelessWidget {
                       partner.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: VecFuentes.titulo,
                         fontSize: 19,
                         color: VecColores.tinta,
@@ -275,7 +275,7 @@ class BattlePartnerCard extends StatelessWidget {
                       toName: partner.name,
                     );
                   },
-                  child: const ChipVec(
+                  child: ChipVec(
                     texto: 'Ánimo',
                     color: VecColores.terracota,
                     iconoWidget: IconoVec('mensaje', color: VecColores.papel),

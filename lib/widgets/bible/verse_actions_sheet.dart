@@ -61,7 +61,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
 
   /// Con el tema papel, las plantillas de papel van primero.
   List<ShareCardTemplate> get _plantillas =>
-      plantillasCompartir(papel: _t.id == BibleReaderThemeData.paper.id);
+      plantillasCompartir(papel: _t.isPaper);
 
   @override
   Widget build(BuildContext context) {

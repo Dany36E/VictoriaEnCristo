@@ -189,7 +189,7 @@ class BotonEditarAtajos extends StatelessWidget {
       label: Text(
         'Editar',
         style: t.isPaper
-            ? const TextStyle(
+            ? TextStyle(
                 fontFamily: VecFuentes.texto,
                 fontSize: 18,
                 color: VecColores.azul,
@@ -273,7 +273,7 @@ class _TarjetaAtajoState extends State<_TarjetaAtajo> {
               Text(
                 widget.atajo.titulo,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.titulo,
                   fontSize: 15,
                   height: 1.1,

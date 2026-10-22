@@ -136,15 +136,15 @@ class _HermanosEnCristoScreenState extends State<HermanosEnCristoScreen> {
   Widget _buildIntro(BuildContext context) {
     if (AppThemeData.of(context).isPaper) {
       // Tema papel: Victoria presenta la sección, como en los videos.
-      return const PopIn(
+      return PopIn(
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            Sticker(
+            const Sticker(
               'assets/vec/personajes/victoria_saludo.png',
               alto: 120,
             ),
-            SizedBox(width: 8),
+            const SizedBox(width: 8),
             Expanded(
               child: Subtitulo(
                 quien: 'Victoria',

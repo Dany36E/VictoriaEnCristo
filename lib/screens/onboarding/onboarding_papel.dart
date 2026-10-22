@@ -83,7 +83,7 @@ class EncabezadoPasoPapel extends StatelessWidget {
                     HapticFeedback.lightImpact();
                     Navigator.maybePop(context);
                   },
-                  child: const CirculoIcono(
+                  child: CirculoIcono(
                     icono: Icons.arrow_back_rounded,
                     color: VecColores.cremaOscuro,
                     colorIcono: VecColores.tinta,

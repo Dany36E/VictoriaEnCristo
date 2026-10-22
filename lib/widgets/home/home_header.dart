@@ -209,7 +209,7 @@ class HomeHeader extends StatelessWidget {
                 Navigator.of(context).popUntil((route) => route.isFirst);
               }
             },
-            child: const PopIn(
+            child: PopIn(
               child: AvatarPerfilImagen(
                 tamano: 56,
                 respaldo: CirculoIcono(
@@ -235,7 +235,7 @@ class HomeHeader extends StatelessWidget {
                       clave: 'en Cristo',
                       tamano: 26,
                     ),
-              const Text(
+              Text(
                 'Tu camino a la libertad',
                 style: TextStyle(
                   fontFamily: VecFuentes.texto,
@@ -322,7 +322,7 @@ class _BotonRedondoPapel extends StatelessWidget {
                     child: Text(
                       '$contador',
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: VecFuentes.titulo,
                         fontSize: 13,
                         color: VecColores.papel,

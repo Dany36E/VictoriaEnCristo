@@ -449,7 +449,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
         padding: const EdgeInsets.only(bottom: 16),
         child: Text(
           text,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: VecFuentes.texto,
             fontSize: 20,
             height: 1.4,
@@ -480,7 +480,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
         padding: const EdgeInsets.only(top: 24, bottom: 12),
         child: Row(
           children: [
-            const CirculoIcono(
+            CirculoIcono(
               iconoVec: 'idea',
               color: VecColores.mostaza,
               tamano: 36,
@@ -525,7 +525,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Row(
+            Row(
               children: [
                 CirculoIcono(
                   iconoVec: 'idea',
@@ -533,14 +533,14 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                   tamano: 40,
                   giro: -4,
                 ),
-                SizedBox(width: 12),
-                TituloVec('Reflexión', tamano: 24),
+                const SizedBox(width: 12),
+                const TituloVec('Reflexión', tamano: 24),
               ],
             ),
             const SizedBox(height: 14),
             Text(
               content,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: VecFuentes.texto,
                 fontSize: 19,
                 height: 1.4,
@@ -629,7 +629,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Row(
+          Row(
             children: [
               CirculoIcono(
                 iconoVec: 'orar',
@@ -637,8 +637,8 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                 tamano: 40,
                 giro: -4,
               ),
-              SizedBox(width: 12),
-              TituloVec('Oración', tamano: 24),
+              const SizedBox(width: 12),
+              const TituloVec('Oración', tamano: 24),
             ],
           ),
           const SizedBox(height: 22),
@@ -857,7 +857,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
               children: [
                 Text(
                   widget.plan.title,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: VecFuentes.texto,
                     fontSize: 15,
                     color: VecColores.gris,
@@ -865,7 +865,7 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                 ),
                 Text(
                   'Día ${day.dayNumber} de ${widget.plan.days}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: VecFuentes.titulo,
                     fontSize: 19,
                     color: VecColores.tinta,
@@ -923,14 +923,14 @@ class _DayReadingScreenState extends State<DayReadingScreen> {
                       onPressed: _completeDay,
                     )
                   else
-                    const Center(
+                    Center(
                       child: Column(
                         children: [
-                          Sticker(
+                          const Sticker(
                             'assets/vec/personajes/victoria_corazon.png',
                             alto: 150,
                           ),
-                          SizedBox(height: 10),
+                          const SizedBox(height: 10),
                           ChipVec(
                             texto: 'Devocional completado',
                             color: VecColores.verde,
@@ -1010,7 +1010,7 @@ class _CompletionDialog extends StatelessWidget {
                     ? '¡Felicidades! Has terminado "$planTitle". Tu dedicación espiritual es inspiradora.'
                     : 'Excelente progreso. El día ${dayNumber + 1} ya está desbloqueado.',
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.texto,
                   fontSize: 18,
                   height: 1.3,

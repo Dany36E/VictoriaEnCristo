@@ -12,6 +12,7 @@ import '../services/personalization_engine.dart';
 import '../services/content_repository.dart';
 import '../models/content_item.dart';
 import '../theme/app_theme_data.dart';
+import '../theme/contraste.dart';
 import 'emotional_verse_jar_screen.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
@@ -782,7 +783,7 @@ class _PremiumVerseCard extends StatelessWidget {
                 style: AppFonts.manrope(
                   fontSize: 10,
                   fontWeight: FontWeight.w700,
-                  color: t.accent,
+                  color: legibleEnPastilla(t.accent, 0.08, t.cardBg),
                   letterSpacing: 1.5,
                 ),
               ),

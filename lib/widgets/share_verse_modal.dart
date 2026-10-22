@@ -252,9 +252,9 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.88,
       ),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: VecColores.crema,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: SingleChildScrollView(
         child: Padding(
@@ -292,7 +292,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
                   IconButton(
                     tooltip: 'Cerrar',
                     onPressed: () => Navigator.pop(context),
-                    icon: const Icon(
+                    icon: Icon(
                       Icons.close_rounded,
                       color: VecColores.tinta,
                     ),
@@ -348,7 +348,7 @@ class _ShareVerseModalState extends State<ShareVerseModal> {
               // lápiz y la sombra marcan dónde termina la imagen sobre la
               // hoja (no salen en ella).
               Container(
-                decoration: const BoxDecoration(boxShadow: VecSombras.papel),
+                decoration: BoxDecoration(boxShadow: VecSombras.papel),
                 foregroundDecoration: BoxDecoration(
                   border: Border.all(color: VecColores.lapiz, width: 1.5),
                 ),

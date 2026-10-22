@@ -118,7 +118,7 @@ class _SelectorAvatar extends StatelessWidget {
               Text(
                 'Así te verás en tu perfil y en Inicio.',
                 style: t.isPaper
-                    ? const TextStyle(
+                    ? TextStyle(
                         fontFamily: VecFuentes.texto,
                         fontSize: 18,
                         color: VecColores.lapiz,
@@ -140,7 +140,7 @@ class _SelectorAvatar extends StatelessWidget {
                     child: Text(
                       'Quitar avatar',
                       style: t.isPaper
-                          ? const TextStyle(
+                          ? TextStyle(
                               fontFamily: VecFuentes.titulo,
                               fontSize: 17,
                               color: VecColores.terracota,
@@ -246,7 +246,7 @@ class _OpcionAvatar extends StatelessWidget {
                   right: -2,
                   bottom: -2,
                   child: t.isPaper
-                      ? const CirculoIcono(
+                      ? CirculoIcono(
                           iconoVec: 'palomita',
                           color: VecColores.papel,
                           tamano: 24,

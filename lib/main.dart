@@ -694,11 +694,11 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         statusBarIconBrightness: _isDarkMode
             ? Brightness.light
             : Brightness.dark,
-        systemNavigationBarColor: _isDarkMode
+        systemNavigationBarColor: widget.themeService.currentTheme.isPaper
+            ? VecColores.crema
+            : _isDarkMode
             ? AppTheme.darkBackground
-            : (widget.themeService.currentTheme.isPaper
-                  ? VecColores.crema
-                  : AppTheme.backgroundColor),
+            : AppTheme.backgroundColor,
         systemNavigationBarIconBrightness: _isDarkMode
             ? Brightness.light
             : Brightness.dark,
@@ -717,7 +717,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       title: 'Victoria en Cristo',
       debugShowCheckedModeBanner: false,
       theme: appTheme.isPaper ? AppTheme.paperTheme : AppTheme.lightTheme,
-      darkTheme: AppTheme.darkTheme,
+      darkTheme: appTheme.isPaper ? AppTheme.paperTheme : AppTheme.darkTheme,
       themeMode: _isDarkMode ? ThemeMode.dark : ThemeMode.light,
       navigatorObservers: [
         routeObserver,

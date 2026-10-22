@@ -133,7 +133,7 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
             children: [
               Row(
                 children: [
-                  const CirculoIcono(
+                  CirculoIcono(
                     iconoVec: 'biblia',
                     color: VecColores.mostaza,
                     tamano: 48,
@@ -151,7 +151,7 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
                         ),
                         Text(
                           '$totalUnlocked/$totalAvailable piezas · $completeBooks/66 libros completos',
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: VecFuentes.texto,
                             fontSize: 16,
                             color: VecColores.gris,
@@ -168,7 +168,7 @@ class _TalentsLibraryScreenState extends State<TalentsLibraryScreen> {
                 child: LinearProgressIndicator(value: progress, minHeight: 12),
               ),
               const SizedBox(height: 16),
-              const Wrap(
+              Wrap(
                 spacing: 10,
                 runSpacing: 12,
                 children: [

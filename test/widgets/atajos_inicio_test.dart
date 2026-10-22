@@ -14,7 +14,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Widget _app(Widget child, {AppThemeData tema = AppThemeData.paper}) =>
+Widget _app(Widget child, {AppThemeData? tema}) => _appCon(child, tema ?? AppThemeData.paper);
+
+Widget _appCon(Widget child, AppThemeData tema) =>
     MaterialApp(
       theme: tema.isPaper ? AppTheme.paperTheme : ThemeData.dark(),
       builder: (context, c) => AppThemeData.provider(theme: tema, child: c!),

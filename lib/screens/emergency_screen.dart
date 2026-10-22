@@ -138,7 +138,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                   alineacion: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                const Text(
+                Text(
                   'No hay respuesta incorrecta. Solo queremos acompañarte.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -388,7 +388,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                 const SizedBox(height: 4),
                 const Letrero('¡VICTORIA!', tamano: 40),
                 const SizedBox(height: 10),
-                const Text(
+                Text(
                   'Has resistido la tentación. Cada victoria te hace más fuerte.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -605,7 +605,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
         child: ChipVec(
           texto: 'Plan personalizado: $_giantName',
           color: VecColores.terracota,
-          iconoWidget: const IconoVec('escudo', color: VecColores.papel),
+          iconoWidget: IconoVec('escudo', color: VecColores.papel),
         ),
       );
     }
@@ -696,7 +696,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                   Text(
                     step.instruction,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: VecFuentes.texto,
                       fontSize: 21,
                       height: 1.3,
@@ -708,7 +708,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                     Text(
                       step.detail!,
                       textAlign: TextAlign.center,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: VecFuentes.texto,
                         fontSize: 17,
                         height: 1.3,
@@ -730,7 +730,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
           ],
           if (step.prayer != null) ...[
             const SizedBox(height: 26),
-            const Row(
+            Row(
               children: [
                 CirculoIcono(
                   iconoVec: 'orar',
@@ -738,8 +738,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> with TickerProviderSt
                   tamano: 38,
                   giro: -4,
                 ),
-                SizedBox(width: 10),
-                TituloVec('Oración', tamano: 22),
+                const SizedBox(width: 10),
+                const TituloVec('Oración', tamano: 22),
               ],
             ),
             const SizedBox(height: 20),

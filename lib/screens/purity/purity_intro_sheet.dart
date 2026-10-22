@@ -30,9 +30,9 @@ class _PuritySuggestionSheet extends StatelessWidget {
   /// Tema papel: hoja de papel con Victoria presentando el escudo.
   Widget _buildPapel(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: VecColores.papel,
-        borderRadius: BorderRadius.vertical(
+        borderRadius: const BorderRadius.vertical(
           top: Radius.circular(VecRadios.l),
         ),
       ),
@@ -51,13 +51,13 @@ class _PuritySuggestionSheet extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            const PopIn(
+            PopIn(
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Sticker('assets/vec/personajes/victoria_presenta.png', alto: 130),
-                  SizedBox(width: 8),
+                  const Sticker('assets/vec/personajes/victoria_presenta.png', alto: 130),
+                  const SizedBox(width: 8),
                   CirculoIcono(
                     iconoVec: 'escudo',
                     color: VecColores.azul,
@@ -75,7 +75,7 @@ class _PuritySuggestionSheet extends StatelessWidget {
               alineacion: TextAlign.center,
             ),
             const SizedBox(height: 10),
-            const Text(
+            Text(
               'Elegiste luchar por tu pureza sexual. La app puede bloquear las '
               'páginas de contenido adulto y, cuando aparezca la tentación, '
               'traerte de vuelta a un lugar seguro.',
@@ -99,7 +99,7 @@ class _PuritySuggestionSheet extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
               child: const Text('Ahora no'),
             ),
-            const Text(
+            Text(
               'Puedes activarlo cuando quieras en Ajustes → Protección.',
               textAlign: TextAlign.center,
               style: TextStyle(

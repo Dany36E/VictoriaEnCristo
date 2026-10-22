@@ -283,7 +283,7 @@ class JesusStreakWidget extends StatelessWidget {
                                       alignment: Alignment.centerLeft,
                                       child: Text(
                                         '$dias',
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           fontFamily: VecFuentes.titulo,
                                           fontSize: 64,
                                           height: 1,
@@ -299,7 +299,7 @@ class JesusStreakWidget extends StatelessWidget {
                                       dias == 1
                                           ? 'día de\nvictoria'
                                           : 'días de\nvictoria',
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontFamily: VecFuentes.titulo,
                                         fontSize: 17,
                                         height: 1.05,
@@ -314,7 +314,7 @@ class JesusStreakWidget extends StatelessWidget {
                               ChipVec(
                                 texto: victoryToday ? 'Hoy ✓' : 'Con gracia',
                                 color: VecColores.verde,
-                                iconoWidget: const IconoVec(
+                                iconoWidget: IconoVec(
                                   'palomita',
                                   color: VecColores.papel,
                                 ),
@@ -325,7 +325,7 @@ class JesusStreakWidget extends StatelessWidget {
                               message,
                               maxLines: 4,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontFamily: VecFuentes.texto,
                                 fontSize: 18,
                                 height: 1.25,

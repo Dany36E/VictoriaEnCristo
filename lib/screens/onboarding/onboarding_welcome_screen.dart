@@ -292,8 +292,8 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const PopIn(
-                      retraso: Duration(milliseconds: 200),
+                    PopIn(
+                      retraso: const Duration(milliseconds: 200),
                       child: Subtitulo(
                         quien: 'Timoteo',
                         color: VecColores.azul,
@@ -319,7 +319,7 @@ class _OnboardingWelcomeScreenState extends State<OnboardingWelcomeScreen>
                             const SizedBox(height: 16),
                             Row(
                               children: [
-                                const CirculoIcono(
+                                CirculoIcono(
                                   iconoVec: 'candado',
                                   color: VecColores.verde,
                                   tamano: 36,

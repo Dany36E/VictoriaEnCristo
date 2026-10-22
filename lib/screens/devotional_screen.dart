@@ -458,7 +458,7 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                             // Tema papel: la tarjeta de papel recortado,
                             // siempre a 360×450 (sale de 1080 px a 3x),
                             // aunque la pantalla sea más chica.
-                            child: t.id == BibleReaderThemeData.paper.id
+                            child: t.isPaper
                               ? OverflowBox(
                                   alignment: Alignment.topLeft,
                                   maxWidth: TarjetaCompartirPapel.ancho,

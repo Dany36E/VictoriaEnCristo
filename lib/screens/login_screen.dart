@@ -1043,7 +1043,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 22),
                     Row(
                       children: [
-                        const Expanded(
+                        Expanded(
                           child: Divider(color: VecColores.cremaOscuro),
                         ),
                         Padding(
@@ -1056,7 +1056,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           ),
                         ),
-                        const Expanded(
+                        Expanded(
                           child: Divider(color: VecColores.cremaOscuro),
                         ),
                       ],
@@ -1243,7 +1243,7 @@ class _LoginScreenState extends State<LoginScreen> {
       onFieldSubmitted: onFieldSubmitted,
       validator: validator,
       cursorColor: VecColores.terracota,
-      style: const TextStyle(
+      style: TextStyle(
         fontFamily: VecFuentes.texto,
         fontSize: 20,
         color: VecColores.azulClaro,
@@ -1275,7 +1275,7 @@ class _LoginScreenState extends State<LoginScreen> {
           Expanded(
             child: Text(
               _errorMessage!,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: VecFuentes.texto,
                 fontSize: 17,
                 height: 1.25,
@@ -1289,7 +1289,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Widget _buildTerminosPapel() {
-    const etiqueta = TextStyle(
+    final etiqueta = TextStyle(
       fontFamily: VecFuentes.texto,
       fontSize: 16,
       height: 1.25,
@@ -1305,7 +1305,7 @@ class _LoginScreenState extends State<LoginScreen> {
             HapticFeedback.selectionClick();
             setState(() => _acceptedTerms = value ?? false);
           },
-          title: const Text(
+          title: Text(
             'He leído y acepto los Términos y Condiciones.',
             style: etiqueta,
           ),
@@ -1318,7 +1318,7 @@ class _LoginScreenState extends State<LoginScreen> {
             HapticFeedback.selectionClick();
             setState(() => _acceptedSensitiveData = value ?? false);
           },
-          title: const Text(
+          title: Text(
             'Consiento expresamente el tratamiento de los datos sensibles '
             'que decida registrar, según el Aviso de Privacidad.',
             style: etiqueta,

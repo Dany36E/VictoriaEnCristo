@@ -52,7 +52,7 @@ class ThemeSelectorWidget extends StatelessWidget {
                       border: Border.all(
                         color: isActive
                             ? theme.accent
-                            : (theme.isDark
+                            : (theme.oscuro
                                 ? Colors.white.withValues(alpha: 0.2)
                                 : Colors.black.withValues(alpha: 0.12)),
                         width: isActive ? 2.5 : 1,
@@ -71,7 +71,7 @@ class ThemeSelectorWidget extends StatelessWidget {
                         ? Icon(
                             Icons.check_rounded,
                             size: swatchSize * 0.45,
-                            color: theme.isDark ? Colors.white : theme.accent,
+                            color: theme.oscuro ? Colors.white : theme.accent,
                           )
                         : null,
                   ),

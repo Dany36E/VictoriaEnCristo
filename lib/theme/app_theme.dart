@@ -43,8 +43,16 @@ class AppDesignSystem {
   /// [gold] para texto: en los temas claros se oscurece lo justo para leerse
   /// (WCAG AA) sobre el fondo de la página, o sobre una pastilla dorada de
   /// opacidad [pastilla] encima de ella. En los oscuros queda igual.
-  static Color oroTexto(BuildContext context, {double pastilla = 0}) =>
-      legibleEnPastilla(gold, pastilla, AppThemeData.of(context).fondoVisible);
+  /// Legible sobre la página y sobre las tarjetas: en los papeles oscuros las
+  /// tarjetas son más claras que la hoja.
+  static Color oroTexto(BuildContext context, {double pastilla = 0}) {
+    final t = AppThemeData.of(context);
+    return legibleEnPastilla(
+      legibleEnPastilla(gold, pastilla, t.fondoVisible),
+      pastilla,
+      t.cardBg,
+    );
+  }
   
   /// Neutral: Pure Light - Represents purity, peace, clarity
   static const Color pureWhite = Color(0xFFFFFBF5);
@@ -1075,11 +1083,11 @@ class AppTheme {
   // Material con los mismos tokens (VecColores, VecFuentes, VecSombras,
   // VecRadios). Se usa cuando AppThemeData.isPaper es true.
 
-  static const TextStyle _vecTitulo = TextStyle(
+  static TextStyle get _vecTitulo => TextStyle(
     fontFamily: VecFuentes.titulo,
     color: VecColores.tinta,
   );
-  static const TextStyle _vecTexto = TextStyle(
+  static TextStyle get _vecTexto => TextStyle(
     fontFamily: VecFuentes.texto,
     color: VecColores.tinta,
   );
@@ -1150,7 +1158,7 @@ class AppTheme {
         },
       ),
 
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: VecColores.tinta,
         elevation: 0,
@@ -1217,12 +1225,12 @@ class AppTheme {
         selectedColor: VecColores.terracota,
         disabledColor: VecColores.cremaOscuro,
         checkmarkColor: VecColores.papel,
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontFamily: VecFuentes.titulo,
           fontSize: 15,
           color: VecColores.tinta,
         ),
-        secondaryLabelStyle: const TextStyle(
+        secondaryLabelStyle: TextStyle(
           fontFamily: VecFuentes.titulo,
           fontSize: 15,
           color: VecColores.papel,
@@ -1239,19 +1247,19 @@ class AppTheme {
       inputDecorationTheme: base.inputDecorationTheme.copyWith(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.tinta, width: 4),
+          borderSide: BorderSide(color: VecColores.tinta, width: 4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+          borderSide: BorderSide(color: VecColores.terracota, width: 4),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+          borderSide: BorderSide(color: VecColores.terracota, width: 4),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.cremaOscuro, width: 4),
+          borderSide: BorderSide(color: VecColores.cremaOscuro, width: 4),
         ),
         labelStyle: _vecTexto.copyWith(color: VecColores.gris, fontSize: 18),
         floatingLabelStyle: _vecTitulo.copyWith(
@@ -1272,8 +1280,8 @@ class AppTheme {
               ? VecColores.verde
               : VecColores.papel,
         ),
-        checkColor: const WidgetStatePropertyAll(VecColores.papel),
-        side: const BorderSide(color: VecColores.tinta, width: 3),
+        checkColor: WidgetStatePropertyAll(VecColores.papel),
+        side: BorderSide(color: VecColores.tinta, width: 3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
         ),
@@ -1285,7 +1293,7 @@ class AppTheme {
               : VecColores.tinta,
         ),
       ),
-      sliderTheme: const SliderThemeData(
+      sliderTheme: SliderThemeData(
         activeTrackColor: VecColores.terracota,
         inactiveTrackColor: VecColores.cremaOscuro,
         thumbColor: VecColores.terracota,
@@ -1299,12 +1307,12 @@ class AppTheme {
         titleTextStyle: _vecTitulo.copyWith(fontSize: 24),
         contentTextStyle: _vecTexto.copyWith(fontSize: 18, height: 1.3),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: VecColores.papel,
         surfaceTintColor: Colors.transparent,
         modalBackgroundColor: VecColores.papel,
         dragHandleColor: VecColores.cremaOscuro,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(VecRadios.l),
           ),
@@ -1337,14 +1345,14 @@ class AppTheme {
       ),
 
       // Barra inferior (.vec-tabbar): papel, activo en terracota.
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: VecColores.papel,
         selectedItemColor: VecColores.terracota,
         unselectedItemColor: VecColores.gris,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
-        unselectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+        selectedLabelStyle: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+        unselectedLabelStyle: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: VecColores.papel,
@@ -1376,7 +1384,7 @@ class AppTheme {
         unselectedLabelStyle: _vecTitulo.copyWith(fontSize: 16),
       ),
 
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: VecColores.cremaOscuro,
         thickness: 2,
         space: 1,
@@ -1390,8 +1398,8 @@ class AppTheme {
           color: VecColores.gris,
         ),
       ),
-      iconTheme: const IconThemeData(color: VecColores.tinta, size: 24),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
+      iconTheme: IconThemeData(color: VecColores.tinta, size: 24),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
         color: VecColores.terracota,
         linearTrackColor: VecColores.cremaOscuro,
         circularTrackColor: VecColores.cremaOscuro,

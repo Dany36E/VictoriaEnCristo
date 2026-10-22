@@ -6,6 +6,7 @@ import '../services/feedback_engine.dart';
 import '../services/personalization_engine.dart';
 import '../services/audio_engine.dart';
 import '../models/content_item.dart';
+import '../vec/vec_tema.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../utils/journal_export.dart';
@@ -91,7 +92,9 @@ class _JournalScreenState extends State<JournalScreen> {
         icon: const Icon(Icons.add),
         label: const Text('Nueva oración'),
         backgroundColor: t.accent,
-        foregroundColor: isDark ? Colors.black87 : Colors.white,
+        foregroundColor: t.isPaper
+            ? textoSobre(t.accent)
+            : (isDark ? Colors.black87 : Colors.white),
       ),
     );
   }

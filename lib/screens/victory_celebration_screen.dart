@@ -566,7 +566,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
                 numberOfParticles: 25,
                 gravity: 0.08,
                 shouldLoop: false,
-                colors: const [
+                colors: [
                   VecColores.terracota,
                   VecColores.mostaza,
                   VecColores.mostazaClaro,
@@ -650,7 +650,7 @@ class _VictoryCelebrationScreenState extends State<VictoryCelebrationScreen>
                                     : Container(
                                         width: 34,
                                         height: 34,
-                                        decoration: const BoxDecoration(
+                                        decoration: BoxDecoration(
                                           color: VecColores.cremaOscuro,
                                           shape: BoxShape.circle,
                                         ),

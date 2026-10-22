@@ -28,7 +28,14 @@ class AppThemeData {
   final Color accentSoft; // accent at ~20% opacity for subtle backgrounds
   final Color divider;
   final Color inputBg; // text fields, search bars
+  /// Fondo oscuro con texto claro, para elegir caminos de dibujo. Los temas
+  /// papel dicen false aunque su papel sea oscuro: todos siguen el camino del
+  /// papel claro y sus colores cambian solos (VecColores). Para saber si la
+  /// pantalla de verdad es oscura (barras del sistema, sombras) usa [oscuro].
   final bool isDark;
+
+  /// Papel del kit si es un tema papel (claro, kraft oscuro o noche azul).
+  final VecPaleta? paleta;
 
   const AppThemeData({
     required this.id,
@@ -44,11 +51,32 @@ class AppThemeData {
     required this.divider,
     required this.inputBg,
     required this.isDark,
+    this.paleta,
   });
+
+  /// Tema «papel recortado» con la [paleta] que se le dé.
+  AppThemeData._papel(VecPaleta p, {required this.id, required this.name})
+      : paleta = p,
+        scaffoldBg = p.crema,
+        surface = p.papel,
+        cardBg = p.papel,
+        cardBorder = p.cremaOscuro,
+        textPrimary = p.tinta,
+        // El texto secundario de toda la app necesita ≥ 4.5:1 (WCAG AA) sobre
+        // el papel con textura, así que usa el lápiz del kit en vez del gris.
+        textSecondary = p.lapiz,
+        accent = p.terracota,
+        accentSoft = p.terracota.withValues(alpha: 0.15),
+        divider = p.cremaOscuro,
+        inputBg = p.papel,
+        isDark = false;
 
   /// Tema "Papel recortado": activa las letras, sombras, radios y fondo de
   /// papel del kit victoria-en-cristo-estilo en toda la app.
-  bool get isPaper => id == paper.id;
+  bool get isPaper => paleta != null;
+
+  /// Si la pantalla se ve oscura (también los papeles kraft y noche).
+  bool get oscuro => paleta?.oscura ?? isDark;
 
   /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
   /// cada página pinta el papel con textura (FondoPapel) por detrás.
@@ -57,18 +85,18 @@ class AppThemeData {
   /// El color que se ve detrás del texto de la página, para calcular colores
   /// legibles (`legibleSobre`). En el tema papel es el tono de la textura,
   /// más oscuro que [scaffoldBg].
-  Color get fondoVisible => isPaper ? VecColores.papelTexturado : scaffoldBg;
+  Color get fondoVisible => paleta?.papelTexturado ?? scaffoldBg;
 
   // Helpers derivados
-  Color get overlayBg => isDark
+  Color get overlayBg => oscuro
       ? Colors.white.withValues(alpha: 0.06)
       : Colors.black.withValues(alpha: 0.04);
 
-  Color get shimmerBase => isDark
+  Color get shimmerBase => oscuro
       ? Colors.white.withValues(alpha: 0.05)
       : Colors.black.withValues(alpha: 0.04);
 
-  Color get shimmerHighlight => isDark
+  Color get shimmerHighlight => oscuro
       ? Colors.white.withValues(alpha: 0.1)
       : Colors.black.withValues(alpha: 0.08);
 
@@ -270,26 +298,16 @@ class AppThemeData {
   // ─── PAPER THEME ───────────────────────────────────────────────────────
 
   /// Estilo «papel recortado» de los videos (kit victoria-en-cristo-estilo).
-  static const paper = AppThemeData(
-    id: 'papel',
-    name: 'Papel recortado',
-    scaffoldBg: VecColores.crema,
-    surface: VecColores.papel,
-    cardBg: VecColores.papel,
-    cardBorder: VecColores.cremaOscuro,
-    textPrimary: VecColores.tinta,
-    // El texto secundario de toda la app necesita ≥ 4.5:1 (WCAG AA) sobre el
-    // papel con textura, así que usa el lápiz del kit en vez del gris.
-    textSecondary: VecColores.lapiz,
-    accent: VecColores.terracota,
-    accentSoft: Color(0x26A8452F), // terracota 15%
-    divider: VecColores.cremaOscuro,
-    inputBg: VecColores.papel,
-    isDark: false,
-  );
+  static final paper = AppThemeData._papel(VecPaleta.claro, id: 'papel', name: 'Papel recortado');
+
+  /// Papel oscuro café (kraft), mismo kit con tinta crema.
+  static final paperKraft = AppThemeData._papel(VecPaleta.kraftOscuro, id: 'papel_kraft', name: 'Papel kraft');
+
+  /// Papel oscuro azul de noche.
+  static final paperNoche = AppThemeData._papel(VecPaleta.nocheAzul, id: 'papel_noche', name: 'Papel noche');
 
   /// Todos los temas disponibles
-  static const List<AppThemeData> all = [
+  static final List<AppThemeData> all = [
     nightPure,
     charcoalEditorial,
     sepiaNocturno,
@@ -300,6 +318,8 @@ class AppThemeData {
     mint,
     peach,
     paper,
+    paperKraft,
+    paperNoche,
   ];
 
   /// Obtener tema por ID (default: noche pura)

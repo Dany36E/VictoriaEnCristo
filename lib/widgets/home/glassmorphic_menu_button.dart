@@ -184,7 +184,7 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
     Icons.show_chart: 'palomita',
   };
 
-  static const List<Color> _coloresKit = [
+  static List<Color> get _coloresKit => [
     VecColores.terracota,
     VecColores.azul,
     VecColores.verde,
@@ -238,7 +238,7 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
                     children: [
                       Text(
                         widget.title,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.titulo,
                           fontSize: 22,
                           height: 1.05,
@@ -248,7 +248,7 @@ class _GlassmorphicMenuButtonState extends State<GlassmorphicMenuButton>
                       const SizedBox(height: 4),
                       Text(
                         widget.subtitle,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.texto,
                           fontSize: 18,
                           height: 1.2,

@@ -54,15 +54,15 @@ class LienzoDibujoScreen extends StatefulWidget {
   State<LienzoDibujoScreen> createState() => _LienzoDibujoScreenState();
 }
 
-const List<Color> _tintas = [
+List<Color> get _tintas => [
   VecColores.tinta,
   VecColores.terracota,
   VecColores.azul,
   VecColores.verde,
   VecColores.mostaza,
-  Color(0xFF7E57C2),
-  Color(0xFFE5739A),
-  Color(0xFFFFFFFF),
+  const Color(0xFF7E57C2),
+  const Color(0xFFE5739A),
+  const Color(0xFFFFFFFF),
 ];
 
 const List<Color> _resaltadores = [

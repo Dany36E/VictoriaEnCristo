@@ -176,7 +176,7 @@ void themeMatrix(
             // Igual que main.dart: el tema papel tiene su propio ThemeData y
             // el papel con textura detrás de todas las rutas.
             theme: theme.isPaper ? AppTheme.paperTheme : AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            darkTheme: theme.isPaper ? AppTheme.paperTheme : AppTheme.darkTheme,
             themeMode: theme.isDark ? ThemeMode.dark : ThemeMode.light,
             builder: (context, child) => AppThemeData.provider(
               theme: theme,

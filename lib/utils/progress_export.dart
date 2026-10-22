@@ -7,7 +7,6 @@ import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart';
 
 import '../theme/app_theme_data.dart';
-import '../vec/vec_tema.dart';
 
 /// Utilidad para capturar un widget como imagen y compartir.
 /// Usa RepaintBoundary + toImage para renderizar a PNG.
@@ -62,7 +61,7 @@ class ProgressExport {
         Offset.zero & Size(captura.width.toDouble(), captura.height.toDouble());
     lienzo.drawRect(
       rect,
-      Paint()..color = tema.isPaper ? VecColores.crema : tema.scaffoldBg,
+      Paint()..color = tema.scaffoldBg,
     );
     ui.Image? textura;
     if (tema.isPaper) {
@@ -72,7 +71,9 @@ class ProgressExport {
       final codec = await ui.instantiateImageCodec(datos.buffer.asUint8List());
       textura = (await codec.getNextFrame()).image;
       codec.dispose();
-      // FondoPapel la repite a escala 2 (256 lógicos) y a media opacidad.
+      // FondoPapel la repite a escala 2 (256 lógicos) y a media opacidad; en
+      // los papeles oscuros, teñida del fondo y más opaca.
+      final oscura = tema.paleta!.oscura;
       final ajuste = Matrix4.diagonal3Values(_escala / 2, _escala / 2, 1);
       lienzo.drawRect(
         rect,
@@ -83,7 +84,10 @@ class ProgressExport {
             TileMode.repeated,
             ajuste.storage,
           )
-          ..color = const Color(0x80000000),
+          ..colorFilter = oscura
+              ? ColorFilter.mode(tema.scaffoldBg, BlendMode.modulate)
+              : null
+          ..color = Color(oscura ? 0x99000000 : 0x80000000),
       );
     }
     lienzo.drawImage(captura, Offset.zero, Paint());

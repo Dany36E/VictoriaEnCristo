@@ -558,10 +558,10 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                 color: VecColores.verde.withValues(alpha: 0.14),
                 borderRadius: BorderRadius.circular(VecRadios.s),
               ),
-              child: const Row(
+              child: Row(
                 children: [
                   CirculoIcono(iconoVec: 'candado', color: VecColores.verde, tamano: 30),
-                  SizedBox(width: 10),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: Text(
                       'Nadie sabrá el propósito real de la app',
@@ -620,7 +620,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             Text(
               'Título del widget',
               style: _papel
-                  ? const TextStyle(
+                  ? TextStyle(
                       fontFamily: VecFuentes.titulo,
                       fontSize: 17,
                       color: VecColores.tinta,
@@ -674,7 +674,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
                               ),
                               child: Text(
                                 title,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: VecFuentes.titulo,
                                   fontSize: 15,
                                   color: VecColores.tinta,
@@ -780,7 +780,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
               const SizedBox(height: 8),
               Text(
                 title,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.titulo,
                   fontSize: 17,
                   color: VecColores.tinta,
@@ -868,10 +868,10 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             onPressed: _addAtajosWidget,
           ),
           const SizedBox(height: 18),
-          const Row(
+          Row(
             children: [
               CirculoIcono(iconoVec: 'idea', color: VecColores.mostaza, tamano: 34),
-              SizedBox(width: 12),
+              const SizedBox(width: 12),
               Expanded(
                 child: Text(
                   'También puedes añadir el widget desde la pantalla de inicio de tu teléfono.',
@@ -1055,7 +1055,7 @@ class _WidgetSettingsScreenState extends State<WidgetSettingsScreen> {
             title: Text(title),
             subtitle: Text(subtitle),
             trailing: isSelected
-                ? const CirculoIcono(
+                ? CirculoIcono(
                     iconoVec: 'palomita',
                     color: VecColores.verde,
                     tamano: 30,

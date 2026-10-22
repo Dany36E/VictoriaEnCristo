@@ -177,7 +177,7 @@ class _AdminWallScreenState extends State<AdminWallScreen>
               title: Text(
                 reason,
                 style: papel
-                    ? const TextStyle(
+                    ? TextStyle(
                         fontFamily: VecFuentes.texto,
                         fontSize: 17,
                         color: VecColores.tinta,
@@ -209,7 +209,7 @@ class _AdminWallScreenState extends State<AdminWallScreen>
         SnackBar(
           content: Text(
             result.message,
-            style: const TextStyle(color: VecColores.papel),
+            style: TextStyle(color: VecColores.papel),
           ),
           backgroundColor: result.success
               ? VecColores.verde
@@ -354,7 +354,7 @@ class _AdminWallScreenState extends State<AdminWallScreen>
               Text(
                 emptyMessage,
                 textAlign: TextAlign.center,
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.texto,
                   fontSize: 20,
                   color: VecColores.lapiz,

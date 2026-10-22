@@ -361,7 +361,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                     const SizedBox(height: 10),
                     Text(
                       giant['name'],
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: VecFuentes.titulo,
                         fontSize: 17,
                         height: 1.05,
@@ -374,7 +374,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                         giant['description'],
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: VecFuentes.texto,
                           fontSize: 16,
                           height: 1.15,
@@ -385,7 +385,7 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen>
                   ],
                 ),
                 if (isSelected)
-                  const Positioned(
+                  Positioned(
                     top: -6,
                     right: -4,
                     child: CirculoIcono(

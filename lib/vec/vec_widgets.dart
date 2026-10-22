@@ -17,16 +17,31 @@ class FondoPapel extends StatelessWidget {
 
   /// La misma decoración, para usarla donde no se puede envolver con el widget.
   /// La textura va a media opacidad sobre el crema: entera es más oscura que
-  /// el crema del kit y le quita contraste al texto.
-  static const decoracion = BoxDecoration(
-    color: VecColores.crema,
-    image: DecorationImage(
+  /// el crema del kit y le quita contraste al texto. En los papeles oscuros la
+  /// textura encima aclararía el fondo: se tiñe del mismo fondo (modulate),
+  /// que la oscurece un poco y deja ver el grano.
+  static BoxDecoration get decoracion => VecColores.oscuro ? _decoracionOscura : _decoracionClara;
+
+  static final _decoracionClara = BoxDecoration(
+    color: VecPaleta.claro.crema,
+    image: const DecorationImage(
       image: AssetImage(_rutaTextura),
       repeat: ImageRepeat.repeat,
       scale: 2,
       opacity: 0.5,
     ),
   );
+
+  static BoxDecoration get _decoracionOscura => BoxDecoration(
+        color: VecColores.crema,
+        image: DecorationImage(
+          image: const AssetImage(_rutaTextura),
+          repeat: ImageRepeat.repeat,
+          scale: 2,
+          opacity: 0.6,
+          colorFilter: ColorFilter.mode(VecColores.crema, BlendMode.modulate),
+        ),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -46,12 +61,12 @@ class Cinta extends StatelessWidget {
       child: Container(
         width: ancho,
         height: alto,
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
-            end: Alignment(-0.6, 0.2),
+            end: const Alignment(-0.6, 0.2),
             colors: [VecColores.mostaza, VecColores.mostaza, VecColores.mostazaClaro, VecColores.mostazaClaro],
-            stops: [0, 0.5, 0.5, 1],
+            stops: const [0, 0.5, 0.5, 1],
             tileMode: TileMode.repeated,
           ),
         ),
@@ -68,13 +83,13 @@ class TarjetaPapel extends StatelessWidget {
     this.giro = -1.0,
     this.cintaDerecha = false,
     this.brilla = false,
-    this.fondo = VecColores.papel,
+    this.fondo,
     this.padding = const EdgeInsets.fromLTRB(24, 22, 24, 20),
   });
   final Widget child;
   final double giro; // grados
   final bool cintaDerecha, brilla;
-  final Color fondo;
+  final Color? fondo; // papel si no se da
   final EdgeInsets padding;
 
   @override
@@ -88,7 +103,7 @@ class TarjetaPapel extends StatelessWidget {
             width: double.infinity,
             padding: padding,
             decoration: BoxDecoration(
-              color: fondo,
+              color: fondo ?? VecColores.papel,
               borderRadius: BorderRadius.circular(VecRadios.m),
               boxShadow: brilla ? [...VecSombras.brillo, ...VecSombras.papel] : VecSombras.papel,
             ),
@@ -120,11 +135,11 @@ class TarjetaVersiculo extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text.rich(TextSpan(children: [
-            TextSpan(text: referencia, style: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 26, color: VecColores.terracota)),
-            TextSpan(text: '  $version', style: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 14, color: VecColores.gris)),
+            TextSpan(text: referencia, style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 26, color: VecColores.terracota)),
+            TextSpan(text: '  $version', style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 14, color: VecColores.gris)),
           ])),
           const SizedBox(height: 8),
-          Text(texto, style: const TextStyle(fontFamily: VecFuentes.texto, fontSize: 20, height: 1.3, color: VecColores.tinta)),
+          Text(texto, style: TextStyle(fontFamily: VecFuentes.texto, fontSize: 20, height: 1.3, color: VecColores.tinta)),
         ],
       ),
     );
@@ -133,17 +148,17 @@ class TarjetaVersiculo extends StatelessWidget {
 
 /// Píldora de color con ícono y texto crema.
 class ChipVec extends StatelessWidget {
-  const ChipVec({super.key, required this.texto, this.icono, this.iconoWidget, this.color = VecColores.terracota, this.giro = -1.5});
+  const ChipVec({super.key, required this.texto, this.icono, this.iconoWidget, this.color, this.giro = -1.5});
   final String texto;
   final IconData? icono;
   final Widget? iconoWidget; // p. ej. IconoVec('cruz'): sin color propio toma el del texto
-  final Color color;
+  final Color? color; // terracota si no se da
   final double giro;
 
   @override
   Widget build(BuildContext context) {
-    // Sobre colores claros (mostaza, rosa) el papel no se lee: va en tinta.
-    final colorTexto = color.computeLuminance() > 0.3 ? VecColores.tinta : VecColores.papel;
+    final color = this.color ?? VecColores.terracota;
+    final colorTexto = textoSobre(color);
     return Transform.rotate(
       angle: giro * math.pi / 180,
       child: Container(
@@ -174,8 +189,8 @@ class BotonVec extends StatefulWidget {
     required this.onPressed,
     this.icono,
     this.iconoWidget,
-    this.color = VecColores.terracota,
-    this.colorTexto = VecColores.papel,
+    this.color,
+    this.colorTexto,
     this.cargando = false,
     this.expandido = false,
   });
@@ -183,7 +198,8 @@ class BotonVec extends StatefulWidget {
   final VoidCallback? onPressed;
   final IconData? icono;
   final Widget? iconoWidget; // p. ej. IconoVec('mensaje')
-  final Color color, colorTexto;
+  final Color? color; // terracota si no se da
+  final Color? colorTexto; // el que más se lea sobre [color] si no se da
   final bool cargando; // muestra un indicador y bloquea el toque
   final bool expandido; // ocupa todo el ancho disponible
 
@@ -199,8 +215,9 @@ class _BotonVecState extends State<BotonVec> {
   @override
   Widget build(BuildContext context) {
     // Deshabilitado: casilla apagada del papel con texto gris.
-    final fondo = widget.onPressed == null ? VecColores.cremaOscuro : widget.color;
-    final tinta = widget.onPressed == null ? VecColores.gris : widget.colorTexto;
+    final color = widget.color ?? VecColores.terracota;
+    final fondo = widget.onPressed == null ? VecColores.cremaOscuro : color;
+    final tinta = widget.onPressed == null ? VecColores.gris : widget.colorTexto ?? textoSobre(color);
     final abajo = _abajo && _activo;
     return Semantics(
       button: true,
@@ -254,20 +271,21 @@ class _BotonVecState extends State<BotonVec> {
 
 /// Subtítulo como en los videos: etiqueta de quién habla + texto en papel con una franja de color.
 class Subtitulo extends StatelessWidget {
-  const Subtitulo({super.key, required this.quien, required this.texto, this.color = VecColores.terracota, this.clave});
+  const Subtitulo({super.key, required this.quien, required this.texto, this.color, this.clave});
   final String quien, texto;
-  final Color color; // terracota = Victoria, azul = Timoteo
+  final Color? color; // terracota = Victoria (si no se da), azul = Timoteo
   final String? clave; // palabra que se pinta de terracota
 
   @override
   Widget build(BuildContext context) {
-    const estilo = TextStyle(fontFamily: VecFuentes.titulo, fontSize: 24, color: VecColores.tinta, height: 1.3);
+    final color = this.color ?? VecColores.terracota;
+    final estilo = TextStyle(fontFamily: VecFuentes.titulo, fontSize: 24, color: VecColores.tinta, height: 1.3);
     final partes = (clave == null || !texto.contains(clave!)) ? [texto] : texto.split(clave!);
     return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.min, children: [
       Container(
         padding: const EdgeInsets.fromLTRB(12, 3, 12, 1),
         decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(10)),
-        child: Text(quien, style: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 15, color: VecColores.papel)),
+        child: Text(quien, style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 15, color: textoSobre(color))),
       ),
       const SizedBox(height: 4),
       DecoratedBox(
@@ -288,7 +306,7 @@ class Subtitulo extends StatelessWidget {
                     child: Text.rich(TextSpan(style: estilo, children: [
                       for (var i = 0; i < partes.length; i++) ...[
                         TextSpan(text: partes[i]),
-                        if (i < partes.length - 1) TextSpan(text: clave, style: const TextStyle(color: VecColores.terracota)),
+                        if (i < partes.length - 1) TextSpan(text: clave, style: TextStyle(color: VecColores.terracota)),
                       ],
                     ])),
                   ),
@@ -317,7 +335,7 @@ class Globo extends StatelessWidget {
           borderRadius: BorderRadius.circular(26),
           border: Border.all(color: VecColores.tinta, width: 4),
         ),
-        child: Text(texto, style: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 20, color: VecColores.tinta)),
+        child: Text(texto, style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 20, color: VecColores.tinta)),
       ),
       Positioned(left: 30, bottom: -16, child: CustomPaint(size: const Size(24, 18), painter: _Piquito())),
     ]);
@@ -438,16 +456,19 @@ class IconoVec extends StatelessWidget {
 /// Ícono relleno dentro de un círculo de color (para íconos de Material que no
 /// existen en el kit: nunca íconos de línea delgada sueltos).
 class CirculoIcono extends StatelessWidget {
-  const CirculoIcono({super.key, this.icono, this.iconoVec, this.color = VecColores.terracota, this.colorIcono = VecColores.papel, this.tamano = 46, this.giro = 0, this.sombra = true});
+  const CirculoIcono({super.key, this.icono, this.iconoVec, this.color, this.colorIcono, this.tamano = 46, this.giro = 0, this.sombra = true});
   final IconData? icono;
   final String? iconoVec; // nombre de un SVG del kit
-  final Color color, colorIcono;
+  final Color? color; // terracota si no se da
+  final Color? colorIcono; // el que más se lea sobre [color] si no se da
   final double tamano, giro;
   final bool sombra; // como .vec-tab .ico: la casilla apagada no lleva sombra
 
   @override
   Widget build(BuildContext context) {
     final t = tamano * 0.56;
+    final color = this.color ?? VecColores.terracota;
+    final colorIcono = this.colorIcono ?? textoSobre(color);
     return Transform.rotate(
       angle: giro * math.pi / 180,
       child: Container(
@@ -468,22 +489,22 @@ class CirculoIcono extends StatelessWidget {
 /// Título del estilo (.vec-titulo): Lilita One en tinta con la palabra clave
 /// en terracota.
 class TituloVec extends StatelessWidget {
-  const TituloVec(this.texto, {super.key, this.clave, this.tamano = 30, this.color = VecColores.tinta, this.alineacion = TextAlign.start});
+  const TituloVec(this.texto, {super.key, this.clave, this.tamano = 30, this.color, this.alineacion = TextAlign.start});
   final String texto;
   final String? clave; // palabra que se pinta de terracota
   final double tamano;
-  final Color color;
+  final Color? color; // tinta si no se da
   final TextAlign alineacion;
 
   @override
   Widget build(BuildContext context) {
-    final estilo = TextStyle(fontFamily: VecFuentes.titulo, fontSize: tamano, color: color, height: 1.05);
+    final estilo = TextStyle(fontFamily: VecFuentes.titulo, fontSize: tamano, color: color ?? VecColores.tinta, height: 1.05);
     final partes = (clave == null || !texto.contains(clave!)) ? [texto] : texto.split(clave!);
     return Text.rich(
       TextSpan(style: estilo, children: [
         for (var i = 0; i < partes.length; i++) ...[
           TextSpan(text: partes[i]),
-          if (i < partes.length - 1) TextSpan(text: clave, style: const TextStyle(color: VecColores.terracota)),
+          if (i < partes.length - 1) TextSpan(text: clave, style: TextStyle(color: VecColores.terracota)),
         ],
       ]),
       textAlign: alineacion,
@@ -491,7 +512,8 @@ class TituloVec extends StatelessWidget {
   }
 }
 
-/// Letrero grande con contorno de tinta (.vec-letrero), para portadas.
+/// Letrero grande con contorno de tinta (.vec-letrero), para portadas. Es como
+/// un sticker impreso: lleva los colores del papel claro en todos los temas.
 class Letrero extends StatelessWidget {
   const Letrero(this.texto, {super.key, this.clave, this.tamano = 44, this.giro = -2});
   final String texto;
@@ -515,14 +537,14 @@ class Letrero extends StatelessWidget {
         ..style = PaintingStyle.stroke
         ..strokeWidth = 8
         ..strokeJoin = StrokeJoin.round
-        ..color = VecColores.tinta,
+        ..color = VecPaleta.claro.tinta,
       shadows: const [Shadow(color: Color(0x592B2622), offset: Offset(0, 6))],
     );
     return Transform.rotate(
       angle: giro * math.pi / 180,
       child: Stack(alignment: Alignment.center, children: [
         Text.rich(spans(contorno), textAlign: TextAlign.center),
-        Text.rich(spans(base.copyWith(color: VecColores.papel), colorClave: _amarillo), textAlign: TextAlign.center),
+        Text.rich(spans(base.copyWith(color: VecPaleta.claro.papel), colorClave: _amarillo), textAlign: TextAlign.center),
       ]),
     );
   }
@@ -537,7 +559,7 @@ class EtiquetaSeccion extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       texto.toUpperCase(),
-      style: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 17, color: VecColores.gris, letterSpacing: 0.5),
+      style: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 17, color: VecColores.gris, letterSpacing: 0.5),
     );
   }
 }
@@ -549,7 +571,7 @@ class HojaRayada extends StatelessWidget {
   final double giro;
   final bool cintaDerecha;
 
-  static const estilo = TextStyle(fontFamily: VecFuentes.mano, fontSize: 24, height: 40 / 24, color: VecColores.noche);
+  static TextStyle get estilo => TextStyle(fontFamily: VecFuentes.mano, fontSize: 24, height: 40 / 24, color: VecColores.noche);
 
   @override
   Widget build(BuildContext context) {
@@ -604,7 +626,9 @@ class AvatarVec extends StatelessWidget {
 /// sombras del kit (VecSombras) solo POR FUERA de la figura: el color lo pinta
 /// el propio Material y la sombra sólida no lo oscurece.
 class BordeConSombraVec extends OutlinedBorder {
-  BordeConSombraVec({required this.forma, this.sombras = VecSombras.papel}) : super(side: forma.side);
+  BordeConSombraVec({required this.forma, List<BoxShadow>? sombras})
+      : sombras = sombras ?? VecSombras.papel,
+        super(side: forma.side);
   final OutlinedBorder forma;
   final List<BoxShadow> sombras;
 

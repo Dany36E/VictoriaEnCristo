@@ -94,10 +94,11 @@ class EstiloPdf {
   /// (igual que las imágenes para compartir de la Biblia), aunque la Biblia
   /// tenga un tema distinto al de la app.
   static bool get temaPapelActivo =>
-      BibleReaderThemeData.migrateId(
-        BibleUserDataService.I.readerThemeNotifier.value,
-      ) ==
-      BibleReaderThemeData.paper.id;
+      BibleReaderThemeData.fromId(
+        BibleReaderThemeData.migrateId(
+          BibleUserDataService.I.readerThemeNotifier.value,
+        ),
+      ).isPaper;
 
   /// Carga las letras del estilo que corresponde al tema activo.
   static Future<EstiloPdf> cargar({bool? papel}) async {

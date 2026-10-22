@@ -168,9 +168,9 @@ class StickerPickerSheet extends StatelessWidget {
   /// Tema papel: hoja de papel con los mensajes como tarjetas con ícono del kit.
   Widget _buildPapel(BuildContext context, int remaining, bool isLimited) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: VecColores.papel,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(VecRadios.l)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(VecRadios.l)),
       ),
       padding: EdgeInsets.only(
         bottom: MediaQuery.of(context).viewInsets.bottom +
@@ -206,10 +206,10 @@ class StickerPickerSheet extends StatelessWidget {
                   color: VecColores.mostaza.withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(VecRadios.s),
                 ),
-                child: const Row(
+                child: Row(
                   children: [
                     CirculoIcono(iconoVec: 'reloj', color: VecColores.mostaza, tamano: 32),
-                    SizedBox(width: 10),
+                    const SizedBox(width: 10),
                     Expanded(
                       child: Text(
                         'Ya enviaste ánimo hoy. Vuelve mañana.',
@@ -251,7 +251,7 @@ class StickerPickerSheet extends StatelessWidget {
               padding: const EdgeInsets.only(top: 10),
               child: Text(
                 '$remaining mensaje${remaining == 1 ? '' : 's'} restante${remaining == 1 ? '' : 's'} hoy',
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: VecFuentes.texto,
                   fontSize: 15,
                   color: VecColores.gris,
@@ -420,7 +420,7 @@ class _StickerButton extends StatelessWidget {
                       message.textoSinEmoji,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontFamily: VecFuentes.texto,
                         fontSize: 15,
                         height: 1.1,
