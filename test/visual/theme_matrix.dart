@@ -106,10 +106,15 @@ void setUpThemeMatrix() {
 /// (versículo o devocional del día). En la lista de conocidos sus textos
 /// con poco contraste se guardan por su orden en la pantalla, no por lo que
 /// dicen, para que la prueba no falle solo porque cambió el día.
+///
+/// [esperarCarga]: antes de capturar, dar tiempo real para que termine lo que
+/// la pantalla lee de assets o preferencias (si no, el primer tema se captura
+/// a veces con el indicador de carga).
 void themeMatrix(
   String nombre,
   Widget Function() pantalla, {
   bool contenidoDelDia = false,
+  bool esperarCarga = true,
 }) {
   final archivo = File('test/visual/problemas_conocidos/$nombre.txt');
   final conocidos = archivo.existsSync()
@@ -182,6 +187,17 @@ void themeMatrix(
         // Sin pumpAndSettle: varias pantallas tienen animaciones infinitas.
         for (var i = 0; i < 20; i++) {
           await tester.pump(const Duration(milliseconds: 100));
+        }
+        // Lo que se lee de assets o preferencias termina con E/S real, que el
+        // reloj falso no avanza: sin esta espera el primer tema capturaba
+        // solo el indicador de carga. pump() sin duración dibuja lo cargado
+        // sin mover las animaciones, para que todos los temas se capturen en
+        // el mismo momento.
+        for (var i = 0; i < (esperarCarga ? 3 : 0); i++) {
+          await tester.runAsync(
+            () => Future<void>.delayed(const Duration(milliseconds: 100)),
+          );
+          await tester.pump();
         }
 
         final limite =

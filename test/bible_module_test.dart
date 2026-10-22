@@ -117,8 +117,8 @@ void main() {
   // 4. ShareCardTemplate (kShareTemplates)
   // ─────────────────────────────────────────────────────────────────────────
   group('ShareCardTemplate', () {
-    test('has 10 templates', () {
-      expect(kShareTemplates.length, 10);
+    test('has 12 templates (10 clásicas y 2 de papel)', () {
+      expect(kShareTemplates.length, 12);
     });
 
     test('all templates have unique IDs', () {

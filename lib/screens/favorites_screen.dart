@@ -56,7 +56,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           // APP BAR PREMIUM
           // ═══════════════════════════════════════════════════════════════════
           SliverAppBar(
-            expandedHeight: 180,
+            // Alto suficiente para que el ícono no quede bajo la flecha de
+            // regreso de la barra (56 px).
+            expandedHeight: 220,
             floating: false,
             pinned: true,
             backgroundColor: t.isPaper ? Colors.transparent : t.surface,
@@ -137,7 +139,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            '${_favoritesService.count} versículos guardados',
+                            _favoritesService.count == 1
+                                ? '1 versículo guardado'
+                                : '${_favoritesService.count} versículos guardados',
                             style: AppFonts.manrope(
                               fontSize: 14,
                               color: t.textSecondary,

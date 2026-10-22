@@ -288,7 +288,7 @@ class _JourneyMapScreenState extends State<JourneyMapScreen> {
                 ),
               )
             else
-              const Icon(Icons.lock_outline_rounded, size: 20),
+              Icon(Icons.lock_outline_rounded, size: 20, color: t.textSecondary),
           ],
         ),
       ).animate().fadeIn(duration: 280.ms, delay: (40 * s.order).ms).slideY(begin: 0.05, end: 0),

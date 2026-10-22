@@ -9,6 +9,7 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/sermon_note_service.dart';
 import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../widgets/bible/sermon/adjuntos_nota.dart';
 import 'bible_reader_screen.dart';
 import 'sermon_notes_mode_screen.dart';
@@ -844,6 +845,7 @@ class _FilterShell extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
+    final acento = legibleEnPastilla(t.accent, 0.13, t.fondoVisible);
     return Container(
       constraints: const BoxConstraints(maxWidth: 230),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
@@ -861,7 +863,7 @@ class _FilterShell extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: selected ? t.accent : t.textSecondary, size: 15),
+          Icon(icon, color: selected ? acento : t.textSecondary, size: 15),
           const SizedBox(width: 6),
           Flexible(
             child: Text(
@@ -869,7 +871,7 @@ class _FilterShell extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppFonts.manrope(
-                color: selected ? t.accent : t.textPrimary,
+                color: selected ? acento : t.textPrimary,
                 fontSize: 12,
                 fontWeight: FontWeight.w800,
               ),
@@ -878,7 +880,7 @@ class _FilterShell extends StatelessWidget {
           const SizedBox(width: 3),
           Icon(
             Icons.expand_more,
-            color: selected ? t.accent : t.textSecondary,
+            color: selected ? acento : t.textSecondary,
             size: 15,
           ),
         ],

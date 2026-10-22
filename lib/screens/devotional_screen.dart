@@ -20,6 +20,7 @@ import '../services/user_pref_cloud_sync_service.dart';
 import '../services/bible/bible_user_data_service.dart';
 import '../theme/bible_reader_theme.dart';
 import '../theme/contraste.dart';
+import '../widgets/compartir/tarjeta_compartir_papel.dart';
 import '../utils/bible_navigation_helper.dart';
 import '../utils/time_utils.dart';
 import '../widgets/bible/reader/reader_typography_panel.dart';
@@ -445,10 +446,30 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                   IgnorePointer(
                     child: Opacity(
                       opacity: 0.0,
-                      child: RepaintBoundary(
-                        key: _shareKey,
-                        child: _DevotionalShareCard(entry: _entry!, theme: t),
-                      ),
+                      // Tema papel: la tarjeta de papel recortado, siempre a
+                      // 360 de ancho (sale de 1080 px al capturarla a 3x).
+                      child: t.id == BibleReaderThemeData.paper.id
+                          ? OverflowBox(
+                              alignment: Alignment.topLeft,
+                              maxWidth: TarjetaCompartirPapel.ancho,
+                              child: RepaintBoundary(
+                                key: _shareKey,
+                                child: TarjetaCompartirPapel(
+                                  texto: _entry!.verse,
+                                  referencia: _entry!.verseReference,
+                                  etiqueta: 'Devocional',
+                                  pie: 'La Chequera del Banco de la Fe',
+                                  proporcion: 0.8,
+                                ),
+                              ),
+                            )
+                          : RepaintBoundary(
+                              key: _shareKey,
+                              child: _DevotionalShareCard(
+                                entry: _entry!,
+                                theme: t,
+                              ),
+                            ),
                     ),
                   ),
               ],
@@ -619,8 +640,9 @@ class _DevotionalScreenState extends State<DevotionalScreen> {
                       ? '1 día seguido'
                       : '$streak días seguidos',
                   style: AppFonts.manrope(
-                    color:
-                        streak > 0 ? t.textPrimary : t.textSecondary,
+                    color: streak > 0
+                        ? t.textPrimary
+                        : legibleSobre(t.textSecondary, t.surface),
                     fontSize: 13,
                     fontWeight:
                         streak > 0 ? FontWeight.w700 : FontWeight.w500,

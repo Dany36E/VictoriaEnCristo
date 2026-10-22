@@ -10,6 +10,7 @@ import '../../models/bible/share_template.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/share_cache_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../widgets/bible/share_card_renderer.dart';
 
 /// Pantalla rediseñada para compartir versículos como imagen premium.
@@ -43,7 +44,16 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
     (label: '4:5', w: 1080.0, h: 1350.0),
   ];
 
-  ShareCardTemplate get _template => kShareTemplates[_selectedIndex];
+  /// Con el tema papel, las plantillas de papel van primero (mismo orden que
+  /// en la hoja de acciones del versículo, que pasa el índice inicial).
+  List<ShareCardTemplate> get _plantillas => plantillasCompartir(
+    papel:
+        BibleReaderThemeData.migrateId(
+          BibleUserDataService.I.readerThemeNotifier.value,
+        ) ==
+        BibleReaderThemeData.paper.id,
+  );
+  ShareCardTemplate get _template => _plantillas[_selectedIndex];
   Size get _cardSize =>
       Size(_aspects[_aspectIndex].w, _aspects[_aspectIndex].h);
 
@@ -133,7 +143,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
               fontSize: 14,
               fontWeight: FontWeight.w600,
               letterSpacing: 2.0,
-              color: t.accent,
+              color: legibleSobre(t.accent, t.fondoVisible),
             ),
           ),
           const Spacer(),
@@ -150,9 +160,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
         padding: const EdgeInsets.symmetric(horizontal: 16),
-        itemCount: kShareTemplates.length,
+        itemCount: _plantillas.length,
         itemBuilder: (_, i) {
-          final tmpl = kShareTemplates[i];
+          final tmpl = _plantillas[i];
           final isSelected = i == _selectedIndex;
           return GestureDetector(
             onTap: () => setState(() => _selectedIndex = i),
@@ -236,17 +246,13 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
             child: Row(
               children: [
-                Icon(
-                  Icons.tune,
-                  size: 16,
-                  color: t.textSecondary.withValues(alpha: 0.5),
-                ),
+                Icon(Icons.tune, size: 16, color: t.textoTenue(0.6)),
                 const SizedBox(width: 8),
                 Text(
                   'Personalizar',
                   style: AppFonts.manrope(
                     fontSize: 13,
-                    color: t.textSecondary.withValues(alpha: 0.6),
+                    color: t.textoTenue(0.6),
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -454,15 +460,21 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
               child: OutlinedButton.icon(
                 onPressed: _sharing ? null : _downloadImage,
                 icon: const Icon(Icons.download_rounded, size: 18),
-                label: Text(
-                  'Guardar',
-                  style: AppFonts.manrope(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 13,
+                // A 360 px no cabía y quedaba «Gua…».
+                label: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    'Guardar',
+                    maxLines: 1,
+                    style: AppFonts.manrope(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
-                  foregroundColor: t.accent,
+                  padding: const EdgeInsets.symmetric(horizontal: 10),
+                  foregroundColor: legibleSobre(t.accent, t.fondoVisible),
                   side: BorderSide(color: t.accent.withValues(alpha: 0.5)),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -497,7 +509,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: t.accent,
+                  // Acento ajustado para que el texto del color del fondo
+                  // se lea encima.
+                  backgroundColor: legibleSobre(t.accent, t.background),
                   foregroundColor: t.background,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

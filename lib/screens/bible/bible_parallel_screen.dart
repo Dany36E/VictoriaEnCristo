@@ -12,6 +12,7 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/recent_colors_service.dart';
 import '../../services/user_pref_cloud_sync_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../widgets/bible/full_color_picker_sheet.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -498,7 +499,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               child: Text(
                 'A\u2212',
                 style: AppFonts.manrope(
-                  color: t.textSecondary,
+                  color: t.textoTenue(1),
                   fontSize: 13,
                   fontWeight: FontWeight.w600,
                 ),
@@ -534,7 +535,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
               child: Text(
                 'A+',
                 style: AppFonts.manrope(
-                  color: t.textSecondary,
+                  color: t.textoTenue(1),
                   fontSize: 15,
                   fontWeight: FontWeight.w600,
                 ),
@@ -577,7 +578,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 child: Text(
                   _leftVersion.shortName,
                   style: AppFonts.manrope(
-                    color: t.accent,
+                    color: legibleEnPastilla(t.accent, 0.06, t.fondoVisible),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -597,7 +598,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                 child: Text(
                   _rightVersion.shortName,
                   style: AppFonts.manrope(
-                    color: t.accent,
+                    color: legibleEnPastilla(t.accent, 0.06, t.fondoVisible),
                     fontSize: 12,
                     fontWeight: FontWeight.w700,
                   ),
@@ -701,7 +702,12 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       TextSpan(
                         text: '${verse.verse} ',
                         style: AppFonts.manrope(
-                          color: t.accent.withValues(alpha: isSelected ? 0.9 : 0.5),
+                          color: isSelected
+                              ? legibleEnPastilla(t.accent, 0.08, t.fondoVisible)
+                              : legibleSobre(
+                                  t.accent.withValues(alpha: 0.5),
+                                  t.fondoVisible,
+                                ),
                           fontSize: 10,
                           fontWeight: FontWeight.w700,
                         ),
@@ -1014,7 +1020,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       Text(
                         'Cap. ${_currentChapter - 1}',
                         style: AppFonts.manrope(
-                          color: t.accent,
+                          color: legibleSobre(t.accent, t.fondoVisible),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
@@ -1039,7 +1045,7 @@ class _BibleParallelScreenState extends State<BibleParallelScreen> {
                       Text(
                         'Cap. ${_currentChapter + 1}',
                         style: AppFonts.manrope(
-                          color: t.accent,
+                          color: legibleSobre(t.accent, t.fondoVisible),
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),

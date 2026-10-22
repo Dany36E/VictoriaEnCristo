@@ -14,6 +14,7 @@ import '../../services/learning/book_progress_service.dart';
 import '../../services/learning/book_repository.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
+import '../../theme/contraste.dart';
 import 'book_detail_screen.dart';
 
 class BookshelfScreen extends StatefulWidget {
@@ -201,9 +202,21 @@ class _BookSpine extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Tono claro del lomo de los libros estudiados (el peor caso para texto
+  /// claro sobre el degradado café).
+  static const _lomoClaro = Color(0xFF6B4E20);
+
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
+    // El lomo estudiado es café oscuro en todos los temas: letra clara.
+    final oro = studied
+        ? legibleSobre(AppDesignSystem.gold, _lomoClaro)
+        : AppDesignSystem.oroTexto(context);
+    final titulo = studied ? AppDesignSystem.pureWhite : t.textPrimary;
+    final secundario = studied
+        ? legibleSobre(AppDesignSystem.coolGray, _lomoClaro)
+        : t.textSecondary;
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
@@ -235,7 +248,7 @@ class _BookSpine extends StatelessWidget {
               children: [
                 Text(
                   '#${book.order}',
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.oroTexto(context)),
+                  style: AppDesignSystem.labelSmall(context, color: oro),
                 ),
                 if (studied)
                   const Icon(Icons.check_circle_rounded, color: AppDesignSystem.gold, size: 14),
@@ -247,7 +260,7 @@ class _BookSpine extends StatelessWidget {
                 child: Text(
                   book.name,
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+                  style: AppDesignSystem.headlineSmall(context, color: titulo),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -256,7 +269,7 @@ class _BookSpine extends StatelessWidget {
             Text(
               '${book.chapters} cap.',
               textAlign: TextAlign.center,
-              style: AppDesignSystem.labelSmall(context, color: t.textSecondary),
+              style: AppDesignSystem.labelSmall(context, color: secundario),
             ),
             if (studied && score > 0)
               Padding(
@@ -264,7 +277,7 @@ class _BookSpine extends StatelessWidget {
                 child: Text(
                   '$score/3 ✓',
                   textAlign: TextAlign.center,
-                  style: AppDesignSystem.labelSmall(context, color: AppDesignSystem.oroTexto(context)),
+                  style: AppDesignSystem.labelSmall(context, color: oro),
                 ),
               ),
           ],

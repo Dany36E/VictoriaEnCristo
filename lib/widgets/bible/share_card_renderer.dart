@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import '../../models/bible/share_template.dart';
 import '../../utils/verse_keyword_extractor.dart';
+import '../compartir/tarjeta_compartir_papel.dart';
 
 /// Renderiza la tarjeta de versículo para captura como imagen.
 /// Flutter dibuja TODO el texto nativo (100% nítido, sin errores).
@@ -30,6 +31,7 @@ class ShareCardRenderer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (template.layout == ShareLayout.papel) return _buildPapel();
     return SizedBox(
       width: cardSize.width,
       height: cardSize.height,
@@ -101,8 +103,37 @@ class ShareCardRenderer extends StatelessWidget {
     );
   }
 
+  /// La tarjeta de papel se dibuja a 360 de ancho y se escala al lienzo.
+  Widget _buildPapel() {
+    return SizedBox(
+      width: cardSize.width,
+      height: cardSize.height,
+      child: FittedBox(
+        child: TarjetaCompartirPapel(
+          texto: verseText,
+          referencia: reference,
+          version: version,
+          proporcion: cardSize.width / cardSize.height,
+          personaje: template.id == 'papel_timoteo'
+              ? PersonajeCompartir.timoteo
+              : PersonajeCompartir.victoria,
+          mostrarMarca: showLogo,
+          alineacion: textAlign,
+          // El control de tamaño de la pantalla parte de 34.
+          tamanoTexto: customFontSize > 0
+              ? TarjetaCompartirPapel.tamanoPorLargo(verseText.length) *
+                    customFontSize /
+                    34
+              : null,
+        ),
+      ),
+    );
+  }
+
   Widget _buildTextLayer() {
     switch (template.layout) {
+      case ShareLayout.papel:
+        return const SizedBox.shrink();
       case ShareLayout.centered:
         return _buildCenteredLayout();
       case ShareLayout.bottom:
@@ -162,7 +193,7 @@ class ShareCardRenderer extends StatelessWidget {
               version,
               style: TextStyle(
                 fontSize: _scale(18),
-                color: ts.referenceColor.withValues(alpha: 0.5),
+                color: ts.referenceColor.withValues(alpha: 0.75),
                 fontFamily: 'Manrope',
                 letterSpacing: _scale(2),
               ),
@@ -364,7 +395,7 @@ class ShareCardRenderer extends StatelessWidget {
                     version,
                     style: TextStyle(
                       fontSize: _scale(18),
-                      color: ts.referenceColor.withValues(alpha: 0.5),
+                      color: ts.referenceColor.withValues(alpha: 0.75),
                       fontFamily: 'Manrope',
                       letterSpacing: _scale(2),
                     ),

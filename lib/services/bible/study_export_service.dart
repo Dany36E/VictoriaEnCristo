@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:flutter/services.dart' show rootBundle;
 import 'package:pdf/pdf.dart';
 
+import 'estilo_pdf.dart';
 import 'pdf_file_writer.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:share_plus/share_plus.dart';
@@ -62,6 +62,25 @@ class StudyExportService {
 
   bool get shouldSaveToDownloadsByDefault => Platform.isWindows;
 
+  /// Estilo del documento en curso (clásico o papel, según el tema).
+  late EstiloPdf _e;
+
+  /// [clasico] con el estilo clásico; [papel] con el del tema papel.
+  PdfColor _tono(PdfColor clasico, PdfColor papel) =>
+      _e.papel ? papel : clasico;
+
+  /// Pie de página: el del estilo papel o el clásico de este documento.
+  pw.Widget _pie(pw.Context context) {
+    if (_e.papel) return _e.pie(context);
+    return pw.Align(
+      alignment: pw.Alignment.centerRight,
+      child: pw.Text(
+        'Victoria en Cristo · Página ${context.pageNumber} de ${context.pagesCount}',
+        style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+      ),
+    );
+  }
+
   Future<File> exportStudyToPdf({
     required StudyChapterAnswers study,
     required List<BibleVerse> chapterVerses,
@@ -75,17 +94,9 @@ class StudyExportService {
     final selectedVerses = _selectedVerses(study, chapterVerses);
     final selectedSecondary = _selectedVerses(study, secondaryChapterVerses);
 
-    // Carga fuentes TTF embebidas para soportar caracteres latinos/españoles.
-    // pw.Font.helvetica() es ASCII-only y produce cajas negras con á/é/ñ/etc.
-    final fontRegular = pw.Font.ttf(
-      await rootBundle.load('google_fonts/Lato-Regular.ttf'),
-    );
-    final fontBold = pw.Font.ttf(
-      await rootBundle.load('google_fonts/Lato-Bold.ttf'),
-    );
-    final fontItalic = pw.Font.ttf(
-      await rootBundle.load('google_fonts/Lato-Italic.ttf'),
-    );
+    // Fuentes TTF embebidas (pw.Font.helvetica() es ASCII y deja cajas con
+    // á/é/ñ); el estilo elige cuáles según el tema.
+    _e = await EstiloPdf.cargar();
 
     final doc = pw.Document(
       title: 'Estudio ${study.reference}',
@@ -95,21 +106,8 @@ class StudyExportService {
 
     doc.addPage(
       pw.MultiPage(
-        pageTheme: pw.PageTheme(
-          margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42),
-          theme: pw.ThemeData.withFont(
-            base: fontRegular,
-            bold: fontBold,
-            italic: fontItalic,
-          ),
-        ),
-        footer: (context) => pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text(
-            'Victoria en Cristo · Página ${context.pageNumber} de ${context.pagesCount}',
-            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
-          ),
-        ),
+        pageTheme: _e.pagina(margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42)),
+        footer: _pie,
         build: (context) => [
           _header(
             study,
@@ -197,21 +195,7 @@ class StudyExportService {
     bool saveToDownloads = false,
     bool cleanCover = false,
   }) async {
-    final fontRegular = pw.Font.ttf(
-      await rootBundle.load('google_fonts/Lato-Regular.ttf'),
-    );
-    final fontBold = pw.Font.ttf(
-      await rootBundle.load('google_fonts/Lato-Bold.ttf'),
-    );
-    final fontItalic = pw.Font.ttf(
-      await rootBundle.load('google_fonts/Lato-Italic.ttf'),
-    );
-
-    final theme = pw.ThemeData.withFont(
-      base: fontRegular,
-      bold: fontBold,
-      italic: fontItalic,
-    );
+    _e = await EstiloPdf.cargar();
 
     final doc = pw.Document(
       title: 'Estudio en grupo ${study.reference}',
@@ -221,29 +205,20 @@ class StudyExportService {
 
     // Hoja de portada dedicada (participantes, versiones, pasajes + añadidos).
     doc.addPage(
-      _roomCoverPage(study: study, participants: participants, theme: theme),
+      _roomCoverPage(study: study, participants: participants),
     );
 
     doc.addPage(
       pw.MultiPage(
-        pageTheme: pw.PageTheme(
-          margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42),
-          theme: theme,
-        ),
-        footer: (context) => pw.Align(
-          alignment: pw.Alignment.centerRight,
-          child: pw.Text(
-            'Victoria en Cristo · Página ${context.pageNumber} de ${context.pagesCount}',
-            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
-          ),
-        ),
+        pageTheme: _e.pagina(margin: const pw.EdgeInsets.fromLTRB(36, 36, 36, 42)),
+        footer: _pie,
         build: (context) => [
           _sectionTitle('Detalle por participante'),
           pw.SizedBox(height: 4),
           pw.Text(
             'Estudio colaborativo · ${participants.length} '
             '${participants.length == 1 ? 'participante' : 'participantes'}',
-            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+            style: pw.TextStyle(fontSize: 10, color: _tono(PdfColors.grey700, _e.secundario)),
           ),
           pw.SizedBox(height: 16),
           if (participants.isEmpty)
@@ -251,7 +226,7 @@ class StudyExportService {
               'Sin participantes registrados todavía.',
               style: pw.TextStyle(
                 fontSize: 11,
-                color: PdfColors.grey600,
+                color: _tono(PdfColors.grey600, _e.tenue),
                 fontStyle: pw.FontStyle.italic,
               ),
             )
@@ -307,7 +282,7 @@ class StudyExportService {
         width: double.infinity,
         padding: const pw.EdgeInsets.symmetric(vertical: 8, horizontal: 12),
         decoration: pw.BoxDecoration(
-          color: const PdfColor(0.96, 0.92, 0.78),
+          color: _tono(const PdfColor(0.96, 0.92, 0.78), _e.fondoDestacado),
           borderRadius: pw.BorderRadius.circular(6),
         ),
         child: pw.Text(
@@ -315,7 +290,7 @@ class StudyExportService {
           style: pw.TextStyle(
             fontSize: 14,
             fontWeight: pw.FontWeight.bold,
-            color: const PdfColor(0.12, 0.16, 0.20),
+            color: _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta),
           ),
         ),
       ),
@@ -327,7 +302,7 @@ class StudyExportService {
           'Este participante no registró versiones todavía.',
           style: pw.TextStyle(
             fontSize: 10.8,
-            color: PdfColors.grey600,
+            color: _tono(PdfColors.grey600, _e.tenue),
             fontStyle: pw.FontStyle.italic,
           ),
         )
@@ -347,7 +322,7 @@ class StudyExportService {
       pw.SizedBox(height: 6),
       _participantNotesBlock(participant),
       pw.SizedBox(height: 6),
-      pw.Divider(color: PdfColors.grey300, thickness: 0.5),
+      pw.Divider(color: _tono(PdfColors.grey300, _e.bordeTarjeta), thickness: 0.5),
     ];
   }
 
@@ -363,7 +338,7 @@ class StudyExportService {
         style: pw.TextStyle(
           fontSize: 11,
           fontWeight: pw.FontWeight.bold,
-          color: const PdfColor(0.72, 0.58, 0.20),
+          color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
         ),
       ),
       pw.SizedBox(height: 4),
@@ -372,7 +347,7 @@ class StudyExportService {
           'Sin versículos cargados para esta versión.',
           style: pw.TextStyle(
             fontSize: 10.8,
-            color: PdfColors.grey600,
+            color: _tono(PdfColors.grey600, _e.tenue),
             fontStyle: pw.FontStyle.italic,
           ),
         )
@@ -384,8 +359,8 @@ class StudyExportService {
               verse: verse,
               highlights: _highlightsForVerse(version.highlights, verse),
               fontSize: 11,
-              numberColor: const PdfColor(0.72, 0.58, 0.20),
-              textColor: PdfColors.grey900,
+              numberColor: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
+              textColor: _tono(PdfColors.grey900, _e.cuerpo),
             ),
           ),
     ];
@@ -406,9 +381,9 @@ class StudyExportService {
       margin: const pw.EdgeInsets.only(bottom: 8),
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
-        color: PdfColors.grey100,
+        color: _tono(PdfColors.grey100, _e.fondoTarjeta),
         borderRadius: pw.BorderRadius.circular(6),
-        border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
+        border: pw.Border.all(color: _tono(PdfColors.grey300, _e.bordeTarjeta), width: 0.5),
       ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -418,7 +393,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 11.5,
               fontWeight: pw.FontWeight.bold,
-              color: const PdfColor(0.12, 0.16, 0.20),
+              color: _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta),
             ),
           ),
           pw.SizedBox(height: 4),
@@ -427,7 +402,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 11,
               lineSpacing: 2,
-              color: answer.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+              color: answer.isEmpty ? _tono(PdfColors.grey600, _e.tenue) : _tono(PdfColors.grey900, _e.cuerpo),
               fontStyle: answer.isEmpty
                   ? pw.FontStyle.italic
                   : pw.FontStyle.normal,
@@ -446,10 +421,10 @@ class StudyExportService {
       width: double.infinity,
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
-        color: const PdfColor(0.98, 0.96, 0.90),
+        color: _tono(const PdfColor(0.98, 0.96, 0.90), _e.fondoDestacado),
         borderRadius: pw.BorderRadius.circular(6),
         border: pw.Border.all(
-          color: const PdfColor(0.88, 0.78, 0.52),
+          color: _tono(const PdfColor(0.88, 0.78, 0.52), _e.bordeDestacado),
           width: 0.5,
         ),
       ),
@@ -461,7 +436,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 11,
               lineSpacing: 2,
-              color: message.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+              color: message.isEmpty ? _tono(PdfColors.grey600, _e.tenue) : _tono(PdfColors.grey900, _e.cuerpo),
               fontStyle: message.isEmpty
                   ? pw.FontStyle.italic
                   : pw.FontStyle.normal,
@@ -474,7 +449,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 10.5,
               fontWeight: pw.FontWeight.bold,
-              color: const PdfColor(0.72, 0.58, 0.20),
+              color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
             ),
           ),
           pw.SizedBox(height: 3),
@@ -485,8 +460,8 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 10.8,
               color: mainReference.isEmpty
-                  ? PdfColors.grey600
-                  : PdfColors.grey900,
+                  ? _tono(PdfColors.grey600, _e.tenue)
+                  : _tono(PdfColors.grey900, _e.cuerpo),
               fontStyle: mainReference.isEmpty
                   ? pw.FontStyle.italic
                   : pw.FontStyle.normal,
@@ -503,10 +478,10 @@ class StudyExportService {
       width: double.infinity,
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
-        color: const PdfColor(0.98, 0.96, 0.90),
+        color: _tono(const PdfColor(0.98, 0.96, 0.90), _e.fondoDestacado),
         borderRadius: pw.BorderRadius.circular(6),
         border: pw.Border.all(
-          color: const PdfColor(0.88, 0.78, 0.52),
+          color: _tono(const PdfColor(0.88, 0.78, 0.52), _e.bordeDestacado),
           width: 0.5,
         ),
       ),
@@ -517,7 +492,7 @@ class StudyExportService {
         style: pw.TextStyle(
           fontSize: 11,
           lineSpacing: 2,
-          color: notes.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+          color: notes.isEmpty ? _tono(PdfColors.grey600, _e.tenue) : _tono(PdfColors.grey900, _e.cuerpo),
           fontStyle: notes.isEmpty ? pw.FontStyle.italic : pw.FontStyle.normal,
         ),
         overflow: pw.TextOverflow.span,
@@ -585,10 +560,9 @@ class StudyExportService {
   pw.Page _roomCoverPage({
     required StudyChapterAnswers study,
     required List<StudyParticipantBundle> participants,
-    required pw.ThemeData theme,
   }) {
-    const gold = PdfColor(0.72, 0.58, 0.20);
-    const ink = PdfColor(0.12, 0.16, 0.20);
+    final gold = _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento);
+    final ink = _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta);
     final passages = _passageLabels(study);
     final versionsUsed =
         <String>{
@@ -601,20 +575,19 @@ class StudyExportService {
       padding: const pw.EdgeInsets.only(bottom: 8, top: 18),
       child: pw.Text(
         text.toUpperCase(),
-        style: pw.TextStyle(
-          fontSize: 11,
-          fontWeight: pw.FontWeight.bold,
-          letterSpacing: 1.4,
-          color: gold,
-        ),
+        style: _e.papel
+            ? _e.estiloTitulo(fontSize: 12, color: gold, letterSpacing: 1)
+            : pw.TextStyle(
+                fontSize: 11,
+                fontWeight: pw.FontWeight.bold,
+                letterSpacing: 1.4,
+                color: gold,
+              ),
       ),
     );
 
     return pw.Page(
-      pageTheme: pw.PageTheme(
-        theme: theme,
-        margin: const pw.EdgeInsets.fromLTRB(48, 56, 48, 48),
-      ),
+      pageTheme: _e.pagina(margin: const pw.EdgeInsets.fromLTRB(48, 56, 48, 48)),
       build: (context) => pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
@@ -639,29 +612,33 @@ class StudyExportService {
           pw.SizedBox(height: 10),
           pw.Text(
             'Estudio en grupo',
-            style: pw.TextStyle(
-              fontSize: 32,
-              fontWeight: pw.FontWeight.bold,
-              color: ink,
-            ),
+            style: _e.papel
+                ? _e.estiloTitulo(fontSize: 34, color: ink)
+                : pw.TextStyle(
+                    fontSize: 32,
+                    fontWeight: pw.FontWeight.bold,
+                    color: ink,
+                  ),
           ),
           pw.SizedBox(height: 6),
           pw.Text(
             study.reference,
-            style: pw.TextStyle(
-              fontSize: 16,
-              fontWeight: pw.FontWeight.bold,
-              color: gold,
-            ),
+            style: _e.papel
+                ? _e.estiloTitulo(fontSize: 18, color: gold)
+                : pw.TextStyle(
+                    fontSize: 16,
+                    fontWeight: pw.FontWeight.bold,
+                    color: gold,
+                  ),
           ),
-          pw.Divider(color: const PdfColor(0.86, 0.82, 0.72), height: 36),
+          pw.Divider(color: _tono(const PdfColor(0.86, 0.82, 0.72), _e.bordeTarjeta), height: 36),
           sectionLabel('Pasajes estudiados'),
           for (final p in passages)
             pw.Padding(
               padding: const pw.EdgeInsets.only(bottom: 4),
               child: pw.Text(
                 '•  $p',
-                style: const pw.TextStyle(fontSize: 13, color: ink),
+                style: pw.TextStyle(fontSize: 13, color: ink),
               ),
             ),
           sectionLabel('Versiones usadas'),
@@ -683,7 +660,7 @@ class StudyExportService {
                     width: 6,
                     height: 6,
                     margin: const pw.EdgeInsets.only(right: 10),
-                    decoration: const pw.BoxDecoration(
+                    decoration: pw.BoxDecoration(
                       color: gold,
                       shape: pw.BoxShape.circle,
                     ),
@@ -700,9 +677,9 @@ class StudyExportService {
                   ),
                   pw.Text(
                     p.currentVersionId,
-                    style: const pw.TextStyle(
+                    style: pw.TextStyle(
                       fontSize: 11,
-                      color: PdfColors.grey700,
+                      color: _tono(PdfColors.grey700, _e.secundario),
                     ),
                   ),
                 ],
@@ -711,7 +688,7 @@ class StudyExportService {
           pw.Spacer(),
           pw.Text(
             'Generado el ${_date(study.updatedAt)} · Victoria en Cristo',
-            style: const pw.TextStyle(fontSize: 9, color: PdfColors.grey600),
+            style: pw.TextStyle(fontSize: 9, color: _tono(PdfColors.grey600, _e.tenue)),
           ),
         ],
       ),
@@ -726,15 +703,50 @@ class StudyExportService {
     final versions = secondaryVersionId == null
         ? study.versionId
         : '${study.versionId} + $secondaryVersionId';
+    if (_e.papel) {
+      // Tarjeta de papel con cinta, como el encabezado de Apuntes.
+      return pw.Stack(
+        overflow: pw.Overflow.visible,
+        children: [
+          _e.tarjeta(
+            radio: 10,
+            padding: const pw.EdgeInsets.fromLTRB(18, 16, 18, 16),
+            child: pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text('Estudio bíblico', style: _e.estiloTitulo(fontSize: 24)),
+                pw.SizedBox(height: 4),
+                pw.Text(
+                  study.reference,
+                  style: _e.estiloTitulo(fontSize: 15, color: _e.acento),
+                ),
+                pw.SizedBox(height: 10),
+                pw.Wrap(
+                  spacing: 8,
+                  runSpacing: 8,
+                  children: [
+                    _metaChip('Versión principal', study.versionId),
+                    if (secondaryVersionId != null)
+                      _metaChip('Versión secundaria', secondaryVersionId),
+                    _metaChip('Actualizado', _date(study.updatedAt)),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          pw.Positioned(right: -12, top: -10, child: _e.cinta(giro: 22)),
+        ],
+      );
+    }
     if (cleanCover) {
       return pw.Container(
         width: double.infinity,
         padding: const pw.EdgeInsets.fromLTRB(18, 16, 18, 14),
         decoration: pw.BoxDecoration(
-          color: PdfColors.white,
+          color: _tono(PdfColors.white, _e.fondoTarjeta),
           borderRadius: pw.BorderRadius.circular(10),
           border: pw.Border.all(
-            color: const PdfColor(0.86, 0.82, 0.74),
+            color: _tono(const PdfColor(0.86, 0.82, 0.74), _e.bordeTarjeta),
             width: 0.7,
           ),
         ),
@@ -745,7 +757,7 @@ class StudyExportService {
               width: 42,
               height: 4,
               decoration: pw.BoxDecoration(
-                color: const PdfColor(0.72, 0.58, 0.20),
+                color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
                 borderRadius: pw.BorderRadius.circular(2),
               ),
             ),
@@ -755,7 +767,7 @@ class StudyExportService {
               style: pw.TextStyle(
                 fontSize: 22,
                 fontWeight: pw.FontWeight.bold,
-                color: const PdfColor(0.12, 0.16, 0.20),
+                color: _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta),
               ),
             ),
             pw.SizedBox(height: 6),
@@ -764,7 +776,7 @@ class StudyExportService {
               style: pw.TextStyle(
                 fontSize: 15,
                 fontWeight: pw.FontWeight.bold,
-                color: const PdfColor(0.72, 0.58, 0.20),
+                color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
               ),
             ),
             pw.SizedBox(height: 8),
@@ -784,9 +796,9 @@ class StudyExportService {
     }
     return pw.Container(
       padding: const pw.EdgeInsets.only(bottom: 14),
-      decoration: const pw.BoxDecoration(
+      decoration: pw.BoxDecoration(
         border: pw.Border(
-          bottom: pw.BorderSide(color: PdfColor(0.72, 0.58, 0.20), width: 1),
+          bottom: pw.BorderSide(color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento), width: 1),
         ),
       ),
       child: pw.Column(
@@ -797,7 +809,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 24,
               fontWeight: pw.FontWeight.bold,
-              color: const PdfColor(0.12, 0.16, 0.20),
+              color: _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta),
             ),
           ),
           pw.SizedBox(height: 5),
@@ -806,13 +818,13 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 16,
               fontWeight: pw.FontWeight.bold,
-              color: const PdfColor(0.72, 0.58, 0.20),
+              color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
             ),
           ),
           pw.SizedBox(height: 3),
           pw.Text(
             'Versiones: $versions · Actualizado: ${_date(study.updatedAt)}',
-            style: const pw.TextStyle(fontSize: 10, color: PdfColors.grey700),
+            style: pw.TextStyle(fontSize: 10, color: _tono(PdfColors.grey700, _e.secundario)),
           ),
         ],
       ),
@@ -820,13 +832,14 @@ class StudyExportService {
   }
 
   pw.Widget _metaChip(String label, String value) {
+    if (_e.papel) return _e.dato(label, value);
     return pw.Container(
       padding: const pw.EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: pw.BoxDecoration(
-        color: PdfColors.white,
+        color: _tono(PdfColors.white, _e.fondoTarjeta),
         borderRadius: pw.BorderRadius.circular(16),
         border: pw.Border.all(
-          color: const PdfColor(0.86, 0.82, 0.72),
+          color: _tono(const PdfColor(0.86, 0.82, 0.72), _e.bordeTarjeta),
           width: 0.6,
         ),
       ),
@@ -838,14 +851,14 @@ class StudyExportService {
               style: pw.TextStyle(
                 fontSize: 10.3,
                 fontWeight: pw.FontWeight.bold,
-                color: const PdfColor(0.45, 0.36, 0.20),
+                color: _tono(const PdfColor(0.45, 0.36, 0.20), _e.etiqueta),
               ),
             ),
             pw.TextSpan(
               text: value,
-              style: const pw.TextStyle(
+              style: pw.TextStyle(
                 fontSize: 10.3,
-                color: PdfColors.grey900,
+                color: _tono(PdfColors.grey900, _e.cuerpo),
               ),
             ),
           ],
@@ -855,12 +868,13 @@ class StudyExportService {
   }
 
   pw.Widget _sectionTitle(String text) {
+    if (_e.papel) return _e.tituloSeccion(text);
     return pw.Text(
       text,
       style: pw.TextStyle(
         fontSize: 15,
         fontWeight: pw.FontWeight.bold,
-        color: const PdfColor(0.12, 0.16, 0.20),
+        color: _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta),
       ),
     );
   }
@@ -885,7 +899,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 8.5,
               fontWeight: pw.FontWeight.bold,
-              color: const PdfColor(0.72, 0.58, 0.20),
+              color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
             ),
           ),
           pw.SizedBox(height: 2),
@@ -893,8 +907,8 @@ class StudyExportService {
             verse: primary,
             highlights: primaryHighlights,
             fontSize: 11.5,
-            numberColor: const PdfColor(0.72, 0.58, 0.20),
-            textColor: PdfColors.grey900,
+            numberColor: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
+            textColor: _tono(PdfColors.grey900, _e.cuerpo),
           ),
           if (secondary != null && secondaryVersionId != null) ...[
             pw.SizedBox(height: 5),
@@ -903,7 +917,7 @@ class StudyExportService {
               style: pw.TextStyle(
                 fontSize: 8.5,
                 fontWeight: pw.FontWeight.bold,
-                color: PdfColors.grey600,
+                color: _tono(PdfColors.grey600, _e.tenue),
               ),
             ),
             pw.SizedBox(height: 2),
@@ -911,8 +925,8 @@ class StudyExportService {
               verse: secondary,
               highlights: secondaryHighlights,
               fontSize: 10.8,
-              numberColor: PdfColors.grey600,
-              textColor: PdfColors.grey800,
+              numberColor: _tono(PdfColors.grey600, _e.tenue),
+              textColor: _tono(PdfColors.grey800, _e.cuerpo),
             ),
           ],
         ],
@@ -978,6 +992,7 @@ class StudyExportService {
     required PdfColor textColor,
   }) {
     final style = pw.TextStyle(
+      font: _e.lectura,
       fontSize: fontSize,
       lineSpacing: 2,
       color: textColor,
@@ -1046,7 +1061,7 @@ class StudyExportService {
       style: pw.TextStyle(
         fontSize: 11,
         lineSpacing: 2,
-        color: PdfColors.grey600,
+        color: _tono(PdfColors.grey600, _e.tenue),
         fontStyle: pw.FontStyle.italic,
       ),
       overflow: pw.TextOverflow.span,
@@ -1065,7 +1080,7 @@ class StudyExportService {
               style: pw.TextStyle(
                 fontSize: segment.fontSize ?? 11,
                 lineSpacing: 2,
-                color: PdfColors.grey900,
+                color: _tono(PdfColors.grey900, _e.cuerpo),
                 fontWeight: segment.bold
                     ? pw.FontWeight.bold
                     : pw.FontWeight.normal,
@@ -1085,10 +1100,10 @@ class StudyExportService {
       width: double.infinity,
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
-        color: const PdfColor(0.98, 0.96, 0.90),
+        color: _tono(const PdfColor(0.98, 0.96, 0.90), _e.fondoDestacado),
         borderRadius: pw.BorderRadius.circular(6),
         border: pw.Border.all(
-          color: const PdfColor(0.88, 0.78, 0.52),
+          color: _tono(const PdfColor(0.88, 0.78, 0.52), _e.bordeDestacado),
           width: 0.5,
         ),
       ),
@@ -1105,10 +1120,10 @@ class StudyExportService {
       width: double.infinity,
       padding: const pw.EdgeInsets.all(10),
       decoration: pw.BoxDecoration(
-        color: const PdfColor(0.98, 0.96, 0.90),
+        color: _tono(const PdfColor(0.98, 0.96, 0.90), _e.fondoDestacado),
         borderRadius: pw.BorderRadius.circular(6),
         border: pw.Border.all(
-          color: const PdfColor(0.88, 0.78, 0.52),
+          color: _tono(const PdfColor(0.88, 0.78, 0.52), _e.bordeDestacado),
           width: 0.5,
         ),
       ),
@@ -1120,7 +1135,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 11,
               lineSpacing: 2,
-              color: message.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+              color: message.isEmpty ? _tono(PdfColors.grey600, _e.tenue) : _tono(PdfColors.grey900, _e.cuerpo),
               fontStyle: message.isEmpty
                   ? pw.FontStyle.italic
                   : pw.FontStyle.normal,
@@ -1133,7 +1148,7 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 10.5,
               fontWeight: pw.FontWeight.bold,
-              color: const PdfColor(0.72, 0.58, 0.20),
+              color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
             ),
           ),
           pw.SizedBox(height: 3),
@@ -1144,8 +1159,8 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 10.8,
               color: mainReference.isEmpty
-                  ? PdfColors.grey600
-                  : PdfColors.grey900,
+                  ? _tono(PdfColors.grey600, _e.tenue)
+                  : _tono(PdfColors.grey900, _e.cuerpo),
               fontStyle: mainReference.isEmpty
                   ? pw.FontStyle.italic
                   : pw.FontStyle.normal,
@@ -1165,9 +1180,9 @@ class StudyExportService {
           margin: const pw.EdgeInsets.only(bottom: 10),
           padding: const pw.EdgeInsets.all(10),
           decoration: pw.BoxDecoration(
-            color: PdfColors.grey100,
+            color: _tono(PdfColors.grey100, _e.fondoTarjeta),
             borderRadius: pw.BorderRadius.circular(6),
-            border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
+            border: pw.Border.all(color: _tono(PdfColors.grey300, _e.bordeTarjeta), width: 0.5),
           ),
           child: pw.Column(
             crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1177,7 +1192,7 @@ class StudyExportService {
                 style: pw.TextStyle(
                   fontSize: 11.5,
                   fontWeight: pw.FontWeight.bold,
-                  color: const PdfColor(0.12, 0.16, 0.20),
+                  color: _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta),
                 ),
               ),
               pw.SizedBox(height: 4),
@@ -1186,7 +1201,7 @@ class StudyExportService {
                 style: pw.TextStyle(
                   fontSize: 11,
                   lineSpacing: 2,
-                  color: answer.isEmpty ? PdfColors.grey600 : PdfColors.grey900,
+                  color: answer.isEmpty ? _tono(PdfColors.grey600, _e.tenue) : _tono(PdfColors.grey900, _e.cuerpo),
                   fontStyle: answer.isEmpty
                       ? pw.FontStyle.italic
                       : pw.FontStyle.normal,
@@ -1218,10 +1233,10 @@ class StudyExportService {
           margin: const pw.EdgeInsets.only(bottom: 10),
           padding: const pw.EdgeInsets.all(10),
           decoration: pw.BoxDecoration(
-            color: const PdfColor(0.98, 0.96, 0.90),
+            color: _tono(const PdfColor(0.98, 0.96, 0.90), _e.fondoDestacado),
             borderRadius: pw.BorderRadius.circular(6),
             border: pw.Border.all(
-              color: const PdfColor(0.88, 0.78, 0.52),
+              color: _tono(const PdfColor(0.88, 0.78, 0.52), _e.bordeDestacado),
               width: 0.5,
             ),
           ),
@@ -1233,7 +1248,7 @@ class StudyExportService {
                 style: pw.TextStyle(
                   fontSize: 11.5,
                   fontWeight: pw.FontWeight.bold,
-                  color: const PdfColor(0.12, 0.16, 0.20),
+                  color: _tono(const PdfColor(0.12, 0.16, 0.20), _e.tinta),
                 ),
               ),
               pw.SizedBox(height: 6),
@@ -1242,7 +1257,7 @@ class StudyExportService {
                   'Sin respuestas compartidas todavía.',
                   style: pw.TextStyle(
                     fontSize: 10.8,
-                    color: PdfColors.grey600,
+                    color: _tono(PdfColors.grey600, _e.tenue),
                     fontStyle: pw.FontStyle.italic,
                   ),
                 )
@@ -1267,9 +1282,9 @@ class StudyExportService {
       margin: const pw.EdgeInsets.only(top: 6),
       padding: const pw.EdgeInsets.fromLTRB(8, 7, 8, 8),
       decoration: pw.BoxDecoration(
-        color: PdfColors.white,
+        color: _tono(PdfColors.white, _e.fondoTarjeta),
         borderRadius: pw.BorderRadius.circular(5),
-        border: pw.Border.all(color: PdfColors.grey300, width: 0.5),
+        border: pw.Border.all(color: _tono(PdfColors.grey300, _e.bordeTarjeta), width: 0.5),
       ),
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
@@ -1279,16 +1294,16 @@ class StudyExportService {
             style: pw.TextStyle(
               fontSize: 9.5,
               fontWeight: pw.FontWeight.bold,
-              color: const PdfColor(0.72, 0.58, 0.20),
+              color: _tono(const PdfColor(0.72, 0.58, 0.20), _e.acento),
             ),
           ),
           pw.SizedBox(height: 3),
           pw.Text(
             answer,
-            style: const pw.TextStyle(
+            style: pw.TextStyle(
               fontSize: 10.8,
               lineSpacing: 2,
-              color: PdfColors.grey900,
+              color: _tono(PdfColors.grey900, _e.cuerpo),
             ),
             overflow: pw.TextOverflow.span,
           ),

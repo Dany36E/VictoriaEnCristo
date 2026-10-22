@@ -1,0 +1,105 @@
+import 'dart:io';
+import 'dart:ui' as ui;
+
+import 'package:app_quitar/vec/vec_widgets.dart';
+import 'package:app_quitar/widgets/compartir/tarjeta_compartir_papel.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../visual/theme_matrix.dart';
+
+const _corto = 'Todo lo puedo en Cristo que me fortalece.';
+const _largo =
+    'No os ha sobrevenido ninguna tentación que no sea humana; pero fiel es '
+    'Dios, que no os dejará ser tentados más de lo que podéis resistir, sino '
+    'que dará también juntamente con la tentación la salida, para que podáis '
+    'soportar.';
+
+Future<void> _capturar(
+  WidgetTester tester,
+  String nombre,
+  Widget tarjeta,
+) async {
+  final llave = GlobalKey();
+  await tester.pumpWidget(
+    MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        body: Center(
+          child: RepaintBoundary(key: llave, child: tarjeta),
+        ),
+      ),
+    ),
+  );
+  // Las imágenes (textura y personaje) se decodifican fuera del reloj falso.
+  await tester.runAsync(() async {
+    final contexto = llave.currentContext!;
+    for (final ruta in [
+      'assets/vec/texturas/papel_tile_512.png',
+      PersonajeCompartir.victoria.ruta,
+      PersonajeCompartir.timoteo.ruta,
+    ]) {
+      await precacheImage(AssetImage(ruta), contexto);
+    }
+  });
+  await tester.pump();
+  expect(tester.takeException(), isNull);
+  await tester.runAsync(() async {
+    final limite =
+        llave.currentContext!.findRenderObject()! as RenderRepaintBoundary;
+    final imagen = await limite.toImage(pixelRatio: 2);
+    final png = await imagen.toByteData(format: ui.ImageByteFormat.png);
+    final archivo = File('build/qa/compartir_$nombre.png');
+    await archivo.parent.create(recursive: true);
+    await archivo.writeAsBytes(png!.buffer.asUint8List());
+  });
+}
+
+void main() {
+  setUpThemeMatrix();
+
+  testWidgets('tarjeta de papel para compartir en los tres formatos', (
+    tester,
+  ) async {
+    tester.view.devicePixelRatio = 1;
+    tester.view.physicalSize = const Size(400, 800);
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    await _capturar(
+      tester,
+      'cuadrada',
+      const TarjetaCompartirPapel(
+        texto: _corto,
+        referencia: 'Filipenses 4:13',
+        version: 'RVR1960',
+        etiqueta: 'Versículo',
+      ),
+    );
+    await _capturar(
+      tester,
+      'vertical_larga',
+      const TarjetaCompartirPapel(
+        texto: _largo,
+        referencia: '1 Corintios 10:13',
+        version: 'RVR1960',
+        etiqueta: 'Versículo del día',
+        proporcion: 0.8,
+        personaje: PersonajeCompartir.timoteo,
+      ),
+    );
+    await _capturar(
+      tester,
+      'historia',
+      const TarjetaCompartirPapel(
+        texto: _largo,
+        referencia: '1 Corintios 10:13',
+        etiqueta: 'Devocional',
+        pie: 'La Chequera del Banco de la Fe',
+        proporcion: 9 / 16,
+      ),
+    );
+    expect(find.byType(FondoPapel), findsNothing);
+  });
+}

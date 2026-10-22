@@ -116,6 +116,12 @@ jobs:
           emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -no-metrics -camera-back none -camera-front none
           disable-animations: true
           script: pwsh -File scripts/run_android_qa_matrix.ps1 -Device emulator-5554 -Flutter flutter -Adb adb -Profiles "${{ matrix.profile }}" -Suites "${{ matrix.suite }}"
+      # The driver output only reaches the artifact; print its end so a
+      # failure can be diagnosed from the job log.
+      - name: Show native suite log
+        if: failure()
+        shell: bash
+        run: tail -n 150 build/qa/native/*/*.log || true
       - name: Build inspection gallery
         if: always()
         shell: pwsh

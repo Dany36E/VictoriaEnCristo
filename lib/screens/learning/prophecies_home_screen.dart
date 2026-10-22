@@ -108,7 +108,7 @@ class _PropheciesHomeScreenState extends State<PropheciesHomeScreen> {
           ),
           const SizedBox(height: 8),
           Text(
-            '"Estas son las que dan testimonio de mí" — Juan 5:39',
+            '«Ellas son las que dan testimonio de mí» — Juan 5:39',
             style: AppDesignSystem.scripture(context, color: AppDesignSystem.oroTexto(context)),
           ),
         ],

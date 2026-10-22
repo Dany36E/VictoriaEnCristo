@@ -59,6 +59,10 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
   BibleUserDataService get _data => BibleUserDataService.I;
   BibleReaderThemeData get _t => widget.theme;
 
+  /// Con el tema papel, las plantillas de papel van primero.
+  List<ShareCardTemplate> get _plantillas =>
+      plantillasCompartir(papel: _t.id == BibleReaderThemeData.paper.id);
+
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -205,7 +209,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          itemCount: kShareTemplates.length,
+          itemCount: _plantillas.length,
           itemBuilder: (_, i) => _buildTemplateThumbnail(i),
         ),
       ),
@@ -223,7 +227,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
   );
 
   Widget _buildTemplateThumbnail(int index) {
-    final template = kShareTemplates[index];
+    final template = _plantillas[index];
     return GestureDetector(
       onTap: () => _shareWithTemplate(template),
       onLongPress: () {
@@ -331,7 +335,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
       }
 
       // Sin caché → abrir TemplatePickerScreen con plantilla preseleccionada
-      final idx = kShareTemplates.indexOf(template);
+      final idx = _plantillas.indexOf(template);
       Navigator.pop(context);
       Navigator.push(
         context,

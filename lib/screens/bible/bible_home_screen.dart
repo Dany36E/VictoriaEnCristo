@@ -12,6 +12,7 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
 import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../theme/contraste.dart';
 import '../../widgets/bible/collapsible_section.dart';
 import '../../widgets/bible/concordance_sheet.dart';
 import '../../widgets/bible/bible_home_onboarding_overlay.dart';
@@ -416,7 +417,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           Text(
             section.name.toUpperCase(),
             style: AppFonts.manrope(
-              color: t.accent.withValues(alpha: 0.7),
+              color: legibleSobre(
+                t.accent.withValues(alpha: 0.7),
+                t.fondoVisible,
+              ),
               fontSize: 10,
               fontWeight: FontWeight.w700,
               letterSpacing: 1.4,
@@ -658,6 +662,9 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
           separatorBuilder: (_, _) => const SizedBox(width: 10),
           itemBuilder: (context, index) {
             final tool = quickTools[index];
+            final fondoHerramienta = t.isDark
+                ? Colors.white.withValues(alpha: 0.05)
+                : Colors.black.withValues(alpha: 0.04);
             return GestureDetector(
               onTap: tool.onTap,
               child: Container(
@@ -666,9 +673,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                   vertical: 8,
                 ),
                 decoration: BoxDecoration(
-                  color: t.isDark
-                      ? Colors.white.withValues(alpha: 0.05)
-                      : Colors.black.withValues(alpha: 0.04),
+                  color: fondoHerramienta,
                   borderRadius: BorderRadius.circular(12),
                   border: Border.all(color: t.accent.withValues(alpha: 0.12)),
                 ),
@@ -680,7 +685,13 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     Text(
                       tool.label,
                       style: AppFonts.manrope(
-                        color: t.textoTenue(0.6),
+                        // El fondo de la herramienta es un poco más oscuro
+                        // que la página.
+                        color: legibleSobre(
+                          t.textoTenue(0.6),
+                          Color.alphaBlend(fondoHerramienta, t.fondoVisible),
+                          minimo: 4.7,
+                        ),
                         fontSize: 10,
                         fontWeight: FontWeight.w600,
                       ),

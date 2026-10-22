@@ -9,6 +9,9 @@ import '../../theme/bible_reader_theme.dart';
 import '../../theme/contraste.dart';
 import 'bible_reader_screen.dart';
 
+/// Letra oscura fija para las barras de época de color sólido.
+const _tintaOscura = Color(0xFF0A0E14);
+
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE TIMELINE SCREEN — Línea de tiempo bíblica visual
 ///
@@ -216,14 +219,15 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       child: Text(
                         '${period.yearStart < 0 ? "${period.yearStart.abs()}" : period.yearStart}',
                         style: AppFonts.manrope(
-                          // Sobre la barra sólida, blanco u oscuro según
-                          // cuál se lea mejor; sobre la barra tenue, el texto
+                          // Sobre la barra sólida, blanco u oscuro fijo según
+                          // cuál se lea mejor (el texto del tema es claro en
+                          // los temas oscuros); sobre la barra tenue, el texto
                           // del tema ajustado para llegar a 4.5.
                           color: selected
                               ? (contrasteWcag(Colors.white, color) >=
-                                        contrasteWcag(t.textPrimary, color)
+                                        contrasteWcag(_tintaOscura, color)
                                     ? Colors.white
-                                    : t.textPrimary)
+                                    : _tintaOscura)
                               : legibleSobre(
                                   t.textPrimary,
                                   Color.alphaBlend(
@@ -378,7 +382,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                       Row(
                         children: [
                           Text(
-                            '$eventCount eventos',
+                            '$eventCount ${eventCount == 1 ? 'evento' : 'eventos'}',
                             style: AppFonts.manrope(
                               color: t.textoTenue(0.4),
                               fontSize: 11,
@@ -386,7 +390,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
                           ),
                           const SizedBox(width: 10),
                           Text(
-                            '$charCount personajes',
+                            '$charCount ${charCount == 1 ? 'personaje' : 'personajes'}',
                             style: AppFonts.manrope(
                               color: t.textoTenue(0.4),
                               fontSize: 11,

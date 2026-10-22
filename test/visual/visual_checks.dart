@@ -101,19 +101,23 @@ List<String> problemasDeContraste(
 
   // Texto con contorno (letreros): el mismo texto se pinta dos veces, una con
   // trazo grueso (`foreground` de tipo stroke) y otra encima con el relleno.
-  // El relleno se lee contra el contorno, no contra el fondo de la pantalla.
-  final contornos = <(Rect, Color)>[];
+  // El relleno se lee contra el contorno, no contra el fondo de la pantalla,
+  // solo si el contorno es visible y dice lo mismo.
+  final contornos = <(Rect, Color, String)>[];
   _visit(limite, (node) {
     if (node is! RenderParagraph || !node.hasSize || node.size.isEmpty) return;
     final trazo = _trazoGrueso(node.text);
-    if (trazo == null) return;
+    if (trazo == null || _opacidadVisible(node, limite) == null) return;
     final rect = rectEnCaptura(node);
-    if (rect != null) contornos.add((rect, trazo.color));
+    if (rect != null) {
+      contornos.add((rect, trazo.color, node.text.toPlainText()));
+    }
   });
-  Color? contornoDe(Rect rect) {
-    for (final (r, color) in contornos) {
+  Color? contornoDe(Rect rect, String texto) {
+    for (final (r, color, textoContorno) in contornos) {
       final comun = r.intersect(rect);
-      if (comun.width > 0 &&
+      if (textoContorno == texto &&
+          comun.width > 0 &&
           comun.height > 0 &&
           comun.width * comun.height >= rect.width * rect.height * 0.9) {
         return color;
@@ -128,7 +132,7 @@ List<String> problemasDeContraste(
     if (opacidad == null) return;
     final rect = rectEnCaptura(node);
     if (rect == null) return;
-    final contorno = contornoDe(rect);
+    final contorno = contornoDe(rect, node.text.toPlainText());
     final modaGeneral = _colorMasFrecuente(captura, imagen.width, rect)!;
     node.text.visitChildren((span) {
       if (span is! TextSpan) return true;
