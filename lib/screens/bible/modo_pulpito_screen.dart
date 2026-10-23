@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 import '../../models/bible/bosquejo_sermon.dart';
 import '../../services/bible/bible_user_data_service.dart';
@@ -109,14 +110,24 @@ class _ModoPulpitoScreenState extends State<ModoPulpitoScreen> {
   /// respeta el tamaño de texto del teléfono).
   double _tamano = 24;
 
+  /// Sin el plugin (pruebas, escritorio) no pasa nada.
+  static void _pantallaEncendida(bool activar) {
+    try {
+      WakelockPlus.toggle(enable: activar).catchError((Object _) {});
+    } catch (_) {}
+  }
+
   @override
   void initState() {
     super.initState();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+    // Mientras se predica, la pantalla no se apaga.
+    _pantallaEncendida(true);
   }
 
   @override
   void dispose() {
+    _pantallaEncendida(false);
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
     _paginador.dispose();
     super.dispose();

@@ -87,6 +87,8 @@ const KNOWN_USER_SUBCOLLECTIONS = [
     "blockedWallAuthors",
     "sermonNotes",
     "sermonOutlines",
+    "studyAnswers",
+    "studyHighlights",
 ];
 async function countSubcollection(userDocRef, subcollectionName) {
     try {
