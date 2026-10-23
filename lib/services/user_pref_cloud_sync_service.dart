@@ -70,8 +70,6 @@ class UserPrefCloudSyncService {
     'devotional_reminder_prompt_seen',
     'battle.acceptingInvites',
     'battle.trustedPartnerUid',
-    'active_plan_id',
-    'plan_active_id',
   ];
 
   static const List<String> _prefixes = <String>[

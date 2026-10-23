@@ -272,7 +272,8 @@ class _JournalScreenState extends State<JournalScreen> {
       context,
       MaterialPageRoute(
         builder: (context) => JournalEntryEditor(
-          initialPrompt: '${prompt.title}\n\n${prompt.prompt}',
+          initialPromptTitle: prompt.title,
+          initialPrompt: prompt.prompt,
           onSave: (entry) async {
             await _journalService.addEntry(entry);
             setState(() {});

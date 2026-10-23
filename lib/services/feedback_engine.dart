@@ -28,6 +28,7 @@ enum FeedbackEvent {
   tabChange, // Cambio de tabs
   confirm, // Confirmación/acción principal
   paper, // Efecto "papelito" de versículo
+  alert, // Aviso fuerte que se nota sin mirar la pantalla (¡Tiempo!)
 }
 
 class FeedbackEngine {
@@ -86,6 +87,7 @@ class FeedbackEngine {
     FeedbackEvent.tabChange: 'assets/sounds/sfx/tab_slide.mp3', // Page-flip sutil para tabs
     FeedbackEvent.confirm: 'assets/sounds/sfx/confirm.mp3',
     FeedbackEvent.paper: 'assets/sounds/sfx/paper.mp3',
+    FeedbackEvent.alert: 'assets/sounds/sfx/confirm.mp3',
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -98,6 +100,7 @@ class FeedbackEngine {
     FeedbackEvent.tabChange: 0.30, // Más bajo - sutil page/slide
     FeedbackEvent.confirm: 0.45,
     FeedbackEvent.paper: 0.35,
+    FeedbackEvent.alert: 1.0,
   };
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -192,6 +195,24 @@ class FeedbackEngine {
   /// Efecto "papelito" de versículo
   void paper() => _trigger(FeedbackEvent.paper, HapticFeedback.lightImpact);
 
+  /// Aviso fuerte para quien no ve la pantalla (p. ej. «¡Tiempo!» con el
+  /// celular en la frente en «¿Quién soy?»): varios toques de sonido a
+  /// volumen alto y vibración intensa. Respeta los ajustes de vibración y
+  /// sonido del usuario.
+  Future<void> alertaFuerte({int repeticiones = 3}) async {
+    for (var i = 0; i < repeticiones; i++) {
+      if (hapticsEnabled.value) {
+        HapticFeedback.heavyImpact();
+        HapticFeedback.vibrate();
+      }
+      if (sfxEnabled.value) unawaited(_playSfx(FeedbackEvent.alert));
+      if (i < repeticiones - 1) {
+        await Future<void>.delayed(const Duration(milliseconds: 420));
+      }
+    }
+    _log('ALERT', '🔔 alertaFuerte x$repeticiones');
+  }
+
   // ═══════════════════════════════════════════════════════════════════════════
   // CORE - Trigger con rate-limiting
   // ═══════════════════════════════════════════════════════════════════════════
@@ -241,7 +262,10 @@ class FeedbackEngine {
 
       // Volumen específico del evento, modulado por el volumen global
       final eventVolume = _eventVolumes[event] ?? 0.40;
-      final finalVolume = (sfxVolume.value * eventVolume).clamp(0.0, 1.0);
+      // La alerta debe oírse aunque el volumen de efectos esté bajo.
+      final finalVolume = event == FeedbackEvent.alert
+          ? 1.0
+          : (sfxVolume.value * eventVolume).clamp(0.0, 1.0);
 
       // Cargar y reproducir
       await _sfxPlayer!.setAsset(asset);

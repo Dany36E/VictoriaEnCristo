@@ -16,16 +16,20 @@ class JournalEntryEditor extends StatefulWidget {
   final Function(JournalEntry) onSave;
   final JournalEntry? existingEntry;
 
-  /// Compat: el editor antiguo aceptaba un prompt inicial. Se ignora porque
-  /// el flujo nuevo usa secciones guiadas. Se mantiene la firma para no
-  /// romper los llamadores existentes (`journal_screen.dart`).
+  /// Guía de escritura elegida en el diario («Escribir sobre esto»). Se
+  /// muestra arriba del editor, con un campo para responder debajo, y se
+  /// guarda con la entrada.
   final String? initialPrompt;
+
+  /// Título de la guía (opcional), p. ej. «Gratitud en la prueba».
+  final String? initialPromptTitle;
 
   const JournalEntryEditor({
     super.key,
     required this.onSave,
     this.existingEntry,
     this.initialPrompt,
+    this.initialPromptTitle,
   });
 
   @override
@@ -36,12 +40,19 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
   final Map<String, TextEditingController> _controllers = {
     for (final s in PrayerMapData.sections) s.key: TextEditingController(),
   };
+  final TextEditingController _respuestaGuiaCtrl = TextEditingController();
   late final PrayerVerse _verse;
+  String _guiaTitulo = '';
+  String _guia = '';
+
+  bool get _tieneGuia => _guiaTitulo.isNotEmpty || _guia.isNotEmpty;
 
   @override
   void initState() {
     super.initState();
     _verse = PrayerVerses.forToday();
+    _guiaTitulo = widget.initialPromptTitle?.trim() ?? '';
+    _guia = widget.initialPrompt?.trim() ?? '';
 
     // Si estamos editando, intentar decodificar PrayerMapData del content.
     final existing = widget.existingEntry;
@@ -51,6 +62,11 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
         for (final s in PrayerMapData.sections) {
           _controllers[s.key]!.text = decoded.getField(s.key);
         }
+        if (decoded.tieneGuia) {
+          _guiaTitulo = decoded.guiaTitulo.trim();
+          _guia = decoded.guia.trim();
+        }
+        _respuestaGuiaCtrl.text = decoded.respuestaGuia;
       } else {
         // Entrada antigua: vuelca todo el texto en "situacion".
         _controllers['situacion']!.text = existing.content;
@@ -63,6 +79,7 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
     for (final c in _controllers.values) {
       c.dispose();
     }
+    _respuestaGuiaCtrl.dispose();
     super.dispose();
   }
 
@@ -102,6 +119,10 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
             children: [
               _buildHeader(t, date),
               const SizedBox(height: 20),
+              if (_tieneGuia) ...[
+                _buildGuia(t),
+                const SizedBox(height: 24),
+              ],
               ...PrayerMapData.sections.map(
                 (s) => Padding(
                   padding: const EdgeInsets.only(bottom: 18),
@@ -152,6 +173,88 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
           ),
         ],
       ),
+    );
+  }
+
+  /// Guía de escritura: la pregunta elegida en el diario y, debajo, el
+  /// espacio para responderla.
+  Widget _buildGuia(AppThemeData t) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: t.accent.withValues(alpha: 0.10),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: t.accent.withValues(alpha: 0.35)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.edit_note_rounded, color: t.accent, size: 22),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Semantics(
+                      header: true,
+                      child: Text(
+                        _guiaTitulo.isNotEmpty ? _guiaTitulo : 'Escribe sobre esto',
+                        style: TextStyle(
+                          color: t.textPrimary,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          height: 1.3,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              if (_guia.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                Text(
+                  _guia,
+                  style: TextStyle(
+                    color: t.textPrimary,
+                    fontSize: 14,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+        const SizedBox(height: 10),
+        Container(
+          decoration: BoxDecoration(
+            color: t.cardBg,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: t.accent.withValues(alpha: 0.12)),
+          ),
+          child: TextField(
+            key: const ValueKey('journal_respuesta_guia'),
+            controller: _respuestaGuiaCtrl,
+            autofocus: widget.existingEntry == null,
+            minLines: 4,
+            maxLines: 12,
+            decoration: InputDecoration(
+              labelText: 'Tu respuesta',
+              hintText: 'Escribe con sinceridad; solo Dios y tú lo leerán.',
+              hintStyle: TextStyle(
+                color: t.textSecondary.withValues(alpha: 0.6),
+                fontSize: 13,
+              ),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(14),
+            ),
+            style: TextStyle(color: t.textPrimary, fontSize: 14, height: 1.5),
+            textCapitalization: TextCapitalization.sentences,
+          ),
+        ),
+      ],
     );
   }
 
@@ -301,6 +404,9 @@ class _JournalEntryEditorState extends State<JournalEntryEditor> {
       necesidades: _controllers['necesidades']!.text.trim(),
       corazon: _controllers['corazon']!.text.trim(),
       verseReference: _verse.reference,
+      guiaTitulo: _guiaTitulo,
+      guia: _guia,
+      respuestaGuia: _respuestaGuiaCtrl.text.trim(),
     );
 
     if (data.isEmpty) {

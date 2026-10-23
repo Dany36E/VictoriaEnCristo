@@ -2,7 +2,8 @@
 /// DEVOTIONAL ENTRY — RFC-001 (Opción B)
 ///
 /// Wrapper sobre [PlanDay] + [PlanMetadata]. Es el modelo unificado del
-/// nuevo sistema de Devocionales: un único esquema compartido con Planes,
+/// nuevo sistema de Devocionales (el esquema nació con los planes de
+/// lectura, ya retirados; se conserva el nombre por compatibilidad del JSON),
 /// con metadata que permite personalización por gigante × etapa.
 ///
 /// Compatible con el JSON legacy de `assets/content/devotionals.json`

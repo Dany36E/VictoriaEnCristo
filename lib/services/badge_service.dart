@@ -11,8 +11,6 @@ import '../models/badge_definition.dart';
 import 'victory_scoring_service.dart';
 import 'journal_service.dart';
 import 'favorites_service.dart';
-import 'plan_progress_service.dart';
-import 'plan_repository.dart';
 import 'bible/bible_reading_stats_service.dart';
 import 'bible/bible_user_data_service.dart';
 import 'learning/learning_progress_service.dart';
@@ -67,10 +65,9 @@ class BadgeService {
       case BadgeCategory.victories:
         return VictoryScoringService.I.getTotalVictoriesForYear(DateTime.now().year);
       case BadgeCategory.reading:
-        final durations = <String, int>{
-          for (final p in PlanRepository.I.allPlans) p.id: p.durationDays,
-        };
-        return PlanProgressService.I.plansCompleted(durations);
+        // Los planes de lectura se retiraron de la app: la categoría queda
+        // solo por compatibilidad con insignias guardadas y no suma progreso.
+        return 0;
       case BadgeCategory.bible:
         return BibleReadingStatsService.I.readChaptersNotifier.value.length;
       case BadgeCategory.journal:
@@ -104,8 +101,8 @@ class BadgeService {
     return highest;
   }
 
-  /// Categorías que se muestran y se evalúan. Los planes de lectura están
-  /// ocultos por ahora: su insignia vuelve cuando regresen los planes.
+  /// Categorías que se muestran y se evalúan. Los planes de lectura se
+  /// retiraron de la app, así que su insignia ya no se muestra.
   static final List<BadgeCategory> visibles = BadgeCategory.values
       .where((c) => c != BadgeCategory.reading)
       .toList(growable: false);

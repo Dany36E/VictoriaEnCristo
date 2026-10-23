@@ -141,6 +141,62 @@ class JournalEntryDetail extends StatelessWidget {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  // Guía de escritura elegida en el diario y su respuesta.
+                  if (pm.tieneGuia)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 14),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: t.accent.withValues(alpha: 0.10),
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(
+                              color: t.accent.withValues(alpha: 0.35)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Semantics(
+                              header: true,
+                              child: Text(
+                                pm.guiaTitulo.trim().isNotEmpty
+                                    ? pm.guiaTitulo
+                                    : 'Escribe sobre esto',
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w800,
+                                  color: t.textPrimary,
+                                  height: 1.3,
+                                ),
+                              ),
+                            ),
+                            if (pm.guia.trim().isNotEmpty) ...[
+                              const SizedBox(height: 6),
+                              Text(
+                                pm.guia,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  height: 1.5,
+                                  color: t.textPrimary,
+                                ),
+                              ),
+                            ],
+                            if (pm.respuestaGuia.trim().isNotEmpty) ...[
+                              const SizedBox(height: 12),
+                              Text(
+                                pm.respuestaGuia,
+                                style: TextStyle(
+                                  fontSize: 15,
+                                  height: 1.6,
+                                  color: t.textPrimary,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                    ),
                   ...PrayerMapData.sections.map((s) {
                     final value = pm.getField(s.key).trim();
                     if (value.isEmpty) return const SizedBox.shrink();
