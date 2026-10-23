@@ -30,6 +30,8 @@ import 'package:app_quitar/screens/devotional_screen.dart';
 import 'package:app_quitar/screens/emergency_screen.dart';
 import 'package:app_quitar/screens/emotional_verse_jar_screen.dart';
 import 'package:app_quitar/screens/exercises_screen.dart';
+import 'package:app_quitar/screens/bible/bible_library_screen.dart';
+import 'package:app_quitar/screens/bible/reading_history_screen.dart';
 import 'package:app_quitar/screens/favorites_screen.dart';
 import 'package:app_quitar/screens/home_screen.dart';
 import 'package:app_quitar/screens/learning/armory_deck_screen.dart';
@@ -96,6 +98,8 @@ void main() {
   themeMatrix('all_notes', () => const AllNotesScreen());
   themeMatrix('bible_dictionary', () => const BibleDictionaryScreen());
   themeMatrix('bible_home', () => const BibleHomeScreen());
+  themeMatrix('bible_library', () => const BibleLibraryScreen());
+  themeMatrix('reading_history', () => const ReadingHistoryScreen());
   themeMatrix(
     'bible_parallel',
     () => const BibleParallelScreen(

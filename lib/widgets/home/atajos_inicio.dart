@@ -12,7 +12,6 @@ import 'package:flutter/services.dart';
 import '../../navigation/app_navigation.dart';
 import '../../screens/battle_partner/battle_partner_screen.dart';
 import '../../screens/bible/bible_home_screen.dart';
-import '../../screens/bible/bible_map_screen.dart';
 import '../../screens/bible/entradas_biblia.dart';
 import '../../screens/bible/saved_verses_screen.dart';
 import '../../screens/devotional_screen.dart';
@@ -47,7 +46,6 @@ const String prefijoRutaAtajo = '/atajo/';
 final Map<String, WidgetBuilder> _pantallas = {
   'biblia': (_) => const BibleHomeScreen(),
   'guardados': (_) => const SavedVersesScreen(),
-  'mapas': (_) => const BibleMapScreen(),
   'mapa_oracion': (_) => const JournalScreen(),
   'versiculos': (_) => const VersesScreen(),
   'frasco': (_) => const EmotionalVerseJarScreen(),

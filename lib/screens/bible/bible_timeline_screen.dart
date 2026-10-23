@@ -903,6 +903,7 @@ class _BibleTimelineScreenState extends State<BibleTimelineScreen> {
           bookName: ref.bookName,
           chapter: ref.chapter,
           version: version,
+          initialVerse: ref.verse,
         ),
         transitionDuration: const Duration(milliseconds: 150),
         transitionsBuilder: (ctx, a, sa, child) =>

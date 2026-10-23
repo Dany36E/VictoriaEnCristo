@@ -1,3 +1,4 @@
+import '../../utils/bible_reference_parser.dart';
 import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/typology.dart';
@@ -240,7 +241,11 @@ class _TypologyScreenState extends State<TypologyScreen> {
               overflow: TextOverflow.ellipsis,
             ),
             const SizedBox(height: 8),
-            Row(
+            // Wrap: con el nombre del libro las referencias son más largas.
+            Wrap(
+              spacing: 4,
+              runSpacing: 6,
+              crossAxisAlignment: WrapCrossAlignment.center,
               children: [
                 // AT ref
                 _refBadge(
@@ -261,7 +266,6 @@ class _TypologyScreenState extends State<TypologyScreen> {
                   const Color(0xFF42A5F5),
                   t.surface,
                 ),
-                const Spacer(),
                 // Tags
                 ...typology.tags.take(2).map((tag) => Container(
                       margin: const EdgeInsets.only(left: 4),
@@ -310,9 +314,12 @@ class _TypologyScreenState extends State<TypologyScreen> {
     );
   }
 
+  /// «GEN.2.7» → «Génesis 2:7»; «ROM.5.14-19» → «Romanos 5:14-19».
   String _formatOsis(String osis) {
     final parts = osis.split('.');
     if (parts.length < 3) return osis;
-    return '${parts[1]}:${parts.sublist(2).join(':')}';
+    final book = BibleReferenceParser.resolveBook(parts[0]);
+    final name = book == null ? parts[0] : BibleReferenceParser.bookName(book);
+    return '$name ${parts[1]}:${parts.sublist(2).join(':')}';
   }
 }

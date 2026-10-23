@@ -99,7 +99,7 @@ mixin SelectionMixin on ReaderState {
       final v = verses.where((v) => v.verse == num).firstOrNull;
       if (v != null) buf.write('$num ${v.text} ');
     }
-    buf.write('\n— $selectionReference (${currentVersion.shortName})');
+    buf.write('\n— $selectionReference (${currentVersion.shareAbbreviation})');
     return buf.toString().trim();
   }
 
@@ -111,9 +111,18 @@ mixin SelectionMixin on ReaderState {
 
   void toggleSavedForSelected() {
     final data = BibleUserDataService.I;
-    for (final verseNum in selectedVerseNumbers) {
-      final v = verses.where((v) => v.verse == verseNum).firstOrNull;
-      if (v == null) continue;
+    // Si todos ya estaban guardados se quitan; si no, solo se guardan los que
+    // faltan (antes se alternaba uno por uno y se mezclaban los estados).
+    final selected = verses
+        .where((v) => selectedVerseNumbers.contains(v.verse))
+        .toList(growable: false);
+    final allSaved = selected.every(
+      (v) => data.isVerseSaved(v.bookNumber, v.chapter, v.verse),
+    );
+    for (final v in selected) {
+      if (!allSaved && data.isVerseSaved(v.bookNumber, v.chapter, v.verse)) {
+        continue;
+      }
       data.toggleSavedVerse(
         bookNumber: v.bookNumber,
         chapter: v.chapter,

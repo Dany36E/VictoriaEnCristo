@@ -57,9 +57,20 @@ abstract class ReaderState extends ChangeNotifier {
   int currentMatchIndex = -1;
 
   // ── Audio ──
+  // ttsActive = hay una sesión de audio (TTS o real; es lo que muestra la
+  // barra del reproductor). realAudioActive = la sesión es audio narrado.
+  // Ambos vuelven a false cuando el capítulo termina, falla o cambia
+  // (ver AudioMixin).
   bool ttsActive = false;
   bool realAudioActive = false;
   bool get isAnyAudioActive => ttsActive || realAudioActive;
+
+  /// Índice (en [verses]) del versículo que suena, sea TTS o audio narrado;
+  /// -1 si no suena ninguno. Úsese para resaltar y hacer scroll.
+  final ValueNotifier<int> audioVerseIndex = ValueNotifier(-1);
+
+  /// Número de versículo que suena (`null` si ninguno). Para etiquetas.
+  final ValueNotifier<int?> audioVerseNumber = ValueNotifier(null);
 
   // ── Red letters ──
   bool redLettersEnabled = true;

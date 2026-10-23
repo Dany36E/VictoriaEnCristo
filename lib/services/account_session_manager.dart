@@ -40,7 +40,6 @@ import 'bible/typology_service.dart';
 import 'bible/ot_quotes_service.dart';
 import 'bible/gospel_harmony_service.dart';
 import 'bible/treasury_service.dart';
-import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 import 'notification_service.dart';
@@ -845,7 +844,6 @@ class AccountSessionManager {
         OTQuotesService.instance.getAll(),
         GospelHarmonyService.instance.getAllSections(),
         TreasuryService.instance.getCrossReferences(1, 1, 1), // warm cache
-        MapEventsService.I.preload(),
       ]);
       safeLog('BIBLE', 'All offline assets preloaded');
 

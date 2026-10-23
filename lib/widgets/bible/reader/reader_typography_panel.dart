@@ -77,10 +77,13 @@ class ReaderTypographyPanel extends StatelessWidget {
                           label: 'Tamaño de fuente',
                           value: '${size.toInt()} puntos',
                           child: Slider(
-                            value: size,
-                            min: 14,
-                            max: 28,
-                            divisions: 7,
+                            value: size.clamp(
+                              BibleUserDataService.minFontSize,
+                              BibleUserDataService.maxFontSize,
+                            ),
+                            min: BibleUserDataService.minFontSize,
+                            max: BibleUserDataService.maxFontSize,
+                            divisions: BibleUserDataService.fontSizeDivisions,
                             activeColor: t.accent,
                             inactiveColor: t.textSecondary.withValues(alpha: 0.2),
                             onChanged: (v) =>

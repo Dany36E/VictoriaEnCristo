@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_fonts.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'guzik_attribution.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../theme/bible_reader_theme.dart';
 
@@ -107,6 +107,19 @@ class ReaderAnnotationBlock extends StatelessWidget {
                         ),
                       ),
                     ),
+                    // Compartir SOLO esta sección, con atribución y enlace.
+                    IconButton(
+                      tooltip: 'Compartir esta sección',
+                      icon: Icon(
+                        Icons.share_outlined,
+                        color: theme.textSecondary.withValues(alpha: 0.6),
+                        size: 18,
+                      ),
+                      onPressed: () => GuzikAttribution.shareSection(
+                        '${controller.bookName} ${controller.currentChapter}',
+                        section,
+                      ),
+                    ),
                     Icon(
                       isCollapsed ? Icons.expand_more : Icons.expand_less,
                       color: theme.textSecondary.withValues(alpha: 0.3),
@@ -135,55 +148,11 @@ class ReaderAnnotationBlock extends StatelessWidget {
   }
 }
 
+/// Atribución al final del comentario en modo estudio.
 class ReaderGuzikAttribution extends StatelessWidget {
   final BibleReaderThemeData theme;
   const ReaderGuzikAttribution({super.key, required this.theme});
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(top: 24, bottom: 8),
-      child: GestureDetector(
-        onTap: () => launchUrl(
-          Uri.parse('https://es.enduringword.com/'),
-          mode: LaunchMode.externalApplication,
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: theme.oscuro
-                ? Colors.white.withValues(alpha: 0.03)
-                : Colors.black.withValues(alpha: 0.02),
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-              color: theme.accent.withValues(alpha: 0.15),
-            ),
-          ),
-          child: Column(
-            children: [
-              Text(
-                '©1996–present The Enduring Word Bible Commentary\n'
-                'by David Guzik – enduringword.com',
-                textAlign: TextAlign.center,
-                style: AppFonts.manrope(
-                  color: theme.textoTenue(0.5),
-                  fontSize: 10,
-                  height: 1.5,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Used with permission.',
-                style: AppFonts.manrope(
-                  color: theme.textoTenue(0.35),
-                  fontSize: 9,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
+  Widget build(BuildContext context) => GuzikAttributionCard(theme: theme);
 }

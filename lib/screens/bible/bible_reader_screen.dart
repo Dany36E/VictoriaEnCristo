@@ -19,6 +19,9 @@ import '../../widgets/bible/reader/reader_typography_panel.dart';
 import '../../widgets/bible/reader/reader_chapter_selector.dart';
 import '../../widgets/bible/reader/reader_content_view.dart';
 import '../../widgets/bible/reader/reader_toolbar_overlay.dart';
+import '../../widgets/bible/reader/reader_verse_locator.dart';
+import '../../widgets/bible/reader/version_copyright.dart';
+import 'reading_history_screen.dart';
 import 'bible_parallel_screen.dart';
 import 'chapter_selector_screen.dart';
 import 'book_introduction_screen.dart';
@@ -28,7 +31,12 @@ class BibleReaderScreen extends StatefulWidget {
   final String bookName;
   final int chapter;
   final BibleVersion version;
+  /// Versículo al que se lleva el lector al abrir (exacto).
   final int? initialVerse;
+
+  /// Resaltar un instante [initialVerse] al llegar. «Continuar leyendo» lo
+  /// desactiva: solo devuelve a la persona a donde iba.
+  final bool highlightInitialVerse;
 
   const BibleReaderScreen({
     super.key,
@@ -37,6 +45,7 @@ class BibleReaderScreen extends StatefulWidget {
     required this.chapter,
     required this.version,
     this.initialVerse,
+    this.highlightInitialVerse = true,
   });
 
   @override
@@ -45,7 +54,16 @@ class BibleReaderScreen extends StatefulWidget {
 
 class _BibleReaderScreenState extends State<BibleReaderScreen> {
   late final BibleReaderController _ctrl;
-  final _scrollController = ScrollController();
+  // keepScrollOffset: false → al cambiar de capítulo no se «restaura» el
+  // desplazamiento del anterior; la posición la decide el controlador.
+  final _scrollController = ScrollController(keepScrollOffset: false);
+  final _locator = ReaderVerseLocator();
+  int _handledLoadGeneration = 0;
+  Timer? _visibleVerseDebounce;
+  bool _programmaticScroll = false;
+
+  /// Alto de la cabecera flotante que tapa el inicio del texto.
+  static const double _headerInset = 64;
   final _searchController = TextEditingController();
   final _searchFocusNode = FocusNode();
   late PageController _pageController;
@@ -65,63 +83,120 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       bookName: widget.bookName,
       chapter: widget.chapter,
       version: widget.version,
+      initialVerse: widget.initialVerse,
+      highlightInitialVerse: widget.highlightInitialVerse,
     );
     debugPrint('🟢 [BibleReader] after controller create');
     _ctrl.addListener(_onControllerChanged);
     _scrollController.addListener(_onScroll);
-    if (widget.initialVerse != null) {
-      _ctrl.addListener(_scrollToInitialVerse);
-    }
     _pageController = PageController(
       initialPage: 1, // center page = current chapter
       viewportFraction: 0.92,
     );
-    BibleTtsService.I.currentVerseIndex.addListener(_onTtsVerseChanged);
+    _ctrl.audioVerseIndex.addListener(_onTtsVerseChanged);
+    _ctrl.onAudioChapterFinished = _onAudioChapterFinished;
     debugPrint('🟢 [BibleReader] initState end');
   }
 
   void _onControllerChanged() {
-    if (mounted) setState(() {});
+    if (!mounted) return;
+    setState(() {});
+    if (!_ctrl.loading && _ctrl.loadGeneration != _handledLoadGeneration) {
+      _handledLoadGeneration = _ctrl.loadGeneration;
+      WidgetsBinding.instance.addPostFrameCallback((_) => _applyPendingScroll());
+    }
   }
 
-  void _scrollToInitialVerse() {
-    if (_ctrl.loading || _ctrl.verses.isEmpty) return;
-    _ctrl.removeListener(_scrollToInitialVerse);
-    final verseIdx = (widget.initialVerse! - 1).clamp(
-      0,
-      _ctrl.verses.length - 1,
-    );
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
-      final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
-      final offset = 56.0 + 92.0 + (verseIdx * fontSize * 2.2);
-      _scrollController.animateTo(
-        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 500),
-        curve: Curves.easeOut,
+  /// Tras cargar un capítulo: ir al versículo pedido (con resalte) o a donde
+  /// se quedó la persona; si no hay ninguno, al inicio.
+  Future<void> _applyPendingScroll() async {
+    if (!mounted || !_scrollController.hasClients) return;
+    final pending = _ctrl.takePendingScroll();
+    if (pending == null) {
+      _scrollController.jumpTo(0);
+      return;
+    }
+    _programmaticScroll = true;
+    try {
+      await _locator.scrollToVerse(
+        _scrollController,
+        pending.verse,
+        topInset: _headerInset,
+        duration: pending.flash
+            ? const Duration(milliseconds: 450)
+            : Duration.zero,
       );
-    });
+    } finally {
+      _programmaticScroll = false;
+    }
+    if (!mounted) return;
+    if (pending.flash) _ctrl.flash(pending.verse);
+    _reportVisibleVerse();
   }
 
   void _onScroll() {
     _ctrl.onScroll(_scrollController.offset);
+    if (_programmaticScroll) return;
+    _visibleVerseDebounce?.cancel();
+    _visibleVerseDebounce = Timer(
+      const Duration(milliseconds: 600),
+      _reportVisibleVerse,
+    );
   }
 
+  /// Recuerda el versículo visible para «Continuar leyendo» y para reabrir
+  /// el capítulo en el mismo punto.
+  void _reportVisibleVerse() {
+    if (!mounted || _ctrl.loading) return;
+    final verse = _locator.firstVisibleVerse(
+      _scrollController,
+      topInset: _headerInset,
+    );
+    if (verse != null) _ctrl.reportVisibleVerse(verse);
+  }
+
+  void _onVersionChanged() {
+    _ctrl.onVersionChanged(
+      keepVerse: _locator.firstVisibleVerse(
+        _scrollController,
+        topInset: _headerInset,
+      ),
+    );
+  }
+
+  /// Al terminar el audio de un capítulo (auto-avance activado): pasa al
+  /// siguiente capítulo o libro. false = fin de la Biblia.
+  bool _onAudioChapterFinished() {
+    if (_ctrl.goToNextChapter()) return true;
+    final next = _ctrl.getNextBook();
+    if (next == null) return false;
+    _goToBook(next.number, next.name, 1);
+    return true;
+  }
+
+  /// Número de versículo (no índice) para un índice de la lista cargada.
+  int? _verseNumberAt(int index) =>
+      index >= 0 && index < _ctrl.verses.length
+      ? _ctrl.verses[index].verse
+      : null;
+
   void _onTtsVerseChanged() {
-    final idx = BibleTtsService.I.currentVerseIndex.value;
-    if (idx < 0 || !_scrollController.hasClients) return;
-    final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
-    final offset = 56.0 + 92.0 + (idx * fontSize * 2.2);
-    _scrollController.animateTo(
-      offset.clamp(0.0, _scrollController.position.maxScrollExtent),
+    final verse = _ctrl.audioVerseNumber.value;
+    if (verse == null || !_scrollController.hasClients) return;
+    _locator.scrollToVerse(
+      _scrollController,
+      verse,
+      topInset: _headerInset + 40, // deja ver la barra de audio
       duration: const Duration(milliseconds: 400),
-      curve: Curves.easeInOut,
     );
   }
 
   @override
   void dispose() {
-    BibleTtsService.I.currentVerseIndex.removeListener(_onTtsVerseChanged);
+    _visibleVerseDebounce?.cancel();
+    _reportVisibleVerse();
+    _ctrl.audioVerseIndex.removeListener(_onTtsVerseChanged);
+    _ctrl.onAudioChapterFinished = null;
     _ctrl.removeListener(_onControllerChanged);
     _ctrl.dispose();
     _scrollController.removeListener(_onScroll);
@@ -132,7 +207,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     super.dispose();
   }
 
-  void _goToBook(int bookNumber, String bookName, int chapter) {
+  void _goToBook(int bookNumber, String bookName, int chapter, [int? verse]) {
     Navigator.pushReplacement(
       context,
       PageRouteBuilder(
@@ -141,6 +216,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           bookName: bookName,
           chapter: chapter,
           version: _ctrl.currentVersion,
+          initialVerse: verse,
         ),
         transitionDuration: const Duration(milliseconds: 150),
         transitionsBuilder: (ctx, a, sa, child) =>
@@ -150,11 +226,24 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   void _goToNextBook() {
-    if (_ctrl.allBooks.isEmpty) return;
-    final i = _ctrl.allBooks.indexWhere((b) => b.number == widget.bookNumber);
-    if (i < 0 || i >= _ctrl.allBooks.length - 1) return;
-    final next = _ctrl.allBooks[i + 1];
+    final next = _ctrl.getNextBook();
+    if (next == null) return;
     _goToBook(next.number, next.name, 1);
+  }
+
+  /// Último capítulo del libro anterior (desde el capítulo 1).
+  void _goToPreviousBook() {
+    final prev = _ctrl.getPreviousBook();
+    if (prev == null) return;
+    _goToBook(prev.number, prev.name, prev.totalChapters);
+  }
+
+  void _goToNext() {
+    if (!_ctrl.goToNextChapter()) _goToNextBook();
+  }
+
+  void _goToPrevious() {
+    if (!_ctrl.goToPreviousChapter()) _goToPreviousBook();
   }
 
   void _openChapterSelector() {
@@ -175,16 +264,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   }
 
   void _scrollToMatch(int matchIdx) {
-    final verseIdx = _ctrl.searchMatchIndices[matchIdx];
-    final fontSize = BibleUserDataService.I.fontSizeNotifier.value;
-    final offset = 56.0 + 92.0 + (verseIdx * fontSize * 2.2);
-    if (_scrollController.hasClients) {
-      _scrollController.animateTo(
-        offset.clamp(0.0, _scrollController.position.maxScrollExtent),
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+    if (matchIdx < 0 || matchIdx >= _ctrl.searchMatchIndices.length) return;
+    final verse = _verseNumberAt(_ctrl.searchMatchIndices[matchIdx]);
+    if (verse == null) return;
+    _locator.scrollToVerse(
+      _scrollController,
+      verse,
+      topInset: _headerInset + 72, // debajo de la barra de búsqueda
+      duration: const Duration(milliseconds: 300),
+    );
   }
 
   @override
@@ -222,6 +310,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                             strokeWidth: 1.5,
                           ),
                         )
+                      : _ctrl.loadError != null
+                      ? _buildLoadError(t)
                       : PageView.builder(
                           controller: _pageController,
                           itemCount: 3, // prev | current | next
@@ -229,15 +319,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                             if (_pageAnimating) return;
                             _pageAnimating = true;
                             if (page == 0) {
-                              // Swiped to previous chapter
-                              _ctrl.goToChapter(_ctrl.currentChapter - 1);
+                              _goToPrevious();
                             } else if (page == 2) {
-                              // Swiped to next chapter
-                              if (_ctrl.currentChapter < _ctrl.totalChapters) {
-                                _ctrl.goToChapter(_ctrl.currentChapter + 1);
-                              } else {
-                                _goToNextBook();
-                              }
+                              _goToNext();
                             }
                             // Reset to center page after navigation
                             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -258,10 +342,14 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               final label = isPrev
                                   ? (_ctrl.currentChapter > 1
                                         ? 'Cap. ${_ctrl.currentChapter - 1}'
-                                        : '')
+                                        : (_ctrl.getPreviousBook() != null
+                                              ? 'Libro anterior'
+                                              : ''))
                                   : (_ctrl.currentChapter < _ctrl.totalChapters
                                         ? 'Cap. ${_ctrl.currentChapter + 1}'
-                                        : 'Siguiente libro');
+                                        : (_ctrl.getNextBook() != null
+                                              ? 'Siguiente libro'
+                                              : ''));
                               return Center(
                                 child: Text(
                                   label,
@@ -278,14 +366,15 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                               theme: t,
                               controller: _ctrl,
                               scrollController: _scrollController,
-                              onGoToNextBook: _goToNextBook,
-                              onGoToBook: _goToBook,
+                              locator: _locator,
+                              onGoToPrevious: _goToPrevious,
+                              onGoToNext: _goToNext,
                               onBottomNavBookTap: (_, _, _) =>
                                   _openChapterSelector(),
                             );
                           },
                         ),
-                  if (!_ctrl.loading)
+                  if (!_ctrl.loading && _ctrl.loadError == null)
                     Positioned(
                       top: 0,
                       left: 0,
@@ -330,6 +419,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                         bookChapter:
                             '${widget.bookName} ${_ctrl.currentChapter}',
                         isRealAudio: _ctrl.realAudioActive,
+                        verseNumber: _ctrl.audioVerseNumber,
+                        onPlayPause: _ctrl.toggleAudioPause,
                         onClose: () => setState(() => _ctrl.stopAllAudio()),
                       ),
                     ),
@@ -346,7 +437,9 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                   // estilo YouVersion. Se oculta durante la selección de
                   // versículos/palabras para no chocar con la barra de
                   // selección, que usa la misma posición (bottom: 16).
-                  if (!_ctrl.loading && !_ctrl.isSelecting)
+                  if (!_ctrl.loading &&
+                      _ctrl.loadError == null &&
+                      !_ctrl.isSelecting)
                     Positioned(
                       bottom: 16,
                       left: 0,
@@ -362,15 +455,84 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     );
   }
 
+  /// Estado de error al cargar la versión o el capítulo (antes: pantalla en
+  /// blanco). Permite reintentar o elegir otra versión.
+  Widget _buildLoadError(BibleReaderThemeData t) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.menu_book_outlined, size: 48, color: t.accent),
+            const SizedBox(height: 16),
+            Text(
+              '${widget.bookName} ${_ctrl.currentChapter}',
+              textAlign: TextAlign.center,
+              style: AppFonts.lora(
+                color: t.textPrimary,
+                fontSize: 20,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              _ctrl.loadError ?? '',
+              textAlign: TextAlign.center,
+              style: AppFonts.manrope(color: t.textSecondary, fontSize: 14),
+            ),
+            const SizedBox(height: 24),
+            Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: 12,
+              children: [
+                FilledButton.icon(
+                  onPressed: _ctrl.loadChapter,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('Reintentar'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: t.accent,
+                    foregroundColor: t.sobreAcento,
+                    minimumSize: const Size(48, 48),
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () => showVersionSelectorSheet(
+                    context,
+                    onChanged: _onVersionChanged,
+                  ),
+                  icon: const Icon(Icons.swap_horiz),
+                  label: const Text('Cambiar versión'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: t.textPrimary,
+                    minimumSize: const Size(48, 48),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () => Navigator.maybePop(context),
+                  style: TextButton.styleFrom(
+                    foregroundColor: t.textSecondary,
+                    minimumSize: const Size(48, 48),
+                  ),
+                  child: const Text('Volver'),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   /// Barra flotante fija abajo: ▶ audio | ‹ | Libro Cap (tap → selector) | ›.
   /// Reemplaza al indicador "peek" anterior (texto tenue no interactivo) por
   /// un control real y descubrible, como el navegador inferior de YouVersion.
   Widget _buildChapterNavigator(BibleReaderThemeData t) {
-    final hasPrev = _ctrl.currentChapter > 1;
+    final hasPrev = _ctrl.currentChapter > 1 || _ctrl.getPreviousBook() != null;
     final hasNext =
         _ctrl.currentChapter < _ctrl.totalChapters ||
-        _ctrl.allBooks.indexWhere((b) => b.number == widget.bookNumber) <
-            _ctrl.allBooks.length - 1;
+        _ctrl.getNextBook() != null;
     return Center(
       child: Container(
         padding: const EdgeInsets.all(4),
@@ -391,8 +553,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
           children: [
             _buildNavPlayButton(t),
             const SizedBox(width: 2),
-            _buildNavArrow(t, Icons.chevron_left, hasPrev,
-                () => _ctrl.goToChapter(_ctrl.currentChapter - 1)),
+            _buildNavArrow(
+              t,
+              Icons.chevron_left,
+              hasPrev,
+              _goToPrevious,
+              'Capítulo anterior',
+            ),
             GestureDetector(
               onTap: () => showBookChapterSelector(
                 context,
@@ -413,13 +580,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
                 ),
               ),
             ),
-            _buildNavArrow(t, Icons.chevron_right, hasNext, () {
-              if (_ctrl.currentChapter < _ctrl.totalChapters) {
-                _ctrl.goToChapter(_ctrl.currentChapter + 1);
-              } else {
-                _goToNextBook();
-              }
-            }),
+            _buildNavArrow(
+              t,
+              Icons.chevron_right,
+              hasNext,
+              _goToNext,
+              'Capítulo siguiente',
+            ),
           ],
         ),
       ),
@@ -431,15 +598,18 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
     IconData icon,
     bool enabled,
     VoidCallback onTap,
+    String label,
   ) {
     return Semantics(
       button: true,
       enabled: enabled,
+      label: label,
       child: GestureDetector(
         onTap: enabled ? onTap : null,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.all(8),
+          // 22 + 2×13 = 48 px de área táctil.
+          padding: const EdgeInsets.all(13),
           child: Icon(
             icon,
             size: 22,
@@ -589,7 +759,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       versionLabel: _ctrl.currentVersion.shortName,
       onVersionTap: () => showVersionSelectorSheet(
         context,
-        onChanged: _ctrl.onVersionChanged,
+        onChanged: _onVersionChanged,
       ),
       onTypographyTap: _ctrl.toggleTypography,
       typographyActive: _ctrl.showTypography,
@@ -640,6 +810,21 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
               ),
             );
           },
+        ),
+        MoreMenuItem(
+          icon: Icons.history,
+          label: 'Historial de lectura',
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const ReadingHistoryScreen()),
+            );
+          },
+        ),
+        MoreMenuItem(
+          icon: Icons.copyright_outlined,
+          label: 'Acerca de esta versión',
+          onTap: () => showVersionInfoSheet(context, _ctrl.currentVersion, t),
         ),
         MoreMenuItem(
           icon: Icons.auto_stories_outlined,

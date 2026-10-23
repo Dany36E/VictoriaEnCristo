@@ -406,6 +406,7 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
           bookName: _gospelNames[gospelIndex],
           chapter: chapter,
           version: BibleUserDataService.I.preferredVersionNotifier.value,
+          initialVerse: _parseVerse(ref),
         ),
       ),
     );
@@ -423,6 +424,13 @@ class _GospelHarmonyScreenState extends State<GospelHarmonyScreen> {
     final parts = osis.split('.');
     if (parts.length < 3) return osis;
     return parts.sublist(1).join(':');
+  }
+
+  /// Versículo inicial de «MAT.5.3» o «MAT.5.3-12» (null si no hay).
+  int? _parseVerse(String osis) {
+    final parts = osis.split('.');
+    if (parts.length < 3) return null;
+    return int.tryParse(parts[2].split('-').first);
   }
 
   int? _parseChapter(String osis) {

@@ -227,6 +227,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
               bookName: note.bookName,
               chapter: note.chapter,
               version: version,
+              initialVerse: note.verse,
             ),
             transitionDuration: const Duration(milliseconds: 150),
             transitionsBuilder: (ctx, a, sa, child) =>

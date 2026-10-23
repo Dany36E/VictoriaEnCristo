@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_fonts.dart';
-import 'package:share_plus/share_plus.dart';
 
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/enduring_word_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../widgets/bible/reader/guzik_attribution.dart';
 
 /// Pantalla de comentario Enduring Word (David Guzik) para un capítulo.
 class EnduringWordScreen extends StatefulWidget {
@@ -84,7 +84,7 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
               ),
             ),
             Text(
-              'Enduring Word — David Guzik',
+              'Comentario de David Guzik · Enduring Word',
               style: AppFonts.manrope(
                 fontSize: 11,
                 color: t.textSecondary,
@@ -92,14 +92,6 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
             ),
           ],
         ),
-        actions: [
-          if (_commentary != null && !_commentary!.isEmpty)
-            IconButton(
-              icon: Icon(Icons.share_outlined, color: t.accent),
-              tooltip: 'Compartir',
-              onPressed: _share,
-            ),
-        ],
       ),
       body: _loading
           ? Center(child: CircularProgressIndicator(color: t.accent))
@@ -138,9 +130,13 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
     final c = _commentary!;
     return ListView.builder(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 40),
-      itemCount: c.sections.length + 1, // +1 for title header
+      // +1 título, +1 atribución al final
+      itemCount: c.sections.length + 2,
       itemBuilder: (context, index) {
         if (index == 0) return _buildTitle(c.title);
+        if (index == c.sections.length + 1) {
+          return GuzikAttributionCard(theme: t);
+        }
         return _buildSection(c.sections[index - 1]);
       },
     );
@@ -181,14 +177,29 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
                   left: BorderSide(color: t.accent, width: 3),
                 ),
               ),
-              child: Text(
-                section.heading,
-                style: AppFonts.cinzel(
-                  color: t.accent,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                  height: 1.4,
-                ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      section.heading,
+                      style: AppFonts.cinzel(
+                        color: t.accent,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w700,
+                        height: 1.4,
+                      ),
+                    ),
+                  ),
+                  // Se comparte solo esta sección, con atribución y enlace.
+                  IconButton(
+                    tooltip: 'Compartir esta sección',
+                    icon: Icon(Icons.share_outlined, color: t.accent, size: 20),
+                    onPressed: () => GuzikAttribution.shareSection(
+                      '${widget.bookName} ${widget.chapter}',
+                      section,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -211,7 +222,10 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
   }
 
   void _copySectionText(EWSection section) {
-    final text = '${section.heading}\n\n${section.paragraphs.join('\n\n')}';
+    final text = GuzikAttribution.shareTextFor(
+      '${widget.bookName} ${widget.chapter}',
+      section,
+    );
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -221,20 +235,5 @@ class _EnduringWordScreenState extends State<EnduringWordScreen> {
         duration: const Duration(seconds: 2),
       ),
     );
-  }
-
-  void _share() {
-    final c = _commentary!;
-    final buffer = StringBuffer();
-    buffer.writeln('${widget.bookName} ${widget.chapter} — Enduring Word');
-    buffer.writeln('David Guzik\n');
-    for (final s in c.sections) {
-      buffer.writeln('═══ ${s.heading} ═══\n');
-      for (final p in s.paragraphs) {
-        buffer.writeln(p);
-        buffer.writeln();
-      }
-    }
-    Share.share(buffer.toString());
   }
 }

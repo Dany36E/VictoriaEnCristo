@@ -3,6 +3,7 @@ import 'package:xml/xml.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
+import '../../utils/bible_reference_parser.dart';
 import '../user_pref_cloud_sync_service.dart';
 import 'bible_parser_service.dart';
 
@@ -41,183 +42,6 @@ class BibleSearchService {
   static const _recentKey = 'bible_recent_searches';
   static const _maxRecent = 8;
 
-  /// Mapa de abreviaturas comunes → nombre canónico normalizado
-  static final Map<String, String> _abbreviations = {
-    'gn': 'genesis',
-    'gen': 'genesis',
-    'genesis': 'genesis',
-    'ex': 'exodo',
-    'exo': 'exodo',
-    'exodo': 'exodo',
-    'lv': 'levitico',
-    'lev': 'levitico',
-    'levitico': 'levitico',
-    'nm': 'numeros',
-    'num': 'numeros',
-    'numeros': 'numeros',
-    'dt': 'deuteronomio',
-    'deut': 'deuteronomio',
-    'deuteronomio': 'deuteronomio',
-    'jos': 'josue',
-    'josue': 'josue',
-    'jue': 'jueces',
-    'jueces': 'jueces',
-    'rt': 'rut',
-    'rut': 'rut',
-    '1sa': '1 samuel',
-    '1sam': '1 samuel',
-    '1 samuel': '1 samuel',
-    '2sa': '2 samuel',
-    '2sam': '2 samuel',
-    '2 samuel': '2 samuel',
-    '1re': '1 reyes',
-    '1rey': '1 reyes',
-    '1 reyes': '1 reyes',
-    '2re': '2 reyes',
-    '2rey': '2 reyes',
-    '2 reyes': '2 reyes',
-    '1cr': '1 cronicas',
-    '1cro': '1 cronicas',
-    '1 cronicas': '1 cronicas',
-    '2cr': '2 cronicas',
-    '2cro': '2 cronicas',
-    '2 cronicas': '2 cronicas',
-    'esd': 'esdras',
-    'esdras': 'esdras',
-    'neh': 'nehemias',
-    'nehemias': 'nehemias',
-    'est': 'ester',
-    'ester': 'ester',
-    'job': 'job',
-    'sal': 'salmos',
-    'salmos': 'salmos',
-    'salmo': 'salmos',
-    'pr': 'proverbios',
-    'pro': 'proverbios',
-    'prov': 'proverbios',
-    'proverbios': 'proverbios',
-    'ec': 'eclesiastes',
-    'ecl': 'eclesiastes',
-    'eclesiastes': 'eclesiastes',
-    'cnt': 'cantares',
-    'cant': 'cantares',
-    'cantares': 'cantares',
-    'is': 'isaias',
-    'isa': 'isaias',
-    'isaias': 'isaias',
-    'jr': 'jeremias',
-    'jer': 'jeremias',
-    'jeremias': 'jeremias',
-    'lm': 'lamentaciones',
-    'lam': 'lamentaciones',
-    'lamentaciones': 'lamentaciones',
-    'ez': 'ezequiel',
-    'eze': 'ezequiel',
-    'ezequiel': 'ezequiel',
-    'dn': 'daniel',
-    'dan': 'daniel',
-    'daniel': 'daniel',
-    'os': 'oseas',
-    'oseas': 'oseas',
-    'jl': 'joel',
-    'joel': 'joel',
-    'am': 'amos',
-    'amos': 'amos',
-    'abd': 'abdias',
-    'abdias': 'abdias',
-    'jon': 'jonas',
-    'jonas': 'jonas',
-    'mi': 'miqueas',
-    'miq': 'miqueas',
-    'miqueas': 'miqueas',
-    'nah': 'nahum',
-    'nahum': 'nahum',
-    'hab': 'habacuc',
-    'habacuc': 'habacuc',
-    'sof': 'sofonias',
-    'sofonias': 'sofonias',
-    'hag': 'hageo',
-    'hageo': 'hageo',
-    'zac': 'zacarias',
-    'zacarias': 'zacarias',
-    'mal': 'malaquias',
-    'malaquias': 'malaquias',
-    'mt': 'mateo',
-    'mat': 'mateo',
-    'mateo': 'mateo',
-    'mr': 'marcos',
-    'mar': 'marcos',
-    'marcos': 'marcos',
-    'lc': 'lucas',
-    'luc': 'lucas',
-    'lucas': 'lucas',
-    'jn': 'juan',
-    'juan': 'juan',
-    'hch': 'hechos',
-    'hec': 'hechos',
-    'hechos': 'hechos',
-    'ro': 'romanos',
-    'rom': 'romanos',
-    'romanos': 'romanos',
-    '1co': '1 corintios',
-    '1cor': '1 corintios',
-    '1 corintios': '1 corintios',
-    '2co': '2 corintios',
-    '2cor': '2 corintios',
-    '2 corintios': '2 corintios',
-    'ga': 'galatas',
-    'gal': 'galatas',
-    'galatas': 'galatas',
-    'ef': 'efesios',
-    'efe': 'efesios',
-    'efesios': 'efesios',
-    'fil': 'filipenses',
-    'flp': 'filipenses',
-    'filipenses': 'filipenses',
-    'col': 'colosenses',
-    'colosenses': 'colosenses',
-    '1ts': '1 tesalonicenses',
-    '1tes': '1 tesalonicenses',
-    '1 tesalonicenses': '1 tesalonicenses',
-    '2ts': '2 tesalonicenses',
-    '2tes': '2 tesalonicenses',
-    '2 tesalonicenses': '2 tesalonicenses',
-    '1ti': '1 timoteo',
-    '1tim': '1 timoteo',
-    '1 timoteo': '1 timoteo',
-    '2ti': '2 timoteo',
-    '2tim': '2 timoteo',
-    '2 timoteo': '2 timoteo',
-    'tit': 'tito',
-    'tito': 'tito',
-    'flm': 'filemon',
-    'filemon': 'filemon',
-    'he': 'hebreos',
-    'heb': 'hebreos',
-    'hebreos': 'hebreos',
-    'stg': 'santiago',
-    'sant': 'santiago',
-    'santiago': 'santiago',
-    '1pe': '1 pedro',
-    '1ped': '1 pedro',
-    '1 pedro': '1 pedro',
-    '2pe': '2 pedro',
-    '2ped': '2 pedro',
-    '2 pedro': '2 pedro',
-    '1jn': '1 juan',
-    '1 juan': '1 juan',
-    '2jn': '2 juan',
-    '2 juan': '2 juan',
-    '3jn': '3 juan',
-    '3 juan': '3 juan',
-    'jud': 'judas',
-    'judas': 'judas',
-    'ap': 'apocalipsis',
-    'apo': 'apocalipsis',
-    'apoc': 'apocalipsis',
-    'apocalipsis': 'apocalipsis',
-  };
-
   /// Normalizar texto: quitar acentos, minúsculas
   static String normalize(String input) {
     return input
@@ -245,7 +69,24 @@ class BibleSearchService {
 
     // Intentar parsear como referencia bíblica
     final ref = _parseReference(trimmed, books);
-    if (ref != null) return ref;
+    if (ref != null && ref.intent != SearchIntent.bookOnly) return ref;
+    if (ref != null) {
+      // «Job», «Amós», «Rut»… también son palabras: se sugiere el libro y
+      // además se muestran los versículos que la contienen.
+      final verses = await search(
+        version: version,
+        query: trimmed,
+        maxResults: maxResults,
+        testamentFilter: testamentFilter,
+      );
+      return SearchResult(
+        intent: SearchIntent.bookOnly,
+        bookNumber: ref.bookNumber,
+        bookName: ref.bookName,
+        totalChapters: ref.totalChapters,
+        verses: verses,
+      );
+    }
 
     // Texto libre: búsqueda fuzzy de versículos
     final verses = await search(
@@ -258,45 +99,41 @@ class BibleSearchService {
   }
 
   /// Parsear una cadena como referencia bíblica.
-  /// Soporta: "Salmos", "Salmos 120", "Juan 3:16", "Gn 1:1"
+  /// Soporta: «Salmos», «Salmo 120», «Juan 3:16», «Gn 1:1», «1 Co 13»,
+  /// nombres sin acentos y códigos OSIS (ver [BibleReferenceParser]).
   SearchResult? _parseReference(String query, List<BibleBook> books) {
-    final normalized = normalize(query);
+    BibleBook? bookFor(int number) =>
+        books.where((b) => b.number == number).firstOrNull;
 
-    // Regex: "[libro] [capítulo]:[versículo]" o "[libro] [capítulo]"
-    // El libro puede tener un prefijo numérico como "1 juan" o "2 pedro"
-    final refRegex = RegExp(r'^(\d?\s*[a-z]+)\s+(\d+)(?::(\d+))?$');
-    final match = refRegex.firstMatch(normalized);
-
-    if (match != null) {
-      final bookPart = match.group(1)!.trim();
-      final chapter = int.parse(match.group(2)!);
-      final verse = match.group(3) != null ? int.parse(match.group(3)!) : null;
-
-      final book = _resolveBook(bookPart, books);
-      if (book != null) {
-        if (verse != null) {
+    final ref = BibleReferenceParser.parse(query);
+    if (ref != null) {
+      final book = bookFor(ref.bookNumber);
+      if (book != null && ref.chapter <= book.totalChapters) {
+        final maxVerse = book.versesPerChapter[ref.chapter];
+        final verse = ref.verse;
+        if (verse != null && (maxVerse == null || verse <= maxVerse)) {
           return SearchResult(
             intent: SearchIntent.verseReference,
             bookNumber: book.number,
             bookName: book.name,
             totalChapters: book.totalChapters,
-            chapter: chapter,
+            chapter: ref.chapter,
             verse: verse,
           );
-        } else {
-          return SearchResult(
-            intent: SearchIntent.bookAndChapter,
-            bookNumber: book.number,
-            bookName: book.name,
-            totalChapters: book.totalChapters,
-            chapter: chapter,
-          );
         }
+        return SearchResult(
+          intent: SearchIntent.bookAndChapter,
+          bookNumber: book.number,
+          bookName: book.name,
+          totalChapters: book.totalChapters,
+          chapter: ref.chapter,
+        );
       }
     }
 
-    // Solo nombre de libro: "Salmos", "Gn", "Juan"
-    final book = _resolveBook(normalized, books);
+    // Solo nombre de libro: «Salmos», «Gn», «Juan», «filip».
+    final number = BibleReferenceParser.resolveBook(query);
+    final book = number == null ? null : bookFor(number);
     if (book != null) {
       return SearchResult(
         intent: SearchIntent.bookOnly,
@@ -305,23 +142,7 @@ class BibleSearchService {
         totalChapters: book.totalChapters,
       );
     }
-
     return null;
-  }
-
-  /// Resolver un término a un libro bíblico.
-  BibleBook? _resolveBook(String term, List<BibleBook> books) {
-    // 1. Buscar en abreviaturas
-    final canonical = _abbreviations[term];
-    if (canonical != null) {
-      return books.where((b) => normalize(b.name) == canonical).firstOrNull;
-    }
-    // 2. Buscar por nombre normalizado (exacto)
-    final exact = books.where((b) => normalize(b.name) == term).firstOrNull;
-    if (exact != null) return exact;
-    // 3. Buscar por prefijo
-    final prefix = books.where((b) => normalize(b.name).startsWith(term)).firstOrNull;
-    return prefix;
   }
 
   /// Búsqueda normalizada en una versión

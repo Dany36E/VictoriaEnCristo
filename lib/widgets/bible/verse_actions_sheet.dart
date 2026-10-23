@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import '../../theme/app_fonts.dart';
 import 'package:share_plus/share_plus.dart';
 import '../../models/bible/bible_verse.dart';
+import '../../models/bible/bible_version.dart';
 import '../../models/bible/share_template.dart';
 import '../../screens/bible/template_picker_screen.dart';
 import '../../screens/bible/verse_compare_screen.dart';
@@ -329,7 +330,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
         Navigator.pop(context);
         await Share.shareXFiles([
           XFile(cached.path),
-        ], text: 'Victoria en Cristo');
+        ], text: '${widget.verse.reference} (${BibleVersion.fromId(widget.verse.version).shareAbbreviation}) · Victoria en Cristo');
         return;
       }
 
@@ -444,7 +445,7 @@ class _VerseActionsSheetState extends State<_VerseActionsSheet> {
               Clipboard.setData(
                 ClipboardData(
                   text:
-                      '${widget.verse.text}\n— ${widget.verse.reference} (${widget.verse.version})',
+                      '${widget.verse.text}\n— ${widget.verse.reference} (${BibleVersion.fromId(widget.verse.version).shareAbbreviation})',
                 ),
               );
               Navigator.pop(context);
