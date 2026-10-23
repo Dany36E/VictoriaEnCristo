@@ -50,7 +50,13 @@ void main() {
   });
 
   test('el texto tenue y atenuado del lector se lee en todos los temas', () {
-    for (final t in BibleReaderThemeData.all) {
+    // Los papeles oscuros no están en la lista (el lector sigue al papel de
+    // la app), pero también se revisan.
+    for (final t in [
+      ...BibleReaderThemeData.all,
+      BibleReaderThemeData.paperKraft,
+      BibleReaderThemeData.paperNoche,
+    ]) {
       for (final alpha in [0.2, 0.4, 0.6, 0.95]) {
         expect(
           contrasteWcag(t.textoTenue(alpha), t.fondoVisible),
@@ -65,7 +71,7 @@ void main() {
       );
     }
     // Si el gris ya se lee (el lápiz del papel), se queda como está.
-    const papel = BibleReaderThemeData.paper;
+    final papel = BibleReaderThemeData.paper;
     expect(papel.textoTenue(1).toARGB32(), papel.textSecondary.toARGB32());
   });
 }

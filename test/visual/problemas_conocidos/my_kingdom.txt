@@ -1,4 +1,0 @@
-# Problemas visuales que ya existían en "my_kingdom". No agregues
-# líneas a mano: corrige el problema. Se regenera con
-# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-mint: "0 XP totales" contraste < 4.5

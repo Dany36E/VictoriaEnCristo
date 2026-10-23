@@ -43,12 +43,12 @@ class ReaderSearchOverlay extends StatelessWidget {
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 10),
                 decoration: BoxDecoration(
-                  color: t.isDark
+                  color: t.oscuro
                       ? Colors.white.withValues(alpha: 0.06)
                       : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(8),
                   border: Border.all(
-                    color: t.isDark
+                    color: t.oscuro
                         ? Colors.white.withValues(alpha: 0.08)
                         : Colors.black.withValues(alpha: 0.06),
                     width: 1,

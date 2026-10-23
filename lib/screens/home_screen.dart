@@ -1,9 +1,6 @@
-import 'dart:math' as math;
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../widgets/brand_backdrop.dart';
 import '../widgets/home/atajos_inicio.dart';
 import '../widgets/home/daily_verse_section.dart';
 import '../widgets/home/home_header.dart';
@@ -39,15 +36,6 @@ import '../main.dart' show routeObserver;
 import '../utils/daily_outcome_registration.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
-
-// Enum para tipos de animación de iconos
-enum IconAnimationType {
-  shimmer, // Versículos - destello
-  heartbeat, // Oraciones - latido
-  rotate, // Devocional - rotación
-  drawUp, // Progreso - dibujado
-  pulse, // Diario - pulso suave
-}
 
 class HomeScreen extends StatefulWidget {
   final VoidCallback? onThemeChanged;
@@ -289,46 +277,21 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    // Forzar íconos claros en status bar: el fondo hero siempre es oscuro arriba
-    // (en el tema papel la hoja es clara: íconos oscuros).
+    // Íconos de la barra de estado según el papel: oscuros sobre el claro,
+    // claros sobre kraft y noche.
+    final hojaClara = !t.oscuro;
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
-        statusBarIconBrightness: t.isPaper ? Brightness.dark : Brightness.light,
-        statusBarBrightness: t.isPaper ? Brightness.light : Brightness.dark,
+        statusBarIconBrightness: hojaClara ? Brightness.dark : Brightness.light,
+        statusBarBrightness: hojaClara ? Brightness.light : Brightness.dark,
       ),
       child: Scaffold(
         backgroundColor: t.pageBg,
         extendBodyBehindAppBar: true,
         body: Stack(
           children: [
-            // CAPA 1: Portada editorial propia (sin rastreo ni asset externo)
-            // En el tema papel la portada es la propia hoja con textura.
-            if (!t.isPaper)
-              Positioned.fill(child: BrandBackdrop(accent: t.accent)),
-
-            // CAPA 2: Overlay gradiente (adapta opacidad según tema)
-            if (!t.isPaper)
-              Positioned.fill(
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.bottomCenter,
-                      end: Alignment.topCenter,
-                      colors: [
-                        t.scaffoldBg.withValues(alpha: 0.95),
-                        t.scaffoldBg.withValues(alpha: 0.7),
-                        t.scaffoldBg.withValues(alpha: 0.3),
-                        t.scaffoldBg.withValues(alpha: 0.1),
-                        Colors.transparent,
-                      ],
-                      stops: const [0.0, 0.15, 0.35, 0.55, 1.0],
-                    ),
-                  ),
-                ),
-              ),
-
-            // CAPA 3: Contenido principal
+            // La portada es la propia hoja con textura (FondoPapel detrás).
             SafeArea(
               child: CustomScrollView(
                 physics: const BouncingScrollPhysics(),
@@ -475,8 +438,6 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       child: _buildSectionHeader(
                         label: 'ATAJOS',
-                        icon: Icons.bolt_rounded,
-                        accent: const Color(0xFFE8C97A),
                         animationDelayMs: 200,
                         trailing: const BotonEditarAtajos(),
                       ),
@@ -500,8 +461,6 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       child: _buildSectionHeader(
                         label: 'EXPLORA',
-                        icon: Icons.apps_rounded,
-                        accent: const Color(0xFFE8C97A),
                         animationDelayMs: 250,
                       ),
                     ),
@@ -520,10 +479,7 @@ class _HomeScreenState extends State<HomeScreen>
                           icon: Icons.wb_sunny_outlined,
                           title: 'Vida Espiritual',
                           subtitle: 'Oración, palabra y reflexión diaria',
-                          accentColor: const Color(0xFFFF80AB),
-                          animationType: gmb.IconAnimationType.heartbeat,
                           index: 0,
-                          height: 130,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -536,10 +492,7 @@ class _HomeScreenState extends State<HomeScreen>
                           icon: Icons.trending_up_rounded,
                           title: 'Crecimiento Espiritual',
                           subtitle: 'Biblia y escuela del Reino',
-                          accentColor: const Color(0xFFE8C97A),
-                          animationType: gmb.IconAnimationType.shimmer,
                           index: 1,
-                          height: 130,
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
@@ -561,10 +514,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   title: 'Hermanos en Cristo',
                                   subtitle:
                                       'Compañero, muro y comunidad de batalla',
-                                  accentColor: const Color(0xFFFFAB40),
-                                  animationType: gmb.IconAnimationType.pulse,
                                   index: 2,
-                                  height: 130,
                                   onTap: () => Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -646,10 +596,8 @@ class _HomeScreenState extends State<HomeScreen>
       runSpacing: 8,
       children: [
         _QuickGlanceChip(
-          emoji: '🛡️',
           label:
               '${partners.length} compañero${partners.length > 1 ? 's' : ''}',
-          color: const Color(0xFFFFAB40),
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(builder: (_) => const BattlePartnerScreen()),
@@ -661,569 +609,44 @@ class _HomeScreenState extends State<HomeScreen>
 
   Widget _buildSectionHeader({
     String label = 'HERRAMIENTAS DE VICTORIA',
-    IconData icon = Icons.shield_outlined,
-    Color? accent,
     int animationDelayMs = 300,
     Widget? trailing,
   }) {
-    if (AppThemeData.of(context).isPaper) {
-      final etiqueta = PopIn(
-        retraso: Duration(milliseconds: animationDelayMs),
-        child: EtiquetaSeccion(label),
-      );
-      // Aire abajo para la cinta de la primera tarjeta.
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 10),
-        child: trailing == null
-            ? etiqueta
-            : Row(children: [Expanded(child: etiqueta), trailing]),
-      );
-    }
-    final color = accent ?? Colors.white;
-    return Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(AppDesignSystem.spacingS),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(AppDesignSystem.radiusS),
-                border: Border.all(
-                  color: color.withValues(alpha: 0.25),
-                  width: 0.5,
-                ),
-              ),
-              child: Icon(icon, color: color, size: 20),
-            ),
-            const SizedBox(width: AppDesignSystem.spacingS),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.2,
-                color: Colors.white70,
-              ),
-            ),
-            if (trailing != null) ...[const Spacer(), trailing],
-          ],
-        )
-        .animate()
-        .fadeIn(
-          delay: Duration(milliseconds: animationDelayMs),
-          duration: 400.ms,
-        )
-        .slideX(begin: -0.1, end: 0);
-  }
-}
-
-// ============================================================================
-// GLASSMORPHIC MENU BUTTON - Premium Dark UI Component
-// ============================================================================
-
-class _GlassmorphicMenuButton extends StatefulWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color accentColor;
-  final IconAnimationType animationType;
-  final int index;
-  final VoidCallback onTap;
-
-  const _GlassmorphicMenuButton({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.accentColor,
-    required this.animationType,
-    required this.index,
-    required this.onTap,
-  });
-
-  @override
-  State<_GlassmorphicMenuButton> createState() =>
-      _GlassmorphicMenuButtonState();
-}
-
-class _GlassmorphicMenuButtonState extends State<_GlassmorphicMenuButton>
-    with TickerProviderStateMixin {
-  bool _isHovered = false;
-  bool _isPressed = false;
-
-  late AnimationController _iconAnimationController;
-  late AnimationController _shimmerController;
-  late Animation<double> _iconAnimation;
-
-  @override
-  void initState() {
-    super.initState();
-    _setupAnimations();
-  }
-
-  void _setupAnimations() {
-    // Animación principal del icono según tipo
-    switch (widget.animationType) {
-      case IconAnimationType.shimmer:
-        _shimmerController = AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 1500),
-        );
-        // Repetir cada 5 segundos
-        Future.delayed(Duration(milliseconds: widget.index * 200), () {
-          if (mounted) {
-            _shimmerController.forward().then((_) {
-              Future.delayed(const Duration(seconds: 5), () {
-                if (mounted) {
-                  _shimmerController.reset();
-                  _shimmerController.forward();
-                }
-              });
-            });
-          }
-        });
-        _iconAnimationController = AnimationController(
-          vsync: this,
-          duration: const Duration(seconds: 1),
-        );
-        _iconAnimation = Tween<double>(
-          begin: 1.0,
-          end: 1.0,
-        ).animate(_iconAnimationController);
-        break;
-
-      case IconAnimationType.heartbeat:
-        _shimmerController = AnimationController(
-          vsync: this,
-          duration: Duration.zero,
-        );
-        _iconAnimationController = AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 800),
-        )..repeat(reverse: true);
-        _iconAnimation = Tween<double>(begin: 1.0, end: 1.15).animate(
-          CurvedAnimation(
-            parent: _iconAnimationController,
-            curve: Curves.easeInOutSine,
-          ),
-        );
-        break;
-
-      case IconAnimationType.rotate:
-        _shimmerController = AnimationController(
-          vsync: this,
-          duration: Duration.zero,
-        );
-        _iconAnimationController = AnimationController(
-          vsync: this,
-          duration: const Duration(seconds: 10),
-        )..repeat();
-        _iconAnimation = Tween<double>(
-          begin: 0,
-          end: 2 * math.pi,
-        ).animate(_iconAnimationController);
-        break;
-
-      case IconAnimationType.drawUp:
-        _shimmerController = AnimationController(
-          vsync: this,
-          duration: Duration.zero,
-        );
-        _iconAnimationController = AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 1200),
-        );
-        _iconAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-          CurvedAnimation(
-            parent: _iconAnimationController,
-            curve: Curves.easeOutCubic,
-          ),
-        );
-        Future.delayed(Duration(milliseconds: 400 + widget.index * 100), () {
-          if (mounted) _iconAnimationController.forward();
-        });
-        break;
-
-      case IconAnimationType.pulse:
-        _shimmerController = AnimationController(
-          vsync: this,
-          duration: Duration.zero,
-        );
-        _iconAnimationController = AnimationController(
-          vsync: this,
-          duration: const Duration(milliseconds: 2000),
-        )..repeat(reverse: true);
-        _iconAnimation = Tween<double>(begin: 0.7, end: 1.0).animate(
-          CurvedAnimation(
-            parent: _iconAnimationController,
-            curve: Curves.easeInOut,
-          ),
-        );
-        break;
-    }
-  }
-
-  @override
-  void dispose() {
-    _iconAnimationController.dispose();
-    _shimmerController.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MouseRegion(
-          onEnter: (_) => setState(() => _isHovered = true),
-          onExit: (_) => setState(() => _isHovered = false),
-          child: GestureDetector(
-            onTapDown: (_) => setState(() => _isPressed = true),
-            onTapUp: (_) => setState(() => _isPressed = false),
-            onTapCancel: () => setState(() => _isPressed = false),
-            onTap: () {
-              HapticFeedback.lightImpact();
-              widget.onTap();
-            },
-            child: AnimatedScale(
-              scale: _isPressed ? 0.97 : (_isHovered ? 1.02 : 1.0),
-              duration: const Duration(milliseconds: 150),
-              curve: Curves.easeOutCubic,
-              child: Container(
-                height: 115,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: BackdropFilter(
-                    filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      decoration: BoxDecoration(
-                        // Cristal puro - gradiente lineal sutil
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: _isPressed || _isHovered
-                              ? [
-                                  widget.accentColor.withValues(alpha: 0.15),
-                                  widget.accentColor.withValues(alpha: 0.05),
-                                ]
-                              : [
-                                  Colors.white.withValues(alpha: 0.10),
-                                  Colors.white.withValues(alpha: 0.02),
-                                ],
-                        ),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      // CustomPaint para borde gradiente mágico
-                      child: CustomPaint(
-                        painter: _NeonGradientBorderPainter(
-                          accentColor: widget.accentColor,
-                          isHovered: _isHovered,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(18),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              // Icono con NEÓN y micro-glow
-                              _buildAnimatedIcon(),
-
-                              // Texto
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    widget.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      color: Colors.white,
-                                      letterSpacing: 0.3,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 3),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Text(
-                                          widget.subtitle,
-                                          style: TextStyle(
-                                            fontSize: 11,
-                                            color: Colors.white.withValues(
-                                              alpha: 0.6,
-                                            ),
-                                            fontWeight: FontWeight.w500,
-                                            letterSpacing: 0.2,
-                                          ),
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                      Icon(
-                                        Icons.arrow_forward_ios_rounded,
-                                        size: 11,
-                                        color: Colors.white.withValues(
-                                          alpha: 0.5,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        )
-        .animate()
-        .fadeIn(
-          delay: Duration(milliseconds: 300 + (widget.index * 100)),
-          duration: const Duration(milliseconds: 500),
-        )
-        .slideY(
-          begin: 0.2,
-          end: 0,
-          curve: Curves.easeOutCubic,
-          delay: Duration(milliseconds: 300 + (widget.index * 100)),
-        );
-  }
-
-  Widget _buildAnimatedIcon() {
-    // Icono con color NEÓN pastel y micro-glow LED
-    const double iconSize = 28;
-
-    // Widget base del icono con glow
-    Widget iconWidget = Container(
-      decoration: BoxDecoration(
-        boxShadow: [
-          // Micro-glow LED detrás del icono
-          BoxShadow(
-            color: widget.accentColor.withValues(alpha: 0.6),
-            blurRadius: 12,
-            spreadRadius: 1,
-          ),
-          BoxShadow(
-            color: widget.accentColor.withValues(alpha: 0.3),
-            blurRadius: 20,
-            spreadRadius: 2,
-          ),
-        ],
-      ),
-      child: Icon(widget.icon, color: widget.accentColor, size: iconSize),
+    final etiqueta = PopIn(
+      retraso: Duration(milliseconds: animationDelayMs),
+      child: EtiquetaSeccion(label),
     );
-
-    switch (widget.animationType) {
-      case IconAnimationType.shimmer:
-        return AnimatedBuilder(
-          animation: _shimmerController,
-          builder: (context, child) {
-            return Container(
-              decoration: BoxDecoration(
-                boxShadow: [
-                  BoxShadow(
-                    color: widget.accentColor.withValues(alpha: 0.6),
-                    blurRadius: 12,
-                    spreadRadius: 1,
-                  ),
-                  BoxShadow(
-                    color: widget.accentColor.withValues(alpha: 0.3),
-                    blurRadius: 20,
-                    spreadRadius: 2,
-                  ),
-                ],
-              ),
-              child: ShaderMask(
-                shaderCallback: (bounds) {
-                  return LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
-                    colors: [
-                      widget.accentColor,
-                      Colors.white,
-                      widget.accentColor,
-                    ],
-                    stops: [
-                      (_shimmerController.value - 0.3).clamp(0.0, 1.0),
-                      _shimmerController.value,
-                      (_shimmerController.value + 0.3).clamp(0.0, 1.0),
-                    ],
-                  ).createShader(bounds);
-                },
-                blendMode: BlendMode.srcIn,
-                child: Icon(widget.icon, color: Colors.white, size: iconSize),
-              ),
-            );
-          },
-        );
-
-      case IconAnimationType.heartbeat:
-        return AnimatedBuilder(
-          animation: _iconAnimation,
-          builder: (context, child) {
-            return Transform.scale(
-              scale: _iconAnimation.value,
-              child: iconWidget,
-            );
-          },
-        );
-
-      case IconAnimationType.rotate:
-        return AnimatedBuilder(
-          animation: _iconAnimation,
-          builder: (context, child) {
-            return Transform.rotate(
-              angle: _iconAnimation.value,
-              child: iconWidget,
-            );
-          },
-        );
-
-      case IconAnimationType.drawUp:
-        return AnimatedBuilder(
-          animation: _iconAnimation,
-          builder: (context, child) {
-            return Opacity(
-              opacity: _iconAnimation.value,
-              child: Transform.translate(
-                offset: Offset(0, 8 * (1 - _iconAnimation.value)),
-                child: iconWidget,
-              ),
-            );
-          },
-        );
-
-      case IconAnimationType.pulse:
-        return AnimatedBuilder(
-          animation: _iconAnimation,
-          builder: (context, child) {
-            return Opacity(
-              opacity: 0.7 + (_iconAnimation.value * 0.3),
-              child: iconWidget,
-            );
-          },
-        );
-    }
-  }
-}
-
-// ============================================================================
-// NEON GRADIENT BORDER PAINTER - Borde mágico que se desvanece
-// ============================================================================
-
-class _NeonGradientBorderPainter extends CustomPainter {
-  final Color accentColor;
-  final bool isHovered;
-
-  _NeonGradientBorderPainter({
-    required this.accentColor,
-    required this.isHovered,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
-    final rrect = RRect.fromRectAndRadius(rect, const Radius.circular(20));
-
-    // Gradiente que va del color neón (esquina superior izquierda) a transparente,
-    // usando SOLO el accentColor. Antes había paradas de blanco que hacían que
-    // el borde inferior se viera «blancoso» sobre fondos claros.
-    final gradient = SweepGradient(
-      center: Alignment.topLeft,
-      startAngle: 0,
-      endAngle: math.pi * 2,
-      colors: [
-        accentColor.withValues(alpha: isHovered ? 0.9 : 0.65),
-        accentColor.withValues(alpha: isHovered ? 0.55 : 0.35),
-        accentColor.withValues(alpha: isHovered ? 0.30 : 0.18),
-        accentColor.withValues(alpha: isHovered ? 0.22 : 0.12),
-        accentColor.withValues(alpha: isHovered ? 0.30 : 0.18),
-        accentColor.withValues(alpha: isHovered ? 0.45 : 0.28),
-      ],
-      stops: const [0.0, 0.12, 0.28, 0.5, 0.78, 1.0],
+    // Aire abajo para la cinta de la primera tarjeta.
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: trailing == null
+          ? etiqueta
+          : Row(children: [Expanded(child: etiqueta), trailing]),
     );
-
-    final paint = Paint()
-      ..shader = gradient.createShader(rect)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = isHovered ? 1.2 : 0.8;
-
-    canvas.drawRRect(rrect, paint);
-  }
-
-  @override
-  bool shouldRepaint(_NeonGradientBorderPainter oldDelegate) {
-    return oldDelegate.accentColor != accentColor ||
-        oldDelegate.isHovered != isHovered;
   }
 }
-
-// Ya no necesitamos el CustomPainter - usamos borde simple
 
 // ============================================================================
 // QUICK GLANCE CHIP
 // ============================================================================
 
 class _QuickGlanceChip extends StatelessWidget {
-  final String emoji;
   final String label;
-  final Color color;
   final VoidCallback? onTap;
 
   const _QuickGlanceChip({
-    required this.emoji,
     required this.label,
-    required this.color,
     this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) {
-      return GestureDetector(
-        onTap: onTap,
-        child: ChipVec(
-          texto: label,
-          color: VecColores.mostaza,
-          iconoWidget: const IconoVec('escudo'),
-        ),
-      );
-    }
     return GestureDetector(
-      onTap: () {
-        if (onTap != null) {
-          FeedbackEngine.I.tap();
-          onTap!();
-        }
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: color.withValues(alpha: 0.12),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: color.withValues(alpha: 0.25), width: 0.5),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(emoji, style: const TextStyle(fontSize: 14)),
-            const SizedBox(width: 6),
-            Text(
-              label,
-              style: TextStyle(
-                color: color,
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
+      onTap: onTap,
+      child: ChipVec(
+        texto: label,
+        color: VecColores.mostaza,
+        iconoWidget: const IconoVec('escudo'),
       ),
     );
   }

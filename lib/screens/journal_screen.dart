@@ -53,7 +53,6 @@ class _JournalScreenState extends State<JournalScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    final isDark = t.isDark;
     
     if (_isLoading) {
       return const Scaffold(
@@ -76,30 +75,30 @@ class _JournalScreenState extends State<JournalScreen> {
             ),
             IconButton(
               icon: const Icon(Icons.bar_chart),
-              onPressed: () => _showStats(context, isDark),
+              onPressed: () => _showStats(context),
               tooltip: 'Estadísticas',
             ),
           ],
         ],
       ),
-      body: _buildBody(isDark),
+      body: _buildBody(),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () {
           FeedbackEngine.I.confirm(); // Nueva entrada (CTA principal)
-          _openNewEntry(context, isDark);
+          _openNewEntry(context);
         },
         icon: const Icon(Icons.add),
         label: const Text('Nueva oración'),
         backgroundColor: t.accent,
-        foregroundColor: isDark ? Colors.black87 : Colors.white,
+        foregroundColor: t.sobreAcento,
       ),
     );
   }
 
-  Widget _buildBody(bool isDark) {
+  Widget _buildBody() {
     // Si no hay entradas y no hay prompt, mostrar estado vacío
     if (_journalService.entries.isEmpty && _todayPrompt == null) {
-      return _buildEmptyState(isDark);
+      return _buildEmptyState();
     }
 
     return CustomScrollView(
@@ -107,13 +106,13 @@ class _JournalScreenState extends State<JournalScreen> {
         // Prompt del día personalizado
         if (_todayPrompt != null)
           SliverToBoxAdapter(
-            child: _buildTodayPromptCard(isDark),
+            child: _buildTodayPromptCard(),
           ),
         
         // Lista de entradas o mensaje si está vacío
         if (_journalService.entries.isEmpty)
           SliverFillRemaining(
-            child: _buildEmptyState(isDark),
+            child: _buildEmptyState(),
           )
         else
           SliverPadding(
@@ -122,7 +121,7 @@ class _JournalScreenState extends State<JournalScreen> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final entry = _journalService.entries[index];
-                  return _buildEntryCard(entry, isDark);
+                  return _buildEntryCard(entry);
                 },
                 childCount: _journalService.entries.length,
               ),
@@ -132,7 +131,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  Widget _buildTodayPromptCard(bool isDark) {
+  Widget _buildTodayPromptCard() {
     final t = AppThemeData.of(context);
     final prompt = _todayPrompt!.item;
     return Container(
@@ -141,8 +140,8 @@ class _JournalScreenState extends State<JournalScreen> {
       decoration: BoxDecoration(
         gradient: LinearGradient(
           colors: [
-            t.accent.withValues(alpha: isDark ? 0.2 : 0.1),
-            t.accent.withValues(alpha: isDark ? 0.05 : 0.02),
+            t.accent.withValues(alpha: 0.1),
+            t.accent.withValues(alpha: 0.02),
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -249,13 +248,13 @@ class _JournalScreenState extends State<JournalScreen> {
             child: ElevatedButton.icon(
               onPressed: () {
                 FeedbackEngine.I.confirm();
-                _openNewEntryWithPrompt(context, isDark, prompt);
+                _openNewEntryWithPrompt(context, prompt);
               },
               icon: const Icon(Icons.edit, size: 18),
               label: const Text('Escribir sobre esto'),
               style: ElevatedButton.styleFrom(
                 backgroundColor: t.accent,
-                foregroundColor: isDark ? Colors.black87 : Colors.white,
+                foregroundColor: t.sobreAcento,
                 padding: const EdgeInsets.symmetric(vertical: 12),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -268,7 +267,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  void _openNewEntryWithPrompt(BuildContext context, bool isDark, JournalPromptItem prompt) {
+  void _openNewEntryWithPrompt(BuildContext context, JournalPromptItem prompt) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -283,7 +282,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  Widget _buildEmptyState(bool isDark) {
+  Widget _buildEmptyState() {
     final t = AppThemeData.of(context);
     return Center(
       child: Padding(
@@ -319,7 +318,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  Widget _buildEntryCard(JournalEntry entry, bool isDark) {
+  Widget _buildEntryCard(JournalEntry entry) {
     final t = AppThemeData.of(context);
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -327,7 +326,7 @@ class _JournalScreenState extends State<JournalScreen> {
       child: InkWell(
         onTap: () {
           FeedbackEngine.I.tap();
-          _openEntryDetail(context, entry, isDark);
+          _openEntryDetail(context, entry);
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
@@ -436,7 +435,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  void _openNewEntry(BuildContext context, bool isDark) {
+  void _openNewEntry(BuildContext context) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -450,7 +449,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  void _openEntryDetail(BuildContext context, JournalEntry entry, bool isDark) {
+  void _openEntryDetail(BuildContext context, JournalEntry entry) {
     Navigator.push(
       context,
       MaterialPageRoute(
@@ -470,7 +469,7 @@ class _JournalScreenState extends State<JournalScreen> {
     );
   }
 
-  void _showStats(BuildContext context, bool isDark) {
+  void _showStats(BuildContext context) {
     final victoryPercentage = _journalService.getVictoryPercentage();
     final triggerStats = _journalService.getTriggerStats();
     final moodStats = _journalService.getMoodStats();

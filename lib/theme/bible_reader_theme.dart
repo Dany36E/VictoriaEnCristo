@@ -4,250 +4,129 @@ import '../vec/vec_tema.dart';
 import 'contraste.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
-/// BIBLE READER THEME - 10 temas editoriales premium
+/// BIBLE READER THEME — el papel del lector de la Biblia
 /// ═══════════════════════════════════════════════════════════════════════════
 ///
-/// Cada tema define una paleta completa para el lector:
-/// bg, surface, textPrimary, textSecondary, accent, verseNumber, toolbar.
-///
-/// Se aplica via BibleReaderThemeData.fromId(themeId).
+/// Colores con nombre de lector (fondo, barras, texto, acento) para los tres
+/// papeles del kit. El lector siempre va en el papel de la app (ver
+/// [papelActivo]); se pide con BibleReaderThemeData.fromId(themeId).
 /// ═══════════════════════════════════════════════════════════════════════════
 
 class BibleReaderThemeData {
   final String id;
   final String name;
   final Color background;
-  final Color surface;       // toolbar, sheets
+  final Color surface; // barras, hojas
   final Color textPrimary;
-  final Color textSecondary; // verse numbers, subtle UI
-  final Color accent;        // #D4AF37 family
+  final Color textSecondary; // números de versículo, detalles
+  final Color accent; // terracota
   final Color toolbarBg;
-  final bool isDark;
 
-  const BibleReaderThemeData({
-    required this.id,
-    required this.name,
-    required this.background,
-    required this.surface,
-    required this.textPrimary,
-    required this.textSecondary,
-    required this.accent,
-    required this.toolbarBg,
-    required this.isDark,
-  });
+  /// El papel del kit: claro, kraft oscuro o noche azul.
+  final VecPaleta paleta;
+
+  /// Tema «papel recortado» con la [paleta] que se le dé.
+  BibleReaderThemeData._papel(this.paleta, {required this.id, required this.name})
+      : background = paleta.crema,
+        surface = paleta.papel,
+        textPrimary = paleta.tinta,
+        // En claro, un poco más oscuro que el gris del kit para que los
+        // textos chicos del lector se lean bien sobre el papel (5.8:1 sobre
+        // crema). En oscuro el gris ya pasa de 4.5 en todas las superficies.
+        textSecondary = paleta.oscura ? paleta.gris : const Color(0xFF66584A),
+        accent = paleta.terracota,
+        toolbarBg = paleta.papel;
+
+  /// Si la página se ve oscura (papeles kraft y noche).
+  bool get oscuro => paleta.oscura;
+
+  /// Texto o ícono sobre un relleno de [accent]: papel o tinta, el que más se
+  /// lea (en los papeles oscuros el acento es claro).
+  Color get sobreAcento => textoSobre(accent);
 
   /// Highlight underline alpha
   Color highlightOverlay(Color highlightColor) =>
-      highlightColor.withValues(alpha: isDark ? 0.18 : 0.25);
+      highlightColor.withValues(alpha: oscuro ? 0.18 : 0.25);
 
   /// Subtle selection background
   Color get selectionBg =>
-      isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04);
+      oscuro ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04);
 
   /// Color para palabras de Cristo en rojo.
   Color get redLetterColor =>
-      isDark ? const Color(0xFFE57373) : const Color(0xFFC62828);
-
-  /// Swatch color for theme selector
-  Color get swatchColor => background;
+      oscuro ? const Color(0xFFE57373) : const Color(0xFFC62828);
 
   /// Texto secundario atenuado (fechas, contadores, avisos): [textSecondary]
   /// con la opacidad [alpha]. Si así no llega a contraste 4.5 (WCAG AA) sobre
   /// la página, usa [textoAtenuado], que sí llega: el gris con poca opacidad
-  /// casi desaparece en los temas claros y sobre el papel con textura.
+  /// casi desaparece sobre el papel con textura.
   Color textoTenue(double alpha) {
     final color = textSecondary.withValues(alpha: alpha);
-    if (contrasteWcag(color, fondoVisible) >= 4.7) return color;
+    if (_seLee(color, null)) return color;
     return textoAtenuado(alpha: alpha);
+  }
+
+  /// Contraste 4.7 (4.5 con margen) sobre [sobre] o, si no se da, sobre la
+  /// página y sobre [surface]: los paneles y encabezados del papel son de ese
+  /// tono, y en los papeles oscuros es más claro que la hoja.
+  bool _seLee(Color color, Color? sobre) {
+    if (sobre != null) return contrasteWcag(color, sobre) >= 4.7;
+    return contrasteWcag(color, fondoVisible) >= 4.7 &&
+        contrasteWcag(color, surface) >= 4.7;
   }
 
   /// Texto de apoyo (pistas de búsqueda, avisos de lista vacía) que se nota
   /// más suave que el principal pero sigue siendo legible: [textPrimary] con
   /// la opacidad [alpha], subiéndola hasta llegar a contraste 4.5 (WCAG AA)
-  /// sobre [sobre] (por defecto, el fondo). Algunos temas tienen un
-  /// `textSecondary` muy claro.
+  /// sobre [sobre] (por defecto, la página; ver [_seLee]).
   Color textoAtenuado({double alpha = 0.72, Color? sobre}) {
-    final fondo = sobre ?? fondoVisible;
     for (var a = alpha; a < 1; a += 0.04) {
       final color = textPrimary.withValues(alpha: a);
       // Un poco de margen: el fondo real varía un poco (redondeo, mezclas).
-      if (contrasteWcag(color, fondo) >= 4.7) return color;
+      if (_seLee(color, sobre)) return color;
     }
     return textPrimary;
   }
 
   /// El color que se ve detrás del texto de la página, para calcular colores
-  /// legibles (`legibleSobre`). En el tema papel es el tono de la textura,
-  /// más oscuro que [background].
-  Color get fondoVisible =>
-      id == paper.id ? VecColores.papelTexturado : background;
+  /// legibles (`legibleSobre`): el tono de la textura.
+  Color get fondoVisible => paleta.papelTexturado;
 
-  /// Fondo para `Scaffold.backgroundColor`. En el tema papel es transparente:
-  /// cada página pinta el papel con textura (FondoPapel) por detrás.
-  Color get pageBg => id == paper.id ? Colors.transparent : background;
+  /// Fondo para `Scaffold.backgroundColor`: transparente, porque cada página
+  /// pinta el papel con textura (FondoPapel) por detrás.
+  Color get pageBg => Colors.transparent;
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 10 TEMAS
+  // TEMAS — los tres papeles (mismos ids que AppThemeData)
   // ══════════════════════════════════════════════════════════════════════════
 
-  static const nightPure = BibleReaderThemeData(
-    id: 'night_pure',
-    name: 'Noche pura',
-    background: Color(0xFF0A0A12),
-    surface: Color(0xFF14141E),
-    textPrimary: Color(0xFFF0F0F0),
-    textSecondary: Color(0xFF666666),
-    accent: Color(0xFFD4AF37),
-    toolbarBg: Color(0xFF1E1E2E),
-    isDark: true,
-  );
+  /// Estilo «papel recortado» (kit victoria-en-cristo-estilo).
+  static final paper = BibleReaderThemeData._papel(VecPaleta.claro, id: 'papel', name: 'Papel recortado');
 
-  static const charcoalEditorial = BibleReaderThemeData(
-    id: 'charcoal',
-    name: 'Carbón editorial',
-    background: Color(0xFF1A1A1A),
-    surface: Color(0xFF242424),
-    textPrimary: Color(0xFFE8E8E8),
-    textSecondary: Color(0xFF555555),
-    accent: Color(0xFFD4AF37),
-    toolbarBg: Color(0xFF2A2A2A),
-    isDark: true,
-  );
+  /// Papel oscuro café (kraft).
+  static final paperKraft = BibleReaderThemeData._papel(VecPaleta.kraftOscuro, id: 'papel_kraft', name: 'Papel kraft');
 
-  static const sepiaNocturno = BibleReaderThemeData(
-    id: 'sepia_night',
-    name: 'Sepia nocturno',
-    background: Color(0xFF1C1408),
-    surface: Color(0xFF261C0E),
-    textPrimary: Color(0xFFE8D5A3),
-    textSecondary: Color(0xFF8B7355),
-    accent: Color(0xFFD4AF37),
-    toolbarBg: Color(0xFF2A2010),
-    isDark: true,
-  );
+  /// Papel oscuro azul de noche.
+  static final paperNoche = BibleReaderThemeData._papel(VecPaleta.nocheAzul, id: 'papel_noche', name: 'Papel noche');
 
-  static const cleanPage = BibleReaderThemeData(
-    id: 'clean_page',
-    name: 'Página limpia',
-    background: Color(0xFFFAFAFA),
-    surface: Color(0xFFFFFFFF),
-    textPrimary: Color(0xFF1A1A1A),
-    textSecondary: Color(0xFF999999),
-    accent: Color(0xFFB8960C),
-    toolbarBg: Color(0xFFFFFFFF),
-    isDark: false,
-  );
+  /// Todos los temas.
+  static final List<BibleReaderThemeData> all = [paper, paperKraft, paperNoche];
 
-  static const parchment = BibleReaderThemeData(
-    id: 'parchment',
-    name: 'Pergamino',
-    background: Color(0xFFF5F0E8),
-    surface: Color(0xFFFAF6EF),
-    textPrimary: Color(0xFF3E2723),
-    textSecondary: Color(0xFFA1887F),
-    accent: Color(0xFF8B6914),
-    toolbarBg: Color(0xFFFAF6EF),
-    isDark: false,
-  );
-
-  static const greyEditorial = BibleReaderThemeData(
-    id: 'grey_editorial',
-    name: 'Gris editorial',
-    background: Color(0xFFF2F2F2),
-    surface: Color(0xFFFFFFFF),
-    textPrimary: Color(0xFF212121),
-    textSecondary: Color(0xFF757575),
-    accent: Color(0xFFB8960C),
-    toolbarBg: Color(0xFFFFFFFF),
-    isDark: false,
-  );
-
-  static const lavender = BibleReaderThemeData(
-    id: 'lavender',
-    name: 'Lavanda suave',
-    background: Color(0xFFEDE7F6),
-    surface: Color(0xFFF3EDF7),
-    textPrimary: Color(0xFF311B92),
-    textSecondary: Color(0xFF9575CD),
-    accent: Color(0xFF7B1FA2),
-    toolbarBg: Color(0xFFF3EDF7),
-    isDark: false,
-  );
-
-  static const mint = BibleReaderThemeData(
-    id: 'mint',
-    name: 'Menta editorial',
-    background: Color(0xFFE8F5E9),
-    surface: Color(0xFFEEF7EF),
-    textPrimary: Color(0xFF1B5E20),
-    textSecondary: Color(0xFF66BB6A),
-    accent: Color(0xFF2E7D32),
-    toolbarBg: Color(0xFFEEF7EF),
-    isDark: false,
-  );
-
-  static const peach = BibleReaderThemeData(
-    id: 'peach',
-    name: 'Durazno suave',
-    background: Color(0xFFFFF3E0),
-    surface: Color(0xFFFFF8EE),
-    textPrimary: Color(0xFFBF360C),
-    textSecondary: Color(0xFFFFAB40),
-    accent: Color(0xFFE65100),
-    toolbarBg: Color(0xFFFFF8EE),
-    isDark: false,
-  );
-
-  /// Estilo «papel recortado» (kit victoria-en-cristo-estilo, VecColores).
-  static const paper = BibleReaderThemeData(
-    id: 'papel',
-    name: 'Papel recortado',
-    background: VecColores.crema,
-    surface: VecColores.papel,
-    textPrimary: VecColores.tinta,
-    // Un poco más oscuro que VecColores.gris para que los textos chicos del
-    // lector se lean bien sobre el papel (5.8:1 sobre crema).
-    textSecondary: Color(0xFF66584A),
-    accent: VecColores.terracota,
-    toolbarBg: VecColores.papel,
-    isDark: false,
-  );
-
-  /// Todos los temas disponibles
-  static const List<BibleReaderThemeData> all = [
-    nightPure,
-    charcoalEditorial,
-    sepiaNocturno,
-    cleanPage,
-    parchment,
-    greyEditorial,
-    lavender,
-    mint,
-    peach,
-    paper,
-  ];
-
-  /// Obtener tema por ID (default: noche pura)
-  static BibleReaderThemeData fromId(String id) {
-    return all.firstWhere(
-      (t) => t.id == id,
-      orElse: () => nightPure,
-    );
+  /// El papel del lector sigue al de la app (claro, kraft o noche): los
+  /// colores del kit (VecColores) son uno solo para toda la app.
+  static BibleReaderThemeData get papelActivo {
+    final paleta = VecColores.actual;
+    if (identical(paleta, VecPaleta.kraftOscuro)) return paperKraft;
+    if (identical(paleta, VecPaleta.nocheAzul)) return paperNoche;
+    return paper;
   }
 
-  /// Migrar IDs legacy ('dark', 'sepia', 'light') al nuevo sistema
-  static String migrateId(String oldId) {
-    switch (oldId) {
-      case 'dark':
-        return 'night_pure';
-      case 'sepia':
-        return 'sepia_night';
-      case 'light':
-        return 'clean_page';
-      default:
-        return oldId;
-    }
-  }
+  /// El tema del lector: siempre el papel activo de la app. El id guardado
+  /// (incluidos los de los temas de antes) ya no elige nada.
+  static BibleReaderThemeData fromId(String id) => papelActivo;
+
+  /// Ids de antes ('dark', 'night_pure'…): todos son ahora el papel.
+  static String migrateId(String oldId) => papelActivo.id;
 
   // ══════════════════════════════════════════════════════════════════════════
   // DESIGN TOKENS — Espaciado y tamaño consistente

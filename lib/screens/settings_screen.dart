@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import '../config/app_version.dart';
 import '../services/audio_engine.dart';
-import '../services/theme_service.dart';
 import '../services/notification_service.dart';
 import '../services/audio_service.dart';
 import '../services/feedback_engine.dart';
 import '../theme/app_theme_data.dart';
 import '../widgets/devotional/devotional_reminder_sheet.dart';
-import '../widgets/theme_selector.dart';
+import '../widgets/selector_modo_papel.dart';
 import 'purity/purity_guard_screen.dart';
 import 'privacy_center_screen.dart';
 
@@ -21,7 +20,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  final ThemeService _themeService = ThemeService();
   final NotificationService _notificationService = NotificationService();
   final AudioService _audioService = AudioService();
 
@@ -33,10 +31,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _loadSettings() async {
-    await _themeService.initialize();
     await _notificationService.initialize();
     await _audioService.initialize();
-    setState(() {});
+    if (mounted) setState(() {});
   }
 
   Future<bool> _ensureNotificationPermission() async {
@@ -57,7 +54,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    final isDark = t.isDark;
 
     return Scaffold(
       appBar: AppBar(title: const Text('Configuración')),
@@ -65,9 +61,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         padding: const EdgeInsets.all(16),
         children: [
           // Sección de Apariencia
-          _buildSectionHeader('🎨 Apariencia', isDark),
+          _buildSectionHeader('🎨 Apariencia'),
           _buildSettingCard(
-            isDark: isDark,
             children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
@@ -87,14 +82,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Tema de la App',
+                            'Tema de la app',
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
                               color: t.textPrimary,
                             ),
                           ),
                           Text(
-                            'Selecciona un estilo visual',
+                            'Papel claro u oscuro',
                             style: TextStyle(
                               fontSize: 12,
                               color: t.textSecondary,
@@ -108,27 +103,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
-                child: ThemeSelectorWidget(
-                  swatchSize: 36,
-                  showLabels: true,
+                child: SelectorModoPapel(
                   onChanged: () {
                     widget.onThemeChanged();
                     setState(() {});
                   },
                 ),
-              ),
-              const Divider(height: 1),
-              _buildSwitchTile(
-                title: 'Tema Automático',
-                subtitle: 'Cambiar según la hora del día',
-                icon: Icons.brightness_auto,
-                value: _themeService.autoTheme,
-                onChanged: (value) async {
-                  await _themeService.setAutoTheme(value);
-                  widget.onThemeChanged();
-                  setState(() {});
-                },
-                isDark: isDark,
               ),
             ],
           ),
@@ -136,9 +116,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Sección de Notificaciones
-          _buildSectionHeader('🔔 Notificaciones', isDark),
+          _buildSectionHeader('🔔 Notificaciones'),
           _buildSettingCard(
-            isDark: isDark,
             children: [
               ListTile(
                 leading: Container(
@@ -174,7 +153,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _notificationService.setMorningEnabled(value);
                   setState(() {});
                 },
-                isDark: isDark,
               ),
               if (_notificationService.morningEnabled)
                 _buildTimePicker(
@@ -185,7 +163,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     await _notificationService.setMorningTime(time);
                     setState(() {});
                   },
-                  isDark: isDark,
                 ),
               const Divider(height: 1),
               _buildSwitchTile(
@@ -198,7 +175,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _notificationService.setNightEnabled(value);
                   setState(() {});
                 },
-                isDark: isDark,
               ),
               if (_notificationService.nightEnabled)
                 _buildTimePicker(
@@ -209,7 +185,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     await _notificationService.setNightTime(time);
                     setState(() {});
                   },
-                  isDark: isDark,
                 ),
               const Divider(height: 1),
               _buildSwitchTile(
@@ -223,10 +198,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _notificationService.setVictoryReminderEnabled(value);
                   setState(() {});
                 },
-                isDark: isDark,
               ),
               if (_notificationService.victoryReminderEnabled)
-                _buildVictoryReminderTimes(isDark),
+                _buildVictoryReminderTimes(),
               const Divider(height: 1),
               _buildSwitchTile(
                 title: 'Recordatorio de Devocional',
@@ -240,7 +214,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   );
                   setState(() {});
                 },
-                isDark: isDark,
               ),
               if (_notificationService.devotionalReminderEnabled) ...[
                 _buildSwitchTile(
@@ -255,7 +228,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     );
                     setState(() {});
                   },
-                  isDark: isDark,
                 ),
                 if (_notificationService.devotionalReminderPerWeekday)
                   Padding(
@@ -286,7 +258,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                       setState(() {});
                     },
-                    isDark: isDark,
                   ),
               ],
             ],
@@ -295,9 +266,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Sección de Audio
-          _buildSectionHeader('🎵 Audio', isDark),
+          _buildSectionHeader('🎵 Audio'),
           _buildSettingCard(
-            isDark: isDark,
             children: [
               // ═══════════════════════════════════════════════════════════════
               // CONTROL DE BGM - Toggle ON/OFF
@@ -324,7 +294,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         );
                       }
                     },
-                    isDark: isDark,
                   );
                 },
               ),
@@ -335,7 +304,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ValueListenableBuilder<BgmPlaybackState>(
                 valueListenable: AudioEngine.I.bgmState,
                 builder: (context, state, _) {
-                  return _buildPlayPauseControl(state, isDark);
+                  return _buildPlayPauseControl(state);
                 },
               ),
 
@@ -349,7 +318,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Volumen BGM',
                     value: volume,
                     onChanged: (v) => AudioEngine.I.setBgmVolume(v),
-                    isDark: isDark,
                   );
                 },
               ),
@@ -373,7 +341,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         FeedbackEngine.I.tap();
                       }
                     },
-                    isDark: isDark,
                   );
                 },
               ),
@@ -397,7 +364,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         FeedbackEngine.I.confirm();
                       }
                     },
-                    isDark: isDark,
                   );
                 },
               ),
@@ -412,7 +378,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     label: 'Volumen SFX',
                     value: volume,
                     onChanged: (v) => FeedbackEngine.I.setSfxVolume(v),
-                    isDark: isDark,
                   );
                 },
               ),
@@ -427,11 +392,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   await _audioService.setAudioEnabled(value);
                   setState(() {});
                 },
-                isDark: isDark,
               ),
               if (_audioService.audioEnabled) ...[
                 const Divider(height: 1),
-                _buildSpeedSelector(isDark),
+                _buildSpeedSelector(),
               ],
             ],
           ),
@@ -439,15 +403,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Panel de Diagnóstico de Audio
-          _buildSectionHeader('🔧 Diagnóstico de Audio', isDark),
-          _buildAudioDiagnosticPanel(isDark),
+          _buildSectionHeader('🔧 Diagnóstico de Audio'),
+          // El panel va sobre la tarjeta del tema: su texto sigue al papel.
+          _buildAudioDiagnosticPanel(t.oscuro),
 
           const SizedBox(height: 24),
 
           // Sección Widget de Inicio
-          _buildSectionHeader('📱 Widget de Inicio', isDark),
+          _buildSectionHeader('📱 Widget de Inicio'),
           _buildSettingCard(
-            isDark: isDark,
             children: [
               ListTile(
                 leading: Container(
@@ -485,9 +449,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Sección Protección / Pureza
-          _buildSectionHeader('🛡️ Protección', isDark),
+          _buildSectionHeader('🛡️ Protección'),
           _buildSettingCard(
-            isDark: isDark,
             children: [
               ListTile(
                 leading: Container(
@@ -522,9 +485,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           // Privacidad: controles opcionales y documentos accesibles dentro
           // de la app, como requieren las tiendas.
-          _buildSectionHeader('🔐 Privacidad y datos', isDark),
+          _buildSectionHeader('🔐 Privacidad y datos'),
           _buildSettingCard(
-            isDark: isDark,
             children: [
               ListTile(
                 leading: Container(
@@ -560,9 +522,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 24),
 
           // Sección Acerca de
-          _buildSectionHeader('ℹ️ Acerca de', isDark),
+          _buildSectionHeader('ℹ️ Acerca de'),
           _buildSettingCard(
-            isDark: isDark,
             children: [
               ListTile(
                 leading: Container(
@@ -620,7 +581,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSectionHeader(String title, bool isDark) {
+  Widget _buildSectionHeader(String title) {
     final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.only(left: 4, bottom: 8),
@@ -635,10 +596,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSettingCard({
-    required List<Widget> children,
-    required bool isDark,
-  }) {
+  Widget _buildSettingCard({required List<Widget> children}) {
     final t = AppThemeData.of(context);
     return Container(
       decoration: BoxDecoration(
@@ -646,7 +604,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -662,7 +620,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required IconData icon,
     required bool value,
     required ValueChanged<bool> onChanged,
-    required bool isDark,
   }) {
     final t = AppThemeData.of(context);
     return ListTile(
@@ -691,7 +648,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String title,
     required TimeOfDay time,
     required ValueChanged<TimeOfDay> onChanged,
-    required bool isDark,
   }) {
     final t = AppThemeData.of(context);
     return Padding(
@@ -735,13 +691,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         accent: t.accent,
         textPrimary: t.textPrimary,
         textSecondary: t.textSecondary,
-        isDark: t.isDark,
+        isDark: t.oscuro,
       ),
     );
     if (mounted) setState(() {});
   }
 
-  Widget _buildVictoryReminderTimes(bool isDark) {
+  Widget _buildVictoryReminderTimes() {
     final t = AppThemeData.of(context);
     final times = _notificationService.victoryReminderTimes;
     return Padding(
@@ -834,7 +790,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return '${time.hour.toString().padLeft(2, '0')}:${time.minute.toString().padLeft(2, '0')}';
   }
 
-  Widget _buildSpeedSelector(bool isDark) {
+  Widget _buildSpeedSelector() {
     final t = AppThemeData.of(context);
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -848,13 +804,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
           const SizedBox(height: 12),
           Row(
             children: [
-              _buildSpeedChip(0.75, isDark),
+              _buildSpeedChip(0.75),
               const SizedBox(width: 8),
-              _buildSpeedChip(1.0, isDark),
+              _buildSpeedChip(1.0),
               const SizedBox(width: 8),
-              _buildSpeedChip(1.25, isDark),
+              _buildSpeedChip(1.25),
               const SizedBox(width: 8),
-              _buildSpeedChip(1.5, isDark),
+              _buildSpeedChip(1.5),
             ],
           ),
         ],
@@ -862,7 +818,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSpeedChip(double speed, bool isDark) {
+  Widget _buildSpeedChip(double speed) {
     final t = AppThemeData.of(context);
     final isSelected = _audioService.audioSpeed == speed;
     return GestureDetector(
@@ -875,15 +831,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         decoration: BoxDecoration(
           color: isSelected
               ? t.accent
-              : (isDark ? t.surface : Colors.grey.shade100),
+              : (t.oscuro ? t.surface : Colors.grey.shade100),
           borderRadius: BorderRadius.circular(20),
         ),
         child: Text(
           '${speed}x',
           style: TextStyle(
-            color: isSelected
-                ? (isDark ? Colors.black87 : Colors.white)
-                : t.textSecondary,
+            color: isSelected ? (t.sobreAcento) : t.textSecondary,
             fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -895,7 +849,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   /// BOTÓN PAUSAR/CONTINUAR/REPRODUCIR
   /// Reacciona al estado REAL del player
   /// ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildPlayPauseControl(BgmPlaybackState state, bool isDark) {
+  Widget _buildPlayPauseControl(BgmPlaybackState state) {
     // Determinar texto e icono según estado
     String buttonText;
     IconData buttonIcon;
@@ -987,7 +941,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required String label,
     required double value,
     required ValueChanged<double> onChanged,
-    required bool isDark,
   }) {
     final t = AppThemeData.of(context);
     return Padding(

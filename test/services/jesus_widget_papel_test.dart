@@ -8,10 +8,10 @@ void main() {
 
   test('cada estado de racha tiene su dibujo de papel', () {
     final rutas = <String>{
-      service.getSprite(streakDays: 0, completedToday: false, isNewUser: true, papel: true),
+      service.getSprite(streakDays: 0, completedToday: false, isNewUser: true),
       for (final dias in [0, 1, 5, 7, 30, 100, 365])
         for (final hecho in [false, true])
-          service.getSprite(streakDays: dias, completedToday: hecho, isNewUser: false, papel: true),
+          service.getSprite(streakDays: dias, completedToday: hecho, isNewUser: false),
     };
     expect(rutas, hasLength(8));
     for (final ruta in rutas) {
@@ -23,22 +23,11 @@ void main() {
   test('cada hito de racha tiene su escena de papel', () {
     final rutas = <String>{
       for (final dias in [0, 1, 3, 7, 14, 30, 100, 365])
-        service.getBackground(streakDays: dias, papel: true),
+        service.getBackground(streakDays: dias),
     };
     expect(rutas, hasLength(8));
     for (final ruta in rutas) {
       expect(File(ruta).existsSync(), isTrue, reason: ruta);
     }
-  });
-
-  test('sin papel se conservan los sprites y fondos originales', () {
-    expect(
-      service.getSprite(streakDays: 10, completedToday: false, isNewUser: false),
-      'assets/widget/jesus/Primera semana.webp',
-    );
-    expect(
-      service.getBackground(streakDays: 10),
-      'assets/widget/backgrounds/Atardecer glorioso.webp',
-    );
   });
 }

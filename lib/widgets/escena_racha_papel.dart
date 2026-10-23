@@ -1,4 +1,4 @@
-/// Escena de la racha en el tema «Papel recortado»: el fondo del hito de la
+/// Escena de la racha del estilo «Papel recortado»: el fondo del hito de la
 /// racha con el sprite de Jesús encima, enmarcada como foto de papel.
 library;
 
@@ -34,9 +34,8 @@ class EscenaRachaPapel extends StatelessWidget {
       streakDays: streakDays,
       completedToday: completedToday,
       isNewUser: isNewUser,
-      papel: true,
     );
-    final fondo = service.getBackground(streakDays: streakDays, papel: true);
+    final fondo = service.getBackground(streakDays: streakDays);
     final marco = ancho * 0.04;
     return Transform.rotate(
       angle: giro * math.pi / 180,

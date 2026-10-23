@@ -30,38 +30,15 @@ class BibleReadingStreak extends StatelessWidget {
           onTap: onTap,
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-            decoration: t.isPaper
-                ? t.cardDecoration
-                : BoxDecoration(
-                    color: t.cardBg.withValues(alpha: 0.85),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: t.accent.withValues(alpha: 0.15),
-                    ),
-                  ),
+            decoration: t.cardDecoration,
             child: Row(
               children: [
                 // Icono Biblia
-                if (t.isPaper)
-                  const CirculoIcono(
-                    iconoVec: 'biblia',
-                    color: VecColores.azul,
-                    tamano: 42,
-                    giro: -4,
-                  )
-                else
-                Container(
-                  width: 40,
-                  height: 40,
-                  decoration: BoxDecoration(
-                    color: t.accent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Icon(
-                    Icons.auto_stories_rounded,
-                    color: t.accent,
-                    size: 22,
-                  ),
+                CirculoIcono(
+                  iconoVec: 'biblia',
+                  color: VecColores.azul,
+                  tamano: 42,
+                  giro: -4,
                 ),
                 const SizedBox(width: 12),
 

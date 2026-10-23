@@ -29,7 +29,7 @@ class EmotionalVerseJarScreen extends StatefulWidget {
 }
 
 class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
-    with TickerProviderStateMixin {
+    with SingleTickerProviderStateMixin {
   
   // Estados de la experiencia
   bool _isRevealing = false;
@@ -39,9 +39,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
 
   // Controladores de animación
   late AnimationController _unfoldController;
-  late AnimationController _glowController;
   late Animation<double> _unfoldAnimation;
-  late Animation<double> _glowAnimation;
 
   // Definición de emociones
   final List<EmotionData> _emotions = [
@@ -110,19 +108,11 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
     );
 
     // Animación de glow pulsante
-    _glowController = AnimationController(
-      duration: const Duration(milliseconds: 1500),
-      vsync: this,
-    )..repeat(reverse: true);
-    _glowAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
-    );
   }
 
   @override
   void dispose() {
     _unfoldController.dispose();
-    _glowController.dispose();
     super.dispose();
   }
 
@@ -163,454 +153,26 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
     });
   }
 
-  /// Tema «papel recortado» activo.
-  bool get _papel => AppThemeData.of(context).isPaper;
-
   @override
   Widget build(BuildContext context) {
-    if (_papel) return _buildPapel();
-    return Scaffold(
-      backgroundColor: const Color(0xFF0A0E14),
-      body: Stack(
-        children: [
-          // ═══════════════════════════════════════════════════════════════
-          // FONDO CON PARTÍCULAS SUTILES
-          // ═══════════════════════════════════════════════════════════════
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _StarfieldPainter(),
-            ),
-          ),
-          
-          // Gradiente oscuro overlay
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                gradient: RadialGradient(
-                  center: Alignment.center,
-                  radius: 1.2,
-                  colors: [
-                    Colors.transparent,
-                    const Color(0xFF0A0E14).withValues(alpha: 0.8),
-                  ],
-                ),
-              ),
-            ),
-          ),
-
-          // ═══════════════════════════════════════════════════════════════
-          // CONTENIDO PRINCIPAL
-          // ═══════════════════════════════════════════════════════════════
-          SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(),
-                Expanded(
-                  child: _isRevealing 
-                      ? _buildRevealState() 
-                      : _buildEmotionGrid(),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
+    return _buildPapel();
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // HEADER
   // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildHeader() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      child: Row(
-        children: [
-          IconButton(
-            onPressed: () => Navigator.pop(context),
-            icon: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(
-                Icons.arrow_back_ios_new_rounded,
-                color: Colors.white70,
-                size: 20,
-              ),
-            ),
-          ),
-          const Spacer(),
-          if (!_isRevealing)
-            Text(
-              'Frasco de Versículos',
-              style: AppFonts.cinzel(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.white60,
-                letterSpacing: 1,
-              ),
-            ),
-          const Spacer(),
-          const SizedBox(width: 48), // Balance
-        ],
-      ),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO 1: GRID DE EMOCIONES - Diseño Elegante y Compacto
   // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildEmotionGrid() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: Column(
-        children: [
-          const SizedBox(height: 32),
-          
-          // Título empático
-          Text(
-            '¿Cómo está tu\ncorazón hoy?',
-            textAlign: TextAlign.center,
-            style: AppFonts.cinzel(
-              fontSize: 28,
-              fontWeight: FontWeight.w600,
-              color: Colors.white,
-              height: 1.2,
-              letterSpacing: 1,
-            ),
-          )
-              .animate()
-              .fadeIn(duration: 600.ms)
-              .slideY(begin: -0.2, end: 0),
-          
-          const SizedBox(height: 12),
-          
-          Text(
-            'Selecciona cómo te sientes y recibe\nuna palabra de Dios para ti',
-            textAlign: TextAlign.center,
-            style: AppFonts.manrope(
-              fontSize: 14,
-              color: Colors.white54,
-              height: 1.5,
-            ),
-          )
-              .animate()
-              .fadeIn(delay: 200.ms, duration: 500.ms),
-          
-          const SizedBox(height: 40),
-          
-          // ═══════════════════════════════════════════════════════════════
-          // GRID CENTRADO CON MAX-WIDTH
-          // ═══════════════════════════════════════════════════════════════
-          Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 400),
-              child: GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 16,
-                  crossAxisSpacing: 16,
-                  childAspectRatio: 1.0, // Cuadradas perfectas
-                ),
-                itemCount: _emotions.length,
-                itemBuilder: (context, index) {
-                  return _EmotionCard(
-                    emotion: _emotions[index],
-                    onTap: () => _selectEmotion(_emotions[index]),
-                    delay: Duration(milliseconds: 300 + (index * 80)),
-                  );
-                },
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 40),
-        ],
-      ),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO 2: REVELACIÓN DEL VERSÍCULO
   // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildRevealState() {
-    if (_selectedEmotion == null) return const SizedBox();
-    
-    return Center(
-      child: SingleChildScrollView(
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Etiqueta de emoción flotando arriba
-            AnimatedBuilder(
-              animation: _glowAnimation,
-              builder: (context, child) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: _selectedEmotion!.color.withValues(alpha: 0.15),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: _selectedEmotion!.color.withValues(alpha: 0.5 * _glowAnimation.value),
-                      width: 1,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: _selectedEmotion!.color.withValues(alpha: 0.2 * _glowAnimation.value),
-                        blurRadius: 20,
-                        spreadRadius: 2,
-                      ),
-                    ],
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        _selectedEmotion!.icon,
-                        color: _selectedEmotion!.color,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _selectedEmotion!.label,
-                        style: AppFonts.manrope(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w700,
-                          color: _selectedEmotion!.color,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            )
-                .animate()
-                .fadeIn(duration: 400.ms)
-                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1, 1)),
-            
-            const SizedBox(height: 32),
-            
-            // ═══════════════════════════════════════════════════════════════
-            // ANIMACIÓN DE PAPEL DESDOBLÁNDOSE
-            // ═══════════════════════════════════════════════════════════════
-            AnimatedBuilder(
-              animation: _unfoldAnimation,
-              builder: (context, child) {
-                return Transform(
-                  alignment: Alignment.center,
-                  transform: Matrix4.identity()
-                    ..setEntry(3, 2, 0.001) // Perspectiva
-                    ..rotateX((1 - _unfoldAnimation.value) * pi / 2),
-                  child: Opacity(
-                    opacity: _unfoldAnimation.value,
-                    child: _buildVerseCard(),
-                  ),
-                );
-              },
-            ),
-            
-            const SizedBox(height: 40),
-            
-            // Botones de acción
-            if (_showVerse) ...[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  _ActionButton(
-                    icon: Icons.copy_rounded,
-                    label: 'Copiar',
-                    color: _selectedEmotion!.color,
-                    onTap: () => _copyVerse(),
-                  ),
-                  const SizedBox(width: 16),
-                  _ActionButton(
-                    icon: Icons.share_rounded,
-                    label: 'Compartir',
-                    color: _selectedEmotion!.color,
-                    onTap: () => _shareVerse(),
-                  ),
-                  const SizedBox(width: 16),
-                  _ActionButton(
-                    icon: _isCurrentVerseFavorite 
-                        ? Icons.bookmark_rounded 
-                        : Icons.bookmark_outline_rounded,
-                    label: _isCurrentVerseFavorite ? 'Guardado' : 'Guardar',
-                    color: _selectedEmotion!.color,
-                    onTap: () => _saveVerse(),
-                    isActive: _isCurrentVerseFavorite,
-                  ),
-                ],
-              )
-                  .animate()
-                  .fadeIn(delay: 200.ms, duration: 400.ms)
-                  .slideY(begin: 0.2, end: 0),
-              
-              const SizedBox(height: 32),
-              
-              // Botón de reinicio
-              GestureDetector(
-                onTap: _resetExperience,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.refresh_rounded,
-                        color: Colors.white70,
-                        size: 20,
-                      ),
-                      const SizedBox(width: 10),
-                      Text(
-                        'Sacar otro papelito',
-                        style: AppFonts.manrope(
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.white70,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-                  .animate()
-                  .fadeIn(delay: 400.ms, duration: 400.ms),
-            ],
-          ],
-        ),
-      ),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // TARJETA DE VERSÍCULO REVELADO
   // ═══════════════════════════════════════════════════════════════════════════
-  Widget _buildVerseCard() {
-    if (_revealedVerse == null || _selectedEmotion == null) {
-      return const SizedBox();
-    }
-    
-    return Container(
-      width: double.infinity,
-      margin: const EdgeInsets.symmetric(horizontal: 8),
-      decoration: BoxDecoration(
-        // Fondo crema/papel
-        color: const Color(0xFFFFFBF5),
-        borderRadius: BorderRadius.circular(24),
-        // Borde brillante del color de la emoción
-        border: Border.all(
-          color: _selectedEmotion!.color,
-          width: 2,
-        ),
-        boxShadow: [
-          // Glow del color de la emoción
-          BoxShadow(
-            color: _selectedEmotion!.color.withValues(alpha: 0.3),
-            blurRadius: 30,
-            spreadRadius: 0,
-          ),
-          // Sombra suave
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 20,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(22),
-        child: Stack(
-          children: [
-            // Textura de papel sutil
-            Positioned.fill(
-              child: CustomPaint(
-                painter: _PaperTexturePainter(color: _selectedEmotion!.color),
-              ),
-            ),
-            
-            // Contenido
-            Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Icono decorativo
-                  Icon(
-                    Icons.format_quote_rounded,
-                    color: _selectedEmotion!.color.withValues(alpha: 0.3),
-                    size: 40,
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Texto del versículo
-                  Text(
-                    _revealedVerse!.verse,
-                    textAlign: TextAlign.center,
-                    style: AppFonts.crimsonPro(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      fontStyle: FontStyle.italic,
-                      color: const Color(0xFF1A1A1A),
-                      height: 1.6,
-                      letterSpacing: 0.3,
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 24),
-                  
-                  // Línea decorativa
-                  Container(
-                    width: 60,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          _selectedEmotion!.color.withValues(alpha: 0.3),
-                          _selectedEmotion!.color,
-                          _selectedEmotion!.color.withValues(alpha: 0.3),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(1),
-                    ),
-                  ),
-                  
-                  const SizedBox(height: 16),
-                  
-                  // Referencia bíblica
-                  Text(
-                    _revealedVerse!.reference,
-                    style: AppFonts.manrope(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w800,
-                      color: _selectedEmotion!.darkColor,
-                      letterSpacing: 1,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ACCIONES
@@ -666,7 +228,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
           children: [
             Icon(
               icon,
-              color: _papel ? VecColores.papel : Colors.white,
+              color: VecColores.papel,
               size: 20,
             ),
             const SizedBox(width: 12),
@@ -674,18 +236,12 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
               message,
               style: AppFonts.manrope(
                 fontWeight: FontWeight.w600,
-                color: _papel ? VecColores.papel : Colors.white,
+                color: VecColores.papel,
               ),
             ),
           ],
         ),
-        backgroundColor: _papel
-            ? null
-            : _selectedEmotion?.darkColor ?? const Color(0xFF0D1B2A),
         behavior: SnackBarBehavior.floating,
-        shape: _papel
-            ? null
-            : RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
       ),
@@ -693,11 +249,11 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // TEMA PAPEL
+  // PAPEL RECORTADO
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Color del kit e ícono (SVG del kit o Material relleno) por emoción.
-  static const Map<String, (Color, String?, IconData)> _estiloPapel = {
+  static Map<String, (Color, String?, IconData)> get _estiloPapel => {
     'feliz': (VecColores.mostaza, 'sol', Icons.wb_sunny_rounded),
     'ansioso': (VecColores.salvia, null, Icons.air_rounded),
     'agradecido': (VecColores.terracota, 'corazon', Icons.favorite_rounded),
@@ -795,7 +351,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
                               const SizedBox(height: 12),
                               Text(
                                 emotion.name,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   fontFamily: VecFuentes.titulo,
                                   fontSize: 20,
                                   color: VecColores.tinta,
@@ -928,7 +484,7 @@ class _EmotionalVerseJarScreenState extends State<EmotionalVerseJarScreen>
             const SizedBox(height: 8),
             Text(
               texto,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: VecFuentes.titulo,
                 fontSize: 15,
                 color: VecColores.tinta,
@@ -1109,120 +665,11 @@ class _EmotionCardState extends State<_EmotionCard> {
 // ═══════════════════════════════════════════════════════════════════════════════
 // WIDGET: BOTÓN DE ACCIÓN
 // ═══════════════════════════════════════════════════════════════════════════════
-class _ActionButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final Color color;
-  final VoidCallback onTap;
-  final bool isActive;
-
-  const _ActionButton({
-    required this.icon,
-    required this.label,
-    required this.color,
-    required this.onTap,
-    this.isActive = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(14),
-            decoration: BoxDecoration(
-              color: isActive ? color.withValues(alpha: 0.3) : color.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: isActive ? color : color.withValues(alpha: 0.3),
-                width: isActive ? 2 : 1,
-              ),
-            ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 22,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            label,
-            style: AppFonts.manrope(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: isActive ? Colors.white : Colors.white60,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PAINTER: CAMPO DE ESTRELLAS SUTIL
 // ═══════════════════════════════════════════════════════════════════════════════
-class _StarfieldPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final random = Random(42);
-    final paint = Paint()..style = PaintingStyle.fill;
-    
-    for (int i = 0; i < 100; i++) {
-      final x = random.nextDouble() * size.width;
-      final y = random.nextDouble() * size.height;
-      final radius = random.nextDouble() * 1.5 + 0.5;
-      final opacity = random.nextDouble() * 0.3 + 0.1;
-      
-      paint.color = Colors.white.withValues(alpha: opacity);
-      canvas.drawCircle(Offset(x, y), radius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PAINTER: TEXTURA DE PAPEL SUTIL
 // ═══════════════════════════════════════════════════════════════════════════════
-class _PaperTexturePainter extends CustomPainter {
-  final Color color;
-  
-  _PaperTexturePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final random = Random(123);
-    final paint = Paint()
-      ..style = PaintingStyle.fill
-      ..color = color.withValues(alpha: 0.03);
-    
-    // Puntos sutiles de textura
-    for (int i = 0; i < 200; i++) {
-      final x = random.nextDouble() * size.width;
-      final y = random.nextDouble() * size.height;
-      final radius = random.nextDouble() * 2 + 1;
-      
-      canvas.drawCircle(Offset(x, y), radius, paint);
-    }
-    
-    // Gradiente decorativo en esquina
-    final gradientPaint = Paint()
-      ..shader = RadialGradient(
-        center: Alignment.topRight,
-        radius: 0.8,
-        colors: [
-          color.withValues(alpha: 0.08),
-          Colors.transparent,
-        ],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, size.height));
-    
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), gradientPaint);
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}

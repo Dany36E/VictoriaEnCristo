@@ -178,7 +178,12 @@ class _OTQuotesScreenState extends State<OTQuotesScreen> {
         chipColor = t.accent;
         break;
     }
-    final tinta = legibleEnPastilla(chipColor, 0.1, t.fondoVisible);
+    // El chip queda sobre la hoja o sobre el encabezado (surface): legible
+    // en los dos.
+    final tinta = legibleSobre(
+      legibleEnPastilla(chipColor, 0.1, t.fondoVisible),
+      Color.alphaBlend(chipColor.withValues(alpha: 0.1), t.surface),
+    );
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(

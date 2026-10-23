@@ -339,7 +339,7 @@ class _CategoryCard extends StatelessWidget {
                     child: OutlinedButton.icon(
                       onPressed: onLearn,
                       icon: const Icon(Icons.school_rounded, size: 16),
-                      // En el tema papel la letra es más ancha: a 360 px no
+                      // La letra es más ancha: a 360 px no
                       // cabía en medio ancho y se partía la palabra.
                       label: const FittedBox(
                         fit: BoxFit.scaleDown,

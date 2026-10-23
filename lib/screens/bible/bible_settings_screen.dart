@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../theme/bible_reader_theme.dart';
-import '../../theme/app_theme_data.dart';
 import '../../widgets/bible/reader/selector_letra_lectura.dart';
+import '../../widgets/selector_modo_papel.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_download_service.dart';
@@ -220,103 +220,17 @@ class BibleSettingsScreen extends StatelessWidget {
             },
           ),
 
-          // En el tema papel: Lora o letra manuscrita para leer.
-          if (AppThemeData.of(context).isPaper) ...[
-            const SizedBox(height: 20),
-            SelectorLetraLectura(theme: t),
-          ],
+          // Lora o letra manuscrita para leer.
+          const SizedBox(height: 20),
+          SelectorLetraLectura(theme: t),
 
           const SizedBox(height: 24),
 
-          // ── Tema del lector ──
-          const _SettingsSection(title: 'TEMA DEL LECTOR'),
-          ValueListenableBuilder<String>(
-            valueListenable: BibleUserDataService.I.readerThemeNotifier,
-            builder: (context, rawTheme, _) {
-              final currentId = BibleReaderThemeData.migrateId(rawTheme);
-              final currentTheme = BibleReaderThemeData.fromId(currentId);
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Preview
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    margin: const EdgeInsets.only(bottom: 16),
-                    decoration: BoxDecoration(
-                      color: currentTheme.background,
-                      borderRadius: BorderRadius.circular(12.0),
-                    ),
-                    child: Text(
-                      'Porque de tal manera amó Dios al mundo...',
-                      style: AppFonts.lora(
-                        color: currentTheme.textPrimary,
-                        fontSize: 16,
-                        fontStyle: FontStyle.italic,
-                        height: 1.7,
-                      ),
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                  // 9 swatches in a Wrap
-                  Wrap(
-                    spacing: 10,
-                    runSpacing: 10,
-                    children: BibleReaderThemeData.all.map((theme) {
-                      final isActive = theme.id == currentId;
-                      return Semantics(
-                        label: 'Tema ${theme.name}',
-                        button: true,
-                        selected: isActive,
-                        child: GestureDetector(
-                          onTap: () =>
-                              BibleUserDataService.I.setReaderTheme(theme.id),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 38,
-                                height: 38,
-                                decoration: BoxDecoration(
-                                  color: theme.swatchColor,
-                                  shape: BoxShape.circle,
-                                  border: Border.all(
-                                    color: isActive
-                                        ? t.accent
-                                        : t.textSecondary.withValues(
-                                            alpha: 0.3,
-                                          ),
-                                    width: isActive ? 2.5 : 1,
-                                  ),
-                                ),
-                                child: isActive
-                                    ? Icon(
-                                        Icons.check,
-                                        color: theme.isDark
-                                            ? Colors.white70
-                                            : Colors.black54,
-                                        size: 16,
-                                      )
-                                    : null,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                theme.name,
-                                style: AppFonts.manrope(
-                                  color: isActive
-                                      ? t.accent
-                                      : t.textoTenue(0.6),
-                                  fontSize: 9,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              );
-            },
+          // ── Apariencia: el lector va en el papel de la app ──
+          const _SettingsSection(title: 'APARIENCIA'),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: SelectorModoPapel(),
           ),
           const SizedBox(height: 24),
 

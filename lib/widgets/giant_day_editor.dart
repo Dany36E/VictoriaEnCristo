@@ -9,7 +9,6 @@ import '../theme/app_fonts.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../models/content_enums.dart';
-import '../services/theme_service.dart';
 import '../vec/vec_tema.dart';
 
 class GiantDayEditor extends StatefulWidget {
@@ -31,11 +30,10 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
   bool _isLoading = true;
 
   // En el tema «papel recortado» es una tarjeta de papel con colores del kit.
-  static bool get _papel => ThemeService().currentTheme.isPaper;
-  static Color get _textPrimary => _papel ? VecColores.tinta : const Color(0xFFF0F0F0);
-  static Color get _textMuted => _papel ? VecColores.gris : const Color(0xFF8A8A9A);
-  static Color get _victory => _papel ? VecColores.verde : const Color(0xFF66BB6A);
-  static Color get _warmBg => _papel ? VecColores.papel : const Color(0xFF1A1520);
+  static Color get _textPrimary => VecColores.tinta;
+  static Color get _textMuted => VecColores.gris;
+  static Color get _victory => VecColores.verde;
+  static Color get _warmBg => VecColores.papel;
 
   @override
   void initState() {
@@ -136,24 +134,11 @@ class _GiantDayEditorState extends State<GiantDayEditor> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
-      decoration: _papel
-          ? BoxDecoration(
+      decoration: BoxDecoration(
               color: _warmBg,
               borderRadius: BorderRadius.circular(VecRadios.m),
               boxShadow: VecSombras.papel,
-            )
-          : BoxDecoration(
-        color: _warmBg,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.08)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.2),
-            blurRadius: 8,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
+            ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

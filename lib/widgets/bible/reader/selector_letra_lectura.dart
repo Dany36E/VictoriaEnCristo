@@ -4,12 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 
 import '../../../services/theme_service.dart';
 import '../../../theme/app_fonts.dart';
-import '../../../theme/app_theme_data.dart';
 import '../../../theme/bible_reader_theme.dart';
 import '../../../vec/vec_tema.dart';
 
-/// Elige la letra para leer versículos y apuntes en el tema papel: Lora
-/// (por defecto) o la manuscrita del kit. En los demás temas no se muestra.
+/// Elige la letra para leer versículos y apuntes: Lora (por defecto) o la
+/// manuscrita del kit.
 class SelectorLetraLectura extends StatelessWidget {
   final BibleReaderThemeData theme;
 
@@ -17,7 +16,6 @@ class SelectorLetraLectura extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!AppThemeData.of(context).isPaper) return const SizedBox.shrink();
     final t = theme;
     return ValueListenableBuilder<bool>(
       valueListenable: ThemeService().lecturaManuscrita,

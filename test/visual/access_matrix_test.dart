@@ -2,7 +2,9 @@ import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:app_quitar/screens/login_screen.dart';
+import 'package:app_quitar/screens/onboarding/onboarding_papel.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
+import 'package:app_quitar/vec/vec_widgets.dart';
 import 'package:firebase_core/firebase_core.dart';
 // Firebase's own test transport; no calls reach a remote backend.
 // ignore: depend_on_referenced_packages
@@ -14,6 +16,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import 'letras_kit.dart';
 import 'viewport_profiles.dart';
 
 TargetPlatform platformFor(String profile) => switch (profile) {
@@ -55,6 +58,7 @@ void main() {
         }
       }
     }
+    await cargarLetrasDelKit();
     WidgetController.hitTestWarningShouldBeFatal = true;
   });
 
@@ -125,7 +129,7 @@ void main() {
           );
           expect(tester.takeException(), isNull);
 
-          final submit = find.text('INICIAR SESIÓN');
+          final submit = find.text('Iniciar sesión');
           await tester.ensureVisible(submit);
           await tester.tap(submit);
           await tester.pumpAndSettle();
@@ -143,23 +147,18 @@ void main() {
                     widget.icon == Icons.music_off_rounded),
           );
           expect(audioToggle, findsOneWidget);
-          final audioButton = find
-              .ancestor(
-                of: audioToggle,
-                matching: find.byType(AnimatedContainer),
-              )
-              .first;
+          final audioButton = find.byType(BotonAudioPapel);
           final audioBounds = tester.getRect(audioButton);
-          final scrollBounds = tester.getRect(
-            find.byType(SingleChildScrollView),
-          );
+          // El contenido empieza debajo del botón (la hoja se desplaza por
+          // detrás, con margen arriba).
+          final scrollBounds = tester.getRect(find.byType(Letrero));
           expect(
             scrollBounds.top,
             greaterThanOrEqualTo(audioBounds.bottom),
             reason:
                 'Scrollable content must stay below the floating audio toggle',
           );
-          final start = find.text('ELEGIR MIS GIGANTES');
+          final start = find.text('Elegir mis gigantes');
           await Scrollable.ensureVisible(tester.element(start), alignment: 0.5);
           await tester.pumpAndSettle();
           expect(start.hitTestable(), findsOneWidget);

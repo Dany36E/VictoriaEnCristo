@@ -4,39 +4,170 @@
 
 import 'package:flutter/material.dart';
 
-/// Paleta oficial. Nunca uses blanco ni negro puros: el papel es crema y la tinta es café oscuro.
+/// Los tonos de una hoja del kit: papel claro (crema y tinta café) o uno de
+/// los papeles oscuros (kraft oscuro o noche azul, con tinta crema). Se invierten los papeles: lo que en
+/// claro es «papel» (tarjetas y texto sobre chips de color) en oscuro es café,
+/// y la «tinta» es crema. Los acentos se aclaran para leerse sobre café.
+class VecPaleta {
+  const VecPaleta({
+    required this.oscura,
+    required this.papel,
+    required this.crema,
+    required this.cremaOscuro,
+    required this.kraft,
+    required this.papelTexturado,
+    required this.tinta,
+    required this.lapiz,
+    required this.gris,
+    required this.terracota,
+    required this.azul,
+    required this.azulClaro,
+    required this.mostaza,
+    required this.mostazaClaro,
+    required this.verde,
+    required this.noche,
+    required this.rosa,
+    required this.salvia,
+  });
+
+  final bool oscura;
+  final Color papel; // tarjetas, globos, bordes de sticker
+  final Color crema; // fondo general
+  final Color cremaOscuro; // casillas apagadas, separadores
+  final Color kraft;
+  // Lo que de verdad se ve detrás del texto en el fondo con textura. Solo
+  // para calcular colores de texto legibles, no para pintar.
+  final Color papelTexturado;
+  final Color tinta; // texto principal
+  final Color lapiz; // contornos
+  final Color gris; // texto secundario
+  final Color terracota; // principal: palabras clave, Victoria
+  final Color azul; // Timoteo
+  final Color azulClaro;
+  final Color mostaza; // cinta, cruz, estrellas
+  final Color mostazaClaro;
+  final Color verde; // confirmaciones
+  final Color noche;
+  final Color rosa;
+  final Color salvia;
+
+  /// Papel crema. Terracota, gris y verde van un poco más oscuros que en el
+  /// kit (#c8553d, #8a7a64, #2f7f7a) para llegar a contraste 4.5:1 sobre el
+  /// papel con textura. papelTexturado: la textura a media opacidad sobre el
+  /// crema (#EDE4D4), un poco más oscuro por las manchas.
+  static const claro = VecPaleta(
+    oscura: false,
+    papel: Color(0xFFFBF7EE),
+    crema: Color(0xFFF3ECDF),
+    cremaOscuro: Color(0xFFEFE6D6),
+    kraft: Color(0xFFB98F5E),
+    papelTexturado: Color(0xFFEAE1D0),
+    tinta: Color(0xFF2B2622),
+    lapiz: Color(0xFF3A332C),
+    gris: Color(0xFF6F6150),
+    terracota: Color(0xFFA8452F),
+    azul: Color(0xFF3D6890),
+    azulClaro: Color(0xFF4F7FA8),
+    mostaza: Color(0xFFE0A73A),
+    mostazaClaro: Color(0xFFEFC56A),
+    verde: Color(0xFF276F6A),
+    noche: Color(0xFF2F4A68),
+    rosa: Color(0xFFF1A9A0),
+    salvia: Color(0xFF9DBB8E),
+  );
+
+  /// Kraft oscuro (propuesta B). Todo el texto pasa
+  /// de 4.5:1 sobre la hoja y las tarjetas; papelTexturado es la textura
+  /// teñida del café encima (ver FondoPapel), un poco más oscura.
+  static const kraftOscuro = VecPaleta(
+    oscura: true,
+    papel: Color(0xFF3A2E24),
+    crema: Color(0xFF2A2119),
+    cremaOscuro: Color(0xFF4A3B2F),
+    kraft: Color(0xFF8C6A45),
+    papelTexturado: Color(0xFF261E17),
+    tinta: Color(0xFFF3ECDF),
+    lapiz: Color(0xFFE8DFD0),
+    gris: Color(0xFFD0BEA2),
+    terracota: Color(0xFFEF9274),
+    azul: Color(0xFF9CBDE0),
+    azulClaro: Color(0xFFB3CDE8),
+    mostaza: Color(0xFFE0A73A),
+    mostazaClaro: Color(0xFFEFC56A),
+    verde: Color(0xFF7CCABE),
+    noche: Color(0xFFA9C6E8),
+    rosa: Color(0xFFF1A9A0),
+    salvia: Color(0xFF9DBB8E),
+  );
+
+  /// Noche azul (propuesta A): el mismo papel oscuro sobre azul de noche.
+  static const nocheAzul = VecPaleta(
+    oscura: true,
+    papel: Color(0xFF2A3545),
+    crema: Color(0xFF1D2633),
+    cremaOscuro: Color(0xFF3A475A),
+    kraft: Color(0xFF8A7660),
+    papelTexturado: Color(0xFF1B232F),
+    tinta: Color(0xFFF3ECDF),
+    lapiz: Color(0xFFE8DFD0),
+    gris: Color(0xFFC7BBA8),
+    terracota: Color(0xFFEC8D73),
+    azul: Color(0xFF8DB4DA),
+    azulClaro: Color(0xFFA6C5E4),
+    mostaza: Color(0xFFE0A73A),
+    mostazaClaro: Color(0xFFEFC56A),
+    verde: Color(0xFF6CC3B8),
+    noche: Color(0xFF9CC3EA),
+    rosa: Color(0xFFF1A9A0),
+    salvia: Color(0xFF9DBB8E),
+  );
+}
+
+/// Paleta del modo activo. Nunca uses blanco ni negro puros. Cambia con
+/// [actual], que pone ThemeService al elegir el tema; para algo que siempre
+/// debe ir en claro (p. ej. el PDF) usa [VecPaleta.claro].
 class VecColores {
   VecColores._();
 
+  /// El papel activo. Después de cambiarlo hay que volver a construir la app
+  /// (ver ThemeService), porque estos colores no avisan.
+  static VecPaleta actual = VecPaleta.claro;
+  static bool get oscuro => actual.oscura;
+
   // papel
-  static const papel = Color(0xFFFBF7EE); // tarjetas, globos, bordes de sticker
-  static const crema = Color(0xFFF3ECDF); // fondo general
-  static const cremaOscuro = Color(0xFFEFE6D6); // casillas apagadas, separadores
-  static const kraft = Color(0xFFB98F5E);
-  // Lo que de verdad se ve detrás del texto en el fondo con textura: el
-  // promedio de la textura a media opacidad sobre el crema (#EDE4D4), un poco
-  // más oscuro para que las manchas no le quiten contraste. Solo para
-  // calcular colores de texto legibles, no para pintar.
-  static const papelTexturado = Color(0xFFEAE1D0);
+  static Color get papel => actual.papel;
+  static Color get crema => actual.crema;
+  static Color get cremaOscuro => actual.cremaOscuro;
+  static Color get kraft => actual.kraft;
+  static Color get papelTexturado => actual.papelTexturado;
 
   // tinta
-  static const tinta = Color(0xFF2B2622); // texto principal
-  static const lapiz = Color(0xFF3A332C); // contornos
-  // El kit usa #8a7a64, #c8553d y #2f7f7a; aquí van un poco más oscuros para
-  // que el texto llegue a contraste 4.5:1 (WCAG AA) sobre el papel con
-  // textura.
-  static const gris = Color(0xFF6F6150); // texto secundario
+  static Color get tinta => actual.tinta;
+  static Color get lapiz => actual.lapiz;
+  static Color get gris => actual.gris;
 
   // acentos
-  static const terracota = Color(0xFFA8452F); // principal: palabras clave, Victoria
-  static const azul = Color(0xFF3D6890); // Timoteo
-  static const azulClaro = Color(0xFF4F7FA8);
-  static const mostaza = Color(0xFFE0A73A); // cinta, cruz, estrellas
-  static const mostazaClaro = Color(0xFFEFC56A);
-  static const verde = Color(0xFF276F6A); // confirmaciones (kit: #2f7f7a)
-  static const noche = Color(0xFF2F4A68);
-  static const rosa = Color(0xFFF1A9A0);
-  static const salvia = Color(0xFF9DBB8E);
+  static Color get terracota => actual.terracota;
+  static Color get azul => actual.azul;
+  static Color get azulClaro => actual.azulClaro;
+  static Color get mostaza => actual.mostaza;
+  static Color get mostazaClaro => actual.mostazaClaro;
+  static Color get verde => actual.verde;
+  static Color get noche => actual.noche;
+  static Color get rosa => actual.rosa;
+  static Color get salvia => actual.salvia;
+}
+
+/// Papel o tinta, el que más se lea sobre [fondo]. En claro el papel va sobre
+/// terracota y la tinta sobre mostaza; en oscuro el «papel» es café y va sobre
+/// todos los acentos.
+Color textoSobre(Color fondo) {
+  double contraste(Color a) {
+    final (x, y) = (a.computeLuminance(), fondo.computeLuminance());
+    return ((x > y ? x : y) + 0.05) / ((x > y ? y : x) + 0.05);
+  }
+
+  return contraste(VecColores.papel) >= contraste(VecColores.tinta) ? VecColores.papel : VecColores.tinta;
 }
 
 /// Las tres letras del estilo.
@@ -47,19 +178,34 @@ class VecFuentes {
   static const mano = 'CaveatBrush'; // notas a mano, cartas
 }
 
-/// Sombras: una sólida hacia abajo (papel grueso) + una difusa cálida.
+/// Sombras: una sólida hacia abajo (papel grueso) + una difusa cálida. En los
+/// papeles oscuros la tinta café no se notaría: van en negro, más opacas.
 class VecSombras {
   VecSombras._();
 
-  static const papel = [
+  static List<BoxShadow> get papel => VecColores.oscuro ? _papelOscuro : _papelClaro;
+  static List<BoxShadow> get chip => VecColores.oscuro ? _chipOscuro : _chipClaro;
+  static List<BoxShadow> get presionado => VecColores.oscuro ? _presionadoOscuro : _presionadoClaro;
+
+  static const _papelClaro = [
     BoxShadow(color: Color(0x2E2B2622), offset: Offset(0, 9), blurRadius: 0),
     BoxShadow(color: Color(0x384A3016), offset: Offset(0, 16), blurRadius: 26),
   ];
-  static const chip = [
+  static const _chipClaro = [
     BoxShadow(color: Color(0x472B2622), offset: Offset(0, 8), blurRadius: 0),
   ];
-  static const presionado = [
+  static const _presionadoClaro = [
     BoxShadow(color: Color(0x472B2622), offset: Offset(0, 3), blurRadius: 0),
+  ];
+  static const _papelOscuro = [
+    BoxShadow(color: Color(0x59000000), offset: Offset(0, 9), blurRadius: 0),
+    BoxShadow(color: Color(0x40000000), offset: Offset(0, 16), blurRadius: 26),
+  ];
+  static const _chipOscuro = [
+    BoxShadow(color: Color(0x73000000), offset: Offset(0, 8), blurRadius: 0),
+  ];
+  static const _presionadoOscuro = [
+    BoxShadow(color: Color(0x73000000), offset: Offset(0, 3), blurRadius: 0),
   ];
   static const brillo = [
     BoxShadow(color: Color(0x8CFFD68C), spreadRadius: 8, blurRadius: 0),
@@ -85,16 +231,21 @@ class VecMovimiento {
 
 /// Tema de Material listo para MaterialApp(theme: vecTema()).
 ThemeData vecTema() {
-  const base = TextStyle(fontFamily: VecFuentes.texto, color: VecColores.tinta);
-  const titulo = TextStyle(fontFamily: VecFuentes.titulo, color: VecColores.tinta, height: 1.05);
+  final base = TextStyle(fontFamily: VecFuentes.texto, color: VecColores.tinta);
+  final titulo = TextStyle(fontFamily: VecFuentes.titulo, color: VecColores.tinta, height: 1.05);
   return ThemeData(
     useMaterial3: true,
+    brightness: VecColores.oscuro ? Brightness.dark : Brightness.light,
     scaffoldBackgroundColor: VecColores.crema,
     colorScheme: ColorScheme.fromSeed(
+      brightness: VecColores.oscuro ? Brightness.dark : Brightness.light,
       seedColor: VecColores.terracota,
       primary: VecColores.terracota,
       secondary: VecColores.verde,
       tertiary: VecColores.mostaza,
+      onPrimary: textoSobre(VecColores.terracota),
+      onSecondary: textoSobre(VecColores.verde),
+      onTertiary: textoSobre(VecColores.mostaza),
       surface: VecColores.papel,
       onSurface: VecColores.tinta,
     ),
@@ -115,11 +266,11 @@ ThemeData vecTema() {
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(VecRadios.s),
-        borderSide: const BorderSide(color: VecColores.tinta, width: 4),
+        borderSide: BorderSide(color: VecColores.tinta, width: 4),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(VecRadios.s),
-        borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+        borderSide: BorderSide(color: VecColores.terracota, width: 4),
       ),
     ),
     switchTheme: SwitchThemeData(

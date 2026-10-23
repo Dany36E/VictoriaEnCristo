@@ -238,7 +238,7 @@ class _BadgeRow extends StatelessWidget {
                 height: 28,
                 decoration: BoxDecoration(
                   color: (hasUnlocked ? levelColor : theme.textSecondary)
-                      .withValues(alpha: theme.isDark ? 0.18 : 0.12),
+                      .withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 alignment: Alignment.center,
@@ -263,7 +263,7 @@ class _BadgeRow extends StatelessWidget {
                     vertical: 3,
                   ),
                   decoration: BoxDecoration(
-                    color: levelColor.withValues(alpha: theme.isDark ? 0.22 : 0.15),
+                    color: levelColor.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Row(

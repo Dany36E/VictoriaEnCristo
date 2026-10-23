@@ -29,7 +29,7 @@ class SermonNoteExportService {
 
   bool get shouldSaveToDownloadsByDefault => Platform.isWindows;
 
-  /// Estilo del documento en curso (clásico o papel, según el tema).
+  /// Estilo del documento en curso.
   late EstiloPdf _e;
 
   Future<File> exportSermonNoteToPdf({
@@ -164,59 +164,10 @@ class SermonNoteExportService {
   }
 
   pw.Widget _coverPage(SermonNote note) {
-    if (_e.papel) return _portadaPapel(note);
-    return pw.Container(
-      width: double.infinity,
-      height: double.infinity,
-      color: _e.acento,
-      padding: const pw.EdgeInsets.fromLTRB(48, 56, 48, 48),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Container(
-            width: 64,
-            height: 6,
-            decoration: pw.BoxDecoration(
-              color: PdfColors.white,
-              borderRadius: pw.BorderRadius.circular(3),
-            ),
-          ),
-          pw.SizedBox(height: 30),
-          pw.Text(
-            _pdfTitle(note),
-            style: pw.TextStyle(
-              fontSize: 26,
-              lineSpacing: 5,
-              fontWeight: pw.FontWeight.bold,
-              color: _e.tinta,
-            ),
-          ),
-          pw.SizedBox(height: 14),
-          pw.Text(
-            note.centralPassage?.label ?? 'Sin pasaje central',
-            style: pw.TextStyle(
-              fontSize: 13,
-              color: const PdfColor(0.26, 0.21, 0.13),
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-          pw.SizedBox(height: 28),
-          pw.Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: _metaChips(note),
-          ),
-          pw.Spacer(),
-          pw.Text(
-            'Victoria en Cristo',
-            style: const pw.TextStyle(fontSize: 11, color: PdfColors.white),
-          ),
-        ],
-      ),
-    );
+    return _portadaPapel(note);
   }
 
-  /// Portada del tema papel: hoja crema, el título en una tarjeta con cinta,
+  /// Portada del papel: hoja crema, el título en una tarjeta con cinta,
   /// el pasaje en terracota y los datos en pastillas.
   pw.Widget _portadaPapel(SermonNote note) {
     return pw.Container(
@@ -240,7 +191,7 @@ class SermonNoteExportService {
     );
   }
 
-  /// Título y pasaje en una tarjeta de papel con cinta (tema papel).
+  /// Título y pasaje en una tarjeta de papel con cinta.
   pw.Widget _tituloConCinta(
     SermonNote note, {
     required double tamano,
@@ -278,59 +229,14 @@ class SermonNoteExportService {
   }
 
   pw.Widget _header(SermonNote note) {
-    if (_e.papel) {
-      return _tituloConCinta(
-        note,
-        tamano: 22,
-        paddingTarjeta: 18,
-        debajo: [
-          pw.SizedBox(height: 12),
-          pw.Wrap(spacing: 8, runSpacing: 8, children: _metaChips(note)),
-        ],
-      );
-    }
-    return pw.Container(
-      width: double.infinity,
-      padding: const pw.EdgeInsets.all(18),
-      decoration: pw.BoxDecoration(
-        color: const PdfColor(0.97, 0.95, 0.90),
-        borderRadius: pw.BorderRadius.circular(10),
-        border: pw.Border.all(color: const PdfColor(0.82, 0.72, 0.48), width: 0.8),
-      ),
-      child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.start,
-        children: [
-          pw.Container(
-            width: 42,
-            height: 4,
-            decoration: pw.BoxDecoration(
-              color: _e.acento,
-              borderRadius: pw.BorderRadius.circular(2),
-            ),
-          ),
-          pw.SizedBox(height: 12),
-          pw.Text(
-            _pdfTitle(note),
-            style: pw.TextStyle(
-              fontSize: 20,
-              lineSpacing: 3,
-              fontWeight: pw.FontWeight.bold,
-              color: _e.tinta,
-            ),
-          ),
-          pw.SizedBox(height: 8),
-          pw.Text(
-            note.centralPassage?.label ?? 'Sin pasaje central',
-            style: pw.TextStyle(
-              fontSize: 11.4,
-              color: _e.etiqueta,
-              fontWeight: pw.FontWeight.bold,
-            ),
-          ),
-          pw.SizedBox(height: 12),
-          pw.Wrap(spacing: 8, runSpacing: 8, children: _metaChips(note)),
-        ],
-      ),
+    return _tituloConCinta(
+      note,
+      tamano: 22,
+      paddingTarjeta: 18,
+      debajo: [
+        pw.SizedBox(height: 12),
+        pw.Wrap(spacing: 8, runSpacing: 8, children: _metaChips(note)),
+      ],
     );
   }
 
@@ -457,19 +363,13 @@ class SermonNoteExportService {
   pw.Widget _verseCard({required String reference, required pw.Widget child}) {
     return _e.tarjeta(
       margin: const pw.EdgeInsets.only(bottom: 9),
-      franja: _e.papel ? _e.acento : null,
+      franja: _e.acento,
       child: pw.Column(
         crossAxisAlignment: pw.CrossAxisAlignment.start,
         children: [
           pw.Text(
             reference,
-            style: _e.papel
-                ? _e.estiloTitulo(fontSize: 11.5, color: _e.etiqueta)
-                : pw.TextStyle(
-                    fontSize: 10.6,
-                    fontWeight: pw.FontWeight.bold,
-                    color: _e.etiqueta,
-                  ),
+            style: _e.estiloTitulo(fontSize: 11.5, color: _e.etiqueta),
           ),
           pw.SizedBox(height: 5),
           child,

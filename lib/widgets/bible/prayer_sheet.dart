@@ -115,7 +115,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: t.isDark ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
+                  color: t.oscuro ? Colors.white.withValues(alpha: 0.03) : Colors.black.withValues(alpha: 0.03),
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Text(
@@ -135,7 +135,7 @@ class _PrayerSheetState extends State<PrayerSheet> {
               Container(
                 constraints: const BoxConstraints(maxHeight: 200),
                 decoration: BoxDecoration(
-                  color: t.isDark ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
+                  color: t.oscuro ? Colors.white.withValues(alpha: 0.06) : Colors.black.withValues(alpha: 0.04),
                   borderRadius: BorderRadius.circular(10.0),
                 ),
                 child: TextField(

@@ -5,6 +5,10 @@ import 'package:integration_test/integration_test.dart';
 import 'package:app_quitar/screens/login_screen.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
+import 'package:app_quitar/screens/onboarding/onboarding_papel.dart';
+import 'package:app_quitar/theme/app_theme.dart';
+import 'package:app_quitar/theme/app_theme_data.dart';
+import 'package:app_quitar/vec/vec_widgets.dart';
 
 void main() {
   final binding = IntegrationTestWidgetsFlutterBinding.ensureInitialized();
@@ -38,19 +42,23 @@ void main() {
       converted = false;
       Widget wrap(Widget screen) => MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark(useMaterial3: true),
+        // Como la app: tema papel y la hoja con textura detrás.
+        theme: AppTheme.paperTheme,
         builder: (context, child) => MediaQuery(
           data: MediaQuery.of(
             context,
           ).copyWith(textScaler: TextScaler.linear(scale)),
-          child: child!,
+          child: AppThemeData.provider(
+            theme: AppThemeData.paper,
+            child: FondoPapel(child: child!),
+          ),
         ),
         home: screen,
       );
       await tester.pumpWidget(wrap(const LoginScreen()));
       await tester.pumpAndSettle();
       await capture(tester, 'login_$scale');
-      final submit = find.text('INICIAR SESIÓN');
+      final submit = find.text('Iniciar sesión');
       await tester.ensureVisible(submit);
       await tester.pumpAndSettle();
       await tester.tap(submit);
@@ -83,17 +91,16 @@ void main() {
                 widget.icon == Icons.music_off_rounded),
       );
       expect(audioToggle, findsOneWidget);
-      final audioButton = find
-          .ancestor(of: audioToggle, matching: find.byType(AnimatedContainer))
-          .first;
-      final audioBounds = tester.getRect(audioButton);
-      final scrollBounds = tester.getRect(find.byType(SingleChildScrollView));
+      final audioBounds = tester.getRect(find.byType(BotonAudioPapel));
+      // Al abrir, el letrero empieza debajo del botón de música. Al
+      // desplazar, la hoja pasa por detrás del botón (es a propósito).
+      final letreroBounds = tester.getRect(find.byType(Letrero));
       expect(
-        scrollBounds.top,
+        letreroBounds.top,
         greaterThanOrEqualTo(audioBounds.bottom),
-        reason: 'Scrollable content must stay below the floating audio toggle',
+        reason: 'El letrero empieza debajo del botón de música',
       );
-      final start = find.text('ELEGIR MIS GIGANTES');
+      final start = find.text('Elegir mis gigantes');
       await Scrollable.ensureVisible(tester.element(start), alignment: 0.5);
       await tester.pumpAndSettle();
       await tester.pump(const Duration(milliseconds: 300));
@@ -102,50 +109,59 @@ void main() {
       await tester.tap(start);
       await tester.pump(const Duration(milliseconds: 150));
       await tester.pumpAndSettle();
-      expect(find.text('¿CUÁL ES TU GIGANTE?'), findsOneWidget);
+      expect(find.text('¿Cuál es tu gigante?'), findsOneWidget);
       await capture(tester, 'giant_selection_$scale');
 
-      final disabledContinue = find.text('SELECCIONA AL MENOS UNO');
+      // Sin elegir, el botón está apagado: tocarlo no avanza.
+      final disabledContinue = find.text('Selecciona al menos uno');
       await tester.tap(disabledContinue);
       await tester.pumpAndSettle();
-      expect(
-        find.text('Selecciona al menos un área de batalla'),
-        findsOneWidget,
-      );
-      ScaffoldMessenger.of(
-        tester.element(find.byType(GiantSelectionScreen)),
-      ).hideCurrentSnackBar();
-      await tester.pumpAndSettle();
+      expect(find.byType(GiantSelectionScreen), findsOneWidget);
 
       final digital = find.text('MUNDO DIGITAL');
-      final giantList = find
-          .descendant(
-            of: find.byType(CustomScrollView),
-            matching: find.byType(Scrollable),
-          )
-          .first;
+      final giantList = find.byType(Scrollable).first;
       await tester.scrollUntilVisible(digital, 200, scrollable: giantList);
       await tester.pumpAndSettle();
       expect(digital.hitTestable(), findsOneWidget);
       await tester.tap(digital);
       await tester.pumpAndSettle();
-      final continueButton = find.text('CONTINUAR (1)');
+      final continueButton = find.text('Continuar (1)');
       expect(continueButton, findsOneWidget);
-      expect(find.byIcon(Icons.check_rounded), findsOneWidget);
+      // La tarjeta elegida lleva la palomita del kit.
+      expect(
+        find.byWidgetPredicate(
+          (w) => w is CirculoIcono && w.iconoVec == 'palomita',
+        ),
+        findsOneWidget,
+      );
       await tester.ensureVisible(continueButton);
       await tester.pumpAndSettle();
       expect(continueButton.hitTestable(), findsOneWidget);
       await tester.tap(continueButton);
       await tester.pumpAndSettle();
-      expect(find.text('¿CON QUÉ FRECUENCIA LUCHAS?'), findsOneWidget);
+      expect(find.text('¿Con qué frecuencia luchas?'), findsOneWidget);
+      // Con letra grande y pantalla chica, «Diario» puede no estar
+      // construido todavía en la lista: se baja hasta encontrarlo.
       final daily = find.text('Diario');
+      await tester.scrollUntilVisible(
+        daily,
+        200,
+        scrollable: find.byType(Scrollable).first,
+      );
       await Scrollable.ensureVisible(tester.element(daily), alignment: 0.35);
       await tester.pumpAndSettle();
       expect(daily.hitTestable(), findsOneWidget);
       await tester.tap(daily);
       await tester.pumpAndSettle();
+      // Con letra grande el contador queda arriba, fuera de la lista
+      // construida: se vuelve a subir para verlo.
+      await tester.scrollUntilVisible(
+        find.text('1 de 1 configurados'),
+        -200,
+        scrollable: find.byType(Scrollable).first,
+      );
       expect(find.text('1 de 1 configurados'), findsOneWidget);
-      expect(find.text('GUARDAR Y CONTINUAR'), findsOneWidget);
+      expect(find.text('Guardar y continuar'), findsOneWidget);
       await capture(tester, 'giant_frequency_$scale');
       await tester.pumpWidget(const SizedBox.shrink());
       await tester.pumpAndSettle();

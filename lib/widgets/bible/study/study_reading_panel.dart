@@ -473,7 +473,7 @@ class _VerseComparisonRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 12),
       decoration: BoxDecoration(
-        color: t.isDark ? Colors.white.withValues(alpha: 0.025) : Colors.black.withValues(alpha: 0.025),
+        color: t.oscuro ? Colors.white.withValues(alpha: 0.025) : Colors.black.withValues(alpha: 0.025),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
@@ -769,7 +769,7 @@ class _ChapterContextStripState extends State<_ChapterContextStrip> {
             width: double.infinity,
             padding: const EdgeInsets.fromLTRB(10, 8, 6, 8),
             decoration: BoxDecoration(
-              color: widget.theme.surface.withValues(alpha: widget.theme.isDark ? 0.72 : 0.62),
+              color: widget.theme.surface.withValues(alpha: 0.62),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: widget.theme.textSecondary.withValues(alpha: 0.10)),
             ),
@@ -1211,7 +1211,7 @@ class _TransparentColorButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = theme;
-    final stroke = t.textPrimary.withValues(alpha: t.isDark ? 0.76 : 0.64);
+    final stroke = t.textPrimary.withValues(alpha: 0.64);
     return Tooltip(
       message: 'Borrar color seleccionado',
       child: InkWell(
@@ -1223,7 +1223,7 @@ class _TransparentColorButton extends StatelessWidget {
             width: 26,
             height: 26,
             decoration: BoxDecoration(
-              color: t.textPrimary.withValues(alpha: t.isDark ? 0.08 : 0.05),
+              color: t.textPrimary.withValues(alpha: 0.05),
               shape: BoxShape.circle,
               border: Border.all(color: stroke, width: 1.6),
               boxShadow: [BoxShadow(color: stroke.withValues(alpha: 0.16), blurRadius: 6)],

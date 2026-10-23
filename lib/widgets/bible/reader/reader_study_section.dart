@@ -72,7 +72,7 @@ class ReaderAnnotationBlock extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: theme.isDark
+          color: theme.oscuro
               ? Colors.white.withValues(alpha: 0.04)
               : Colors.black.withValues(alpha: 0.03),
           border: Border(
@@ -151,7 +151,7 @@ class ReaderGuzikAttribution extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.all(14),
           decoration: BoxDecoration(
-            color: theme.isDark
+            color: theme.oscuro
                 ? Colors.white.withValues(alpha: 0.03)
                 : Colors.black.withValues(alpha: 0.02),
             borderRadius: BorderRadius.circular(8),

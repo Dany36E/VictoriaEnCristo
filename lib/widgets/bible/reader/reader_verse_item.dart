@@ -265,7 +265,7 @@ class ReaderVerseItem extends StatelessWidget {
         decoration: BoxDecoration(
           color: selected
               ? theme.accent.withValues(alpha: 0.30)
-              : existingColor?.withValues(alpha: theme.isDark ? 0.32 : 0.28),
+              : existingColor?.withValues(alpha: 0.28),
           borderRadius: BorderRadius.circular(5),
           border: selected ? Border.all(color: theme.accent, width: 1.2) : null,
         ),
@@ -395,7 +395,7 @@ class ReaderVerseItem extends StatelessWidget {
             text: part,
             style: baseStyle.copyWith(
               backgroundColor: color.withValues(
-                alpha: theme.isDark ? 0.32 : 0.28,
+                alpha: 0.28,
               ),
             ),
           ),

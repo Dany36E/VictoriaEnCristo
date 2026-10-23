@@ -136,7 +136,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.03)
             : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
@@ -179,7 +179,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.03)
             : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(12),
@@ -267,7 +267,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.isDark
+          color: t.oscuro
               ? Colors.white.withValues(alpha: 0.03)
               : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(12),
@@ -328,7 +328,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.isDark
+          color: t.oscuro
               ? Colors.white.withValues(alpha: 0.03)
               : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(12),
@@ -387,7 +387,7 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
         margin: const EdgeInsets.only(bottom: 10),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: t.isDark
+          color: t.oscuro
               ? Colors.white.withValues(alpha: 0.03)
               : Colors.black.withValues(alpha: 0.03),
           borderRadius: BorderRadius.circular(12),

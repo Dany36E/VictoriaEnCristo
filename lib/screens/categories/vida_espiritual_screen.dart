@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
-import '../../theme/app_theme_data.dart';
 import '../../vec/vec_tema.dart';
 import '../../vec/vec_widgets.dart';
 import '../../widgets/home/category_hub_scaffold.dart';
@@ -19,7 +17,6 @@ import '../progress_screen.dart';
 class VidaEspiritualScreen extends StatelessWidget {
   const VidaEspiritualScreen({super.key});
 
-  static const Color _accent = Color(0xFFFF80AB);
 
   @override
   Widget build(BuildContext context) {
@@ -35,8 +32,6 @@ class VidaEspiritualScreen extends StatelessWidget {
                 icon: Icons.map_outlined,
                 title: 'Mapa de Oración',
                 subtitle: 'Guía diaria',
-                accentColor: const Color(0xFFCE93D8),
-                animationType: IconAnimationType.pulse,
                 index: 0,
                 onTap: () => Navigator.push(
                   context,
@@ -50,8 +45,6 @@ class VidaEspiritualScreen extends StatelessWidget {
                 icon: Icons.menu_book_outlined,
                 title: 'Versículos',
                 subtitle: 'Armadura espiritual',
-                accentColor: const Color(0xFF64B5F6),
-                animationType: IconAnimationType.shimmer,
                 index: 1,
                 onTap: () => Navigator.push(
                   context,
@@ -69,8 +62,6 @@ class VidaEspiritualScreen extends StatelessWidget {
                 icon: Icons.auto_stories_rounded,
                 title: 'Devocional',
                 subtitle: '30 días de fe',
-                accentColor: const Color(0xFFFFD180),
-                animationType: IconAnimationType.shimmer,
                 index: 2,
                 onTap: () => Navigator.push(
                   context,
@@ -84,8 +75,6 @@ class VidaEspiritualScreen extends StatelessWidget {
                 icon: Icons.show_chart,
                 title: 'Mi Progreso',
                 subtitle: 'Días de victoria',
-                accentColor: const Color(0xFF69F0AE),
-                animationType: IconAnimationType.drawUp,
                 index: 3,
                 onTap: () => Navigator.push(
                   context,
@@ -100,53 +89,23 @@ class VidaEspiritualScreen extends StatelessWidget {
   }
 
   Widget _buildIntro(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) {
-      // Tema papel: Victoria presenta la sección, como en los videos.
-      return const PopIn(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Sticker('assets/vec/personajes/victoria_ora.png', alto: 120),
-            SizedBox(width: 8),
-            Expanded(
-              child: Subtitulo(
-                quien: 'Victoria',
-                texto:
-                    'Tu encuentro diario con Dios: oración, palabra y reflexión.',
-                clave: 'Dios',
-                color: VecColores.terracota,
-              ),
-            ),
-          ],
-        ),
-      );
-    }
-    return Container(
-          padding: const EdgeInsets.all(AppDesignSystem.spacingM),
-          decoration: BoxDecoration(
-            color: _accent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-            border: Border.all(color: _accent.withValues(alpha: 0.2), width: 0.5),
-          ),
-          child: Row(
-            children: [
-              const Icon(Icons.wb_sunny_outlined, color: _accent, size: 22),
-              const SizedBox(width: AppDesignSystem.spacingS),
-              Expanded(
-                child: Text(
+    return PopIn(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const Sticker('assets/vec/personajes/victoria_ora.png', alto: 120),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Subtitulo(
+              quien: 'Victoria',
+              texto:
                   'Tu encuentro diario con Dios: oración, palabra y reflexión.',
-                  style: TextStyle(
-                    color: Colors.white.withValues(alpha: 0.86),
-                    fontSize: 13,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
+              clave: 'Dios',
+              color: VecColores.terracota,
+            ),
           ),
-        )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: -0.1, end: 0, curve: Curves.easeOutCubic);
+        ],
+      ),
+    );
   }
 }

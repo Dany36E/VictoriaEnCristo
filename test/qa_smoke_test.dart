@@ -109,10 +109,9 @@ void main() {
         await tester.binding.setSurfaceSize(const Size(411, 914)); // pixel 5
         await tester.pumpWidget(
           _wrap(
-            theme: AppThemeData.nightPure,
+            theme: AppThemeData.paper,
             child: SizedBox(
               width: 380,
-              height: 240,
               child: JesusStreakWidget(
                 streakDays: s.streak,
                 completedToday: s.done,
@@ -140,10 +139,9 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(340, 780));
       await tester.pumpWidget(
         _wrap(
-          theme: AppThemeData.nightPure,
+          theme: AppThemeData.paper,
           child: SizedBox(
             width: 320,
-            height: 240,
             child: JesusStreakWidget(
               streakDays: 999,
               completedToday: true,
@@ -164,10 +162,9 @@ void main() {
       await tester.binding.setSurfaceSize(const Size(411, 914));
       await tester.pumpWidget(
         _wrap(
-          theme: AppThemeData.nightPure,
+          theme: AppThemeData.paper,
           child: SizedBox(
             width: 380,
-            height: 240,
             child: JesusStreakWidget(
               streakDays: 0,
               completedToday: true,
@@ -195,7 +192,7 @@ void main() {
       DailyOutcomeChoice? selected;
       await tester.pumpWidget(
         _wrap(
-          theme: AppThemeData.nightPure,
+          theme: AppThemeData.paper,
           child: Builder(
             builder: (context) {
               return Center(

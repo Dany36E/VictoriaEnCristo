@@ -26,65 +26,56 @@ class JesusWidgetService {
   // PATHS BASE
   // ═══════════════════════════════════════════════════════════════════════════
 
-  static const String _spritesPath = 'assets/widget/jesus';
-  static const String _backgroundsPath = 'assets/widget/backgrounds';
-
-  // Tema «Papel recortado»: mismos estados dibujados con el kit.
+  // Estados de Jesús y escenas de racha dibujados con el kit.
   static const String _spritesPapel = 'assets/vec/personajes';
   static const String _fondosPapel = 'assets/vec/fondos';
 
-  String _sprite(String original, String papelId, bool papel) => papel
-      ? '$_spritesPapel/jesus_$papelId.webp'
-      : '$_spritesPath/$original.webp';
+  String _sprite(String id) => '$_spritesPapel/jesus_$id.webp';
 
-  String _fondo(String original, String papelId, bool papel) => papel
-      ? '$_fondosPapel/racha_$papelId.webp'
-      : '$_backgroundsPath/$original.webp';
+  String _fondo(String id) => '$_fondosPapel/racha_$id.webp';
 
   // ═══════════════════════════════════════════════════════════════════════════
   // SPRITE (Jesús)
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Devuelve el path del sprite de Jesús según estado actual.
-  /// [papel]: versión del tema «Papel recortado».
   String getSprite({
     required int streakDays,
     required bool completedToday,
     required bool isNewUser,
-    bool papel = false,
   }) {
     // Usuario nuevo → bienvenida
     if (isNewUser) {
-      return _sprite('NUEVO USUARIO', 'nuevo', papel);
+      return _sprite('nuevo');
     }
 
     // Hitos altos — muestran sprite épico aunque completó hoy
-    if (streakDays >= 365) return _sprite('Un año glorioso', 'anio', papel);
+    if (streakDays >= 365) return _sprite('anio');
     if (streakDays >= 100) {
-      return _sprite('Centurión de la fe', 'centurion', papel);
+      return _sprite('centurion');
     }
-    if (streakDays >= 30) return _sprite('Un mes', 'mes', papel);
+    if (streakDays >= 30) return _sprite('mes');
 
     // Completó hoy (racha < 30) → celebración genérica
     if (completedToday) {
-      return _sprite('VICTORIA DEL DÍA', 'victoria', papel);
+      return _sprite('victoria');
     }
 
     // Hitos medios sin completar hoy
-    if (streakDays >= 7) return _sprite('Primera semana', 'semana', papel);
+    if (streakDays >= 7) return _sprite('semana');
 
     // Racha perdida (0 días y no es nuevo)
     if (streakDays == 0) {
-      return _sprite('RACHA PERDIDA', 'perdida', papel);
+      return _sprite('perdida');
     }
 
     // Racha activa pero no completó hoy → ánimo
     if (streakDays >= 1) {
-      return _sprite('ÁNIMO  EMPUJAR AL USUARIO', 'animo', papel);
+      return _sprite('animo');
     }
 
     // Fallback: esperando
-    return _sprite('ESPERANDO AL USUARIO', 'esperando', papel);
+    return _sprite('esperando');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -92,22 +83,21 @@ class JesusWidgetService {
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Devuelve el path del fondo según la racha.
-  /// [papel]: escena del tema «Papel recortado».
-  String getBackground({required int streakDays, bool papel = false}) {
-    if (streakDays >= 365) return _fondo('Guardia Eterna', 'guardia', papel);
-    if (streakDays >= 100) return _fondo('Armadura dorada', 'armadura', papel);
+  String getBackground({required int streakDays}) {
+    if (streakDays >= 365) return _fondo('guardia');
+    if (streakDays >= 100) return _fondo('armadura');
     if (streakDays >= 30) {
-      return _fondo('Batalla espiritual', 'batalla', papel);
+      return _fondo('batalla');
     }
-    if (streakDays >= 14) return _fondo('Noche estrellada', 'noche', papel);
+    if (streakDays >= 14) return _fondo('noche');
     if (streakDays >= 7) {
-      return _fondo('Atardecer glorioso', 'atardecer', papel);
+      return _fondo('atardecer');
     }
-    if (streakDays >= 3) return _fondo('Cielo de la fe', 'cielo', papel);
+    if (streakDays >= 3) return _fondo('cielo');
     if (streakDays >= 1) {
-      return _fondo('Pradera del amanecer', 'pradera', papel);
+      return _fondo('pradera');
     }
-    return _fondo('Listo para empezar', 'listo', papel);
+    return _fondo('listo');
   }
 
   // ═══════════════════════════════════════════════════════════════════════════

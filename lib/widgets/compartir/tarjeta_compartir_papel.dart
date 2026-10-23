@@ -8,12 +8,16 @@ import '../../vec/vec_widgets.dart';
 /// Quién presenta la tarjeta. Como en los videos: Victoria en terracota y
 /// Timoteo en azul.
 enum PersonajeCompartir {
-  victoria('assets/vec/personajes/victoria_presenta.png', VecColores.terracota),
-  timoteo('assets/vec/personajes/timoteo_presenta.png', VecColores.azul);
+  victoria('assets/vec/personajes/victoria_presenta.png'),
+  timoteo('assets/vec/personajes/timoteo_presenta.png');
 
-  const PersonajeCompartir(this.ruta, this.color);
+  const PersonajeCompartir(this.ruta);
   final String ruta;
-  final Color color;
+
+  Color get color => switch (this) {
+    victoria => VecColores.terracota,
+    timoteo => VecColores.azul,
+  };
 
   /// Quién presenta cada plantilla de papel de la Biblia.
   static PersonajeCompartir dePlantilla(String idPlantilla) =>
@@ -207,7 +211,7 @@ class _Contenido extends StatelessWidget {
       if (version.isNotEmpty)
         TextSpan(
           text: '  $version',
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: VecFuentes.titulo,
             fontSize: 13,
             color: VecColores.gris,
@@ -321,7 +325,7 @@ class _Etiqueta extends StatelessWidget {
         ),
         child: Text(
           texto,
-          style: const TextStyle(
+          style: TextStyle(
             fontFamily: VecFuentes.titulo,
             fontSize: 14,
             color: VecColores.papel,
@@ -349,7 +353,7 @@ class _Marca extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (conNombre)
-                const Text(
+                Text(
                   'Victoria en Cristo',
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -364,7 +368,7 @@ class _Marca extends StatelessWidget {
                   pie!,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: VecFuentes.texto,
                     fontSize: 13,
                     color: VecColores.gris,

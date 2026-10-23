@@ -59,7 +59,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
           BibleReaderThemeData.migrateId(themeId),
         );
         SystemChrome.setSystemUIOverlayStyle(
-          t.isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
+          t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
         return Scaffold(
           backgroundColor: t.pageBg,
@@ -143,7 +143,7 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     ),
               isDense: true,
               filled: true,
-              fillColor: t.background.withValues(alpha: t.isDark ? 0.78 : 0.88),
+              fillColor: t.background.withValues(alpha: 0.88),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 12,
                 vertical: 12,
@@ -909,7 +909,7 @@ class _ChoiceChipShell extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: selected
-            ? t.accent.withValues(alpha: t.isDark ? 0.22 : 0.14)
+            ? t.accent.withValues(alpha: 0.14)
             : t.textSecondary.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(

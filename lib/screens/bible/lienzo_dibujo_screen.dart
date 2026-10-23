@@ -54,15 +54,16 @@ class LienzoDibujoScreen extends StatefulWidget {
   State<LienzoDibujoScreen> createState() => _LienzoDibujoScreenState();
 }
 
-const List<Color> _tintas = [
-  VecColores.tinta,
-  VecColores.terracota,
-  VecColores.azul,
-  VecColores.verde,
-  VecColores.mostaza,
-  Color(0xFF7E57C2),
-  Color(0xFFE5739A),
-  Color(0xFFFFFFFF),
+/// En los tonos del papel claro: la hoja del dibujo siempre es clara.
+List<Color> get _tintas => [
+  VecPaleta.claro.tinta,
+  VecPaleta.claro.terracota,
+  VecPaleta.claro.azul,
+  VecPaleta.claro.verde,
+  VecPaleta.claro.mostaza,
+  const Color(0xFF7E57C2),
+  const Color(0xFFE5739A),
+  const Color(0xFFFFFFFF),
 ];
 
 const List<Color> _resaltadores = [
@@ -96,9 +97,9 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
 
   HerramientaLienzo _herramienta = HerramientaLienzo.pluma;
   final Map<HerramientaLienzo, Color> _color = {
-    HerramientaLienzo.pluma: VecColores.tinta,
-    HerramientaLienzo.lapiz: VecColores.lapiz,
-    HerramientaLienzo.marcador: VecColores.terracota,
+    HerramientaLienzo.pluma: VecPaleta.claro.tinta,
+    HerramientaLienzo.lapiz: VecPaleta.claro.lapiz,
+    HerramientaLienzo.marcador: VecPaleta.claro.terracota,
     HerramientaLienzo.resaltador: _resaltadores.first,
   };
   final Map<HerramientaLienzo, double> _grosor = {
@@ -587,13 +588,11 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
-    final mesa = t.isPaper
-        ? const Color(0xFFE6DAC4)
-        : t.isDark
-        ? const Color(0xFF16161C)
-        : const Color(0xFFE4E4E8);
-    final superficie = t.isPaper ? VecColores.papel : t.surface;
-    final texto = t.isPaper ? VecColores.tinta : t.textPrimary;
+    // La hoja del lienzo siempre es clara (también en los papeles oscuros,
+    // como en el PDF); la mesa alrededor sí sigue al papel.
+    final mesa = (t.oscuro ? VecColores.crema : const Color(0xFFE6DAC4));
+    final superficie = VecColores.papel;
+    final texto = VecColores.tinta;
     if (!identical(_grabadoDe, _trazos)) {
       _grabado?.dispose();
       _grabado = grabarTrazos(_trazos);
@@ -626,7 +625,14 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
                       left: 0,
                       right: 0,
                       bottom: 0,
-                      child: _panelInferior(superficie, texto, t),
+                      // Las tintas son las de la hoja (siempre clara): en los
+                      // temas papel el panel también va en papel claro para
+                      // que se vean.
+                      child: _panelInferior(
+                        VecPaleta.claro.papel,
+                        VecPaleta.claro.tinta,
+                        t,
+                      ),
                     ),
                   ],
                 ),
@@ -639,7 +645,7 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
   }
 
   Widget _barraSuperior(Color superficie, Color texto, AppThemeData t) {
-    final acento = t.isPaper ? VecColores.terracota : t.accent;
+    final acento = VecColores.terracota;
     return DecoratedBox(
       decoration: BoxDecoration(
         color: superficie,
@@ -662,9 +668,9 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
                 style: TextStyle(
-                  fontFamily: t.isPaper ? VecFuentes.titulo : null,
-                  fontSize: t.isPaper ? 20 : 17,
-                  fontWeight: t.isPaper ? FontWeight.w400 : FontWeight.w700,
+                  fontFamily: VecFuentes.titulo,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w400,
                   color: texto,
                 ),
               ),
@@ -686,7 +692,9 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
             FilledButton(
               style: FilledButton.styleFrom(
                 backgroundColor: acento,
-                foregroundColor: t.isPaper ? VecColores.papel : t.scaffoldBg,
+                // El fondo de la página sobre el acento no siempre llega a 4.5
+                // (pergamino): se ajusta lo justo.
+                foregroundColor: t.sobreAcento,
                 visualDensity: VisualDensity.compact,
               ),
               onPressed: _listo,
@@ -966,11 +974,11 @@ class _LienzoDibujoScreenState extends State<LienzoDibujoScreen> {
 
   String _nombreColor(Color c) {
     final nombres = {
-      VecColores.tinta.toARGB32(): 'tinta',
-      VecColores.terracota.toARGB32(): 'terracota',
-      VecColores.azul.toARGB32(): 'azul',
-      VecColores.verde.toARGB32(): 'verde',
-      VecColores.mostaza.toARGB32(): 'mostaza',
+      VecPaleta.claro.tinta.toARGB32(): 'tinta',
+      VecPaleta.claro.terracota.toARGB32(): 'terracota',
+      VecPaleta.claro.azul.toARGB32(): 'azul',
+      VecPaleta.claro.verde.toARGB32(): 'verde',
+      VecPaleta.claro.mostaza.toARGB32(): 'mostaza',
       // Tonos del kit antes de oscurecerlos (dibujos ya guardados).
       0xFFC8553D: 'terracota',
       0xFF2F7F7A: 'verde',
@@ -1003,7 +1011,7 @@ class _Muestra extends StatelessWidget {
         color: color,
         shape: BoxShape.circle,
         border: Border.all(
-          color: elegido ? VecColores.tinta : const Color(0x332B2622),
+          color: elegido ? VecPaleta.claro.tinta : const Color(0x332B2622),
           width: elegido ? 3 : 1.2,
         ),
         boxShadow: elegido
@@ -1117,7 +1125,7 @@ class _PintorLienzo extends CustomPainter {
     canvas.restore();
 
     final linea = Paint()
-      ..color = VecColores.azul
+      ..color = VecPaleta.claro.azul
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2 / escala;
     final lazo = this.lazo;

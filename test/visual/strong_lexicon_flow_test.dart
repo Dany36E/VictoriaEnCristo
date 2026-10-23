@@ -119,7 +119,7 @@ void main() {
 }
 
 Widget _testApp(GlobalKey boundary, Widget home, {double textScale = 1.0}) {
-  BibleUserDataService.I.readerThemeNotifier.value = 'night_pure';
+  BibleUserDataService.I.readerThemeNotifier.value = 'papel';
   return RepaintBoundary(
     key: boundary,
     child: MaterialApp(

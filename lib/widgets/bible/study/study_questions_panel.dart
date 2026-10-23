@@ -158,7 +158,7 @@ class _HopeMessageCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.accent.withValues(alpha: t.isDark ? 0.08 : 0.10),
+        color: t.accent.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.accent.withValues(alpha: 0.22), width: 1),
       ),
@@ -263,7 +263,7 @@ class _HopeMessageCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
             decoration: BoxDecoration(
-              color: t.background.withValues(alpha: t.isDark ? 0.62 : 0.82),
+              color: t.background.withValues(alpha: 0.82),
               borderRadius: BorderRadius.circular(8),
               border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
             ),
@@ -352,7 +352,7 @@ class _MainVerseChip extends StatelessWidget {
       materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
       visualDensity: VisualDensity.compact,
       backgroundColor: t.background,
-      selectedColor: t.accent.withValues(alpha: t.isDark ? 0.24 : 0.18),
+      selectedColor: t.accent.withValues(alpha: 0.18),
       side: BorderSide(
         color: selected
             ? t.accent.withValues(alpha: 0.68)
@@ -433,7 +433,7 @@ class _QuestionsToolbar extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(12, 10, 8, 12),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.025)
             : Colors.black.withValues(alpha: 0.02),
         borderRadius: BorderRadius.circular(10),
@@ -555,8 +555,8 @@ class _QuestionToolChip extends StatelessWidget {
     final background = emphasized
         ? t.accent
         : disabled
-        ? t.textSecondary.withValues(alpha: t.isDark ? 0.09 : 0.06)
-        : t.accent.withValues(alpha: t.isDark ? 0.10 : 0.07);
+        ? t.textSecondary.withValues(alpha: 0.06)
+        : t.accent.withValues(alpha: 0.07);
     return InkWell(
       borderRadius: BorderRadius.circular(18),
       onTap: onTap,
@@ -618,7 +618,7 @@ class _QuestionIconChip extends StatelessWidget {
           height: 34,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: t.accent.withValues(alpha: t.isDark ? 0.10 : 0.07),
+            color: t.accent.withValues(alpha: 0.07),
             borderRadius: BorderRadius.circular(18),
             border: Border.all(color: t.accent.withValues(alpha: 0.24)),
           ),
@@ -843,7 +843,7 @@ class _GeneralNotesCardState extends State<_GeneralNotesCard> {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.accent.withValues(alpha: t.isDark ? 0.07 : 0.09),
+        color: t.accent.withValues(alpha: 0.09),
         borderRadius: BorderRadius.circular(10),
         border: Border.all(color: t.accent.withValues(alpha: 0.18), width: 1),
       ),
@@ -1138,7 +1138,7 @@ class _StudyNotesPreview extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: t.background.withValues(alpha: t.isDark ? 0.62 : 0.86),
+        color: t.background.withValues(alpha: 0.86),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
       ),
@@ -1217,7 +1217,7 @@ class _StudySaveStatusChip extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: t.isDark ? 0.16 : 0.10),
+        color: color.withValues(alpha: 0.10),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: color.withValues(alpha: 0.24)),
       ),
@@ -1325,7 +1325,7 @@ class _StudyNotesFontTile extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
         decoration: BoxDecoration(
-          color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.60),
+          color: t.background.withValues(alpha: 0.60),
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: t.textSecondary.withValues(alpha: 0.10)),
         ),
@@ -1413,7 +1413,7 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
       decoration: BoxDecoration(
-        color: highlight.withValues(alpha: t.isDark ? 0.16 : 0.08),
+        color: highlight.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: highlight.withValues(alpha: 0.26)),
       ),
@@ -1469,7 +1469,7 @@ class _StudySpellingSuggestionBar extends StatelessWidget {
           FilledButton.tonal(
             onPressed: onReplace,
             style: FilledButton.styleFrom(
-              backgroundColor: highlight.withValues(alpha: t.isDark ? 0.18 : 0.10),
+              backgroundColor: highlight.withValues(alpha: 0.10),
               foregroundColor: highlight,
               visualDensity: VisualDensity.compact,
               minimumSize: const Size(0, 34),
@@ -1495,7 +1495,7 @@ class _StudyGeneralNotesHint extends StatelessWidget {
       key: key,
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
       decoration: BoxDecoration(
-        color: t.background.withValues(alpha: t.isDark ? 0.28 : 0.65),
+        color: t.background.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: t.textSecondary.withValues(alpha: 0.08)),
       ),
@@ -1541,7 +1541,7 @@ class _QuestionCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
-        color: t.isDark
+        color: t.oscuro
             ? Colors.white.withValues(alpha: 0.04)
             : Colors.black.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(10),

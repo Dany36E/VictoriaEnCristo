@@ -45,7 +45,7 @@ void main() {
   setUpThemeMatrix();
   setUpAll(() => BookRepository.I.load());
 
-  for (final tema in ['papel', 'night_pure']) {
+  for (final tema in ['papel', 'papel_kraft']) {
     for (final (nombreEscala, escala) in <(String, TextScaler)>[
       ('1x', TextScaler.noScaling),
       ('1.3x', const TextScaler.linear(1.3)),
@@ -65,7 +65,7 @@ void main() {
           addTearDown(tester.view.reset);
           await tester.pumpWidget(
             MaterialApp(
-              theme: theme.isPaper ? AppTheme.paperTheme : AppTheme.darkTheme,
+              theme: AppTheme.paperTheme,
               builder: (context, child) => MediaQuery(
                 data: MediaQuery.of(context).copyWith(textScaler: escala),
                 child: child!,

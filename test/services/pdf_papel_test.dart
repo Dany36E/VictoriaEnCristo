@@ -17,10 +17,12 @@ import 'package:firebase_core_platform_interface/test.dart';
 import 'package:flutter_test/flutter_test.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
+import 'package:pdf/pdf.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-/// Genera el PDF de un apunte en el estilo clásico y en el de papel. Las
-/// copias quedan en build/qa/ para revisarlas a ojo.
+/// Genera los PDF de Apuntes y Estudio (siempre en papel claro, aunque la app
+/// esté en un papel oscuro). Las copias quedan en build/qa/ para revisarlas a
+/// ojo.
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
   setupFirebaseCoreMocks();
@@ -37,33 +39,23 @@ void main() {
     if (await tempDir.exists()) await tempDir.delete(recursive: true);
   });
 
-  test('el PDF sigue el tema de la Biblia, no el de la app', () async {
-    await ThemeService().setTheme('papel');
-    BibleUserDataService.I.readerThemeNotifier.value = 'clean_page';
-    expect((await EstiloPdf.cargar()).papel, isFalse);
-
-    await ThemeService().setTheme('clean_page');
-    BibleUserDataService.I.readerThemeNotifier.value = 'papel';
-    expect((await EstiloPdf.cargar()).papel, isTrue);
-  });
-
-  test('el estilo sigue al tema activo', () async {
-    await _usarTema('papel');
-    final papel = await EstiloPdf.cargar();
-    expect(papel.papel, isTrue);
-    expect(papel.titulo, isNotNull);
-    expect(papel.mano, isNotNull);
-
-    await _usarTema('clean_page');
-    final clasico = await EstiloPdf.cargar();
-    expect(clasico.papel, isFalse);
-    expect(clasico.titulo, isNull);
-  });
+  test(
+    'el PDF sale en papel claro aunque la app esté en papel oscuro',
+    () async {
+      for (final tema in ['papel', 'papel_kraft', 'papel_noche']) {
+        await _usarTema(tema);
+        final estilo = await EstiloPdf.cargar();
+        expect(estilo.titulo, isNotNull, reason: tema);
+        expect(estilo.mano, isNotNull, reason: tema);
+        expect(estilo.tinta, const PdfColor.fromInt(0xFF2B2622), reason: tema);
+      }
+    },
+  );
 
   for (final (tema, portada) in [
     ('papel', true),
     ('papel', false),
-    ('clean_page', false),
+    ('papel_kraft', false),
   ]) {
     test('apunte en PDF con tema $tema${portada ? ' y portada' : ''}', () async {
       await _usarTema(tema);
@@ -160,7 +152,7 @@ void main() {
     ).join(' '),
     'renglones cortos': List.filled(60, 'Orar hoy.').join('\n'),
   };
-  for (final tema in ['papel', 'clean_page']) {
+  for (final tema in ['papel', 'papel_kraft']) {
     for (final MapEntry(key: tipo, value: reflexion) in reflexiones.entries) {
       test('reflexión $tipo con tema $tema se parte entre páginas', () async {
         await _usarTema(tema);
@@ -238,7 +230,7 @@ void main() {
 }
 
 void _estudio() {
-  for (final tema in ['papel', 'clean_page']) {
+  for (final tema in ['papel', 'papel_kraft']) {
     test('estudio en PDF con tema $tema', () async {
       await _usarTema(tema);
       final estudio = StudyChapterAnswers(

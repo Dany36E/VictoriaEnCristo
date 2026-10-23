@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_fonts.dart';
-import '../../../theme/app_theme_data.dart';
 import '../../../vec/vec_tema.dart';
 import '../../../vec/vec_widgets.dart';
 
@@ -40,16 +39,11 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
   ];
 
   // Tema «papel recortado»: hoja de papel con letras y colores del kit.
-  bool get _papel => AppThemeData.of(context).isPaper;
-  Color get _texto => _papel ? VecColores.tinta : Colors.white;
+  Color get _texto => VecColores.tinta;
 
   @override
   Widget build(BuildContext context) {
     return Dialog(
-      backgroundColor: _papel ? null : const Color(0xFF161616),
-      shape: _papel
-          ? null
-          : RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       insetPadding: const EdgeInsets.all(24),
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 460, maxHeight: 520),
@@ -84,19 +78,12 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
                     child: Text(
                       'Saltar',
                       style: AppFonts.manrope(
-                        color: _papel ? VecColores.gris : Colors.white54,
+                        color: VecColores.gris,
                       ),
                     ),
                   ),
                   const Spacer(),
                   ElevatedButton(
-                    style: _papel
-                        ? null
-                        : ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFFD4A853),
-                            foregroundColor: Colors.black,
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-                          ),
                     onPressed: () {
                       if (_index < _slides.length - 1) {
                         _controller.nextPage(
@@ -127,10 +114,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          if (_papel)
-            CirculoIcono(icono: s.icon, tamano: 72, giro: -4)
-          else
-            Icon(s.icon, color: const Color(0xFFD4A853), size: 56),
+          CirculoIcono(icono: s.icon, tamano: 72, giro: -4),
           const SizedBox(height: 18),
           Text(
             s.title,
@@ -146,7 +130,7 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
             s.body,
             textAlign: TextAlign.center,
             style: AppFonts.lora(
-              color: _papel ? VecColores.tinta : Colors.white70,
+              color: VecColores.tinta,
               fontSize: 14,
               height: 1.5,
             ),
@@ -198,8 +182,8 @@ class _StudyOnboardingOverlayState extends State<StudyOnboardingOverlay> {
           height: 6,
           decoration: BoxDecoration(
             color: active
-                ? (_papel ? VecColores.terracota : const Color(0xFFD4A853))
-                : (_papel ? VecColores.cremaOscuro : Colors.white24),
+                ? (VecColores.terracota)
+                : (VecColores.cremaOscuro),
             borderRadius: BorderRadius.circular(3),
           ),
         );

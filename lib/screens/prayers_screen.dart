@@ -161,13 +161,13 @@ class _PrayersScreenState extends State<PrayersScreen> {
           SliverAppBar(
             pinned: true,
             expandedHeight: 160,
-            backgroundColor: t.isPaper ? Colors.transparent : t.scaffoldBg,
+            backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
             flexibleSpace: Stack(
               fit: StackFit.expand,
               children: [
-                // Tema papel: la barra fija también es hoja con textura.
-                if (t.isPaper) const FondoPapel(child: SizedBox.expand()),
+                // La barra fija también es hoja con textura.
+                const FondoPapel(child: SizedBox.expand()),
                 FlexibleSpaceBar(
                   titlePadding: const EdgeInsets.only(left: 20, bottom: 16, right: 20),
                   title: Text(
@@ -183,24 +183,7 @@ class _PrayersScreenState extends State<PrayersScreen> {
                     decoration: BoxDecoration(gradient: t.headerGradient),
                     child: Stack(
                       children: [
-                        if (!t.isPaper)
-                        Positioned(
-                          right: -40,
-                          top: 30,
-                          child: Container(
-                            width: 200,
-                            height: 200,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              gradient: RadialGradient(
-                                colors: [
-                                  t.accent.withValues(alpha: 0.15),
-                                  Colors.transparent,
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
+
                         Positioned(
                           left: 20,
                           bottom: 48,
@@ -279,8 +262,8 @@ class _PersonalizedSection extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            accent.withValues(alpha: themeData.isDark ? 0.18 : 0.12),
-            accent.withValues(alpha: themeData.isDark ? 0.06 : 0.04),
+            accent.withValues(alpha: 0.12),
+            accent.withValues(alpha: 0.04),
           ],
         ),
         borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
@@ -489,7 +472,7 @@ class _PrayerCard extends StatelessWidget {
             color: themeData.cardBg,
             borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
             border: Border.all(
-              color: accent.withValues(alpha: themeData.isDark ? 0.22 : 0.14),
+              color: accent.withValues(alpha: 0.14),
               width: 1,
             ),
           ),
@@ -499,7 +482,7 @@ class _PrayerCard extends StatelessWidget {
                 width: 44,
                 height: 44,
                 decoration: BoxDecoration(
-                  color: accent.withValues(alpha: themeData.isDark ? 0.18 : 0.12),
+                  color: accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(AppDesignSystem.radiusS + 2),
                 ),
                 alignment: Alignment.center,
@@ -618,48 +601,26 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
           SliverAppBar(
             pinned: true,
             expandedHeight: 220,
-            backgroundColor: t.isPaper ? Colors.transparent : t.scaffoldBg,
+            backgroundColor: Colors.transparent,
             surfaceTintColor: Colors.transparent,
             iconTheme: IconThemeData(color: t.textPrimary),
             flexibleSpace: Stack(
               fit: StackFit.expand,
               children: [
-                // Tema papel: la barra fija también es hoja con textura.
-                if (t.isPaper) const FondoPapel(child: SizedBox.expand()),
+                // La barra fija también es hoja con textura.
+                const FondoPapel(child: SizedBox.expand()),
                 FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
-                    colors: t.isPaper
-                        ? const [Colors.transparent, Colors.transparent]
-                        : [
-                      widget.color.withValues(alpha: t.isDark ? 0.30 : 0.18),
-                      t.scaffoldBg,
-                    ],
+                    colors: [Colors.transparent, Colors.transparent],
                   ),
                 ),
                 child: Stack(
                   children: [
-                    if (!t.isPaper)
-                    Positioned(
-                      right: -60,
-                      top: 40,
-                      child: Container(
-                        width: 260,
-                        height: 260,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          gradient: RadialGradient(
-                            colors: [
-                              widget.color.withValues(alpha: 0.25),
-                              Colors.transparent,
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+
                     Align(
                       alignment: Alignment.bottomLeft,
                       child: Padding(
@@ -668,39 +629,10 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            if (t.isPaper)
-                              const CirculoIcono(
-                                iconoVec: 'orar',
-                                tamano: 56,
-                                giro: -4,
-                              )
-                            else
-                            Container(
-                              width: 56,
-                              height: 56,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
-                                  colors: [
-                                    widget.color,
-                                    widget.color.withValues(alpha: 0.7),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(16),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: widget.color.withValues(alpha: 0.4),
-                                    blurRadius: 16,
-                                    offset: const Offset(0, 6),
-                                  ),
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.menu_book_rounded,
-                                color: Colors.white,
-                                size: 28,
-                              ),
+                            const CirculoIcono(
+                              iconoVec: 'orar',
+                              tamano: 56,
+                              giro: -4,
                             ),
                             const SizedBox(height: 12),
                             Text(
@@ -759,7 +691,7 @@ class _PrayerDetailScreenState extends State<PrayerDetailScreen> {
                     color: t.cardBg,
                     borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
                     border: Border.all(
-                      color: widget.color.withValues(alpha: t.isDark ? 0.22 : 0.15),
+                      color: widget.color.withValues(alpha: 0.15),
                       width: 1,
                     ),
                   ),

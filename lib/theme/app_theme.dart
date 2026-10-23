@@ -5,7 +5,6 @@ import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 import 'app_theme_data.dart';
 import 'contraste.dart';
-import 'dart:ui';
 
 /// ============================================================================
 /// VICTORIA EN CRISTO - DESIGN SYSTEM
@@ -43,8 +42,16 @@ class AppDesignSystem {
   /// [gold] para texto: en los temas claros se oscurece lo justo para leerse
   /// (WCAG AA) sobre el fondo de la página, o sobre una pastilla dorada de
   /// opacidad [pastilla] encima de ella. En los oscuros queda igual.
-  static Color oroTexto(BuildContext context, {double pastilla = 0}) =>
-      legibleEnPastilla(gold, pastilla, AppThemeData.of(context).fondoVisible);
+  /// Legible sobre la página y sobre las tarjetas: en los papeles oscuros las
+  /// tarjetas son más claras que la hoja.
+  static Color oroTexto(BuildContext context, {double pastilla = 0}) {
+    final t = AppThemeData.of(context);
+    return legibleEnPastilla(
+      legibleEnPastilla(gold, pastilla, t.fondoVisible),
+      pastilla,
+      t.cardBg,
+    );
+  }
   
   /// Neutral: Pure Light - Represents purity, peace, clarity
   static const Color pureWhite = Color(0xFFFFFBF5);
@@ -398,37 +405,14 @@ class GlassContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) {
-      // Tema papel: sin vidrio esmerilado; recorte de papel con su sombra.
-      return Container(
-        padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
-        decoration: BoxDecoration(
-          color: VecColores.papel,
-          borderRadius: BorderRadius.circular(VecRadios.m),
-          boxShadow: VecSombras.papel,
-        ),
-        child: child,
-      );
-    }
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(borderRadius ?? AppDesignSystem.radiusM),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: Container(
-          padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
-          decoration: BoxDecoration(
-            color: backgroundColor ?? AppDesignSystem.pureWhite.withValues(alpha: 0.7),
-            borderRadius: BorderRadius.circular(borderRadius ?? AppDesignSystem.radiusM),
-            border: hasBorder
-                ? Border.all(
-                    color: AppDesignSystem.midnight.withValues(alpha: 0.08),
-                    width: 1,
-                  )
-                : null,
-          ),
-          child: child,
-        ),
+    return Container(
+      padding: padding ?? const EdgeInsets.all(AppDesignSystem.spacingM),
+      decoration: BoxDecoration(
+        color: VecColores.papel,
+        borderRadius: BorderRadius.circular(VecRadios.m),
+        boxShadow: VecSombras.papel,
       ),
+      child: child,
     );
   }
 }
@@ -468,7 +452,6 @@ class PremiumButton extends StatefulWidget {
 class _PremiumButtonState extends State<PremiumButton>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
-  late Animation<double> _scaleAnimation;
 
   @override
   void initState() {
@@ -476,9 +459,6 @@ class _PremiumButtonState extends State<PremiumButton>
     _controller = AnimationController(
       duration: const Duration(milliseconds: 100),
       vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 0.96).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
     );
   }
 
@@ -503,46 +483,11 @@ class _PremiumButtonState extends State<PremiumButton>
 
   @override
   Widget build(BuildContext context) {
-    if (AppThemeData.of(context).isPaper) return _buildPapel();
-    return GestureDetector(
-      onTapDown: _onTapDown,
-      onTapUp: _onTapUp,
-      onTapCancel: _onTapCancel,
-      onTap: widget.onPressed,
-      child: AnimatedBuilder(
-        animation: _scaleAnimation,
-        builder: (context, child) {
-          return Transform.scale(
-            scale: _scaleAnimation.value,
-            child: Container(
-              width: widget.width,
-              padding: widget.padding ??
-                  const EdgeInsets.symmetric(
-                    horizontal: AppDesignSystem.spacingL,
-                    vertical: AppDesignSystem.spacingM,
-                  ),
-              decoration: BoxDecoration(
-                color: widget.isOutlined
-                    ? Colors.transparent
-                    : (widget.backgroundColor ?? AppDesignSystem.midnight),
-                gradient: widget.gradient,
-                borderRadius: BorderRadius.circular(
-                    widget.borderRadius ?? AppDesignSystem.radiusM),
-                border: widget.isOutlined
-                    ? Border.all(color: AppDesignSystem.midnight, width: 1.5)
-                    : null,
-                boxShadow: widget.isOutlined ? null : (widget.shadow ?? AppDesignSystem.shadowMedium),
-              ),
-              child: Center(child: widget.child),
-            ),
-          );
-        },
-      ),
-    );
+    return _buildPapel();
   }
 }
 
-/// Tema papel: píldora de color sólido del kit que se hunde 5 px al tocarla.
+/// Píldora de color sólido del kit que se hunde 5 px al tocarla.
 extension on _PremiumButtonState {
   Widget _buildPapel() {
     final fondo = widget.isOutlined
@@ -607,479 +552,19 @@ class AppTheme {
   static const Color darkPrimary = AppDesignSystem.goldLight;
   static const Color darkAccent = AppDesignSystem.gold;
 
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppDesignSystem.midnight,
-        primary: AppDesignSystem.midnight,
-        secondary: AppDesignSystem.gold,
-        surface: AppDesignSystem.softWhite,
-        brightness: Brightness.light,
-      ),
-      scaffoldBackgroundColor: AppDesignSystem.softWhite,
-      
-      // AppBar
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppDesignSystem.softWhite,
-        foregroundColor: AppDesignSystem.midnight,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        titleTextStyle: AppFonts.manrope(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.3,
-          color: AppDesignSystem.midnight,
-        ),
-        iconTheme: const IconThemeData(
-          color: AppDesignSystem.midnight,
-          size: 24,
-        ),
-      ),
-      
-      // Cards
-      cardTheme: CardThemeData(
-        color: AppDesignSystem.pureWhite,
-        elevation: 0,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          side: BorderSide(
-            color: AppDesignSystem.midnight.withValues(alpha: 0.06),
-            width: 1,
-          ),
-        ),
-        margin: EdgeInsets.zero,
-      ),
-      
-      // Elevated Buttons
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppDesignSystem.midnight,
-          foregroundColor: AppDesignSystem.pureWhite,
-          elevation: 0,
-          shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDesignSystem.spacingL,
-            vertical: AppDesignSystem.spacingM,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          ),
-          textStyle: AppFonts.manrope(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ),
-      
-      // Text Buttons
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppDesignSystem.midnight,
-          textStyle: AppFonts.manrope(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-      
-      // Outlined Buttons
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppDesignSystem.midnight,
-          side: const BorderSide(
-            color: AppDesignSystem.midnight,
-            width: 1.5,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDesignSystem.spacingL,
-            vertical: AppDesignSystem.spacingM,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          ),
-          textStyle: AppFonts.manrope(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ),
-      
-      // FAB
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: AppDesignSystem.gold,
-        foregroundColor: AppDesignSystem.midnight,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        ),
-      ),
-      
-      // Input Decoration
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppDesignSystem.pureWhite,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppDesignSystem.spacingM,
-          vertical: AppDesignSystem.spacingM,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          borderSide: BorderSide(
-            color: AppDesignSystem.midnight.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          borderSide: BorderSide(
-            color: AppDesignSystem.midnight.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          borderSide: const BorderSide(
-            color: AppDesignSystem.gold,
-            width: 2,
-          ),
-        ),
-        labelStyle: AppFonts.manrope(
-          color: AppDesignSystem.coolGray,
-          fontWeight: FontWeight.w500,
-        ),
-        hintStyle: AppFonts.manrope(
-          color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
-        ),
-      ),
-      
-      // Bottom Navigation
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppDesignSystem.pureWhite,
-        selectedItemColor: AppDesignSystem.midnight,
-        unselectedItemColor: AppDesignSystem.coolGray,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        selectedLabelStyle: AppFonts.manrope(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
-        unselectedLabelStyle: AppFonts.manrope(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 0.5,
-        ),
-      ),
-      
-      // Switch
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return AppDesignSystem.gold;
-          }
-          return AppDesignSystem.coolGray;
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return AppDesignSystem.gold.withValues(alpha: 0.3);
-          }
-          return AppDesignSystem.warmGray;
-        }),
-      ),
-      
-      // Dialog
-      dialogTheme: DialogThemeData(
-        backgroundColor: AppDesignSystem.pureWhite,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        ),
-      ),
-      
-      // Snackbar
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppDesignSystem.midnight,
-        contentTextStyle: AppFonts.manrope(
-          color: AppDesignSystem.pureWhite,
-          fontWeight: FontWeight.w500,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-      
-      // Divider
-      dividerTheme: DividerThemeData(
-        color: AppDesignSystem.midnight.withValues(alpha: 0.06),
-        thickness: 1,
-        space: 1,
-      ),
-      
-      // Icon
-      iconTheme: const IconThemeData(
-        color: AppDesignSystem.midnight,
-        size: 24,
-      ),
-      
-      // Progress Indicator
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppDesignSystem.gold,
-        linearTrackColor: AppDesignSystem.warmGray,
-      ),
-    );
-  }
-
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.fromSeed(
-        seedColor: AppDesignSystem.gold,
-        primary: AppDesignSystem.goldLight,
-        secondary: AppDesignSystem.gold,
-        surface: AppDesignSystem.midnight,
-        brightness: Brightness.dark,
-      ),
-      scaffoldBackgroundColor: AppDesignSystem.midnightDeep,
-      
-      // AppBar
-      appBarTheme: AppBarTheme(
-        backgroundColor: AppDesignSystem.midnightDeep,
-        foregroundColor: AppDesignSystem.pureWhite,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        centerTitle: true,
-        titleTextStyle: AppFonts.manrope(
-          fontSize: 18,
-          fontWeight: FontWeight.w600,
-          letterSpacing: -0.3,
-          color: AppDesignSystem.pureWhite,
-        ),
-        iconTheme: const IconThemeData(
-          color: AppDesignSystem.pureWhite,
-          size: 24,
-        ),
-      ),
-      
-      // Cards
-      cardTheme: CardThemeData(
-        color: AppDesignSystem.midnightLight,
-        elevation: 0,
-        shadowColor: Colors.transparent,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          side: BorderSide(
-            color: AppDesignSystem.pureWhite.withValues(alpha: 0.08),
-            width: 1,
-          ),
-        ),
-        margin: EdgeInsets.zero,
-      ),
-      
-      // Elevated Buttons
-      elevatedButtonTheme: ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppDesignSystem.gold,
-          foregroundColor: AppDesignSystem.midnightDeep,
-          elevation: 0,
-          shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDesignSystem.spacingL,
-            vertical: AppDesignSystem.spacingM,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          ),
-          textStyle: AppFonts.manrope(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ),
-      
-      // Text Buttons
-      textButtonTheme: TextButtonThemeData(
-        style: TextButton.styleFrom(
-          foregroundColor: AppDesignSystem.goldLight,
-          textStyle: AppFonts.manrope(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ),
-      
-      // Outlined Buttons
-      outlinedButtonTheme: OutlinedButtonThemeData(
-        style: OutlinedButton.styleFrom(
-          foregroundColor: AppDesignSystem.goldLight,
-          side: const BorderSide(
-            color: AppDesignSystem.gold,
-            width: 1.5,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: AppDesignSystem.spacingL,
-            vertical: AppDesignSystem.spacingM,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          ),
-          textStyle: AppFonts.manrope(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            letterSpacing: 1.0,
-          ),
-        ),
-      ),
-      
-      // FAB
-      floatingActionButtonTheme: FloatingActionButtonThemeData(
-        backgroundColor: AppDesignSystem.gold,
-        foregroundColor: AppDesignSystem.midnightDeep,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        ),
-      ),
-      
-      // Input Decoration
-      inputDecorationTheme: InputDecorationTheme(
-        filled: true,
-        fillColor: AppDesignSystem.midnight,
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: AppDesignSystem.spacingM,
-          vertical: AppDesignSystem.spacingM,
-        ),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          borderSide: BorderSide(
-            color: AppDesignSystem.pureWhite.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          borderSide: BorderSide(
-            color: AppDesignSystem.pureWhite.withValues(alpha: 0.1),
-            width: 1,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-          borderSide: const BorderSide(
-            color: AppDesignSystem.gold,
-            width: 2,
-          ),
-        ),
-        labelStyle: AppFonts.manrope(
-          color: AppDesignSystem.coolGray,
-          fontWeight: FontWeight.w500,
-        ),
-        hintStyle: AppFonts.manrope(
-          color: AppDesignSystem.coolGray.withValues(alpha: 0.6),
-        ),
-      ),
-      
-      // Bottom Navigation
-      bottomNavigationBarTheme: BottomNavigationBarThemeData(
-        backgroundColor: AppDesignSystem.midnight,
-        selectedItemColor: AppDesignSystem.gold,
-        unselectedItemColor: AppDesignSystem.coolGray,
-        type: BottomNavigationBarType.fixed,
-        elevation: 0,
-        selectedLabelStyle: AppFonts.manrope(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          letterSpacing: 0.5,
-        ),
-        unselectedLabelStyle: AppFonts.manrope(
-          fontSize: 12,
-          fontWeight: FontWeight.w500,
-          letterSpacing: 0.5,
-        ),
-      ),
-      
-      // Switch
-      switchTheme: SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return AppDesignSystem.gold;
-          }
-          return AppDesignSystem.coolGray;
-        }),
-        trackColor: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return AppDesignSystem.gold.withValues(alpha: 0.3);
-          }
-          return AppDesignSystem.midnightLight;
-        }),
-      ),
-      
-      // Dialog
-      dialogTheme: DialogThemeData(
-        backgroundColor: AppDesignSystem.midnightLight,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
-        ),
-      ),
-      
-      // Snackbar
-      snackBarTheme: SnackBarThemeData(
-        backgroundColor: AppDesignSystem.gold,
-        contentTextStyle: AppFonts.manrope(
-          color: AppDesignSystem.midnightDeep,
-          fontWeight: FontWeight.w500,
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppDesignSystem.radiusM),
-        ),
-        behavior: SnackBarBehavior.floating,
-      ),
-      
-      // Divider
-      dividerTheme: DividerThemeData(
-        color: AppDesignSystem.pureWhite.withValues(alpha: 0.08),
-        thickness: 1,
-        space: 1,
-      ),
-      
-      // Icon
-      iconTheme: const IconThemeData(
-        color: AppDesignSystem.pureWhite,
-        size: 24,
-      ),
-      
-      // Progress Indicator
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
-        color: AppDesignSystem.gold,
-        linearTrackColor: AppDesignSystem.midnightLight,
-      ),
-    );
-  }
-
   // ══════════════════════════════════════════════════════════════════════════
   // PAPER THEME — «papel recortado» (kit victoria-en-cristo-estilo)
   // ══════════════════════════════════════════════════════════════════════════
   //
   // Parte de vecTema() del kit y lo extiende a todos los componentes de
   // Material con los mismos tokens (VecColores, VecFuentes, VecSombras,
-  // VecRadios). Se usa cuando AppThemeData.isPaper es true.
+  // VecRadios). Es el tema de toda la app (claro u oscuro según el papel).
 
-  static const TextStyle _vecTitulo = TextStyle(
+  static TextStyle get _vecTitulo => TextStyle(
     fontFamily: VecFuentes.titulo,
     color: VecColores.tinta,
   );
-  static const TextStyle _vecTexto = TextStyle(
+  static TextStyle get _vecTexto => TextStyle(
     fontFamily: VecFuentes.texto,
     color: VecColores.tinta,
   );
@@ -1150,7 +635,7 @@ class AppTheme {
         },
       ),
 
-      appBarTheme: const AppBarTheme(
+      appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         foregroundColor: VecColores.tinta,
         elevation: 0,
@@ -1217,12 +702,12 @@ class AppTheme {
         selectedColor: VecColores.terracota,
         disabledColor: VecColores.cremaOscuro,
         checkmarkColor: VecColores.papel,
-        labelStyle: const TextStyle(
+        labelStyle: TextStyle(
           fontFamily: VecFuentes.titulo,
           fontSize: 15,
           color: VecColores.tinta,
         ),
-        secondaryLabelStyle: const TextStyle(
+        secondaryLabelStyle: TextStyle(
           fontFamily: VecFuentes.titulo,
           fontSize: 15,
           color: VecColores.papel,
@@ -1239,19 +724,19 @@ class AppTheme {
       inputDecorationTheme: base.inputDecorationTheme.copyWith(
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.tinta, width: 4),
+          borderSide: BorderSide(color: VecColores.tinta, width: 4),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+          borderSide: BorderSide(color: VecColores.terracota, width: 4),
         ),
         focusedErrorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.terracota, width: 4),
+          borderSide: BorderSide(color: VecColores.terracota, width: 4),
         ),
         disabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(VecRadios.s),
-          borderSide: const BorderSide(color: VecColores.cremaOscuro, width: 4),
+          borderSide: BorderSide(color: VecColores.cremaOscuro, width: 4),
         ),
         labelStyle: _vecTexto.copyWith(color: VecColores.gris, fontSize: 18),
         floatingLabelStyle: _vecTitulo.copyWith(
@@ -1272,8 +757,8 @@ class AppTheme {
               ? VecColores.verde
               : VecColores.papel,
         ),
-        checkColor: const WidgetStatePropertyAll(VecColores.papel),
-        side: const BorderSide(color: VecColores.tinta, width: 3),
+        checkColor: WidgetStatePropertyAll(VecColores.papel),
+        side: BorderSide(color: VecColores.tinta, width: 3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(6),
         ),
@@ -1285,7 +770,7 @@ class AppTheme {
               : VecColores.tinta,
         ),
       ),
-      sliderTheme: const SliderThemeData(
+      sliderTheme: SliderThemeData(
         activeTrackColor: VecColores.terracota,
         inactiveTrackColor: VecColores.cremaOscuro,
         thumbColor: VecColores.terracota,
@@ -1299,12 +784,12 @@ class AppTheme {
         titleTextStyle: _vecTitulo.copyWith(fontSize: 24),
         contentTextStyle: _vecTexto.copyWith(fontSize: 18, height: 1.3),
       ),
-      bottomSheetTheme: const BottomSheetThemeData(
+      bottomSheetTheme: BottomSheetThemeData(
         backgroundColor: VecColores.papel,
         surfaceTintColor: Colors.transparent,
         modalBackgroundColor: VecColores.papel,
         dragHandleColor: VecColores.cremaOscuro,
-        shape: RoundedRectangleBorder(
+        shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(
             top: Radius.circular(VecRadios.l),
           ),
@@ -1323,7 +808,11 @@ class AppTheme {
           color: VecColores.papel,
           fontSize: 16,
         ),
-        actionTextColor: VecColores.mostazaClaro,
+        // En los papeles oscuros la barra es crema: la mostaza no se lee y va
+        // la terracota del papel claro.
+        actionTextColor: VecColores.oscuro
+            ? VecPaleta.claro.terracota
+            : VecColores.mostazaClaro,
         shape: BordeConSombraVec.pildora(presionado: true),
         behavior: SnackBarBehavior.floating,
         elevation: 0,
@@ -1337,14 +826,14 @@ class AppTheme {
       ),
 
       // Barra inferior (.vec-tabbar): papel, activo en terracota.
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: VecColores.papel,
         selectedItemColor: VecColores.terracota,
         unselectedItemColor: VecColores.gris,
         type: BottomNavigationBarType.fixed,
         elevation: 0,
-        selectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
-        unselectedLabelStyle: TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+        selectedLabelStyle: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
+        unselectedLabelStyle: const TextStyle(fontFamily: VecFuentes.titulo, fontSize: 13),
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: VecColores.papel,
@@ -1376,7 +865,7 @@ class AppTheme {
         unselectedLabelStyle: _vecTitulo.copyWith(fontSize: 16),
       ),
 
-      dividerTheme: const DividerThemeData(
+      dividerTheme: DividerThemeData(
         color: VecColores.cremaOscuro,
         thickness: 2,
         space: 1,
@@ -1390,8 +879,8 @@ class AppTheme {
           color: VecColores.gris,
         ),
       ),
-      iconTheme: const IconThemeData(color: VecColores.tinta, size: 24),
-      progressIndicatorTheme: const ProgressIndicatorThemeData(
+      iconTheme: IconThemeData(color: VecColores.tinta, size: 24),
+      progressIndicatorTheme: ProgressIndicatorThemeData(
         color: VecColores.terracota,
         linearTrackColor: VecColores.cremaOscuro,
         circularTrackColor: VecColores.cremaOscuro,

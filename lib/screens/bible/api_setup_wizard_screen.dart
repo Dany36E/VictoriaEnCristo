@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../../theme/app_fonts.dart';
 import '../../services/bible/iq_bible_service.dart';
-import '../../theme/app_theme_data.dart';
 import '../../vec/vec_tema.dart';
 
 /// Wizard paso-a-paso para configurar la API key de IQ Bible (RapidAPI).
@@ -15,22 +14,20 @@ class ApiSetupWizardScreen extends StatefulWidget {
 }
 
 class _ApiSetupWizardScreenState extends State<ApiSetupWizardScreen> {
-  // Tema «papel recortado»: hoja de papel y colores del kit; en los demás
-  // temas, la paleta nocturna original.
-  bool get _papel => AppThemeData.of(context).isPaper;
-  Color get _fondo => _papel ? Colors.transparent : const Color(0xFF0A0E1A);
-  Color get _barra => _papel ? Colors.transparent : const Color(0xFF121729);
-  Color get _superficie => _papel ? VecColores.papel : const Color(0xFF121729);
-  Color get _oro => _papel ? VecColores.terracota : const Color(0xFFD4AF37);
-  Color get _sobreOro => _papel ? VecColores.papel : const Color(0xFF0A0E1A);
-  Color get _verde => _papel ? VecColores.verde : const Color(0xFF4CAF50);
-  Color get _error => _papel ? VecColores.terracota : const Color(0xFFE57373);
-  Color get _texto => _papel ? VecColores.tinta : Colors.white;
-  Color get _texto2 => _papel ? VecColores.tinta : Colors.white70;
-  Color get _texto3 => _papel ? VecColores.gris : Colors.white54;
-  Color get _texto4 => _papel ? VecColores.gris : Colors.white38;
-  Color get _linea => _papel ? VecColores.cremaOscuro : Colors.white12;
-  Color get _linea2 => _papel ? VecColores.cremaOscuro : Colors.white24;
+  // Hoja de papel y colores del kit.
+  Color get _fondo => Colors.transparent;
+  Color get _barra => Colors.transparent;
+  Color get _superficie => VecColores.papel;
+  Color get _oro => VecColores.terracota;
+  Color get _sobreOro => VecColores.papel;
+  Color get _verde => VecColores.verde;
+  Color get _error => VecColores.terracota;
+  Color get _texto => VecColores.tinta;
+  Color get _texto2 => VecColores.tinta;
+  Color get _texto3 => VecColores.gris;
+  Color get _texto4 => VecColores.gris;
+  Color get _linea => VecColores.cremaOscuro;
+  Color get _linea2 => VecColores.cremaOscuro;
 
   final _pageController = PageController();
   final _keyController = TextEditingController();

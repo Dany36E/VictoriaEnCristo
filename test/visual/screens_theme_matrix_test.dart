@@ -5,6 +5,7 @@ import 'package:app_quitar/models/bible/bible_verse.dart';
 import 'package:app_quitar/models/bible/bible_version.dart';
 import 'package:app_quitar/services/learning/book_progress_service.dart';
 import 'package:app_quitar/services/learning/book_repository.dart';
+import 'package:app_quitar/screens/bible/lienzo_dibujo_screen.dart';
 import 'package:app_quitar/screens/battle_partner/add_partner_screen.dart';
 import 'package:app_quitar/screens/bible/all_chapter_notes_screen.dart';
 import 'package:app_quitar/screens/bible/all_notes_screen.dart';
@@ -49,6 +50,7 @@ import 'package:app_quitar/screens/learning/talents_library_screen.dart';
 import 'package:app_quitar/screens/learning/timeline_lessons_screen.dart';
 import 'package:app_quitar/screens/legal_consent_screen.dart';
 import 'package:app_quitar/screens/login_screen.dart';
+import 'package:app_quitar/screens/onboarding/giant_frequency_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
 import 'package:app_quitar/screens/plan_library_screen.dart';
@@ -109,6 +111,7 @@ void main() {
   themeMatrix('blb_setup', () => const BlbSetupScreen());
   themeMatrix('collections', () => const CollectionsScreen());
   themeMatrix('gospel_harmony', () => const GospelHarmonyScreen());
+  themeMatrix('lienzo_dibujo', () => const LienzoDibujoScreen());
   themeMatrix('ot_quotes', () => const OTQuotesScreen());
   themeMatrix('saved_verses', () => const SavedVersesScreen());
   themeMatrix('sermon_notes_saved', () => const SermonNotesSavedScreen());
@@ -165,6 +168,10 @@ void main() {
   themeMatrix('timeline_lessons', () => const TimelineLessonsScreen());
   themeMatrix('legal_consent', () => const LegalConsentScreen());
   themeMatrix('giant_selection', () => const GiantSelectionScreen());
+  themeMatrix(
+    'giant_frequency',
+    () => const GiantFrequencyScreen(selectedGiants: ['digital', 'mental']),
+  );
   themeMatrix('onboarding_welcome', () => const OnboardingWelcomeScreen());
   themeMatrix('plan_library', () => const PlanLibraryScreen());
   themeMatrix('prayers', () => const PrayersScreen());
@@ -175,16 +182,7 @@ void main() {
   themeMatrix('verses', () => const VersesScreen());
   themeMatrix('wall', () => const WallScreen());
   themeMatrix('widget_settings', () => const WidgetSettingsScreen());
-  // Sin esperarCarga: con la imagen de la racha cargada, night_pure muestra
-  // los mismos problemas de contraste del Inicio clásico que los otros temas
-  // ya tienen en la lista de conocidos, pero en otro orden, y la lista no se
-  // puede ampliar. Hay que corregir el Inicio clásico primero.
-  themeMatrix(
-    'home',
-    () => const HomeScreen(),
-    contenidoDelDia: true,
-    esperarCarga: false,
-  );
+  themeMatrix('home', () => const HomeScreen(), contenidoDelDia: true);
   themeMatrix('login', () => const LoginScreen());
   themeMatrix('profile', () => const ProfileScreen());
   themeMatrix('settings', () => SettingsScreen(onThemeChanged: () {}));

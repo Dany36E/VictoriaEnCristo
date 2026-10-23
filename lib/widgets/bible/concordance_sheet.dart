@@ -202,7 +202,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
                   height: 40,
                   padding: const EdgeInsets.symmetric(horizontal: 12),
                   decoration: BoxDecoration(
-                    color: t.isDark
+                    color: t.oscuro
                         ? Colors.white.withValues(alpha: 0.06)
                         : Colors.black.withValues(alpha: 0.04),
                     borderRadius: BorderRadius.circular(8),

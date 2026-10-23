@@ -46,15 +46,9 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
     (label: '4:5', w: 1080.0, h: 1350.0),
   ];
 
-  /// Con el tema papel, las plantillas de papel van primero (mismo orden que
-  /// en la hoja de acciones del versículo, que pasa el índice inicial).
-  List<ShareCardTemplate> get _plantillas => plantillasCompartir(
-    papel:
-        BibleReaderThemeData.migrateId(
-          BibleUserDataService.I.readerThemeNotifier.value,
-        ) ==
-        BibleReaderThemeData.paper.id,
-  );
+  /// Las plantillas de papel van primero (mismo orden que en la hoja de
+  /// acciones del versículo, que pasa el índice inicial).
+  List<ShareCardTemplate> get _plantillas => plantillasCompartir();
   ShareCardTemplate get _template => _plantillas[_selectedIndex];
   bool get _papelSeleccionado => _template.layout == ShareLayout.papel;
   Size get _cardSize =>
@@ -85,7 +79,7 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
                   // y su sombra marcan dónde termina (no salen en la imagen).
                   child: Container(
                     decoration: _papelSeleccionado
-                        ? const BoxDecoration(boxShadow: VecSombras.papel)
+                        ? BoxDecoration(boxShadow: VecSombras.papel)
                         : null,
                     foregroundDecoration: _papelSeleccionado
                         ? BoxDecoration(
@@ -553,7 +547,11 @@ class _TemplatePickerScreenState extends State<TemplatePickerScreen> {
             fontSize: 11,
             fontWeight: FontWeight.w700,
             color: isSelected
-                ? legibleEnPastilla(t.accent, 0.15, t.fondoVisible)
+                ? legibleEnPastilla(
+                  legibleEnPastilla(t.accent, 0.15, t.fondoVisible),
+                  0.15,
+                  t.surface,
+                )
                 : t.textoTenue(0.45),
           ),
         ),

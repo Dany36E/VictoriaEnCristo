@@ -16,7 +16,10 @@ import 'package:app_quitar/services/bible/bible_parser_service.dart';
 import 'package:app_quitar/services/bible/bible_user_data_service.dart';
 import 'package:app_quitar/screens/bible/study_mode_screen.dart';
 import 'package:app_quitar/widgets/bible/study/study_chapter_picker.dart';
+import 'package:app_quitar/services/theme_service.dart';
+import 'package:app_quitar/theme/app_theme.dart';
 import 'package:app_quitar/theme/bible_reader_theme.dart';
+import 'letras_kit.dart';
 import 'viewport_profiles.dart';
 
 void main() {
@@ -49,6 +52,7 @@ void main() {
         }
       }
     }
+    await cargarLetrasDelKit();
     WidgetController.hitTestWarningShouldBeFatal = true;
   });
   for (final profile in profiles.entries) {
@@ -62,6 +66,8 @@ void main() {
             addTearDown(tester.view.resetPhysicalSize);
             addTearDown(tester.view.resetDevicePixelRatio);
             BibleUserDataService.I.readerThemeNotifier.value = theme.id;
+            // El lector va en el papel de la app.
+            await tester.runAsync(() => ThemeService().setTheme(theme.id));
             TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
                 .setMockMethodCallHandler(SystemChannels.platform, (
                   call,
@@ -84,6 +90,7 @@ void main() {
                 key: boundary,
                 child: MaterialApp(
                   debugShowCheckedModeBanner: false,
+                  theme: AppTheme.paperTheme,
                   builder: (context, child) => MediaQuery(
                     data: MediaQuery.of(
                       context,

@@ -14,9 +14,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-Widget _app(Widget child, {AppThemeData tema = AppThemeData.paper}) =>
+Widget _app(Widget child, {AppThemeData? tema}) => _appCon(child, tema ?? AppThemeData.paper);
+
+Widget _appCon(Widget child, AppThemeData tema) =>
     MaterialApp(
-      theme: tema.isPaper ? AppTheme.paperTheme : ThemeData.dark(),
+      theme: AppTheme.paperTheme,
       builder: (context, c) => AppThemeData.provider(theme: tema, child: c!),
       home: Scaffold(
         body: SingleChildScrollView(
@@ -212,16 +214,6 @@ void main() {
     await tester.pumpWidget(_app(const AtajosInicio()));
     await tester.pumpAndSettle();
     expect(find.text('Agregar atajos'), findsOneWidget);
-  });
-
-  testWidgets('en los temas normales usa íconos de Material', (tester) async {
-    await tester.pumpWidget(
-      _app(const AtajosInicio(), tema: AppThemeData.nightPure),
-    );
-    await tester.pumpAndSettle();
-    expect(find.byIcon(Icons.menu_book), findsOneWidget);
-    expect(find.byIcon(Icons.edit_note_rounded), findsOneWidget);
-    expect(find.byType(Image), findsNothing);
   });
 
   test('Android tiene el dibujo de cada atajo y lo conoce por su id', () {

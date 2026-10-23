@@ -17,6 +17,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'letras_kit.dart';
 import 'visual_checks.dart';
 
 /// Prepara Firebase simulado, preferencias vacías y las fuentes reales, para
@@ -62,16 +63,7 @@ void setUpThemeMatrix() {
           rootBundle.load('google_fonts/CrimsonPro-VariableFont_wght.ttf'),
         ))
         .load();
-    // Letras del kit del tema «Papel recortado».
-    for (final (familia, archivo) in [
-      ('LilitaOne', 'LilitaOne-Regular.ttf'),
-      ('PatrickHand', 'PatrickHand-Regular.ttf'),
-      ('CaveatBrush', 'CaveatBrush-Regular.ttf'),
-    ]) {
-      await (FontLoader(
-        familia,
-      )..addFont(rootBundle.load('assets/vec/fuentes/$archivo'))).load();
-    }
+    await cargarLetrasDelKit();
     // Solo los pesos que existen en google_fonts/: pedir otro hace que
     // google_fonts intente descargarlo y la prueba falle.
     const medios = [FontWeight.w400, FontWeight.w500, FontWeight.w600];
@@ -166,18 +158,14 @@ void themeMatrix(
       // AppFonts elige las letras del kit según el tema activo del servicio.
       await tester.runAsync(() => ThemeService().setTheme(theme.id));
       final boundaryKey = GlobalKey();
-      final fondo = theme.isPaper
-          ? FondoPapel.decoracion
-          : const BoxDecoration();
+      final fondo = FondoPapel.decoracion;
       try {
         await tester.pumpWidget(
           MaterialApp(
             debugShowCheckedModeBanner: false,
             // Igual que main.dart: el tema papel tiene su propio ThemeData y
             // el papel con textura detrás de todas las rutas.
-            theme: theme.isPaper ? AppTheme.paperTheme : AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
-            themeMode: theme.isDark ? ThemeMode.dark : ThemeMode.light,
+            theme: AppTheme.paperTheme,
             builder: (context, child) => AppThemeData.provider(
               theme: theme,
               child: DecoratedBox(decoration: fondo, child: child!),

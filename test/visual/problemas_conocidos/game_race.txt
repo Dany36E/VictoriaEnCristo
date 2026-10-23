@@ -1,8 +1,0 @@
-# Problemas visuales que ya existían en "game_race". No agregues
-# líneas a mano: corrige el problema. Se regenera con
-# ACTUALIZAR_PROBLEMAS_CONOCIDOS=1 flutter test test/visual/
-charcoal: "Las más conocidas · 0 preguntas" contraste < 4.5
-mint: "1 Samuel 17:47" contraste < 4.5
-mint: "20 casillas · Hebreos 12:1" contraste < 4.5
-mint: "Las más conocidas · 0 preguntas" contraste < 4.5
-sepia_night: "Las más conocidas · 0 preguntas" contraste < 4.5
