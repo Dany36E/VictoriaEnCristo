@@ -1,6 +1,6 @@
 # Entrega pendiente para producción
 
-Estado técnico de referencia: versión `1.0.29+39`, 13 de septiembre de 2026.
+Estado técnico de referencia: versión `1.0.30+40`, 22 de octubre de 2026.
 
 Este documento separa las tareas que requieren decisiones, datos o cuentas del titular. No sustituye asesoría jurídica ni las declaraciones finales de Google Play o App Store Connect.
 
@@ -8,10 +8,11 @@ Este documento separa las tareas que requieren decisiones, datos o cuentas del t
 
 - Web pública: `https://victoria-en-cristo.web.app/`. La portada, el centro de ayuda, los documentos legales, `robots.txt` y `sitemap.xml` responden públicamente; no se detectaron cookies, formularios, analítica ni recursos remotos.
 - Auditoría web móvil del despliegue del 13 de septiembre: rendimiento 95, accesibilidad 100, buenas prácticas 100 y SEO 92; LCP 2.2 s, CLS 0 y TBT 120 ms. El peso transferido fue de aproximadamente 232 KiB, incluidas las nuevas capturas reales diferidas.
-- Android App Bundle: `dist/VictoriaEnCristo-1.0.29+39.aab`, validado con Bundletool y `jarsigner`, con `versionCode 39`, `versionName 1.0.29` y SHA-256 `0FBD2484D5146E12DD3884CED1178C1CD34E7D18C7E5FEAD16D6F13902E22574`.
-- Windows: instalación local actualizada en `%LOCALAPPDATA%/Programs/Victoria en Cristo`, comprobada mediante hash y arranque controlado. Paquete portable `dist/VictoriaEnCristo-Windows-v1.0.29.zip`, SHA-256 `6319D1483262AF9AECEE495D9B3DCCEAF37FB84E6A24D391C5E042C82F1CF90E`.
+- Android App Bundle: `dist/VictoriaEnCristo-1.0.30+40.aab`, compilado desde `main` (4dd25be) con Flutter 3.41.1, validado con Bundletool 1.18.3 (`validate` sin errores) y `jarsigner` (certificado de subida `CN=Victoria en Cristo`, no `CN=Android Debug`), con `versionCode 40`, `versionName 1.0.30` y SHA-256 `4E90206F5E16E230FE56740D4AE5BB31178432E72BDB9F41B8D855BB631FD984`.
+- Windows: instalación local actualizada a `1.0.30+40` en `%LOCALAPPDATA%/Programs/Victoria en Cristo`, comprobada mediante hash del ejecutable y arranque manual desde el menú Inicio. Paquete portable `dist/VictoriaEnCristo-Windows-v1.0.30.zip`, SHA-256 `85E85C0D0D63EDA4DB9DC1480E25A6BF91B88D6C0B8EEDEEE21BA70699E64DA9`.
+- Tema: la 1.0.30 incluye «Papel» como opción en Ajustes → Tema, pero conserva el tema guardado de cada usuario (por defecto `night_pure`). El diseño solo de papel (PR #4) queda para la 1.0.31.
 - iPhone y iPad: las 19 imágenes declaradas en `AppIcon.appiconset/Contents.json` existen y tienen las dimensiones requeridas. La compilación y firma nativas siguen necesitando macOS.
-- Calidad Flutter: `flutter analyze` sin incidencias y 355 pruebas automatizadas aprobadas.
+- Calidad Flutter: `flutter analyze` sin incidencias y 1058 pruebas automatizadas aprobadas.
 
 ## 1. Completar identidad y contacto legal
 
