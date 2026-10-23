@@ -12,6 +12,8 @@ import '../../theme/bible_reader_theme.dart';
 import '../../theme/contraste.dart';
 import '../../widgets/bible/sermon/adjuntos_nota.dart';
 import 'bible_reader_screen.dart';
+import 'bosquejos_screen.dart';
+import 'buscar_notas_screen.dart';
 import 'sermon_notes_mode_screen.dart';
 
 class SermonNotesSavedScreen extends StatefulWidget {
@@ -114,6 +116,24 @@ class _SermonNotesSavedScreenState extends State<SermonNotesSavedScreen> {
                     fontSize: 19,
                     fontWeight: FontWeight.w600,
                   ),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Bosquejos de sermón',
+                icon: Icon(Icons.account_tree_outlined,
+                    color: t.textSecondary, size: 22),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BosquejosScreen()),
+                ),
+              ),
+              IconButton(
+                tooltip: 'Buscar en todas mis notas',
+                icon: Icon(Icons.manage_search_rounded,
+                    color: t.textSecondary, size: 22),
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const BuscarNotasScreen()),
                 ),
               ),
             ],

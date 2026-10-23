@@ -30,6 +30,7 @@ import 'bible/collection_service.dart';
 import 'bible/chapter_note_service.dart';
 import 'bible/adjuntos_nota_service.dart';
 import 'bible/sermon_note_service.dart';
+import 'bible/bosquejo_sermon_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
 import 'bible/blb_api_service.dart';
@@ -229,6 +230,7 @@ class AccountSessionManager {
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
     SermonNoteService.I.stop();
+    BosquejoSermonService.I.stop();
     unawaited(AdjuntosNotaService.I.borrarCacheLocal());
     StudyModeService.I.stop();
     await StudyRoomService.I.stop();
@@ -345,6 +347,7 @@ class AccountSessionManager {
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
     SermonNoteService.I.stop();
+    BosquejoSermonService.I.stop();
     StudyModeService.I.stop();
     StudyRoomService.I.stop();
     CollectionService.I.stop();

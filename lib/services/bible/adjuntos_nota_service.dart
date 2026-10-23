@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -14,7 +15,9 @@ import '../../models/bible/adjunto_nota.dart';
 import '../../models/bible/dibujo_nota.dart';
 
 /// Dónde está un archivo de adjunto.
-enum EstadoNube { soloTelefono, subiendo, enNube }
+/// [demasiadoGrande]: pasa del límite de la nube; se queda solo en este
+/// teléfono (nunca se borra de aquí).
+enum EstadoNube { soloTelefono, subiendo, enNube, demasiadoGrande }
 
 /// Fotos y dibujos de Apuntes. Cada archivo se guarda primero en el
 /// teléfono (`<documentos>/apuntes/<uid>/<notaId>/`) y luego se sube a
@@ -42,8 +45,37 @@ class AdjuntosNotaService {
   /// Sube cada vez que cambia un archivo (para refrescar las vistas).
   final ValueNotifier<int> cambios = ValueNotifier(0);
 
+  /// Último aviso para el usuario (p. ej. una foto que pasa del límite).
+  /// Las pantallas lo muestran en un SnackBar y lo limpian.
+  final ValueNotifier<String?> aviso = ValueNotifier(null);
+
   final Map<String, Uint8List> _memoria = {};
   bool _reintentando = false;
+
+  /// Llegó un pedido de reintento mientras otro estaba en curso: al terminar
+  /// se da otra vuelta (antes, lo nuevo esperaba a la siguiente sesión).
+  bool _otraVuelta = false;
+  StreamSubscription<List<ConnectivityResult>>? _conexion;
+
+  /// Al volver la conexión, sube lo pendiente.
+  void _escucharConexion() {
+    if (_conexion != null) return;
+    try {
+      _conexion = Connectivity().onConnectivityChanged.listen(
+        (estados) {
+          if (estados.any((e) => e != ConnectivityResult.none)) {
+            unawaited(reintentarPendientes());
+          }
+        },
+        onError: (_) {},
+      );
+    } catch (_) {
+      // Sin el plugin (pruebas): se reintenta al guardar o al abrir Apuntes.
+    }
+  }
+
+  static String _mb(int bytes) =>
+      (bytes / (1024 * 1024)).toStringAsFixed(1).replaceAll('.', ',');
 
   String? get _uid => FirebaseAuth.instance.currentUser?.uid;
 
@@ -157,7 +189,13 @@ class AdjuntosNotaService {
         return bytes;
       }
       if (!_nubeDisponible) return null;
-      final bytes = await _referencia(uid, notaId, archivo).getData(limiteBytes);
+      // Sin conexión, Storage reintenta durante minutos: no dejar colgada la
+      // vista ni la exportación del PDF.
+      final bytes = await _referencia(
+        uid,
+        notaId,
+        archivo,
+      ).getData(limiteBytes).timeout(const Duration(seconds: 20));
       if (bytes == null) return null;
       await local.parent.create(recursive: true);
       await local.writeAsBytes(bytes, flush: true);
@@ -190,9 +228,19 @@ class AdjuntosNotaService {
       await local.parent.create(recursive: true);
       await local.writeAsBytes(bytes, flush: true);
       _recordar(_clave(notaId, archivo), bytes);
-      _marcar(notaId, archivo, EstadoNube.soloTelefono);
       cambios.value++;
       await _encolar('s', uid, notaId, archivo);
+      if (bytes.length >= limiteDe(archivo)) {
+        // Se guarda igual en el teléfono (no se pierde), pero se avisa.
+        _marcar(notaId, archivo, EstadoNube.demasiadoGrande);
+        aviso.value =
+            '${archivo.endsWith('.jpg') ? 'La foto' : 'El dibujo'} pesa '
+            '${_mb(bytes.length)} MB y el límite de la nube es '
+            '${_mb(limiteDe(archivo))} MB. Se queda guardado solo en este '
+            'teléfono.';
+        return true;
+      }
+      _marcar(notaId, archivo, EstadoNube.soloTelefono);
       unawaited(reintentarPendientes());
       return true;
     } catch (e) {
@@ -237,22 +285,41 @@ class AdjuntosNotaService {
   /// Al cerrar sesión: quita del teléfono los archivos de la cuenta, salvo
   /// los que aún no se subieron (se suben al volver a entrar).
   Future<void> borrarCacheLocal() async {
+    // Se vuelve a escuchar la conexión al entrar con otra cuenta.
+    await _conexion?.cancel();
+    _conexion = null;
     _memoria.clear();
     estados.value = const {};
     try {
       final base = await getApplicationDocumentsDirectory();
       final carpeta = Directory('${base.path}/apuntes');
       if (!await carpeta.exists()) return;
-      final pendientes = {
-        for (final e in await _leerCola())
-          if (e.startsWith('s|')) e.substring(2).replaceAll('|', '/'),
-      };
+      final pendientes = archivosSinSubir(await _leerCola());
       await for (final f in carpeta.list(recursive: true)) {
         if (f is! File) continue;
-        final relativo = f.path.substring(carpeta.path.length + 1);
+        final relativo = rutaRelativa(carpeta.path, f.path);
         if (!pendientes.contains(relativo)) await f.delete();
       }
     } catch (_) {}
+  }
+
+  /// Archivos (`uid/notaId/archivo`) que todavía no están confirmados en la
+  /// nube según la cola: esos nunca se borran del teléfono.
+  @visibleForTesting
+  static Set<String> archivosSinSubir(List<String> cola) => {
+    for (final e in cola)
+      if (e.startsWith('s|')) e.substring(2).replaceAll('|', '/'),
+  };
+
+  /// Ruta de [archivo] relativa a [carpeta], siempre con `/` (en Windows
+  /// `File.path` usa `\` y antes no coincidía con la cola: se borraban
+  /// fotos sin subir).
+  @visibleForTesting
+  static String rutaRelativa(String carpeta, String archivo) {
+    final c = carpeta.replaceAll('\\', '/');
+    final a = archivo.replaceAll('\\', '/');
+    final relativo = a.startsWith(c) ? a.substring(c.length) : a;
+    return relativo.replaceFirst(RegExp(r'^/+'), '');
   }
 
   // ── Cola de pendientes ──────────────────────────────────────────────────
@@ -294,18 +361,26 @@ class AdjuntosNotaService {
   /// Sube o borra en la nube lo pendiente de la cuenta actual.
   Future<void> reintentarPendientes() async {
     final uid = _uid;
-    if (_reintentando || uid == null || !_nubeDisponible) return;
+    if (uid == null || !_nubeDisponible) return;
+    _escucharConexion();
+    if (_reintentando) {
+      _otraVuelta = true;
+      return;
+    }
     _reintentando = true;
     try {
-      for (final entrada in await _leerCola()) {
-        final partes = entrada.split('|');
-        if (partes.length != 4 || partes[1] != uid) continue;
-        final op = partes[0], notaId = partes[2], archivo = partes[3];
-        final hecho = op == 's'
-            ? await _subir(uid, notaId, archivo)
-            : await _borrarEnNube(uid, notaId, archivo);
-        if (hecho) await _quitarDeCola(op, uid, notaId, archivo);
-      }
+      do {
+        _otraVuelta = false;
+        for (final entrada in await _leerCola()) {
+          final partes = entrada.split('|');
+          if (partes.length != 4 || partes[1] != uid) continue;
+          final op = partes[0], notaId = partes[2], archivo = partes[3];
+          final hecho = op == 's'
+              ? await _subir(uid, notaId, archivo)
+              : await _borrarEnNube(uid, notaId, archivo);
+          if (hecho) await _quitarDeCola(op, uid, notaId, archivo);
+        }
+      } while (_otraVuelta && _uid == uid);
     } finally {
       _reintentando = false;
     }
@@ -314,10 +389,14 @@ class AdjuntosNotaService {
   Future<bool> _subir(String uid, String notaId, String archivo) async {
     try {
       final local = await _archivoLocal(uid, notaId, archivo);
+      // Ya no existe en el teléfono (se quitó el adjunto): nada que subir.
       if (!await local.exists()) return true;
       if (await local.length() >= limiteDe(archivo)) {
+        // NO se da por subido: seguir en la cola es lo que impide que se
+        // borre del teléfono al cerrar sesión.
         debugPrint('[ADJUNTOS] $archivo pasa del límite; se queda en el teléfono');
-        return true;
+        _marcar(notaId, archivo, EstadoNube.demasiadoGrande);
+        return false;
       }
       _marcar(notaId, archivo, EstadoNube.subiendo);
       await _referencia(uid, notaId, archivo).putFile(
