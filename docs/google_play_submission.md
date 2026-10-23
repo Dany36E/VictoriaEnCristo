@@ -28,9 +28,9 @@ La app no sustituye atención médica, psicológica ni servicios de emergencia.
 - Nuevo diseño «Papel recortado», con Victoria, Timoteo y Jesús dibujados.
 - Tres papeles: claro, kraft y noche, con modo Claro, Oscuro o Automático.
 - Marca tu día a cualquier hora y recibe un recordatorio a las 7 PM.
+- ¿Quién soy?: 63 personajes y una tarjeta de ideas para preguntar.
+- Escudo de Pureza más rápido y sin bloquear Google ni YouTube.
 - Apuntes con fotos, dibujo a mano, formato y listas de tareas.
-- Atajos que tú eliges en Inicio, en un widget y en el ícono de la app.
-- Imágenes para compartir y PDF con el nuevo estilo.
 
 ## Declaración de VpnService
 
