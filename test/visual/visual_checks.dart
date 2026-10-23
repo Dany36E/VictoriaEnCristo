@@ -131,7 +131,7 @@ List<String> problemasDeContraste(
     final opacidad = _opacidadVisible(node, limite);
     if (opacidad == null) return;
     final rect = rectEnCaptura(node);
-    if (rect == null) return;
+    if (rect == null || _tapado(limite, node, rect.center)) return;
     final contorno = contornoDe(rect, node.text.toPlainText());
     final modaGeneral = _colorMasFrecuente(captura, imagen.width, rect)!;
     node.text.visitChildren((span) {
@@ -169,6 +169,25 @@ List<String> problemasDeContraste(
     });
   });
   return problemas;
+}
+
+/// Si en [punto] (coordenadas de [limite]) queda encima algo ajeno al texto,
+/// como un botón flotante sobre contenido que se desplaza (y que según el
+/// largo del versículo del día cae debajo o no), la captura no muestra el
+/// fondo del texto y su contraste no se puede medir ahí.
+bool _tapado(RenderRepaintBoundary limite, RenderParagraph node, Offset punto) {
+  final resultado = BoxHitTestResult();
+  if (!limite.hitTest(resultado, position: punto)) return false;
+  final arriba = resultado.path.first.target;
+  if (arriba is! RenderObject) return false;
+  // El propio texto, algo que lo contiene o algo dentro de él (WidgetSpan).
+  for (RenderObject? r = node; r != null; r = r.parent) {
+    if (r == arriba) return false;
+  }
+  for (RenderObject? r = arriba; r != null; r = r.parent) {
+    if (r == node) return false;
+  }
+  return true;
 }
 
 /// Píxeles RGBA de [limite], para [expectReadableText].

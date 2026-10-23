@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import '../data/bible_verses.dart';
@@ -31,10 +32,7 @@ class NotificationService {
   static const String _dailyVerseReminderEnabledKey =
       'daily_verse_reminder_enabled';
   static const String _dailyVerseReminderTimeKey = 'daily_verse_reminder_time';
-  static const List<int> _defaultVictoryReminderMinutes = <int>[
-    18 * 60,
-    22 * 60,
-  ];
+  static const List<int> _defaultVictoryReminderMinutes = <int>[19 * 60];
   static const int _maxVictoryReminderSlots = 6;
 
   // Singleton
@@ -46,8 +44,7 @@ class NotificationService {
   TimeOfDay _morningTime = const TimeOfDay(hour: 7, minute: 0);
   TimeOfDay _nightTime = const TimeOfDay(hour: 21, minute: 0);
   List<TimeOfDay> _victoryReminderTimes = <TimeOfDay>[
-    const TimeOfDay(hour: 18, minute: 0),
-    const TimeOfDay(hour: 22, minute: 0),
+    const TimeOfDay(hour: 19, minute: 0),
   ];
   bool _morningEnabled = true;
   bool _nightEnabled = true;
@@ -160,8 +157,15 @@ class NotificationService {
         ?.map(int.tryParse)
         .whereType<int>()
         .toList(growable: false);
+    // Las horas de antes por defecto (6 PM y 10 PM) pasan a 7 PM; quien
+    // eligió otras horas las conserva.
+    final isOldDefault =
+        victoryMinutes != null &&
+        victoryMinutes.length == 2 &&
+        victoryMinutes[0] == 18 * 60 &&
+        victoryMinutes[1] == 22 * 60;
     _victoryReminderTimes = _timesFromMinutes(
-      victoryMinutes == null || victoryMinutes.isEmpty
+      victoryMinutes == null || victoryMinutes.isEmpty || isOldDefault
           ? _defaultVictoryReminderMinutes
           : victoryMinutes,
     );
@@ -202,6 +206,7 @@ class NotificationService {
     if (_notificationsInitialized) return;
     try {
       tz.initializeTimeZones();
+      await _configureLocalTimeZone();
       const android = AndroidInitializationSettings('@mipmap/ic_launcher');
       // iOS/macOS: no solicitamos permisos en init; se piden explícitamente
       // cuando el usuario activa notificaciones (requestPermissions()).
@@ -238,6 +243,28 @@ class NotificationService {
       debugPrint('⚠️ No se pudo inicializar notificaciones locales: $e');
       _notificationsInitialized = false;
     }
+  }
+
+  /// Sin esto `tz.local` es UTC y los recordatorios salen a otra hora.
+  Future<void> _configureLocalTimeZone() async {
+    try {
+      final info = await FlutterTimezone.getLocalTimezone();
+      tz.setLocalLocation(tz.getLocation(info.identifier));
+      return;
+    } catch (e) {
+      debugPrint('⚠️ Zona horaria del sistema no disponible: $e');
+    }
+    // Respaldo: zona fija con el desfase actual del dispositivo. Los nombres
+    // Etc/GMT invierten el signo (UTC-6 es 'Etc/GMT+6').
+    final offset = DateTime.now().timeZoneOffset;
+    if (offset.inMinutes % 60 != 0) return;
+    final hours = offset.inHours;
+    final name = hours == 0
+        ? 'Etc/UTC'
+        : 'Etc/GMT${hours > 0 ? '-' : '+'}${hours.abs()}';
+    try {
+      tz.setLocalLocation(tz.getLocation(name));
+    } catch (_) {}
   }
 
   Future<void> _createAndroidChannels() async {
@@ -770,8 +797,8 @@ class NotificationService {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // RECORDATORIO INTELIGENTE DE VICTORIA (diario a las 20:00)
-  // Si el usuario no ha registrado victoria cuando ya puede (≥18h)
+  // RECORDATORIO INTELIGENTE DE VICTORIA (por defecto a las 19:00)
+  // Si el usuario aún no ha marcado su día
   // ═══════════════════════════════════════════════════════════════════════════
 
   /// Habilitar/deshabilitar recordatorio de victoria

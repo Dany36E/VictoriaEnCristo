@@ -10,7 +10,6 @@ enum DailyOutcomeChoice { victory, grace }
 
 enum DailyOutcomeStatus {
   cancelled,
-  tooEarly,
   alreadyVictory,
   alreadyGrace,
   victoryLogged,
@@ -58,18 +57,6 @@ Future<DailyOutcomeRegistrationResult> promptAndRegisterDailyOutcome(
       DailyOutcomeStatus.alreadyGrace,
       streak: streak,
     );
-  }
-
-  if (!scoring.canLogVictoryNow()) {
-    if (context.mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Podrás cerrar tu día después de las 6:00 PM.'),
-          duration: Duration(seconds: 3),
-        ),
-      );
-    }
-    return const DailyOutcomeRegistrationResult(DailyOutcomeStatus.tooEarly);
   }
 
   if (!context.mounted) {

@@ -247,10 +247,6 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     
     // Ya está registrado, no hacer nada
     if (VictoryScoringService.I.isLoggedToday()) return;
-    
-    // Verificar que sean las 6pm o más tarde
-    if (!VictoryScoringService.I.canLogVictoryNow()) return;
-    
     // Registrar victoria en todos los gigantes
     await VictoryScoringService.I.setDayAllGiants(now, 1);
     
@@ -442,7 +438,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                               longestStreak: _longestStreak,
                               totalVictories: _totalVictories,
                               isLoggedToday: _isLoggedToday,
-                              canRegisterToday: DateTime.now().hour >= 18,
+                              canRegisterToday: VictoryScoringService.I.canLogVictoryNow(),
                               onRegisterVictory: _registerTodayVictory,
                             ),
                           ),

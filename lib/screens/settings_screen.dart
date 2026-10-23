@@ -190,7 +190,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               _buildSwitchTile(
                 title: 'Recordatorios de victoria',
                 subtitle:
-                    'Te pregunta si hoy fue día de victoria después de las 6 PM',
+                    'Te recuerda marcar tu día si aún no lo has hecho',
                 icon: Icons.military_tech,
                 value: _notificationService.victoryReminderEnabled,
                 onChanged: (value) async {
