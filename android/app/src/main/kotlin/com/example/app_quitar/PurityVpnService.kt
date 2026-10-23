@@ -16,6 +16,8 @@ import java.io.FileOutputStream
 import java.net.HttpURLConnection
 import java.net.URL
 import java.nio.ByteBuffer
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
 
 /**
  * Escudo de Pureza — VPN local que filtra DNS para bloquear contenido adulto.
@@ -78,7 +80,8 @@ class PurityVpnService : VpnService() {
         )
 
         // Fuerza SafeSearch: el dominio (clave) se responde con un CNAME al host
-        // seguro (valor); el cliente re-resuelve y obtiene la versión filtrada.
+        // seguro (valor) junto con sus direcciones. Android no sigue un CNAME
+        // suelto: sin las direcciones, Google y YouTube no cargaban.
         private val SAFE_SEARCH = mapOf(
             "www.google.com" to "forcesafesearch.google.com",
             "google.com" to "forcesafesearch.google.com",
@@ -130,6 +133,10 @@ class PurityVpnService : VpnService() {
     private var worker: Thread? = null
     @Volatile private var blocklist: HashSet<String> = HashSet()
     @Volatile private var lastRedirectMs: Long = 0L
+    // Una página hace decenas de consultas a la vez; de una en una, con
+    // DoH de hasta 5 s cada una, la navegación se quedaba esperando.
+    private var dnsPool: ExecutorService? = null
+    private val writeLock = Any()
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
@@ -150,6 +157,7 @@ class PurityVpnService : VpnService() {
             loadBlocklist()
             startForegroundNotification()
             establishVpn()
+            dnsPool = Executors.newFixedThreadPool(8)
             isRunning = true
             worker = Thread({ runLoop() }, "PurityVpnWorker").apply { start() }
             Log.i(TAG, "Escudo de Pureza activo (${blocklist.size} dominios)")
@@ -235,51 +243,37 @@ class PurityVpnService : VpnService() {
         if (dnsStart >= length) return
         val dns = packet.copyOfRange(dnsStart, length)
 
-        val domain = parseDomain(dns) ?: return
+        val domain = PurityDns.parseDomain(dns) ?: return
 
-        // 1) Forzar SafeSearch (Google/YouTube/Bing/DuckDuckGo).
-        val safeTarget = SAFE_SEARCH[domain]
-        if (safeTarget != null) {
-            val response = buildCnameResponse(dns, safeTarget)
-            if (response != null) {
-                writeUdpPacket(output, dstIp, srcIp, dstPort, srcPort, response)
-            }
-            return
-        }
-
-        // 2) Bloquear contenido adulto.
+        // 1) Bloquear contenido adulto (respuesta local, inmediata).
         if (isBlocked(domain)) {
-            val response = buildBlockedResponse(dns)
+            val response = PurityDns.buildBlockedResponse(dns)
             if (response != null) {
                 writeUdpPacket(output, dstIp, srcIp, dstPort, srcPort, response)
             }
             recordBlock()
             triggerRedirect()
-        } else {
-            forwardDns(dns) { reply ->
-                writeUdpPacket(output, dstIp, srcIp, dstPort, srcPort, reply)
-            }
+            return
         }
-    }
 
-    /** Extrae el nombre de dominio (QNAME) de un mensaje DNS. */
-    private fun parseDomain(dns: ByteArray): String? {
-        if (dns.size < 13) return null
-        var pos = 12 // saltar header (12 bytes)
-        val sb = StringBuilder()
-        while (pos < dns.size) {
-            val len = dns[pos].toInt() and 0xFF
-            if (len == 0) break
-            if (len and 0xC0 != 0) return null // compresión no esperada en query
-            pos++
-            if (pos + len > dns.size) return null
-            if (sb.isNotEmpty()) sb.append('.')
-            for (i in 0 until len) {
-                sb.append((dns[pos + i].toInt() and 0xFF).toChar())
+        // 2) SafeSearch (Google/YouTube/Bing/DuckDuckGo) o reenvío por DoH,
+        // en paralelo para no frenar el resto de consultas.
+        val safeTarget = SAFE_SEARCH[domain]
+        val pool = dnsPool ?: return
+        try {
+            pool.execute {
+                val reply = if (safeTarget != null) {
+                    resolveSafeSearch(dns, safeTarget)
+                } else {
+                    queryDoh(dns)
+                }
+                if (reply != null && isRunning) {
+                    writeUdpPacket(output, dstIp, srcIp, dstPort, srcPort, reply)
+                }
             }
-            pos += len
+        } catch (_: Exception) {
+            // Pool cerrado: el servicio se está deteniendo.
         }
-        return if (sb.isEmpty()) null else sb.toString().lowercase()
     }
 
     /** True si el dominio o alguno de sus dominios padre está en la lista. */
@@ -295,85 +289,19 @@ class PurityVpnService : VpnService() {
         return false
     }
 
-    /** Respuesta DNS con A → 0.0.0.0 para consultas A; NOERROR sin respuesta si no. */
-    private fun buildBlockedResponse(query: ByteArray): ByteArray? {
-        if (query.size < 12) return null
-        // Detectar qtype (al final de la sección question).
-        var pos = 12
-        while (pos < query.size) {
-            val len = query[pos].toInt() and 0xFF
-            if (len == 0) { pos++; break }
-            pos += len + 1
+    /**
+     * SafeSearch: CNAME a [target] con sus direcciones (resueltas por DoH)
+     * para consultas A/AAAA; otros tipos (p. ej. HTTPS) reciben una respuesta
+     * vacía y el navegador usa A/AAAA.
+     */
+    private fun resolveSafeSearch(query: ByteArray, target: String): ByteArray? {
+        val qtype = PurityDns.questionType(query) ?: return null
+        if (qtype != PurityDns.TYPE_A && qtype != PurityDns.TYPE_AAAA) {
+            return PurityDns.buildBlockedResponse(query)
         }
-        if (pos + 4 > query.size) return null
-        val qtype = ((query[pos].toInt() and 0xFF) shl 8) or (query[pos + 1].toInt() and 0xFF)
-        val questionEnd = pos + 4
-
-        val isA = qtype == 1
-        val out = ByteBuffer.allocate(questionEnd + if (isA) 16 else 0)
-        // Header
-        out.put(query[0]); out.put(query[1]) // ID
-        out.put(0x81.toByte()); out.put(0x80.toByte()) // flags: response + RA
-        out.put(0x00); out.put(0x01) // QDCOUNT = 1
-        if (isA) { out.put(0x00); out.put(0x01) } else { out.put(0x00); out.put(0x00) } // ANCOUNT
-        out.put(0x00); out.put(0x00) // NSCOUNT
-        out.put(0x00); out.put(0x00) // ARCOUNT
-        // Question (copiada tal cual)
-        out.put(query, 12, questionEnd - 12)
-        if (isA) {
-            out.put(0xC0.toByte()); out.put(0x0C.toByte()) // name pointer -> 0x0C
-            out.put(0x00); out.put(0x01) // type A
-            out.put(0x00); out.put(0x01) // class IN
-            out.put(0x00); out.put(0x00); out.put(0x00); out.put(0x3C) // TTL 60s
-            out.put(0x00); out.put(0x04) // RDLENGTH 4
-            out.put(0x00); out.put(0x00); out.put(0x00); out.put(0x00) // 0.0.0.0
-        }
-        return out.array()
-    }
-
-    /** Respuesta DNS con un CNAME que apunta al host seguro (SafeSearch). */
-    private fun buildCnameResponse(query: ByteArray, target: String): ByteArray? {
-        if (query.size < 12) return null
-        var pos = 12
-        while (pos < query.size) {
-            val len = query[pos].toInt() and 0xFF
-            if (len == 0) { pos++; break }
-            pos += len + 1
-        }
-        if (pos + 4 > query.size) return null
-        val questionEnd = pos + 4
-        val rdata = encodeDomain(target)
-
-        val out = ByteBuffer.allocate(questionEnd + 12 + rdata.size)
-        out.put(query[0]); out.put(query[1])           // ID
-        out.put(0x81.toByte()); out.put(0x80.toByte()) // flags: response + RA
-        out.put(0x00); out.put(0x01)                   // QDCOUNT
-        out.put(0x00); out.put(0x01)                   // ANCOUNT = 1
-        out.put(0x00); out.put(0x00)                   // NSCOUNT
-        out.put(0x00); out.put(0x00)                   // ARCOUNT
-        out.put(query, 12, questionEnd - 12)           // question
-        out.put(0xC0.toByte()); out.put(0x0C.toByte()) // name pointer -> 0x0C
-        out.put(0x00); out.put(0x05)                   // type CNAME
-        out.put(0x00); out.put(0x01)                   // class IN
-        out.put(0x00); out.put(0x00); out.put(0x00); out.put(0x3C) // TTL 60
-        out.put((rdata.size ushr 8).toByte()); out.put((rdata.size and 0xFF).toByte())
-        out.put(rdata)
-        return out.array()
-    }
-
-    /** Codifica un dominio a formato DNS (labels con prefijo de longitud + 0). */
-    private fun encodeDomain(domain: String): ByteArray {
-        val buf = ByteBuffer.allocate(domain.length + 2)
-        for (label in domain.split('.')) {
-            if (label.isEmpty()) continue
-            buf.put(label.length.toByte())
-            buf.put(label.toByteArray(Charsets.US_ASCII))
-        }
-        buf.put(0)
-        val arr = ByteArray(buf.position())
-        buf.flip()
-        buf.get(arr)
-        return arr
+        val sub = PurityDns.buildTargetQuery(query, target) ?: return null
+        val reply = queryDoh(sub) ?: return null
+        return PurityDns.buildSafeSearchResponse(query, target, reply)
     }
 
     /** Registra un bloqueo (contadores total y del día) para la UI. */
@@ -394,8 +322,12 @@ class PurityVpnService : VpnService() {
         }
     }
 
-    /** Reenvía la consulta DNS cifrada con TLS (RFC 8484 wire format). */
-    private fun forwardDns(query: ByteArray, onReply: (ByteArray) -> Unit) {
+    /**
+     * Envía la consulta DNS cifrada con TLS (RFC 8484 wire format) y devuelve
+     * la respuesta, o null si falló. Sin disconnect() en el caso normal, para
+     * que la conexión HTTPS se reutilice entre consultas.
+     */
+    private fun queryDoh(query: ByteArray): ByteArray? {
         var connection: HttpURLConnection? = null
         try {
             connection = (URL(UPSTREAM_DOH).openConnection() as HttpURLConnection).apply {
@@ -411,19 +343,21 @@ class PurityVpnService : VpnService() {
             connection.outputStream.use { it.write(query) }
             if (connection.responseCode != HttpURLConnection.HTTP_OK) {
                 Log.w(TAG, "DoH respondió HTTP ${connection.responseCode}")
-                return
+                connection.disconnect()
+                return null
             }
             val contentType = connection.contentType.orEmpty().lowercase()
             if (!contentType.startsWith("application/dns-message")) {
                 Log.w(TAG, "DoH respondió un tipo inesperado: $contentType")
-                return
+                connection.disconnect()
+                return null
             }
             val reply = connection.inputStream.use { it.readBytes() }
-            if (reply.size in 12..65535) onReply(reply)
+            return if (reply.size in 12..65535) reply else null
         } catch (e: Exception) {
             Log.w(TAG, "DoH error: ${e.message}")
-        } finally {
             connection?.disconnect()
+            return null
         }
     }
 
@@ -464,8 +398,11 @@ class PurityVpnService : VpnService() {
             arr[10] = (checksum ushr 8).toByte()
             arr[11] = (checksum and 0xFF).toByte()
 
-            output.write(arr)
-            output.flush()
+            // Varios hilos responden a la vez: un paquete por escritura.
+            synchronized(writeLock) {
+                output.write(arr)
+                output.flush()
+            }
         } catch (e: Exception) {
             Log.w(TAG, "writePacket error: ${e.message}")
         }
@@ -542,6 +479,8 @@ class PurityVpnService : VpnService() {
         isRunning = false
         try { worker?.interrupt() } catch (_: Exception) {}
         worker = null
+        try { dnsPool?.shutdownNow() } catch (_: Exception) {}
+        dnsPool = null
         try { vpnInterface?.close() } catch (_: Exception) {}
         vpnInterface = null
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {

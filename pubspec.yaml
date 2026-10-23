@@ -2,7 +2,7 @@ name: app_quitar
 description: "Victoria en Cristo - App cristiana para superar tentaciones y vicios"
 publish_to: 'none'
 
-version: 1.0.30+40
+version: 1.0.31+41
 
 environment:
   sdk: ^3.10.1
@@ -63,6 +63,7 @@ dependencies:
   # Connectivity monitoring
   connectivity_plus: ^6.1.4
   flutter_svg: ^2.3.0
+  flutter_timezone: ^5.1.1
 
 dev_dependencies:
   flutter_test:

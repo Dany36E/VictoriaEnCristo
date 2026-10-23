@@ -183,22 +183,13 @@ class JesusWidgetProvider : AppWidgetProvider() {
 
                 // ─── Botón de acción (siempre dorado) ───
                 val badgeText = prefs.getString(KEY_BADGE_TEXT, null)
-                val checkinDone = prefs.getBoolean(KEY_CHECKIN_DONE, false)
                 val finalBadgeText = if (badgeText != null) {
                     badgeText
                 } else {
-                    val hour = java.util.Calendar.getInstance()
-                        .get(java.util.Calendar.HOUR_OF_DAY)
                     when {
                         completedToday && victoryToday -> "✨ Ver mi progreso"
                         completedToday -> "🕊️ Gracia registrada"
-                        hour >= 18 -> "⚔️ Registrar día"
-                        checkinDone && hour < 18 -> "🙏 Devocional hecho"
-                        hour >= 15 -> "⏰ Casi es hora"
-                        hour >= 12 -> "🛡️ En batalla"
-                        hour >= 8  -> "💪 Sigue firme"
-                        hour >= 5  -> "☀️ Buenos días"
-                        else -> "🌙 Descansa en paz"
+                        else -> "⚔️ Registrar día"
                     }
                 }
                 views.setTextViewText(R.id.widget_badge, finalBadgeText)

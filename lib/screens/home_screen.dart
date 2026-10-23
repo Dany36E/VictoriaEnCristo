@@ -190,11 +190,6 @@ class _HomeScreenState extends State<HomeScreen>
       return;
     }
 
-    if (result.status == DailyOutcomeStatus.tooEarly) {
-      _navigateToProgress();
-      return;
-    }
-
     if (result.changed) {
       setState(() {
         _currentStreak = result.streak;

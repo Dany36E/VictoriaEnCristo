@@ -46,11 +46,6 @@ class VictoryScoringService {
 
   /// Umbral de victoria: 60% (3/5 gigantes = 0.6)
   static const double defaultThreshold = 0.60;
-  static const bool _qaAllowDailyOutcomeBefore18 = bool.fromEnvironment(
-    'VICTORIA_QA_ALLOW_DAILY_OUTCOME_BEFORE_18',
-  );
-
-  static bool get isQaDailyOutcomeBypassEnabled => kDebugMode && _qaAllowDailyOutcomeBefore18;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
@@ -336,11 +331,10 @@ class VictoryScoringService {
     onDayChanged?.call(date);
   }
 
-  /// Verifica si la hora actual permite registrar victoria (>= 18:00)
-  bool canLogVictoryNow() => DateTime.now().hour >= 18 || isQaDailyOutcomeBypassEnabled;
+  /// El día se puede cerrar a cualquier hora.
+  bool canLogVictoryNow() => true;
 
   /// Registra victoria completa para hoy (todos gigantes = 1)
-  /// Retorna false si aún no son las 6pm
   Future<bool> logVictoryForToday() async {
     if (!canLogVictoryNow()) return false;
     await setDayAllGiants(DateTime.now(), 1);

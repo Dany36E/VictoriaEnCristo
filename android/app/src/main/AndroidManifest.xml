@@ -92,6 +92,22 @@
                 android:value="Filtro DNS local iniciado por el usuario para bloquear contenido adulto; las consultas permitidas salen cifradas mediante DNS-over-HTTPS y la protección permanece visible con una notificación" />
         </service>
 
+        <!-- flutter_local_notifications: entrega los recordatorios programados
+             y los vuelve a programar al reiniciar o actualizar la app. -->
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationReceiver"
+            android:exported="false" />
+        <receiver
+            android:name="com.dexterous.flutterlocalnotifications.ScheduledNotificationBootReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <action android:name="com.htc.intent.action.QUICKBOOT_POWERON" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".SacredAlarmReceiver"
             android:exported="false" />

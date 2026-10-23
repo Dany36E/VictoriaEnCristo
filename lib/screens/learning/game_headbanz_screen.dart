@@ -75,7 +75,8 @@ extension _HeadbanzDifficultyInfo on _HeadbanzDifficulty {
   }
 }
 
-/// Baraja de 24 personajes bíblicos.
+/// Baraja de 63 personajes bíblicos (22 fáciles, 25 medios y 16
+/// difíciles), según `Clasificacion_personajes` de las cartas «¿Quién soy?».
 const List<_HeadbanzCard> _deck = [
   _HeadbanzCard(
     'Aarón',
@@ -83,9 +84,29 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
+    'Abel',
+    'assets/images/headbanz/Headbanz_Abel.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
     'Abraham',
     'assets/images/headbanz/Headbanz_Abraham.webp',
     _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Adán',
+    'assets/images/headbanz/Headbanz_Adan.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Ana, madre de Samuel',
+    'assets/images/headbanz/Headbanz_Ana.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Bartimeo',
+    'assets/images/headbanz/Headbanz_Bartimeo.webp',
+    _HeadbanzDifficulty.hard,
   ),
   _HeadbanzCard(
     'Benjamín',
@@ -93,9 +114,34 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.hard,
   ),
   _HeadbanzCard(
+    'Bernabé',
+    'assets/images/headbanz/Headbanz_Bernabe.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Caín',
+    'assets/images/headbanz/Headbanz_Cain.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
     'Dalila',
     'assets/images/headbanz/Headbanz_Dalila.webp',
     _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Daniel',
+    'assets/images/headbanz/Headbanz_Daniel.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'David',
+    'assets/images/headbanz/Headbanz_David.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Débora',
+    'assets/images/headbanz/Headbanz_Debora.webp',
+    _HeadbanzDifficulty.hard,
   ),
   _HeadbanzCard(
     'Elías',
@@ -103,9 +149,49 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
+    'Elisabet, madre de Juan el Bautista',
+    'assets/images/headbanz/Headbanz_Elisabet.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Eliseo',
+    'assets/images/headbanz/Headbanz_Eliseo.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Esteban',
+    'assets/images/headbanz/Headbanz_Esteban.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Ester',
+    'assets/images/headbanz/Headbanz_Ester.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Eva',
+    'assets/images/headbanz/Headbanz_Eva.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Febe',
+    'assets/images/headbanz/Headbanz_Febe.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Gedeón',
+    'assets/images/headbanz/Headbanz_Gedeon.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
     'Goliat',
     'assets/images/headbanz/Headbanz_Goliat.webp',
     _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Isaac',
+    'assets/images/headbanz/Headbanz_Isaac.webp',
+    _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
     'Jacob',
@@ -118,18 +204,28 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.easy,
   ),
   _HeadbanzCard(
+    'Job',
+    'assets/images/headbanz/Headbanz_Job.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Jocabed',
+    'assets/images/headbanz/Headbanz_Jocabed.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
     'Jonás',
     'assets/images/headbanz/Headbanz_Jonas.webp',
     _HeadbanzDifficulty.easy,
   ),
   _HeadbanzCard(
-    'José',
-    'assets/images/headbanz/Headbanz_Jose.webp',
-    _HeadbanzDifficulty.hard,
+    'José el Soñador',
+    'assets/images/headbanz/Headbanz_JoseElSonador.webp',
+    _HeadbanzDifficulty.easy,
   ),
   _HeadbanzCard(
-    'José el Soñador',
-    'assets/images/headbanz/Headbanz_JoseElSoñador.webp',
+    'José, esposo de María',
+    'assets/images/headbanz/Headbanz_Jose.webp',
     _HeadbanzDifficulty.easy,
   ),
   _HeadbanzCard(
@@ -138,13 +234,13 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
-    'Juan',
-    'assets/images/headbanz/Headbanz_Juan.webp',
-    _HeadbanzDifficulty.hard,
-  ),
-  _HeadbanzCard(
     'Juan el Bautista',
     'assets/images/headbanz/Headbanz_JuanElBautista.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Juan, apóstol',
+    'assets/images/headbanz/Headbanz_Juan.webp',
     _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
@@ -153,23 +249,118 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.easy,
   ),
   _HeadbanzCard(
+    'Lázaro de Betania',
+    'assets/images/headbanz/Headbanz_Lazaro.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
     'Lea',
     'assets/images/headbanz/Headbanz_Lea.webp',
     _HeadbanzDifficulty.hard,
   ),
   _HeadbanzCard(
-    'Marta',
-    'assets/images/headbanz/Headbanz_Marta.webp',
+    'Lidia',
+    'assets/images/headbanz/Headbanz_Lidia.webp',
     _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Lucas',
+    'assets/images/headbanz/Headbanz_Lucas.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'María Magdalena',
+    'assets/images/headbanz/Headbanz_MariaMagdalena.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'María, madre de Jesús',
+    'assets/images/headbanz/Headbanz_MariaMadreDeJesus.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Marta de Betania',
+    'assets/images/headbanz/Headbanz_Marta.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Mateo',
+    'assets/images/headbanz/Headbanz_Mateo.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Miriam, hermana de Moisés',
+    'assets/images/headbanz/Headbanz_Miriam.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Moisés',
+    'assets/images/headbanz/Headbanz_Moises.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Nehemías',
+    'assets/images/headbanz/Headbanz_Nehemias.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Nicodemo',
+    'assets/images/headbanz/Headbanz_Nicodemo.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Noé',
+    'assets/images/headbanz/Headbanz_Noe.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Noemí',
+    'assets/images/headbanz/Headbanz_Noemi.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Pablo',
+    'assets/images/headbanz/Headbanz_Pablo.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Pedro',
+    'assets/images/headbanz/Headbanz_Pedro.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Poncio Pilato',
+    'assets/images/headbanz/Headbanz_PoncioPilato.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Priscila',
+    'assets/images/headbanz/Headbanz_Priscila.webp',
+    _HeadbanzDifficulty.hard,
+  ),
+  _HeadbanzCard(
+    'Raquel',
+    'assets/images/headbanz/Headbanz_Raquel.webp',
+    _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
     'Rebeca',
     'assets/images/headbanz/Headbanz_Rebeca.webp',
-    _HeadbanzDifficulty.hard,
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Ruth',
+    'assets/images/headbanz/Headbanz_Ruth.webp',
+    _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
     'Salomón',
     'assets/images/headbanz/Headbanz_Salomon.webp',
+    _HeadbanzDifficulty.easy,
+  ),
+  _HeadbanzCard(
+    'Samuel',
+    'assets/images/headbanz/Headbanz_Samuel.webp',
     _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
@@ -183,14 +374,19 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.hard,
   ),
   _HeadbanzCard(
-    'Saúl',
+    'Sara',
+    'assets/images/headbanz/Headbanz_Sara.webp',
+    _HeadbanzDifficulty.medium,
+  ),
+  _HeadbanzCard(
+    'Saúl, rey de Israel',
     'assets/images/headbanz/Headbanz_Saul.webp',
     _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
     'Tomás',
-    'assets/images/headbanz/Headbanz_Tomás.webp',
-    _HeadbanzDifficulty.hard,
+    'assets/images/headbanz/Headbanz_Tomas.webp',
+    _HeadbanzDifficulty.medium,
   ),
   _HeadbanzCard(
     'Zaqueo',
@@ -198,6 +394,22 @@ const List<_HeadbanzCard> _deck = [
     _HeadbanzDifficulty.easy,
   ),
 ];
+
+/// Tarjeta «Ideas para preguntar» (modo preguntas de sí o no).
+const String _questionCardAsset =
+    'assets/images/headbanz/quien_soy_ideas_para_preguntar.webp';
+
+/// El texto de la tarjeta, para lectores de pantalla.
+const String _questionCardText =
+    '¿Quién soy? Ideas para preguntar. Modo preguntas: los demás responden '
+    'sí o no; si no lo saben, pasen a otra pregunta. '
+    '1. Empieza por lo general: ¿Aparezco en el Antiguo Testamento? '
+    '¿Aparezco en el Nuevo Testamento? ¿Soy una mujer? ¿Soy un hombre? '
+    '2. Descubre mi papel: ¿Fui rey o reina? ¿Fui profeta o profetisa? '
+    '¿Fui uno de los doce apóstoles? ¿Fui pastor o pescador? '
+    '3. Sigue mi historia: ¿Conocí a Jesús en persona? ¿Hice un viaje '
+    'importante? ¿Estuve en una cárcel? ¿En mi historia ocurre un milagro? '
+    'Cuando tengas una idea: ¿Soy…? Di el nombre de tu personaje.';
 
 enum _Phase { intro, playing }
 
@@ -343,8 +555,51 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
           '¿Quién soy?',
           style: AppDesignSystem.headlineMedium(context, color: t.textPrimary),
         ),
+        actions: [
+          IconButton(
+            tooltip: 'Ideas para preguntar',
+            icon: const Icon(Icons.lightbulb_outline_rounded),
+            onPressed: _showQuestionIdeas,
+          ),
+        ],
       ),
       body: _phase == _Phase.intro ? _intro(t) : _playing(t),
+    );
+  }
+
+  void _showQuestionIdeas() {
+    FeedbackEngine.I.tap();
+    showDialog<void>(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: const Color(0xFFFBF4E4),
+        insetPadding: const EdgeInsets.all(AppDesignSystem.spacingM),
+        clipBehavior: Clip.antiAlias,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+        ),
+        child: Stack(
+          children: [
+            InteractiveViewer(
+              maxScale: 4,
+              child: Image.asset(
+                _questionCardAsset,
+                fit: BoxFit.contain,
+                semanticLabel: _questionCardText,
+              ),
+            ),
+            Positioned(
+              top: 4,
+              right: 4,
+              child: IconButton.filledTonal(
+                tooltip: 'Cerrar',
+                icon: const Icon(Icons.close_rounded),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -394,6 +649,28 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
           ),
           const SizedBox(height: AppDesignSystem.spacingL),
           _rulesCard(t),
+          const SizedBox(height: AppDesignSystem.spacingM),
+          SizedBox(
+            height: 52,
+            child: OutlinedButton.icon(
+              onPressed: _showQuestionIdeas,
+              icon: const Icon(Icons.lightbulb_outline_rounded),
+              label: Text(
+                'Ideas para preguntar',
+                style: AppDesignSystem.labelLarge(
+                  context,
+                  color: t.textPrimary,
+                ),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: t.textPrimary,
+                side: const BorderSide(color: AppDesignSystem.gold, width: 1.5),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AppDesignSystem.radiusL),
+                ),
+              ),
+            ),
+          ),
           const SizedBox(height: AppDesignSystem.spacingL),
           _difficultySelector(t),
           const SizedBox(height: AppDesignSystem.spacingL),

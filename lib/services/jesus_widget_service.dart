@@ -335,15 +335,6 @@ class JesusWidgetService {
       return isVictoryToday ? '✓ Día de victoria' : 'Gracia registrada';
     }
     if (isNewUser) return 'Empieza hoy';
-    final hour = DateTime.now().hour;
-    if (VictoryScoringService.I.canLogVictoryNow()) return '⚔️ Registrar victoria';
-    // Si hizo devocional matutino pero aún no registra victoria
-    if (checkinDone && hour < 18) return '🙏 Devocional hecho';
-    if (hour < 5) return '🌙 Descansa en paz';
-    if (hour < 8) return '☀️ Buenos días';
-    if (hour < 12) return '💪 Sigue firme';
-    if (hour < 15) return '🛡️ En batalla';
-    if (hour < 18) return '⏰ Casi es hora';
     return '⚔️ Registrar victoria';
   }
 }
