@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
@@ -103,14 +104,21 @@ class BibleDownloadService {
     // Si falla (offline, sin permiso, etc.) caemos al asset bundle.
     await _loadRemoteUrls();
 
-    // Auto-descargar RVR1960 si no está descargada
-    final states = stateNotifier.value;
-    if (states[BibleVersion.rvr1960] != DownloadState.downloaded) {
-      await downloadVersion(BibleVersion.rvr1960);
-    }
-
     _initialized = true;
     safeLog('BIBLE-DL', 'BibleDownloadService initialized');
+
+    // Copiar RVR1960 al almacenamiento local sin frenar el arranque (mientras
+    // tanto se lee desde los assets). Va después de marcar `_initialized`:
+    // downloadVersion espera a init(), y antes se esperaban mutuamente para
+    // siempre, de modo que main.dart nunca llegaba a programar notificaciones.
+    if (stateNotifier.value[BibleVersion.rvr1960] != DownloadState.downloaded) {
+      unawaited(
+        downloadVersion(BibleVersion.rvr1960).catchError((Object e) {
+          safeWarn('BIBLE-DL', 'No se pudo copiar RVR1960: $e');
+          return false;
+        }),
+      );
+    }
   }
 
   Future<void> ensureInitialized() => init();
