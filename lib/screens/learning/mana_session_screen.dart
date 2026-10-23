@@ -119,7 +119,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
       ..setPitch(0.95);
     _speaking = true;
     final text = _q.type == QuestionType.completeVerse
-        ? _q.prompt.replaceAll('____', '… pausa …')
+        ? _q.prompt.replaceAll(LearningQuestion.blankToken, '… pausa …')
         : _q.prompt;
     await _tts!.speak(text);
     _speaking = false;
@@ -146,10 +146,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
       correct = given.isNotEmpty && _normalize(given) == _normalize(expected);
     } else if (q.type == QuestionType.orderEvents) {
       if (_orderSeq.length != q.options.length) return;
-      final expected = q.correctOrder.isEmpty
-          ? List<int>.generate(q.options.length, (i) => i)
-          : q.correctOrder;
-      correct = _listEq(_orderSeq, expected);
+      correct = _listEq(_orderSeq, q.effectiveCorrectOrder);
     } else if (q.type == QuestionType.matchPairs) {
       if (_matchResult.length != q.pairs.length) return;
       correct = _matchAllCorrect;
@@ -518,9 +515,7 @@ class _ManaSessionScreenState extends State<ManaSessionScreen> {
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildOrderEvents(BuildContext context, AppThemeData t) {
     final q = _q;
-    final expected = q.correctOrder.isEmpty
-        ? List<int>.generate(q.options.length, (i) => i)
-        : q.correctOrder;
+    final expected = q.effectiveCorrectOrder;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
