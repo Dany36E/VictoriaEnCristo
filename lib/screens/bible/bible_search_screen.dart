@@ -7,6 +7,8 @@ import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_search_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/advanced_search_service.dart';
+import '../../services/bible/strong_lexicon_service.dart';
+import '../../widgets/bible/strong_entry_card.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../theme/contraste.dart';
 import 'bible_reader_screen.dart';
@@ -202,6 +204,16 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     _loadRecent();
   }
 
+  /// Abre la concordancia de un número Strong (desde una ficha del diccionario).
+  void _openStrong(String strongNumber) {
+    _controller.text = strongNumber;
+    _controller.selection = TextSelection.collapsed(
+      offset: strongNumber.length,
+    );
+    _query = strongNumber;
+    _doAdvancedSearch(AdvancedSearchType.strong, strongNumber);
+  }
+
   void _selectRecent(String query) {
     _controller.text = query;
     _controller.selection = TextSelection.collapsed(offset: query.length);
@@ -297,7 +309,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 style: AppFonts.manrope(color: t.textPrimary, fontSize: 16),
                 decoration: InputDecoration(
                   hintText: _advancedMode
-                      ? 'Palabra hebrea, griega o número Strong...'
+                      ? 'Strong (G26, H430), palabra original o en español...'
                       : 'Buscar libros, capítulos o versículos...',
                   hintStyle: AppFonts.manrope(
                     color: t.textoAtenuado(
@@ -460,18 +472,12 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             const SizedBox(height: 12),
             Text(
               'Busca libros, capítulos o versículos',
-              style: AppFonts.manrope(
-                color: t.textoTenue(0.4),
-                fontSize: 14,
-              ),
+              style: AppFonts.manrope(color: t.textoTenue(0.4), fontSize: 14),
             ),
             const SizedBox(height: 4),
             Text(
               'Ej: "Salmos 23", "Juan 3:16", "amor"',
-              style: AppFonts.manrope(
-                color: t.textoTenue(0.3),
-                fontSize: 12,
-              ),
+              style: AppFonts.manrope(color: t.textoTenue(0.3), fontSize: 12),
             ),
           ],
         ),
@@ -564,10 +570,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       return Center(
         child: Text(
           'Sin resultados',
-          style: AppFonts.manrope(
-            color: t.textoTenue(0.5),
-            fontSize: 14,
-          ),
+          style: AppFonts.manrope(color: t.textoTenue(0.5), fontSize: 14),
         ),
       );
     }
@@ -733,11 +736,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     if (query.isEmpty) {
       return Text(
         text,
-        style: AppFonts.lora(
-          color: t.textPrimary,
-          fontSize: 15,
-          height: 1.5,
-        ),
+        style: AppFonts.lora(color: t.textPrimary, fontSize: 15, height: 1.5),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       );
@@ -750,11 +749,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     if (matchIndex < 0) {
       return Text(
         text,
-        style: AppFonts.lora(
-          color: t.textPrimary,
-          fontSize: 15,
-          height: 1.5,
-        ),
+        style: AppFonts.lora(color: t.textPrimary, fontSize: 15, height: 1.5),
         maxLines: 3,
         overflow: TextOverflow.ellipsis,
       );
@@ -774,11 +769,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           ),
           TextSpan(text: text.substring(matchIndex + query.length)),
         ],
-        style: AppFonts.lora(
-          color: t.textPrimary,
-          fontSize: 15,
-          height: 1.5,
-        ),
+        style: AppFonts.lora(color: t.textPrimary, fontSize: 15, height: 1.5),
       ),
       maxLines: 3,
       overflow: TextOverflow.ellipsis,
@@ -967,10 +958,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 ),
                 child: Text(
                   theme,
-                  style: AppFonts.manrope(
-                    color: t.textPrimary,
-                    fontSize: 13,
-                  ),
+                  style: AppFonts.manrope(color: t.textPrimary, fontSize: 13),
                 ),
               ),
             );
@@ -1013,10 +1001,37 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         ),
         const SizedBox(height: 8),
         Text(
-          'También puedes escribir un número completo (por ejemplo H430 o G2316). El léxico y el índice funcionan sin conexión.',
+          'Escribe un número con o sin prefijo (H430, G26 o solo 26). El diccionario y el índice funcionan sin conexión.',
+          style: AppFonts.manrope(color: t.textoTenue(0.4), fontSize: 12),
+        ),
+
+        const SizedBox(height: 24),
+
+        Text(
+          'DICCIONARIO STRONG EN ESPAÑOL',
           style: AppFonts.manrope(
             color: t.textoTenue(0.4),
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            letterSpacing: 1.5,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Escribe una palabra en español (por ejemplo «amor» o «pacto») o una transliteración (agape, elohim) para buscarla en las definiciones.',
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.55),
             fontSize: 12,
+            height: 1.45,
+          ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          StrongLexiconCredits.forLanguages(hebrew: true, greek: true),
+          style: AppFonts.manrope(
+            color: t.textoTenue(0.4),
+            fontSize: 10,
+            height: 1.4,
           ),
         ),
 
@@ -1046,10 +1061,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           isExpanded: true,
           hint: Text(
             hint,
-            style: AppFonts.manrope(
-              color: t.textoTenue(0.5),
-              fontSize: 12,
-            ),
+            style: AppFonts.manrope(color: t.textoTenue(0.5), fontSize: 12),
           ),
           dropdownColor: t.surface,
           icon: Icon(
@@ -1064,10 +1076,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   value: b.number,
                   child: Text(
                     b.name,
-                    style: AppFonts.manrope(
-                      color: t.textPrimary,
-                      fontSize: 12,
-                    ),
+                    style: AppFonts.manrope(color: t.textPrimary, fontSize: 12),
                   ),
                 ),
               )
@@ -1082,9 +1091,15 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     if (AdvancedSearchService.I.availableThemes.contains(query)) {
       return AdvancedSearchType.theme;
     }
-    return RegExp(r'^\s*[gGhH]0*\d+[a-zA-Z]*\s*$').hasMatch(query)
-        ? AdvancedSearchType.strong
-        : AdvancedSearchType.originalWord;
+    if (StrongLexiconService.isStrongNumberQuery(query)) {
+      return AdvancedSearchType.strong;
+    }
+    final hasOriginalScript = RegExp(
+      r'[\u0370-\u03ff\u1f00-\u1fff\u0590-\u05ff\ufb1d-\ufb4f]',
+    ).hasMatch(query);
+    return hasOriginalScript
+        ? AdvancedSearchType.originalWord
+        : AdvancedSearchType.definition;
   }
 
   void _rerunCurrentSearch() {
@@ -1113,6 +1128,9 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       switch (type) {
         case AdvancedSearchType.strong:
           result = await AdvancedSearchService.I.searchByStrong(query, version);
+          break;
+        case AdvancedSearchType.definition:
+          result = await AdvancedSearchService.I.searchByDefinition(query);
           break;
         case AdvancedSearchType.originalWord:
           result = await AdvancedSearchService.I.searchByOriginalWord(
@@ -1166,10 +1184,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
             const SizedBox(height: 12),
             Text(
               'Buscando...',
-              style: AppFonts.manrope(
-                color: t.textoTenue(0.5),
-                fontSize: 13,
-              ),
+              style: AppFonts.manrope(color: t.textoTenue(0.5), fontSize: 13),
             ),
           ],
         ),
@@ -1246,7 +1261,9 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         ),
         // Results
         Expanded(
-          child: result.verses.isEmpty
+          child: result.verses.isEmpty && result.lexiconEntries.isNotEmpty
+              ? _buildLexiconResults(result, t)
+              : result.verses.isEmpty
               ? Center(
                   child: Text(
                     'Sin resultados',
@@ -1306,6 +1323,30 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                   },
                 ),
         ),
+      ],
+    );
+  }
+
+  /// Fichas del diccionario de Strong (búsqueda en español o número sin
+  /// apariciones). Tocar una ficha abre la concordancia de ese número.
+  Widget _buildLexiconResults(
+    AdvancedSearchResult result,
+    BibleReaderThemeData t,
+  ) {
+    final entries = result.lexiconEntries;
+    final canOpen = result.type == AdvancedSearchType.definition;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
+      children: [
+        for (final entry in entries)
+          StrongEntryCard(
+            entry: entry,
+            theme: t,
+            showDerivation: false,
+            onTap: canOpen ? () => _openStrong(entry.strongNumber) : null,
+          ),
+        const SizedBox(height: 4),
+        StrongLexiconFootnote(entries: entries, theme: t),
       ],
     );
   }

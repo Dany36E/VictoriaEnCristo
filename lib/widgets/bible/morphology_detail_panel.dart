@@ -8,6 +8,7 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/strong_lexicon_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../utils/grammar_glossary.dart';
+import 'strong_entry_card.dart';
 
 /// Panel de detalle morfológico para una palabra interlineal.
 /// Se muestra al tocar una palabra en la vista interlineal.
@@ -304,7 +305,7 @@ class MorphologyDetailPanel extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Text(
-                'LÉXICO STRONG LOCAL',
+                'DICCIONARIO STRONG',
                 style: AppFonts.cinzel(
                   color: t.accent,
                   fontSize: 10,
@@ -313,84 +314,14 @@ class MorphologyDetailPanel extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 8),
-              ...entries.take(3).map(_buildLexiconEntry),
-              Text(
-                'Definiciones históricas en inglés. Fuente: Open Scriptures; disponibles sin conexión.',
-                style: AppFonts.manrope(
-                  color: t.textPrimary.withValues(alpha: 0.4),
-                  fontSize: 10,
-                  height: 1.4,
-                ),
-              ),
+              ...entries
+                  .take(3)
+                  .map((entry) => StrongEntryCard(entry: entry, theme: t)),
+              StrongLexiconFootnote(entries: entries.take(3), theme: t),
             ],
           ),
         );
       },
-    );
-  }
-
-  Widget _buildLexiconEntry(StrongLexiconEntry entry) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: t.surface.withValues(alpha: 0.55),
-        borderRadius: BorderRadius.circular(12),
-        border: Border(left: BorderSide(color: t.accent, width: 2)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                entry.strongNumber,
-                style: AppFonts.manrope(
-                  color: t.accent,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              if (entry.transliteration.isNotEmpty) ...[
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    entry.transliteration,
-                    overflow: TextOverflow.ellipsis,
-                    style: AppFonts.manrope(
-                      color: t.textPrimary.withValues(alpha: 0.65),
-                      fontSize: 12,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ),
-              ],
-            ],
-          ),
-          if (entry.definition.isNotEmpty) ...[
-            const SizedBox(height: 7),
-            Text(
-              entry.definition,
-              style: AppFonts.manrope(
-                color: t.textPrimary.withValues(alpha: 0.82),
-                fontSize: 12,
-                height: 1.45,
-              ),
-            ),
-          ],
-          if (entry.biblicalUsage.isNotEmpty) ...[
-            const SizedBox(height: 5),
-            Text(
-              'Uso KJV: ${entry.biblicalUsage}',
-              style: AppFonts.manrope(
-                color: t.textPrimary.withValues(alpha: 0.5),
-                fontSize: 11,
-                height: 1.35,
-              ),
-            ),
-          ],
-        ],
-      ),
     );
   }
 
