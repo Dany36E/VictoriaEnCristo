@@ -44,7 +44,7 @@ class DailyVerseSection extends StatelessWidget {
               child: TarjetaVersiculo(
                 referencia: dailyVerse.reference,
                 texto: dailyVerse.verse,
-                version: '',
+                version: dailyVerse.version,
               ),
             ),
           ),

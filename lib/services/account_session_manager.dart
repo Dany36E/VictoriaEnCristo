@@ -12,7 +12,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../repositories/profile_repository.dart';
 import '../repositories/progress_repository.dart';
 import '../repositories/journal_repository.dart';
-import '../repositories/plans_repository.dart';
 import '../repositories/favorites_repository.dart';
 import '../repositories/badge_repository.dart';
 import '../models/user_profile.dart';
@@ -20,7 +19,6 @@ import 'widget_sync_service.dart';
 import 'victory_scoring_service.dart';
 import 'journal_service.dart';
 import 'favorites_service.dart';
-import 'plan_progress_service.dart';
 import 'badge_service.dart';
 import 'battle_partner_service.dart';
 import 'remote_guardian_service.dart';
@@ -312,7 +310,6 @@ class AccountSessionManager {
       ProfileRepository.I.disconnectUser(),
       ProgressRepository.I.disconnectUser(),
       JournalRepository.I.disconnectUser(),
-      PlansRepository.I.disconnectUser(),
       FavoritesRepository.I.disconnectUser(),
       BadgeRepository.I.disconnectUser(),
     ]);
@@ -365,7 +362,6 @@ class AccountSessionManager {
         ProfileRepository.I.clearLocalCache(),
         ProgressRepository.I.clearLocalCache(),
         JournalRepository.I.clearLocalCache(),
-        PlansRepository.I.clearLocalCache(),
         FavoritesRepository.I.clearLocalCache(),
         BadgeRepository.I.clearLocalCache(),
       ]);
@@ -444,7 +440,6 @@ class AccountSessionManager {
         ProfileRepository.I.init(),
         ProgressRepository.I.init(),
         JournalRepository.I.init(),
-        PlansRepository.I.init(),
         FavoritesRepository.I.init(),
         BadgeRepository.I.init(),
       ]);
@@ -460,10 +455,6 @@ class AccountSessionManager {
           NotificationService().reloadSettings(),
           AvatarPerfilService.I.cargar(),
           AtajosService.I.cargar(),
-        ]);
-        await Future.wait([
-          PlansRepository.I.reloadActivePlanFromPrefs(),
-          PlanProgressService.I.reloadActivePlanFromPrefs(),
         ]);
         await DailyPracticeService.I.init();
         await LearningRegistry.I.syncForCurrentUser();
@@ -489,7 +480,6 @@ class AccountSessionManager {
           threshold: threshold,
         ),
         JournalRepository.I.connectUser(uid),
-        PlansRepository.I.connectUser(uid),
         FavoritesRepository.I.connectUser(uid),
         BadgeRepository.I.connectUser(uid),
       ]);
@@ -514,10 +504,6 @@ class AccountSessionManager {
         NotificationService().reloadSettings(),
         AvatarPerfilService.I.cargar(),
         AtajosService.I.cargar(),
-      ]);
-      await Future.wait([
-        PlansRepository.I.reloadActivePlanFromPrefs(),
-        PlanProgressService.I.reloadActivePlanFromPrefs(),
       ]);
       await DailyPracticeService.I.init();
 
@@ -596,7 +582,6 @@ class AccountSessionManager {
       await Future.wait([
         ProgressRepository.I.retryPendingWrites(),
         JournalRepository.I.retryPendingOps(),
-        PlansRepository.I.retryPendingWrites(),
         FavoritesRepository.I.retryPendingCloudSave(),
         BadgeRepository.I.retryPendingCloudSave(),
         UserPrefCloudSyncService.I.flush(),
@@ -617,8 +602,6 @@ class AccountSessionManager {
         _scheduleLocalHydrationFromRepositories;
     JournalRepository.I.onCloudCacheChanged =
         _scheduleLocalHydrationFromRepositories;
-    PlansRepository.I.onCloudCacheChanged =
-        _scheduleLocalHydrationFromRepositories;
     FavoritesRepository.I.onCloudCacheChanged =
         _scheduleLocalHydrationFromRepositories;
     BadgeRepository.I.onCloudCacheChanged =
@@ -631,7 +614,6 @@ class AccountSessionManager {
     _repositoryHydrationListenersAttached = false;
     ProgressRepository.I.onCloudCacheChanged = null;
     JournalRepository.I.onCloudCacheChanged = null;
-    PlansRepository.I.onCloudCacheChanged = null;
     FavoritesRepository.I.onCloudCacheChanged = null;
     BadgeRepository.I.onCloudCacheChanged = null;
   }
@@ -703,13 +685,6 @@ class AccountSessionManager {
       await favService.init();
       await favService.restoreFromCloud(cachedFavorites);
       safeLog('SESSION', '  Favorites: ${cachedFavorites.length} restored');
-
-      // --- Plan Progress ---
-      final cachedPlans = PlansRepository.I.getAll();
-      final planService = PlanProgressService.I;
-      await planService.init();
-      await planService.restoreFromCloud(cachedPlans);
-      safeLog('SESSION', '  Plans: ${cachedPlans.length} restored');
 
       // --- Badges ---
       final cachedBadges = BadgeRepository.I.cachedLevels;

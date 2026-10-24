@@ -12,19 +12,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../repositories/profile_repository.dart';
 import '../repositories/progress_repository.dart';
 import '../repositories/journal_repository.dart';
-import '../repositories/plans_repository.dart';
 import '../repositories/favorites_repository.dart';
 import '../repositories/badge_repository.dart';
 import '../models/user_profile.dart';
 import 'progress_sync_adapter.dart';
 import 'journal_sync_adapter.dart';
 import 'favorites_sync_adapter.dart';
-import 'plans_sync_adapter.dart';
 import 'badge_sync_adapter.dart';
 import 'victory_scoring_service.dart';
 import 'journal_service.dart';
 import 'favorites_service.dart';
-import 'plan_progress_service.dart';
 import 'badge_service.dart';
 import 'app_error_handler.dart';
 
@@ -83,7 +80,6 @@ class DataBootstrapper {
         ProfileRepository.I.init(),
         ProgressRepository.I.init(),
         JournalRepository.I.init(),
-        PlansRepository.I.init(),
         FavoritesRepository.I.init(),
         BadgeRepository.I.init(),
       ]);
@@ -92,7 +88,6 @@ class DataBootstrapper {
       ProgressSyncAdapter.I.init();
       JournalSyncAdapter.I.init();
       FavoritesSyncAdapter.I.init();
-      PlansSyncAdapter.I.init();
       BadgeSyncAdapter.I.init();
 
       // Escuchar cambios de autenticación
@@ -183,7 +178,6 @@ class DataBootstrapper {
       await Future.wait([
         ProgressRepository.I.connectUser(uid, selectedGiants: selectedGiants, threshold: threshold),
         JournalRepository.I.connectUser(uid),
-        PlansRepository.I.connectUser(uid),
         FavoritesRepository.I.connectUser(uid),
         BadgeRepository.I.connectUser(uid),
       ]);
@@ -273,13 +267,6 @@ class DataBootstrapper {
       await favService.restoreFromCloud(cachedFavorites);
       debugPrint('🚀 [BOOTSTRAP]   ✅ Favorites: ${cachedFavorites.length} restored');
 
-      // --- Plan Progress ---
-      final cachedPlans = PlansRepository.I.getAll();
-      final planService = PlanProgressService.I;
-      await planService.init();
-      await planService.restoreFromCloud(cachedPlans);
-      debugPrint('🚀 [BOOTSTRAP]   ✅ Plans: ${cachedPlans.length} restored');
-
       // --- Badges ---
       final cachedBadges = BadgeRepository.I.cachedLevels;
       if (cachedBadges.isNotEmpty) {
@@ -310,7 +297,6 @@ class DataBootstrapper {
       ProfileRepository.I.disconnectUser(),
       ProgressRepository.I.disconnectUser(),
       JournalRepository.I.disconnectUser(),
-      PlansRepository.I.disconnectUser(),
       FavoritesRepository.I.disconnectUser(),
       BadgeRepository.I.disconnectUser(),
     ]);
@@ -321,7 +307,6 @@ class DataBootstrapper {
       ProfileRepository.I.clearLocalCache(),
       ProgressRepository.I.clearLocalCache(),
       JournalRepository.I.clearLocalCache(),
-      PlansRepository.I.clearLocalCache(),
       FavoritesRepository.I.clearLocalCache(),
       BadgeRepository.I.clearLocalCache(),
     ]);
@@ -345,7 +330,6 @@ class DataBootstrapper {
       ProfileRepository.I.clearLocalCache(),
       ProgressRepository.I.clearLocalCache(),
       JournalRepository.I.clearLocalCache(),
-      PlansRepository.I.clearLocalCache(),
       FavoritesRepository.I.clearLocalCache(),
       BadgeRepository.I.clearLocalCache(),
     ]);
@@ -367,7 +351,6 @@ class DataBootstrapper {
         await Future.wait([
           ProgressRepository.I.clearLocalCache(),
           JournalRepository.I.clearLocalCache(),
-          PlansRepository.I.clearLocalCache(),
           FavoritesRepository.I.clearLocalCache(),
           BadgeRepository.I.clearLocalCache(),
         ]);
@@ -414,7 +397,6 @@ class DataBootstrapper {
       await ProfileRepository.I.migrateFromLegacyOnboarding(prefs);
       await ProgressRepository.I.migrateFromLegacy(prefs, selectedGiants, threshold);
       await JournalRepository.I.migrateFromLegacy(prefs);
-      await PlansRepository.I.migrateFromLegacy(prefs);
 
       // Marcar como migrado
       await prefs.setBool('cloud_migration_done', true);

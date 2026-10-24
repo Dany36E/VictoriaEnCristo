@@ -5,7 +5,6 @@ import 'package:url_launcher/url_launcher.dart';
 import '../constants/legal_urls.dart';
 import '../services/auth_service.dart';
 import '../services/connectivity_service.dart';
-import '../repositories/plans_repository.dart';
 import '../repositories/progress_repository.dart';
 import '../services/learning/learning_cloud_sync.dart';
 import '../services/learning/talents_service.dart';
@@ -457,8 +456,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       LearningCloudSync.I.hasPendingChanges ||
       UserPrefCloudSyncService.I.hasPendingChanges ||
       TalentsService.I.hasPendingChanges ||
-      ProgressRepository.I.hasPendingChanges ||
-      PlansRepository.I.hasPendingChanges;
+      ProgressRepository.I.hasPendingChanges;
 
   Future<void> _handleLogout() async {
     // Guard de logout offline: al cerrar sesión se purga el cache local

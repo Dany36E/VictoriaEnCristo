@@ -65,6 +65,7 @@ dependencies:
   wakelock_plus: ^1.5.2  # Pantalla encendida en «¿Quién soy?» y en el Modo púlpito
   flutter_svg: ^2.3.0
   flutter_timezone: ^5.1.1
+  wakelock_plus: ^1.5.2  # Pantalla encendida en «¿Quién soy?» (celular en la frente)
 
 dev_dependencies:
   flutter_test:
@@ -91,7 +92,6 @@ flutter:
     - assets/sounds/sfx/
     - assets/content/
     - assets/images/
-    - assets/images/plan_covers/
     - assets/images/headbanz/
     - assets/bible/Reina Valera 1960.xml
     - assets/bible/NVI.xml
