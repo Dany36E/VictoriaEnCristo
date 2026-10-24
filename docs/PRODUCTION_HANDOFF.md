@@ -1,6 +1,6 @@
 # Entrega pendiente para producción
 
-Estado técnico de referencia: versión `1.0.31+41`, 23 de octubre de 2026.
+Estado técnico de referencia: versión `1.0.32+42`, 23 de octubre de 2026.
 
 Este documento separa las tareas que requieren decisiones, datos o cuentas del titular. No sustituye asesoría jurídica ni las declaraciones finales de Google Play o App Store Connect.
 
@@ -8,8 +8,8 @@ Este documento separa las tareas que requieren decisiones, datos o cuentas del t
 
 - Web pública: `https://victoria-en-cristo.web.app/`. La portada, el centro de ayuda, los documentos legales, `robots.txt` y `sitemap.xml` responden públicamente; no se detectaron cookies, formularios, analítica ni recursos remotos.
 - Auditoría web móvil del despliegue del 13 de septiembre: rendimiento 95, accesibilidad 100, buenas prácticas 100 y SEO 92; LCP 2.2 s, CLS 0 y TBT 120 ms. El peso transferido fue de aproximadamente 232 KiB, incluidas las nuevas capturas reales diferidas.
-- Android App Bundle: `dist/VictoriaEnCristo-1.0.31+41.aab`, compilado con Flutter 3.41.1, validado con Bundletool 1.18.3 (`validate` sin errores; el manifiesto incluye `ScheduledNotificationReceiver` y `ScheduledNotificationBootReceiver`) y `jarsigner` (certificado de subida `CN=Victoria en Cristo`, no `CN=Android Debug`), con `versionCode 41`, `versionName 1.0.31` y SHA-256 `6B64187FAFE1949E83D32292B25B8462BC31E3F00B8A3A436BBC4EACD8E3AC04`. La `1.0.30+40` (SHA-256 `4E90206F5E16E230FE56740D4AE5BB31178432E72BDB9F41B8D855BB631FD984`) solo se usó en prueba interna.
-- Windows: instalación local actualizada a `1.0.31+41` en `%LOCALAPPDATA%/Programs/Victoria en Cristo`, comprobada mediante hash del ejecutable y arranque controlado. Paquete portable `dist/VictoriaEnCristo-Windows-v1.0.31.zip`, SHA-256 `AF27EF85A42DF9A99502D1A10FE734A3F4FBB7AE46E84533521299254F1E65D2`.
+- Android App Bundle: `dist/VictoriaEnCristo-1.0.32+42.aab`, compilado con Flutter 3.41.1, validado con Bundletool 1.18.3 (`validate` sin errores; el manifiesto incluye `ScheduledNotificationReceiver` y `ScheduledNotificationBootReceiver`) y `jarsigner` (certificado de subida `CN=Victoria en Cristo`, no `CN=Android Debug`), con `versionCode 42`, `versionName 1.0.32` y SHA-256 `87554F95BB468F19F60099375125453CBB20FDC879C44E2C14D0EA24A22B11AD`. La `1.0.30+40` (SHA-256 `4E90206F5E16E230FE56740D4AE5BB31178432E72BDB9F41B8D855BB631FD984`) solo se usó en prueba interna.
+- Windows: instalación local actualizada a `1.0.32+42` en `%LOCALAPPDATA%/Programs/Victoria en Cristo`, comprobada mediante hash del ejecutable y arranque controlado. Paquete portable `dist/VictoriaEnCristo-Windows-v1.0.32.zip`, SHA-256 `689A80D7C47EC16DF850E683215CDCDCC0CD764730F337350B2C3B734A21A986`.
 - iPhone y iPad: las 19 imágenes declaradas en `AppIcon.appiconset/Contents.json` existen y tienen las dimensiones requeridas. La compilación y firma nativas siguen necesitando macOS.
 - Calidad Flutter: `flutter analyze` sin incidencias y 575 pruebas Flutter y 8 pruebas JUnit del filtro DNS aprobadas (menos que antes porque la matriz visual ya solo recorre los tres papeles).
 
@@ -40,11 +40,11 @@ Este documento separa las tareas que requieren decisiones, datos o cuentas del t
 
 ## 4. Google Play Console
 
-1. Compilar el AAB de la versión que diga `pubspec.yaml` (hoy `1.0.31+41`; `1.0.30+40` ya se usó en Play y no puede volver a subirse) en la computadora que tiene `android/key.properties` (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`; `storeFile` se resuelve desde `android/`) y el keystore de subida. Sin ese archivo el build de release se detiene.
+1. Compilar el AAB de la versión que diga `pubspec.yaml` (hoy `1.0.32+42`; `1.0.30+40` ya se usó en Play y no puede volver a subirse) en la computadora que tiene `android/key.properties` (`storeFile`, `storePassword`, `keyAlias`, `keyPassword`; `storeFile` se resuelve desde `android/`) y el keystore de subida. Sin ese archivo el build de release se detiene.
    - `flutter build appbundle --release` deja `build/app/outputs/bundle/release/app-release.aab`.
-   - Versión: `bundletool dump manifest --bundle=build/app/outputs/bundle/release/app-release.aab --xpath=/manifest/@android:versionCode` debe decir `41` (y `.../@android:versionName`, `1.0.31`). `bundletool validate --bundle=...` sin errores.
+   - Versión: `bundletool dump manifest --bundle=build/app/outputs/bundle/release/app-release.aab --xpath=/manifest/@android:versionCode` debe decir `42` (y `.../@android:versionName`, `1.0.32`). `bundletool validate --bundle=...` sin errores.
    - Firma: `jarsigner -verify -verbose -certs build/app/outputs/bundle/release/app-release.aab` debe mostrar el certificado de subida, no `CN=Android Debug`.
-   - Guardar una copia como `dist/VictoriaEnCristo-1.0.31+41.aab` y anotar su SHA-256 en «Entregables técnicos verificados».
+   - Guardar una copia como `dist/VictoriaEnCristo-1.0.32+42.aab` y anotar su SHA-256 en «Entregables técnicos verificados».
 2. Crear la versión de producción y cargar ese AAB.
 3. Completar **Seguridad de los datos** usando `google_play_submission.md`; declarar cuenta, contenido del usuario, identificadores, actividad, diagnósticos y datos sensibles voluntarios según el comportamiento final.
 4. Declarar la eliminación de cuenta y colocar `https://victoria-en-cristo.web.app/data_deletion.html`.
