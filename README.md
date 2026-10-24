@@ -1,6 +1,6 @@
 # Victoria en Cristo
 
-App Flutter cristiana para acompanamiento espiritual, lectura biblica, planes, diario, ejercicios de crisis, juegos biblicos, widgets nativos y comunidad moderada.
+App Flutter cristiana para acompanamiento espiritual, lectura biblica, devocionales, diario, ejercicios de crisis, juegos biblicos, widgets nativos y comunidad moderada.
 
 ## Stack
 
@@ -15,7 +15,7 @@ App Flutter cristiana para acompanamiento espiritual, lectura biblica, planes, d
 
 ## Modulos principales
 
-- Home: racha, check-in, versiculo diario, SOS, planes, comunidad y aprendizaje.
+- Home: racha, check-in, versiculo diario (366+ referencias por tema), practicas de hoy, SOS, comunidad y aprendizaje.
 - Victoria: registro por gigantes, umbral compuesto y flujo de gracia ante recaida.
 - Biblia: lector, busqueda, notas, highlights, favoritos, comentarios, interlineal, mapas y timeline.
 - Escuela del Reino: quizzes, recorridos, heroes, parabolas, libros, profecias y juegos.

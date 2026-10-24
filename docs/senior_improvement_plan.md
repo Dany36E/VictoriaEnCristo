@@ -177,7 +177,7 @@ Criterios QA:
 ### 12. Contenido editorial a JSON validado
 
 Acciones propuestas:
-- Migrar gradualmente `dummy_plans.dart`, `devotionals.dart`, `prayers.dart` a assets JSON.
+- Migrar gradualmente `devotionals.dart`, `prayers.dart` a assets JSON (los planes de lectura se retiraron).
 - Agregar tests de schema, longitud minima y tono.
 
 Criterios QA:

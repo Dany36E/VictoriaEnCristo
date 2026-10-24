@@ -4,7 +4,7 @@ library;
 enum BadgeCategory {
   streak,      // Racha de victorias
   victories,   // Total de victorias
-  reading,     // Planes completados
+  reading,     // Legado: planes de lectura (retirados, oculta)
   bible,       // Capítulos leídos
   journal,     // Entradas de diario
   highlights,  // Textos resaltados

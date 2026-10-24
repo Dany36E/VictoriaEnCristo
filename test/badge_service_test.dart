@@ -154,7 +154,7 @@ void main() {
       }
     });
 
-    test('los planes de lectura no se muestran por ahora', () {
+    test('la insignia de planes de lectura (retirados) no se muestra', () {
       expect(BadgeService.visibles, isNot(contains(BadgeCategory.reading)));
       expect(
         BadgeService.visibles,
