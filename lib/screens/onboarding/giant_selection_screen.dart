@@ -5,6 +5,7 @@ import '../../theme/app_theme.dart';
 import '../../services/feedback_engine.dart';
 import '../purity/purity_intro_sheet.dart';
 import 'giant_frequency_screen.dart';
+import 'giant_ranking_screen.dart';
 import '../../vec/vec_tema.dart';
 import '../../vec/vec_widgets.dart';
 import 'onboarding_papel.dart';
@@ -117,7 +118,9 @@ class _GiantSelectionScreenState extends State<GiantSelectionScreen> {
       context,
       PageRouteBuilder(
         pageBuilder: (context, animation, secondaryAnimation) =>
-            GiantFrequencyScreen(selectedGiants: _selectedGiants.toList()),
+            _selectedGiants.length >= 2
+            ? GiantRankingScreen(selectedGiants: _selectedGiants.toList())
+            : GiantFrequencyScreen(selectedGiants: _selectedGiants.toList()),
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
           return FadeTransition(
             opacity: animation,

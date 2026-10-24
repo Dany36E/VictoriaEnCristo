@@ -16,6 +16,7 @@ import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 import '../widgets/avatar_perfil.dart';
 import '../widgets/selector_modo_papel.dart';
+import 'mis_gigantes_screen.dart';
 
 class ProfileScreen extends StatefulWidget {
   final VoidCallback? onLogout;
@@ -323,6 +324,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
             title: 'Avatar de perfil',
             subtitle: 'Elige entre 20 dibujos',
             onTap: () => mostrarSelectorAvatar(context),
+          ),
+          Divider(height: 1, indent: 60, endIndent: 16, color: t.divider),
+          _buildOptionTile(
+            icon: Icons.shield_rounded,
+            title: 'Mis gigantes',
+            subtitle: 'Ordena, agrega o quita tus batallas',
+            onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const MisGigantesScreen()),
+            ),
           ),
           Divider(height: 1, indent: 60, endIndent: 16, color: t.divider),
           _buildOptionTile(

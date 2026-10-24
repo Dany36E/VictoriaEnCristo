@@ -7,6 +7,7 @@ import '../services/feedback_engine.dart';
 import '../theme/app_theme_data.dart';
 import '../widgets/devotional/devotional_reminder_sheet.dart';
 import '../widgets/selector_modo_papel.dart';
+import 'mis_gigantes_screen.dart';
 import 'purity/purity_guard_screen.dart';
 import 'privacy_center_screen.dart';
 
@@ -60,6 +61,42 @@ class _SettingsScreenState extends State<SettingsScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
+          // Mis gigantes: agregar, quitar, ordenar y ajustar frecuencia
+          _buildSectionHeader('⚔️ Mis gigantes'),
+          _buildSettingCard(
+            children: [
+              ListTile(
+                key: const ValueKey('ajustes-mis-gigantes'),
+                leading: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: t.accent.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Icon(Icons.shield_rounded, color: t.accent),
+                ),
+                title: Text(
+                  'Mis gigantes',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: t.textPrimary,
+                  ),
+                ),
+                subtitle: Text(
+                  'Ordena, agrega o quita tus batallas',
+                  style: TextStyle(color: t.textSecondary),
+                ),
+                trailing: Icon(Icons.chevron_right, color: t.textSecondary),
+                onTap: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MisGigantesScreen()),
+                ),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
           // Sección de Apariencia
           _buildSectionHeader('🎨 Apariencia'),
           _buildSettingCard(
