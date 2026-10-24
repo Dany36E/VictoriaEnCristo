@@ -44,6 +44,7 @@ export {
 
 // Rendición de cuentas (opcional): avisos del Escudo y resumen semanal
 export {
+  avisarCambioCompartir,
   enviarResumenSemanal,
   vigilarEscudo,
 } from "./rendicionCuentas";

@@ -454,7 +454,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                         ),
                       ),
                       
-                      // Día de gracia y patrones
+                      // Día protegido y patrones
                       SliverToBoxAdapter(
                         child: Padding(
                           padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),

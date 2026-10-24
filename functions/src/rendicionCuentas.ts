@@ -7,6 +7,12 @@
  *    un tiempo o no da señal desde hace más de 24 h, avisa a los compañeros
  *    que el usuario eligió (FCM + mensaje en la app). Sin detalles: ni sitios
  *    ni horas exactas. Un aviso por episodio y como mucho uno cada 6 h.
+ *    Solo con apagados CONFIRMADOS (Android lo registró, o la app reportó el
+ *    Escudo activado pero sin correr). La falta de señal espera 72 h.
+ *
+ * 3. avisarCambioCompartir (trigger): si el usuario quita a un compañero de
+ *    los avisos o del resumen, ese compañero recibe "X dejó de compartir…",
+ *    para que dejar de compartir no sirva como atajo silencioso.
  *
  * 2. enviarResumenSemanal (cada hora): el domingo desde las 19 h (hora del
  *    usuario) envía a los compañeros elegidos el resumen de la semana, solo
@@ -19,8 +25,10 @@
 
 import * as adminFirestore from "firebase-admin/firestore";
 import {enRegion} from "./limites";
-import {publicNameFor} from "./battlePartnerFunctions";
+import {consumeDailyLimit, publicNameFor, utcDayKey} from "./battlePartnerFunctions";
 import {
+  cambiosDeCompartir,
+  textoCambioCompartir,
   clavesSemana,
   construirTextoResumen,
   debeEnviarResumen,
@@ -89,7 +97,7 @@ async function enviarMensaje(
   destinos: string[],
   fromUid: string,
   fromName: string,
-  messageKey: "shield_alert" | "weekly_report",
+  messageKey: "shield_alert" | "weekly_report" | "sharing_changed",
   text: string,
 ): Promise<void> {
   const batch = db().batch();
@@ -227,4 +235,30 @@ export const enviarResumenSemanal = enRegion({maxInstances: 1, timeoutSeconds: 3
       }
     }
     if (enviados > 0) console.log(`[RESUMEN] ${enviados} resumen(es) enviados`);
+  });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 3. avisarCambioCompartir
+// ═══════════════════════════════════════════════════════════════════════════
+export const avisarCambioCompartir = enRegion()
+  .firestore.document("accountability/{uid}")
+  .onUpdate(async (change, context) => {
+    const uid = context.params.uid as string;
+    const cambios = cambiosDeCompartir(change.before.data() ?? {}, change.after.data() ?? {});
+    if (cambios.length === 0) return;
+    // Solo a compañeros con vínculo activo: al liberar a alguien no se le avisa.
+    const afectados = [...new Set(cambios.map((c) => c.uid))];
+    const activos = new Set(await companerosActivos(uid, afectados));
+    const nombre = await publicNameFor(uid, "Tu compañero");
+    for (const c of cambios) {
+      if (!activos.has(c.uid)) continue;
+      try {
+        // Evita una ráfaga si activa y desactiva muchas veces.
+        await consumeDailyLimit(`compartir_${uid}_${c.uid}_${utcDayKey()}`, 3);
+      } catch {
+        continue;
+      }
+      const texto = textoCambioCompartir(c.tipo, nombre);
+      await enviarMensaje([c.uid], uid, nombre, "sharing_changed", texto);
+    }
   });

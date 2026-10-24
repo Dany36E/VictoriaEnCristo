@@ -35,12 +35,12 @@ enum EstadoDia {
   );
 }
 
-/// Por qué no se puede usar un día de gracia ahora.
+/// Por qué no se puede usar un día protegido ahora.
 enum MotivoSinGracia {
   /// Hay un día que se puede cubrir.
   ninguno,
 
-  /// Ya se usó el día de gracia de este mes.
+  /// Ya se usó el día protegido de este mes.
   sinTokens,
 
   /// No hay un día reciente cuya ausencia rompa la racha.
@@ -75,7 +75,7 @@ class VictoryScoringService {
   static const String _keyGraceDaysUsed = 'grace_days_used_v1'; // set<ISO>
   static const String _keyJourneyStartISO = 'journey_start_iso_v1';
 
-  /// Días de gracia que se recargan cada mes (no se acumulan).
+  /// Días protegidos que se recargan cada mes (no se acumulan).
   static const int tokensDeGraciaPorMes = 1;
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -560,7 +560,7 @@ class VictoryScoringService {
     debugPrint('📊 [RELAPSE] Acknowledged break on $_relapseAckDateISO');
   }
 
-  /// Día que un día de gracia puede cubrir ahora, o `null`.
+  /// Día que un día protegido puede cubrir ahora, o `null`.
   ///
   /// Reglas (las mismas que explica la tarjeta en Progreso):
   /// - Hay [tokensDeGraciaPorMes] por mes; no se acumulan.
@@ -569,7 +569,7 @@ class VictoryScoringService {
   ///   anterior fue victoria (y, si es anteayer, ayer también).
   DateTime? diaParaGracia() => _diaParaGracia(revisarTokens: true);
 
-  /// Por qué no hay día de gracia disponible (para explicarlo en la UI).
+  /// Por qué no hay día protegido disponible (para explicarlo en la UI).
   MotivoSinGracia motivoSinGracia() {
     _refreshGraceTokensForCurrentMonth(notificar: false);
     if (_diaParaGracia(revisarTokens: false) == null) {
@@ -595,11 +595,11 @@ class VictoryScoringService {
     return null;
   }
 
-  /// ¿[fecha] fue cubierta con un día de gracia?
+  /// ¿[fecha] fue cubierta con un día protegido?
   bool esDiaDeGracia(DateTime fecha) =>
       _graceDaysUsed.contains(_dateToISO(fecha));
 
-  /// Usa 1 día de gracia para cubrir [date]. Solo acepta el día que
+  /// Usa 1 día protegido para cubrir [date]. Solo acepta el día que
   /// devuelve [diaParaGracia]; cualquier otro se rechaza.
   Future<bool> useGraceToken(DateTime date) async {
     if (!_isInitialized) await init();

@@ -1,7 +1,7 @@
-/// Tarjeta "Día de gracia": usar el token del mes para proteger la racha.
+/// Tarjeta "Día protegido": usar el token del mes para proteger la racha.
 ///
 /// Reglas (las aplica VictoryScoringService.diaParaGracia):
-/// - 1 día de gracia por mes; se renueva el día 1 y no se acumula.
+/// - 1 día protegido por mes; se renueva el día 1 y no se acumula.
 /// - Cubre ayer o anteayer, nunca hoy (hoy todavía puedes registrar).
 /// - Solo si ese día rompió una racha que venía de victoria.
 library;
@@ -32,7 +32,7 @@ String _fechaLarga(DateTime d) => '${d.day} de ${_meses[d.month - 1]}';
 class DiaDeGraciaCard extends StatefulWidget {
   const DiaDeGraciaCard({super.key, this.alUsar});
 
-  /// Se llama después de usar el día de gracia (para refrescar la pantalla).
+  /// Se llama después de usar el día protegido (para refrescar la pantalla).
   final VoidCallback? alUsar;
 
   @override
@@ -46,11 +46,11 @@ class _DiaDeGraciaCardState extends State<DiaDeGraciaCard> {
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('¿Usar tu día de gracia?'),
+        title: const Text('¿Usar tu día protegido?'),
         content: Text(
           'Cubrirá el ${_fechaLarga(dia)} y tu racha seguirá. Tienes uno '
           'por mes; el próximo llega el día 1.\n\n'
-          'La gracia no es permiso para rendirse: es una mano para '
+          'Proteger tu racha no es permiso para rendirse: es una mano para '
           'levantarte y seguir.',
         ),
         actions: [
@@ -60,7 +60,7 @@ class _DiaDeGraciaCardState extends State<DiaDeGraciaCard> {
           ),
           FilledButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Usar día de gracia'),
+            child: const Text('Usar día protegido'),
           ),
         ],
       ),
@@ -77,7 +77,7 @@ class _DiaDeGraciaCardState extends State<DiaDeGraciaCard> {
           usado
               ? 'Tu racha sigue: ${VictoryScoringService.I.getCurrentStreak()} '
                     'días. Sigue adelante.'
-              : 'No se pudo usar el día de gracia ahora.',
+              : 'No se pudo usar el día protegido ahora.',
         ),
         behavior: SnackBarBehavior.floating,
       ),
@@ -94,8 +94,8 @@ class _DiaDeGraciaCardState extends State<DiaDeGraciaCard> {
         final t = AppThemeData.of(context);
         final dia = scoring.diaParaGracia();
         final quedan = tokens > 0
-            ? 'Te queda 1 día de gracia este mes.'
-            : 'Ya usaste tu día de gracia de este mes; el próximo llega el día 1.';
+            ? 'Te queda 1 día protegido este mes.'
+            : 'Ya usaste tu día protegido de este mes; el próximo llega el día 1.';
         return Container(
           padding: const EdgeInsets.all(16),
           decoration: t.cardDecoration,
@@ -110,7 +110,7 @@ class _DiaDeGraciaCardState extends State<DiaDeGraciaCard> {
                     child: Semantics(
                       header: true,
                       child: Text(
-                        'Día de gracia',
+                        'Día protegido',
                         style: Theme.of(context).textTheme.titleMedium
                             ?.copyWith(
                               color: t.textPrimary,
@@ -125,7 +125,7 @@ class _DiaDeGraciaCardState extends State<DiaDeGraciaCard> {
               Text(
                 dia != null
                     ? 'El ${_fechaLarga(dia)} quedó sin victoria y rompió tu '
-                          'racha. Puedes cubrirlo con tu día de gracia.'
+                          'racha. Puedes cubrirlo con tu día protegido.'
                     : '$quedan Sirve para cubrir ayer o anteayer cuando ese '
                           'día rompería una racha de victoria.',
                 style: TextStyle(color: t.textSecondary, height: 1.3),
@@ -138,7 +138,7 @@ class _DiaDeGraciaCardState extends State<DiaDeGraciaCard> {
                   ),
                   onPressed: _usando ? null : () => _usar(dia),
                   icon: const Icon(Icons.favorite_rounded),
-                  label: const Text('Usar mi día de gracia'),
+                  label: const Text('Usar mi día protegido'),
                 ),
               ],
             ],

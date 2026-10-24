@@ -23,12 +23,17 @@ exports.resumirSemana = resumirSemana;
 exports.leerCompartir = leerCompartir;
 exports.construirTextoResumen = construirTextoResumen;
 exports.sumarBloqueos = sumarBloqueos;
+exports.cambiosDeCompartir = cambiosDeCompartir;
+exports.textoCambioCompartir = textoCambioCompartir;
 const MINUTO = 60 * 1000;
 const HORA = 60 * MINUTO;
 /** Un apagado corto (reinicio, cambio de red) no se avisa. */
 exports.MIN_APAGADO_MS = 10 * MINUTO;
-/** Sin latido por más de esto = "sin señal". */
-exports.SIN_SENAL_MS = 24 * HORA;
+/**
+ * Sin latido por más de esto = "sin señal". El latido sale al abrir la app,
+ * así que no abrirla uno o dos días nunca dispara un aviso.
+ */
+exports.SIN_SENAL_MS = 72 * HORA;
 /** Mínimo entre dos avisos del Escudo del mismo usuario. */
 exports.MIN_ENTRE_AVISOS_MS = 6 * HORA;
 /** Apagados más viejos que esto ya no se avisan (p. ej. al activar avisos). */
@@ -97,9 +102,8 @@ function textoAvisoEscudo(tipo, nombre) {
                 "(ya está activo otra vez). Un mensaje de ánimo puede ayudar.";
         case "sin_senal":
         default:
-            return `No recibimos señal del Escudo de Pureza de ${nombre} desde ` +
-                "hace más de un día. Puede que solo no haya abierto la app; " +
-                "un saludo nunca sobra.";
+            return `No hemos recibido señal del Escudo de ${nombre} en 3 días. ` +
+                "Puede que solo no haya abierto la app; un saludo nunca sobra.";
     }
 }
 // ═══════════════════════════════════════════════════════════════════════════
@@ -258,5 +262,52 @@ function sumarBloqueos(porDia, claves) {
             total += v;
     }
     return total;
+}
+function uids(v) {
+    return new Set(Array.isArray(v) ? v.filter((x) => typeof x === "string") : []);
+}
+/**
+ * Compañeros a los que avisar porque el usuario dejó de compartirles algo.
+ * @param {AjustesCompartir} antes documento anterior de accountability.
+ * @param {AjustesCompartir} despues documento nuevo.
+ * @return {CambioCompartir[]} un aviso por compañero y tipo.
+ */
+function cambiosDeCompartir(antes, despues) {
+    const cambios = [];
+    const escudoDespues = uids(despues.shieldAlertPartners);
+    for (const u of uids(antes.shieldAlertPartners)) {
+        if (!escudoDespues.has(u))
+            cambios.push({ uid: u, tipo: "avisos_escudo" });
+    }
+    const resumenAntes = uids(antes.weeklyReportPartners);
+    const resumenDespues = uids(despues.weeklyReportPartners);
+    for (const u of resumenAntes) {
+        if (!resumenDespues.has(u))
+            cambios.push({ uid: u, tipo: "resumen_semanal" });
+    }
+    if (leerCompartir(antes.share).escudo && !leerCompartir(despues.share).escudo) {
+        for (const u of resumenDespues) {
+            if (resumenAntes.has(u))
+                cambios.push({ uid: u, tipo: "escudo_en_resumen" });
+        }
+    }
+    return cambios;
+}
+/**
+ * Texto para el compañero cuando se deja de compartir algo con él.
+ * @param {TipoCambioCompartir} tipo qué se dejó de compartir.
+ * @param {string} nombre nombre público de quien comparte.
+ * @return {string} texto.
+ */
+function textoCambioCompartir(tipo, nombre) {
+    switch (tipo) {
+        case "avisos_escudo":
+            return `${nombre} dejó de compartirte los avisos de su Escudo de Pureza.`;
+        case "resumen_semanal":
+            return `${nombre} dejó de compartirte su resumen semanal.`;
+        case "escudo_en_resumen":
+        default:
+            return `${nombre} dejó de incluir el Escudo de Pureza en su resumen semanal.`;
+    }
 }
 //# sourceMappingURL=rendicionCuentasLogica.js.map

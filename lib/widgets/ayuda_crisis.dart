@@ -65,6 +65,12 @@ const List<LineaCrisis> kLineasCrisis = [
     marcar: '135',
   ),
   LineaCrisis(
+    pais: 'Colombia',
+    servicio: 'Línea de salud mental (opción 4)',
+    numero: '192, opción 4',
+    marcar: '192',
+  ),
+  LineaCrisis(
     pais: 'Colombia (Bogotá)',
     servicio: 'Línea 106',
     numero: '106',

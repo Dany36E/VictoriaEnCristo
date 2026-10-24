@@ -6,7 +6,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.vigilarEscudo = exports.enviarResumenSemanal = exports.removeBattlePartner = exports.liberarCandadosVencidos = exports.cancelarRetiroCandado = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.rejectPartnerInvite = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.blockWallAuthor = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
+exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.vigilarEscudo = exports.enviarResumenSemanal = exports.avisarCambioCompartir = exports.removeBattlePartner = exports.liberarCandadosVencidos = exports.cancelarRetiroCandado = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.rejectPartnerInvite = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.blockWallAuthor = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
 const app_1 = require("firebase-admin/app");
 // Inicializar Firebase Admin ANTES de importar otras funciones
 (0, app_1.initializeApp)();
@@ -38,6 +38,7 @@ Object.defineProperty(exports, "liberarCandadosVencidos", { enumerable: true, ge
 Object.defineProperty(exports, "removeBattlePartner", { enumerable: true, get: function () { return liberarCompanero_1.removeBattlePartner; } });
 // Rendición de cuentas (opcional): avisos del Escudo y resumen semanal
 var rendicionCuentas_1 = require("./rendicionCuentas");
+Object.defineProperty(exports, "avisarCambioCompartir", { enumerable: true, get: function () { return rendicionCuentas_1.avisarCambioCompartir; } });
 Object.defineProperty(exports, "enviarResumenSemanal", { enumerable: true, get: function () { return rendicionCuentas_1.enviarResumenSemanal; } });
 Object.defineProperty(exports, "vigilarEscudo", { enumerable: true, get: function () { return rendicionCuentas_1.vigilarEscudo; } });
 // Modo Estudio Colaborativo - Salas con rotación de traducciones

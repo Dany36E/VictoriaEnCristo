@@ -7,7 +7,7 @@
 /// - Mostrar racha más larga (que nunca se resetea).
 /// - Normalización: "Formar un hábito toma 21+ intentos. Estás aprendiendo."
 /// - Acciones suaves: escribir, orar, entender qué pasó, volver a empezar
-///   (no una sola CTA agresiva). Si un día de gracia puede proteger la racha,
+///   (no una sola CTA agresiva). Si un día protegido puede proteger la racha,
 ///   se ofrece aquí mismo.
 /// ═══════════════════════════════════════════════════════════════════════════
 library;

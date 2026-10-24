@@ -71,15 +71,23 @@ test("apagados de hace más de 48 h ya no se avisan", () => {
   assert.equal(L.evaluarAvisoEscudo(e, {}, AHORA).enviar, false);
 });
 
-test("sin señal por más de 24 h: 'sin_senal'", () => {
-  const visto = AHORA - 25 * HORA;
+test("uno o dos días sin abrir la app no disparan ningún aviso", () => {
+  for (const horas of [25, 48, 71]) {
+    const d = L.evaluarAvisoEscudo({...base, lastSeenAtMs: AHORA - horas * HORA}, {}, AHORA);
+    assert.equal(d.enviar, false, `${horas} h`);
+  }
+});
+
+test("sin señal por más de 72 h: 'sin_senal' con texto suave", () => {
+  assert.match(L.textoAvisoEscudo("sin_senal", "Juan"), /en 3 días/);
+  const visto = AHORA - 73 * HORA;
   const d = L.evaluarAvisoEscudo({...base, lastSeenAtMs: visto}, {}, AHORA);
   assert.deepEqual(d, {enviar: true, tipo: "sin_senal", episodio: `sin_senal:${visto}`});
 });
 
 test("sin señal no avisa si el usuario no quiere el Escudo encendido", () => {
   const d = L.evaluarAvisoEscudo(
-    {...base, enabledByUser: false, lastSeenAtMs: AHORA - 30 * HORA},
+    {...base, enabledByUser: false, lastSeenAtMs: AHORA - 80 * HORA},
     {},
     AHORA,
   );
@@ -163,4 +171,25 @@ test("el resumen respeta lo que el usuario no comparte", () => {
   assert.deepEqual(L.leerCompartir(undefined), {
     registro: true, victoriaGracia: true, racha: true, escudo: true,
   });
+});
+
+test("dejar de compartir avisa a cada compañero afectado", () => {
+  const antes = {
+    shieldAlertPartners: ["a", "b"],
+    weeklyReportPartners: ["a", "c"],
+    share: {escudo: true},
+  };
+  const despues = {shieldAlertPartners: ["b"], weeklyReportPartners: ["c"], share: {escudo: false}};
+  assert.deepEqual(L.cambiosDeCompartir(antes, despues), [
+    {uid: "a", tipo: "avisos_escudo"},
+    {uid: "a", tipo: "resumen_semanal"},
+    {uid: "c", tipo: "escudo_en_resumen"},
+  ]);
+  assert.deepEqual(L.cambiosDeCompartir(despues, antes), [], "agregar no avisa");
+  assert.match(L.textoCambioCompartir("avisos_escudo", "Ana"), /^Ana dejó de compartirte/);
+});
+
+test("solo apagados confirmados: Escudo activo y con latido reciente no avisa", () => {
+  const d = L.evaluarAvisoEscudo({...base, vpnActive: true}, {}, AHORA);
+  assert.equal(d.enviar, false);
 });
