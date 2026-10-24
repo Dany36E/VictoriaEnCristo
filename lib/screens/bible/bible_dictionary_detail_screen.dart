@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 
 import '../../models/bible/dictionary_entry.dart';
+import '../../services/bible/bible_dictionary_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import '../../widgets/bible/dictionary_definition_text.dart';
 
 /// Pantalla de detalle de una entrada del diccionario bíblico.
 class BibleDictionaryDetailScreen extends StatelessWidget {
@@ -23,6 +25,8 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
             SliverToBoxAdapter(child: _buildDefinition(t)),
             if (entry.references.isNotEmpty)
               SliverToBoxAdapter(child: _buildReferences(t)),
+            if (entry.source == 'Easton')
+              SliverToBoxAdapter(child: _buildAttribution(t)),
             const SliverToBoxAdapter(child: SizedBox(height: 40)),
           ],
         ),
@@ -76,6 +80,17 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (entry.termEn.isNotEmpty &&
+                      BibleDictionaryService.fold(entry.termEn) !=
+                          BibleDictionaryService.fold(entry.term))
+                    Text(
+                      'Inglés: ${entry.termEn}',
+                      style: AppFonts.manrope(
+                        color: t.textoAtenuado(),
+                        fontSize: 13,
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
                   const SizedBox(height: 4),
                   Row(
                     children: [
@@ -123,8 +138,9 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
                 color: t.surface.withValues(alpha: 0.4),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Text(
-                entry.definition,
+              child: DictionaryDefinitionText(
+                entry: entry,
+                theme: t,
                 style: AppFonts.manrope(
                   color: t.textPrimary.withValues(alpha: 0.85),
                   fontSize: 15,
@@ -151,31 +167,23 @@ class BibleDictionaryDetailScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: entry.references.map((ref) {
-                return Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: t.accent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(
-                        color: t.accent.withValues(alpha: 0.25)),
-                  ),
-                  child: Text(
-                    ref,
-                    style: AppFonts.manrope(
-                      color: t.accent,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                );
-              }).toList(),
+            DictionaryReferenceChips(
+              references: entry.references,
+              theme: t,
             ),
           ],
+        ),
+      );
+
+  Widget _buildAttribution(BibleReaderThemeData t) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
+        child: Text(
+          BibleDictionaryService.eastonAttribution,
+          style: AppFonts.manrope(
+            color: t.textoAtenuado(),
+            fontSize: 12,
+            fontStyle: FontStyle.italic,
+          ),
         ),
       );
 }

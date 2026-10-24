@@ -2,14 +2,17 @@ import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 
 import '../../models/bible/dictionary_entry.dart';
+import '../../services/bible/bible_dictionary_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
+import 'dictionary_definition_text.dart';
 
 /// Small bottom sheet que muestra una entrada del diccionario bíblico.
 class DictionarySheet extends StatelessWidget {
   final DictionaryEntry entry;
+  final ScrollController? scrollController;
 
-  const DictionarySheet({super.key, required this.entry});
+  const DictionarySheet({super.key, required this.entry, this.scrollController});
 
   BibleReaderThemeData get t => BibleReaderThemeData.fromId(
       BibleReaderThemeData.migrateId(
@@ -24,7 +27,8 @@ class DictionarySheet extends StatelessWidget {
         initialChildSize: 0.5,
         maxChildSize: 0.85,
         minChildSize: 0.3,
-        builder: (ctx, scroll) => DictionarySheet(entry: entry),
+        builder: (ctx, scroll) =>
+            DictionarySheet(entry: entry, scrollController: scroll),
       ),
     );
   }
@@ -38,6 +42,7 @@ class DictionarySheet extends StatelessWidget {
         border: Border.all(color: t.accent.withValues(alpha: 0.3)),
       ),
       child: SingleChildScrollView(
+        controller: scrollController,
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,6 +55,17 @@ class DictionarySheet extends StatelessWidget {
             if (entry.references.isNotEmpty) ...[
               const SizedBox(height: 16),
               _buildReferences(),
+            ],
+            if (entry.source == 'Easton') ...[
+              const SizedBox(height: 16),
+              Text(
+                BibleDictionaryService.eastonAttribution,
+                style: AppFonts.manrope(
+                  color: t.textoAtenuado(),
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
             ],
           ],
         ),
@@ -129,8 +145,9 @@ class DictionarySheet extends StatelessWidget {
               color: t.surface.withValues(alpha: 0.4),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Text(
-              entry.definition,
+            child: DictionaryDefinitionText(
+              entry: entry,
+              theme: t,
               style: AppFonts.manrope(
                 color: t.textPrimary.withValues(alpha: 0.85),
                 fontSize: 14,
@@ -154,29 +171,10 @@ class DictionarySheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: entry.references.map((ref) {
-              return Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: t.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                      color: t.accent.withValues(alpha: 0.25)),
-                ),
-                child: Text(
-                  ref,
-                  style: AppFonts.manrope(
-                    color: t.accent,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              );
-            }).toList(),
+          DictionaryReferenceChips(
+            references: entry.references,
+            theme: t,
+            fontSize: 12,
           ),
         ],
       );
