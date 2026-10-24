@@ -12,6 +12,7 @@ import '../../theme/app_theme_data.dart';
 import '../../models/wall_post.dart';
 import '../../services/wall_service.dart';
 import '../../services/feedback_engine.dart';
+import '../../widgets/ayuda_crisis.dart';
 import '../../widgets/wall_post_card.dart';
 
 const int _kMaxCommentLength = 300;
@@ -82,6 +83,13 @@ class _WallThreadScreenState extends State<WallThreadScreen> {
 
     if (!mounted) return;
     setState(() => _sending = false);
+
+    if (result.crisis) {
+      // No se publica: ayuda inmediata en lugar de "en revisión".
+      FocusScope.of(context).unfocus();
+      await mostrarAyudaCrisis(context);
+      return;
+    }
 
     if (result.success) {
       _commentController.clear();

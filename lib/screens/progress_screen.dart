@@ -14,8 +14,17 @@ import '../widgets/journal_day_note_card.dart';
 import '../widgets/victory_summary_header.dart';
 import '../widgets/giant_day_editor.dart';
 import '../widgets/offline_banner.dart';
+import '../utils/fecha_calendario.dart';
 import '../utils/progress_export.dart';
+import '../widgets/dia_de_gracia_card.dart';
 import 'journal_screen.dart';
+import 'patrones_screen.dart';
+
+/// Ayer por calendario (restar 24 h falla el día del cambio de horario).
+DateTime _ayer() {
+  final u = FechaCalendario.sumarDias(DateTime.now(), -1);
+  return DateTime(u.year, u.month, u.day);
+}
 
 class ProgressScreen extends StatefulWidget {
   const ProgressScreen({super.key});
@@ -143,7 +152,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     final bestAllTime = VictoryScoringService.I.getBestStreakAllTime();
     final currentStreak = VictoryScoringService.I.getCurrentStreak();
     final isLoggedToday = VictoryScoringService.I.isLoggedToday();
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final yesterday = _ayer();
     final isYesterdayLogged = VictoryScoringService.I.isDateLogged(yesterday);
     
     setState(() {
@@ -175,7 +184,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
           if (month.month == now.month && month.year == now.year) {
             _isLoggedToday = VictoryScoringService.I.isLoggedToday();
             _isYesterdayLogged = VictoryScoringService.I.isDateLogged(
-              now.subtract(const Duration(days: 1)),
+              _ayer(),
             );
           }
         });
@@ -299,7 +308,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
       // Actualizar flags de registro
       _isLoggedToday = VictoryScoringService.I.isLoggedToday();
       _isYesterdayLogged = VictoryScoringService.I.isDateLogged(
-        now.subtract(const Duration(days: 1)),
+        _ayer(),
       );
     });
     
@@ -341,7 +350,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
       _totalVictories = VictoryScoringService.I.getTotalVictoriesForYear(now.year);
       _isLoggedToday = VictoryScoringService.I.isLoggedToday();
       _isYesterdayLogged = VictoryScoringService.I.isDateLogged(
-        DateTime.now().subtract(const Duration(days: 1)),
+        _ayer(),
       );
       
       final startDateStr = prefs.getString('streakStartDate');
@@ -445,6 +454,26 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
                         ),
                       ),
                       
+                      // Día de gracia y patrones
+                      SliverToBoxAdapter(
+                        child: Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 16, 24, 0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              DiaDeGraciaCard(
+                                alUsar: () {
+                                  _refreshMetricsFromService();
+                                  _loadVictoryDaysForMonth(_visibleMonth);
+                                },
+                              ),
+                              const SizedBox(height: 12),
+                              _tarjetaPatrones(),
+                            ],
+                          ),
+                        ),
+                      ),
+
                       // 2. Calendario Mensual
                       SliverToBoxAdapter(
                         child: Padding(
@@ -508,6 +537,55 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
     );
   }
   
+  Widget _tarjetaPatrones() {
+    final t = AppThemeData.of(context);
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () {
+          FeedbackEngine.I.tap();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const PatronesScreen()),
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: t.cardDecoration,
+          child: Row(
+            children: [
+              Icon(Icons.insights_rounded, color: t.accent),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Mis patrones',
+                      style: TextStyle(
+                        color: t.textPrimary,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Registra tentaciones o caídas y descubre tus horas '
+                      'y detonantes de más riesgo.',
+                      style: TextStyle(color: t.textSecondary, height: 1.25),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: t.textSecondary),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   String _getHeaderSubtitle() {
     if (_isLoggedToday) {
       if (_currentStreak >= 30) return '🏆 Racha de $_currentStreak días';
@@ -597,7 +675,7 @@ class _ProgressScreenState extends State<ProgressScreen> with TickerProviderStat
   Widget _buildContextBanner() {
     final t = AppThemeData.of(context);
     final hour = DateTime.now().hour;
-    final yesterday = DateTime.now().subtract(const Duration(days: 1));
+    final yesterday = _ayer();
 
     // Caso 1: Ayer sin registrar (prioridad alta)
     if (!_isYesterdayLogged) {

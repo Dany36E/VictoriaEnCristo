@@ -29,10 +29,24 @@ export {
   onPartnerInviteCreated,
   onBattleMessageCreated,
   purgeOldPartnerInvites,
+  rejectPartnerInvite,
   sendBattleMessage,
   sendBattleSos,
   sendPartnerInvite,
 } from "./battlePartnerFunctions";
+
+// Liberar compañero (respeta el candado del guardián del Escudo)
+export {
+  cancelarRetiroCandado,
+  liberarCandadosVencidos,
+  removeBattlePartner,
+} from "./liberarCompanero";
+
+// Rendición de cuentas (opcional): avisos del Escudo y resumen semanal
+export {
+  enviarResumenSemanal,
+  vigilarEscudo,
+} from "./rendicionCuentas";
 
 // Modo Estudio Colaborativo - Salas con rotación de traducciones
 export {

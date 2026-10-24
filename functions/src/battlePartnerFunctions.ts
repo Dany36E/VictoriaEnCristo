@@ -8,8 +8,15 @@
  * 2. onBattleMessageCreated — dispara push al destinatario cuando entra un
  *    sticker o SOS. Prioridad alta si messageKey === 'sos_prayer'.
  *
- * 3. purgeOldPartnerInvites — scheduled (1x/día) que borra invites con
- *    status != pending y createdAt > 30 días.
+ * 3. purgeOldPartnerInvites — scheduled (1x/día) que borra invitaciones
+ *    pendientes de más de 30 días y el vínculo "pending" del remitente, para
+ *    que nadie quede con un lugar ocupado para siempre.
+ *
+ * 4. rejectPartnerInvite — el invitado rechaza: se borra la invitación y el
+ *    vínculo pendiente del remitente (antes quedaba ocupando un lugar).
+ *
+ * 5. Ayudantes de "Liberar compañero" (la función está en
+ *    liberarCompanero.ts).
  *
  * Nota: los clientes Flutter también escuchan estos subdocs y pintan la
  * notificación local (fallback si FCM falla). Estas funciones añaden push
@@ -380,6 +387,12 @@ export async function pushToUser(
 ): Promise<void> {
   const tokens = await getUserTokens(uid);
   if (tokens.length === 0) return;
+  const tipo = data["type"];
+  const channelId =
+    tipo === "battle_sos" ? "battle_partner_sos" :
+      tipo === "battle_message" || tipo === "shield_alert" || tipo === "weekly_report" ?
+        "battle_partner_messages" :
+        "battle_partner_invites";
 
   const msg: adminMessaging.MulticastMessage = {
     tokens,
@@ -387,14 +400,7 @@ export async function pushToUser(
     data,
     android: {
       priority: options.priority === "high" ? "high" : "normal",
-      notification: {
-        channelId:
-          data["type"] === "battle_sos"
-            ? "battle_partner_sos"
-            : data["type"] === "battle_message"
-            ? "battle_partner_messages"
-            : "battle_partner_invites",
-      },
+      notification: {channelId},
     },
     apns: {
       headers: {
@@ -459,7 +465,25 @@ export const onBattleMessageCreated = enRegion()
     const text = (data.text as string) ??
       (isSos ? "Necesito oración ahora" : "Te envió un mensaje de aliento");
 
-    if (isSos) {
+    if (messageKey === "shield_alert" || messageKey === "weekly_report") {
+      const esEscudo = messageKey === "shield_alert";
+      await pushToUser(
+        uid,
+        {
+          title: esEscudo ?
+            `🛡️ Aviso del Escudo de ${fromName}` :
+            `📋 Resumen semanal de ${fromName}`,
+          body: esEscudo ? text : "Toca para ver cómo le fue esta semana.",
+        },
+        {
+          type: messageKey,
+          messageId,
+          messageKey,
+          fromName,
+        },
+        {priority: "normal"}
+      );
+    } else if (isSos) {
       await pushToUser(
         uid,
         {
@@ -497,7 +521,9 @@ export const onBattleMessageCreated = enRegion()
 
 // ═══════════════════════════════════════════════════════════════════════════
 // 3. purgeOldPartnerInvites — scheduled 1x/día
-// Borra invites con status != 'pending' y >30 días de antigüedad.
+// Las invitaciones se borran al aceptar o rechazar, así que lo que queda
+// viejo son invitaciones pendientes sin respuesta y vínculos "pending" del
+// remitente (incluidos los que dejó el rechazo antiguo, que fallaba).
 // ═══════════════════════════════════════════════════════════════════════════
 export const purgeOldPartnerInvites = enRegion({maxInstances: 1})
   .pubsub.schedule("every 24 hours")
@@ -506,15 +532,111 @@ export const purgeOldPartnerInvites = enRegion({maxInstances: 1})
     const cutoff = adminFirestore.Timestamp.fromMillis(
       Date.now() - 30 * 24 * 60 * 60 * 1000
     );
-    const q = db()
-      .collectionGroup("partnerInvites")
-      .where("status", "in", ["accepted", "rejected"])
-      .where("createdAt", "<", cutoff)
-      .limit(500);
-    const snap = await q.get();
-    if (snap.empty) return;
-    const batch = db().batch();
-    snap.docs.forEach((d) => batch.delete(d.ref));
-    await batch.commit();
-    console.log(`[purgeOldPartnerInvites] Deleted ${snap.size} stale invites`);
+    const [invites, pendientes] = await Promise.all([
+      db()
+        .collectionGroup("partnerInvites")
+        .where("status", "==", "pending")
+        .where("createdAt", "<", cutoff)
+        .limit(250)
+        .get(),
+      db()
+        .collectionGroup("battlePartners")
+        .where("status", "==", "pending")
+        .where("addedAt", "<", cutoff)
+        .limit(250)
+        .get(),
+    ]);
+    if (invites.empty && pendientes.empty) return;
+    const writer = db().bulkWriter();
+    // El vínculo "pending" del remitente se creó junto con la invitación, así
+    // que también tiene más de 30 días y lo trae la segunda consulta.
+    invites.docs.forEach((d) => writer.delete(d.ref));
+    pendientes.docs.forEach((d) => writer.delete(d.ref));
+    await writer.close();
+    console.log(
+      `[purgeOldPartnerInvites] ${invites.size} invitaciones y ` +
+      `${pendientes.size} vínculos pendientes purgados`
+    );
   });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 4. rejectPartnerInvite
+// ═══════════════════════════════════════════════════════════════════════════
+export const rejectPartnerInvite = enRegion()
+  .https.onCall(async (data, context) => {
+    const uid = requireAuth(context);
+    const inviteId = safeText(data?.inviteId, "", 128);
+    if (inviteId.length === 0) {
+      throw new functions.https.HttpsError("invalid-argument", "Invitación inválida.");
+    }
+    const inviteRef = db().collection("users").doc(uid).collection("partnerInvites").doc(inviteId);
+    await db().runTransaction(async (tx) => {
+      const inviteSnap = await tx.get(inviteRef);
+      if (!inviteSnap.exists) return; // Ya no existe: nada que hacer.
+      const fromUid = inviteSnap.data()?.fromUid;
+      let senderRef: adminFirestore.DocumentReference | null = null;
+      let senderPending = false;
+      if (typeof fromUid === "string" && fromUid && fromUid !== uid) {
+        senderRef = db().collection("users").doc(fromUid).collection("battlePartners").doc(uid);
+        const senderSnap = await tx.get(senderRef);
+        senderPending = senderSnap.exists && senderSnap.data()?.status === "pending";
+      }
+      tx.delete(inviteRef);
+      // Libera el lugar del remitente (sin avisarle del rechazo).
+      if (senderRef && senderPending) tx.delete(senderRef);
+    });
+    return {ok: true};
+  });
+
+// ═══════════════════════════════════════════════════════════════════════════
+// 5. removeBattlePartner — vive en liberarCompanero.ts (necesita verificar el
+// PIN del guardián). Aquí quedan los ayudantes que comparte.
+// ═══════════════════════════════════════════════════════════════════════════
+const CAMPOS_REFLEJO = [
+  "streakDays", "victoryToday", "dayState", "dayKey", "utcOffsetMin",
+  "lastOpenedAt", "progressUpdatedAt", "acceptingInvites", "sharedGiantId",
+  "shieldShared", "shieldOn",
+];
+
+export function datosLiberado(): Record<string, unknown> {
+  const datos: Record<string, unknown> = {
+    status: "removed",
+    removedAt: adminFirestore.FieldValue.serverTimestamp(),
+    updatedAt: adminFirestore.FieldValue.serverTimestamp(),
+  };
+  for (const campo of CAMPOS_REFLEJO) {
+    datos[campo] = adminFirestore.FieldValue.delete();
+  }
+  return datos;
+}
+
+/** Retira el candado del guardián de [protegeUid] si lo tiene [guardianUid]. */
+export async function retirarCandadoEntre(protegeUid: string, guardianUid: string): Promise<void> {
+  const lockRef = db().collection("guardianLocks").doc(protegeUid);
+  const lockSnap = await lockRef.get();
+  const lock = lockSnap.data() ?? {};
+  const now = adminFirestore.FieldValue.serverTimestamp();
+  if (lock.guardianUid === guardianUid) {
+    await lockRef.delete();
+    await db().collection("users").doc(protegeUid).collection("security").doc("guardianLock").set(
+      {
+        active: false,
+        pending: false,
+        guardianUid: adminFirestore.FieldValue.delete(),
+        releaseAt: adminFirestore.FieldValue.delete(),
+        updatedAt: now,
+      },
+      {merge: true}
+    );
+  } else if (lock.pendingGuardianUid === guardianUid) {
+    await lockRef.set({pendingGuardianUid: adminFirestore.FieldValue.delete(), updatedAt: now}, {merge: true});
+    await db().collection("users").doc(protegeUid).collection("security").doc("guardianLock").set(
+      {pending: false, updatedAt: now},
+      {merge: true}
+    );
+  }
+  await Promise.all([
+    db().collection("users").doc(guardianUid).collection("guardianOf").doc(protegeUid).delete(),
+    db().collection("users").doc(guardianUid).collection("guardianRequests").doc(protegeUid).delete(),
+  ]).catch(() => undefined);
+}

@@ -21,6 +21,7 @@ import * as adminFirestore from "firebase-admin/firestore";
 import {getAuth} from "firebase-admin/auth";
 import {getStorage} from "firebase-admin/storage";
 import * as crypto from "crypto";
+import {retirarCandadoEntre} from "./battlePartnerFunctions";
 
 const db = adminFirestore.getFirestore();
 const auth = getAuth();
@@ -53,6 +54,7 @@ const KNOWN_USER_SUBCOLLECTIONS = [
   "learning",
   "blockedWallAuthors",
   "sermonNotes",
+  "triggerLogs",
 ];
 
 async function countSubcollection(
@@ -65,6 +67,72 @@ async function countSubcollection(
   } catch (_) {
     return 0;
   }
+}
+
+/**
+ * Borra lo que el usuario dejó fuera de su propio árbol:
+ * - su vínculo en la lista de cada compañero (con el reflejo de su progreso),
+ * - los mensajes/SOS que envió y las invitaciones pendientes que mandó,
+ * - el candado del guardián (como protegido y como guardián),
+ * - sus documentos de rendición de cuentas y estado del Escudo, y su
+ *   aparición en las listas de avisos de otros.
+ * @param {string} uid usuario que se elimina.
+ * @return {Promise<number>} documentos tocados.
+ */
+async function limpiarRastroEnCompaneros(uid: string): Promise<number> {
+  const writer = db.bulkWriter();
+  let tocados = 0;
+  const vinculos = await db.collection("users").doc(uid).collection("battlePartners").get();
+  const companeros = new Set<string>();
+  vinculos.docs.forEach((d) => {
+    const otro = (d.data().partnerUid as string | undefined) ?? d.id;
+    if (otro && otro !== uid) companeros.add(otro);
+  });
+  // Invitaciones que envié y siguen pendientes (el vínculo puede no existir aún).
+  const enviadas = await db
+    .collectionGroup("partnerInvites")
+    .where("fromUid", "==", uid)
+    .limit(50)
+    .get()
+    .catch(() => null);
+  enviadas?.docs.forEach((d) => {
+    writer.delete(d.ref);
+    tocados++;
+  });
+
+  for (const otro of companeros) {
+    const userOtro = db.collection("users").doc(otro);
+    writer.delete(userOtro.collection("battlePartners").doc(uid));
+    tocados++;
+    const mensajes = await userOtro.collection("battleMessages")
+      .where("fromUid", "==", uid).limit(500).get();
+    mensajes.docs.forEach((m) => {
+      writer.delete(m.ref);
+      tocados++;
+    });
+    writer.set(
+      db.collection("accountability").doc(otro),
+      {
+        shieldAlertPartners: adminFirestore.FieldValue.arrayRemove(uid),
+        weeklyReportPartners: adminFirestore.FieldValue.arrayRemove(uid),
+      },
+      {merge: true}
+    );
+  }
+  await writer.close();
+
+  // Candado del guardián en ambos sentidos.
+  for (const otro of companeros) {
+    await retirarCandadoEntre(uid, otro);
+    await retirarCandadoEntre(otro, uid);
+  }
+  const final = db.bulkWriter();
+  final.delete(db.collection("guardianLocks").doc(uid));
+  final.delete(db.collection("accountability").doc(uid));
+  final.delete(db.collection("accountabilityState").doc(uid));
+  final.delete(db.collection("shieldStatus").doc(uid));
+  await final.close();
+  return tocados + 4;
 }
 
 /**
@@ -138,6 +206,19 @@ export const deleteUserData = enRegion({
         "internal",
         "No se pudo eliminar todo el contenido comunitario. Intenta de nuevo.",
         {phase: "wall"}
+      );
+    }
+
+    // Compañero de batalla: lo que vive en el árbol de OTROS usuarios y en
+    // colecciones de nivel superior no lo borra recursiveDelete.
+    try {
+      deletionStats["partnerCleanup"] = await limpiarRastroEnCompaneros(uid);
+    } catch (err) {
+      console.error("❌ [DELETE] Partner cleanup failed:", err);
+      throw new functions.https.HttpsError(
+        "internal",
+        "No se pudieron eliminar tus vínculos con compañeros. Intenta de nuevo.",
+        {phase: "partners"}
       );
     }
 

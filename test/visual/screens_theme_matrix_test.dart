@@ -53,6 +53,8 @@ import 'package:app_quitar/screens/login_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_frequency_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
+import 'package:app_quitar/screens/patrones_screen.dart';
+import 'package:app_quitar/screens/battle_partner/rendicion_cuentas_screen.dart';
 import 'package:app_quitar/screens/plan_library_screen.dart';
 import 'package:app_quitar/screens/prayers_screen.dart';
 import 'package:app_quitar/screens/privacy_center_screen.dart';
@@ -173,6 +175,8 @@ void main() {
     () => const GiantFrequencyScreen(selectedGiants: ['digital', 'mental']),
   );
   themeMatrix('onboarding_welcome', () => const OnboardingWelcomeScreen());
+  themeMatrix('patrones', () => const PatronesScreen());
+  themeMatrix('rendicion_cuentas', () => const RendicionCuentasScreen());
   themeMatrix('plan_library', () => const PlanLibraryScreen());
   themeMatrix('prayers', () => const PrayersScreen());
   themeMatrix('privacy_center', () => const PrivacyCenterScreen());

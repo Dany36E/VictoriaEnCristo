@@ -127,6 +127,12 @@ class WallComment {
   final DateTime? approvedAt;
   final String? abuseHash;
 
+  /// Publicación a la que pertenece (necesario para moderar desde la cola).
+  final String? postId;
+
+  /// Veces que se reportó.
+  final int reportCount;
+
   const WallComment({
     required this.id,
     required this.alias,
@@ -135,6 +141,8 @@ class WallComment {
     required this.createdAt,
     this.approvedAt,
     this.abuseHash,
+    this.postId,
+    this.reportCount = 0,
   });
 
   factory WallComment.fromFirestore(DocumentSnapshot doc) {
@@ -147,6 +155,8 @@ class WallComment {
       createdAt: _toDateTime(data['createdAt']) ?? DateTime.now(),
       approvedAt: _toDateTime(data['approvedAt']),
       abuseHash: data['abuseHash'] as String?,
+      postId: doc.reference.parent.parent?.id,
+      reportCount: (data['reportCount'] as num?)?.toInt() ?? 0,
     );
   }
 
@@ -164,10 +174,31 @@ class WallPostResult {
   final String? postId;
   final String? commentId;
 
+  /// El texto sugiere riesgo de autolesión: no se publicó y la app debe
+  /// mostrar ayuda inmediata (no "en revisión").
+  final bool crisis;
+
   const WallPostResult({
     required this.success,
     required this.message,
     this.postId,
     this.commentId,
+    this.crisis = false,
   });
+
+  /// Lee la respuesta de las funciones createWallPost/createWallComment.
+  factory WallPostResult.fromCallable(
+    Map<String, dynamic> data, {
+    String? postId,
+    String? commentId,
+  }) {
+    final crisis = data['status'] == 'crisis' || data['crisis'] == true;
+    return WallPostResult(
+      success: !crisis && data['success'] == true,
+      message: data['message'] as String? ?? '',
+      postId: postId,
+      commentId: commentId,
+      crisis: crisis,
+    );
+  }
 }

@@ -8,6 +8,8 @@ import 'battle_partner/battle_partner_screen.dart';
 import 'wall/wall_screen.dart';
 import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
+import '../widgets/aviso_companero.dart';
+import '../widgets/ayuda_crisis.dart';
 
 class EmergencyScreen extends StatefulWidget {
   const EmergencyScreen({super.key});
@@ -69,6 +71,8 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       _giantName = 'General';
     }
 
+    // Para el botón "Avisar a mi compañero" de esta primera pantalla.
+    prepararAvisoCompanero();
   }
 
   void _nextStep() {
@@ -225,7 +229,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               _EscalationTile(
                 icon: Icons.phone_rounded,
                 title: 'Línea de ayuda en crisis',
-                subtitle: 'México 800 290 0024 · España 024 · USA 988',
+                subtitle: 'Toca para ver los números y llamar con un toque.',
                 onTap: () {
                   Navigator.of(ctx).pop();
                   _showCrisisLinesDialog();
@@ -249,22 +253,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           'Líneas de ayuda',
           style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const _CrisisLine(country: 'México', number: '800 290 0024'),
-            const _CrisisLine(country: 'España', number: '024'),
-            const _CrisisLine(country: 'USA/CA', number: '988'),
-            const _CrisisLine(country: 'Argentina', number: '135'),
-            const _CrisisLine(country: 'Colombia', number: '106'),
-            const SizedBox(height: AppDesignSystem.spacingM),
-            Text(
-              'Si estás en peligro inmediato, llama al número de emergencias local.',
-              style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
-            ),
-          ],
-        ),
+        content: const SingleChildScrollView(child: ListaLineasCrisis()),
         actions: [
           TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cerrar')),
         ],
@@ -365,7 +354,11 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
 
                   // Progress indicator
                   _buildProgressIndicator(),
-                  const SizedBox(height: AppDesignSystem.spacingXL),
+                  const SizedBox(height: AppDesignSystem.spacingM),
+
+                  // Un toque para pedir oración sin terminar los 5 pasos.
+                  const BotonAvisarCompanero(),
+                  const SizedBox(height: AppDesignSystem.spacingM),
 
                   // Step content
                   Expanded(child: _buildStepContent(currentStepData)),
@@ -581,37 +574,6 @@ class _EscalationTile extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-class _CrisisLine extends StatelessWidget {
-  final String country;
-  final String number;
-  const _CrisisLine({required this.country, required this.number});
-
-  @override
-  Widget build(BuildContext context) {
-    final t = AppThemeData.of(context);
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              country,
-              style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
-            ),
-          ),
-          Text(
-            number,
-            style: AppDesignSystem.bodyLarge(
-              context,
-              color: VecColores.terracota,
-            ),
-          ),
-        ],
       ),
     );
   }

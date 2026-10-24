@@ -554,7 +554,8 @@ class _HomeScreenState extends State<HomeScreen>
                   // Bottom spacing for FAB + Safe Area
                   SliverToBoxAdapter(
                     child: SizedBox(
-                      height: MediaQuery.of(context).padding.bottom + 120,
+                      // Espacio para el botón de ayuda y "Avisar a mi compañero".
+                      height: MediaQuery.of(context).padding.bottom + 180,
                     ),
                   ),
                 ],

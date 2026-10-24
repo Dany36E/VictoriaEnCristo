@@ -5,6 +5,9 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
+    "lint": "eslint --rule \"linebreak-style: off\" --ext .ts src/rendicionCuentas.ts src/rendicionCuentasLogica.ts src/wallModeracion.ts src/candadoLogica.ts src/liberarCompanero.ts",
+    "test": "tsc && node --test test/*.test.js",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-victoria \"node --test ../tests/rules/*.test.js\"",
     "serve": "npm run build && firebase emulators:start --only functions",
     "shell": "npm run build && firebase functions:shell",
     "start": "npm run shell",

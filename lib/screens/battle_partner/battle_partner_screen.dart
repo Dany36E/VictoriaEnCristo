@@ -7,6 +7,7 @@ library;
 import 'package:flutter/material.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import '../../models/battle_partner_data.dart';
+import '../../services/accountability_service.dart';
 import '../../services/battle_partner_service.dart';
 import '../../services/remote_guardian_service.dart';
 import '../../services/user_scoped_services.dart';
@@ -21,6 +22,7 @@ import '../../vec/vec_tema.dart';
 import '../../vec/vec_widgets.dart';
 import '../../widgets/battle_partner_card.dart';
 import 'add_partner_screen.dart';
+import 'rendicion_cuentas_screen.dart';
 
 class BattlePartnerScreen extends StatefulWidget {
   const BattlePartnerScreen({super.key});
@@ -49,6 +51,15 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
     if (!mounted) return;
     await _loadInviteCode();
     await _service.markAllMessagesRead();
+    await AccountabilityService.I.cargar();
+  }
+
+  void _abrirRendicionCuentas() {
+    FeedbackEngine.I.tap();
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const RendicionCuentasScreen()),
+    );
   }
 
   @override
@@ -93,7 +104,18 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
 
   Future<void> _rejectInvite(PartnerInvite invite) async {
     FeedbackEngine.I.tap();
-    await _service.rejectInvite(invite);
+    final ok = await _service.rejectInvite(invite);
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok
+              ? 'Invitación rechazada. ${invite.fromName} no recibe aviso.'
+              : 'No se pudo rechazar la invitación. Revisa tu conexión.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -114,9 +136,13 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
           '¿Liberar a ${partner.name}?',
         ),
         content: Text(
-          'Dejarás de compartir tu progreso con ${partner.name}. '
-          'No recibirás notificaciones. Podrás reconectar en cualquier '
-          'momento volviendo a intercambiar códigos.',
+          'En cuanto lo confirmes, ${partner.name} deja de ver tu progreso '
+          'y de poder enviarte mensajes. No se le avisa que lo liberaste.\n\n'
+          'Si es tu guardián del Escudo, su candado no se quita solo: te '
+          'pediremos su PIN o que el candado se retire en 72 horas (en ese '
+          'caso sí recibe un aviso del retiro).\n\n'
+          'Podrán reconectar más adelante solo si ambos vuelven a '
+          'intercambiar códigos.',
         ),
         actions: [
           TextButton(
@@ -136,10 +162,118 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
       ),
     );
 
-    if (confirm == true) {
-      FeedbackEngine.I.tap();
-      await _service.removePartner(partner.uid);
+    if (confirm != true || !mounted) return;
+    FeedbackEngine.I.tap();
+    final messenger = ScaffoldMessenger.of(context);
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text('Liberando a ${partner.name}…'),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+    var resultado = await _service.removePartner(partner.uid);
+    messenger.hideCurrentSnackBar();
+    // Es tu guardián del Escudo: liberar no quita el candado por sí solo.
+    while (resultado == ResultadoLiberar.requiereCandado ||
+        resultado == ResultadoLiberar.pinIncorrecto) {
+      if (!mounted) return;
+      final opcion = await _preguntarCandado(
+        partner,
+        pinIncorrecto: resultado == ResultadoLiberar.pinIncorrecto,
+      );
+      if (opcion == null) return;
+      resultado = await _service.removePartner(
+        partner.uid,
+        pinGuardian: opcion.pin,
+        liberarCandadoEnEspera: opcion.conEspera,
+      );
     }
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(switch (resultado) {
+          ResultadoLiberar.liberado =>
+            'Listo. ${partner.name} ya no ve tu progreso.',
+          ResultadoLiberar.liberadoCandadoEnEspera =>
+            'Listo. ${partner.name} ya no ve tu progreso. El candado del '
+                'Escudo se retirará en 72 horas; puedes mantenerlo desde '
+                'Protección.',
+          ResultadoLiberar.requiereCandado ||
+          ResultadoLiberar.pinIncorrecto =>
+            'No se liberó a ${partner.name}.',
+          ResultadoLiberar.sinConexion =>
+            'Sin conexión: no se pudo liberar a ${partner.name}. '
+                'Inténtalo de nuevo cuando tengas internet.',
+          ResultadoLiberar.error =>
+            'No se pudo liberar a ${partner.name}. Intenta de nuevo.',
+        }),
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 5),
+      ),
+    );
+  }
+
+  /// El compañero es tu guardián: PIN del guardián o retiro en 72 h.
+  Future<({String? pin, bool conEspera})?> _preguntarCandado(
+    BattlePartnerData partner, {
+    required bool pinIncorrecto,
+  }) {
+    final controller = TextEditingController();
+    return showDialog<({String? pin, bool conEspera})>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('${partner.name} es tu guardián del Escudo'),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Liberarlo no quita el candado del Escudo. Puedes escribir '
+                'su PIN para quitarlo ahora, o liberarlo ya y que el candado '
+                'se retire solo en 72 horas (se le avisará y solo tú puedes '
+                'cancelarlo).',
+              ),
+              if (pinIncorrecto) ...[
+                const SizedBox(height: 8),
+                Text(
+                  'PIN incorrecto o demasiados intentos. Intenta más tarde.',
+                  style: TextStyle(color: VecColores.terracota),
+                ),
+              ],
+              const SizedBox(height: 12),
+              TextField(
+                controller: controller,
+                keyboardType: TextInputType.number,
+                obscureText: true,
+                maxLength: 8,
+                decoration: const InputDecoration(
+                  labelText: 'PIN del guardián',
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () =>
+                Navigator.pop(ctx, (pin: null, conEspera: true)),
+            child: const Text('Liberar y retirar en 72 h'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final pin = controller.text.trim();
+              if (pin.length < 4) return;
+              Navigator.pop(ctx, (pin: pin, conEspera: false));
+            },
+            child: const Text('Usar PIN'),
+          ),
+        ],
+      ),
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -580,6 +714,7 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                                     .where((p) => p.uid == msg.fromUid)
                                     .firstOrNull
                                     ?.name ??
+                                msg.fromName ??
                                 'Compañero',
                             style: TextStyle(
                               fontFamily: VecFuentes.titulo,
@@ -589,7 +724,8 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                           ),
                           Text(
                             kBattleMessageMap[msg.messageKey]?.textoSinEmoji ??
-                                msg.messageKey,
+                                msg.text ??
+                                'Te envió un mensaje',
                             style: TextStyle(
                               fontFamily: VecFuentes.texto,
                               fontSize: 17,
@@ -631,13 +767,33 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
                   )
                 else if (partners.isEmpty)
                   _buildEmptyPartnersPapel()
-                else
+                else ...[
                   ...partners.map(
                     (p) => BattlePartnerCard(
                       partner: p,
                       onRemove: () => _confirmRemovePartner(p),
+                      onAjustes: _abrirRendicionCuentas,
                     ),
                   ),
+                  BotonVec(
+                    texto: 'Lo que verá tu compañero',
+                    icono: Icons.visibility_outlined,
+                    color: VecColores.papel,
+                    colorTexto: VecColores.tinta,
+                    expandido: true,
+                    onPressed: _abrirRendicionCuentas,
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Para liberar a un compañero, toca ⋮ en su tarjeta.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontFamily: VecFuentes.texto,
+                      fontSize: 15,
+                      color: VecColores.gris,
+                    ),
+                  ),
+                ],
               ],
             );
           },
@@ -678,7 +834,11 @@ class _BattlePartnerScreenState extends State<BattlePartnerScreen> {
         ),
         const SizedBox(height: 18),
         Text(
-          'Invita a un hermano de confianza que ore por ti y te acompañe. La app no comparte con él tu diario ni el detalle de tus luchas; sólo verá lo que tú envíes mediante esta función.',
+          'Invita a un hermano de confianza que ore por ti y te acompañe. '
+          'Verá tu racha, si hoy registraste victoria o gracia y cuándo '
+          'abriste la app. Nunca verá tu diario, tus gigantes ni tus '
+          'registros de tentaciones. Los avisos del Escudo y el resumen '
+          'semanal solo se envían si tú los activas.',
           textAlign: TextAlign.center,
           style: TextStyle(
             fontFamily: VecFuentes.texto,
