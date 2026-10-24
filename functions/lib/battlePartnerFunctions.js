@@ -9,8 +9,15 @@
  * 2. onBattleMessageCreated — dispara push al destinatario cuando entra un
  *    sticker o SOS. Prioridad alta si messageKey === 'sos_prayer'.
  *
- * 3. purgeOldPartnerInvites — scheduled (1x/día) que borra invites con
- *    status != pending y createdAt > 30 días.
+ * 3. purgeOldPartnerInvites — scheduled (1x/día) que borra invitaciones
+ *    pendientes de más de 30 días y el vínculo "pending" del remitente, para
+ *    que nadie quede con un lugar ocupado para siempre.
+ *
+ * 4. rejectPartnerInvite — el invitado rechaza: se borra la invitación y el
+ *    vínculo pendiente del remitente (antes quedaba ocupando un lugar).
+ *
+ * 5. Ayudantes de "Liberar compañero" (la función está en
+ *    liberarCompanero.ts).
  *
  * Nota: los clientes Flutter también escuchan estos subdocs y pintan la
  * notificación local (fallback si FCM falla). Estas funciones añaden push
@@ -51,12 +58,14 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.sendBattleSos = exports.sendBattleMessage = exports.acceptPartnerInvite = exports.sendPartnerInvite = void 0;
+exports.rejectPartnerInvite = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.sendBattleSos = exports.sendBattleMessage = exports.acceptPartnerInvite = exports.sendPartnerInvite = void 0;
 exports.utcDayKey = utcDayKey;
 exports.publicNameFor = publicNameFor;
 exports.assertActivePartners = assertActivePartners;
 exports.consumeDailyLimit = consumeDailyLimit;
 exports.pushToUser = pushToUser;
+exports.datosLiberado = datosLiberado;
+exports.retirarCandadoEntre = retirarCandadoEntre;
 const adminFirestore = __importStar(require("firebase-admin/firestore"));
 const adminMessaging = __importStar(require("firebase-admin/messaging"));
 const functions = __importStar(require("firebase-functions/v1"));
@@ -363,19 +372,18 @@ async function pushToUser(uid, notification, data, options = {}) {
     const tokens = await getUserTokens(uid);
     if (tokens.length === 0)
         return;
+    const tipo = data["type"];
+    const channelId = tipo === "battle_sos" ? "battle_partner_sos" :
+        tipo === "battle_message" || tipo === "shield_alert" || tipo === "weekly_report" ?
+            "battle_partner_messages" :
+            "battle_partner_invites";
     const msg = {
         tokens,
         notification,
         data,
         android: {
             priority: options.priority === "high" ? "high" : "normal",
-            notification: {
-                channelId: data["type"] === "battle_sos"
-                    ? "battle_partner_sos"
-                    : data["type"] === "battle_message"
-                        ? "battle_partner_messages"
-                        : "battle_partner_invites",
-            },
+            notification: { channelId },
         },
         apns: {
             headers: {
@@ -432,7 +440,21 @@ exports.onBattleMessageCreated = (0, limites_1.enRegion)()
     const fromName = (_d = data.fromName) !== null && _d !== void 0 ? _d : "Tu compañero";
     const isSos = messageKey === "sos_prayer" || priority === "sos";
     const text = (_e = data.text) !== null && _e !== void 0 ? _e : (isSos ? "Necesito oración ahora" : "Te envió un mensaje de aliento");
-    if (isSos) {
+    if (messageKey === "shield_alert" || messageKey === "weekly_report") {
+        const esEscudo = messageKey === "shield_alert";
+        await pushToUser(uid, {
+            title: esEscudo ?
+                `🛡️ Aviso del Escudo de ${fromName}` :
+                `📋 Resumen semanal de ${fromName}`,
+            body: esEscudo ? text : "Toca para ver cómo le fue esta semana.",
+        }, {
+            type: messageKey,
+            messageId,
+            messageKey,
+            fromName,
+        }, { priority: "normal" });
+    }
+    else if (isSos) {
         await pushToUser(uid, {
             title: "🆘 Tu compañero necesita oración",
             body: `${fromName} está pidiendo oración AHORA. Ora con él.`,
@@ -460,24 +482,115 @@ exports.onBattleMessageCreated = (0, limites_1.enRegion)()
 });
 // ═══════════════════════════════════════════════════════════════════════════
 // 3. purgeOldPartnerInvites — scheduled 1x/día
-// Borra invites con status != 'pending' y >30 días de antigüedad.
+// Las invitaciones se borran al aceptar o rechazar, así que lo que queda
+// viejo son invitaciones pendientes sin respuesta y vínculos "pending" del
+// remitente (incluidos los que dejó el rechazo antiguo, que fallaba).
 // ═══════════════════════════════════════════════════════════════════════════
 exports.purgeOldPartnerInvites = (0, limites_1.enRegion)({ maxInstances: 1 })
     .pubsub.schedule("every 24 hours")
     .timeZone("Etc/UTC")
     .onRun(async () => {
     const cutoff = adminFirestore.Timestamp.fromMillis(Date.now() - 30 * 24 * 60 * 60 * 1000);
-    const q = db()
-        .collectionGroup("partnerInvites")
-        .where("status", "in", ["accepted", "rejected"])
-        .where("createdAt", "<", cutoff)
-        .limit(500);
-    const snap = await q.get();
-    if (snap.empty)
+    const [invites, pendientes] = await Promise.all([
+        db()
+            .collectionGroup("partnerInvites")
+            .where("status", "==", "pending")
+            .where("createdAt", "<", cutoff)
+            .limit(250)
+            .get(),
+        db()
+            .collectionGroup("battlePartners")
+            .where("status", "==", "pending")
+            .where("addedAt", "<", cutoff)
+            .limit(250)
+            .get(),
+    ]);
+    if (invites.empty && pendientes.empty)
         return;
-    const batch = db().batch();
-    snap.docs.forEach((d) => batch.delete(d.ref));
-    await batch.commit();
-    console.log(`[purgeOldPartnerInvites] Deleted ${snap.size} stale invites`);
+    const writer = db().bulkWriter();
+    // El vínculo "pending" del remitente se creó junto con la invitación, así
+    // que también tiene más de 30 días y lo trae la segunda consulta.
+    invites.docs.forEach((d) => writer.delete(d.ref));
+    pendientes.docs.forEach((d) => writer.delete(d.ref));
+    await writer.close();
+    console.log(`[purgeOldPartnerInvites] ${invites.size} invitaciones y ` +
+        `${pendientes.size} vínculos pendientes purgados`);
 });
+// ═══════════════════════════════════════════════════════════════════════════
+// 4. rejectPartnerInvite
+// ═══════════════════════════════════════════════════════════════════════════
+exports.rejectPartnerInvite = (0, limites_1.enRegion)()
+    .https.onCall(async (data, context) => {
+    const uid = requireAuth(context);
+    const inviteId = safeText(data === null || data === void 0 ? void 0 : data.inviteId, "", 128);
+    if (inviteId.length === 0) {
+        throw new functions.https.HttpsError("invalid-argument", "Invitación inválida.");
+    }
+    const inviteRef = db().collection("users").doc(uid).collection("partnerInvites").doc(inviteId);
+    await db().runTransaction(async (tx) => {
+        var _a, _b;
+        const inviteSnap = await tx.get(inviteRef);
+        if (!inviteSnap.exists)
+            return; // Ya no existe: nada que hacer.
+        const fromUid = (_a = inviteSnap.data()) === null || _a === void 0 ? void 0 : _a.fromUid;
+        let senderRef = null;
+        let senderPending = false;
+        if (typeof fromUid === "string" && fromUid && fromUid !== uid) {
+            senderRef = db().collection("users").doc(fromUid).collection("battlePartners").doc(uid);
+            const senderSnap = await tx.get(senderRef);
+            senderPending = senderSnap.exists && ((_b = senderSnap.data()) === null || _b === void 0 ? void 0 : _b.status) === "pending";
+        }
+        tx.delete(inviteRef);
+        // Libera el lugar del remitente (sin avisarle del rechazo).
+        if (senderRef && senderPending)
+            tx.delete(senderRef);
+    });
+    return { ok: true };
+});
+// ═══════════════════════════════════════════════════════════════════════════
+// 5. removeBattlePartner — vive en liberarCompanero.ts (necesita verificar el
+// PIN del guardián). Aquí quedan los ayudantes que comparte.
+// ═══════════════════════════════════════════════════════════════════════════
+const CAMPOS_REFLEJO = [
+    "streakDays", "victoryToday", "dayState", "dayKey", "utcOffsetMin",
+    "lastOpenedAt", "progressUpdatedAt", "acceptingInvites", "sharedGiantId",
+    "shieldShared", "shieldOn",
+];
+function datosLiberado() {
+    const datos = {
+        status: "removed",
+        removedAt: adminFirestore.FieldValue.serverTimestamp(),
+        updatedAt: adminFirestore.FieldValue.serverTimestamp(),
+    };
+    for (const campo of CAMPOS_REFLEJO) {
+        datos[campo] = adminFirestore.FieldValue.delete();
+    }
+    return datos;
+}
+/** Retira el candado del guardián de [protegeUid] si lo tiene [guardianUid]. */
+async function retirarCandadoEntre(protegeUid, guardianUid) {
+    var _a;
+    const lockRef = db().collection("guardianLocks").doc(protegeUid);
+    const lockSnap = await lockRef.get();
+    const lock = (_a = lockSnap.data()) !== null && _a !== void 0 ? _a : {};
+    const now = adminFirestore.FieldValue.serverTimestamp();
+    if (lock.guardianUid === guardianUid) {
+        await lockRef.delete();
+        await db().collection("users").doc(protegeUid).collection("security").doc("guardianLock").set({
+            active: false,
+            pending: false,
+            guardianUid: adminFirestore.FieldValue.delete(),
+            releaseAt: adminFirestore.FieldValue.delete(),
+            updatedAt: now,
+        }, { merge: true });
+    }
+    else if (lock.pendingGuardianUid === guardianUid) {
+        await lockRef.set({ pendingGuardianUid: adminFirestore.FieldValue.delete(), updatedAt: now }, { merge: true });
+        await db().collection("users").doc(protegeUid).collection("security").doc("guardianLock").set({ pending: false, updatedAt: now }, { merge: true });
+    }
+    await Promise.all([
+        db().collection("users").doc(guardianUid).collection("guardianOf").doc(protegeUid).delete(),
+        db().collection("users").doc(guardianUid).collection("guardianRequests").doc(protegeUid).delete(),
+    ]).catch(() => undefined);
+}
 //# sourceMappingURL=battlePartnerFunctions.js.map

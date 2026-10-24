@@ -10,11 +10,15 @@ class GuardianLockStatus {
   final bool pending;
   final String? guardianUid;
   final String? guardianName;
+
+  /// Si pediste retirar el candado con espera: cuándo se retira.
+  final DateTime? releaseAt;
   const GuardianLockStatus({
     required this.active,
     required this.pending,
     this.guardianUid,
     this.guardianName,
+    this.releaseAt,
   });
 }
 
@@ -114,6 +118,9 @@ class RemoteGuardianService {
         pending: data['pending'] == true,
         guardianUid: data['guardianUid'] as String?,
         guardianName: data['guardianName'] as String?,
+        releaseAt: data['releaseAt'] is Timestamp
+            ? (data['releaseAt'] as Timestamp).toDate()
+            : null,
       );
     }, onError: (e) => debugPrint('[RemoteGuardian] lock stream error: $e'));
 
@@ -189,6 +196,17 @@ class RemoteGuardianService {
       return false;
     } catch (e) {
       debugPrint('[RemoteGuardian] setPin error: $e');
+      return false;
+    }
+  }
+
+  /// Cancela el retiro con espera del candado (solo el protegido puede).
+  Future<bool> cancelarRetiro() async {
+    try {
+      await _functions.httpsCallable('cancelarRetiroCandado').call();
+      return true;
+    } catch (e) {
+      debugPrint('[RemoteGuardian] cancelarRetiro error: $e');
       return false;
     }
   }

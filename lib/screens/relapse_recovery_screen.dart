@@ -6,7 +6,9 @@
 /// - Mostrar % libertad acumulada desde el inicio del camino.
 /// - Mostrar racha más larga (que nunca se resetea).
 /// - Normalización: "Formar un hábito toma 21+ intentos. Estás aprendiendo."
-/// - 3 acciones suaves: orar, escribir, volver a empezar (no una sola CTA agresiva).
+/// - Acciones suaves: escribir, orar, entender qué pasó, volver a empezar
+///   (no una sola CTA agresiva). Si un día protegido puede proteger la racha,
+///   se ofrece aquí mismo.
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
@@ -14,9 +16,25 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../services/feedback_engine.dart';
+import '../services/journal_service.dart';
+import '../services/registro_momentos_service.dart';
 import '../services/victory_scoring_service.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
+import '../widgets/aviso_companero.dart';
+import '../widgets/dia_de_gracia_card.dart';
+import '../widgets/registro_momento_sheet.dart';
+import 'journal_entry_editor.dart';
+import 'prayers_screen.dart';
+
+/// Destinos de las acciones de esta pantalla (también para pruebas).
+@visibleForTesting
+Widget destinoDiario() => JournalEntryEditor(
+  onSave: (entry) => JournalService().addEntry(entry),
+);
+
+@visibleForTesting
+Widget destinoOracion() => const PrayersScreen();
 
 class RelapseRecoveryScreen extends StatelessWidget {
   final int brokenStreak;
@@ -30,6 +48,7 @@ class RelapseRecoveryScreen extends StatelessWidget {
     final freedom = (scoring.getFreedomPercentage() * 100).round();
     final journeyDays = scoring.getJourneyDayCount();
     final bestEver = scoring.getBestStreakAllTime();
+    final puedeUsarGracia = scoring.diaParaGracia() != null;
 
     return Scaffold(
       backgroundColor: t.pageBg,
@@ -190,9 +209,14 @@ class RelapseRecoveryScreen extends StatelessWidget {
                 ),
               ).animate().fadeIn(delay: 1000.ms),
 
+              if (puedeUsarGracia) ...[
+                const SizedBox(height: AppDesignSystem.spacingL),
+                DiaDeGraciaCard(alUsar: () => _dismiss(context)),
+              ],
+
               const SizedBox(height: AppDesignSystem.spacingL),
 
-              // 3 acciones suaves
+              // Acciones suaves
               Text(
                 '¿Cómo quieres continuar?',
                 style: AppDesignSystem.labelLarge(
@@ -206,15 +230,27 @@ class RelapseRecoveryScreen extends StatelessWidget {
                 icon: Icons.menu_book_rounded,
                 title: 'Escribir en mi diario',
                 subtitle: '¿Qué pasó hoy? El papel ordena el corazón.',
-                onTap: () => _dismiss(context, pushRoute: '/journal-new'),
+                onTap: () => _dismiss(context, destino: destinoDiario),
               ).animate().fadeIn(delay: 1100.ms).slideX(begin: -0.08),
               const SizedBox(height: AppDesignSystem.spacingS),
               _ChoiceTile(
                 icon: Icons.self_improvement_rounded,
                 title: 'Orar un momento',
                 subtitle: 'Una oración breve para retomar aliento.',
-                onTap: () => _dismiss(context, pushRoute: '/prayers'),
+                onTap: () => _dismiss(context, destino: destinoOracion),
               ).animate().fadeIn(delay: 1200.ms).slideX(begin: -0.08),
+              const SizedBox(height: AppDesignSystem.spacingS),
+              _ChoiceTile(
+                icon: Icons.insights_rounded,
+                title: 'Entender qué pasó',
+                subtitle: 'Anota qué lo detonó para prepararte la próxima vez.',
+                onTap: () => mostrarRegistroMomento(
+                  context,
+                  tipo: TipoMomento.caida,
+                ),
+              ).animate().fadeIn(delay: 1250.ms).slideX(begin: -0.08),
+              const SizedBox(height: AppDesignSystem.spacingS),
+              const BotonAvisarCompanero(),
               const SizedBox(height: AppDesignSystem.spacingS),
               _ChoiceTile(
                 icon: Icons.trending_up_rounded,
@@ -232,17 +268,18 @@ class RelapseRecoveryScreen extends StatelessWidget {
     );
   }
 
-  Future<void> _dismiss(BuildContext context, {String? pushRoute}) async {
+  Future<void> _dismiss(
+    BuildContext context, {
+    Widget Function()? destino,
+  }) async {
     FeedbackEngine.I.confirm();
     await VictoryScoringService.I.acknowledgeRelapse();
     if (!context.mounted) return;
-    Navigator.of(context).pop();
-    if (pushRoute != null) {
-      // Deferir a ruta opcional — si no existe, simplemente se ignora.
-      final nav = Navigator.of(context);
-      try {
-        nav.pushNamed(pushRoute);
-      } catch (_) {}
+    // Se toma el Navigator antes de cerrar: después este contexto ya no existe.
+    final nav = Navigator.of(context);
+    nav.pop();
+    if (destino != null) {
+      nav.push(MaterialPageRoute<void>(builder: (_) => destino()));
     }
   }
 }

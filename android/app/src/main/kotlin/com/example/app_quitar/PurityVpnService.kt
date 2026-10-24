@@ -18,6 +18,7 @@ import java.net.URL
 import java.nio.ByteBuffer
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
+import org.json.JSONObject
 
 /**
  * Escudo de Pureza — VPN local que filtra DNS para bloquear contenido adulto.
@@ -41,6 +42,19 @@ class PurityVpnService : VpnService() {
         private const val TAG = "PurityVpn"
         private const val CHANNEL_ID = "purity_guard"
         private const val NOTIF_ID = 7712
+
+        // Aviso al propio usuario cuando el Escudo se apaga sin que él lo pida.
+        private const val ALERT_CHANNEL_ID = "purity_alerts"
+        private const val ALERT_NOTIF_ID = 7713
+
+        // Motivos que la app reporta (ver shield_status_service.dart).
+        const val REASON_USER_OFF = "user_off"
+        const val REASON_REVOKED = "revoked"
+        const val REASON_STOPPED = "stopped"
+
+        private const val EVENTS_PREFS = "purity_events"
+        private const val STATS_PREFS = "purity_stats"
+        private const val BY_DAY_KEEP = 14
 
         // Subred privada del túnel. El dispositivo envía DNS a VIRTUAL_DNS.
         private const val TUN_ADDRESS = "10.111.222.1"
@@ -101,17 +115,81 @@ class PurityVpnService : VpnService() {
         var isRunning: Boolean = false
             private set
 
-        /** Estadísticas de bloqueos: total histórico y del día. */
-        fun blockStats(context: Context): Map<String, Int> {
+        private fun todayKey(): String =
+            java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
+                .format(java.util.Date())
+
+        /**
+         * Estadísticas de bloqueos: total histórico, del día y por día (últimas
+         * dos semanas, solo cuentas; nunca qué sitio se bloqueó).
+         */
+        fun blockStats(context: Context): Map<String, Any> {
             return try {
-                val prefs = context.getSharedPreferences("purity_stats", Context.MODE_PRIVATE)
-                val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                    .format(java.util.Date())
+                val prefs = context.getSharedPreferences(STATS_PREFS, Context.MODE_PRIVATE)
+                val today = todayKey()
                 val todayCount = if (prefs.getString("day", "") == today)
                     prefs.getInt("todayCount", 0) else 0
-                mapOf("total" to prefs.getInt("total", 0), "today" to todayCount)
+                val byDay = HashMap<String, Int>()
+                try {
+                    val json = JSONObject(prefs.getString("byDay", "{}") ?: "{}")
+                    val keys = json.keys()
+                    while (keys.hasNext()) {
+                        val k = keys.next()
+                        byDay[k] = json.optInt(k, 0)
+                    }
+                } catch (_: Exception) {
+                }
+                mapOf(
+                    "total" to prefs.getInt("total", 0),
+                    "today" to todayCount,
+                    "byDay" to byDay,
+                )
             } catch (e: Exception) {
-                mapOf("total" to 0, "today" to 0)
+                mapOf("total" to 0, "today" to 0, "byDay" to HashMap<String, Int>())
+            }
+        }
+
+        /** Guarda un apagado del Escudo para reportarlo al abrir la app. */
+        fun recordOff(context: Context, reason: String) {
+            try {
+                context.getSharedPreferences(EVENTS_PREFS, Context.MODE_PRIVATE).edit()
+                    .putString("off_reason", reason)
+                    .putLong("off_at", System.currentTimeMillis())
+                    .apply()
+            } catch (_: Exception) {
+            }
+        }
+
+        /** Guarda un encendido del Escudo. */
+        fun recordOn(context: Context) {
+            try {
+                context.getSharedPreferences(EVENTS_PREFS, Context.MODE_PRIVATE).edit()
+                    .putLong("on_at", System.currentTimeMillis())
+                    .apply()
+            } catch (_: Exception) {
+            }
+        }
+
+        /**
+         * Devuelve y borra los cambios guardados (último apagado y último
+         * encendido) o null si no hay nada pendiente.
+         */
+        fun consumeEvents(context: Context): Map<String, Any>? {
+            return try {
+                val prefs = context.getSharedPreferences(EVENTS_PREFS, Context.MODE_PRIVATE)
+                val out = HashMap<String, Any>()
+                val reason = prefs.getString("off_reason", null)
+                val offAt = prefs.getLong("off_at", 0L)
+                val onAt = prefs.getLong("on_at", 0L)
+                if (reason != null && offAt > 0L) {
+                    out["offReason"] = reason
+                    out["offAt"] = offAt
+                }
+                if (onAt > 0L) out["onAt"] = onAt
+                prefs.edit().clear().apply()
+                if (out.isEmpty()) null else out
+            } catch (e: Exception) {
+                null
             }
         }
 
@@ -137,10 +215,14 @@ class PurityVpnService : VpnService() {
     // DoH de hasta 5 s cada una, la navegación se quedaba esperando.
     private var dnsPool: ExecutorService? = null
     private val writeLock = Any()
+    // Evita registrar dos veces el mismo apagado (onRevoke → onDestroy).
+    @Volatile private var offRecorded = false
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         when (intent?.action) {
             ACTION_STOP -> {
+                // El usuario lo apagó desde la app (ya pasó la pausa o el PIN).
+                if (isRunning) recordOffOnce(REASON_USER_OFF, notifyUser = false)
                 stopEverything()
                 return START_NOT_STICKY
             }
@@ -159,6 +241,8 @@ class PurityVpnService : VpnService() {
             establishVpn()
             dnsPool = Executors.newFixedThreadPool(8)
             isRunning = true
+            offRecorded = false
+            recordOn(this)
             worker = Thread({ runLoop() }, "PurityVpnWorker").apply { start() }
             Log.i(TAG, "Escudo de Pureza activo (${blocklist.size} dominios)")
         } catch (e: Exception) {
@@ -304,19 +388,30 @@ class PurityVpnService : VpnService() {
         return PurityDns.buildSafeSearchResponse(query, target, reply)
     }
 
-    /** Registra un bloqueo (contadores total y del día) para la UI. */
+    /** Registra un bloqueo (contadores total, del día y por día) para la UI. */
     private fun recordBlock() {
         try {
-            val prefs = getSharedPreferences("purity_stats", Context.MODE_PRIVATE)
-            val today = java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.US)
-                .format(java.util.Date())
+            val prefs = getSharedPreferences(STATS_PREFS, Context.MODE_PRIVATE)
+            val today = todayKey()
             val total = prefs.getInt("total", 0) + 1
             val lastDay = prefs.getString("day", "") ?: ""
             val todayCount = if (lastDay == today) prefs.getInt("todayCount", 0) + 1 else 1
+            // Por día: solo cuentas, últimas dos semanas.
+            val byDay = try {
+                JSONObject(prefs.getString("byDay", "{}") ?: "{}")
+            } catch (_: Exception) {
+                JSONObject()
+            }
+            byDay.put(today, byDay.optInt(today, 0) + 1)
+            val keys = mutableListOf<String>()
+            val iter = byDay.keys()
+            while (iter.hasNext()) keys.add(iter.next())
+            keys.sorted().dropLast(BY_DAY_KEEP).forEach { k -> byDay.remove(k) }
             prefs.edit()
                 .putInt("total", total)
                 .putString("day", today)
                 .putInt("todayCount", todayCount)
+                .putString("byDay", byDay.toString())
                 .apply()
         } catch (_: Exception) {
         }
@@ -492,13 +587,65 @@ class PurityVpnService : VpnService() {
         stopSelf()
     }
 
+    /**
+     * Guarda el apagado para que la app lo reporte (y, si el usuario lo
+     * activó, su compañero reciba un aviso). Si no lo pidió el usuario, le
+     * avisa con una notificación para que pueda encenderlo de nuevo.
+     */
+    private fun recordOffOnce(reason: String, notifyUser: Boolean) {
+        if (offRecorded) return
+        offRecorded = true
+        recordOff(this, reason)
+        if (notifyUser) notifyShieldOff()
+    }
+
+    private fun notifyShieldOff() {
+        try {
+            val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                val channel = NotificationChannel(
+                    ALERT_CHANNEL_ID,
+                    "Avisos del Escudo",
+                    NotificationManager.IMPORTANCE_DEFAULT,
+                ).apply { description = "Te avisa si el Escudo de Pureza se apaga" }
+                nm.createNotificationChannel(channel)
+            }
+            val tapIntent = Intent(this, MainActivity::class.java).apply {
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+            }
+            val pending = PendingIntent.getActivity(
+                this, 1, tapIntent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT,
+            )
+            val builder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                Notification.Builder(this, ALERT_CHANNEL_ID)
+            } else {
+                @Suppress("DEPRECATION")
+                Notification.Builder(this)
+            }
+            val notification = builder
+                .setContentTitle("Tu Escudo de Pureza se apagó")
+                .setContentText("Toca para abrir la app y volver a encenderlo.")
+                .setSmallIcon(android.R.drawable.ic_lock_lock)
+                .setContentIntent(pending)
+                .setAutoCancel(true)
+                .build()
+            nm.notify(ALERT_NOTIF_ID, notification)
+        } catch (e: Exception) {
+            Log.w(TAG, "notifyShieldOff error: ${e.message}")
+        }
+    }
+
     override fun onDestroy() {
+        // Si llega aquí corriendo, el sistema lo detuvo (no fue el usuario).
+        if (isRunning) recordOffOnce(REASON_STOPPED, notifyUser = true)
         stopEverything()
         super.onDestroy()
     }
 
     override fun onRevoke() {
-        // El usuario revocó el permiso de VPN desde ajustes del sistema.
+        // El permiso de VPN se revocó (desde ajustes del sistema u otra VPN).
+        if (isRunning) recordOffOnce(REASON_REVOKED, notifyUser = true)
         stopEverything()
         super.onRevoke()
     }

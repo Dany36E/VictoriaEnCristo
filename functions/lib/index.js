@@ -6,7 +6,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.blockWallAuthor = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
+exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = exports.signOutAllDevices = exports.cleanStaleFcmTokens = exports.setAdminClaim = exports.studyRoomAutoSwap = exports.startStudyRoomSwapTimer = exports.rotateStudyVersions = exports.leaveStudyRoom = exports.joinStudyRoom = exports.createStudyRoom = exports.vigilarEscudo = exports.enviarResumenSemanal = exports.avisarCambioCompartir = exports.removeBattlePartner = exports.liberarCandadosVencidos = exports.cancelarRetiroCandado = exports.sendPartnerInvite = exports.sendBattleSos = exports.sendBattleMessage = exports.rejectPartnerInvite = exports.purgeOldPartnerInvites = exports.onBattleMessageCreated = exports.onPartnerInviteCreated = exports.acceptPartnerInvite = exports.banAbuseHash = exports.blockWallAuthor = exports.reportContent = exports.moderateContent = exports.createWallComment = exports.createWallPost = exports.deleteUserData = void 0;
 const app_1 = require("firebase-admin/app");
 // Inicializar Firebase Admin ANTES de importar otras funciones
 (0, app_1.initializeApp)();
@@ -27,9 +27,20 @@ Object.defineProperty(exports, "acceptPartnerInvite", { enumerable: true, get: f
 Object.defineProperty(exports, "onPartnerInviteCreated", { enumerable: true, get: function () { return battlePartnerFunctions_1.onPartnerInviteCreated; } });
 Object.defineProperty(exports, "onBattleMessageCreated", { enumerable: true, get: function () { return battlePartnerFunctions_1.onBattleMessageCreated; } });
 Object.defineProperty(exports, "purgeOldPartnerInvites", { enumerable: true, get: function () { return battlePartnerFunctions_1.purgeOldPartnerInvites; } });
+Object.defineProperty(exports, "rejectPartnerInvite", { enumerable: true, get: function () { return battlePartnerFunctions_1.rejectPartnerInvite; } });
 Object.defineProperty(exports, "sendBattleMessage", { enumerable: true, get: function () { return battlePartnerFunctions_1.sendBattleMessage; } });
 Object.defineProperty(exports, "sendBattleSos", { enumerable: true, get: function () { return battlePartnerFunctions_1.sendBattleSos; } });
 Object.defineProperty(exports, "sendPartnerInvite", { enumerable: true, get: function () { return battlePartnerFunctions_1.sendPartnerInvite; } });
+// Liberar compañero (respeta el candado del guardián del Escudo)
+var liberarCompanero_1 = require("./liberarCompanero");
+Object.defineProperty(exports, "cancelarRetiroCandado", { enumerable: true, get: function () { return liberarCompanero_1.cancelarRetiroCandado; } });
+Object.defineProperty(exports, "liberarCandadosVencidos", { enumerable: true, get: function () { return liberarCompanero_1.liberarCandadosVencidos; } });
+Object.defineProperty(exports, "removeBattlePartner", { enumerable: true, get: function () { return liberarCompanero_1.removeBattlePartner; } });
+// Rendición de cuentas (opcional): avisos del Escudo y resumen semanal
+var rendicionCuentas_1 = require("./rendicionCuentas");
+Object.defineProperty(exports, "avisarCambioCompartir", { enumerable: true, get: function () { return rendicionCuentas_1.avisarCambioCompartir; } });
+Object.defineProperty(exports, "enviarResumenSemanal", { enumerable: true, get: function () { return rendicionCuentas_1.enviarResumenSemanal; } });
+Object.defineProperty(exports, "vigilarEscudo", { enumerable: true, get: function () { return rendicionCuentas_1.vigilarEscudo; } });
 // Modo Estudio Colaborativo - Salas con rotación de traducciones
 var studyRoomFunctions_1 = require("./studyRoomFunctions");
 Object.defineProperty(exports, "createStudyRoom", { enumerable: true, get: function () { return studyRoomFunctions_1.createStudyRoom; } });

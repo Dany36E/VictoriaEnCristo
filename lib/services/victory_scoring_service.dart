@@ -10,7 +10,42 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'onboarding_service.dart';
 import 'daily_practice_service.dart';
 import 'user_pref_cloud_sync_service.dart';
+import '../utils/fecha_calendario.dart';
 import '../utils/time_utils.dart';
+
+/// Cómo quedó registrado un día.
+enum EstadoDia {
+  /// El día no tiene registro.
+  sinRegistro('none'),
+
+  /// El día alcanzó el umbral de victoria.
+  victoria('victory'),
+
+  /// El día se registró con honestidad sin contar como victoria.
+  gracia('grace');
+
+  const EstadoDia(this.id);
+
+  /// Valor que se guarda en Firestore (espejo del compañero).
+  final String id;
+
+  static EstadoDia desdeId(String? id) => EstadoDia.values.firstWhere(
+    (e) => e.id == id,
+    orElse: () => EstadoDia.sinRegistro,
+  );
+}
+
+/// Por qué no se puede usar un día protegido ahora.
+enum MotivoSinGracia {
+  /// Hay un día que se puede cubrir.
+  ninguno,
+
+  /// Ya se usó el día protegido de este mes.
+  sinTokens,
+
+  /// No hay un día reciente cuya ausencia rompa la racha.
+  nadaQueProteger,
+}
 
 class VictoryScoringService {
   // ═══════════════════════════════════════════════════════════════════════════
@@ -39,6 +74,9 @@ class VictoryScoringService {
   static const String _keyGraceTokensMonthISO = 'grace_tokens_month_v1'; // YYYY-MM
   static const String _keyGraceDaysUsed = 'grace_days_used_v1'; // set<ISO>
   static const String _keyJourneyStartISO = 'journey_start_iso_v1';
+
+  /// Días protegidos que se recargan cada mes (no se acumulan).
+  static const int tokensDeGraciaPorMes = 1;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // CONFIGURACIÓN
@@ -91,6 +129,12 @@ class VictoryScoringService {
   /// Evita import circular: VictoryScoringService no importa el adapter.
   void Function(DateTime date)? onDayChanged;
 
+  /// Reloj inyectable para pruebas (cambios de horario, fin de mes).
+  @visibleForTesting
+  DateTime Function() clock = DateTime.now;
+
+  DateTime _now() => clock();
+
   bool get isInitialized => _isInitialized;
   double get threshold => _threshold;
   List<String> get selectedGiants => List.from(_selectedGiants);
@@ -101,8 +145,11 @@ class VictoryScoringService {
 
   Future<void> init() async {
     if (_isInitialized) {
-      // Si ya estaba inicializado, solo refrescar datos
+      // Si ya estaba inicializado, solo refrescar datos. Los gigantes pueden
+      // haber cambiado (p. ej. el usuario terminó el onboarding después de
+      // arrancar con el gigante provisional 'general').
       await _loadVictoryByGiant();
+      await _recargarGigantesSiCambiaron();
       _updateAllNotifiers();
       return;
     }
@@ -142,6 +189,60 @@ class VictoryScoringService {
       debugPrint('📊 [SCORING] Init error: $e');
       _isInitialized = true;
     }
+  }
+
+  /// Gigante provisional mientras el usuario no termina el onboarding.
+  static const String _giganteProvisional = 'general';
+
+  /// Relee los gigantes del onboarding (ver [aplicarGigantes]).
+  Future<void> _recargarGigantesSiCambiaron() async {
+    List<String> nuevos;
+    try {
+      nuevos = OnboardingService().selectedGiants;
+    } catch (e) {
+      debugPrint('📊 [SCORING] No se pudieron releer los gigantes: $e');
+      return;
+    }
+    await aplicarGigantes(nuevos);
+  }
+
+  /// Cambia el conjunto de gigantes. Si antes se usaba el gigante
+  /// provisional, conserva el resultado (victoria o gracia) de cada día ya
+  /// registrado copiándolo a los gigantes reales: el usuario no pierde días.
+  @visibleForTesting
+  Future<void> aplicarGigantes(List<String> nuevos) async {
+    if (nuevos.isEmpty || listEquals(nuevos, _selectedGiants)) return;
+    final veniaDelProvisional =
+        _selectedGiants.length == 1 &&
+        _selectedGiants.first == _giganteProvisional;
+
+    if (!veniaDelProvisional) {
+      _selectedGiants = List<String>.from(nuevos);
+      return;
+    }
+
+    // Resultado de cada día con los gigantes anteriores.
+    final resultadoPrevio = <String, bool>{};
+    for (final iso in _victoryByGiant.keys) {
+      final fecha = _isoToDate(iso);
+      if (fecha != null) resultadoPrevio[iso] = isVictoryDay(fecha);
+    }
+    _selectedGiants = List<String>.from(nuevos);
+    var conservados = 0;
+    resultadoPrevio.forEach((iso, eraVictoria) {
+      final fecha = _isoToDate(iso)!;
+      if (isVictoryDay(fecha) != eraVictoria) {
+        _victoryByGiant[iso] = {
+          for (final g in _selectedGiants) g: eraVictoria ? 1 : 0,
+        };
+        conservados++;
+      }
+    });
+    if (conservados > 0) await _saveVictoryByGiant();
+    debugPrint(
+      '📊 [SCORING] Gigantes reales cargados (${nuevos.length}); '
+      '$conservados días conservados',
+    );
   }
 
   Future<void> _loadVictoryByGiant() async {
@@ -278,12 +379,24 @@ class VictoryScoringService {
 
   /// ¿Hay algún registro para hoy?
   bool isLoggedToday() {
-    final dateISO = _dateToISO(DateTime.now());
+    final dateISO = _dateToISO(_now());
     return _victoryByGiant.containsKey(dateISO);
   }
 
   /// ¿Hoy es día de victoria?
-  bool isTodayVictory() => isVictoryDay(DateTime.now());
+  bool isTodayVictory() => isVictoryDay(_now());
+
+  /// Cómo quedó registrado [fecha]: sin registro, victoria o gracia.
+  EstadoDia estadoDelDia(DateTime fecha) {
+    if (!isDateLogged(fecha)) return EstadoDia.sinRegistro;
+    return isVictoryDay(fecha) ? EstadoDia.victoria : EstadoDia.gracia;
+  }
+
+  /// Estado de hoy (fecha local del dispositivo).
+  EstadoDia get estadoHoy => estadoDelDia(_now());
+
+  /// Clave "AAAA-MM-DD" de hoy según el reloj del servicio.
+  String get claveHoy => _dateToISO(_now());
 
   // ═══════════════════════════════════════════════════════════════════════════
   // API PÚBLICA - ESCRITURA
@@ -337,7 +450,7 @@ class VictoryScoringService {
   /// Registra victoria completa para hoy (todos gigantes = 1)
   Future<bool> logVictoryForToday() async {
     if (!canLogVictoryNow()) return false;
-    await setDayAllGiants(DateTime.now(), 1);
+    await setDayAllGiants(_now(), 1);
     // Marca la práctica "victoria" del día.
     try {
       // Lazy import para evitar ciclo.
@@ -349,7 +462,7 @@ class VictoryScoringService {
 
   /// Verifica si hay datos guardados para hoy (puede ser victoria o gracia)
   bool hasDataForToday() {
-    final dateISO = _dateToISO(DateTime.now());
+    final dateISO = _dateToISO(_now());
     return _victoryByGiant.containsKey(dateISO);
   }
 
@@ -381,76 +494,20 @@ class VictoryScoringService {
     }).length;
   }
 
-  /// Racha actual (consecutivos hasta hoy con score >= threshold)
-  /// Si hoy no es victoria, busca desde ayer
+  /// Racha actual (consecutivos hasta hoy con score >= threshold).
+  /// Si hoy no es victoria, busca desde ayer. Recorre por días de calendario
+  /// (no restando 24 h), así el cambio de horario no rompe la racha.
   int getCurrentStreak() {
-    final today = DateTime.now();
-    final todayStart = DateTime(today.year, today.month, today.day);
-
-    // Debug: verificar estado de hoy
-    final todayISO = _dateToISO(todayStart);
-    final todayHasData = _victoryByGiant.containsKey(todayISO);
-    final todayIsVictory = isVictoryDay(todayStart);
-
-    debugPrint('📊 [STREAK] Calculando racha...');
-    debugPrint('📊 [STREAK] Hoy: $todayISO, hasData=$todayHasData, isVictory=$todayIsVictory');
-    debugPrint('📊 [STREAK] Días en mapa: ${_victoryByGiant.keys.toList()}');
-
-    // Empezar desde hoy
-    DateTime checkDate = todayStart;
-
-    // Si hoy NO es victoria, empezar desde ayer
-    if (!isVictoryDay(checkDate)) {
-      checkDate = checkDate.subtract(const Duration(days: 1));
-      // Si ayer tampoco es victoria, racha = 0
-      if (!isVictoryDay(checkDate)) {
-        debugPrint('📊 [STREAK] Ni hoy ni ayer son victoria -> 0');
-        return 0;
-      }
-    }
-
-    int streak = 0;
-    while (isVictoryDay(checkDate)) {
-      streak++;
-      debugPrint('📊 [STREAK] ${_dateToISO(checkDate)} es victoria, streak=$streak');
-      checkDate = checkDate.subtract(const Duration(days: 1));
-    }
-
-    debugPrint('📊 [STREAK] Racha final: $streak');
-    return streak;
+    return FechaCalendario.rachaActual(hoy: _now(), esVictoria: isVictoryDay);
   }
 
-  /// Mejor racha histórica (cruza años)
+  /// Mejor racha histórica (cruza años).
   int getBestStreakAllTime() {
-    // Obtener todos los días de victoria
-    final victoryDates =
-        _victoryByGiant.keys
-            .map((iso) => _isoToDate(iso))
-            .whereType<DateTime>()
-            .where((d) => isVictoryDay(d))
-            .toList()
-          ..sort((a, b) => a.compareTo(b));
-
-    if (victoryDates.isEmpty) return 0;
-    if (victoryDates.length == 1) return 1;
-
-    int bestStreak = 1;
-    int currentStreak = 1;
-
-    for (int i = 1; i < victoryDates.length; i++) {
-      final diff = victoryDates[i].difference(victoryDates[i - 1]).inDays;
-
-      if (diff == 1) {
-        currentStreak++;
-        if (currentStreak > bestStreak) {
-          bestStreak = currentStreak;
-        }
-      } else if (diff > 1) {
-        currentStreak = 1;
-      }
-    }
-
-    return bestStreak;
+    final victoryDates = _victoryByGiant.keys
+        .map(FechaCalendario.desdeClave)
+        .whereType<DateTime>()
+        .where(isVictoryDay);
+    return FechaCalendario.mejorRacha(victoryDates);
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -469,8 +526,7 @@ class VictoryScoringService {
     if (startIso == null) return 0.0;
     final start = _isoToDate(startIso);
     if (start == null) return 0.0;
-    final today = DateTime.now();
-    final totalDays = today.difference(DateTime(start.year, start.month, start.day)).inDays + 1;
+    final totalDays = FechaCalendario.diasEntre(start, _now()) + 1;
     if (totalDays <= 0) return 0.0;
     final victoryDays = _victoryByGiant.keys.where((iso) {
       final d = _isoToDate(iso);
@@ -485,8 +541,7 @@ class VictoryScoringService {
     if (startIso == null) return 0;
     final start = _isoToDate(startIso);
     if (start == null) return 0;
-    final today = DateTime.now();
-    return today.difference(DateTime(start.year, start.month, start.day)).inDays + 1;
+    return FechaCalendario.diasEntre(start, _now()) + 1;
   }
 
   /// ¿Hay una recaída aún no reconocida por el usuario?
@@ -505,12 +560,52 @@ class VictoryScoringService {
     debugPrint('📊 [RELAPSE] Acknowledged break on $_relapseAckDateISO');
   }
 
-  /// Usa 1 token de gracia para marcar [date] como día libre.
+  /// Día que un día protegido puede cubrir ahora, o `null`.
+  ///
+  /// Reglas (las mismas que explica la tarjeta en Progreso):
+  /// - Hay [tokensDeGraciaPorMes] por mes; no se acumulan.
+  /// - Solo cubre ayer o anteayer (hoy todavía se puede registrar).
+  /// - Solo si ese día no fue victoria y cubrirlo une la racha: el día
+  ///   anterior fue victoria (y, si es anteayer, ayer también).
+  DateTime? diaParaGracia() => _diaParaGracia(revisarTokens: true);
+
+  /// Por qué no hay día protegido disponible (para explicarlo en la UI).
+  MotivoSinGracia motivoSinGracia() {
+    _refreshGraceTokensForCurrentMonth(notificar: false);
+    if (_diaParaGracia(revisarTokens: false) == null) {
+      return MotivoSinGracia.nadaQueProteger;
+    }
+    if (_graceTokens <= 0) return MotivoSinGracia.sinTokens;
+    return MotivoSinGracia.ninguno;
+  }
+
+  DateTime? _diaParaGracia({required bool revisarTokens}) {
+    if (revisarTokens) {
+      _refreshGraceTokensForCurrentMonth(notificar: false);
+      if (_graceTokens <= 0) return null;
+    }
+    final hoy = _now();
+    final ayer = FechaCalendario.sumarDias(hoy, -1);
+    final anteayer = FechaCalendario.sumarDias(hoy, -2);
+    final hace3 = FechaCalendario.sumarDias(hoy, -3);
+    if (!isVictoryDay(ayer) && isVictoryDay(anteayer)) return ayer;
+    if (!isVictoryDay(anteayer) && isVictoryDay(hace3) && isVictoryDay(ayer)) {
+      return anteayer;
+    }
+    return null;
+  }
+
+  /// ¿[fecha] fue cubierta con un día protegido?
+  bool esDiaDeGracia(DateTime fecha) =>
+      _graceDaysUsed.contains(_dateToISO(fecha));
+
+  /// Usa 1 día protegido para cubrir [date]. Solo acepta el día que
+  /// devuelve [diaParaGracia]; cualquier otro se rechaza.
   Future<bool> useGraceToken(DateTime date) async {
     if (!_isInitialized) await init();
-    _refreshGraceTokensForCurrentMonth();
-    if (_graceTokens <= 0) return false;
-    if (_isFuture(date)) return false;
+    final elegible = diaParaGracia();
+    if (elegible == null) return false;
+    if (_dateToISO(elegible) != _dateToISO(date)) return false;
 
     final iso = _dateToISO(date);
     _victoryByGiant[iso] = {for (final g in _selectedGiants) g: 1};
@@ -524,8 +619,12 @@ class VictoryScoringService {
 
     graceTokensNotifier.value = _graceTokens;
     _updateAllNotifiers();
+    // La racha volvió: la recaída detectada ya no está pendiente.
+    if (hasPendingRelapseAck && getCurrentStreak() > 0) {
+      await acknowledgeRelapse();
+    }
     debugPrint('📊 [GRACE] Used token on $iso. Remaining: $_graceTokens');
-    onDayChanged?.call(date);
+    onDayChanged?.call(DateTime(date.year, date.month, date.day));
     return true;
   }
 
@@ -536,19 +635,21 @@ class VictoryScoringService {
     _graceDaysUsed = (_prefs?.getStringList(_keyGraceDaysUsed) ?? const []).toSet();
     _journeyStartISO = _prefs?.getString(_keyJourneyStartISO);
     if (_journeyStartISO == null) {
-      _journeyStartISO = _dateToISO(DateTime.now());
+      _journeyStartISO = _dateToISO(_now());
       _prefs?.setString(_keyJourneyStartISO, _journeyStartISO!);
       UserPrefCloudSyncService.I.markDirty();
     }
     _refreshGraceTokensForCurrentMonth();
   }
 
-  void _refreshGraceTokensForCurrentMonth() {
-    final now = DateTime.now();
+  /// Recarga el token del mes. [notificar] en `false` cuando se llama
+  /// mientras se construye la UI (no se puede avisar a los oyentes ahí).
+  void _refreshGraceTokensForCurrentMonth({bool notificar = true}) {
+    final now = _now();
     final currentMonth = '${now.year}-${now.month.toString().padLeft(2, '0')}';
     final savedMonth = _prefs?.getString(_keyGraceTokensMonthISO);
     if (savedMonth != currentMonth) {
-      _graceTokens = 1;
+      _graceTokens = tokensDeGraciaPorMes;
       _prefs?.setInt(_keyGraceTokens, _graceTokens);
       _prefs?.setString(_keyGraceTokensMonthISO, currentMonth);
       UserPrefCloudSyncService.I.markDirty();
@@ -556,14 +657,14 @@ class VictoryScoringService {
     } else {
       _graceTokens = _prefs?.getInt(_keyGraceTokens) ?? 0;
     }
-    graceTokensNotifier.value = _graceTokens;
+    if (notificar) graceTokensNotifier.value = _graceTokens;
   }
 
   /// Detecta si la racha previa era >=3 y cayó a 0.
   void _detectRelapseIfAny(int previousStreak, int newStreak) {
     if (previousStreak >= 3 && newStreak == 0) {
       _lastBrokenStreak = previousStreak;
-      _lastBreakDateISO = _dateToISO(DateTime.now());
+      _lastBreakDateISO = _dateToISO(_now());
       _prefs?.setInt(_keyLastBrokenStreak, _lastBrokenStreak);
       _prefs?.setString(_keyLastBreakDateISO, _lastBreakDateISO!);
       _relapseAckDateISO = null;
@@ -585,7 +686,7 @@ class VictoryScoringService {
     final newStreak = getCurrentStreak();
     currentStreakNotifier.value = newStreak;
     loggedTodayNotifier.value = isLoggedToday();
-    totalYearNotifier.value = getTotalVictoriesForYear(DateTime.now().year);
+    totalYearNotifier.value = getTotalVictoriesForYear(_now().year);
     bestStreakNotifier.value = getBestStreakAllTime();
     _detectRelapseIfAny(prev, newStreak);
   }
@@ -626,14 +727,15 @@ class VictoryScoringService {
   /// Retorna el estado de cada día de la semana actual (lunes→domingo)
   /// Cada elemento: {'date': DateTime, 'completed': bool, 'isToday': bool}
   List<Map<String, dynamic>> getWeeklyStatus() {
-    final now = DateTime.now();
+    final now = _now();
     final today = DateTime(now.year, now.month, now.day);
-    // Calcular lunes de esta semana
-    final monday = today.subtract(Duration(days: today.weekday - 1));
+    // Lunes de esta semana, por calendario (no restando horas).
+    final monday = FechaCalendario.sumarDias(today, -(today.weekday - 1));
 
     final result = <Map<String, dynamic>>[];
     for (int i = 0; i < 7; i++) {
-      final day = monday.add(Duration(days: i));
+      final u = FechaCalendario.sumarDias(monday, i);
+      final day = DateTime(u.year, u.month, u.day);
       final isToday = day.year == today.year && day.month == today.month && day.day == today.day;
       final isFutureDay = day.isAfter(today);
       result.add({
@@ -652,7 +754,8 @@ class VictoryScoringService {
   // Delegados a TimeUtils centralizado
   String _dateToISO(DateTime date) => TimeUtils.dateToISO(date);
   DateTime? _isoToDate(String iso) => TimeUtils.parseISO(iso);
-  bool _isFuture(DateTime date) => TimeUtils.isFuture(date);
+  bool _isFuture(DateTime date) =>
+      FechaCalendario.diasEntre(_now(), date) > 0;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // DEBUG
@@ -680,6 +783,24 @@ class VictoryScoringService {
     relapseEventNotifier.value = null;
     graceTokensNotifier.value = 0;
     onDayChanged = null;
+    clock = DateTime.now;
+  }
+
+  /// Carga directa de estado para pruebas unitarias (sin onboarding).
+  @visibleForTesting
+  Future<void> initForTesting({
+    required List<String> giants,
+    Map<String, Map<String, int>> days = const {},
+  }) async {
+    _prefs = await SharedPreferences.getInstance();
+    _selectedGiants = List<String>.from(giants);
+    _threshold = defaultThreshold;
+    _victoryByGiant = {
+      for (final e in days.entries) e.key: Map<String, int>.from(e.value),
+    };
+    _loadRelapseAndGraceState();
+    _isInitialized = true;
+    _updateAllNotifiers();
   }
 
   String debugDayStatus(DateTime date) {
