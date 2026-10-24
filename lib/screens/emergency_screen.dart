@@ -4,6 +4,7 @@ import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../services/feedback_engine.dart';
 import '../services/emergency_sos_service.dart';
+import '../models/content_enums.dart';
 import 'battle_partner/battle_partner_screen.dart';
 import 'wall/wall_screen.dart';
 import '../vec/vec_tema.dart';
@@ -24,13 +25,32 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
   late List<PersonalizedStep> _steps;
   late String _giantName;
 
+  /// Gigantes del usuario por prioridad (el 1° es el plan inicial).
+  List<GiantId> _giants = const [];
+  GiantId? _selectedGiant;
+
   @override
   void initState() {
     super.initState();
 
     final sos = EmergencySosService.I;
-    _steps = sos.getPersonalizedSteps();
-    _giantName = sos.getGiantDisplayName();
+    try {
+      _giants = sos.rankedGiants;
+    } catch (_) {
+      _giants = const [];
+    }
+    _selectedGiant = _giants.isNotEmpty ? _giants.first : null;
+    _loadPlan(_selectedGiant);
+
+    // Para el botón "Avisar a mi compañero" de esta primera pantalla.
+    prepararAvisoCompanero();
+  }
+
+  /// Carga pasos, nombre, versículo y oración del gigante indicado.
+  void _loadPlan(GiantId? giant) {
+    final sos = EmergencySosService.I;
+    _steps = sos.getPersonalizedSteps(giant: giant);
+    _giantName = sos.getGiantDisplayName(giant: giant);
 
     // Fallback por si el servicio no cargó
     if (_steps.isEmpty) {
@@ -70,9 +90,17 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       ];
       _giantName = 'General';
     }
+    if (_currentStep >= _steps.length) _currentStep = _steps.length - 1;
+  }
 
-    // Para el botón "Avisar a mi compañero" de esta primera pantalla.
-    prepararAvisoCompanero();
+  /// Cambia el plan al gigante elegido en los chips, al instante.
+  void _selectGiant(GiantId giant) {
+    if (giant == _selectedGiant) return;
+    FeedbackEngine.I.select();
+    setState(() {
+      _selectedGiant = giant;
+      _loadPlan(giant);
+    });
   }
 
   void _nextStep() {
@@ -173,7 +201,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 child: Container(
                   width: 40,
                   height: 4,
-                  margin: const EdgeInsets.only(bottom: AppDesignSystem.spacingM),
+                  margin: const EdgeInsets.only(
+                    bottom: AppDesignSystem.spacingM,
+                  ),
                   decoration: BoxDecoration(
                     color: t.textSecondary.withValues(alpha: 0.3),
                     borderRadius: BorderRadius.circular(2),
@@ -183,13 +213,19 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
               Text(
                 'No estás solo en esto',
                 textAlign: TextAlign.center,
-                style: AppDesignSystem.headlineSmall(context, color: t.textPrimary),
+                style: AppDesignSystem.headlineSmall(
+                  context,
+                  color: t.textPrimary,
+                ),
               ),
               const SizedBox(height: AppDesignSystem.spacingS),
               Text(
                 'La valentía no es no caer — es pedir ayuda. Elige un paso:',
                 textAlign: TextAlign.center,
-                style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                style: AppDesignSystem.bodyMedium(
+                  context,
+                  color: t.textSecondary,
+                ),
               ),
               const SizedBox(height: AppDesignSystem.spacingL),
               _EscalationTile(
@@ -198,9 +234,11 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 subtitle: 'Un mensaje corto basta.',
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  Navigator.of(
-                    context,
-                  ).pushReplacement(MaterialPageRoute(builder: (_) => const BattlePartnerScreen()));
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(
+                      builder: (_) => const BattlePartnerScreen(),
+                    ),
+                  );
                 },
               ),
               const SizedBox(height: AppDesignSystem.spacingS),
@@ -210,9 +248,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                 subtitle: 'Anónimo. Hay gente orando por ti ahora.',
                 onTap: () {
                   Navigator.of(ctx).pop();
-                  Navigator.of(
-                    context,
-                  ).pushReplacement(MaterialPageRoute(builder: (_) => const WallScreen()));
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => const WallScreen()),
+                  );
                 },
               ),
               const SizedBox(height: AppDesignSystem.spacingS),
@@ -255,7 +293,10 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
         ),
         content: const SingleChildScrollView(child: ListaLineasCrisis()),
         actions: [
-          TextButton(onPressed: () => Navigator.of(ctx).pop(), child: const Text('Cerrar')),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Cerrar'),
+          ),
         ],
       ),
     );
@@ -340,14 +381,17 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
       body: Stack(
         children: [
           // Animated background gradient (en papel, la hoja con textura)
-
-
           SafeArea(
             bottom: false,
             child: Padding(
               padding: const EdgeInsets.all(AppDesignSystem.spacingL),
               child: Column(
                 children: [
+                  // «¿Con cuál luchas ahora?» (solo con 2+ gigantes)
+                  if (_giants.length > 1) ...[
+                    _buildGiantSelector(),
+                    const SizedBox(height: AppDesignSystem.spacingS),
+                  ],
                   // Giant badge
                   _buildGiantBadge(),
                   const SizedBox(height: AppDesignSystem.spacingM),
@@ -366,7 +410,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
                   // Next button
                   _buildNextButton(),
                   SizedBox(
-                    height: MediaQuery.of(context).padding.bottom + AppDesignSystem.spacingM,
+                    height:
+                        MediaQuery.of(context).padding.bottom +
+                        AppDesignSystem.spacingM,
                   ),
                 ],
               ),
@@ -377,8 +423,65 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     );
   }
 
+  Widget _buildGiantSelector() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(
+          '¿Con cuál luchas ahora?',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: VecFuentes.texto,
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: AppThemeData.of(context).textPrimary,
+          ),
+        ),
+        const SizedBox(height: 6),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              for (final g in _giants)
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4),
+                  child: ChoiceChip(
+                    key: ValueKey('sos-gigante-${g.name}'),
+                    label: Text(
+                      g.displayName,
+                      style: TextStyle(
+                        fontFamily: VecFuentes.texto,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                        color: g == _selectedGiant
+                            ? VecColores.papel
+                            : VecColores.tinta,
+                      ),
+                    ),
+                    selected: g == _selectedGiant,
+                    showCheckmark: false,
+                    selectedColor: VecColores.terracota,
+                    backgroundColor: VecColores.papel,
+                    side: BorderSide(
+                      color: g == _selectedGiant
+                          ? VecColores.terracota
+                          : VecColores.cremaOscuro,
+                      width: 2,
+                    ),
+                    materialTapTargetSize: MaterialTapTargetSize.padded,
+                    onSelected: (_) => _selectGiant(g),
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildGiantBadge() {
     return PopIn(
+      key: ValueKey('badge-${_selectedGiant?.name ?? 'general'}'),
       child: ChipVec(
         texto: 'Plan personalizado: $_giantName',
         color: VecColores.terracota,
@@ -401,11 +504,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
           width: isCurrent ? 36 : 12,
           height: 12,
           decoration: BoxDecoration(
-                  color: isActive
-                      ? VecColores.terracota
-                      : VecColores.cremaOscuro,
-                  borderRadius: BorderRadius.circular(VecRadios.pildora),
-                ),
+            color: isActive ? VecColores.terracota : VecColores.cremaOscuro,
+            borderRadius: BorderRadius.circular(VecRadios.pildora),
+          ),
         );
       }),
     ).animate().fadeIn(delay: 100.ms);
@@ -434,11 +535,7 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
             ),
           ),
           const SizedBox(height: 10),
-          TituloVec(
-            step.title,
-            tamano: 34,
-            alineacion: TextAlign.center,
-          ),
+          TituloVec(step.title, tamano: 34, alineacion: TextAlign.center),
           const SizedBox(height: 22),
           PopIn(
             key: ValueKey('tarjeta-$_currentStep'),
@@ -512,7 +609,9 @@ class _EmergencyScreenState extends State<EmergencyScreen> {
     final isLastStep = _currentStep == _steps.length - 1;
     return BotonVec(
       texto: isLastStep ? '¡Lo logré!' : 'Siguiente paso',
-      icono: isLastStep ? Icons.celebration_rounded : Icons.arrow_forward_rounded,
+      icono: isLastStep
+          ? Icons.celebration_rounded
+          : Icons.arrow_forward_rounded,
       color: isLastStep ? VecColores.verde : VecColores.terracota,
       expandido: true,
       onPressed: _nextStep,
@@ -560,16 +659,28 @@ class _EscalationTile extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(title, style: AppDesignSystem.bodyLarge(context, color: t.textPrimary)),
+                      Text(
+                        title,
+                        style: AppDesignSystem.bodyLarge(
+                          context,
+                          color: t.textPrimary,
+                        ),
+                      ),
                       const SizedBox(height: 2),
                       Text(
                         subtitle,
-                        style: AppDesignSystem.bodyMedium(context, color: t.textSecondary),
+                        style: AppDesignSystem.bodyMedium(
+                          context,
+                          color: t.textSecondary,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Icon(Icons.chevron_right_rounded, color: t.textSecondary.withValues(alpha: 0.6)),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: t.textSecondary.withValues(alpha: 0.6),
+                ),
               ],
             ),
           ),
