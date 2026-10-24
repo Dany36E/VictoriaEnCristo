@@ -110,7 +110,7 @@ class BibleReferenceParser {
     18: ['jb', 'job'],
     19: ['sal', 'sl', 'salmo', 'salmos', 'ps', 'psa', 'psalm', 'psalms'],
     20: ['pr', 'pro', 'prov', 'prv', 'proverbios', 'proverbs'],
-    21: ['ec', 'ecl', 'ecc', 'ecles', 'eclesiastes', 'qohelet'],
+    21: ['ec', 'ecl', 'ecc', 'ecles', 'eclesiastes', 'ecclesiastes', 'qohelet'],
     22: [
       'cnt',
       'cant',

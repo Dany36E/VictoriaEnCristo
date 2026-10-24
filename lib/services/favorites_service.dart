@@ -219,6 +219,16 @@ class FavoritesService extends ChangeNotifier {
     return saveResult.map((_) => true);
   }
 
+  /// Quita un elemento de Favoritos usando su versículo guardado (no
+  /// depende de volver a interpretar la referencia).
+  Future<Result<bool>> removeEntry(FavoriteEntry entry) async {
+    final s = entry.saved;
+    if (s != null) {
+      await _bible.removeSavedVerse(s.bookNumber, s.chapter, s.verse);
+    }
+    return removeFavorite(entry.verse);
+  }
+
   /// Alterna el estado de favorito (agregar/quitar)
   Future<Result<bool>> toggleFavorite(BibleVerse verse) async {
     if (isFavorite(verse)) {

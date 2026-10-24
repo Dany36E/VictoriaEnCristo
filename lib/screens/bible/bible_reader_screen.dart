@@ -61,6 +61,7 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   int _handledLoadGeneration = 0;
   Timer? _visibleVerseDebounce;
   bool _programmaticScroll = false;
+  DateTime _lastVisibleReport = DateTime.fromMillisecondsSinceEpoch(0);
 
   /// Alto de la cabecera flotante que tapa el inicio del texto.
   static const double _headerInset = 64;
@@ -137,6 +138,13 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   void _onScroll() {
     _ctrl.onScroll(_scrollController.offset);
     if (_programmaticScroll) return;
+    // Además del guardado al parar, uno cada ~0,5 s mientras se desplaza:
+    // en dispose() ya no se puede medir (la lista se soltó).
+    final now = DateTime.now();
+    if (now.difference(_lastVisibleReport).inMilliseconds > 500) {
+      _lastVisibleReport = now;
+      _reportVisibleVerse();
+    }
     _visibleVerseDebounce?.cancel();
     _visibleVerseDebounce = Timer(
       const Duration(milliseconds: 600),
@@ -181,7 +189,8 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
       : null;
 
   void _onTtsVerseChanged() {
-    final verse = _ctrl.audioVerseNumber.value;
+    // El índice cambia antes que el número: se deriva del índice.
+    final verse = _verseNumberAt(_ctrl.audioVerseIndex.value);
     if (verse == null || !_scrollController.hasClients) return;
     _locator.scrollToVerse(
       _scrollController,
@@ -194,7 +203,6 @@ class _BibleReaderScreenState extends State<BibleReaderScreen> {
   @override
   void dispose() {
     _visibleVerseDebounce?.cancel();
-    _reportVisibleVerse();
     _ctrl.audioVerseIndex.removeListener(_onTtsVerseChanged);
     _ctrl.onAudioChapterFinished = null;
     _ctrl.removeListener(_onControllerChanged);

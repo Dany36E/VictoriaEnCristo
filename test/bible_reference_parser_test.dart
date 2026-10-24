@@ -109,6 +109,7 @@ void main() {
     test('prefijo único y nombre canónico', () {
       expect(BibleReferenceParser.resolveBook('filip'), 50);
       expect(BibleReferenceParser.resolveBook('ecle'), 21);
+      expect(BibleReferenceParser.resolveBook('Ecclesiastes'), 21);
       expect(BibleReferenceParser.resolveBook('Cantar de los Cantares'), 22);
       expect(BibleReferenceParser.resolveBook('Hechos de los Apóstoles'), 44);
       expect(BibleReferenceParser.bookName(19), 'Salmos');

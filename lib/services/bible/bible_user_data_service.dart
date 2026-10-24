@@ -11,6 +11,7 @@ import '../../models/bible/bible_version.dart';
 import '../favorites_service.dart';
 import '../theme_service.dart';
 import 'bible_user_data_merge.dart';
+import 'reading_history_service.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE USER DATA SERVICE - Singleton
@@ -107,6 +108,8 @@ class BibleUserDataService {
 
     // «Mis Favoritos» antiguos → versículos guardados (una vez por cuenta).
     unawaited(FavoritesService().migrateToBible());
+    // Historial/posiciones de esta cuenta (las preferencias ya restauradas).
+    unawaited(ReadingHistoryService.I.reload());
   }
 
   void stop() {

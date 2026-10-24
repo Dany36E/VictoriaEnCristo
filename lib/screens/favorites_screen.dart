@@ -167,7 +167,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                         onOpen: entry.saved == null
                             ? null
                             : () => _openInBible(entry),
-                        onRemove: () => _removeFavorite(verse),
+                        onRemove: () => _removeFavorite(entry),
                         onCopy: () => _copyVerse(verse),
                         onShare: () => _shareVerse(verse),
                       ),
@@ -287,9 +287,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
     );
   }
 
-  void _removeFavorite(BibleVerse verse) async {
+  void _removeFavorite(FavoriteEntry entry) async {
     HapticFeedback.mediumImpact();
-    await _favoritesService.removeFavorite(verse);
+    await _favoritesService.removeEntry(entry);
     _showSnackBar('Eliminado de favoritos', Icons.bookmark_remove_rounded);
   }
 

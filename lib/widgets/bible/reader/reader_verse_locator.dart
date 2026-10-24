@@ -74,6 +74,7 @@ class ReaderVerseLocator {
             curve: Curves.easeOut,
           );
         }
+        if (!controller.hasClients) return false;
         // Las alturas pueden cambiar al construir (títulos, fuentes): verificar.
         final again = measureBuilt()[verse];
         if (again == null) continue;

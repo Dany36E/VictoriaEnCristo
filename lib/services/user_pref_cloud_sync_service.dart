@@ -79,6 +79,7 @@ class UserPrefCloudSyncService {
   ];
 
   static const List<String> _prefixes = <String>[
+    'favorites_migrated_refs_v1.',
     'devotional_challenge_',
     'devotional_v2_challenge_',
     'devotional_v2_override_giant_',
