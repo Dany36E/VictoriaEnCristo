@@ -6,6 +6,7 @@ import '../../services/bible/chapter_note_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import 'bible_reader_screen.dart';
+import 'buscar_notas_screen.dart';
 import 'chapter_note_editor_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -135,12 +136,22 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
             ),
           ),
           IconButton(
+            tooltip: 'Buscar en notas de capítulo',
             icon: Icon(Icons.search,
                 color: t.textSecondary.withValues(alpha: 0.6), size: 20),
             onPressed: () {
               setState(() => _searchMode = true);
               _searchFocus.requestFocus();
             },
+          ),
+          IconButton(
+            tooltip: 'Buscar en todas mis notas',
+            icon: Icon(Icons.manage_search_rounded,
+                color: t.textSecondary, size: 22),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BuscarNotasScreen()),
+            ),
           ),
         ],
       ),
@@ -149,7 +160,7 @@ class _AllChapterNotesScreenState extends State<AllChapterNotesScreen> {
 
   Widget _buildBody(BibleReaderThemeData t) {
     return ValueListenableBuilder<Map<String, ChapterStudyNote>>(
-      valueListenable: ChapterNoteService.I.notesNotifier,
+      valueListenable: ChapterNoteService.I.notasPorIdNotifier,
       builder: (context, notesMap, _) {
         List<ChapterStudyNote> notes;
         if (_searchQuery.isNotEmpty) {

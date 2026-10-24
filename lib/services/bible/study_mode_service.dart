@@ -10,6 +10,7 @@ import '../../models/bible/study_chapter_answers.dart';
 import '../../models/bible/study_word_highlight.dart';
 import 'bible_user_data_service.dart';
 import 'chapter_note_service.dart';
+import 'notas_sync.dart';
 import 'study_room_service.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
@@ -35,7 +36,6 @@ class StudyModeService {
   static StudyModeService get I => _instance;
 
   String? _uid;
-  final _firestore = FirebaseFirestore.instance;
   SharedPreferences? _prefs;
   StreamSubscription? _answersSub;
   StreamSubscription? _highlightsSub;
@@ -69,8 +69,10 @@ class StudyModeService {
     _prefs ??= await SharedPreferences.getInstance();
     debugPrint('📖 [STUDY-MODE] init for $uid');
 
+    await NotasSync.I.cargar();
     await _loadAnswersCache(uid);
     await _loadHighlightsCache(uid);
+    _reenviarPendientes(uid);
 
     _listenAnswers();
     _listenHighlights();
@@ -97,59 +99,207 @@ class StudyModeService {
   // Refs
   // ──────────────────────────────────────────────────────────────────────
 
-  CollectionReference<Map<String, dynamic>> get _answersCol =>
-      _firestore.collection('users').doc(_uid!).collection('studyAnswers');
+  // Firestore se pide solo al usarlo: las pruebas no lo necesitan.
+  CollectionReference<Map<String, dynamic>> get _answersCol => FirebaseFirestore
+      .instance
+      .collection('users')
+      .doc(_uid!)
+      .collection('studyAnswers');
 
   CollectionReference<Map<String, dynamic>> get _highlightsCol =>
-      _firestore.collection('users').doc(_uid!).collection('studyHighlights');
+      FirebaseFirestore.instance
+          .collection('users')
+          .doc(_uid!)
+          .collection('studyHighlights');
+
+  String _prefijoRespuestas(String uid) => 'users/$uid/studyAnswers/';
+  String _prefijoSubrayados(String uid) => 'users/$uid/studyHighlights/';
+
+  /// Id del documento de un estudio a partir de su clave en el mapa
+  /// (`studyId`, o `libro:capítulo` para los estudios antiguos).
+  static String docIdDeClave(String clave) =>
+      clave.contains(':') ? clave.replaceFirst(':', '_') : clave;
+
+  // Escrituras sin esperar al servidor (ver NotasSync): sin conexión la
+  // pantalla ya no se queda bloqueada al cambiar de capítulo.
+  void _guardarRespuestas(StudyChapterAnswers a) {
+    final uid = _uid;
+    if (uid == null) return;
+    unawaited(
+      NotasSync.I.guardar('${_prefijoRespuestas(uid)}${a.docId}', a.toMap()),
+    );
+  }
+
+  void _borrarRespuestas(String docId) {
+    final uid = _uid;
+    if (uid == null) return;
+    unawaited(NotasSync.I.borrar('${_prefijoRespuestas(uid)}$docId'));
+  }
+
+  void _guardarSubrayado(StudyWordHighlight h) {
+    final uid = _uid;
+    if (uid == null) return;
+    unawaited(
+      NotasSync.I.guardar(
+        '${_prefijoSubrayados(uid)}${h.id}',
+        h.toMap(),
+        fusionar: false,
+      ),
+    );
+  }
+
+  void _borrarSubrayado(String id) {
+    final uid = _uid;
+    if (uid == null) return;
+    unawaited(NotasSync.I.borrar('${_prefijoSubrayados(uid)}$id'));
+  }
+
+  String _nuevoIdSubrayado() {
+    try {
+      return _highlightsCol.doc().id;
+    } catch (_) {
+      return 'sh_${DateTime.now().microsecondsSinceEpoch}';
+    }
+  }
+
+  /// Vuelve a lanzar lo que quedó sin confirmar en una sesión anterior.
+  void _reenviarPendientes(String uid) {
+    final pr = _prefijoRespuestas(uid);
+    final porDocId = {
+      for (final a in answersNotifier.value.values) a.docId: a,
+    };
+    for (final id in NotasSync.I.idsPendientes(pr, borrados: false)) {
+      final a = porDocId[id];
+      if (a != null) unawaited(NotasSync.I.guardar('$pr$id', a.toMap()));
+    }
+    for (final id in NotasSync.I.idsPendientes(pr, borrados: true)) {
+      unawaited(NotasSync.I.borrar('$pr$id'));
+    }
+    final ps = _prefijoSubrayados(uid);
+    final subrayados = {for (final h in highlightsNotifier.value) h.id: h};
+    for (final id in NotasSync.I.idsPendientes(ps, borrados: false)) {
+      final h = subrayados[id];
+      if (h != null) {
+        unawaited(NotasSync.I.guardar('$ps$id', h.toMap(), fusionar: false));
+      }
+    }
+    for (final id in NotasSync.I.idsPendientes(ps, borrados: true)) {
+      unawaited(NotasSync.I.borrar('$ps$id'));
+    }
+  }
 
   // ──────────────────────────────────────────────────────────────────────
   // Listeners
   // ──────────────────────────────────────────────────────────────────────
 
+  // Sin límite: con `.limit(500)` los estudios y subrayados más viejos
+  // desaparecían de la vista (y de la cache local) al pasar de 500.
   void _listenAnswers() {
-    _answersSub = _answersCol.orderBy('updatedAt', descending: true).limit(500).snapshots().listen((
-      snap,
-    ) {
-      if (snap.docs.isEmpty && snap.metadata.isFromCache && answersNotifier.value.isNotEmpty) {
-        return;
-      }
-      final map = <String, StudyChapterAnswers>{};
-      for (final d in snap.docs) {
-        try {
-          final a = StudyChapterAnswers.fromMap(d.data());
-          map[a.chapterKey] = a;
-        } catch (e) {
-          debugPrint('[STUDY-MODE] answers parse error: $e');
-        }
-      }
-      answersNotifier.value = Map.unmodifiable(map);
-      unawaited(_saveAnswersCache(map));
-    }, onError: (e) => debugPrint('[STUDY-MODE] answers stream error: $e'));
+    final uid = _uid;
+    if (uid == null) return;
+    try {
+      _answersSub = _answersCol
+          .snapshots(includeMetadataChanges: true)
+          .listen((snap) {
+            if (_uid != uid) return;
+            final remoto = <String, StudyChapterAnswers>{};
+            for (final d in snap.docs) {
+              try {
+                final a = StudyChapterAnswers.fromMap(d.data());
+                remoto[a.chapterKey] = a;
+              } catch (e) {
+                debugPrint('[STUDY-MODE] answers parse error: $e');
+              }
+            }
+            aplicarSnapshotRespuestas(
+              remoto,
+              desdeCache: snap.metadata.isFromCache,
+            );
+          }, onError: (e) => debugPrint('[STUDY-MODE] answers stream error: $e'));
+    } catch (e) {
+      debugPrint('[STUDY-MODE] No se pudo escuchar estudios: $e');
+    }
   }
 
   void _listenHighlights() {
-    _highlightsSub = _highlightsCol
-        .orderBy('createdAt', descending: true)
-        .limit(500)
-        .snapshots()
-        .listen((snap) {
-          if (snap.docs.isEmpty &&
-              snap.metadata.isFromCache &&
-              highlightsNotifier.value.isNotEmpty) {
-            return;
-          }
-          final list = <StudyWordHighlight>[];
-          for (final d in snap.docs) {
-            try {
-              list.add(StudyWordHighlight.fromMap(d.id, d.data()));
-            } catch (e) {
-              debugPrint('[STUDY-MODE] highlight parse error: $e');
+    final uid = _uid;
+    if (uid == null) return;
+    try {
+      _highlightsSub = _highlightsCol
+          .snapshots(includeMetadataChanges: true)
+          .listen((snap) {
+            if (_uid != uid) return;
+            final remoto = <String, StudyWordHighlight>{};
+            for (final d in snap.docs) {
+              try {
+                remoto[d.id] = StudyWordHighlight.fromMap(d.id, d.data());
+              } catch (e) {
+                debugPrint('[STUDY-MODE] highlight parse error: $e');
+              }
             }
-          }
-          highlightsNotifier.value = List.unmodifiable(list);
-          unawaited(_saveHighlightsCache(list));
-        }, onError: (e) => debugPrint('[STUDY-MODE] highlights stream error: $e'));
+            aplicarSnapshotSubrayados(
+              remoto,
+              desdeCache: snap.metadata.isFromCache,
+            );
+          }, onError: (e) => debugPrint('[STUDY-MODE] highlights stream error: $e'));
+    } catch (e) {
+      debugPrint('[STUDY-MODE] No se pudo escuchar subrayados: $e');
+    }
+  }
+
+  /// Une un snapshot COMPLETO de estudios con lo que hay en el teléfono.
+  @visibleForTesting
+  void aplicarSnapshotRespuestas(
+    Map<String, StudyChapterAnswers> remoto, {
+    required bool desdeCache,
+  }) {
+    final uid = _uid;
+    if (uid == null) return;
+    final prefijo = _prefijoRespuestas(uid);
+    final unidos = fusionarConServidor<StudyChapterAnswers>(
+      local: answersNotifier.value,
+      remoto: remoto,
+      desdeCache: desdeCache,
+      guardadoPendiente: (k) =>
+          NotasSync.I.guardadoPendiente('$prefijo${docIdDeClave(k)}'),
+      borradoPendiente: (k) =>
+          NotasSync.I.borradoPendiente('$prefijo${docIdDeClave(k)}'),
+    );
+    answersNotifier.value = Map.unmodifiable(unidos);
+    unawaited(_saveAnswersCache(unidos));
+  }
+
+  /// Une un snapshot COMPLETO de subrayados con lo que hay en el teléfono.
+  @visibleForTesting
+  void aplicarSnapshotSubrayados(
+    Map<String, StudyWordHighlight> remoto, {
+    required bool desdeCache,
+  }) {
+    final uid = _uid;
+    if (uid == null) return;
+    final prefijo = _prefijoSubrayados(uid);
+    final unidos = fusionarConServidor<StudyWordHighlight>(
+      local: {for (final h in highlightsNotifier.value) h.id: h},
+      remoto: remoto,
+      desdeCache: desdeCache,
+      guardadoPendiente: (id) => NotasSync.I.guardadoPendiente('$prefijo$id'),
+      borradoPendiente: (id) => NotasSync.I.borradoPendiente('$prefijo$id'),
+    );
+    final lista = unidos.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+    highlightsNotifier.value = List.unmodifiable(lista);
+    unawaited(_saveHighlightsCache(lista));
+  }
+
+  /// Prepara el servicio para pruebas: sin escuchar Firestore.
+  @visibleForTesting
+  Future<void> initSinNube(String uid) async {
+    stop();
+    _uid = uid;
+    _prefs ??= await SharedPreferences.getInstance();
+    await NotasSync.I.cargar();
+    await _loadAnswersCache(uid);
+    await _loadHighlightsCache(uid);
   }
 
   // ──────────────────────────────────────────────────────────────────────
@@ -208,14 +358,12 @@ class StudyModeService {
     answersNotifier.value = Map.unmodifiable(next);
     await _saveAnswersCache(next);
 
-    try {
-      await _answersCol.doc(study.docId).delete();
-    } catch (e) {
-      debugPrint('[STUDY-MODE] deleteStudy answers error: $e');
-    }
+    _borrarRespuestas(study.docId);
 
-    await _clearMirroredVerseNotes(previous);
-    await _clearMirroredChapterNote(previous);
+    // Las copias en notas se limpian en segundo plano: no deben bloquear la
+    // pantalla sin conexión.
+    unawaited(_clearMirroredVerseNotes(previous));
+    unawaited(_clearMirroredChapterNote(previous));
 
     if (deleteHighlights) {
       await clearChapterHighlights(bookNumber: study.bookNumber, chapter: study.chapter);
@@ -250,9 +398,7 @@ class StudyModeService {
       next.remove(key);
       answersNotifier.value = Map.unmodifiable(next);
       await _saveAnswersCache(next);
-      try {
-        await _answersCol.doc(answers.docId).delete();
-      } catch (_) {}
+      _borrarRespuestas(answers.docId);
       // Limpia notas espejo si las había
       unawaited(_clearMirroredVerseNotes(previous));
       return;
@@ -269,11 +415,7 @@ class StudyModeService {
     answersNotifier.value = Map.unmodifiable(next);
     await _saveAnswersCache(next);
 
-    try {
-      await _answersCol.doc(updated.docId).set(updated.toMap(), SetOptions(merge: true));
-    } catch (e) {
-      debugPrint('[STUDY-MODE] saveAnswers error: $e');
-    }
+    _guardarRespuestas(updated);
 
     // Espejo seguro a Notas a nivel CAPÍTULO (sólo si no hay nota manual).
     if (updated.hasContent) {
@@ -321,13 +463,9 @@ class StudyModeService {
     answersNotifier.value = Map.unmodifiable(next);
     await _saveAnswersCache(next);
 
-    try {
-      // Si nunca había documento (todo vacío y sin rango antes), no escribimos.
-      if (updated.hasContent || updated.rangedPassages.isNotEmpty || !clear) {
-        await _answersCol.doc(updated.docId).set(updated.toMap(), SetOptions(merge: true));
-      }
-    } catch (e) {
-      debugPrint('[STUDY-MODE] setStudyRange error: $e');
+    // Si nunca había documento (todo vacío y sin rango antes), no escribimos.
+    if (updated.hasContent || updated.rangedPassages.isNotEmpty || !clear) {
+      _guardarRespuestas(updated);
     }
 
     unawaited(_mirrorToVerseNotes(previous: base, current: updated));
@@ -335,9 +473,14 @@ class StudyModeService {
 
   Future<void> _mirrorToChapterNote(StudyChapterAnswers a) async {
     try {
-      final existing = ChapterNoteService.I.getNoteForChapter(a.bookNumber, a.chapter);
-      final existingIsManual = existing != null && !(existing.tags.contains('modo-estudio'));
-      if (existingIsManual) return; // respetamos nota manual
+      // Un capítulo puede tener varias notas: se actualiza la copia del Modo
+      // Estudio si ya existe; si no, solo se crea cuando no hay nota manual.
+      final delCapitulo = ChapterNoteService.I.notesForChapter(a.bookNumber, a.chapter);
+      final existing = delCapitulo
+          .where((n) => n.tags.contains('modo-estudio'))
+          .firstOrNull;
+      final hayManual = delCapitulo.any((n) => !n.tags.contains('modo-estudio'));
+      if (existing == null && hayManual) return; // respetamos nota manual
 
       // Agregamos TODOS los estudios del capítulo, ordenados por fecha de
       // creación, para que la nota a nivel capítulo refleje cada estudio
@@ -496,9 +639,11 @@ class StudyModeService {
         await _mirrorToChapterNote(remaining.first);
         return;
       }
-      final existing = ChapterNoteService.I.getNoteForChapter(study.bookNumber, study.chapter);
-      if (existing == null || !existing.tags.contains('modo-estudio')) return;
-      await ChapterNoteService.I.deleteNote(existing.id);
+      for (final copia in ChapterNoteService.I
+          .notesForChapter(study.bookNumber, study.chapter)
+          .where((n) => n.tags.contains('modo-estudio'))) {
+        await ChapterNoteService.I.deleteNote(copia.id);
+      }
     } catch (e) {
       debugPrint('[STUDY-MODE] clear mirrored chapter note error: $e');
     }
@@ -545,9 +690,8 @@ class StudyModeService {
   }) async {
     assert(endWord > startWord, 'endWord debe ser > startWord');
     _rememberHighlightState();
-    final doc = _highlightsCol.doc();
     final h = StudyWordHighlight(
-      id: doc.id,
+      id: _nuevoIdSubrayado(),
       versionId: versionId,
       bookNumber: bookNumber,
       chapter: chapter,
@@ -564,11 +708,7 @@ class StudyModeService {
     highlightsNotifier.value = List.unmodifiable(next);
     await _saveHighlightsCache(next);
 
-    try {
-      await doc.set(h.toMap());
-    } catch (e) {
-      debugPrint('[STUDY-MODE] addHighlight error: $e');
-    }
+    _guardarSubrayado(h);
 
     unawaited(
       _syncMirroredVerseHighlight(
@@ -605,11 +745,7 @@ class StudyModeService {
     highlightsNotifier.value = List.unmodifiable(next);
     await _saveHighlightsCache(next);
 
-    try {
-      await _highlightsCol.doc(id).delete();
-    } catch (e) {
-      debugPrint('[STUDY-MODE] removeHighlight error: $e');
-    }
+    _borrarSubrayado(id);
     unawaited(StudyRoomService.I.deleteHighlight(id));
 
     unawaited(
@@ -649,10 +785,10 @@ class StudyModeService {
     final replacements = <StudyWordHighlight>[];
     for (final highlight in affected) {
       if (highlight.startWord < startWord) {
-        replacements.add(highlight.copyWith(id: _highlightsCol.doc().id, endWord: startWord));
+        replacements.add(highlight.copyWith(id: _nuevoIdSubrayado(), endWord: startWord));
       }
       if (endWord < highlight.endWord) {
-        replacements.add(highlight.copyWith(id: _highlightsCol.doc().id, startWord: endWord));
+        replacements.add(highlight.copyWith(id: _nuevoIdSubrayado(), startWord: endWord));
       }
     }
 
@@ -665,16 +801,10 @@ class StudyModeService {
     highlightsNotifier.value = List.unmodifiable(next);
     await _saveHighlightsCache(next);
 
-    try {
-      for (final highlight in affected) {
-        await _highlightsCol.doc(highlight.id).delete();
-      }
-      for (final replacement in replacements) {
-        await _highlightsCol.doc(replacement.id).set(replacement.toMap());
-      }
-    } catch (e) {
-      debugPrint('[STUDY-MODE] clearHighlightRange error: $e');
+    for (final highlight in affected) {
+      _borrarSubrayado(highlight.id);
     }
+    replacements.forEach(_guardarSubrayado);
     for (final highlight in affected) {
       unawaited(StudyRoomService.I.deleteHighlight(highlight.id));
     }
@@ -741,12 +871,8 @@ class StudyModeService {
     highlightsNotifier.value = List.unmodifiable(next);
     await _saveHighlightsCache(next);
 
-    try {
-      for (final highlight in affected) {
-        await _highlightsCol.doc(highlight.id).delete();
-      }
-    } catch (e) {
-      debugPrint('[STUDY-MODE] clearChapterHighlights error: $e');
+    for (final highlight in affected) {
+      _borrarSubrayado(highlight.id);
     }
 
     final affectedVerseKeys = <String>{};
@@ -818,17 +944,18 @@ class StudyModeService {
     previous.forEach(mark);
     target.forEach(mark);
 
-    try {
-      for (final id in previousById.keys) {
-        if (!targetById.containsKey(id)) {
-          await _highlightsCol.doc(id).delete();
-        }
+    for (final id in previousById.keys) {
+      if (!targetById.containsKey(id)) _borrarSubrayado(id);
+    }
+    // Solo se reescriben los que cambiaron (antes se reescribían todos).
+    for (final highlight in target) {
+      final antes = previousById[highlight.id];
+      if (antes == null ||
+          antes.startWord != highlight.startWord ||
+          antes.endWord != highlight.endWord ||
+          antes.code != highlight.code) {
+        _guardarSubrayado(highlight);
       }
-      for (final highlight in target) {
-        await _highlightsCol.doc(highlight.id).set(highlight.toMap());
-      }
-    } catch (e) {
-      debugPrint('[STUDY-MODE] replaceHighlightState error: $e');
     }
     for (final id in previousById.keys) {
       if (!targetById.containsKey(id)) {
@@ -979,7 +1106,11 @@ class StudyModeService {
           },
         )
         .toList();
-    await _prefs?.setString(_answersKey(uid), jsonEncode(list));
+    try {
+      await _prefs?.setString(_answersKey(uid), jsonEncode(list));
+    } catch (e) {
+      debugPrint('[STUDY-MODE] answers cache save error: $e');
+    }
   }
 
   Future<void> _loadHighlightsCache(String uid) async {
@@ -1024,6 +1155,10 @@ class StudyModeService {
           },
         )
         .toList();
-    await _prefs?.setString(_highlightsKey(uid), jsonEncode(list));
+    try {
+      await _prefs?.setString(_highlightsKey(uid), jsonEncode(list));
+    } catch (e) {
+      debugPrint('[STUDY-MODE] highlights cache save error: $e');
+    }
   }
 }

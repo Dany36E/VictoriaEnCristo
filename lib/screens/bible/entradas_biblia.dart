@@ -7,6 +7,7 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/user_scoped_services.dart';
 import '../../theme/app_fonts.dart';
 import '../../theme/bible_reader_theme.dart';
+import 'bosquejos_screen.dart';
 import 'sermon_notes_mode_screen.dart';
 import 'sermon_notes_saved_screen.dart';
 import 'study_mode_screen.dart';
@@ -102,6 +103,13 @@ class EntradasBiblia {
       builder: (_) => _SermonEntrySheet(theme: _temaLector()),
     );
     if (action == null || !context.mounted) return;
+    if (action == _SermonEntryAction.outlines) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => const BosquejosScreen()),
+      );
+      return;
+    }
     if (action == _SermonEntryAction.savedNotes) {
       Navigator.push(
         context,
@@ -127,7 +135,7 @@ class EntradasBiblia {
 
 enum _StudyEntryAction { newStudy, savedStudies, friendsStudy }
 
-enum _SermonEntryAction { newNote, savedNotes }
+enum _SermonEntryAction { newNote, savedNotes, outlines }
 
 class _StudyEntrySheet extends StatelessWidget {
   final BibleReaderThemeData theme;
@@ -218,7 +226,9 @@ class _SermonEntrySheet extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
       child: SafeArea(
         top: false,
-        child: Column(
+        // Tres opciones: con letra grande o pantalla baja, se desplaza.
+        child: SingleChildScrollView(
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -258,7 +268,16 @@ class _SermonEntrySheet extends StatelessWidget {
               onTap: () =>
                   Navigator.pop(context, _SermonEntryAction.savedNotes),
             ),
+            const SizedBox(height: 8),
+            _StudyEntryTile(
+              icon: Icons.account_tree_outlined,
+              title: 'Bosquejo de sermón',
+              subtitle: 'Puntos, versículos y Modo púlpito para predicar.',
+              theme: t,
+              onTap: () => Navigator.pop(context, _SermonEntryAction.outlines),
+            ),
           ],
+        ),
         ),
       ),
     );
