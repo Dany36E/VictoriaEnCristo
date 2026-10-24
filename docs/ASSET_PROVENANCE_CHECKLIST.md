@@ -18,3 +18,11 @@ Para marcar un grupo como aprobado, registrar en un archivo privado: nombre exac
 - **Hebreo:** texto fuente digital Open Scriptures Hebrew Bible/Strong's (CC BY-SA 4.0); la traducción se comparte bajo la misma licencia (CC BY-SA 4.0).
 - **Griego:** texto fuente strongs-dictionary-xml (U. Sandborg-Petersen, CC0).
 - **Atribución en la app:** «Diccionario de Strong (1890), dominio público. Traducción propia al español.» más la línea del idioma, en el panel morfológico y en la búsqueda avanzada. Detalle y regeneración: `docs/STRONG_LEXICON_SOURCE.md`.
+
+## Diccionario Bíblico de Easton en español (`assets/bible/dictionary/easton.json`)
+
+- **Obra:** M. G. Easton, *Easton's Bible Dictionary* (1897), dominio público (el autor murió en 1894). Traducción propia al español de Victoria en Cristo.
+- **Texto fuente:** CCEL, ThML v2.0 (https://ccel.org/ccel/easton/ebd2.xml), metadatos `<DC.Rights>Public Domain</DC.Rights>`; SHA-256 del archivo usado `10e3f432e38ee8197c30a613576dc363af3f29fa4aa90ebd0782533df906e5f1`.
+- **Contenido:** 3964 entradas `{id, term, term_en, definition, references, see, source}`. La definición conserva marcadores `[[GEN.2.7|Gn 2:7]]` (citas, abren el lector) y `[[VER:e0054|ABRAHAM]]` («Véase», abren la entrada). Generado con `contenido_es/ensamblar.py --obra easton --conservar-marcadores` y `contenido_es/correcciones_easton.py` (grafías de nombres propios según la RVR1960, títulos de obras citadas en su inglés original, enlaces «Véase» verificados).
+- **Atribución en la app:** «Diccionario Bíblico de Easton (1897), dominio público. Traducción propia al español.» en la lista del diccionario, en el detalle de cada entrada y en la hoja rápida.
+- **Hitchcock (`hitchcock.json`):** breve lista de nombres propios en español (*Hitchcock's Bible Names*, 1869, dominio público), sin cambios.

@@ -33,7 +33,6 @@ import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
 import 'bible/blb_api_service.dart';
 import 'bible/red_letter_service.dart';
-import 'bible/bible_dictionary_service.dart';
 import 'bible/bible_timeline_service.dart';
 import 'bible/typology_service.dart';
 import 'bible/ot_quotes_service.dart';
@@ -811,12 +810,12 @@ class AccountSessionManager {
     }
   }
 
-  /// Precargar assets bíblicos offline para acceso instantáneo
+  /// Precargar assets bíblicos offline para acceso instantáneo.
+  /// El diccionario (Easton, ~3,7 MB) NO se precarga: se carga al abrirlo.
   Future<void> _preloadBibleAssets() async {
     try {
       await Future.wait([
         RedLetterService.instance.init(),
-        BibleDictionaryService.instance.init(),
         BibleTimelineService.I.init(),
         TypologyService.instance.getAll(),
         OTQuotesService.instance.getAll(),

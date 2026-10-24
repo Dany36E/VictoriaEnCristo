@@ -1,4 +1,6 @@
-﻿import 'package:flutter/material.dart';
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 
 import '../../models/bible/dictionary_entry.dart';
@@ -21,18 +23,38 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
   final _dict = BibleDictionaryService.instance;
   List<DictionaryEntry> _results = [];
   String _filter = 'all'; // 'all', 'easton', 'hitchcock'
+  bool _loading = true;
+  Timer? _debounce;
 
   @override
   void initState() {
     super.initState();
     _results = _dict.allEntries;
+    _loading = !_dict.isInitialized || _dict.totalCount == 0;
+    if (_loading) {
+      // Carga perezosa: el JSON se decodifica en otro isolate.
+      _dict.init().then((_) {
+        if (!mounted) return;
+        setState(() {
+          _loading = false;
+          _results = _applyFilter(_dict.search(_searchController.text));
+        });
+      });
+    }
   }
 
   void _onSearch(String query) {
-    setState(() {
-      final all = _dict.search(query);
-      _results = _applyFilter(all);
-    });
+    _debounce?.cancel();
+    void run() {
+      if (!mounted) return;
+      setState(() => _results = _applyFilter(_dict.search(query)));
+    }
+
+    if (query.isEmpty) {
+      run();
+    } else {
+      _debounce = Timer(const Duration(milliseconds: 200), run);
+    }
   }
 
   List<DictionaryEntry> _applyFilter(List<DictionaryEntry> entries) {
@@ -47,6 +69,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
 
   @override
   void dispose() {
+    _debounce?.cancel();
     _searchController.dispose();
     super.dispose();
   }
@@ -66,6 +89,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             _buildSearchBar(t),
             _buildFilterChips(t),
             Expanded(child: _buildResults(t)),
+            _buildAttribution(t),
           ],
         ),
       ),
@@ -101,7 +125,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             ),
             const SizedBox(width: 8),
             Text(
-              '${_dict.totalCount} entradas',
+              _loading ? 'Cargando…' : '${_dict.totalCount} entradas',
               style: AppFonts.manrope(
                 color: t.textoAtenuado(),
                 fontSize: 12,
@@ -121,7 +145,7 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
             fontSize: 15,
           ),
           decoration: InputDecoration(
-            hintText: 'Buscar término o definición...',
+            hintText: 'Buscar en español o inglés...',
             hintStyle: AppFonts.manrope(
               color: t.textoAtenuado(
                 sobre: Color.alphaBlend(
@@ -216,7 +240,25 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
     );
   }
 
+  Widget _buildAttribution(BibleReaderThemeData t) => Padding(
+        padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+        child: Text(
+          BibleDictionaryService.eastonAttribution,
+          textAlign: TextAlign.center,
+          style: AppFonts.manrope(
+            color: t.textoAtenuado(),
+            fontSize: 11,
+            fontStyle: FontStyle.italic,
+          ),
+        ),
+      );
+
   Widget _buildResults(BibleReaderThemeData t) {
+    if (_loading) {
+      return Center(
+        child: CircularProgressIndicator(color: t.accent),
+      );
+    }
     if (_results.isEmpty) {
       return Center(
         child: Column(
@@ -245,7 +287,10 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
     );
   }
 
-  Widget _buildEntryTile(DictionaryEntry entry, BibleReaderThemeData t) => Padding(
+  Widget _buildEntryTile(DictionaryEntry entry, BibleReaderThemeData t) {
+    final fondoTile =
+        Color.alphaBlend(t.surface.withValues(alpha: 0.4), t.fondoVisible);
+    return Padding(
         padding: const EdgeInsets.only(bottom: 8),
         child: Material(
           color: Colors.transparent,
@@ -295,23 +340,35 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
                               child: Text(
                                 entry.source,
                                 style: AppFonts.manrope(
-                                  color: t.accent
-                                      .withValues(alpha: 0.6),
-                                  fontSize: 9,
+                                  color: legibleEnPastilla(
+                                      t.accent, 0.1, t.fondoVisible),
+                                  fontSize: 10,
                                   fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ),
                           ],
                         ),
+                        if (entry.termEn.isNotEmpty &&
+                            BibleDictionaryService.fold(entry.termEn) !=
+                                BibleDictionaryService.fold(entry.term))
+                          Text(
+                            entry.termEn,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppFonts.manrope(
+                              color: t.textoAtenuado(sobre: fondoTile),
+                              fontSize: 12,
+                              fontStyle: FontStyle.italic,
+                            ),
+                          ),
                         const SizedBox(height: 4),
                         Text(
                           entry.shortDefinition,
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                           style: AppFonts.manrope(
-                            color: t.textPrimary
-                                .withValues(alpha: 0.6),
+                            color: t.textoAtenuado(sobre: fondoTile),
                             fontSize: 13,
                             height: 1.4,
                           ),
@@ -328,4 +385,5 @@ class _BibleDictionaryScreenState extends State<BibleDictionaryScreen> {
           ),
         ),
       );
+  }
 }
