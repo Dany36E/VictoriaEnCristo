@@ -45,7 +45,6 @@ import 'services/daily_verse_service.dart';
 import 'repositories/profile_repository.dart';
 import 'models/user_profile.dart';
 import 'utils/safe_log.dart';
-import 'utils/time_utils.dart';
 import 'utils/platform_capabilities.dart';
 import 'utils/daily_outcome_registration.dart';
 import 'services/bible/bible_parser_service.dart';
@@ -57,6 +56,8 @@ import 'services/notification_service.dart';
 import 'services/emergency_sos_service.dart';
 import 'services/fcm_service.dart';
 import 'services/daily_practice_service.dart';
+import 'services/day_change_service.dart';
+import 'services/planes_retirados_cleanup.dart';
 import 'services/sacred_alarm_service.dart';
 import 'services/purity_guard_service.dart';
 import 'services/learning/learning_registry.dart';
@@ -273,8 +274,11 @@ Future<void> _startDeferredServices() async {
     await Future.wait([
       BibleParserService.I.init(),
       notificationService.scheduleAllNotifications(),
-      // Planes ocultos por ahora: sin recordatorios que lleven a ellos.
-      notificationService.cancelarRecordatoriosDePlanes(),
+      // Planes de lectura retirados: limpieza única de recordatorios y
+      // progreso local que quedaran de versiones anteriores.
+      PlanesRetiradosCleanup.ejecutarUnaVez(
+        cancelarRecordatorios: notificationService.cancelarRecordatoriosDePlanes,
+      ),
     ]);
     if (PlatformCapabilities.supportsHomeWidgets) {
       WidgetSyncService.I.syncWidget();
@@ -447,13 +451,14 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
   final _navigatorKey = GlobalKey<NavigatorState>();
   final _navigationChannel = const MethodChannel('victoria/navigation');
 
-  /// Fecha conocida para detectar cambio de día al volver del background
-  String _lastKnownDate = TimeUtils.todayISO();
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    // Cambio de día: al volver del fondo y con un temporizador a medianoche
+    // mientras la app sigue abierta.
+    DayChangeService.I.hoy.addListener(_onDayChanged);
+    DayChangeService.I.iniciarTemporizador();
     _isDarkMode = widget.themeService.isDarkMode;
     widget.themeService.addListener(_onThemeChanged);
     _updateSystemUI();
@@ -488,6 +493,8 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
     _navigationChannel.setMethodCallHandler(null);
     NotificationService.lastTapPayload.removeListener(_onNotificationPayload);
     widget.themeService.removeListener(_onThemeChanged);
+    DayChangeService.I.hoy.removeListener(_onDayChanged);
+    DayChangeService.I.detenerTemporizador();
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
@@ -528,8 +535,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
       } else if (payload == NotificationService.payloadReengagement) {
         nav.popUntil((r) => r.isFirst);
       } else if (payload.startsWith(NotificationService.payloadPlanPrefix)) {
-        // Plan deep-link: por ahora llevamos a home; el Plan Screen se abre
-        // desde el dashboard. (Extender aquí cuando haya ruta específica.)
+        // Recordatorio de un plan de lectura (retirados): llevar al inicio.
         nav.popUntil((r) => r.isFirst);
       } else if (payload.startsWith(
         NotificationService.payloadDailyVersePrefix,
@@ -599,6 +605,11 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         _flushPendingCloudSync('background');
         // Pausar BGM al salir al fondo
         engine.pauseBgm();
+        // En segundo plano no hace falta el temporizador de medianoche: al
+        // volver se comprueba la fecha igualmente.
+        if (state == AppLifecycleState.paused) {
+          DayChangeService.I.detenerTemporizador();
+        }
         break;
       case AppLifecycleState.resumed:
         // Reanudar BGM si el usuario lo tenía habilitado
@@ -608,34 +619,41 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
         // Resincronizar campanas al volver al frente: algunos OEM limpian
         // alarmas programadas tras reinicios, updates o ahorro agresivo.
         unawaited(SacredAlarmService.I.ensureUpcomingSchedule());
+        // Detectar cambio de día (avisa a _onDayChanged y a Inicio, que ya
+        // sincroniza el widget) y volver a programar el temporizador.
+        final cambioDeDia = DayChangeService.I.comprobar();
+        DayChangeService.I.iniciarTemporizador();
         // Sincronizar widget al volver (actualiza saludo por hora del día)
-        if (PlatformCapabilities.supportsHomeWidgets) {
+        if (!cambioDeDia && PlatformCapabilities.supportsHomeWidgets) {
           WidgetSyncService.I.syncWidget();
-        }
-        // Detectar cambio de día
-        final today = TimeUtils.todayISO();
-        if (today != _lastKnownDate) {
-          _lastKnownDate = today;
-          debugPrint(
-            '🌅 [LIFECYCLE] Cambio de día detectado → refrescando datos',
-          );
-          // Refrescar versículo del día
-          DailyVerseService.I.refreshToday();
-          // Si el recordatorio del Versículo del Día está activo, re-programar
-          // para que la próxima notificación use el versículo del día nuevo
-          // (la notificación recurrente conserva el texto capturado al
-          // programarla, no se recalcula sola).
-          unawaited(
-            NotificationService().rescheduleDailyVerseReminderIfEnabled(),
-          );
-          // Refrescar scoring (streak, loggedToday)
-          VictoryScoringService.I.refreshAfterDayChange();
         }
         break;
       case AppLifecycleState.detached:
       case AppLifecycleState.hidden:
         _flushPendingCloudSync('exit');
         break;
+    }
+  }
+
+  /// Cambió el día local (al volver del fondo o a medianoche con la app
+  /// abierta): refrescar todo lo que depende de la fecha.
+  void _onDayChanged() {
+    debugPrint('🌅 [LIFECYCLE] Cambio de día detectado → refrescando datos');
+    // Versículo del día (Inicio lo vuelve a pedir al oír el cambio).
+    DailyVerseService.I.refreshToday();
+    // «Prácticas de hoy» (incluye el devocional completado): las marcas de
+    // ayer no deben verse hoy.
+    DailyPracticeService.I.refresh();
+    // Si el recordatorio del Versículo del Día está activo, re-programar
+    // para que la próxima notificación use el versículo del día nuevo
+    // (la notificación recurrente conserva el texto capturado al
+    // programarla, no se recalcula sola).
+    unawaited(NotificationService().rescheduleDailyVerseReminderIfEnabled());
+    // Refrescar scoring (streak, loggedToday)
+    VictoryScoringService.I.refreshAfterDayChange();
+    // Widgets nativos: versículo y prácticas del día nuevo.
+    if (PlatformCapabilities.supportsHomeWidgets) {
+      WidgetSyncService.I.syncWidget();
     }
   }
 

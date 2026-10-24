@@ -1,12 +1,19 @@
+import 'dart:math';
+
 class BibleVerse {
   final String verse;
   final String reference;
   final String category;
 
+  /// Sigla de la versión del texto (p. ej. «RVR60»). Vacía si no aplica.
+  /// No se guarda en JSON: es solo para mostrarla.
+  final String version;
+
   const BibleVerse({
     required this.verse,
     required this.reference,
     required this.category,
+    this.version = '',
   });
 
   /// Crea un BibleVerse desde JSON (para cargar favoritos)
@@ -66,6 +73,36 @@ class BibleVerses {
       reference: "Salmos 16:11",
       category: "feliz",
     ),
+    BibleVerse(
+      verse: "Regocijaos en el Señor siempre. Otra vez digo: ¡Regocijaos!",
+      reference: "Filipenses 4:4",
+      category: "feliz",
+    ),
+    BibleVerse(
+      verse: "Tú diste alegría a mi corazón Mayor que la de ellos cuando abundaba su grano y su mosto.",
+      reference: "Salmos 4:7",
+      category: "feliz",
+    ),
+    BibleVerse(
+      verse: "Deléitate asimismo en Jehová, Y él te concederá las peticiones de tu corazón.",
+      reference: "Salmos 37:4",
+      category: "feliz",
+    ),
+    BibleVerse(
+      verse: "El corazón alegre constituye buen remedio; Mas el espíritu triste seca los huesos.",
+      reference: "Proverbios 17:22",
+      category: "feliz",
+    ),
+    BibleVerse(
+      verse: "Cantad alegres a Dios, habitantes de toda la tierra. Servid a Jehová con alegría; Venid ante su presencia con regocijo.",
+      reference: "Salmos 100:1-2",
+      category: "feliz",
+    ),
+    BibleVerse(
+      verse: "Grandes cosas ha hecho Jehová con nosotros; Estaremos alegres.",
+      reference: "Salmos 126:3",
+      category: "feliz",
+    ),
   ];
 
   // 😰 ANSIOSO - Para calmar la ansiedad
@@ -88,6 +125,36 @@ class BibleVerses {
     BibleVerse(
       verse: "Tú guardarás en completa paz a aquel cuyo pensamiento en ti persevera.",
       reference: "Isaías 26:3",
+      category: "ansioso",
+    ),
+    BibleVerse(
+      verse: "Así que, no os afanéis por el día de mañana, porque el día de mañana traerá su afán. Basta a cada día su propio mal.",
+      reference: "Mateo 6:34",
+      category: "ansioso",
+    ),
+    BibleVerse(
+      verse: "En la multitud de mis pensamientos dentro de mí, Tus consolaciones alegraban mi alma.",
+      reference: "Salmos 94:19",
+      category: "ansioso",
+    ),
+    BibleVerse(
+      verse: "En el día que temo, Yo en ti confío.",
+      reference: "Salmos 56:3",
+      category: "ansioso",
+    ),
+    BibleVerse(
+      verse: "No temas, porque yo estoy contigo; no desmayes, porque yo soy tu Dios que te esfuerzo; siempre te ayudaré, siempre te sustentaré con la diestra de mi justicia.",
+      reference: "Isaías 41:10",
+      category: "ansioso",
+    ),
+    BibleVerse(
+      verse: "Venid a mí todos los que estáis trabajados y cargados, y yo os haré descansar.",
+      reference: "Mateo 11:28",
+      category: "ansioso",
+    ),
+    BibleVerse(
+      verse: "Echa sobre Jehová tu carga, y él te sustentará; No dejará para siempre caído al justo.",
+      reference: "Salmos 55:22",
       category: "ansioso",
     ),
   ];
@@ -114,6 +181,36 @@ class BibleVerses {
       reference: "Salmos 103:2",
       category: "agradecido",
     ),
+    BibleVerse(
+      verse: "Entrad por sus puertas con acción de gracias, Por sus atrios con alabanza; Alabadle, bendecid su nombre.",
+      reference: "Salmos 100:4",
+      category: "agradecido",
+    ),
+    BibleVerse(
+      verse: "Y todo lo que hacéis, sea de palabra o de hecho, hacedlo todo en el nombre del Señor Jesús, dando gracias a Dios Padre por medio de él.",
+      reference: "Colosenses 3:17",
+      category: "agradecido",
+    ),
+    BibleVerse(
+      verse: "Dando siempre gracias por todo al Dios y Padre, en el nombre de nuestro Señor Jesucristo.",
+      reference: "Efesios 5:20",
+      category: "agradecido",
+    ),
+    BibleVerse(
+      verse: "Alabad a Jehová, porque él es bueno; Porque para siempre es su misericordia.",
+      reference: "Salmos 107:1",
+      category: "agradecido",
+    ),
+    BibleVerse(
+      verse: "¡Gracias a Dios por su don inefable!",
+      reference: "2 Corintios 9:15",
+      category: "agradecido",
+    ),
+    BibleVerse(
+      verse: "Te alabaré, oh Jehová, con todo mi corazón; Contaré todas tus maravillas.",
+      reference: "Salmos 9:1",
+      category: "agradecido",
+    ),
   ];
 
   // 😔 SOLO - Para momentos de soledad
@@ -136,6 +233,36 @@ class BibleVerses {
     BibleVerse(
       verse: "Cercano está Jehová a los quebrantados de corazón; y salva a los contritos de espíritu.",
       reference: "Salmos 34:18",
+      category: "solo",
+    ),
+    BibleVerse(
+      verse: "Y Jehová va delante de ti; él estará contigo, no te dejará, ni te desamparará; no temas ni te intimides.",
+      reference: "Deuteronomio 31:8",
+      category: "solo",
+    ),
+    BibleVerse(
+      verse: "Cuando pases por las aguas, yo estaré contigo; y si por los ríos, no te anegarán. Cuando pases por el fuego, no te quemarás, ni la llama arderá en ti.",
+      reference: "Isaías 43:2",
+      category: "solo",
+    ),
+    BibleVerse(
+      verse: "Con todo, yo siempre estuve contigo; Me tomaste de la mano derecha.",
+      reference: "Salmos 73:23",
+      category: "solo",
+    ),
+    BibleVerse(
+      verse: "No os dejaré huérfanos; vendré a vosotros.",
+      reference: "Juan 14:18",
+      category: "solo",
+    ),
+    BibleVerse(
+      verse: "Aunque ande en valle de sombra de muerte, No temeré mal alguno, porque tú estarás conmigo; Tu vara y tu cayado me infundirán aliento.",
+      reference: "Salmos 23:4",
+      category: "solo",
+    ),
+    BibleVerse(
+      verse: "Cercano está Jehová a todos los que le invocan, A todos los que le invocan de veras.",
+      reference: "Salmos 145:18",
       category: "solo",
     ),
   ];
@@ -162,6 +289,36 @@ class BibleVerses {
       reference: "Santiago 1:19",
       category: "enojado",
     ),
+    BibleVerse(
+      verse: "Deja la ira, y desecha el enojo; No te excites en manera alguna a hacer lo malo.",
+      reference: "Salmos 37:8",
+      category: "enojado",
+    ),
+    BibleVerse(
+      verse: "La cordura del hombre detiene su furor, Y su honra es pasar por alto la ofensa.",
+      reference: "Proverbios 19:11",
+      category: "enojado",
+    ),
+    BibleVerse(
+      verse: "Quítense de vosotros toda amargura, enojo, ira, gritería y maledicencia, y toda malicia.",
+      reference: "Efesios 4:31",
+      category: "enojado",
+    ),
+    BibleVerse(
+      verse: "Pero ahora dejad también vosotros todas estas cosas: ira, enojo, malicia, blasfemia, palabras deshonestas de vuestra boca.",
+      reference: "Colosenses 3:8",
+      category: "enojado",
+    ),
+    BibleVerse(
+      verse: "No te apresures en tu espíritu a enojarte; porque el enojo reposa en el seno de los necios.",
+      reference: "Eclesiastés 7:9",
+      category: "enojado",
+    ),
+    BibleVerse(
+      verse: "No seas vencido de lo malo, sino vence con el bien el mal.",
+      reference: "Romanos 12:21",
+      category: "enojado",
+    ),
   ];
 
   // 😢 TRISTE - Para momentos de tristeza
@@ -184,6 +341,36 @@ class BibleVerses {
     BibleVerse(
       verse: "Los que sembraron con lágrimas, con regocijo segarán.",
       reference: "Salmos 126:5",
+      category: "triste",
+    ),
+    BibleVerse(
+      verse: "¿Por qué te abates, oh alma mía, Y por qué te turbas dentro de mí? Espera en Dios; porque aún he de alabarle, Salvación mía y Dios mío.",
+      reference: "Salmos 42:11",
+      category: "triste",
+    ),
+    BibleVerse(
+      verse: "Él sana a los quebrantados de corazón, Y venda sus heridas.",
+      reference: "Salmos 147:3",
+      category: "triste",
+    ),
+    BibleVerse(
+      verse: "También vosotros ahora tenéis tristeza; pero os volveré a ver, y se gozará vuestro corazón, y nadie os quitará vuestro gozo.",
+      reference: "Juan 16:22",
+      category: "triste",
+    ),
+    BibleVerse(
+      verse: "Bendito sea el Dios y Padre de nuestro Señor Jesucristo, Padre de misericordias y Dios de toda consolación, el cual nos consuela en todas nuestras tribulaciones, para que podamos también nosotros consolar a los que están en cualquier tribulación, por medio de la consolación con que nosotros somos consolados por Dios.",
+      reference: "2 Corintios 1:3-4",
+      category: "triste",
+    ),
+    BibleVerse(
+      verse: "Has cambiado mi lamento en baile; Desataste mi cilicio, y me ceñiste de alegría.",
+      reference: "Salmos 30:11",
+      category: "triste",
+    ),
+    BibleVerse(
+      verse: "Mi carne y mi corazón desfallecen; Mas la roca de mi corazón y mi porción es Dios para siempre.",
+      reference: "Salmos 73:26",
       category: "triste",
     ),
   ];
@@ -347,8 +534,29 @@ class BibleVerses {
     return verses.first;
   }
 
-  // Obtener versículo aleatorio por categoría
-  static BibleVerse getRandomVerseByCategory(String category) {
+  /// Último versículo mostrado por categoría (frasco de emociones), para no
+  /// sacar el mismo papelito dos veces seguidas.
+  static final Map<String, BibleVerse> _ultimoPorCategoria = {};
+
+  /// Obtener versículo aleatorio por categoría, distinto del último que se
+  /// mostró para esa misma categoría (si hay más de uno).
+  static BibleVerse getRandomVerseByCategory(String category, {Random? random}) {
+    final clave = category.toLowerCase();
+    final candidatos = versesForCategory(clave);
+    final ultimo = _ultimoPorCategoria[clave];
+    final opciones = candidatos.length > 1 && ultimo != null
+        ? candidatos.where((v) => v != ultimo).toList()
+        : candidatos;
+    final elegido = opciones[(random ?? Random()).nextInt(opciones.length)];
+    _ultimoPorCategoria[clave] = elegido;
+    return elegido;
+  }
+
+  /// Olvida el último versículo mostrado (pruebas).
+  static void reiniciarUltimosMostrados() => _ultimoPorCategoria.clear();
+
+  /// Lista de versículos de una categoría (tema o emoción).
+  static List<BibleVerse> versesForCategory(String category) {
     List<BibleVerse> categoryVerses;
     switch (category.toLowerCase()) {
       case 'tentación':
@@ -388,8 +596,7 @@ class BibleVerses {
       default:
         categoryVerses = allVerses;
     }
-    categoryVerses = List.from(categoryVerses)..shuffle();
-    return categoryVerses.first;
+    return categoryVerses;
   }
 
   // Obtener versículos por emoción

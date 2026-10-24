@@ -133,7 +133,7 @@ restores the connection without resetting its data. Do not pass `--no-pub` after
 integration_test plugin absent from GeneratedPluginRegistrant.
 
 - Full Bible reading, study and sermon flows beyond the picker/clipboard range.
-- Authenticated login and onboarding persistence, home, plans, journal,
+- Authenticated login and onboarding persistence, home, journal,
   progress, settings and guardian flows.
 - Safe areas, keyboard, orientation, offline failures and larger accessibility text.
 - Native Android media, permissions, VPN and lifecycle.

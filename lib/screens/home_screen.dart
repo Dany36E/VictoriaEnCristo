@@ -12,6 +12,11 @@ import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../data/bible_verses.dart';
 import '../services/daily_verse_service.dart';
+import '../services/day_change_service.dart';
+import '../services/daily_practice_service.dart';
+import '../services/bible/bible_user_data_service.dart';
+import '../models/bible/bible_version.dart';
+import '../utils/time_utils.dart';
 import '../services/victory_scoring_service.dart';
 import '../services/feedback_engine.dart';
 import '../services/content_repository.dart';
@@ -63,6 +68,14 @@ class _HomeScreenState extends State<HomeScreen>
     // Versículo del día determinístico (no aleatorio)
     dailyVerse = DailyVerseService.I.getForTodaySync();
 
+    // Cambio de día con la app abierta o al volver del fondo: refrescar
+    // versículo, check-in y racha (lo demás escucha sus propios servicios).
+    DayChangeService.I.hoy.addListener(_onDayChanged);
+    // Si el usuario cambia de versión de la Biblia, el versículo del día se
+    // muestra en la nueva versión.
+    _versionBiblia = _notifierVersionBiblia();
+    _versionBiblia?.addListener(_recargarVersiculo);
+
     // Cargar contenido personalizado
     _loadPersonalizedContent();
 
@@ -84,6 +97,48 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   bool _relapseScreenShown = false;
+  ValueNotifier<BibleVersion>? _versionBiblia;
+
+  /// Hora a partir de la cual, si cambia el día con Inicio a la vista, se
+  /// ofrece el check-in matutino (no a medianoche con la app abierta).
+  static const int _horaMinimaCheckin = 5;
+
+  static ValueNotifier<BibleVersion>? _notifierVersionBiblia() {
+    try {
+      return BibleUserDataService.I.preferredVersionNotifier;
+    } catch (_) {
+      // Sin Firebase (pruebas): el versículo usa RVR1960.
+      return null;
+    }
+  }
+
+  /// Cambió el día local: todo lo «de hoy» de Inicio vuelve a calcularse.
+  void _onDayChanged() {
+    if (!mounted) return;
+    _celebrationShownToday = false;
+    DailyPracticeService.I.refresh();
+    setState(() {
+      dailyVerse = DailyVerseService.I.getForTodaySync();
+      _currentStreak = VictoryScoringService.I.getCurrentStreak();
+      _loggedToday = VictoryScoringService.I.hasDataForToday();
+      _checkinDoneToday = false;
+    });
+    _recargarVersiculo();
+    final enPantalla = ModalRoute.of(context)?.isCurrent ?? false;
+    if (enPantalla && TimeUtils.now().hour >= _horaMinimaCheckin) {
+      _showMorningCheckinIfNeeded();
+    }
+  }
+
+  /// Vuelve a pedir el versículo del día en la versión activa.
+  Future<void> _recargarVersiculo() async {
+    try {
+      final verse = await DailyVerseService.I.getForToday();
+      if (mounted) setState(() => dailyVerse = verse);
+    } catch (e) {
+      debugPrint('⚠️ [HOME] Error recargando versículo: $e');
+    }
+  }
 
   void _onRelapseEvent() {
     if (!mounted || _relapseScreenShown) return;
@@ -245,6 +300,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     routeObserver.unsubscribe(this);
+    DayChangeService.I.hoy.removeListener(_onDayChanged);
+    _versionBiblia?.removeListener(_recargarVersiculo);
     VictoryScoringService.I.currentStreakNotifier.removeListener(
       _onScoringChanged,
     );
@@ -573,10 +630,6 @@ class _HomeScreenState extends State<HomeScreen>
       ), // Scaffold
     ); // AnnotatedRegion
   }
-
-  // ═══════════════════════════════════════════════════════════════════════════
-  // SECCIÓN DE PLANES RECOMENDADOS
-  // ═══════════════════════════════════════════════════════════════════════════
 
   Widget _buildQuickGlance() {
     final partners = BattlePartnerService.I.partnersNotifier.value;

@@ -152,26 +152,90 @@ class LearningQuestion {
     QuestionType.situational,
   };
 
+  /// Marcador de la palabra faltante en [QuestionType.completeVerse].
+  /// El TTS y la validación del banco usan este mismo token (3 guiones bajos).
+  static const String blankToken = '___';
+
+  /// Orden correcto efectivo para [QuestionType.orderEvents]: la posición k
+  /// contiene el índice (sobre [options]) del evento que va en el lugar k.
+  /// Si [correctOrder] viene vacío, se asume que [options] ya está en orden.
+  List<int> get effectiveCorrectOrder => correctOrder.isEmpty
+      ? List<int>.generate(options.length, (i) => i)
+      : correctOrder;
+
   /// Devuelve una copia con las opciones barajadas y [correctIndex] remapeado.
-  /// Para tipos que no se barajan (trueFalse, completeVerse, orderEvents,
-  /// matchPairs) o con menos de 2 opciones, devuelve la misma instancia.
+  /// Para [QuestionType.orderEvents] baraja los eventos (nunca quedan ya en
+  /// el orden correcto) y remapea [correctOrder] para seguir calificando
+  /// contra la cronología real.
+  /// Para tipos que no se barajan (trueFalse, completeVerse, matchPairs) o
+  /// con menos de 2 opciones, devuelve la misma instancia.
   LearningQuestion shuffledChoices([Random? rnd]) {
-    if (!_shuffleableTypes.contains(type) || options.length < 2) return this;
+    if (options.length < 2) return this;
+    if (type == QuestionType.orderEvents) return _shuffledOrderEvents(rnd ?? Random());
+    if (!_shuffleableTypes.contains(type)) return this;
     final r = rnd ?? Random();
     final order = List<int>.generate(options.length, (i) => i)..shuffle(r);
+    return _copyWith(
+      options: [for (final i in order) options[i]],
+      correctIndex: order.indexOf(correctIndex),
+    );
+  }
+
+  LearningQuestion _shuffledOrderEvents(Random r) {
+    final n = options.length;
+    final expected = effectiveCorrectOrder;
+    // Solo barajamos si el orden correcto es una permutación válida.
+    if (expected.length != n ||
+        expected.toSet().length != n ||
+        expected.any((i) => i < 0 || i >= n)) {
+      return this;
+    }
+
+    // perm[j] = índice original del evento que se muestra en la posición j.
+    List<int> remap(List<int> perm) =>
+        [for (final original in expected) perm.indexOf(original)];
+    bool isIdentity(List<int> order) {
+      for (var i = 0; i < order.length; i++) {
+        if (order[i] != i) return false;
+      }
+      return true;
+    }
+
+    var perm = List<int>.generate(n, (i) => i)..shuffle(r);
+    var newOrder = remap(perm);
+    for (var attempt = 0; attempt < 20 && isIdentity(newOrder); attempt++) {
+      perm.shuffle(r);
+      newOrder = remap(perm);
+    }
+    if (isIdentity(newOrder)) {
+      // Respaldo determinista: rotar una posición la secuencia correcta.
+      perm = [for (var j = 0; j < n; j++) expected[(j + 1) % n]];
+      newOrder = remap(perm);
+    }
+    return _copyWith(
+      options: [for (final i in perm) options[i]],
+      correctOrder: newOrder,
+    );
+  }
+
+  LearningQuestion _copyWith({
+    List<String>? options,
+    int? correctIndex,
+    List<int>? correctOrder,
+  }) {
     return LearningQuestion(
       id: id,
       type: type,
       prompt: prompt,
-      options: [for (final i in order) options[i]],
-      correctIndex: order.indexOf(correctIndex),
+      options: options ?? this.options,
+      correctIndex: correctIndex ?? this.correctIndex,
       explanation: explanation,
       answerText: answerText,
       reference: reference,
       tags: tags,
       difficulty: difficulty,
       pairs: pairs,
-      correctOrder: correctOrder,
+      correctOrder: correctOrder ?? this.correctOrder,
       ttsEnabled: ttsEnabled,
     );
   }
