@@ -69,6 +69,60 @@ void main() {
       },
     );
 
+    test('known entries are in Spanish', () async {
+      final agape = await StrongLexiconService.I.lookupStrong('G26');
+      final elohim = await StrongLexiconService.I.lookupStrong('H430');
+      final logos = await StrongLexiconService.I.lookupStrong('G3056');
+
+      expect(agape!.transliteration, 'agápē');
+      expect(agape.definition, contains('amor'));
+      expect(agape.biblicalUsage, contains('amor'));
+      expect(elohim!.transliteration, 'ʼĕlôhîym');
+      expect(elohim.definition, contains('Dios supremo'));
+      expect(elohim.biblicalUsage, contains('Dios'));
+      expect(logos!.biblicalUsage, contains('Verbo'));
+      expect(logos.definition, contains('Verbo'));
+      for (final entry in [agape, elohim, logos]) {
+        expect(entry.definition, isNot(contains(' the ')));
+      }
+    });
+
+    test('Strong-number search accepts G26, 26 and H430', () async {
+      final g26 = await StrongLexiconService.I.lookupStrongNumber('G26');
+      expect(g26.map((e) => e.strongNumber), ['G26']);
+
+      final bare = await StrongLexiconService.I.lookupStrongNumber('26');
+      expect(bare.map((e) => e.strongNumber), containsAll(['G26', 'H26']));
+
+      final h430 = await StrongLexiconService.I.lookupStrongNumber('h0430');
+      expect(h430.single.strongNumber, 'H430');
+
+      expect(StrongLexiconService.isStrongNumberQuery('26'), isTrue);
+      expect(StrongLexiconService.isStrongNumberQuery('G26'), isTrue);
+      expect(StrongLexiconService.isStrongNumberQuery('amor'), isFalse);
+
+      final concordance = await StrongLexiconService.I.search('26');
+      expect(concordance.strongNumbers, containsAll(['G26', 'H26']));
+      expect(concordance.references, isNotEmpty);
+    });
+
+    test('searches Spanish definitions and transliterations', () async {
+      final amor = await StrongLexiconService.I.searchDefinitions('amor');
+      expect(amor.map((e) => e.strongNumber), contains('G26'));
+
+      final verbo = await StrongLexiconService.I.searchDefinitions('Verbo');
+      expect(verbo.map((e) => e.strongNumber), contains('G3056'));
+
+      final agape = await StrongLexiconService.I.searchDefinitions('agape');
+      expect(agape.first.strongNumber, 'G26');
+
+      final menfis = await StrongLexiconService.I.searchDefinitions('menfis');
+      expect(
+        menfis.map((e) => e.strongNumber),
+        containsAll(['H4644', 'H5297']),
+      );
+    });
+
     test(
       'hydrates global Strong results with the selected Bible text',
       () async {

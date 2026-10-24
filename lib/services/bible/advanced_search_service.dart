@@ -9,7 +9,8 @@ import 'strong_lexicon_service.dart';
 
 /// Tipo de búsqueda avanzada
 enum AdvancedSearchType {
-  strong, // Búsqueda por número Strong (H/G)
+  strong, // Búsqueda por número Strong (H/G, o número sin prefijo)
+  definition, // Palabra en español dentro del diccionario de Strong
   originalWord, // Forma original o lema en hebreo/griego
   character, // Búsqueda por personaje bíblico
   theme, // Búsqueda por tema/tópico
@@ -23,12 +24,16 @@ class AdvancedSearchResult {
   final AdvancedSearchType type;
   final String? description;
 
+  /// Entradas del diccionario de Strong relacionadas con el resultado.
+  final List<StrongLexiconEntry> lexiconEntries;
+
   const AdvancedSearchResult({
     required this.title,
     required this.subtitle,
     required this.verses,
     required this.type,
     this.description,
+    this.lexiconEntries = const [],
   });
 }
 
@@ -168,6 +173,22 @@ class AdvancedSearchService {
     );
   }
 
+  /// Busca una palabra en español (o una transliteración) en las
+  /// definiciones y equivalentes del diccionario de Strong.
+  Future<AdvancedSearchResult> searchByDefinition(String query) async {
+    final entries = await StrongLexiconService.I.searchDefinitions(query);
+    final n = entries.length;
+    return AdvancedSearchResult(
+      title: '«${query.trim()}» en el diccionario Strong',
+      subtitle: n == 0
+          ? 'Sin entradas'
+          : '$n entrada${n == 1 ? '' : 's'}${n >= 40 ? ' (las más relevantes)' : ''}',
+      verses: const [],
+      type: AdvancedSearchType.definition,
+      lexiconEntries: entries,
+    );
+  }
+
   /// Busca una forma escrita o lema en todos los versículos del interlineal.
   Future<AdvancedSearchResult> searchByOriginalWord(
     String query,
@@ -232,7 +253,7 @@ class AdvancedSearchService {
       if (lexical?.transliteration.isNotEmpty == true)
         'Transliteración: ${lexical!.transliteration}',
       if (lexical?.definition.isNotEmpty == true)
-        'Definición histórica Strong (inglés): ${lexical!.definition}',
+        'Definición (Strong): ${lexical!.definition}',
     ];
 
     return AdvancedSearchResult(
@@ -243,6 +264,7 @@ class AdvancedSearchService {
       description: details.isEmpty ? null : details.join('\n'),
       verses: verses,
       type: type,
+      lexiconEntries: result.lexiconEntries,
     );
   }
 

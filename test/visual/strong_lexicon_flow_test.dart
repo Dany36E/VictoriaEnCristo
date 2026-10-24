@@ -82,7 +82,7 @@ void main() {
     });
     await tester.pump(const Duration(seconds: 1));
 
-    expect(find.text('LÉXICO STRONG LOCAL'), findsOneWidget);
+    expect(find.text('DICCIONARIO STRONG'), findsOneWidget);
     expect(find.text('Ver todas sus apariciones'), findsOneWidget);
     expect(tester.takeException(), isNull);
     await _capture(tester, boundary, 'build/qa/strong_lexicon_phone.png');

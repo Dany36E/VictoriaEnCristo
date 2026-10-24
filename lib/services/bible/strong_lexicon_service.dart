@@ -9,9 +9,11 @@ import '../../utils/original_language_normalizer.dart';
 
 /// Léxico Strong y concordancia por palabra original, completamente locales.
 ///
-/// El servicio carga un idioma a la vez y conserva el JSON compacto en memoria.
-/// Los datos léxicos proceden de Open Scriptures. El índice de apariciones se
-/// genera en este proyecto a partir de los interlineales locales.
+/// El servicio carga un idioma a la vez y conserva el JSON compacto en memoria;
+/// la decodificación se hace en un isolate (`compute`) para no bloquear la UI.
+/// Las definiciones son la traducción propia al español del diccionario de
+/// James Strong (1890, dominio público); véase `docs/STRONG_LEXICON_SOURCE.md`.
+/// El índice de apariciones se genera a partir de los interlineales locales.
 class StrongLexiconService {
   StrongLexiconService._();
   static final StrongLexiconService I = StrongLexiconService._();
@@ -24,6 +26,58 @@ class StrongLexiconService {
     if (normalized == null) return null;
     final assets = await _load(normalized.startsWith('H'));
     return assets.lexicon[normalized];
+  }
+
+  /// Entradas para un número Strong con o sin prefijo: «G26» o «H430»
+  /// devuelven una entrada; un número sin prefijo («26») devuelve la griega
+  /// y la hebrea que existan con ese número.
+  Future<List<StrongLexiconEntry>> lookupStrongNumber(String query) async {
+    final normalized = normalizeStrongNumber(query);
+    if (normalized != null) {
+      final entry = await lookupStrong(normalized);
+      return entry == null ? const [] : <StrongLexiconEntry>[entry];
+    }
+    final bare = bareStrongNumber(query);
+    if (bare == null) return const [];
+    final out = <StrongLexiconEntry>[];
+    for (final prefix in const <String>['G', 'H']) {
+      final entry = await lookupStrong('$prefix$bare');
+      if (entry != null) out.add(entry);
+    }
+    return out;
+  }
+
+  /// Busca en las definiciones en español, los equivalentes de la KJV y la
+  /// transliteración (sin distinguir mayúsculas ni tildes). Devuelve primero
+  /// las coincidencias en la transliteración, luego en los equivalentes y
+  /// por último en la definición.
+  Future<List<StrongLexiconEntry>> searchDefinitions(
+    String query, {
+    int limit = 40,
+  }) async {
+    final tokens = foldSpanishText(
+      query,
+    ).split(' ').where((token) => token.isNotEmpty).toList(growable: false);
+    if (tokens.isEmpty || tokens.join().length < 2) return const [];
+    final scored = <(int, int, StrongLexiconEntry)>[];
+    for (final isHebrew in const <bool>[false, true]) {
+      final assets = await _load(isHebrew);
+      for (final indexed in assets.searchIndex) {
+        final score = indexed.score(tokens);
+        if (score == null) continue;
+        scored.add((score, isHebrew ? 1 : 0, indexed.entry));
+      }
+    }
+    scored.sort((a, b) {
+      final byScore = a.$1.compareTo(b.$1);
+      if (byScore != 0) return byScore;
+      final byLanguage = a.$2.compareTo(b.$2);
+      if (byLanguage != 0) return byLanguage;
+      return _strongValue(
+        a.$3.strongNumber,
+      ).compareTo(_strongValue(b.$3.strongNumber));
+    });
+    return scored.take(limit).map((item) => item.$3).toList(growable: false);
   }
 
   Future<List<StrongLexiconEntry>> resolveWord(
@@ -53,6 +107,10 @@ class StrongLexiconService {
     final strong = normalizeStrongNumber(query);
     if (strong != null) {
       return _searchStrong(query, strong);
+    }
+    final bare = bareStrongNumber(query);
+    if (bare != null) {
+      return _searchBareStrong(query, bare);
     }
 
     final normalized = normalizeOriginalLanguageTerm(query);
@@ -105,6 +163,33 @@ class StrongLexiconService {
       references: packed
           .map(OriginalWordReference.fromPacked)
           .toList(growable: false),
+    );
+  }
+
+  /// Número sin prefijo: reúne la entrada hebrea (AT) y la griega (NT).
+  Future<OriginalWordSearchResult> _searchBareStrong(
+    String query,
+    int number,
+  ) async {
+    final hebrew = await _searchStrong(query, 'H$number');
+    final greek = await _searchStrong(query, 'G$number');
+    final parts = <OriginalWordSearchResult>[
+      hebrew,
+      greek,
+    ].where((part) => part.hasData).toList(growable: false);
+    return OriginalWordSearchResult(
+      query: query,
+      displayWord: parts.length == 1
+          ? parts.first.displayWord
+          : 'Strong $number',
+      lemma: parts.length == 1 ? parts.first.lemma : '',
+      strongNumbers: <String>[for (final part in parts) ...part.strongNumbers],
+      lexiconEntries: <StrongLexiconEntry>[
+        for (final part in parts) ...part.lexiconEntries,
+      ],
+      references: <OriginalWordReference>[
+        for (final part in parts) ...part.references,
+      ],
     );
   }
 
@@ -176,6 +261,9 @@ class StrongLexiconService {
     }
     return _LanguageAssets(
       lexicon: lexicon,
+      searchIndex: lexicon.values
+          .map(_IndexedEntry.new)
+          .toList(growable: false),
       terms: _nestedMap(indexRaw['terms']),
       strongReferences: Map<String, dynamic>.from(
         indexRaw['strong'] as Map<dynamic, dynamic>,
@@ -190,6 +278,99 @@ class StrongLexiconService {
     ).firstMatch(value);
     if (match == null) return null;
     return '${match.group(1)!.toUpperCase()}${int.parse(match.group(2)!)}';
+  }
+
+  /// Número Strong sin prefijo («26», «0430»), o null.
+  @visibleForTesting
+  static int? bareStrongNumber(String value) {
+    final match = RegExp(r'^\s*0*(\d{1,5})\s*$').firstMatch(value);
+    if (match == null) return null;
+    final number = int.parse(match.group(1)!);
+    return number == 0 ? null : number;
+  }
+
+  /// true si [value] es un número Strong, con o sin prefijo G/H.
+  static bool isStrongNumberQuery(String value) =>
+      normalizeStrongNumber(value) != null || bareStrongNumber(value) != null;
+
+  /// Minúsculas, sin tildes ni signos de transliteración, para buscar en
+  /// las definiciones en español y en las transliteraciones.
+  @visibleForTesting
+  static String foldSpanishText(String value) {
+    final buffer = StringBuffer();
+    var lastWasSpace = true;
+    for (final rune in value.toLowerCase().runes) {
+      final character = String.fromCharCode(rune);
+      if (_ignoredMarks.contains(character)) continue;
+      final folded = _latinFold[character];
+      final isPlain =
+          (rune >= 0x61 && rune <= 0x7a) || (rune >= 0x30 && rune <= 0x39);
+      if (folded != null || isPlain) {
+        buffer.write(folded ?? character);
+        lastWasSpace = false;
+      } else if (!lastWasSpace) {
+        buffer.write(' ');
+        lastWasSpace = true;
+      }
+    }
+    return buffer.toString().trim();
+  }
+}
+
+int _strongValue(String strongNumber) =>
+    int.tryParse(strongNumber.substring(1)) ?? 0;
+
+const Set<String> _ignoredMarks = {'ʼ', 'ʻ', "'", '’', '`', 'ʾ', 'ʿ'};
+
+const Map<String, String> _latinFold = {
+  'á': 'a', 'à': 'a', 'â': 'a', 'ä': 'a', 'ā': 'a', 'ă': 'a', //
+  'é': 'e', 'è': 'e', 'ê': 'e', 'ë': 'e', 'ē': 'e', 'ĕ': 'e', 'ᵉ': 'e',
+  'í': 'i', 'ì': 'i', 'î': 'i', 'ï': 'i', 'ī': 'i', //
+  'ó': 'o', 'ò': 'o', 'ô': 'o', 'ö': 'o', 'ō': 'o', 'ŏ': 'o', //
+  'ú': 'u', 'ù': 'u', 'û': 'u', 'ü': 'u', 'ū': 'u', //
+  'ñ': 'n', 'ç': 'c', 'ṭ': 't', 'ṣ': 's', 'ḥ': 'h', 'ẓ': 'z', //
+  'ḕ': 'e', 'ḗ': 'e', 'ḯ': 'i', 'ṑ': 'o', 'ṓ': 'o', 'ý': 'y', 'ÿ': 'y',
+  'ŷ': 'y', 'ˢ': 's',
+};
+
+/// Textos plegados de una entrada, calculados una sola vez al cargar.
+class _IndexedEntry {
+  _IndexedEntry(this.entry)
+    : transliteration = StrongLexiconService.foldSpanishText(
+        entry.transliteration,
+      ),
+      usage = ' ${StrongLexiconService.foldSpanishText(entry.biblicalUsage)} ',
+      definition =
+          ' ${StrongLexiconService.foldSpanishText(entry.definition)} ';
+
+  final StrongLexiconEntry entry;
+  final String transliteration;
+  final String usage;
+  final String definition;
+
+  /// 0 = transliteración, 1-2 = equivalentes, 3-4 = definición, 5 = prefijo
+  /// de la transliteración; null si no aparecen todos los términos. La
+  /// palabra completa puntúa mejor que el prefijo.
+  int? score(List<String> tokens) {
+    final joined = tokens.join(' ');
+    if (transliteration == joined) return 0;
+    if (_all(usage, tokens, wholeWord: true)) return 1;
+    if (_all(usage, tokens, wholeWord: false)) return 2;
+    if (_all(definition, tokens, wholeWord: true)) return 3;
+    if (_all(definition, tokens, wholeWord: false)) return 4;
+    if (transliteration.startsWith(joined)) return 5;
+    return null;
+  }
+
+  static bool _all(
+    String text,
+    List<String> tokens, {
+    required bool wholeWord,
+  }) {
+    for (final token in tokens) {
+      if (!text.contains(wholeWord ? ' $token ' : ' $token')) return false;
+    }
+    return true;
   }
 }
 
@@ -217,11 +398,13 @@ List<int> _intList(dynamic raw) => (raw as List<dynamic>? ?? const <dynamic>[])
 
 class _LanguageAssets {
   final Map<String, StrongLexiconEntry> lexicon;
+  final List<_IndexedEntry> searchIndex;
   final Map<String, Map<String, dynamic>> terms;
   final Map<String, dynamic> strongReferences;
 
   const _LanguageAssets({
     required this.lexicon,
+    required this.searchIndex,
     required this.terms,
     required this.strongReferences,
   });
