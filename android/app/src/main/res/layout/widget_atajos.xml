@@ -42,7 +42,7 @@
             android:text="@string/atajo_biblia_corto"
             android:textColor="#2B2622"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/lilita_one" />
     </LinearLayout>
 
     <LinearLayout
@@ -79,7 +79,7 @@
             android:text="@string/atajo_estudio_corto"
             android:textColor="#2B2622"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/lilita_one" />
     </LinearLayout>
 
     <LinearLayout
@@ -116,7 +116,7 @@
             android:text="@string/atajo_apuntes_corto"
             android:textColor="#2B2622"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/lilita_one" />
     </LinearLayout>
 
     <LinearLayout
@@ -154,6 +154,6 @@
             android:text=""
             android:textColor="#2B2622"
             android:textSize="13sp"
-            android:textStyle="bold" />
+            android:fontFamily="@font/lilita_one" />
     </LinearLayout>
 </LinearLayout>

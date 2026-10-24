@@ -3,10 +3,10 @@ package com.example.app_quitar
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
 import android.content.Context
-import android.graphics.Color
+import android.content.res.ColorStateList
+import android.os.Build
 import android.view.View
 import android.widget.RemoteViews
-import es.antonborri.home_widget.HomeWidgetPlugin
 
 /**
  * AtajosWidgetProvider - Widget «Atajos» (4x1)
@@ -26,8 +26,6 @@ class AtajosWidgetProvider : AppWidgetProvider() {
     }
 
     companion object {
-        // Key compartida con widget_sync_service.dart (claro/oscuro)
-        private const val KEY_IS_LIGHT = "widget_is_light"
 
         // Casilla, dibujo y texto de cada posición del layout
         private val CASILLAS = listOf(
@@ -43,7 +41,10 @@ class AtajosWidgetProvider : AppWidgetProvider() {
             appWidgetId: Int
         ) {
             try {
-                val isLight = HomeWidgetPlugin.getData(context).getBoolean(KEY_IS_LIGHT, true)
+                // Mismo papel que Inicio (claro, kraft o noche).
+                val paleta = PaletaPapel.leer(WidgetDia.prefs(context))
+                val isLight = !paleta.oscuro
+                val tintar = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
                 val atajos = Atajos.leer(context)
                 val views = RemoteViews(context.packageName, R.layout.widget_atajos)
 
@@ -53,7 +54,12 @@ class AtajosWidgetProvider : AppWidgetProvider() {
                     if (isLight) R.drawable.widget_atajos_bg_light else R.drawable.widget_atajos_bg_dark
                 )
                 val boton = if (isLight) R.drawable.widget_atajos_boton_light else R.drawable.widget_atajos_boton_dark
-                val textColor = if (isLight) Color.parseColor("#2B2622") else Color.WHITE
+                val textColor = paleta.tinta
+                if (tintar) {
+                    views.setColorStateList(
+                        R.id.atajos_raiz, "setBackgroundTintList", ColorStateList.valueOf(paleta.crema)
+                    )
+                }
 
                 CASILLAS.forEachIndexed { i, (casilla, icono, texto) ->
                     val atajo = atajos.getOrNull(i)
@@ -63,6 +69,11 @@ class AtajosWidgetProvider : AppWidgetProvider() {
                     }
                     views.setViewVisibility(casilla, View.VISIBLE)
                     views.setInt(casilla, "setBackgroundResource", boton)
+                    if (tintar) {
+                        views.setColorStateList(
+                            casilla, "setBackgroundTintList", ColorStateList.valueOf(paleta.papel)
+                        )
+                    }
                     views.setImageViewResource(icono, Atajos.dibujos.getValue(atajo.id))
                     views.setTextViewText(texto, atajo.titulo)
                     views.setTextColor(texto, textColor)

@@ -6,13 +6,15 @@ import android.content.Context
 import android.widget.RemoteViews
 import android.app.PendingIntent
 import android.content.Intent
-import android.graphics.Color
 import android.view.View
-import es.antonborri.home_widget.HomeWidgetPlugin
 
 /**
- * VictoryWidget2x2Provider - Widget compacto 2x2
- * Soporta modo claro/oscuro y modo discreto
+ * VictoryWidget2x2Provider - Widget compacto 2x2 (recordatorio).
+ *
+ * Estilo «Papel recortado» como la app. «Tarjeta clara» usa el papel claro;
+ * «oscura», el papel oscuro activo de la app (kraft si la app está en claro).
+ * Con la plantilla de versículo muestra el versículo completo y su cita, y
+ * cambia a medianoche con la lista que guarda la app.
  */
 class VictoryWidget2x2Provider : AppWidgetProvider() {
 
@@ -27,21 +29,20 @@ class VictoryWidget2x2Provider : AppWidgetProvider() {
     }
 
     override fun onEnabled(context: Context) {
-        // Widget agregado por primera vez
+        WidgetDia.programarMedianoche(context)
     }
 
     override fun onDisabled(context: Context) {
-        // Último widget eliminado
     }
 
     companion object {
-        // Keys que deben coincidir con widget_sync_service.dart
         private const val KEY_TITLE = "widget_title"
         private const val KEY_LINE1 = "widget_line1"
+        private const val KEY_LINE2 = "widget_line2"
+        private const val KEY_TEMPLATE = "widget_template"
         private const val KEY_IS_LIGHT = "widget_is_light"
         private const val KEY_IS_DISCREET = "widget_is_discreet"
 
-        // Defaults (fallback neutral)
         private const val DEFAULT_TITLE = "Rutina diaria"
         private const val DEFAULT_LINE1 = "Respira. Sigue hoy."
 
@@ -51,18 +52,16 @@ class VictoryWidget2x2Provider : AppWidgetProvider() {
             appWidgetId: Int
         ) {
             try {
-                // Obtener preferencias usando HomeWidgetPlugin
-                val prefs = HomeWidgetPlugin.getData(context)
+                val prefs = WidgetDia.prefs(context)
 
-                // Leer datos con fallbacks
                 val title = prefs.getString(KEY_TITLE, DEFAULT_TITLE) ?: DEFAULT_TITLE
                 val rawLine1 = prefs.getString(KEY_LINE1, DEFAULT_LINE1) ?: DEFAULT_LINE1
+                var line2 = prefs.getString(KEY_LINE2, "") ?: ""
                 val isLight = prefs.getBoolean(KEY_IS_LIGHT, true)
                 val isDiscreet = prefs.getBoolean(KEY_IS_DISCREET, true)
 
-                // Si el texto es el default, usar mensaje por hora del día
                 val hour = java.util.Calendar.getInstance().get(java.util.Calendar.HOUR_OF_DAY)
-                val line1 = if (rawLine1 == DEFAULT_LINE1) {
+                var line1 = if (rawLine1 == DEFAULT_LINE1) {
                     when {
                         hour < 6  -> "Descansa bien."
                         hour < 12 -> "Nuevo día, nuevo inicio."
@@ -71,33 +70,50 @@ class VictoryWidget2x2Provider : AppWidgetProvider() {
                     }
                 } else rawLine1
 
-                // Crear RemoteViews para el layout 2x2
+                // Plantilla de versículo: el del día de hoy, completo.
+                if (prefs.getString(KEY_TEMPLATE, null) == "verse") {
+                    val verso = WidgetDia.versiculoDeHoy(prefs)
+                    line1 = verso.texto
+                    line2 = verso.cita
+                }
+
+                val app = PaletaPapel.leer(prefs)
+                val paleta = when {
+                    isLight -> PaletaPapel.CLARO
+                    app.oscuro -> app
+                    else -> PaletaPapel.KRAFT
+                }
+
                 val views = RemoteViews(context.packageName, R.layout.widget_victory_2x2)
 
-                // === FIX 5: Aplicar tema claro/oscuro ===
-                // Cambiar fondo según tema
-                val bgDrawable = if (isLight) R.drawable.widget_bg_light else R.drawable.widget_bg_dark
-                views.setInt(R.id.widget_inner, "setBackgroundResource", bgDrawable)
+                views.setInt(R.id.widget_papel, "setColorFilter", paleta.papel)
+                views.setInt(R.id.widget_sombra, "setColorFilter", paleta.sombra)
 
-                // Configurar colores de texto según tema
-                val textColor = if (isLight) Color.parseColor("#212121") else Color.WHITE
-                val subtitleColor = if (isLight) Color.parseColor("#757575") else Color.parseColor("#B0B0B0")
-
-                // Configurar textos
                 views.setTextViewText(R.id.widget_title, title)
-                views.setTextColor(R.id.widget_title, textColor)
+                views.setTextColor(R.id.widget_title, paleta.tinta)
 
                 views.setTextViewText(R.id.widget_line1, line1)
-                views.setTextColor(R.id.widget_line1, subtitleColor)
+                views.setTextColor(R.id.widget_line1, paleta.tinta)
 
-                // Configurar ícono según modo
+                if (line2.isBlank()) {
+                    views.setViewVisibility(R.id.widget_line2, View.GONE)
+                } else {
+                    views.setViewVisibility(R.id.widget_line2, View.VISIBLE)
+                    views.setTextViewText(R.id.widget_line2, line2)
+                    views.setTextColor(R.id.widget_line2, paleta.terracota)
+                }
+
                 val iconRes = if (isDiscreet) R.drawable.ic_widget_discreet else R.drawable.ic_widget_trophy
                 views.setImageViewResource(R.id.widget_icon, iconRes)
+                views.setInt(R.id.widget_icon, "setColorFilter", paleta.terracota)
 
-                // === DEEP LINK: Intent para abrir app en pantalla de emergencia ===
+                views.setContentDescription(
+                    R.id.widget_container,
+                    listOf(title, line1, line2).filter { it.isNotBlank() }.joinToString(". ")
+                )
+
                 val intent = Intent(context, MainActivity::class.java).apply {
                     flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    // Extra que indica que debe abrir /emergency
                     putExtra("initial_route", "/emergency")
                 }
                 val pendingIntent = PendingIntent.getActivity(
@@ -107,13 +123,10 @@ class VictoryWidget2x2Provider : AppWidgetProvider() {
                     PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
                 )
 
-                // Aplicar click listener al contenedor completo
                 views.setOnClickPendingIntent(R.id.widget_container, pendingIntent)
 
-                // Actualizar widget
                 appWidgetManager.updateAppWidget(appWidgetId, views)
             } catch (e: Exception) {
-                // Log error but don't crash
                 e.printStackTrace()
             }
         }

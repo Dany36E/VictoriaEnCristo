@@ -9,10 +9,13 @@ import 'package:flutter/foundation.dart';
 enum WidgetTemplate {
   /// Solo título neutro + ícono (máxima discreción)
   discreet,
+
   /// Muestra un versículo del día
   verse,
+
   /// Muestra la racha de días
   streak,
+
   /// Combinación de título + verso + racha
   combo,
 }
@@ -21,6 +24,7 @@ enum WidgetTemplate {
 enum WidgetPrivacyMode {
   /// No muestra términos sensibles ni referencias religiosas explícitas
   discreet,
+
   /// Muestra contenido normal con referencias cristianas
   normal,
 }
@@ -29,6 +33,7 @@ enum WidgetPrivacyMode {
 enum WidgetTheme {
   /// Fondo claro, amigable como nota
   lightCard,
+
   /// Fondo oscuro, premium
   darkCard,
 }
@@ -44,7 +49,7 @@ class WidgetTitlePresets {
     'Mi momento',
     'Recordatorio',
   ];
-  
+
   static const List<String> normal = [
     'Victoria en Cristo',
     'Mi victoria diaria',
@@ -52,7 +57,7 @@ class WidgetTitlePresets {
     'Camino de pureza',
     'Gracia diaria',
   ];
-  
+
   static String get defaultDiscreet => discreet.first;
   static String get defaultNormal => normal.first;
 }
@@ -117,9 +122,10 @@ class WidgetConfig {
     return WidgetConfig(
       template: WidgetTemplate.values[json['template'] as int? ?? 0],
       privacyMode: WidgetPrivacyMode.values[json['privacyMode'] as int? ?? 0],
-      titleText: json['titleText'] as String? ?? WidgetTitlePresets.defaultDiscreet,
+      titleText:
+          json['titleText'] as String? ?? WidgetTitlePresets.defaultDiscreet,
       theme: WidgetTheme.values[json['theme'] as int? ?? 0],
-      lastUpdated: json['lastUpdated'] != null 
+      lastUpdated: json['lastUpdated'] != null
           ? DateTime.tryParse(json['lastUpdated'] as String) ?? DateTime.now()
           : DateTime.now(),
     );
@@ -131,7 +137,9 @@ class WidgetConfig {
   /// Deserializa desde JSON string
   factory WidgetConfig.fromJsonString(String jsonString) {
     try {
-      return WidgetConfig.fromJson(jsonDecode(jsonString) as Map<String, dynamic>);
+      return WidgetConfig.fromJson(
+        jsonDecode(jsonString) as Map<String, dynamic>,
+      );
     } catch (e) {
       debugPrint('⚠️ [WidgetConfig] fromJsonString parse error: $e');
       return WidgetConfig.defaultConfig();
@@ -184,7 +192,7 @@ class WidgetConfig {
 /// Helper para DateTime por defecto en const constructor
 class _DefaultDateTime implements DateTime {
   const _DefaultDateTime();
-  
+
   @override
   dynamic noSuchMethod(Invocation invocation) => DateTime.now();
 }
@@ -196,6 +204,12 @@ class WidgetPayload {
   final int streakValue;
   final String verseText;
   final String verseReference;
+
+  /// Versión de la Biblia del texto (p. ej. «RVR1960»).
+  final String verseVersion;
+
+  /// Segunda línea del widget 2×2 (la cita, si muestra un versículo).
+  final String line2;
   final String dateISO;
   final bool isLightTheme;
   final bool isDiscreetMode;
@@ -206,6 +220,8 @@ class WidgetPayload {
     required this.streakValue,
     required this.verseText,
     required this.verseReference,
+    this.verseVersion = '',
+    this.line2 = '',
     required this.dateISO,
     required this.isLightTheme,
     required this.isDiscreetMode,
@@ -231,6 +247,8 @@ class WidgetPayload {
       'streakValue': streakValue,
       'verseText': verseText,
       'verseReference': verseReference,
+      'verseVersion': verseVersion,
+      'line2': line2,
       'dateISO': dateISO,
       'isLightTheme': isLightTheme,
       'isDiscreetMode': isDiscreetMode,
