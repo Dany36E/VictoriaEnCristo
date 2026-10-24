@@ -62,10 +62,9 @@ dependencies:
   dio_cache_interceptor_file_store: ^1.2.3
   # Connectivity monitoring
   connectivity_plus: ^6.1.4
-  wakelock_plus: ^1.5.2  # Pantalla encendida en «¿Quién soy?» y en el Modo púlpito
   flutter_svg: ^2.3.0
   flutter_timezone: ^5.1.1
-  wakelock_plus: ^1.5.2  # Pantalla encendida en «¿Quién soy?» (celular en la frente)
+  wakelock_plus: ^1.5.2  # Pantalla encendida en «¿Quién soy?» y en el Modo púlpito
 
 dev_dependencies:
   flutter_test:
