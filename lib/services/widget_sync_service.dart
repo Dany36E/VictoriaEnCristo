@@ -16,7 +16,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../constants/widget_constants.dart';
 import '../models/widget_config.dart';
 import '../data/bible_verses.dart';
+import '../vec/vec_tema.dart';
+import '../widgets/jesus_streak_widget.dart';
 import 'atajos_service.dart';
+import 'bible/bible_user_data_service.dart';
+import 'theme_service.dart';
+import 'widget_snapshot_renderer.dart';
 import 'daily_verse_service.dart';
 import 'jesus_widget_service.dart';
 import 'user_pref_cloud_sync_service.dart';
@@ -76,6 +81,30 @@ class WidgetSyncService {
   static const String _keyJesusStreakColor = 'jesus_streak_color';
   static const String _keyJesusCheckinDone = 'jesus_checkin_done';
 
+  // Imágenes de la tarjeta de racha (la misma de Inicio) para el widget Jesús.
+  // «hoy» vale para [_keyJesusImgFecha]; «manana» es la del día siguiente
+  // (día sin registrar), para que a medianoche el widget no siga diciendo
+  // «Hoy ✓» aunque la app no se abra.
+  static const String _keyJesusImgFecha = 'jesus_img_fecha';
+  static const String _keyJesusImgFirma = 'jesus_img_firma';
+  static const String _keyJesusA11yHoy = 'jesus_a11y_hoy';
+  static const String _keyJesusA11yManana = 'jesus_a11y_manana';
+
+  /// Versículos de los próximos días (JSON) para que el widget nativo cambie
+  /// de versículo a medianoche sin abrir la app.
+  static const String _keyVerseSchedule = 'verse_widget_schedule';
+  static const String _keyVerseVersion = 'verse_widget_version';
+  static const String _keyWidgetTemplate = 'widget_template';
+  static const String _keyWidgetLine2 = 'widget_line2';
+
+  /// Días de versículos que se dejan guardados para el widget.
+  static const int diasVersiculosWidget = 14;
+
+  /// Tamaños lógicos de las imágenes de la tarjeta de racha: ancha (4×2) y
+  /// alta (3×3). El widget nativo elige la que mejor llena su espacio.
+  static const Size tamanoRachaAncha = Size(380, 200);
+  static const Size tamanoRachaAlta = Size(340, 330);
+
   // ═══════════════════════════════════════════════════════════════════════════
   // ESTADO
   // ═══════════════════════════════════════════════════════════════════════════
@@ -111,6 +140,13 @@ class WidgetSyncService {
 
       // Configurar App Group para iOS
       await HomeWidget.setAppGroupId(iOSAppGroup);
+
+      // Cambiar el papel (claro/oscuro) o la versión de la Biblia cambia lo
+      // que se ve en los widgets.
+      ThemeService().themeIdNotifier.addListener(_alCambiarAlgo);
+      BibleUserDataService.I.preferredVersionNotifier.addListener(
+        _alCambiarAlgo,
+      );
 
       _isInitialized = true;
       debugPrint('📱 [WIDGET] Service initialized');
@@ -149,8 +185,33 @@ class WidgetSyncService {
   // SINCRONIZACIÓN
   // ═══════════════════════════════════════════════════════════════════════════
 
-  /// Sincroniza datos con los widgets nativos
+  void _alCambiarAlgo() => unawaited(syncWidget());
+
+  Future<void>? _sincronizando;
+  bool _pendiente = false;
+
+  /// Sincroniza datos con los widgets nativos. Si ya hay una sincronización
+  /// en curso, se hace otra al terminar (con los datos nuevos).
   Future<void> syncWidget() async {
+    final enCurso = _sincronizando;
+    if (enCurso != null) {
+      _pendiente = true;
+      return enCurso;
+    }
+    final completer = Completer<void>();
+    _sincronizando = completer.future;
+    try {
+      do {
+        _pendiente = false;
+        await _syncWidget();
+      } while (_pendiente);
+    } finally {
+      _sincronizando = null;
+      completer.complete();
+    }
+  }
+
+  Future<void> _syncWidget() async {
     if (!_isInitialized) {
       await init();
     }
@@ -171,11 +232,22 @@ class WidgetSyncService {
         payload.isDiscreetMode,
       );
       await HomeWidget.saveWidgetData(_keyWidgetDate, payload.dateISO);
+      await HomeWidget.saveWidgetData(_keyWidgetLine2, payload.line2);
+      await HomeWidget.saveWidgetData(
+        _keyWidgetTemplate,
+        _config.template.name,
+      );
+
+      // Colores del papel activo de la app (claro, kraft o noche), para que
+      // los widgets nativos usen los mismos que Inicio.
+      await guardarPaleta(VecColores.actual);
 
       // Widget 4×2 (Versículo del día)
       await HomeWidget.saveWidgetData(_keyVerseText, payload.verseText);
       await HomeWidget.saveWidgetData(_keyVerseRef, payload.verseReference);
-      await HomeWidget.saveWidgetData(_keyVerseIsLight, payload.isLightTheme);
+      await HomeWidget.saveWidgetData(_keyVerseIsLight, !VecColores.oscuro);
+      await HomeWidget.saveWidgetData(_keyVerseVersion, payload.verseVersion);
+      await _guardarVersiculosProximos();
 
       // Widget Jesús (racha con sprite)
       final completedToday = VictoryScoringService.I.isLoggedToday();
@@ -185,9 +257,13 @@ class WidgetSyncService {
       final checkinLast = _prefs?.getString('morning_checkin_last_shown') ?? '';
       final todayISO = payload.dateISO;
       final checkinDone = checkinLast == todayISO;
-      final jesusMessage = _formatJesusWidgetVerseMessage(
-        payload.verseText,
-        payload.verseReference,
+      final canRegister =
+          !completedToday && VictoryScoringService.I.canLogVictoryNow();
+      final jesusMessage = JesusWidgetService.I.getMessage(
+        streakDays: payload.streakValue,
+        completedToday: completedToday,
+        victoryToday: victoryToday,
+        isNewUser: isNewUser,
       );
       await HomeWidget.saveWidgetData(_keyJesusStreak, payload.streakValue);
       await HomeWidget.saveWidgetData(_keyJesusCompleted, completedToday);
@@ -195,37 +271,25 @@ class WidgetSyncService {
       await HomeWidget.saveWidgetData(_keyJesusMessage, jesusMessage);
       await HomeWidget.saveWidgetData(_keyJesusCheckinDone, checkinDone);
 
-      // Badge text y color — sincronizado con _buildActionButton() del widget in-app
-      final canRegister =
-          !completedToday && VictoryScoringService.I.canLogVictoryNow();
-      final badgeText = JesusWidgetService.I.getBadgeText(
+      // Texto del botón: el mismo que la tarjeta de Inicio.
+      final finalBadgeText = TarjetaRachaPapel.etiquetaBoton(
         completedToday: completedToday,
         victoryToday: victoryToday,
+        canRegister: canRegister,
         isNewUser: isNewUser,
         checkinDone: checkinDone,
       );
-      // Usar misma lógica que _buildActionButton del JesusStreakWidget
-      final finalBadgeText = completedToday
-          ? victoryToday
-                ? '✨ Ver mi progreso'
-                : '🕊️ Gracia registrada'
-          : canRegister
-          ? '⚔️ Registrar día'
-          : badgeText;
-      // Botón siempre dorado (igual que in-app)
-      const badgeColor = 0xFFD4AF37;
-      final streakColor = JesusWidgetService.I.getStreakColor(
-        payload.streakValue,
-      );
       await HomeWidget.saveWidgetData(_keyJesusBadgeText, finalBadgeText);
-      await HomeWidget.saveWidgetData(_keyJesusBadgeColor, badgeColor);
+      await HomeWidget.saveWidgetData(
+        _keyJesusBadgeColor,
+        VecColores.terracota.toARGB32(),
+      );
       await HomeWidget.saveWidgetData(
         _keyJesusStreakColor,
-        streakColor.toARGB32(),
+        VecColores.terracota.toARGB32(),
       );
 
-      // Guardar imágenes de sprite y fondo (dibujos de papel) para el
-      // widget nativo
+      // Sprite y fondo sueltos: respaldo si la imagen de la tarjeta falla.
       final spritePath = JesusWidgetService.I.getSprite(
         streakDays: payload.streakValue,
         completedToday: completedToday && victoryToday,
@@ -245,6 +309,19 @@ class WidgetSyncService {
       if (bgFile != null) {
         await HomeWidget.saveWidgetData(_keyJesusBgPath, bgFile);
       }
+
+      // La tarjeta de Inicio dibujada a imagen (hoy y mañana).
+      await _guardarImagenesRacha(
+        fecha: todayISO,
+        streakDays: payload.streakValue,
+        completedToday: completedToday,
+        victoryToday: victoryToday,
+        isNewUser: isNewUser,
+        checkinDone: checkinDone,
+        mensaje: jesusMessage,
+        etiqueta: finalBadgeText,
+        recursos: [spritePath, bgPath],
+      );
 
       // JSON completo como backup
       await HomeWidget.saveWidgetData(
@@ -290,16 +367,19 @@ class WidgetSyncService {
             : _getTimeOfDayMessage(hour, discreet: false);
         break;
       case WidgetTemplate.verse:
-        line1 = _truncateVerse(verse.verse, isDiscreet ? 50 : 80);
+        // El versículo completo: el widget ajusta la letra para que quepa.
+        line1 = verse.verse;
         break;
       case WidgetTemplate.streak:
         line1 = _config.getStreakText(streak);
         break;
       case WidgetTemplate.combo:
-        line1 =
-            '${_config.getStreakText(streak)}\n${_truncateVerse(verse.verse, 35)}';
+        line1 = '${_config.getStreakText(streak)}\n${verse.verse}';
         break;
     }
+    final muestraCita =
+        _config.template == WidgetTemplate.verse ||
+        _config.template == WidgetTemplate.combo;
 
     return WidgetPayload(
       title: title,
@@ -307,6 +387,8 @@ class WidgetSyncService {
       streakValue: streak,
       verseText: verse.verse,
       verseReference: verse.reference,
+      verseVersion: verse.version,
+      line2: muestraCita ? verse.reference : '',
       dateISO: dateISO,
       isLightTheme: _config.theme == WidgetTheme.lightCard,
       isDiscreetMode: isDiscreet,
@@ -331,32 +413,209 @@ class WidgetSyncService {
     );
   }
 
-  /// Trunca un versículo para que quepa en el widget
-  String _truncateVerse(String verse, int maxLength) {
-    if (verse.length <= maxLength) return verse;
+  // ═══════════════════════════════════════════════════════════════════════════
+  // PAPEL, VERSÍCULOS E IMÁGENES PARA LOS WIDGETS NATIVOS
+  // ═══════════════════════════════════════════════════════════════════════════
 
-    // Intentar cortar en un espacio
-    final truncated = verse.substring(0, maxLength);
-    final lastSpace = truncated.lastIndexOf(' ');
+  static String _hex(Color c) =>
+      '#${c.toARGB32().toRadixString(16).padLeft(8, '0').toUpperCase()}';
 
-    if (lastSpace > maxLength * 0.7) {
-      return '${truncated.substring(0, lastSpace)}...';
+  /// Colores del papel [paleta] tal como los lee el código nativo
+  /// (`vec_*`, en `#AARRGGBB`).
+  @visibleForTesting
+  static Map<String, Object> datosPaleta(VecPaleta paleta) => {
+    'vec_oscuro': paleta.oscura,
+    'vec_papel': _hex(paleta.papel),
+    'vec_crema': _hex(paleta.crema),
+    'vec_crema_oscuro': _hex(paleta.cremaOscuro),
+    'vec_tinta': _hex(paleta.tinta),
+    'vec_gris': _hex(paleta.gris),
+    'vec_terracota': _hex(paleta.terracota),
+    'vec_azul': _hex(paleta.azul),
+    'vec_verde': _hex(paleta.verde),
+    'vec_mostaza': _hex(paleta.mostaza),
+  };
+
+  /// Guarda los colores del papel activo para los widgets nativos.
+  Future<void> guardarPaleta(VecPaleta paleta) async {
+    for (final e in datosPaleta(paleta).entries) {
+      await HomeWidget.saveWidgetData(e.key, e.value);
     }
-    return '$truncated...';
   }
 
-  String _formatJesusWidgetVerseMessage(
-    String verseText,
-    String verseReference,
-  ) {
-    final cleanText = verseText.trim();
-    if (cleanText.isEmpty) {
-      return 'Abre la app para recibir el versículo de hoy.';
+  /// JSON con los versículos de los próximos días: `[{f, t, r, v}]` (fecha
+  /// ISO, texto completo, cita y versión).
+  @visibleForTesting
+  static String jsonVersiculos(List<({String fecha, BibleVerse verse})> dias) =>
+      jsonEncode([
+        for (final d in dias)
+          {
+            'f': d.fecha,
+            't': d.verse.verse,
+            'r': d.verse.reference,
+            'v': d.verse.version,
+          },
+      ]);
+
+  Future<void> _guardarVersiculosProximos() async {
+    try {
+      if (!DailyVerseService.I.isInitialized) return;
+      final dias = await DailyVerseService.I.proximosDias(diasVersiculosWidget);
+      await HomeWidget.saveWidgetData(_keyVerseSchedule, jsonVersiculos(dias));
+    } catch (e) {
+      debugPrint('📱 [WIDGET] Versículos próximos error: $e');
     }
-    final text = _truncateVerse(cleanText, 96);
-    final reference = verseReference.trim();
-    if (reference.isEmpty) return text;
-    return '$text\n— $reference';
+  }
+
+  /// La tarjeta de racha de Inicio, enmarcada para dibujarla a imagen del
+  /// tamaño del widget (con aire para la cinta y la sombra del papel).
+  static Widget tarjetaRachaParaWidget({
+    required bool apaisada,
+    required int streakDays,
+    required bool completedToday,
+    required bool victoryToday,
+    required bool isNewUser,
+    required bool checkinDone,
+    required bool puedeRegistrar,
+    required String mensaje,
+  }) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(20, 14, 8, 16),
+      // Con letra más alta o un mensaje largo, la tarjeta entera se achica
+      // un poco en vez de cortarse.
+      child: LayoutBuilder(
+        builder: (context, c) => FittedBox(
+          fit: BoxFit.scaleDown,
+          child: SizedBox(
+            width: c.maxWidth,
+            child: TarjetaRachaPapel(
+              streakDays: streakDays,
+              completedToday: completedToday,
+              victoryToday: victoryToday,
+              isNewUser: isNewUser,
+              checkinDone: checkinDone,
+              puedeRegistrar: puedeRegistrar,
+              mensaje: mensaje,
+              apaisada: apaisada,
+              // Con callback para que el botón se vea activo, como en Inicio.
+              onRegisterVictory: () {},
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Densidad de las imágenes: la del teléfono, sin pasar de 3 (el nativo
+  /// las reduce al tamaño real del widget).
+  double get _densidad {
+    final view = WidgetsBinding.instance.platformDispatcher.implicitView;
+    return (view?.devicePixelRatio ?? 2.5).clamp(1.5, 3.0);
+  }
+
+  Future<void> _guardarImagenesRacha({
+    required String fecha,
+    required int streakDays,
+    required bool completedToday,
+    required bool victoryToday,
+    required bool isNewUser,
+    required bool checkinDone,
+    required String mensaje,
+    required String etiqueta,
+    required List<String> recursos,
+  }) async {
+    try {
+      final mensajeManana = JesusWidgetService.I.getMessage(
+        streakDays: streakDays,
+        completedToday: false,
+        victoryToday: false,
+        isNewUser: isNewUser,
+      );
+      final densidad = _densidad;
+      final firma = jsonEncode([
+        fecha,
+        streakDays,
+        completedToday,
+        victoryToday,
+        isNewUser,
+        checkinDone,
+        mensaje,
+        etiqueta,
+        mensajeManana,
+        VecColores.actual.papel.toARGB32(),
+        densidad,
+      ]);
+      final dir = await _widgetDir();
+      String ruta(String dia, String forma) =>
+          '${dir.path}/jesus_${dia}_$forma.png';
+      final rutas = [
+        for (final dia in const ['hoy', 'manana'])
+          for (final forma in const ['ancha', 'alta']) ruta(dia, forma),
+      ];
+      final yaEstan =
+          _prefs?.getString(_keyJesusImgFirma) == firma &&
+          rutas.every((r) => File(r).existsSync());
+
+      if (!yaEstan) {
+        await WidgetSnapshotRenderer.precargar(recursos, pixelRatio: densidad);
+        for (final dia in const ['hoy', 'manana']) {
+          final hoy = dia == 'hoy';
+          for (final forma in const ['ancha', 'alta']) {
+            final ancha = forma == 'ancha';
+            final png = await WidgetSnapshotRenderer.renderPng(
+              tarjetaRachaParaWidget(
+                apaisada: ancha,
+                streakDays: streakDays,
+                completedToday: hoy && completedToday,
+                victoryToday: hoy && victoryToday,
+                isNewUser: isNewUser,
+                checkinDone: hoy && checkinDone,
+                puedeRegistrar: hoy
+                    ? !completedToday &&
+                          VictoryScoringService.I.canLogVictoryNow()
+                    : true,
+                mensaje: hoy ? mensaje : mensajeManana,
+              ),
+              logicalSize: ancha ? tamanoRachaAncha : tamanoRachaAlta,
+              pixelRatio: densidad,
+            );
+            if (png == null) return;
+            await File(ruta(dia, forma)).writeAsBytes(png, flush: true);
+          }
+        }
+        await _prefs?.setString(_keyJesusImgFirma, firma);
+      }
+
+      for (final dia in const ['hoy', 'manana']) {
+        for (final forma in const ['ancha', 'alta']) {
+          await HomeWidget.saveWidgetData(
+            'jesus_img_${dia}_$forma',
+            ruta(dia, forma),
+          );
+        }
+      }
+      await HomeWidget.saveWidgetData(_keyJesusImgFecha, fecha);
+      final dias = isNewUser ? 0 : streakDays;
+      await HomeWidget.saveWidgetData(
+        _keyJesusA11yHoy,
+        'Racha: $dias ${dias == 1 ? 'día' : 'días'} de victoria. '
+        '$mensaje. $etiqueta',
+      );
+      await HomeWidget.saveWidgetData(
+        _keyJesusA11yManana,
+        'Racha: $dias ${dias == 1 ? 'día' : 'días'} de victoria. '
+        '$mensajeManana. Registrar día',
+      );
+    } catch (e) {
+      debugPrint('📱 [WIDGET] Imágenes de racha error: $e');
+    }
+  }
+
+  Future<Directory> _widgetDir() async {
+    final dir = await getApplicationDocumentsDirectory();
+    final widgetDir = Directory('${dir.path}/widget_images');
+    if (!widgetDir.existsSync()) await widgetDir.create(recursive: true);
+    return widgetDir;
   }
 
   /// Mensaje contextual por hora del día

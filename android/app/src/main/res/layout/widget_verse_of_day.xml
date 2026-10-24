@@ -1,59 +1,118 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Widget 4x2 para Versículo del Día -->
-<FrameLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<!--
+  Widget «Versículo del día» con el estilo «Papel recortado», igual que la
+  TarjetaVersiculo de Inicio: tarjeta de papel con sombra sólida y cinta
+  mostaza, cita en terracota (Lilita One), versión en gris y el versículo
+  completo con letra de mano (Patrick Hand). VerseOfDayWidgetProvider tiñe
+  la tarjeta y el texto con los colores del papel activo de la app.
+-->
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/verse_widget_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="8dp">
+    android:layout_height="match_parent">
+
+    <!-- Sombra sólida del papel grueso (VecSombras.papel) -->
+    <ImageView
+        android:id="@+id/verse_widget_sombra"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="4dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/papel_tarjeta"
+        android:tint="#2E2B2622" />
+
+    <!-- Tarjeta de papel -->
+    <ImageView
+        android:id="@+id/verse_widget_papel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="5dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/papel_tarjeta"
+        android:tint="#FBF7EE" />
 
     <LinearLayout
         android:id="@+id/verse_widget_inner"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="6dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="5dp"
         android:orientation="vertical"
-        android:padding="14dp"
-        android:background="@drawable/widget_bg_dark"
-        android:gravity="center_vertical">
+        android:paddingStart="16dp"
+        android:paddingTop="12dp"
+        android:paddingEnd="14dp"
+        android:paddingBottom="10dp">
 
-        <!-- Etiqueta superior -->
-        <TextView
-            android:id="@+id/verse_widget_label"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/verse_widget_label"
-            android:textSize="10sp"
-            android:textColor="#B0B0B0"
-            android:letterSpacing="0.15"
-            android:textAllCaps="true"
-            android:maxLines="1" />
+            android:gravity="bottom"
+            android:orientation="horizontal">
 
-        <!-- Texto del versículo -->
+            <TextView
+                android:id="@+id/verse_widget_reference"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:ellipsize="end"
+                android:fontFamily="@font/lilita_one"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="Filipenses 4:13"
+                android:textColor="#A8452F"
+                android:textSize="20sp" />
+
+            <TextView
+                android:id="@+id/verse_widget_version"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginBottom="1dp"
+                android:fontFamily="@font/lilita_one"
+                android:includeFontPadding="false"
+                android:maxLines="1"
+                android:text="RVR1960"
+                android:textColor="#6F6150"
+                android:textSize="12sp" />
+        </LinearLayout>
+
+        <!-- Versículo completo: la letra se achica para que quepa entero -->
         <TextView
             android:id="@+id/verse_widget_text"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
             android:layout_marginTop="6dp"
-            android:text="@string/verse_widget_default_text"
-            android:textSize="14sp"
-            android:textColor="#FFFFFF"
-            android:fontFamily="serif"
-            android:maxLines="4"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="20sp"
+            android:autoSizeMinTextSize="10sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
             android:ellipsize="end"
-            android:lineSpacingMultiplier="1.3" />
-
-        <!-- Referencia -->
-        <TextView
-            android:id="@+id/verse_widget_reference"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="6dp"
-            android:text="@string/verse_widget_default_ref"
-            android:textSize="11sp"
-            android:textColor="#D4AF37"
-            android:textStyle="bold"
-            android:maxLines="1" />
-
+            android:fontFamily="@font/patrick_hand"
+            android:gravity="top|start"
+            android:lineSpacingMultiplier="1.1"
+            android:text="Todo lo puedo en Cristo que me fortalece."
+            android:textColor="#2B2622"
+            android:textSize="15sp" />
     </LinearLayout>
+
+    <!-- Cinta adhesiva en la esquina, como en la app -->
+    <ImageView
+        android:layout_width="44dp"
+        android:layout_height="15dp"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="3dp"
+        android:importantForAccessibility="no"
+        android:rotation="-24"
+        android:scaleType="fitXY"
+        android:src="@drawable/papel_cinta" />
 
 </FrameLayout>

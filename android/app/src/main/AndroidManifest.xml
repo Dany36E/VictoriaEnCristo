@@ -123,7 +123,21 @@
                 <action android:name="android.intent.action.DATE_CHANGED" />
             </intent-filter>
         </receiver>
-            
+
+        <!-- Cambio de día / hora / reinicio: versículo y racha del día en los
+             widgets aunque la app no se abra (ver WidgetPapel.kt) -->
+        <receiver
+            android:name=".WidgetDiaReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
+                <action android:name="android.intent.action.DATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <!-- Victory Widget 2x2 Provider -->
         <receiver
             android:name=".VictoryWidget2x2Provider"

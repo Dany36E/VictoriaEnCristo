@@ -1,56 +1,111 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Widget compacto 2x2 para Victoria en Cristo -->
+<!--
+  Widget compacto 2x2 (recordatorio) con el estilo «Papel recortado»:
+  tarjeta de papel con sombra sólida y cinta, título en Lilita One y texto
+  con letra de mano. VictoryWidget2x2Provider lo tiñe con el papel claro u
+  oscuro (según la configuración del widget).
+-->
 <FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/widget_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="8dp">
+    android:layout_height="match_parent">
+
+    <ImageView
+        android:id="@+id/widget_sombra"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="4dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/papel_tarjeta"
+        android:tint="#2E2B2622" />
+
+    <ImageView
+        android:id="@+id/widget_papel"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:importantForAccessibility="no"
+        android:scaleType="fitXY"
+        android:src="@drawable/papel_tarjeta"
+        android:tint="#FBF7EE" />
 
     <LinearLayout
         android:id="@+id/widget_inner"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginStart="5dp"
+        android:layout_marginTop="6dp"
+        android:layout_marginEnd="4dp"
+        android:layout_marginBottom="4dp"
+        android:gravity="center"
         android:orientation="vertical"
-        android:padding="12dp"
-        android:background="@drawable/widget_background"
-        android:gravity="center">
+        android:padding="10dp">
 
-        <!-- Ícono -->
         <ImageView
             android:id="@+id/widget_icon"
-            android:layout_width="32dp"
-            android:layout_height="32dp"
-            android:src="@drawable/ic_widget_discreet"
-            android:contentDescription="@string/widget_icon_desc" />
+            android:layout_width="28dp"
+            android:layout_height="28dp"
+            android:contentDescription="@string/widget_icon_desc"
+            android:src="@drawable/ic_widget_discreet" />
 
-        <!-- Título -->
         <TextView
             android:id="@+id/widget_title"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:text="@string/widget_default_title"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#212121"
-            android:maxLines="1"
+            android:layout_marginTop="4dp"
             android:ellipsize="end"
-            android:gravity="center" />
+            android:fontFamily="@font/lilita_one"
+            android:gravity="center"
+            android:maxLines="1"
+            android:text="@string/widget_default_title"
+            android:textColor="#2B2622"
+            android:textSize="15sp" />
 
-        <!-- Línea secundaria -->
         <TextView
             android:id="@+id/widget_line1"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:text="@string/widget_default_line1"
-            android:textSize="11sp"
-            android:textColor="#757575"
-            android:maxLines="2"
+            android:layout_height="0dp"
+            android:layout_marginTop="2dp"
+            android:layout_weight="1"
+            android:autoSizeMaxTextSize="15sp"
+            android:autoSizeMinTextSize="9sp"
+            android:autoSizeStepGranularity="1sp"
+            android:autoSizeTextType="uniform"
             android:ellipsize="end"
-            android:gravity="center" />
+            android:fontFamily="@font/patrick_hand"
+            android:gravity="center"
+            android:text="@string/widget_default_line1"
+            android:textColor="#2B2622"
+            android:textSize="13sp" />
 
+        <TextView
+            android:id="@+id/widget_line2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:fontFamily="@font/lilita_one"
+            android:gravity="center"
+            android:maxLines="1"
+            android:textColor="#A8452F"
+            android:textSize="11sp"
+            android:visibility="gone" />
     </LinearLayout>
+
+    <ImageView
+        android:layout_width="36dp"
+        android:layout_height="12dp"
+        android:layout_gravity="top|start"
+        android:layout_marginTop="2dp"
+        android:importantForAccessibility="no"
+        android:rotation="-24"
+        android:scaleType="fitXY"
+        android:src="@drawable/papel_cinta" />
 
 </FrameLayout>

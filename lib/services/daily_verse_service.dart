@@ -84,7 +84,11 @@ class DailyVerseService {
   /// temas, nunca se repite tema dos días seguidos.
   static int indiceParaFecha(DateTime fecha) {
     final dias =
-        DateTime.utc(fecha.year, fecha.month, fecha.day).millisecondsSinceEpoch ~/
+        DateTime.utc(
+          fecha.year,
+          fecha.month,
+          fecha.day,
+        ).millisecondsSinceEpoch ~/
         Duration.millisecondsPerDay;
     return dias % versiculosDiarios.length;
   }
@@ -150,7 +154,7 @@ class DailyVerseService {
     try {
       final v =
           (_versionActiva ??
-              () => BibleUserDataService.I.preferredVersionNotifier.value)();
+          () => BibleUserDataService.I.preferredVersionNotifier.value)();
       return BibleDownloadService.I.isAvailable(v) ? v : BibleVersion.rvr1960;
     } catch (_) {
       return BibleVersion.rvr1960;
@@ -196,6 +200,46 @@ class DailyVerseService {
       debugPrint('📖 [DAILY_VERSE] Texto ${version.id} no disponible: $e');
     }
     return _aBibleVerse(ref, ref.textoRvr, BibleVersion.rvr1960);
+  }
+
+  /// Versículos de hoy y los [dias] − 1 siguientes, con el texto de la
+  /// versión activa (o el RVR1960 de respaldo si no se puede cargar).
+  ///
+  /// Lo usa el widget de Android para cambiar de versículo a medianoche
+  /// aunque la app no se abra: guarda la lista y elige el del día.
+  Future<List<({String fecha, BibleVerse verse})>> proximosDias(
+    int dias,
+  ) async {
+    if (!_isInitialized) await init();
+    final hoy = TimeUtils.now();
+    final version = _version();
+    final lista = <({String fecha, BibleVerse verse})>[];
+    for (var i = 0; i < dias; i++) {
+      final fecha = DateTime(hoy.year, hoy.month, hoy.day + i);
+      final iso = TimeUtils.dateToISO(fecha);
+      final ref = referenciaParaFecha(fecha);
+      var verse = _aBibleVerse(ref, ref.textoRvr, BibleVersion.rvr1960);
+      if (version != BibleVersion.rvr1960) {
+        final enCache = _textoEnCache(iso, version);
+        if (enCache != null) {
+          verse = _aBibleVerse(ref, enCache, version);
+        } else {
+          try {
+            final texto = await (_cargador ?? _cargarDeLaBiblia)(
+              ref,
+              version,
+            ).timeout(const Duration(seconds: 12));
+            if (texto != null && texto.trim().isNotEmpty) {
+              verse = _aBibleVerse(ref, texto, version);
+            }
+          } catch (e) {
+            debugPrint('📖 [DAILY_VERSE] Texto $iso no disponible: $e');
+          }
+        }
+      }
+      lista.add((fecha: iso, verse: verse));
+    }
+    return lista;
   }
 
   String? _textoEnCache(String iso, BibleVersion version) {
@@ -290,7 +334,10 @@ class DailyVerseService {
     try {
       final verse = await getForToday();
       await HomeWidget.saveWidgetData('verse_widget_text', verse.verse);
-      await HomeWidget.saveWidgetData('verse_widget_reference', verse.reference);
+      await HomeWidget.saveWidgetData(
+        'verse_widget_reference',
+        verse.reference,
+      );
       await HomeWidget.updateWidget(androidName: 'VerseOfDayWidgetProvider');
       debugPrint('📱 [DAILY_VERSE] Widget actualizado: ${verse.reference}');
     } catch (e) {
