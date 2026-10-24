@@ -9,6 +9,7 @@ import 'bible/bible_user_data_service.dart';
 import 'bible/chapter_note_service.dart';
 import 'bible/collection_service.dart';
 import 'bible/adjuntos_nota_service.dart';
+import 'bible/bosquejo_sermon_service.dart';
 import 'bible/sermon_note_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
@@ -69,7 +70,10 @@ class UserScopedServices {
     if (uid == null || uid.isEmpty) return;
 
     await ensureBible();
-    _sermonNotesInit ??= SermonNoteService.I.init(uid);
+    _sermonNotesInit ??= Future.wait<void>([
+      SermonNoteService.I.init(uid),
+      BosquejoSermonService.I.init(uid),
+    ]);
     await _sermonNotesInit;
     // Fotos y dibujos de Apuntes que quedaron sin subir.
     unawaited(AdjuntosNotaService.I.reintentarPendientes());

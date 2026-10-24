@@ -7,32 +7,63 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../models/bible/sermon_note.dart';
 import 'adjuntos_nota_service.dart';
+import 'notas_sync.dart';
 
 class SermonNoteService {
   SermonNoteService._();
   static final SermonNoteService I = SermonNoteService._();
 
-  final _firestore = FirebaseFirestore.instance;
   SharedPreferences? _prefs;
   StreamSubscription? _subscription;
   String? _uid;
 
+  static const _coleccion = 'sermonNotes';
   static const _cachePrefix = 'sermon_notes_cache_v1';
 
   final ValueNotifier<Map<String, SermonNote>> notesNotifier = ValueNotifier(
     const {},
   );
 
-  CollectionReference<Map<String, dynamic>> get _col =>
-      _firestore.collection('users').doc(_uid!).collection('sermonNotes');
+  /// Firestore se pide solo al escuchar: las pruebas no lo necesitan.
+  CollectionReference<Map<String, dynamic>> get _col => FirebaseFirestore
+      .instance
+      .collection('users')
+      .doc(_uid!)
+      .collection(_coleccion);
+
+  String _prefijo(String uid) => 'users/$uid/$_coleccion/';
 
   Future<void> init(String uid) async {
     if (_uid == uid) return;
+    await _preparar(uid);
+    _listen();
+  }
+
+  /// Igual que [init] pero sin escuchar Firestore (para pruebas).
+  @visibleForTesting
+  Future<void> initSinNube(String uid) => _preparar(uid);
+
+  Future<void> _preparar(String uid) async {
     stop();
     _uid = uid;
     _prefs ??= await SharedPreferences.getInstance();
+    await NotasSync.I.cargar();
     await _loadLocalCache(uid);
-    _listen();
+    _reenviarPendientes(uid);
+  }
+
+  /// Vuelve a lanzar lo que quedó sin confirmar en una sesión anterior.
+  void _reenviarPendientes(String uid) {
+    final prefijo = _prefijo(uid);
+    for (final id in NotasSync.I.idsPendientes(prefijo, borrados: false)) {
+      final nota = notesNotifier.value[id];
+      if (nota != null) {
+        unawaited(NotasSync.I.guardar('$prefijo$id', nota.toMap()));
+      }
+    }
+    for (final id in NotasSync.I.idsPendientes(prefijo, borrados: true)) {
+      unawaited(NotasSync.I.borrar('$prefijo$id'));
+    }
   }
 
   void stop() {
@@ -64,6 +95,9 @@ class SermonNoteService {
     return values;
   }
 
+  /// Guarda el apunte en el teléfono y lanza la subida SIN esperar al
+  /// servidor: sin conexión termina igual (antes se quedaba «Guardando…» y
+  /// el PDF no salía). El Future de la nube está en [NotasSync].
   Future<void> saveNote(SermonNote note) async {
     final uid = _uid;
     if (uid == null || uid.isEmpty) return;
@@ -72,7 +106,9 @@ class SermonNoteService {
     next[updated.id] = updated;
     notesNotifier.value = Map.unmodifiable(next);
     await _saveLocalCache(next);
-    await _col.doc(updated.id).set(updated.toMap(), SetOptions(merge: true));
+    unawaited(
+      NotasSync.I.guardar('${_prefijo(uid)}${updated.id}', updated.toMap()),
+    );
   }
 
   /// Fija o suelta un apunte sin cambiar su fecha de edición.
@@ -89,7 +125,7 @@ class SermonNoteService {
     next[id] = actualizada;
     notesNotifier.value = Map.unmodifiable(next);
     await _saveLocalCache(next);
-    await _col.doc(id).set({'fijada': fijada}, SetOptions(merge: true));
+    unawaited(NotasSync.I.guardar('${_prefijo(uid)}$id', {'fijada': fijada}));
   }
 
   Future<void> deleteNote(String id) async {
@@ -102,31 +138,52 @@ class SermonNoteService {
     final next = Map<String, SermonNote>.from(notesNotifier.value)..remove(id);
     notesNotifier.value = Map.unmodifiable(next);
     await _saveLocalCache(next);
-    await _col.doc(id).delete();
+    unawaited(NotasSync.I.borrar('${_prefijo(uid)}$id'));
   }
 
   void _listen() {
-    _subscription = _col
-        .orderBy('updatedAt', descending: true)
-        .limit(300)
-        .snapshots()
-        .listen((snap) {
-          if (snap.docs.isEmpty &&
-              snap.metadata.isFromCache &&
-              notesNotifier.value.isNotEmpty) {
-            return;
-          }
-          final map = <String, SermonNote>{};
-          for (final doc in snap.docs) {
-            try {
-              map[doc.id] = SermonNote.fromMap(doc.id, doc.data());
-            } catch (e) {
-              debugPrint('[SERMON-NOTES] parse error: $e');
+    final uid = _uid;
+    if (uid == null) return;
+    try {
+      // Sin límite: con `.limit(300)` los apuntes más viejos desaparecían de
+      // la lista (y de la cache local) al pasar de 300.
+      _subscription = _col
+          .snapshots(includeMetadataChanges: true)
+          .listen((snap) {
+            if (_uid != uid) return;
+            final remoto = <String, SermonNote>{};
+            for (final doc in snap.docs) {
+              try {
+                remoto[doc.id] = SermonNote.fromMap(doc.id, doc.data());
+              } catch (e) {
+                debugPrint('[SERMON-NOTES] parse error: $e');
+              }
             }
-          }
-          notesNotifier.value = Map.unmodifiable(map);
-          unawaited(_saveLocalCache(map));
-        }, onError: (e) => debugPrint('[SERMON-NOTES] listen error: $e'));
+            aplicarSnapshot(remoto, desdeCache: snap.metadata.isFromCache);
+          }, onError: (e) => debugPrint('[SERMON-NOTES] listen error: $e'));
+    } catch (e) {
+      debugPrint('[SERMON-NOTES] No se pudo escuchar la nube: $e');
+    }
+  }
+
+  /// Une un snapshot COMPLETO de la nube con lo que hay en el teléfono.
+  @visibleForTesting
+  void aplicarSnapshot(
+    Map<String, SermonNote> remoto, {
+    required bool desdeCache,
+  }) {
+    final uid = _uid;
+    if (uid == null) return;
+    final prefijo = _prefijo(uid);
+    final unidos = fusionarConServidor<SermonNote>(
+      local: notesNotifier.value,
+      remoto: remoto,
+      desdeCache: desdeCache,
+      guardadoPendiente: (id) => NotasSync.I.guardadoPendiente('$prefijo$id'),
+      borradoPendiente: (id) => NotasSync.I.borradoPendiente('$prefijo$id'),
+    );
+    notesNotifier.value = Map.unmodifiable(unidos);
+    unawaited(_saveLocalCache(unidos));
   }
 
   String _cacheKey(String uid) => '$_cachePrefix.$uid';
@@ -163,6 +220,10 @@ class SermonNoteService {
       map.remove('updatedAt');
       return map;
     }).toList();
-    await _prefs?.setString(_cacheKey(uid), jsonEncode(encoded));
+    try {
+      await _prefs?.setString(_cacheKey(uid), jsonEncode(encoded));
+    } catch (e) {
+      debugPrint('[SERMON-NOTES] local cache save error: $e');
+    }
   }
 }

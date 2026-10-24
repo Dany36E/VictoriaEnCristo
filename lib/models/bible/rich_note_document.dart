@@ -209,13 +209,40 @@ class RichNoteSpan {
   }
 }
 
+/// Carácter que ocupa el lugar de una foto o un dibujo dentro del texto
+/// (U+FFFC, «object replacement character»). Cada uno es un solo carácter,
+/// así que el cursor y la selección funcionan igual que con letras.
+const String kMarcaAdjunto = '\uFFFC';
+
+/// Un trozo de la nota en orden: texto con formato o un adjunto en línea.
+class RichNoteBloque {
+  final List<RichNoteTextSegment> segmentos;
+
+  /// Id del adjunto (foto o dibujo) que va en este lugar; null si es texto.
+  final String? adjuntoId;
+
+  const RichNoteBloque.texto(this.segmentos) : adjuntoId = null;
+  const RichNoteBloque.adjunto(String id) : segmentos = const [], adjuntoId = id;
+
+  bool get esAdjunto => adjuntoId != null;
+}
+
 class RichNoteDocument {
   static const _storageKind = 'victoria_rich_note_v1';
 
   final String text;
   final List<RichNoteSpan> spans;
 
-  const RichNoteDocument({required this.text, required this.spans});
+  /// Ids de los adjuntos en línea: el i-ésimo [kMarcaAdjunto] del texto es
+  /// `embeds[i]`. Las notas antiguas no tienen ninguno (sus fotos se ven al
+  /// final, como antes). Un id vacío es una marca sin adjunto (se ignora).
+  final List<String> embeds;
+
+  const RichNoteDocument({
+    required this.text,
+    required this.spans,
+    this.embeds = const [],
+  });
 
   factory RichNoteDocument.empty() {
     return const RichNoteDocument(text: '', spans: <RichNoteSpan>[]);
@@ -231,9 +258,14 @@ class RichNoteDocument {
           .whereType<Map>()
           .map((map) => RichNoteSpan.fromMap(Map<String, dynamic>.from(map)))
           .toList(growable: false);
+      final embeds = [
+        for (final e in decoded['embeds'] as List<dynamic>? ?? const [])
+          e is String ? e : '',
+      ];
       return RichNoteDocument(
         text: text,
         spans: _clampSpans(spans, text.length),
+        embeds: _ajustarEmbeds(embeds, text),
       );
     }
     return _fromLegacyMarkup(source);
@@ -273,15 +305,99 @@ class RichNoteDocument {
       'kind': _storageKind,
       'text': text,
       'spans': [for (final span in spans) span.toMap()],
+      if (embeds.any((e) => e.isNotEmpty)) 'embeds': embeds,
     });
   }
 
-  RichNoteDocument copyWith({String? text, List<RichNoteSpan>? spans}) {
+  RichNoteDocument copyWith({
+    String? text,
+    List<RichNoteSpan>? spans,
+    List<String>? embeds,
+  }) {
     final nextText = text ?? this.text;
     return RichNoteDocument(
       text: nextText,
       spans: _clampSpans(spans ?? this.spans, nextText.length),
+      embeds: _ajustarEmbeds(embeds ?? this.embeds, nextText),
     );
+  }
+
+  /// Ids de los adjuntos que están dentro del texto, en orden.
+  List<String> get idsEnLinea => [
+    for (final e in embeds)
+      if (e.isNotEmpty) e,
+  ];
+
+  /// Texto sin las marcas de los adjuntos (vistas previas, búsqueda).
+  String get textoPlano => text.replaceAll(kMarcaAdjunto, '');
+
+  /// Inserta el adjunto [id] en [offset], en su propia línea, para poder
+  /// seguir escribiendo debajo (p. ej. la foto de una diapositiva y luego los
+  /// comentarios). Devuelve el documento y dónde queda el cursor.
+  (RichNoteDocument, int) insertarAdjunto(int offset, String id) {
+    final pos = offset < 0 || offset > text.length ? text.length : offset;
+    final antes = pos > 0 && text[pos - 1] != '\n' ? '\n' : '';
+    final siguienteEsSalto = pos < text.length && text[pos] == '\n';
+    final despues = siguienteEsSalto ? '' : '\n';
+    final insercion = '$antes$kMarcaAdjunto$despues';
+    final nuevoTexto = text.replaceRange(pos, pos, insercion);
+    final indice = _contarMarcas(text, pos);
+    final nuevosEmbeds = [..._ajustarEmbeds(embeds, text)]..insert(indice, id);
+    final movido = replaceText(nuevoTexto);
+    final cursor = pos + insercion.length + (siguienteEsSalto ? 1 : 0);
+    return (
+      RichNoteDocument(
+        text: nuevoTexto,
+        spans: movido.spans,
+        embeds: nuevosEmbeds,
+      ),
+      cursor.clamp(0, nuevoTexto.length),
+    );
+  }
+
+  /// Quita del texto la marca del adjunto [id] (y el salto de línea que se
+  /// agregó con ella). El adjunto en sí no se toca.
+  RichNoteDocument quitarAdjunto(String id) {
+    final i = embeds.indexOf(id);
+    if (i < 0) return this;
+    var pos = -1;
+    for (var n = 0; n <= i; n++) {
+      pos = text.indexOf(kMarcaAdjunto, pos + 1);
+      if (pos < 0) return this;
+    }
+    var fin = pos + 1;
+    if (fin < text.length && text[fin] == '\n') fin++;
+    final nuevoTexto = text.replaceRange(pos, fin, '');
+    final movido = replaceText(nuevoTexto);
+    return RichNoteDocument(
+      text: nuevoTexto,
+      spans: movido.spans,
+      embeds: [...embeds]..removeAt(i),
+    );
+  }
+
+  /// La nota en orden: trozos de texto y adjuntos en línea.
+  List<RichNoteBloque> bloques() {
+    final bloques = <RichNoteBloque>[];
+    var actual = <RichNoteTextSegment>[];
+    var indice = 0;
+    for (final segmento in toSegments()) {
+      final partes = segmento.text.split(kMarcaAdjunto);
+      for (var i = 0; i < partes.length; i++) {
+        if (i > 0) {
+          final id = indice < embeds.length ? embeds[indice] : '';
+          indice++;
+          if (id.isNotEmpty) {
+            if (actual.isNotEmpty) bloques.add(RichNoteBloque.texto(actual));
+            actual = <RichNoteTextSegment>[];
+            bloques.add(RichNoteBloque.adjunto(id));
+          }
+        }
+        if (partes[i].isNotEmpty) actual.add(segmento.copyWith(text: partes[i]));
+      }
+    }
+    if (actual.isNotEmpty) bloques.add(RichNoteBloque.texto(actual));
+    return bloques;
   }
 
   /// Aplica un formato al rango, como en Notas:
@@ -384,6 +500,21 @@ class RichNoteDocument {
   RichNoteDocument replaceText(String newText) {
     if (newText == text) return this;
     final change = _computeTextChange(text, newText);
+    // Adjuntos en línea: los de antes del cambio se quedan, los del tramo
+    // borrado salen (el adjunto pasa a verse al final de la nota, no se
+    // pierde) y las marcas pegadas desde fuera no tienen adjunto.
+    final previos = _ajustarEmbeds(embeds, text);
+    final antes = _contarMarcas(text, change.start);
+    final borradas = _contarMarcas(text, change.oldEnd) - antes;
+    final insertadas = _contarMarcas(
+      newText.substring(change.start, change.start + change.insertedLength),
+      change.insertedLength,
+    );
+    final nuevosEmbeds = [
+      ...previos.take(antes),
+      for (var i = 0; i < insertadas; i++) '',
+      ...previos.skip(antes + borradas),
+    ];
     final nextSpans = <RichNoteSpan>[];
     for (final span in spans) {
       final adjusted = _adjustSpanForEdit(
@@ -397,6 +528,7 @@ class RichNoteDocument {
     return RichNoteDocument(
       text: newText,
       spans: _clampSpans(nextSpans, newText.length),
+      embeds: _ajustarEmbeds(nuevosEmbeds, newText),
     );
   }
 
@@ -504,7 +636,26 @@ class RichNoteDocument {
 }
 
 String richNotePlainText(String source) {
-  return RichNoteDocument.fromStorage(source).text;
+  return RichNoteDocument.fromStorage(source).textoPlano;
+}
+
+int _contarMarcas(String text, int hasta) {
+  var n = 0;
+  final fin = hasta.clamp(0, text.length);
+  for (var i = 0; i < fin; i++) {
+    if (text.codeUnitAt(i) == 0xFFFC) n++;
+  }
+  return n;
+}
+
+/// Deja tantos ids como marcas haya en [text] (vacíos si faltan).
+List<String> _ajustarEmbeds(List<String> embeds, String text) {
+  final marcas = _contarMarcas(text, text.length);
+  if (marcas == 0) return const [];
+  if (embeds.length == marcas) return List.unmodifiable(embeds);
+  return List.unmodifiable([
+    for (var i = 0; i < marcas; i++) i < embeds.length ? embeds[i] : '',
+  ]);
 }
 
 List<RichNoteTextSegment> richNoteSegments(String source) {

@@ -20,7 +20,39 @@ class ImagenPdf {
   final Uint8List bytes;
   final String pie;
 
-  const ImagenPdf(this.bytes, this.pie);
+  /// Id del adjunto: si está dentro del texto, la imagen sale en ese lugar.
+  final String? id;
+
+  const ImagenPdf(this.bytes, this.pie, {this.id});
+}
+
+/// Reparte las imágenes de la nota: las que van dentro del texto (por id, en
+/// el orden de [bloques]) y las demás, que salen al final como antes.
+({List<Object> contenido, List<ImagenPdf> alFinal}) ordenarNotasConImagenes(
+  List<RichNoteBloque> bloques,
+  List<ImagenPdf> imagenes,
+) {
+  final porId = {
+    for (final i in imagenes)
+      if (i.id != null) i.id!: i,
+  };
+  final usadas = <String>{};
+  final contenido = <Object>[];
+  for (final b in bloques) {
+    if (!b.esAdjunto) {
+      contenido.add(b);
+      continue;
+    }
+    final imagen = porId[b.adjuntoId];
+    if (imagen != null && usadas.add(b.adjuntoId!)) contenido.add(imagen);
+  }
+  return (
+    contenido: contenido,
+    alFinal: [
+      for (final i in imagenes)
+        if (i.id == null || !usadas.contains(i.id)) i,
+    ],
+  );
 }
 
 class SermonNoteExportService {
@@ -57,6 +89,13 @@ class SermonNoteExportService {
         )
         .toList(growable: false);
 
+    // Fotos y dibujos dentro del texto van en su lugar; el resto, al final.
+    final notas = ordenarNotasConImagenes(
+      RichNoteDocument.fromStorage(note.notes.trim()).bloques(),
+      imagenes,
+    );
+    final imagenesAlFinal = notas.alFinal;
+
     if (cleanCover) {
       doc.addPage(
         pw.Page(
@@ -88,10 +127,14 @@ class SermonNoteExportService {
           ],
           _sectionTitle('Notas'),
           pw.SizedBox(height: 10),
-          note.notes.trim().isEmpty
-              ? _emptyText('Sin notas registradas todavía.')
-              : _formattedStudyText(note.notes.trim()),
-          if (imagenes.isNotEmpty) ...[
+          if (note.notes.trim().isEmpty)
+            _emptyText('Sin notas registradas todavía.')
+          else
+            for (final parte in notas.contenido)
+              parte is ImagenPdf
+                  ? _imagenBlock(parte)
+                  : _bloqueTexto(parte as RichNoteBloque),
+          if (imagenesAlFinal.isNotEmpty) ...[
             pw.SizedBox(height: 20),
             // El título viaja con la primera imagen para no quedar solo al
             // final de una página.
@@ -101,11 +144,11 @@ class SermonNoteExportService {
                 children: [
                   _sectionTitle('Fotos y dibujos'),
                   pw.SizedBox(height: 10),
-                  _imagenBlock(imagenes.first),
+                  _imagenBlock(imagenesAlFinal.first),
                 ],
               ),
             ),
-            for (final imagen in imagenes.skip(1)) _imagenBlock(imagen),
+            for (final imagen in imagenesAlFinal.skip(1)) _imagenBlock(imagen),
           ],
           if (addedVerses.isNotEmpty) ...[
             pw.SizedBox(height: 20),
@@ -634,20 +677,36 @@ class SermonNoteExportService {
     return spans;
   }
 
-  pw.Widget _formattedStudyText(String source) {
-    final segments = richNoteSegments(source);
-    if (segments.isEmpty) {
-      return _emptyText('Sin notas registradas todavía.');
+  /// Un trozo de texto de las notas (entre imágenes en línea).
+  pw.Widget _bloqueTexto(RichNoteBloque bloque) {
+    // Los saltos de línea que rodean a una imagen no dejan huecos.
+    final segmentos = [...bloque.segmentos];
+    while (segmentos.isNotEmpty && segmentos.first.text.startsWith('\n')) {
+      final resto = segmentos.first.text.substring(1);
+      if (resto.isEmpty) {
+        segmentos.removeAt(0);
+      } else {
+        segmentos[0] = segmentos.first.copyWith(text: resto);
+      }
     }
-    return pw.RichText(
-      overflow: pw.TextOverflow.span,
-      text: pw.TextSpan(
-        style: pw.TextStyle(
-          fontSize: 11,
-          lineSpacing: 3.6,
-          color: _e.cuerpo,
+    while (segmentos.isNotEmpty && segmentos.last.text.endsWith('\n')) {
+      final t = segmentos.last.text;
+      final resto = t.substring(0, t.length - 1);
+      if (resto.isEmpty) {
+        segmentos.removeLast();
+      } else {
+        segmentos[segmentos.length - 1] = segmentos.last.copyWith(text: resto);
+      }
+    }
+    if (segmentos.isEmpty) return pw.SizedBox(height: 4);
+    return pw.Padding(
+      padding: const pw.EdgeInsets.only(bottom: 8),
+      child: pw.RichText(
+        overflow: pw.TextOverflow.span,
+        text: pw.TextSpan(
+          style: pw.TextStyle(fontSize: 11, lineSpacing: 3.6, color: _e.cuerpo),
+          children: _spansNotas(segmentos),
         ),
-        children: _spansNotas(segments),
       ),
     );
   }
