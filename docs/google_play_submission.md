@@ -1,6 +1,6 @@
 # Material de envío a Google Play — Android
 
-Versión preparada: **1.0.31 (41)**
+Versión preparada: **1.0.32 (42)**
 
 Paquete: **com.victoriaencristo.app**
 Categoría recomendada: **Estilo de vida**
@@ -23,14 +23,14 @@ En Android, el Escudo de Pureza es una herramienta opcional que usa una VPN loca
 
 La app no sustituye atención médica, psicológica ni servicios de emergencia.
 
-### Novedades de la versión 1.0.31 (máx. 500 caracteres)
+### Novedades de la versión 1.0.32 (máx. 500 caracteres)
 
-- Nuevo diseño «Papel recortado», con Victoria, Timoteo y Jesús dibujados.
-- Tres papeles: claro, kraft y noche, con modo Claro, Oscuro o Automático.
-- Marca tu día a cualquier hora y recibe un recordatorio a las 7 PM.
-- ¿Quién soy?: 63 personajes y una tarjeta de ideas para preguntar.
-- Escudo de Pureza más rápido y sin bloquear Google ni YouTube.
-- Apuntes con fotos, dibujo a mano, formato y listas de tareas.
+- Biblia: abre el versículo exacto, historial, biblioteca y voz más natural.
+- Diccionario Strong en español y búsqueda por número.
+- Apuntes sin internet, fotos donde las pones y bosquejos de sermón.
+- «Avisar a mi compañero», avisos del Escudo y resumen semanal.
+- Registra detonantes y descubre tus patrones.
+- 378 versículos del día y preguntas bíblicas corregidas.
 
 ## Declaración de VpnService
 
