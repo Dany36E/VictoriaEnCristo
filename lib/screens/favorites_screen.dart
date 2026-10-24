@@ -3,7 +3,13 @@ import 'package:flutter/services.dart';
 import '../theme/app_fonts.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../data/bible_verses.dart';
+import '../models/bible/bible_version.dart';
+import '../services/bible/bible_download_service.dart';
+import '../services/bible/bible_user_data_service.dart';
 import '../services/favorites_service.dart';
+import '../services/user_scoped_services.dart';
+import 'bible/bible_home_screen.dart';
+import 'bible/bible_reader_screen.dart';
 import '../theme/app_theme.dart';
 import '../theme/app_theme_data.dart';
 import '../theme/contraste.dart';
@@ -14,8 +20,10 @@ import '../widgets/share_verse_modal.dart';
 /// FAVORITES SCREEN - Pantalla de Versículos Favoritos
 /// ═══════════════════════════════════════════════════════════════════════════════
 /// 
-/// Muestra la lista de versículos guardados por el usuario con diseño premium.
-/// Permite eliminar, copiar y compartir cada versículo.
+/// Muestra los versículos guardados del usuario: es la misma lista que
+/// «Guardados» de la Biblia (FavoritesService la unifica y migra los
+/// favoritos antiguos). Tocar uno abre la Biblia en ese versículo; también se
+/// puede quitar, copiar y compartir.
 /// ═══════════════════════════════════════════════════════════════════════════════
 
 class FavoritesScreen extends StatefulWidget {
@@ -32,6 +40,10 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   void initState() {
     super.initState();
     _favoritesService.addListener(_onFavoritesChanged);
+    // Carga los guardados de la Biblia (y migra los favoritos antiguos).
+    UserScopedServices.I.ensureBible().then((_) {
+      if (mounted) setState(() {});
+    });
   }
 
   @override
@@ -47,6 +59,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
   @override
   Widget build(BuildContext context) {
     final t = AppThemeData.of(context);
+    final entries = _favoritesService.entries;
     return Scaffold(
       backgroundColor: t.pageBg,
       body: CustomScrollView(
@@ -112,9 +125,9 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                           ),
                           const SizedBox(height: 6),
                           Text(
-                            _favoritesService.count == 1
+                            entries.length == 1
                                 ? '1 versículo guardado'
-                                : '${_favoritesService.count} versículos guardados',
+                                : '${entries.length} versículos guardados',
                             style: AppFonts.manrope(
                               fontSize: 14,
                               color: t.textSecondary,
@@ -134,7 +147,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
           // ═══════════════════════════════════════════════════════════════════
           // CONTENIDO
           // ═══════════════════════════════════════════════════════════════════
-          if (_favoritesService.favorites.isEmpty)
+          if (entries.isEmpty)
             SliverFillRemaining(
               child: _buildEmptyState(),
             )
@@ -144,19 +157,23 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
-                    final verse = _favoritesService.favorites[index];
+                    final entry = entries[index];
+                    final verse = entry.verse;
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 16),
                       child: _FavoriteVerseCard(
-                        verse: verse,
+                        entry: entry,
                         index: index,
-                        onRemove: () => _removeFavorite(verse),
+                        onOpen: entry.saved == null
+                            ? null
+                            : () => _openInBible(entry),
+                        onRemove: () => _removeFavorite(entry),
                         onCopy: () => _copyVerse(verse),
                         onShare: () => _shareVerse(verse),
                       ),
                     );
                   },
-                  childCount: _favoritesService.favorites.length,
+                  childCount: entries.length,
                 ),
               ),
             ),
@@ -199,7 +216,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             const SizedBox(height: 12),
             Text(
-              'Los versículos que guardes aparecerán aquí.\nToca el ícono de marcador en cualquier versículo para guardarlo.',
+              'Aquí verás los versículos que guardes.\nEn la Biblia, toca un versículo y elige «Guardar»; también puedes guardarlos desde Versículos y el Frasco de versículos.',
               textAlign: TextAlign.center,
               style: AppFonts.manrope(
                 fontSize: 14,
@@ -209,8 +226,12 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
             ),
             const SizedBox(height: 32),
             GestureDetector(
-              onTap: () => Navigator.pop(context),
+              onTap: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (_) => const BibleHomeScreen()),
+              ),
               child: Container(
+                constraints: const BoxConstraints(minHeight: 48),
                 padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
                 decoration: BoxDecoration(
                   // Fondo sólido: con el degradado a accentSoft (casi
@@ -226,7 +247,7 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
                   ],
                 ),
                 child: Text(
-                  'Explorar Versículos',
+                  'Abrir la Biblia',
                   style: AppFonts.manrope(
                     fontSize: 14,
                     fontWeight: FontWeight.w700,
@@ -248,9 +269,27 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
         .scale(begin: const Offset(0.95, 0.95));
   }
 
-  void _removeFavorite(BibleVerse verse) async {
+  void _openInBible(FavoriteEntry entry) {
+    final s = entry.saved!;
+    final preferred = BibleUserDataService.I.preferredVersionNotifier.value;
+    final v = BibleVersion.fromId(s.version);
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => BibleReaderScreen(
+          bookNumber: s.bookNumber,
+          bookName: s.bookName,
+          chapter: s.chapter,
+          version: BibleDownloadService.I.isAvailable(v) ? v : preferred,
+          initialVerse: s.verse,
+        ),
+      ),
+    );
+  }
+
+  void _removeFavorite(FavoriteEntry entry) async {
     HapticFeedback.mediumImpact();
-    await _favoritesService.removeFavorite(verse);
+    await _favoritesService.removeEntry(entry);
     _showSnackBar('Eliminado de favoritos', Icons.bookmark_remove_rounded);
   }
 
@@ -295,19 +334,32 @@ class _FavoritesScreenState extends State<FavoritesScreen> {
 // TARJETA DE VERSÍCULO FAVORITO
 // ═══════════════════════════════════════════════════════════════════════════════
 class _FavoriteVerseCard extends StatelessWidget {
-  final BibleVerse verse;
+  final FavoriteEntry entry;
   final int index;
+  final VoidCallback? onOpen;
   final VoidCallback onRemove;
   final VoidCallback onCopy;
   final VoidCallback onShare;
 
   const _FavoriteVerseCard({
-    required this.verse,
+    required this.entry,
     required this.index,
+    required this.onOpen,
     required this.onRemove,
     required this.onCopy,
     required this.onShare,
   });
+
+  BibleVerse get verse => entry.verse;
+
+  /// Etiqueta superior: la versión (RVR1960, NVI…) o la categoría antigua.
+  String get _label {
+    final saved = entry.saved;
+    if (saved != null) {
+      return BibleVersion.fromId(saved.version).shareAbbreviation;
+    }
+    return verse.category.toUpperCase();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -329,7 +381,13 @@ class _FavoriteVerseCard extends StatelessWidget {
           size: 28,
         ),
       ),
-      child: Container(
+      child: Semantics(
+        button: onOpen != null,
+        hint: onOpen != null ? 'Abrir en la Biblia' : null,
+        child: GestureDetector(
+        onTap: onOpen,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
         decoration: BoxDecoration(
           color: t.cardBg,
           borderRadius: BorderRadius.circular(20),
@@ -354,7 +412,7 @@ class _FavoriteVerseCard extends StatelessWidget {
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Text(
-                  verse.category.toUpperCase(),
+                  _label,
                   style: AppFonts.manrope(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,
@@ -383,15 +441,16 @@ class _FavoriteVerseCard extends StatelessWidget {
               // Referencia y acciones
               Row(
                 children: [
-                  Text(
-                    verse.reference,
-                    style: AppFonts.manrope(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: t.accent,
+                  Expanded(
+                    child: Text(
+                      verse.reference,
+                      style: AppFonts.manrope(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                        color: t.accent,
+                      ),
                     ),
                   ),
-                  const Spacer(),
                   _MiniActionButton(
                     icon: Icons.copy_rounded,
                     onTap: onCopy,
@@ -412,6 +471,8 @@ class _FavoriteVerseCard extends StatelessWidget {
             ],
           ),
         ),
+      ),
+      ),
       ),
     )
         .animate()

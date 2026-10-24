@@ -54,12 +54,6 @@ dependencies:
   flutter_secure_storage: ^9.2.4  # Secure API key storage
   http: ^1.2.2  # HTTP client for BLB API
   crypto: ^3.0.3  # SHA-256 PKCE challenge para Windows OAuth
-  # Bible Maps (interactive ESRI topo tiles)
-  flutter_map: ^7.0.2
-  latlong2: ^0.9.1
-  dio: ^5.7.0             # For cached tile downloads
-  dio_cache_interceptor: ^3.5.0
-  dio_cache_interceptor_file_store: ^1.2.3
   # Connectivity monitoring
   connectivity_plus: ^6.1.4
   flutter_svg: ^2.3.0
@@ -111,8 +105,6 @@ flutter:
     - assets/bible/commentaries/guzik/
     - assets/bible/timeline/
     - assets/bible/cross_refs/
-    - assets/bible/maps/
-    - assets/bible/maps/images/
     - assets/bible/books_intro/
     - assets/bible/harmony/
     - assets/bible/typology/

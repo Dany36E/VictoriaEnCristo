@@ -34,7 +34,7 @@ Fecha técnica: 2026-09-08. Este documento registra comprobaciones de producto; 
 - Datos de cuenta, contenido del usuario, identificadores, actividad de la app y diagnósticos.
 - Datos sensibles voluntarios relacionados con religión, vida sexual, salud emocional o adicciones.
 - Firebase Auth/Firestore/Functions/FCM; Analytics y Crashlytics como opcionales.
-- CleanBrowsing, Esri y APIs bíblicas activadas por función.
+- CleanBrowsing y APIs bíblicas activadas por función.
 - Cifrado en tránsito, eliminación de cuenta y ausencia de publicidad/venta de datos.
 
 ## Evidencia recomendada

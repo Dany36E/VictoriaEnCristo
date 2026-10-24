@@ -553,6 +553,7 @@ class _VictoriaEnCristoAppState extends State<VictoriaEnCristoApp>
                 bookName: parsed.bookName,
                 chapter: parsed.chapter,
                 version: BibleUserDataService.I.preferredVersionNotifier.value,
+                initialVerse: parsed.verse,
               ),
             ),
           );

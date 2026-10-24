@@ -6,14 +6,16 @@ import '../../../theme/bible_reader_theme.dart';
 class ReaderBottomNav extends StatelessWidget {
   final BibleReaderThemeData theme;
   final BibleReaderController controller;
-  final VoidCallback onGoToNextBook;
+  final VoidCallback onGoToPrevious;
+  final VoidCallback onGoToNext;
   final void Function(int bookNum, String bookName, int chapter) onGoToBook;
 
   const ReaderBottomNav({
     super.key,
     required this.theme,
     required this.controller,
-    required this.onGoToNextBook,
+    required this.onGoToPrevious,
+    required this.onGoToNext,
     required this.onGoToBook,
   });
 
@@ -21,8 +23,16 @@ class ReaderBottomNav extends StatelessWidget {
   Widget build(BuildContext context) {
     final t = theme;
     final nextBook = controller.getNextBook();
+    final previousBook = controller.getPreviousBook();
     final isLastChapter = controller.currentChapter >= controller.totalChapters;
     final isFirstChapter = controller.currentChapter <= 1;
+    // Desde el capítulo 1 se puede volver al último capítulo del libro
+    // anterior (antes no había forma de hacerlo).
+    final previousLabel = isFirstChapter
+        ? (previousBook == null
+              ? null
+              : '${previousBook.name} ${previousBook.totalChapters}')
+        : 'Cap. ${controller.currentChapter - 1}';
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
@@ -30,15 +40,14 @@ class ReaderBottomNav extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Expanded(
-            child: isFirstChapter
+            child: previousLabel == null
                 ? const SizedBox.shrink()
                 : Semantics(
-                    label:
-                        'Capítulo anterior: ${controller.currentChapter - 1}',
+                    label: 'Anterior: $previousLabel',
                     button: true,
                     child: GestureDetector(
-                      onTap: () =>
-                          controller.goToChapter(controller.currentChapter - 1),
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onGoToPrevious,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -47,7 +56,7 @@ class ReaderBottomNav extends StatelessWidget {
                               size: 18),
                           Flexible(
                             child: Text(
-                              'Cap. ${controller.currentChapter - 1}',
+                              previousLabel,
                               style: AppFonts.manrope(
                                 color: t.textoTenue(0.4),
                                 fontSize: 13,
@@ -84,7 +93,8 @@ class ReaderBottomNav extends StatelessWidget {
                         label: 'Siguiente libro: ${nextBook.name}',
                         button: true,
                         child: GestureDetector(
-                          onTap: onGoToNextBook,
+                          behavior: HitTestBehavior.opaque,
+                          onTap: onGoToNext,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             mainAxisAlignment: MainAxisAlignment.end,
@@ -112,8 +122,8 @@ class ReaderBottomNav extends StatelessWidget {
                         'Siguiente capítulo: ${controller.currentChapter + 1}',
                     button: true,
                     child: GestureDetector(
-                      onTap: () =>
-                          controller.goToChapter(controller.currentChapter + 1),
+                      behavior: HitTestBehavior.opaque,
+                      onTap: onGoToNext,
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         mainAxisAlignment: MainAxisAlignment.end,

@@ -5,7 +5,9 @@ import 'package:just_audio/just_audio.dart';
 import 'package:http/http.dart' as http;
 import '../../config/api_config.dart';
 import '../../utils/platform_capabilities.dart';
+import '../../models/bible/bible_version.dart';
 import '../connectivity_service.dart';
+import 'bible_audio_settings.dart';
 
 /// Estado del audio bíblico real.
 enum AudioBibleState { idle, buffering, playing, paused }
@@ -17,12 +19,62 @@ class VerseTimestamp {
   const VerseTimestamp({required this.verse, required this.startMs});
 }
 
+/// Filesets de audio (Bible Brain / DBP v4) de una versión, en orden de
+/// preferencia: primero dramatizado (…2DA), luego solo narración (…1DA).
+///
+/// Formato de ID DBP: 3 letras idioma + 3 versión + colección (`O` = AT,
+/// `N` = NT) + tipo (`2` = dramatizado, `1` = no dramatizado) + `DA` (audio).
+class BibleAudioFilesets {
+  final List<String> ot;
+  final List<String> nt;
+  const BibleAudioFilesets({this.ot = const [], this.nt = const []});
+
+  List<String> forBook(int bookNumber) => bookNumber >= 40 ? nt : ot;
+}
+
+/// ÚNICO lugar donde se mapea versión → filesets de audio narrado.
+///
+/// ⚠️ TODOS los IDs son TENTATIVOS: hay que verificarlos con la API
+/// (`GET /bibles?language_code=spa&v=4`, ver docs/BIBLE_BRAIN_SETUP.md) y
+/// confirmar la licencia de cada grabación antes de publicar. Una versión que
+/// no está aquí (o con listas vacías) usa siempre la voz sintética: nunca se
+/// reproduce el audio de otra versión distinta a la que se está leyendo.
+const Map<String, BibleAudioFilesets> kBibleAudioFilesets = {
+  // Reina-Valera 1960 (© Sociedades Bíblicas Unidas)
+  'RVR1960': BibleAudioFilesets(
+    ot: ['SPNRVRO2DA', 'SPNRVRO1DA'],
+    nt: ['SPNRVRN2DA', 'SPNRVRN1DA'],
+  ),
+  // Nueva Versión Internacional (© Biblica)
+  'NVI': BibleAudioFilesets(
+    ot: ['SPNNVIO2DA', 'SPNNVIO1DA'],
+    nt: ['SPNNVIN2DA', 'SPNNVIN1DA'],
+  ),
+  // La Biblia de las Américas (© The Lockman Foundation)
+  'LBLA': BibleAudioFilesets(
+    ot: ['SPNBDAO2DA', 'SPNBDAO1DA'],
+    nt: ['SPNBDAN2DA', 'SPNBDAN1DA'],
+  ),
+  // Traducción en Lenguaje Actual (© Sociedades Bíblicas Unidas)
+  'TLA': BibleAudioFilesets(
+    ot: ['SPNTLAO2DA', 'SPNTLAO1DA'],
+    nt: ['SPNTLAN2DA', 'SPNTLAN1DA'],
+  ),
+  // NTV, NLT y NKJV: sin audio narrado conocido en Bible Brain → TTS.
+  // New International Version (© Biblica)
+  'NIV_EN': BibleAudioFilesets(
+    ot: ['ENGNIVO2DA', 'ENGNIVO1DA'],
+    nt: ['ENGNIVN2DA', 'ENGNIVN1DA'],
+  ),
+};
+
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE AUDIO SERVICE — Audio bíblico real (voz humana) via Bible Brain API.
 ///
 /// Fuente: Faith Comes By Hearing (https://4.dbt.io/api)
-/// Soporta: RVR1960 (AT+NT dramatizado en español)
-/// Fallback: retorna false para que el caller use TTS.
+/// Solo prueba los filesets de la versión activa ([kBibleAudioFilesets]).
+/// Fallback: retorna false para que el caller use TTS (sin clave, sin
+/// internet, plataforma sin reproductor o versión sin audio).
 /// ═══════════════════════════════════════════════════════════════════════════
 class BibleAudioService {
   static final BibleAudioService I = BibleAudioService._();
@@ -32,6 +84,11 @@ class BibleAudioService {
       ? AudioPlayer()
       : null;
   bool _initialized = false;
+
+  /// El reproductor solo se crea al reproducir por primera vez: stop() y
+  /// compañía no deben crearlo (en tests/escritorio colgaría o fallaría).
+  bool _playerCreated = false;
+  AudioPlayer? get _activePlayer => _playerCreated ? _player : null;
 
   // ─── Stream subscriptions ───
   StreamSubscription? _positionSub;
@@ -44,35 +101,37 @@ class BibleAudioService {
   final ValueNotifier<Duration> position = ValueNotifier(Duration.zero);
   final ValueNotifier<Duration> duration = ValueNotifier(Duration.zero);
   final ValueNotifier<double> bufferedProgress = ValueNotifier(0.0);
+
+  /// Número de versículo (no índice) que suena, según los timestamps.
   final ValueNotifier<int?> currentVerse = ValueNotifier(null);
+
+  /// `true` cuando el último paso a [AudioBibleState.idle] fue porque el
+  /// capítulo terminó solo (no por stop/error). Se fija ANTES de cambiar
+  /// [state], así los listeners de `state` pueden consultarlo.
+  bool completedNaturally = false;
 
   // ─── Timestamps de versículos ───
   List<VerseTimestamp> _verseTimestamps = [];
 
   static const String _baseUrl = 'https://4.dbt.io/api';
 
-  // ─── Filesets verificados para español ───
-  // Cada versión tiene un fileset NT y uno AT.
-  // Se prueban en orden de preferencia hasta encontrar uno que funcione.
-  static const _kFilesets = <Map<String, String>>[
-    // RVR1960 dramatizada (Faith Comes By Hearing)
-    {'label': 'RVR1960', 'nt': 'SPNRVRN2DA', 'ot': 'SPNRVRN1DA'},
-    // RVR1960 no dramatizada
-    {'label': 'RVR1960-ND', 'nt': 'SPNRVRN2SA', 'ot': 'SPNRVRN1SA'},
-    // NVI dramatizada
-    {'label': 'NVI', 'nt': 'SPNNVIN2DA', 'ot': 'SPNNVIN1DA'},
-    // TLA dramatizada
-    {'label': 'TLA', 'nt': 'SPNTLAN2DA', 'ot': 'SPNTLAN1DA'},
-  ];
-
-  // Fileset que se confirmó funcional durante esta sesión (cache)
-  String? _workingNtFileset;
-  String? _workingOtFileset;
+  // Fileset que se confirmó funcional durante esta sesión, por
+  // «versión|testamento» (cache)
+  final Map<String, String> _workingFilesets = {};
   // Set de filesets que fallaron (no reintentar)
   final Set<String> _failedFilesets = {};
 
   // ─── Cache de URLs en memoria (expiran por sesión) ───
   final Map<String, String> _urlCache = {};
+
+  /// Filesets a probar para [version] y [bookNumber] (vacío = solo TTS).
+  static List<String> filesetsFor(BibleVersion version, int bookNumber) =>
+      kBibleAudioFilesets[version.id]?.forBook(bookNumber) ?? const [];
+
+  /// Si hay audio narrado configurado (clave + filesets) para [version].
+  static bool isConfiguredFor(BibleVersion version) =>
+      ApiConfig.bibleBrainKey.isNotEmpty &&
+      kBibleAudioFilesets.containsKey(version.id);
 
   Future<void> init() async {
     if (_initialized) return;
@@ -88,6 +147,7 @@ class BibleAudioService {
       _initialized = true;
       return;
     }
+    _playerCreated = true;
 
     // Cancelar subscripciones anteriores (guard contra doble-init)
     await _positionSub?.cancel();
@@ -114,20 +174,33 @@ class BibleAudioService {
       switch (s.processingState) {
         case ProcessingState.idle:
         case ProcessingState.completed:
-          state.value = AudioBibleState.idle;
+          completedNaturally =
+              s.processingState == ProcessingState.completed;
           currentVerse.value = null;
+          state.value = AudioBibleState.idle;
           break;
         case ProcessingState.loading:
         case ProcessingState.buffering:
+          completedNaturally = false;
           state.value = AudioBibleState.buffering;
           break;
         case ProcessingState.ready:
+          completedNaturally = false;
           state.value = s.playing ? AudioBibleState.playing : AudioBibleState.paused;
           break;
       }
     });
 
+    // Velocidad en vivo desde los ajustes.
+    BibleAudioSettings.I.speed.addListener(_onSpeedSetting);
+
     _initialized = true;
+  }
+
+  void _onSpeedSetting() {
+    if (state.value != AudioBibleState.idle) {
+      unawaited(setSpeed(BibleAudioSettings.I.speed.value));
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -139,13 +212,30 @@ class BibleAudioService {
     required String bookCode,
     required int chapter,
   }) async {
+    final (url, _) = await _fetchChapterAudioUrl(
+      filesetId: filesetId,
+      bookCode: bookCode,
+      chapter: chapter,
+    );
+    return url;
+  }
+
+  /// Devuelve la URL y si la respuesta fue definitiva (la API contestó: el
+  /// fileset no tiene ese capítulo / no existe / no está autorizado). Un
+  /// error de red o timeout NO es definitivo y no se cachea como fallo.
+  Future<(String?, bool definitive)> _fetchChapterAudioUrl({
+    required String filesetId,
+    required String bookCode,
+    required int chapter,
+  }) async {
     const apiKey = ApiConfig.bibleBrainKey;
-    if (apiKey.isEmpty) return null;
+    if (apiKey.isEmpty) return (null, false);
 
     final cacheKey = '${filesetId}_${bookCode}_$chapter';
-    if (_urlCache.containsKey(cacheKey)) return _urlCache[cacheKey];
+    final cached = _urlCache[cacheKey];
+    if (cached != null) return (cached, true);
 
-    if (!ConnectivityService.I.hasInternet) return null;
+    if (!ConnectivityService.I.hasInternet) return (null, false);
 
     try {
       final uri = Uri.parse(
@@ -160,16 +250,18 @@ class BibleAudioService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         final items = data['data'] as List?;
-        if (items == null || items.isEmpty) return null;
+        if (items == null || items.isEmpty) return (null, true);
 
         final url = items[0]['path'] as String?;
         if (url != null) _urlCache[cacheKey] = url;
-        return url;
+        return (url, true);
       }
+      // 4xx: fileset inexistente o sin permiso → definitivo. 5xx → reintentar.
+      return (null, response.statusCode < 500);
     } catch (e) {
       debugPrint('[BibleAudio] Error getting URL: $e');
     }
-    return null;
+    return (null, false);
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -215,14 +307,27 @@ class BibleAudioService {
   // REPRODUCIR CAPÍTULO
   // ═══════════════════════════════════════════════════════════════════════
 
-  /// Intenta reproducir el capítulo con audio real.
+  /// Intenta reproducir el capítulo con audio real de [version] (solo se
+  /// prueban los filesets de esa versión, ver [kBibleAudioFilesets]).
   /// Retorna `true` si tuvo éxito, `false` si debe usarse TTS como fallback.
+  /// Si [speed] es null se usa la velocidad guardada en los ajustes.
   Future<bool> playChapter({
+    required BibleVersion version,
     required int bookNumber,
     required int chapter,
     int startVerse = 1,
-    double speed = 1.0,
+    double? speed,
   }) async {
+    if (ApiConfig.bibleBrainKey.isEmpty) {
+      debugPrint('[BibleAudio] No API key configured');
+      return false;
+    }
+    final candidates = filesetsFor(version, bookNumber);
+    if (candidates.isEmpty) {
+      debugPrint('[BibleAudio] ${version.id} sin audio narrado configurado');
+      return false;
+    }
+
     await init();
 
     // Desktop guard: just_audio not available on Windows/Linux.
@@ -236,10 +341,6 @@ class BibleAudioService {
       return false;
     }
 
-    if (ApiConfig.bibleBrainKey.isEmpty) {
-      debugPrint('[BibleAudio] No API key configured');
-      return false;
-    }
     if (!ConnectivityService.I.hasInternet) {
       debugPrint('[BibleAudio] No internet');
       return false;
@@ -251,11 +352,13 @@ class BibleAudioService {
       return false;
     }
 
-    // Buscar un fileset funcional (prueba múltiples con fallback)
+    // Buscar un fileset funcional de esta versión (prueba con fallback)
     final result = await _findWorkingFileset(
+      version: version,
       bookNumber: bookNumber,
       bookCode: bookCode,
       chapter: chapter,
+      candidates: candidates,
     );
 
     if (result == null) {
@@ -273,9 +376,11 @@ class BibleAudioService {
     );
 
     try {
+      completedNaturally = false;
       state.value = AudioBibleState.buffering;
       await player.setUrl(url);
-      await player.setSpeed(speed.clamp(0.5, 2.0));
+      final s = speed ?? BibleAudioSettings.I.speed.value;
+      await player.setSpeed(s.clamp(0.5, 2.0));
 
       // Si startVerse > 1, saltar al timestamp correspondiente
       if (startVerse > 1 && _verseTimestamps.isNotEmpty) {
@@ -285,10 +390,14 @@ class BibleAudioService {
         }
       }
 
-      await player.play();
+      // play() de just_audio completa al pausar/terminar: no esperarlo.
+      unawaited(player.play().catchError((Object e) {
+        debugPrint('[BibleAudio] Playback error: $e');
+      }));
       return true;
     } catch (e) {
       debugPrint('[BibleAudio] Playback error: $e');
+      completedNaturally = false;
       state.value = AudioBibleState.idle;
       return false;
     }
@@ -298,11 +407,20 @@ class BibleAudioService {
   // CONTROLES
   // ═══════════════════════════════════════════════════════════════════════
 
-  Future<void> pause() async => await _player?.pause();
-  Future<void> resume() async => await _player?.play();
+  Future<void> pause() async => await _activePlayer?.pause();
+
+  /// play() de just_audio completa recién al pausar/terminar: no esperarlo.
+  Future<void> resume() async {
+    final player = _activePlayer;
+    if (player == null) return;
+    unawaited(player.play().catchError((Object e) {
+      debugPrint('[BibleAudio] Playback error: $e');
+    }));
+  }
 
   Future<void> stop() async {
-    await _player?.stop();
+    completedNaturally = false;
+    await _activePlayer?.stop();
     _verseTimestamps.clear();
     currentVerse.value = null;
     position.value = Duration.zero;
@@ -311,7 +429,7 @@ class BibleAudioService {
   }
 
   Future<void> togglePlayPause() async {
-    if (_player?.playing ?? false) {
+    if (_activePlayer?.playing ?? false) {
       await pause();
     } else {
       await resume();
@@ -319,18 +437,18 @@ class BibleAudioService {
   }
 
   Future<void> setSpeed(double speed) async {
-    await _player?.setSpeed(speed.clamp(0.5, 2.0));
+    await _activePlayer?.setSpeed(speed.clamp(0.5, 2.0));
   }
 
   Future<void> seekToVerse(int verseNumber) async {
     final timestamp = _verseTimestamps.where((t) => t.verse == verseNumber).firstOrNull;
     if (timestamp != null) {
-      await _player?.seek(Duration(milliseconds: timestamp.startMs));
+      await _activePlayer?.seek(Duration(milliseconds: timestamp.startMs));
     }
   }
 
   Future<void> seek(Duration position) async {
-    await _player?.seek(position);
+    await _activePlayer?.seek(position);
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -356,46 +474,41 @@ class BibleAudioService {
     }
   }
 
-  /// Obtiene un fileset funcional para el libro dado, probando en orden.
-  /// Retorna el fileset ID y la URL del audio, o null si ninguno funciona.
+  /// Obtiene un fileset funcional de [version] para el libro dado, probando
+  /// [candidates] en orden. Retorna el fileset ID y la URL del audio, o null.
   Future<(String filesetId, String url)?> _findWorkingFileset({
+    required BibleVersion version,
     required int bookNumber,
     required String bookCode,
     required int chapter,
+    required List<String> candidates,
   }) async {
-    final isNT = bookNumber >= 40;
-    final key = isNT ? 'nt' : 'ot';
+    final cacheKey = '${version.id}|${bookNumber >= 40 ? 'nt' : 'ot'}';
 
     // Si ya tenemos un fileset funcional, probar ese primero
-    final cached = isNT ? _workingNtFileset : _workingOtFileset;
+    final cached = _workingFilesets[cacheKey];
     if (cached != null && !_failedFilesets.contains(cached)) {
       final url = await getChapterAudioUrl(filesetId: cached, bookCode: bookCode, chapter: chapter);
       if (url != null) return (cached, url);
     }
 
-    // Probar todos los filesets en orden
-    for (final fs in _kFilesets) {
-      final filesetId = fs[key]!;
+    // Probar los filesets de la versión en orden
+    for (final filesetId in candidates) {
       if (_failedFilesets.contains(filesetId)) continue;
       if (filesetId == cached) continue; // ya probado
 
-      debugPrint('[BibleAudio] Probando fileset ${fs['label']} ($filesetId)...');
-      final url = await getChapterAudioUrl(
+      debugPrint('[BibleAudio] Probando fileset $filesetId...');
+      final (url, definitive) = await _fetchChapterAudioUrl(
         filesetId: filesetId,
         bookCode: bookCode,
         chapter: chapter,
       );
       if (url != null) {
-        debugPrint('[BibleAudio] ✓ Fileset ${fs['label']} funciona');
-        // Guardar como funcional
-        if (isNT) {
-          _workingNtFileset = filesetId;
-        } else {
-          _workingOtFileset = filesetId;
-        }
+        debugPrint('[BibleAudio] ✓ Fileset $filesetId funciona');
+        _workingFilesets[cacheKey] = filesetId;
         return (filesetId, url);
-      } else {
-        debugPrint('[BibleAudio] ✗ Fileset ${fs['label']} sin audio');
+      } else if (definitive) {
+        debugPrint('[BibleAudio] ✗ Fileset $filesetId sin audio');
         _failedFilesets.add(filesetId);
       }
     }
@@ -403,11 +516,12 @@ class BibleAudioService {
   }
 
   void dispose() {
+    BibleAudioSettings.I.speed.removeListener(_onSpeedSetting);
     _positionSub?.cancel();
     _durationSub?.cancel();
     _bufferedSub?.cancel();
     _playerStateSub?.cancel();
-    _player?.dispose();
+    _activePlayer?.dispose();
   }
 }
 

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../../theme/app_fonts.dart';
 import '../../../controllers/bible_reader_controller.dart';
 import '../../../models/bible/highlight.dart';
-import '../../../services/bible/bible_tts_service.dart';
 import '../../../services/bible/bible_user_data_service.dart';
 import '../../../services/bible/section_title_service.dart';
 import '../../../services/connectivity_service.dart';
@@ -12,13 +11,18 @@ import 'reader_verse_item.dart';
 import 'reader_study_section.dart';
 import 'reader_bottom_nav.dart';
 import 'reader_chapter_note.dart';
+import 'reader_verse_locator.dart';
+import 'version_copyright.dart';
 
 class ReaderContentView extends StatelessWidget {
   final BibleReaderThemeData theme;
   final BibleReaderController controller;
   final ScrollController scrollController;
-  final VoidCallback onGoToNextBook;
-  final void Function(int bookNum, String bookName, int chapter) onGoToBook;
+
+  /// Claves por versículo para desplazarse exactamente a uno.
+  final ReaderVerseLocator locator;
+  final VoidCallback onGoToPrevious;
+  final VoidCallback onGoToNext;
   final void Function(int bookNum, String bookName, int chapter) onBottomNavBookTap;
 
   const ReaderContentView({
@@ -26,8 +30,9 @@ class ReaderContentView extends StatelessWidget {
     required this.theme,
     required this.controller,
     required this.scrollController,
-    required this.onGoToNextBook,
-    required this.onGoToBook,
+    required this.locator,
+    required this.onGoToPrevious,
+    required this.onGoToNext,
     required this.onBottomNavBookTap,
   });
 
@@ -46,7 +51,7 @@ class ReaderContentView extends StatelessWidget {
               valueListenable: BibleUserDataService.I.fontSizeNotifier,
               builder: (context, fontSize, _) {
                 return ValueListenableBuilder<int>(
-                  valueListenable: BibleTtsService.I.currentVerseIndex,
+                  valueListenable: controller.audioVerseIndex,
                   builder: (context, ttsVerseIdx, _) {
                     return CustomScrollView(
                       controller: scrollController,
@@ -63,6 +68,12 @@ class ReaderContentView extends StatelessWidget {
                           child: ReaderChapterNoteIndicator(theme: t, controller: controller),
                         ),
                         SliverToBoxAdapter(
+                          child: ReaderCopyrightFooter(
+                            version: controller.currentVersion,
+                            theme: t,
+                          ),
+                        ),
+                        SliverToBoxAdapter(
                           child: ChapterToolsSection(
                             bookNumber: controller.bookNumber,
                             bookName: controller.bookName,
@@ -74,7 +85,8 @@ class ReaderContentView extends StatelessWidget {
                           child: ReaderBottomNav(
                             theme: t,
                             controller: controller,
-                            onGoToNextBook: onGoToNextBook,
+                            onGoToPrevious: onGoToPrevious,
+                            onGoToNext: onGoToNext,
                             onGoToBook: onBottomNavBookTap,
                           ),
                         ),
@@ -219,13 +231,38 @@ class ReaderContentView extends StatelessWidget {
       theme: t,
       controller: controller,
     );
-    if (sectionTitle == null) return verseItem;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        _SectionTitleHeader(title: sectionTitle, theme: t, fontSize: fontSize, isFirst: vi == 0),
-        verseItem,
-      ],
+    // Resalte breve al llegar desde búsqueda, guardados, historial, etc.
+    final flashing = ValueListenableBuilder<int?>(
+      valueListenable: controller.flashVerse,
+      child: verseItem,
+      builder: (context, flashVerse, child) => AnimatedContainer(
+        duration: const Duration(milliseconds: 500),
+        curve: Curves.easeOut,
+        decoration: BoxDecoration(
+          color: flashVerse == verse.verse
+              ? t.accent.withValues(alpha: 0.16)
+              : t.accent.withValues(alpha: 0),
+          borderRadius: BorderRadius.circular(6),
+        ),
+        child: child,
+      ),
+    );
+    return KeyedSubtree(
+      key: locator.keyFor(verse.verse),
+      child: sectionTitle == null
+          ? flashing
+          : Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _SectionTitleHeader(
+                  title: sectionTitle,
+                  theme: t,
+                  fontSize: fontSize,
+                  isFirst: vi == 0,
+                ),
+                flashing,
+              ],
+            ),
     );
   }
 }

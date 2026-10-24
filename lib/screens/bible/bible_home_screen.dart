@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_fonts.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_verse.dart';
 import '../../models/bible/bible_version.dart';
@@ -10,6 +9,7 @@ import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
+import '../../services/bible/reading_history_service.dart';
 import '../../services/user_scoped_services.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../theme/contraste.dart';
@@ -22,16 +22,15 @@ import 'bible_settings_screen.dart';
 import 'bible_stats_screen.dart';
 import 'chapter_selector_screen.dart';
 import 'collections_screen.dart';
-import 'saved_verses_screen.dart';
 import 'all_chapter_notes_screen.dart';
-import 'all_notes_screen.dart';
 import 'bible_parallel_screen.dart';
 import 'bible_timeline_screen.dart';
-import 'bible_map_screen.dart';
 import 'gospel_harmony_screen.dart';
 import 'typology_screen.dart';
 import 'ot_quotes_screen.dart';
 import 'entradas_biblia.dart';
+import 'bible_library_screen.dart';
+import 'reading_history_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE HOME SCREEN — Edición editorial premium
@@ -60,11 +59,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   bool _searching = false;
   Timer? _searchDebounce;
 
-  // Continue-reading state
-  int? _lastBookNumber;
-  String? _lastBookName;
-  int? _lastChapter;
-
   BibleVersion get _version =>
       BibleUserDataService.I.preferredVersionNotifier.value;
 
@@ -72,7 +66,10 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   void initState() {
     super.initState();
     _bootstrap();
-    _loadLastRead();
+    // «Continuar leyendo» escucha a ReadingHistoryService: se actualiza solo
+    // cada vez que se vuelve a esta pantalla. reload() recoge además lo que
+    // haya traído la sincronización de preferencias desde la nube.
+    unawaited(ReadingHistoryService.I.reload());
     WidgetsBinding.instance.addPostFrameCallback((_) => _maybeShowWelcome());
   }
 
@@ -90,24 +87,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       barrierDismissible: false,
       builder: (_) => const BibleHomeOnboardingOverlay(),
     );
-  }
-
-  Future<void> _loadLastRead() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      final bn = prefs.getInt('lastReadBookNumber');
-      final name = prefs.getString('lastReadBookName');
-      final ch = prefs.getInt('lastReadChapter');
-      if (bn != null && name != null && ch != null && mounted) {
-        setState(() {
-          _lastBookNumber = bn;
-          _lastBookName = name;
-          _lastChapter = ch;
-        });
-      }
-    } catch (e) {
-      debugPrint('[BibleHome] Error en SharedPreferences: $e');
-    }
   }
 
   Future<void> _loadBooks() async {
@@ -369,8 +348,14 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
     return CustomScrollView(
       slivers: [
         // Continue reading card
-        if (_lastBookNumber != null)
-          SliverToBoxAdapter(child: _buildContinueReading(t)),
+        SliverToBoxAdapter(
+          child: ValueListenableBuilder<ReadingHistoryEntry?>(
+            valueListenable: ReadingHistoryService.I.lastReadNotifier,
+            builder: (context, last, _) => last == null
+                ? const SizedBox.shrink()
+                : _buildContinueReading(t, last),
+          ),
+        ),
 
         // Reading stats row (subtle)
         SliverToBoxAdapter(child: _buildStatsRow(t)),
@@ -439,28 +424,43 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
 
   // ─── Continue Reading Card ──────────────────────────────────────────
 
-  Widget _buildContinueReading(BibleReaderThemeData t) {
+  Widget _buildContinueReading(
+    BibleReaderThemeData t,
+    ReadingHistoryEntry last,
+  ) {
+    // Se abre en la versión en que se leía (si sigue disponible) y en el
+    // versículo exacto donde se quedó, sin resaltarlo.
+    final lastVersion = BibleVersion.fromId(last.versionId);
+    final version = BibleDownloadService.I.isAvailable(lastVersion)
+        ? lastVersion
+        : _version;
     return Padding(
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 4),
-      child: GestureDetector(
+      child: Semantics(
+        button: true,
+        label: 'Continuar leyendo ${last.label}',
+        excludeSemantics: true,
+        child: GestureDetector(
         onTap: () {
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (_) => BibleReaderScreen(
-                bookNumber: _lastBookNumber!,
-                bookName: _lastBookName!,
-                chapter: _lastChapter!,
-                version: _version,
+                bookNumber: last.bookNumber,
+                bookName: last.bookName,
+                chapter: last.chapter,
+                version: version,
+                initialVerse: last.verse > 1 ? last.verse : null,
+                highlightInitialVerse: false,
               ),
             ),
-          ).then((_) => _loadLastRead()).catchError((e) {
+          ).catchError((e) {
             debugPrint('⚠️ [BibleHome] Nav error: $e');
           });
         },
         child: Container(
-          height: 72,
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          constraints: const BoxConstraints(minHeight: 72),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
             color: t.oscuro
                 ? Colors.white.withValues(alpha: 0.04)
@@ -492,7 +492,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '$_lastBookName $_lastChapter',
+                      '${last.label} · ${version.shortName}',
                       style: AppFonts.lora(
                         color: t.textPrimary,
                         fontSize: 17,
@@ -510,6 +510,7 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }
@@ -582,13 +583,14 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
   // ─── Quick Study Tools Strip ────────────────────────────────────────
 
   void _openParallelReader() {
+    final last = ReadingHistoryService.I.lastReadNotifier.value;
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (_) => BibleParallelScreen(
-          bookNumber: _lastBookNumber ?? 1,
-          bookName: _lastBookName ?? 'Génesis',
-          chapter: _lastChapter ?? 1,
+          bookNumber: last?.bookNumber ?? 1,
+          bookName: last?.bookName ?? 'Génesis',
+          chapter: last?.chapter ?? 1,
           primaryVersion: _version,
         ),
       ),
@@ -609,12 +611,12 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
       ),
       _ToolItem(Icons.view_column_outlined, '2 versiones', _openParallelReader),
       _ToolItem(
-        Icons.bookmark_outline,
-        'Guardados',
+        Icons.local_library_outlined,
+        'Biblioteca',
         () => Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (c, a1, a2) => const SavedVersesScreen(),
+            pageBuilder: (c, a1, a2) => const BibleLibraryScreen(),
             transitionDuration: const Duration(milliseconds: 150),
             transitionsBuilder: (ctx, a, sa, child) =>
                 FadeTransition(opacity: a, child: child),
@@ -622,12 +624,12 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         ),
       ),
       _ToolItem(
-        Icons.sticky_note_2_outlined,
-        'Notas',
+        Icons.history,
+        'Historial',
         () => Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (c, a1, a2) => const AllNotesScreen(),
+            pageBuilder: (c, a1, a2) => const ReadingHistoryScreen(),
             transitionDuration: const Duration(milliseconds: 150),
             transitionsBuilder: (ctx, a, sa, child) =>
                 FadeTransition(opacity: a, child: child),
@@ -738,14 +740,6 @@ class _BibleHomeScreenState extends State<BibleHomeScreen> {
         () => Navigator.push(
           context,
           MaterialPageRoute(builder: (_) => const BibleTimelineScreen()),
-        ),
-      ),
-      _ToolItem(
-        Icons.map_outlined,
-        'Mapas Bíblicos',
-        () => Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const BibleMapScreen()),
         ),
       ),
       _ToolItem(Icons.account_tree_outlined, 'Concordancia', () {
