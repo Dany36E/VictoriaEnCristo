@@ -81,6 +81,8 @@ class NotificationService {
   static const String payloadNight = 'route:journal';
   static const String payloadVictory = 'route:victory';
   static const String payloadReengagement = 'route:home';
+  /// Legado: payload de los recordatorios de planes (retirados). Se conserva
+  /// para limpiarlos y para abrir el inicio si llega una notificación vieja.
   static const String payloadPlanPrefix = 'route:plan:';
   static const String payloadBattleInvite = 'route:battle_invite';
   static const String payloadBattleMessage = 'route:battle_message';
@@ -681,94 +683,12 @@ class NotificationService {
     }
   }
 
-  /// ────────────────────────────────────────────────────────────────────────
-  /// Recordatorios por plan (diarios)
-  /// ────────────────────────────────────────────────────────────────────────
-  Future<bool> scheduleDailyPlanReminder({
-    required String planId,
-    required TimeOfDay timeOfDay,
-    int offsetMinutes = 0,
-    bool weekdaysOnly = false,
-    String? title,
-    String? body,
-  }) async {
-    try {
-      if (!_notificationsInitialized) await _initNotifications();
-      final now = tz.TZDateTime.now(tz.local);
-      var scheduled = tz.TZDateTime(
-        tz.local,
-        now.year,
-        now.month,
-        now.day,
-        timeOfDay.hour,
-        timeOfDay.minute,
-      ).add(Duration(minutes: -offsetMinutes));
-
-      if (scheduled.isBefore(now)) {
-        scheduled = scheduled.add(const Duration(days: 1));
-      }
-      if (weekdaysOnly) {
-        while (scheduled.weekday == DateTime.saturday ||
-            scheduled.weekday == DateTime.sunday) {
-          scheduled = scheduled.add(const Duration(days: 1));
-        }
-      }
-
-      const details = NotificationDetails(
-        android: AndroidNotificationDetails(
-          'plan_reminders',
-          'Recordatorios de Plan',
-          channelDescription:
-              'Recordatorios diarios para planes personalizados',
-          importance: Importance.max,
-          priority: Priority.high,
-          playSound: true,
-        ),
-        iOS: DarwinNotificationDetails(presentSound: true),
-      );
-
-      await _flnp.zonedSchedule(
-        _planNotificationId(planId),
-        title ?? 'Continúa tu plan',
-        body ?? 'Tu sesión de hoy está lista.',
-        scheduled,
-        details,
-        androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
-        uiLocalNotificationDateInterpretation:
-            UILocalNotificationDateInterpretation.absoluteTime,
-        matchDateTimeComponents: DateTimeComponents.time,
-        payload: '$payloadPlanPrefix$planId',
-      );
-      return true;
-    } catch (e) {
-      debugPrint('⚠️ scheduleDailyPlanReminder error: $e');
-      return false;
-    }
-  }
-
-  Future<void> cancelPlanReminder(String planId) async {
-    try {
-      await _flnp.cancel(_planNotificationId(planId));
-    } catch (e) {
-      debugPrint('⚠️ cancelPlanReminder error: $e');
-    }
-  }
-
-  Future<bool> hasPlanReminder(String planId) async {
-    try {
-      final pending = await _flnp.pendingNotificationRequests();
-      return pending.any((p) => p.id == _planNotificationId(planId));
-    } catch (e) {
-      debugPrint('⚠️ hasPlanReminder error: $e');
-      return false;
-    }
-  }
-
-  int _planNotificationId(String planId) => planId.hashCode & 0x7fffffff;
-
-  /// Los planes están ocultos por ahora: cancela los recordatorios de plan
-  /// que hayan quedado programados para no llevar a una sección que no existe.
-  Future<void> cancelarRecordatoriosDePlanes() async {
+  /// Los planes de lectura se retiraron de la app: cancela los recordatorios
+  /// de plan que hayan quedado programados en versiones anteriores para no
+  /// llevar a una sección que ya no existe. Se identifican por su payload.
+  ///
+  /// Devuelve `true` si la limpieza terminó sin errores.
+  Future<bool> cancelarRecordatoriosDePlanes() async {
     try {
       if (!_notificationsInitialized) await _initNotifications();
       final pendientes = await _flnp.pendingNotificationRequests();
@@ -777,8 +697,17 @@ class NotificationService {
           await _flnp.cancel(p.id);
         }
       }
+      // El canal «Recordatorios de Plan» ya no se usa: quitarlo de los
+      // ajustes de notificaciones de Android.
+      await _flnp
+          .resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin
+          >()
+          ?.deleteNotificationChannel('plan_reminders');
+      return true;
     } catch (e) {
       debugPrint('⚠️ cancelarRecordatoriosDePlanes error: $e');
+      return false;
     }
   }
 

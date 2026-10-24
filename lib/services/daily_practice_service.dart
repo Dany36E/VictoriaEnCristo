@@ -99,7 +99,7 @@ class DailyPracticeService {
   /// Marca una práctica como hecha para hoy (idempotente).
   Future<void> mark(DailyPractice p) async {
     if (!_isInitialized) await init();
-    final todayIso = TimeUtils.dateToISO(DateTime.now());
+    final todayIso = TimeUtils.todayISO();
     final data = _readRaw(todayIso);
     switch (p) {
       case DailyPractice.devotional:
@@ -125,7 +125,7 @@ class DailyPracticeService {
   /// Desmarca una práctica (permite al usuario corregir si tocó por error).
   Future<void> unmark(DailyPractice p) async {
     if (!_isInitialized) await init();
-    final todayIso = TimeUtils.dateToISO(DateTime.now());
+    final todayIso = TimeUtils.todayISO();
     final data = _readRaw(todayIso);
     switch (p) {
       case DailyPractice.devotional:
@@ -150,7 +150,7 @@ class DailyPracticeService {
 
   /// Recalcula snapshot desde flags persistidos.
   void _recomputeSnapshot() {
-    final todayIso = TimeUtils.dateToISO(DateTime.now());
+    final todayIso = TimeUtils.todayISO();
     final raw = _readRaw(todayIso);
 
     snapshotNotifier.value = DailyPracticeSnapshot(
@@ -162,15 +162,19 @@ class DailyPracticeService {
     );
   }
 
-  /// Permite a las pantallas pedir refresh tras eventos externos.
-  void refresh() => _recomputeSnapshot();
+  /// Permite a las pantallas pedir refresh tras eventos externos (p. ej. el
+  /// cambio de día: las marcas de ayer dejan de verse en «Prácticas de hoy»).
+  void refresh() {
+    if (!_isInitialized) return;
+    _recomputeSnapshot();
+  }
 
   /// Racha actual de devocionales leídos (días consecutivos hasta hoy).
   /// 100 % local — no toca Firebase.
   int get devotionalStreak {
     if (!_isInitialized || _prefs == null) return 0;
     var streak = 0;
-    var date = DateTime.now();
+    var date = TimeUtils.now();
     for (var i = 0; i < 366; i++) {
       if (_readRaw(TimeUtils.dateToISO(date))['devotional'] == true) {
         streak++;
