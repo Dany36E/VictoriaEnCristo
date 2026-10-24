@@ -595,6 +595,7 @@ class _ConcordanceSheetState extends State<ConcordanceSheet> {
               bookName: r.bookName,
               chapter: r.chapter,
               version: widget.version,
+              initialVerse: r.verse,
             ),
             transitionDuration: const Duration(milliseconds: 150),
             transitionsBuilder: (ctx, a, sa, child) =>

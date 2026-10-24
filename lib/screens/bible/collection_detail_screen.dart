@@ -155,6 +155,7 @@ class CollectionDetailScreen extends StatelessWidget {
                 bookName: v.bookName,
                 chapter: v.chapter,
                 version: BibleUserDataService.I.preferredVersionNotifier.value,
+                initialVerse: v.verse,
               ),
               transitionDuration: const Duration(milliseconds: 150),
               transitionsBuilder: (ctx, a, sa, child) =>

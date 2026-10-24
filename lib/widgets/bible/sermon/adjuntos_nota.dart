@@ -78,7 +78,7 @@ Future<List<ImagenPdf>> imagenesParaPdf(
   for (final a in adjuntos) {
     try {
       final imagen = await imagenDeAdjunto(notaId, a);
-      if (imagen != null) imagenes.add(ImagenPdf(imagen.$1, a.pie));
+      if (imagen != null) imagenes.add(ImagenPdf(imagen.$1, a.pie, id: a.id));
     } catch (_) {}
   }
   return imagenes;
@@ -220,6 +220,42 @@ class GaleriaAdjuntos extends StatelessWidget {
   }
 }
 
+/// Foto o dibujo dentro del texto de la nota, en el lugar donde estaba el
+/// cursor al agregarlo. Ocupa todo el ancho del editor.
+class AdjuntoEnLinea extends StatelessWidget {
+  const AdjuntoEnLinea({
+    super.key,
+    required this.theme,
+    required this.notaId,
+    required this.adjunto,
+    required this.onAccion,
+  });
+
+  final BibleReaderThemeData theme;
+  final String notaId;
+  final AdjuntoNota adjunto;
+  final ValueChanged<AccionAdjunto> onAccion;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: SizedBox(
+        width: double.infinity,
+        child: _TarjetaAdjunto(
+          theme: theme,
+          notaId: notaId,
+          adjunto: adjunto,
+          // En el texto se mueve como cualquier línea: sin subir/bajar.
+          esPrimero: true,
+          esUltimo: true,
+          onAccion: onAccion,
+        ),
+      ),
+    );
+  }
+}
+
 class _TarjetaAdjunto extends StatelessWidget {
   const _TarjetaAdjunto({
     required this.theme,
@@ -320,6 +356,14 @@ class _EstadoNube extends StatelessWidget {
       builder: (context, _, _) {
         final estado = AdjuntosNotaService.I.estadoDe(notaId, archivo);
         if (estado == EstadoNube.enNube) return const SizedBox.shrink();
+        if (estado == EstadoNube.demasiadoGrande) {
+          return const Tooltip(
+            message: 'Pasa del límite de la nube: se queda solo en este teléfono',
+            child: _Burbuja(
+              child: Icon(Icons.sd_card_alert_outlined, size: 16, color: Colors.white),
+            ),
+          );
+        }
         final subiendo = estado == EstadoNube.subiendo;
         return Tooltip(
           message: subiendo ? 'Subiendo a la nube' : 'Guardado en el teléfono; se subirá con conexión',

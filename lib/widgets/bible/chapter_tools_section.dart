@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../theme/app_fonts.dart';
 
-import '../../models/bible/bible_map_models.dart';
-import '../../services/bible/bible_maps_service.dart';
 import '../../services/bible/book_intro_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
-import '../../screens/bible/bible_map_screen.dart';
 import '../../screens/bible/bible_parallel_screen.dart';
 import '../../screens/bible/book_introduction_screen.dart';
 import '../../screens/bible/enduring_word_screen.dart';
@@ -33,7 +30,6 @@ class ChapterToolsSection extends StatefulWidget {
 
 class _ChapterToolsSectionState extends State<ChapterToolsSection> {
   String? _chapterIntro;
-  List<BibleMap> _relatedMaps = [];
   bool _hasBookIntro = false;
   bool _loaded = false;
 
@@ -56,15 +52,12 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
   Future<void> _loadData() async {
     final intro = await BookIntroService.instance
         .getChapterIntro(widget.bookNumber, widget.chapter);
-    final maps = await BibleMapsService.instance
-        .getMapsForChapter(widget.bookNumber, widget.chapter);
     final hasIntro =
         await BookIntroService.instance.hasIntroduction(widget.bookNumber);
 
     if (mounted) {
       setState(() {
         _chapterIntro = intro;
-        _relatedMaps = maps;
         _hasBookIntro = hasIntro;
         _loaded = true;
       });
@@ -114,9 +107,6 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
 
           // Chapter intro
           if (_chapterIntro != null) _buildChapterIntroCard(t),
-
-          // Related maps
-          if (_relatedMaps.isNotEmpty) _buildMapsCard(t),
 
           // Book intro link
           if (_hasBookIntro) _buildBookIntroCard(t),
@@ -169,84 +159,6 @@ class _ChapterToolsSectionState extends State<ChapterToolsSection> {
               height: 1.6,
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMapsCard(BibleReaderThemeData t) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: t.oscuro
-            ? Colors.white.withValues(alpha: 0.03)
-            : Colors.black.withValues(alpha: 0.03),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: t.accent.withValues(alpha: 0.1)),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(Icons.map_outlined,
-                  size: 16, color: t.accent.withValues(alpha: 0.6)),
-              const SizedBox(width: 8),
-              Text(
-                'Mapas relacionados',
-                style: AppFonts.manrope(
-                  color: t.accent,
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                '${_relatedMaps.length}',
-                style: AppFonts.manrope(
-                  color: t.textoTenue(0.4),
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 10),
-          ..._relatedMaps.take(3).map(
-                (map) => GestureDetector(
-                  onTap: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BibleMapScreen(
-                          initialBookNumber: widget.bookNumber),
-                    ),
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.only(bottom: 6),
-                    child: Row(
-                      children: [
-                        Icon(Icons.place,
-                            size: 14,
-                            color: t.accent.withValues(alpha: 0.4)),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            map.title,
-                            style: AppFonts.manrope(
-                              color: t.textPrimary.withValues(alpha: 0.7),
-                              fontSize: 13,
-                            ),
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        Icon(Icons.arrow_forward_ios,
-                            size: 10,
-                            color: t.textSecondary.withValues(alpha: 0.3)),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
         ],
       ),
     );

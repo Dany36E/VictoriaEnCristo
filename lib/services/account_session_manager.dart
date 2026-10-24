@@ -28,6 +28,7 @@ import 'bible/collection_service.dart';
 import 'bible/chapter_note_service.dart';
 import 'bible/adjuntos_nota_service.dart';
 import 'bible/sermon_note_service.dart';
+import 'bible/bosquejo_sermon_service.dart';
 import 'bible/study_mode_service.dart';
 import 'bible/study_room_service.dart';
 import 'bible/blb_api_service.dart';
@@ -38,7 +39,6 @@ import 'bible/typology_service.dart';
 import 'bible/ot_quotes_service.dart';
 import 'bible/gospel_harmony_service.dart';
 import 'bible/treasury_service.dart';
-import 'bible/map_events_service.dart';
 import 'bible/share_cache_service.dart';
 import 'connectivity_service.dart';
 import 'notification_service.dart';
@@ -227,6 +227,7 @@ class AccountSessionManager {
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
     SermonNoteService.I.stop();
+    BosquejoSermonService.I.stop();
     unawaited(AdjuntosNotaService.I.borrarCacheLocal());
     StudyModeService.I.stop();
     await StudyRoomService.I.stop();
@@ -342,6 +343,7 @@ class AccountSessionManager {
     BibleUserDataService.I.stop();
     ChapterNoteService.I.stop();
     SermonNoteService.I.stop();
+    BosquejoSermonService.I.stop();
     StudyModeService.I.stop();
     StudyRoomService.I.stop();
     CollectionService.I.stop();
@@ -820,7 +822,6 @@ class AccountSessionManager {
         OTQuotesService.instance.getAll(),
         GospelHarmonyService.instance.getAllSections(),
         TreasuryService.instance.getCrossReferences(1, 1, 1), // warm cache
-        MapEventsService.I.preload(),
       ]);
       safeLog('BIBLE', 'All offline assets preloaded');
 

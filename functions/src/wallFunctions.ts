@@ -10,6 +10,7 @@ import * as functions from "firebase-functions/v1";
 import {enRegion} from "./limites";
 import * as adminFirestore from "firebase-admin/firestore";
 import * as crypto from "crypto";
+import {contieneBloqueado, detectarCrisis, RESPUESTA_CRISIS} from "./wallModeracion";
 
 const db = adminFirestore.getFirestore();
 
@@ -70,22 +71,7 @@ const HTTPS_ERROR_CODES = new Set([
   "unauthenticated",
 ]);
 
-// Palabras bloqueadas (contenido dañino, insultos graves, URLs)
-const BLOCKED_PATTERNS: RegExp[] = [
-  /https?:\/\//i,
-  /www\./i,
-  /\.com\b/i,
-  /\bput[o@]s?\b/i,
-  /\bmierda\b/i,
-  /\bhijue?putas?\b/i,
-  /\bpend?ej[oa]s?\b/i,
-  /\bmal ?parido\b/i,
-  /\bgonorrea\b/i,
-  /\bmaric[oó]n\b/i,
-  /\bsuicid(ar|ate|io)\b/i,
-  /\bautolesion/i,
-  /\bcort(ar|ate)\s*(las?\s*venas?|te)\b/i,
-];
+// Filtros de contenido: ver wallModeracion.ts (crisis vs. bloqueado).
 
 // ═══════════════════════════════════════════════════════════════════════════
 // HELPERS
@@ -110,8 +96,7 @@ function sanitizeBody(text: string, maxLen: number): string {
 }
 
 function containsBlockedContent(text: string): boolean {
-  const lower = text.toLowerCase();
-  return BLOCKED_PATTERNS.some((pat) => pat.test(lower));
+  return contieneBloqueado(text.toLowerCase());
 }
 
 async function isUserAdmin(uid: string, context?: functions.https.CallableContext): Promise<boolean> {
@@ -296,6 +281,12 @@ export const createWallPost = enRegion({secrets: ["WALL_ABUSE_SALT"]})
 
       // Content filter
       const sanitized = sanitizeBody(body, MAX_POST_LENGTH);
+      if (detectarCrisis(sanitized)) {
+        // Riesgo de autolesión: no se publica ni se guarda el texto, y la app
+        // muestra de inmediato ayuda (líneas de crisis, compañero, emergencia).
+        console.log("[WALL] Post no publicado: señales de crisis");
+        return RESPUESTA_CRISIS;
+      }
       if (containsBlockedContent(sanitized)) {
         // Auto-reject without telling user exactly why
         const postRef = db.collection("wallPosts").doc();
@@ -428,6 +419,11 @@ export const createWallComment = enRegion({secrets: ["WALL_ABUSE_SALT"]})
 
       const sanitized = sanitizeBody(body, MAX_COMMENT_LENGTH);
 
+      if (detectarCrisis(sanitized)) {
+        console.log("[WALL] Comentario no publicado: señales de crisis");
+        return RESPUESTA_CRISIS;
+      }
+
       // Content filter — auto-reject silently
       if (containsBlockedContent(sanitized)) {
         const commentRef = db
@@ -464,6 +460,7 @@ export const createWallComment = enRegion({secrets: ["WALL_ABUSE_SALT"]})
         status: "pending",
         createdAt: adminFirestore.FieldValue.serverTimestamp(),
         approvedAt: null,
+        reportCount: 0,
       });
 
       console.log(
@@ -602,7 +599,9 @@ export const moderateContent = enRegion()
         }
 
         const currentStatus = commentDoc.data()?.status;
-        if (currentStatus === "approved" && action === "approve") {
+        const reportCount = commentDoc.data()?.reportCount;
+        const tieneReportes = typeof reportCount === "number" && reportCount > 0;
+        if (currentStatus === "approved" && action === "approve" && !tieneReportes) {
           return {success: true, message: moderationMessage(type, action)};
         }
         if (currentStatus === "rejected" && action === "reject") {
@@ -613,12 +612,16 @@ export const moderateContent = enRegion()
           await commentRef.update({
             status: "approved",
             approvedAt: now,
+            // Aprobar un comentario reportado = el moderador lo revisó.
+            reportCount: 0,
           });
 
-          // Increment commentCount on parent post
-          await parentPostRef.update({
-            commentCount: adminFirestore.FieldValue.increment(1),
-          });
+          // Un comentario reportado ya estaba aprobado: no se cuenta dos veces.
+          if (currentStatus !== "approved") {
+            await parentPostRef.update({
+              commentCount: adminFirestore.FieldValue.increment(1),
+            });
+          }
 
           console.log(
             `[WALL] Comment ${commentId} on ${postId} approved`
@@ -704,8 +707,9 @@ export const reportContent = enRegion({secrets: ["WALL_ABUSE_SALT"]})
         );
       }
 
-      if (commentId) {
-        const commentDoc = await postRef.collection("comments").doc(commentId).get();
+      const commentRef = commentId ? postRef.collection("comments").doc(commentId) : null;
+      if (commentRef) {
+        const commentDoc = await commentRef.get();
         if (!commentDoc.exists) {
           throw new functions.https.HttpsError(
             "not-found",
@@ -726,8 +730,9 @@ export const reportContent = enRegion({secrets: ["WALL_ABUSE_SALT"]})
         resolved: false,
       });
 
-      // Increment reportCount on the post
-      batch.update(postRef, {
+      // El contador va en lo reportado: el comentario (cola "Comentarios
+      // reportados" del panel) o la publicación.
+      batch.update(commentRef ?? postRef, {
         reportCount: adminFirestore.FieldValue.increment(1),
       });
       await batch.commit();
@@ -895,10 +900,24 @@ export const banAbuseHash = enRegion()
           rejectionReason: "Autor baneado",
         });
       }
+      // También sus comentarios pendientes (cola de comentarios del panel).
+      const pendingComments = await db
+        .collectionGroup("comments")
+        .where("abuseHash", "==", abuseHash)
+        .where("status", "==", "pending")
+        .limit(400)
+        .get();
+      for (const doc of pendingComments.docs) {
+        batch.update(doc.ref, {
+          status: "rejected",
+          rejectionReason: "Autor baneado",
+        });
+      }
       await batch.commit();
 
       console.log(
-        `[WALL] Hash ${abuseHash} banned. ${pendingPosts.size} posts rejected.`
+        `[WALL] Hash ${abuseHash} banned. ${pendingPosts.size} posts and ` +
+        `${pendingComments.size} comments rejected.`
       );
 
       return {

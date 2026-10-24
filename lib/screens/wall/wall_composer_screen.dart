@@ -7,6 +7,7 @@ library;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../widgets/ayuda_crisis.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
 import '../../models/content_enums.dart';
@@ -75,6 +76,13 @@ class _WallComposerScreenState extends State<WallComposerScreen> {
     );
 
     if (!mounted) return;
+
+    if (result.crisis) {
+      // No se publica: ayuda inmediata en lugar de "en revisión".
+      setState(() => _sending = false);
+      await mostrarAyudaCrisis(context);
+      return;
+    }
 
     if (result.success) {
       Navigator.pop(context, true);

@@ -5,6 +5,7 @@ import '../../models/bible/bible_note.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import 'bible_reader_screen.dart';
+import 'buscar_notas_screen.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// ALL NOTES SCREEN — Edición editorial premium
@@ -135,12 +136,22 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
             ),
           ),
           IconButton(
+            tooltip: 'Buscar en notas de versículo',
             icon: Icon(Icons.search,
                 color: t.textSecondary.withValues(alpha: 0.6), size: 20),
             onPressed: () {
               setState(() => _searchMode = true);
               _searchFocus.requestFocus();
             },
+          ),
+          IconButton(
+            tooltip: 'Buscar en todas mis notas',
+            icon: Icon(Icons.manage_search_rounded,
+                color: t.textSecondary, size: 22),
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BuscarNotasScreen()),
+            ),
           ),
         ],
       ),
@@ -227,6 +238,7 @@ class _AllNotesScreenState extends State<AllNotesScreen> {
               bookName: note.bookName,
               chapter: note.chapter,
               version: version,
+              initialVerse: note.verse,
             ),
             transitionDuration: const Duration(milliseconds: 150),
             transitionsBuilder: (ctx, a, sa, child) =>

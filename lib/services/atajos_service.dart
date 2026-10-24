@@ -60,7 +60,6 @@ class AtajosService {
       Icons.bookmark_rounded,
       _biblia,
     ),
-    Atajo('mapas', 'Mapas bíblicos', 'Mapas', Icons.public_rounded, _biblia),
     Atajo(
       'mapa_oracion',
       'Mapa de oración',

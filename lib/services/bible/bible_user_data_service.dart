@@ -8,7 +8,10 @@ import '../../models/bible/bible_note.dart';
 import '../../models/bible/saved_verse.dart';
 import '../../models/bible/verse_prayer.dart';
 import '../../models/bible/bible_version.dart';
+import '../favorites_service.dart';
 import '../theme_service.dart';
+import 'bible_user_data_merge.dart';
+import 'reading_history_service.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE USER DATA SERVICE - Singleton
@@ -32,7 +35,9 @@ class BibleUserDataService {
 
   // ── Estado ──
   String? _uid;
-  final _firestore = FirebaseFirestore.instance;
+  // Perezoso: crear el singleton no exige Firebase inicializado (pruebas,
+  // FavoritesService al arrancar).
+  FirebaseFirestore get _firestore => FirebaseFirestore.instance;
   SharedPreferences? _prefs;
 
   static const String _cachePrefix = 'bible_user_data_cache_v1';
@@ -51,12 +56,27 @@ class BibleUserDataService {
     BibleVersion.rvr1960,
   );
   final ValueNotifier<double> fontSizeNotifier = ValueNotifier(20.0);
+
+  /// Rango único del tamaño de letra (lector y Ajustes usaban 14-28 y 14-32:
+  /// con 30 guardado desde Ajustes, el panel del lector fallaba).
+  static const double minFontSize = 14;
+  static const double maxFontSize = 32;
+  static const int fontSizeDivisions = 9; // pasos de 2 pt
   final ValueNotifier<String> readerThemeNotifier = ValueNotifier('dark');
   final ValueNotifier<bool> redLettersEnabledNotifier = ValueNotifier(true);
   final ValueNotifier<bool> useAppThemeNotifier = ValueNotifier(true);
 
   // ── Subscriptions ──
   final List<StreamSubscription> _subscriptions = [];
+
+  /// UID del usuario con datos bíblicos cargados (null si no hay sesión).
+  String? get currentUid => _uid;
+
+  /// Se completa con el primer snapshot del servidor de «savedVerses» (o si
+  /// el listener falla). Lo usa la migración de favoritos antiguos para no
+  /// duplicar versículos que ya estaban guardados en la nube.
+  Completer<void> _savedVersesSynced = Completer<void>();
+  Future<void> get savedVersesSynced => _savedVersesSynced.future;
 
   // ══════════════════════════════════════════════════════════════════════════
   // INIT / STOP
@@ -67,6 +87,7 @@ class BibleUserDataService {
     stop(); // Limpiar anterior si había
 
     _uid = uid;
+    _savedVersesSynced = Completer<void>();
     _prefs ??= await SharedPreferences.getInstance();
     debugPrint('📖 [BIBLE-DATA] init for $uid');
 
@@ -84,6 +105,11 @@ class BibleUserDataService {
     _listenNotes();
     _listenSavedVerses();
     _listenPrayers();
+
+    // «Mis Favoritos» antiguos → versículos guardados (una vez por cuenta).
+    unawaited(FavoritesService().migrateToBible());
+    // Historial/posiciones de esta cuenta (las preferencias ya restauradas).
+    unawaited(ReadingHistoryService.I.reload());
   }
 
   void stop() {
@@ -121,38 +147,44 @@ class BibleUserDataService {
   // HIGHLIGHTS
   // ══════════════════════════════════════════════════════════════════════════
 
+  /// Borra en segundo plano documentos duplicados detectados al fusionar.
+  void _deleteDuplicates(String collection, List<String> ids) {
+    for (final id in ids) {
+      if (id.isEmpty) continue;
+      unawaited(
+        _col(collection).doc(id).delete().catchError((Object e) {
+          debugPrint('[BIBLE-DATA] No se pudo borrar $collection/$id: $e');
+        }),
+      );
+    }
+  }
+
   void _listenHighlights() {
-    // Límite duro a 2000 highlights más recientes para acotar lecturas en
-    // cuentas con mucho histórico. Cualquier highlight más antiguo sigue
-    // existiendo en Firestore (no se borra) pero no se descarga.
-    final sub = _col('bibleHighlights')
-        .orderBy('createdAt', descending: true)
-        .limit(150)
-        .snapshots()
-        .listen((snap) {
-          if (snap.docs.isEmpty &&
-              snap.metadata.isFromCache &&
-              highlightsNotifier.value.isNotEmpty) {
-            debugPrint(
-              '📖 [BIBLE-DATA] Keeping cached highlights while offline',
-            );
-            return;
-          }
-          final map = <String, Highlight>{};
-          for (final doc in snap.docs) {
-            try {
-              final h = Highlight.fromMap(
-                doc.id,
-                doc.data() as Map<String, dynamic>,
-              );
-              map[h.verseKey] = h;
-            } catch (e) {
-              debugPrint('[BIBLE-DATA] Highlight parse error: $e');
-            }
-          }
-          highlightsNotifier.value = Map.unmodifiable(map);
-          unawaited(_saveHighlightsCache(map));
-        });
+    // Sin límite: antes `.limit(150)` reemplazaba todo el mapa (y la caché
+    // local) y los resaltados más antiguos desaparecían del lector.
+    final sub = _col('bibleHighlights').snapshots().listen((snap) {
+      final incoming = <Highlight>[];
+      for (final doc in snap.docs) {
+        try {
+          incoming.add(
+            Highlight.fromMap(doc.id, doc.data() as Map<String, dynamic>),
+          );
+        } catch (e) {
+          debugPrint('[BIBLE-DATA] Highlight parse error: $e');
+        }
+      }
+      final merged = BibleUserDataMerge.merge<Highlight>(
+        current: highlightsNotifier.value,
+        incoming: incoming,
+        keyOf: (h) => h.verseKey,
+        idOf: (h) => h.id,
+        dateOf: (h) => h.createdAt,
+        authoritative: !snap.metadata.isFromCache,
+      );
+      highlightsNotifier.value = Map.unmodifiable(merged.items);
+      unawaited(_saveHighlightsCache(merged.items));
+      _deleteDuplicates('bibleHighlights', merged.duplicateIds);
+    }, onError: (Object e) => debugPrint('[BIBLE-DATA] Highlights: $e'));
     _subscriptions.add(sub);
   }
 
@@ -216,32 +248,30 @@ class BibleUserDataService {
   // ══════════════════════════════════════════════════════════════════════════
 
   void _listenNotes() {
-    final sub = _col('bibleNotes')
-        .orderBy('updatedAt', descending: true)
-        .limit(200)
-        .snapshots()
-        .listen((snap) {
-          if (snap.docs.isEmpty &&
-              snap.metadata.isFromCache &&
-              notesNotifier.value.isNotEmpty) {
-            debugPrint('📖 [BIBLE-DATA] Keeping cached notes while offline');
-            return;
-          }
-          final map = <String, BibleNote>{};
-          for (final doc in snap.docs) {
-            try {
-              final n = BibleNote.fromMap(
-                doc.id,
-                doc.data() as Map<String, dynamic>,
-              );
-              map[n.verseKey] = n;
-            } catch (e) {
-              debugPrint('[BIBLE-DATA] Note parse error: $e');
-            }
-          }
-          notesNotifier.value = Map.unmodifiable(map);
-          unawaited(_saveNotesCache(map));
-        });
+    // Sin límite (antes 200): ver _listenHighlights.
+    final sub = _col('bibleNotes').snapshots().listen((snap) {
+      final incoming = <BibleNote>[];
+      for (final doc in snap.docs) {
+        try {
+          incoming.add(
+            BibleNote.fromMap(doc.id, doc.data() as Map<String, dynamic>),
+          );
+        } catch (e) {
+          debugPrint('[BIBLE-DATA] Note parse error: $e');
+        }
+      }
+      final merged = BibleUserDataMerge.merge<BibleNote>(
+        current: notesNotifier.value,
+        incoming: incoming,
+        keyOf: (n) => n.verseKey,
+        idOf: (n) => n.id,
+        dateOf: (n) => n.updatedAt,
+        authoritative: !snap.metadata.isFromCache,
+      );
+      notesNotifier.value = Map.unmodifiable(merged.items);
+      unawaited(_saveNotesCache(merged.items));
+      _deleteDuplicates('bibleNotes', merged.duplicateIds);
+    }, onError: (Object e) => debugPrint('[BIBLE-DATA] Notes: $e'));
     _subscriptions.add(sub);
   }
 
@@ -306,32 +336,44 @@ class BibleUserDataService {
   // ══════════════════════════════════════════════════════════════════════════
 
   void _listenSavedVerses() {
-    final sub = _col('savedVerses')
-        .orderBy('savedAt', descending: true)
-        .limit(200)
-        .snapshots()
-        .listen((snap) {
-          if (snap.docs.isEmpty &&
-              snap.metadata.isFromCache &&
-              savedVersesNotifier.value.isNotEmpty) {
-            debugPrint(
-              '📖 [BIBLE-DATA] Keeping cached saved verses while offline',
+    // Sin límite (antes 200): ver _listenHighlights.
+    final sub = _col('savedVerses').snapshots().listen(
+      (snap) {
+        final incoming = <SavedVerse>[];
+        for (final doc in snap.docs) {
+          try {
+            incoming.add(
+              SavedVerse.fromMap(doc.id, doc.data() as Map<String, dynamic>),
             );
-            return;
+          } catch (e) {
+            debugPrint('[BIBLE-DATA] SavedVerse parse error: $e');
           }
-          final list = <SavedVerse>[];
-          for (final doc in snap.docs) {
-            try {
-              list.add(
-                SavedVerse.fromMap(doc.id, doc.data() as Map<String, dynamic>),
-              );
-            } catch (e) {
-              debugPrint('[BIBLE-DATA] SavedVerse parse error: $e');
-            }
-          }
-          savedVersesNotifier.value = List.unmodifiable(list);
-          unawaited(_saveSavedVersesCache(list));
-        });
+        }
+        final authoritative = !snap.metadata.isFromCache;
+        final merged = BibleUserDataMerge.merge<SavedVerse>(
+          current: {for (final v in savedVersesNotifier.value) v.verseKey: v},
+          incoming: incoming,
+          keyOf: (v) => v.verseKey,
+          idOf: (v) => v.id,
+          dateOf: (v) => v.savedAt,
+          authoritative: authoritative,
+        );
+        final list = BibleUserDataMerge.sortedByDateDesc<SavedVerse>(
+          merged.items,
+          (v) => v.savedAt,
+        );
+        savedVersesNotifier.value = List.unmodifiable(list);
+        unawaited(_saveSavedVersesCache(list));
+        _deleteDuplicates('savedVerses', merged.duplicateIds);
+        if (authoritative && !_savedVersesSynced.isCompleted) {
+          _savedVersesSynced.complete();
+        }
+      },
+      onError: (Object e) {
+        debugPrint('[BIBLE-DATA] SavedVerses: $e');
+        if (!_savedVersesSynced.isCompleted) _savedVersesSynced.complete();
+      },
+    );
     _subscriptions.add(sub);
   }
 
@@ -353,39 +395,80 @@ class BibleUserDataService {
     required String version,
   }) async {
     if (_uid == null) return;
-    final existing = savedVersesNotifier.value.where(
-      (s) =>
-          s.bookNumber == bookNumber &&
-          s.chapter == chapter &&
-          s.verse == verse,
-    );
-
-    if (existing.isNotEmpty) {
-      // Remove
-      final next = savedVersesNotifier.value
-          .where((s) => s.id != existing.first.id)
-          .toList(growable: false);
-      savedVersesNotifier.value = List.unmodifiable(next);
-      await _saveSavedVersesCache(next);
-      await _col('savedVerses').doc(existing.first.id).delete();
+    if (isVerseSaved(bookNumber, chapter, verse)) {
+      await removeSavedVerse(bookNumber, chapter, verse);
     } else {
-      final doc = _col('savedVerses').doc();
-      final saved = SavedVerse(
-        id: doc.id,
+      await saveVerse(
         bookNumber: bookNumber,
         chapter: chapter,
         verse: verse,
         bookName: bookName,
         text: text,
         version: version,
-        savedAt: DateTime.now(),
       );
-      final next = [saved, ...savedVersesNotifier.value];
-      savedVersesNotifier.value = List.unmodifiable(next);
-      await _saveSavedVersesCache(next);
-      // Add
-      await doc.set(saved.toMap());
     }
+  }
+
+  /// Guarda un versículo (o un pasaje con [endVerse]) si no estaba guardado.
+  /// Devuelve false si ya existía. La escritura en la nube no se espera:
+  /// Firestore la encola sin red y el estado local se actualiza al instante.
+  Future<bool> saveVerse({
+    required int bookNumber,
+    required int chapter,
+    required int verse,
+    int? endVerse,
+    required String bookName,
+    required String text,
+    required String version,
+    DateTime? savedAt,
+  }) async {
+    if (_uid == null) return false;
+    if (isVerseSaved(bookNumber, chapter, verse)) return false;
+    final doc = _col('savedVerses').doc();
+    final saved = SavedVerse(
+      id: doc.id,
+      bookNumber: bookNumber,
+      chapter: chapter,
+      verse: verse,
+      endVerse: endVerse,
+      bookName: bookName,
+      text: text,
+      version: version,
+      savedAt: savedAt ?? DateTime.now(),
+    );
+    final next = BibleUserDataMerge.sortedByDateDesc<SavedVerse>({
+      for (final v in savedVersesNotifier.value) v.verseKey: v,
+      saved.verseKey: saved,
+    }, (v) => v.savedAt);
+    savedVersesNotifier.value = List.unmodifiable(next);
+    await _saveSavedVersesCache(next);
+    unawaited(
+      doc.set(saved.toMap()).catchError((Object e) {
+        debugPrint('[BIBLE-DATA] saveVerse: $e');
+      }),
+    );
+    return true;
+  }
+
+  /// Quita el versículo guardado (y cualquier duplicado del mismo versículo).
+  Future<void> removeSavedVerse(int bookNumber, int chapter, int verse) async {
+    if (_uid == null) return;
+    final ids = savedVersesNotifier.value
+        .where(
+          (s) =>
+              s.bookNumber == bookNumber &&
+              s.chapter == chapter &&
+              s.verse == verse,
+        )
+        .map((s) => s.id)
+        .toSet();
+    if (ids.isEmpty) return;
+    final next = savedVersesNotifier.value
+        .where((s) => !ids.contains(s.id))
+        .toList(growable: false);
+    savedVersesNotifier.value = List.unmodifiable(next);
+    await _saveSavedVersesCache(next);
+    _deleteDuplicates('savedVerses', ids.toList());
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -393,34 +476,30 @@ class BibleUserDataService {
   // ══════════════════════════════════════════════════════════════════════════
 
   void _listenPrayers() {
-    final sub = _col('versePrayers')
-        .orderBy('createdAt', descending: true)
-        .limit(150)
-        .snapshots()
-        .listen((snap) {
-          if (snap.docs.isEmpty &&
-              snap.metadata.isFromCache &&
-              prayersNotifier.value.isNotEmpty) {
-            debugPrint(
-              '📖 [BIBLE-DATA] Keeping cached verse prayers while offline',
-            );
-            return;
-          }
-          final map = <String, VersePrayer>{};
-          for (final doc in snap.docs) {
-            try {
-              final p = VersePrayer.fromMap(
-                doc.id,
-                doc.data() as Map<String, dynamic>,
-              );
-              map[p.verseKey] = p;
-            } catch (e) {
-              debugPrint('[BIBLE-DATA] Prayer parse error: $e');
-            }
-          }
-          prayersNotifier.value = Map.unmodifiable(map);
-          unawaited(_savePrayersCache(map));
-        });
+    // Sin límite (antes 150): ver _listenHighlights.
+    final sub = _col('versePrayers').snapshots().listen((snap) {
+      final incoming = <VersePrayer>[];
+      for (final doc in snap.docs) {
+        try {
+          incoming.add(
+            VersePrayer.fromMap(doc.id, doc.data() as Map<String, dynamic>),
+          );
+        } catch (e) {
+          debugPrint('[BIBLE-DATA] Prayer parse error: $e');
+        }
+      }
+      final merged = BibleUserDataMerge.merge<VersePrayer>(
+        current: prayersNotifier.value,
+        incoming: incoming,
+        keyOf: (p) => p.verseKey,
+        idOf: (p) => p.id,
+        dateOf: (p) => p.createdAt,
+        authoritative: !snap.metadata.isFromCache,
+      );
+      prayersNotifier.value = Map.unmodifiable(merged.items);
+      unawaited(_savePrayersCache(merged.items));
+      _deleteDuplicates('versePrayers', merged.duplicateIds);
+    }, onError: (Object e) => debugPrint('[BIBLE-DATA] Prayers: $e'));
     _subscriptions.add(sub);
   }
 
@@ -788,6 +867,7 @@ class BibleUserDataService {
     'bookNumber': s.bookNumber,
     'chapter': s.chapter,
     'verse': s.verse,
+    if (s.endVerse != null) 'endVerse': s.endVerse,
     'bookName': s.bookName,
     'text': s.text,
     'version': s.version,
@@ -802,6 +882,7 @@ class BibleUserDataService {
         bookNumber: _asInt(data['bookNumber']),
         chapter: _asInt(data['chapter']),
         verse: _asInt(data['verse']),
+        endVerse: data['endVerse'] == null ? null : _asInt(data['endVerse']),
         bookName: data['bookName'] as String? ?? '',
         text: data['text'] as String? ?? '',
         version: data['version'] as String? ?? 'RVR1960',

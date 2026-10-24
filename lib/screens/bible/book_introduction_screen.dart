@@ -2,11 +2,9 @@
 import '../../theme/app_fonts.dart';
 
 import '../../models/bible/book_introduction.dart';
-import '../../services/bible/bible_maps_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/book_intro_service.dart';
 import '../../theme/bible_reader_theme.dart';
-import 'bible_map_screen.dart';
 
 /// Pantalla de introducción completa a un libro bíblico.
 class BookIntroductionScreen extends StatefulWidget {
@@ -26,7 +24,6 @@ class BookIntroductionScreen extends StatefulWidget {
 class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
   BookIntroduction? _intro;
   bool _loading = true;
-  int _relatedMapsCount = 0;
   bool _showStudy = false;
 
   BibleReaderThemeData get _t => BibleReaderThemeData.fromId(
@@ -44,12 +41,9 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
     try {
       final intro =
           await BookIntroService.instance.getIntroduction(widget.bookNumber);
-      final maps =
-          await BibleMapsService.instance.getMapsForBook(widget.bookNumber);
       if (mounted) {
         setState(() {
           _intro = intro;
-          _relatedMapsCount = maps.length;
           _loading = false;
         });
       }
@@ -97,11 +91,8 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
         // ─── VIEW 3: Study (behind button) ────────────────────────
         if (!_showStudy)
           SliverToBoxAdapter(child: _buildStudyButton())
-        else ...[
+        else
           SliverToBoxAdapter(child: _buildKeyVerses(intro)),
-          if (_relatedMapsCount > 0)
-            SliverToBoxAdapter(child: _buildMapsLink()),
-        ],
 
         const SliverToBoxAdapter(child: SizedBox(height: 40)),
       ],
@@ -452,64 +443,6 @@ class _BookIntroductionScreenState extends State<BookIntroductionScreen> {
                 ),
               )),
         ],
-      ),
-    );
-  }
-
-  Widget _buildMapsLink() {
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 8, 24, 0),
-      child: GestureDetector(
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) =>
-                BibleMapScreen(initialBookNumber: widget.bookNumber),
-          ),
-        ),
-        child: Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: _t.accent.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-                color: _t.accent.withValues(alpha: 0.2)),
-          ),
-          child: Row(
-            children: [
-              Icon(Icons.map_outlined,
-                  color: _t.accent, size: 20),
-              const SizedBox(width: 12),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Mapas relacionados',
-                      style: AppFonts.manrope(
-                        color: _t.accent,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    Text(
-                      '$_relatedMapsCount mapa${_relatedMapsCount != 1 ? 's' : ''} disponible${_relatedMapsCount != 1 ? 's' : ''}',
-                      style: AppFonts.manrope(
-                        color: _t.textPrimary
-                            .withValues(alpha: 0.5),
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Icon(Icons.arrow_forward_ios,
-                  size: 14,
-                  color:
-                      _t.textPrimary.withValues(alpha: 0.3)),
-            ],
-          ),
-        ),
       ),
     );
   }

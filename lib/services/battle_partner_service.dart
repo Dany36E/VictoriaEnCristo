@@ -2,7 +2,8 @@
 /// BATTLE PARTNER SERVICE - Compañero de Batalla
 /// Acompañamiento espiritual con privacidad máxima.
 /// NUNCA expone: diario, gigantes, score detallado, email.
-/// SÍ expone: racha (int), victoria hoy (bool), inactividad.
+/// SÍ expone: racha (int), si hoy fue victoria o gracia (con la fecha local),
+/// última apertura y, solo si el usuario lo activa, el estado del Escudo.
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
@@ -17,7 +18,9 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../models/battle_partner_data.dart';
 import '../constants/battle_messages.dart';
 import '../utils/platform_capabilities.dart';
+import 'accountability_service.dart';
 import 'notification_service.dart';
+import 'purity_guard_service.dart';
 import 'user_pref_cloud_sync_service.dart';
 import 'victory_scoring_service.dart';
 
@@ -33,6 +36,52 @@ const int kMaxSosPerDay = 1;
 /// Caracteres permitidos para inviteCode (sin O/0/I/1)
 const String _codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
+/// Campos de progreso que un usuario refleja en el vínculo de su compañero.
+/// Al liberar a alguien se borran todos (deja de ver tu progreso al momento).
+const List<String> kPartnerMirrorFields = [
+  'streakDays',
+  'victoryToday',
+  'dayState',
+  'dayKey',
+  'utcOffsetMin',
+  'lastOpenedAt',
+  'progressUpdatedAt',
+  'acceptingInvites',
+  'sharedGiantId',
+  'shieldShared',
+  'shieldOn',
+];
+
+/// Resultado de liberar a un compañero.
+enum ResultadoLiberar {
+  /// Liberado; si era tu guardián, su candado se retiró (con su PIN).
+  liberado,
+
+  /// Liberado; el candado del guardián se retirará en 72 h.
+  liberadoCandadoEnEspera,
+
+  /// Es tu guardián con candado activo: hace falta su PIN o pedir la espera.
+  requiereCandado,
+
+  /// El PIN del guardián no es correcto (o hay demasiados intentos).
+  pinIncorrecto,
+  sinConexion,
+  error,
+}
+
+/// ¿El error de la función pide resolver el candado del guardián primero?
+@visibleForTesting
+ResultadoLiberar? resultadoPorErrorDeLiberar(String code, Object? details) {
+  final motivo = details is Map ? details['motivo'] : null;
+  if (code == 'failed-precondition' && motivo == 'guardian_lock') {
+    return ResultadoLiberar.requiereCandado;
+  }
+  if (code == 'permission-denied' && motivo == 'pin') {
+    return ResultadoLiberar.pinIncorrecto;
+  }
+  return null;
+}
+
 class BattlePartnerService {
   // ═══════════════════════════════════════════════════════════════════════════
   // SINGLETON — patrón unificado (solo .I) para alinear con resto de servicios.
@@ -45,10 +94,11 @@ class BattlePartnerService {
   // ESTADO
   // ═══════════════════════════════════════════════════════════════════════════
 
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final FirebaseFunctions _functions = FirebaseFunctions.instanceFor(
-    region: 'us-central1',
-  );
+  // Perezosos: el singleton se puede crear (p. ej. en pruebas de widgets)
+  // sin que Firebase esté inicializado.
+  FirebaseFirestore get _db => FirebaseFirestore.instance;
+  FirebaseFunctions get _functions =>
+      FirebaseFunctions.instanceFor(region: 'us-central1');
   SharedPreferences? _prefs;
   String? _uid;
   bool _isInitialized = false;
@@ -96,6 +146,9 @@ class BattlePartnerService {
   bool get hasPartners => partnersNotifier.value.isNotEmpty;
 
   bool get isInitialized => _isInitialized;
+
+  /// Nombre con el que te ven tus compañeros (se lee junto con el código).
+  String? publicName;
 
   // ═══════════════════════════════════════════════════════════════════════════
   // INICIALIZACIÓN / LIFECYCLE
@@ -443,6 +496,9 @@ class BattlePartnerService {
 
     try {
       final doc = await _db.collection('users').doc(uid).get();
+      final nombre =
+          (doc.data()?['publicName'] ?? doc.data()?['displayName']) as String?;
+      if (nombre != null && nombre.trim().isNotEmpty) publicName = nombre.trim();
       final code = doc.data()?['inviteCode'] as String?;
       if (code == null || code.isEmpty) {
         return await ensureInviteCode();
@@ -617,61 +673,137 @@ class BattlePartnerService {
     }
   }
 
+  /// Rechaza una invitación. La Cloud Function borra la invitación y el
+  /// vínculo "pendiente" de quien la envió, así su lugar queda libre (antes
+  /// el cliente intentaba escribir 'rejected' en el doc ajeno, las reglas lo
+  /// impedían y el remitente quedaba con una invitación eterna).
   Future<bool> rejectInvite(PartnerInvite invite) async {
     final uid = _uid;
     if (uid == null) return false;
 
     try {
-      // Borrar la invitación (en lugar de marcar rejected): evita acumulación
-      // de docs inservibles en la bandeja (fix #4).
+      await _functions.httpsCallable('rejectPartnerInvite').call({
+        'inviteId': invite.inviteId,
+      });
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('🤝 [BATTLE] rejectPartnerInvite: ${e.code} ${e.message}');
+      // Respaldo si la función aún no está desplegada: las reglas permiten
+      // al invitado borrar su invitación y el vínculo pendiente del remitente.
+      if (!await _rejectInviteLocally(uid, invite)) return false;
+    } catch (e) {
+      debugPrint('🤝 [BATTLE] Error rechazando invitación: $e');
+      if (!await _rejectInviteLocally(uid, invite)) return false;
+    }
+
+    pendingInvitesNotifier.value = pendingInvitesNotifier.value
+        .where((i) => i.inviteId != invite.inviteId)
+        .toList();
+    unawaited(_logEvent('battle_invite_rejected', const {}));
+    debugPrint('🤝 [BATTLE] Invitación rechazada de ${invite.fromName}');
+    return true;
+  }
+
+  Future<bool> _rejectInviteLocally(String uid, PartnerInvite invite) async {
+    try {
       await _db
           .collection('users')
           .doc(uid)
           .collection('partnerInvites')
           .doc(invite.inviteId)
           .delete();
-
-      // Actualizar el partner doc del otro lado si existe (best-effort,
-      // sin crear documentos nuevos: los creates críticos pasan por Functions.
-      try {
-        final otherRef = _db
-            .collection('users')
-            .doc(invite.fromUid)
-            .collection('battlePartners')
-            .doc(uid);
-        final otherDoc = await otherRef.get();
-        if (otherDoc.exists) {
-          await otherRef.update({'status': 'rejected'});
-        }
-      } catch (e) {
-        debugPrint('🤝 [BATTLE] Error updating other side rejection: $e');
-      }
-
-      unawaited(_logEvent('battle_invite_rejected', const {}));
-      debugPrint('🤝 [BATTLE] Invitación rechazada de ${invite.fromName}');
-      return true;
     } catch (e) {
-      debugPrint('🤝 [BATTLE] Error rechazando invitación: $e');
+      debugPrint('🤝 [BATTLE] Error borrando invitación: $e');
       return false;
     }
+    if (invite.fromUid.isEmpty) return true;
+    try {
+      final senderRef = _db
+          .collection('users')
+          .doc(invite.fromUid)
+          .collection('battlePartners')
+          .doc(uid);
+      final snap = await senderRef.get();
+      if (snap.exists && snap.data()?['status'] == 'pending') {
+        await senderRef.delete();
+      }
+    } catch (e) {
+      // El remitente queda libre igual cuando la purga diaria lo limpie.
+      debugPrint('🤝 [BATTLE] No se pudo liberar al remitente: $e');
+    }
+    return true;
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
   // REMOVER COMPAÑERO
   // ═══════════════════════════════════════════════════════════════════════════
 
-  Future<bool> removePartner(String partnerUid) async {
+  /// Libera a un compañero. En cuanto termina:
+  /// - ya no puede leer tu progreso (las reglas exigen vínculo activo),
+  /// - se borra el reflejo de tu progreso que tenía en su lista,
+  /// - no puede enviarte mensajes ni SOS, ni recibir avisos o resúmenes,
+  /// - si era tu guardián del Escudo (o tú el suyo), el candado se retira.
+  /// No se le notifica (importante si el vínculo era dañino).
+  ///
+  /// Si el compañero es tu guardián con candado activo, el servidor exige su
+  /// [pinGuardian] o [liberarCandadoEnEspera] (el candado se retira en 72 h;
+  /// se le avisa y solo tú puedes cancelarlo). Así liberar no sirve para
+  /// saltarse el candado del Escudo.
+  Future<ResultadoLiberar> removePartner(
+    String partnerUid, {
+    String? pinGuardian,
+    bool liberarCandadoEnEspera = false,
+  }) async {
     final uid = _uid;
-    if (uid == null) return false;
+    if (uid == null || partnerUid.isEmpty) return ResultadoLiberar.error;
 
+    var ok = false;
+    var resultado = ResultadoLiberar.liberado;
     try {
-      // Usamos set(merge:true) para tolerar que el otro lado ya haya
-      // eliminado su doc (fix #3). También limpiamos trustedPartner si
-      // coincide (no debe quedar una referencia huérfana).
-      if (trustedPartnerUidNotifier.value == partnerUid) {
-        await setTrustedPartner(null);
+      final res = await _functions.httpsCallable('removeBattlePartner').call({
+        'partnerUid': partnerUid,
+        if (pinGuardian != null && pinGuardian.isNotEmpty) 'pin': pinGuardian,
+        if (liberarCandadoEnEspera) 'liberarCandadoEnEspera': true,
+      });
+      final data = res.data;
+      if (data is Map && data['candado'] == 'programar') {
+        resultado = ResultadoLiberar.liberadoCandadoEnEspera;
       }
+      ok = true;
+    } on FirebaseFunctionsException catch (e) {
+      debugPrint('🤝 [BATTLE] removeBattlePartner: ${e.code} ${e.message}');
+      final porCandado = resultadoPorErrorDeLiberar(e.code, e.details);
+      if (porCandado != null) return porCandado;
+      // Respaldo SOLO si la función aún no está desplegada (404) o no hay
+      // conexión: libera el vínculo pero nunca toca el candado del guardián
+      // (el cliente no puede). Otros errores del servidor se muestran.
+      const respaldo = {'not-found', 'unimplemented', 'unavailable'};
+      if (!respaldo.contains(e.code)) return ResultadoLiberar.error;
+      ok = await _removePartnerLocally(uid, partnerUid);
+      if (!ok && (e.code == 'unavailable' || e.code == 'deadline-exceeded')) {
+        return ResultadoLiberar.sinConexion;
+      }
+    } catch (e) {
+      debugPrint('🤝 [BATTLE] Error removiendo compañero: $e');
+      ok = await _removePartnerLocally(uid, partnerUid);
+    }
+    if (!ok) return ResultadoLiberar.error;
 
+    if (trustedPartnerUidNotifier.value == partnerUid) {
+      await setTrustedPartner(null);
+    }
+    AccountabilityService.I.quitarCompaneroLocal(partnerUid);
+    partnersNotifier.value = partnersNotifier.value
+        .where((p) => p.uid != partnerUid)
+        .toList();
+    unawaited(_logEvent('battle_partner_removed', const {}));
+    debugPrint('🤝 [BATTLE] Compañero liberado');
+    return resultado;
+  }
+
+  /// Respaldo en el cliente (si la función no está desplegada): marca ambos
+  /// lados como 'removed' y borra los reflejos de progreso en un solo lote.
+  Future<bool> _removePartnerLocally(String uid, String partnerUid) async {
+    try {
       final myRef = _db
           .collection('users')
           .doc(uid)
@@ -684,25 +816,31 @@ class BattlePartnerService {
           .doc(uid);
       final snapshots = await Future.wait([myRef.get(), otherRef.get()]);
 
+      final borrarReflejo = <String, dynamic>{
+        for (final f in kPartnerMirrorFields) f: FieldValue.delete(),
+      };
       final batch = _db.batch();
       var hasWrites = false;
       if (snapshots[0].exists) {
-        batch.update(myRef, {'status': 'removed'});
+        batch.update(myRef, {
+          'status': 'removed',
+          'updatedAt': FieldValue.serverTimestamp(),
+          ...borrarReflejo,
+        });
         hasWrites = true;
       }
       if (snapshots[1].exists) {
-        batch.update(otherRef, {'status': 'removed'});
+        batch.update(otherRef, {
+          'status': 'removed',
+          'updatedAt': FieldValue.serverTimestamp(),
+          ...borrarReflejo,
+        });
         hasWrites = true;
       }
-      if (hasWrites) {
-        await batch.commit();
-      }
-
-      unawaited(_logEvent('battle_partner_removed', const {}));
-      debugPrint('🤝 [BATTLE] Compañero $partnerUid removido');
+      if (hasWrites) await batch.commit();
       return true;
     } catch (e) {
-      debugPrint('🤝 [BATTLE] Error removiendo compañero: $e');
+      debugPrint('🤝 [BATTLE] Error en respaldo de liberar: $e');
       return false;
     }
   }
@@ -723,11 +861,22 @@ class BattlePartnerService {
     try {
       final scoring = VictoryScoringService.I;
       final streak = scoring.getCurrentStreak();
-      final victoryToday = scoring.isLoggedToday();
+      // Victoria y gracia se publican por separado y con la fecha local: un
+      // día de gracia ya no aparece como "Victoria hoy" ni el de ayer como hoy.
+      final ahora = DateTime.now();
+      final dia = DiaPublicado(
+        estado: scoring.estadoDelDia(ahora),
+        clave: claveFecha(ahora),
+        utcOffsetMin: ahora.timeZoneOffset.inMinutes,
+      );
+      final victoryToday = dia.estado == EstadoDia.victoria;
 
       final payload = <String, dynamic>{
         'streakDays': streak,
         'victoryToday': victoryToday,
+        'dayState': dia.estado.id,
+        'dayKey': dia.clave,
+        'utcOffsetMin': dia.utcOffsetMin,
         'lastOpenedAt': FieldValue.serverTimestamp(),
         'updatedAt': FieldValue.serverTimestamp(),
         // Flag público de "pausa" — usado por lookupCode del otro usuario.
@@ -774,7 +923,7 @@ class BattlePartnerService {
           _partnerProgressPayload(
             partnerUid: partnerUid,
             streak: streak,
-            victoryToday: victoryToday,
+            dia: dia,
             sharedGiantId: sharedGiantId,
           ),
           SetOptions(merge: true),
@@ -796,16 +945,22 @@ class BattlePartnerService {
   Map<String, dynamic> _partnerProgressPayload({
     required String partnerUid,
     required int streak,
-    required bool victoryToday,
+    required DiaPublicado dia,
     String? sharedGiantId,
   }) {
     final trustedPartnerUid = trustedPartnerUidNotifier.value;
+    final compartirEscudo = AccountabilityService.I.ajustes.value.avisosEscudo
+        .contains(partnerUid);
     final payload = <String, dynamic>{
-      'streakDays': streak,
-      'victoryToday': victoryToday,
+      ...dia.reflejo(streak: streak),
       'lastOpenedAt': FieldValue.serverTimestamp(),
       'progressUpdatedAt': FieldValue.serverTimestamp(),
       'acceptingInvites': acceptingInvitesNotifier.value,
+      // Solo el compañero que aceptaste para avisos del Escudo ve su estado.
+      'shieldShared': compartirEscudo,
+      'shieldOn': compartirEscudo
+          ? PurityGuardService.I.active.value
+          : FieldValue.delete(),
     };
 
     if (trustedPartnerUid == partnerUid && sharedGiantId != null) {
@@ -1044,6 +1199,11 @@ class BattlePartnerService {
 
   String get _kLastSosIso => 'battle.lastSosAt.$_uid';
 
+  /// Número de compañeros activos (para mostrar u ocultar "Avisar").
+  int get activePartnerCount => partnersNotifier.value
+      .where((p) => p.status == PartnerStatus.active)
+      .length;
+
   /// ¿Cuántos SOS le quedan hoy al usuario?
   int remainingSosToday() {
     final iso = _prefs?.getString(_kLastSosIso);
@@ -1171,4 +1331,27 @@ class BattlePartnerService {
       debugPrint('🤝 [BATTLE] Analytics error ($name): $e');
     }
   }
+}
+
+/// Lo que se publica del día de hoy (fecha local de quien publica).
+@visibleForTesting
+class DiaPublicado {
+  final EstadoDia estado;
+  final String clave;
+  final int utcOffsetMin;
+
+  const DiaPublicado({
+    required this.estado,
+    required this.clave,
+    required this.utcOffsetMin,
+  });
+
+  /// Campos de progreso del día que se reflejan en el vínculo del compañero.
+  Map<String, Object> reflejo({required int streak}) => {
+    'streakDays': streak,
+    'victoryToday': estado == EstadoDia.victoria,
+    'dayState': estado.id,
+    'dayKey': clave,
+    'utcOffsetMin': utcOffsetMin,
+  };
 }

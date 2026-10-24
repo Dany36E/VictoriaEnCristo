@@ -138,6 +138,7 @@ class SavedVersesScreen extends StatelessWidget {
               bookName: sv.bookName,
               chapter: sv.chapter,
               version: BibleVersion.fromId(sv.version),
+              initialVerse: sv.verse,
             ),
             transitionDuration: const Duration(milliseconds: 150),
             transitionsBuilder: (ctx, a, sa, child) =>

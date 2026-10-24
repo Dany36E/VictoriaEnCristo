@@ -4,12 +4,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../models/bible/chapter_study_note.dart';
+import 'notas_sync.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// CHAPTER NOTE SERVICE - Singleton
 /// Gestiona notas de estudio por capítulo en Firestore.
 ///
 /// Colección: /users/{uid}/chapterNotes/{docId}
+///
+/// Guardado local primero: cada cambio se escribe en el teléfono y se sube
+/// sin esperar al servidor ([NotasSync]), así que sin conexión nunca se
+/// queda «guardando». La escucha no tiene límite y une lo que llega con lo
+/// que hay en el teléfono, para que ninguna nota desaparezca de la vista.
 /// ═══════════════════════════════════════════════════════════════════════════
 class ChapterNoteService {
   // ── Singleton ──
@@ -20,16 +26,28 @@ class ChapterNoteService {
 
   // ── Estado ──
   String? _uid;
-  final _firestore = FirebaseFirestore.instance;
   SharedPreferences? _prefs;
   StreamSubscription? _subscription;
+  static const String _coleccion = 'chapterNotes';
   static const String _cachePrefix = 'chapter_notes_cache_v1';
 
-  /// Mapa chapterKey → ChapterStudyNote para lookup rápido
-  final ValueNotifier<Map<String, ChapterStudyNote>> notesNotifier = ValueNotifier({});
+  /// TODAS las notas, por id. Un capítulo puede tener varias.
+  final ValueNotifier<Map<String, ChapterStudyNote>> notasPorIdNotifier =
+      ValueNotifier(const {});
 
-  CollectionReference<Map<String, dynamic>> get _col =>
-      _firestore.collection('users').doc(_uid!).collection('chapterNotes');
+  /// chapterKey → la nota más reciente de ese capítulo (lookup rápido para la
+  /// lectura). Para ver todas las de un capítulo usa [notesForChapter].
+  final ValueNotifier<Map<String, ChapterStudyNote>> notesNotifier =
+      ValueNotifier({});
+
+  /// Firestore se pide solo al escuchar: las pruebas no lo necesitan.
+  CollectionReference<Map<String, dynamic>> get _col => FirebaseFirestore
+      .instance
+      .collection('users')
+      .doc(_uid!)
+      .collection(_coleccion);
+
+  String _prefijo(String uid) => 'users/$uid/$_coleccion/';
 
   // ══════════════════════════════════════════════════════════════════════════
   // INIT / STOP
@@ -37,61 +55,133 @@ class ChapterNoteService {
 
   Future<void> init(String uid) async {
     if (_uid == uid) return;
+    await _preparar(uid);
+    debugPrint('📝 [CHAPTER-NOTES] init for $uid');
+    _listen();
+  }
+
+  /// Igual que [init] pero sin escuchar Firestore (para pruebas).
+  @visibleForTesting
+  Future<void> initSinNube(String uid) => _preparar(uid);
+
+  Future<void> _preparar(String uid) async {
     stop();
     _uid = uid;
     _prefs ??= await SharedPreferences.getInstance();
+    await NotasSync.I.cargar();
     await _loadLocalCache(uid);
-    debugPrint('📝 [CHAPTER-NOTES] init for $uid');
-    _listen();
+    _reenviarPendientes(uid);
   }
 
   void stop() {
     _subscription?.cancel();
     _subscription = null;
-    notesNotifier.value = {};
+    _publicar(const {});
     _uid = null;
   }
 
   void _listen() {
-    _subscription = _col
-        .orderBy('updatedAt', descending: true)
-        .limit(300)
-        .snapshots()
-        .listen(
-          (snap) {
-            if (snap.docs.isEmpty && snap.metadata.isFromCache && notesNotifier.value.isNotEmpty) {
-              debugPrint('📝 [CHAPTER-NOTES] Keeping cached notes while offline');
-              return;
-            }
-            final map = <String, ChapterStudyNote>{};
-            for (final doc in snap.docs) {
-              try {
-                final note = ChapterStudyNote.fromMap(doc.id, doc.data());
-                map[note.chapterKey] = note;
-              } catch (e) {
-                debugPrint('📝 [CHAPTER-NOTES] parse error: $e');
+    final uid = _uid;
+    if (uid == null) return;
+    try {
+      _subscription = _col
+          .snapshots(includeMetadataChanges: true)
+          .listen(
+            (snap) {
+              if (_uid != uid) return;
+              final remoto = <String, ChapterStudyNote>{};
+              for (final doc in snap.docs) {
+                try {
+                  remoto[doc.id] = ChapterStudyNote.fromMap(doc.id, doc.data());
+                } catch (e) {
+                  debugPrint('📝 [CHAPTER-NOTES] parse error: $e');
+                }
               }
-            }
-            notesNotifier.value = Map.unmodifiable(map);
-            unawaited(_saveLocalCache(map));
-          },
-          onError: (e) {
-            debugPrint('📝 [CHAPTER-NOTES] listen error: $e');
-          },
-        );
+              aplicarSnapshot(remoto, desdeCache: snap.metadata.isFromCache);
+            },
+            onError: (e) {
+              debugPrint('📝 [CHAPTER-NOTES] listen error: $e');
+            },
+          );
+    } catch (e) {
+      debugPrint('📝 [CHAPTER-NOTES] No se pudo escuchar la nube: $e');
+    }
+  }
+
+  /// Une un snapshot COMPLETO de la nube (por id) con lo del teléfono.
+  @visibleForTesting
+  void aplicarSnapshot(
+    Map<String, ChapterStudyNote> remoto, {
+    required bool desdeCache,
+  }) {
+    final uid = _uid;
+    if (uid == null) return;
+    final prefijo = _prefijo(uid);
+    final unidas = fusionarConServidor<ChapterStudyNote>(
+      local: notasPorIdNotifier.value,
+      remoto: remoto,
+      desdeCache: desdeCache,
+      guardadoPendiente: (id) => NotasSync.I.guardadoPendiente('$prefijo$id'),
+      borradoPendiente: (id) => NotasSync.I.borradoPendiente('$prefijo$id'),
+    );
+    _publicar(unidas);
+    unawaited(_saveLocalCache(unidas));
+  }
+
+  void _publicar(Map<String, ChapterStudyNote> porId) {
+    notasPorIdNotifier.value = Map.unmodifiable(porId);
+    final porCapitulo = <String, ChapterStudyNote>{};
+    for (final nota in porId.values) {
+      final actual = porCapitulo[nota.chapterKey];
+      if (actual == null || nota.updatedAt.isAfter(actual.updatedAt)) {
+        porCapitulo[nota.chapterKey] = nota;
+      }
+    }
+    notesNotifier.value = Map.unmodifiable(porCapitulo);
+  }
+
+  /// Vuelve a lanzar lo que quedó sin confirmar en una sesión anterior.
+  void _reenviarPendientes(String uid) {
+    final prefijo = _prefijo(uid);
+    for (final id in NotasSync.I.idsPendientes(prefijo, borrados: false)) {
+      final nota = notasPorIdNotifier.value[id];
+      if (nota != null) {
+        unawaited(NotasSync.I.guardar('$prefijo$id', nota.toMap()));
+      }
+    }
+    for (final id in NotasSync.I.idsPendientes(prefijo, borrados: true)) {
+      unawaited(NotasSync.I.borrar('$prefijo$id'));
+    }
   }
 
   // ══════════════════════════════════════════════════════════════════════════
   // CRUD
   // ══════════════════════════════════════════════════════════════════════════
 
-  /// Obtener nota para un capítulo específico (desde cache local)
+  /// Nota más reciente de un capítulo (desde cache local).
   ChapterStudyNote? getNoteForChapter(int bookNumber, int chapter) {
     return notesNotifier.value['$bookNumber:$chapter'];
   }
 
-  /// Guardar o actualizar nota
-  Future<void> saveNote({
+  /// Todas las notas de un capítulo, la más reciente primero.
+  List<ChapterStudyNote> notesForChapter(int bookNumber, int chapter) {
+    return allNotes
+        .where((n) => n.bookNumber == bookNumber && n.chapter == chapter)
+        .toList();
+  }
+
+  ChapterStudyNote? noteById(String? id) {
+    if (id == null || id.isEmpty) return null;
+    return notasPorIdNotifier.value[id];
+  }
+
+  /// Id nuevo para una nota que todavía no existe. Permite que el editor
+  /// autoguarde varias veces sobre el MISMO documento.
+  String nuevoId() => 'cn_${DateTime.now().microsecondsSinceEpoch}';
+
+  /// Guardar o actualizar nota. Termina en cuanto queda guardada en el
+  /// teléfono; la subida sigue sola. Devuelve la nota guardada.
+  Future<ChapterStudyNote?> saveNote({
     String? existingId,
     required String versionId,
     required int bookNumber,
@@ -102,14 +192,16 @@ class ChapterNoteService {
     List<String> tags = const [],
     String colorHex = 'D4A853',
   }) async {
-    if (_uid == null) return;
+    final uid = _uid;
+    if (uid == null) return null;
 
     final now = DateTime.now();
-    final existing = _findById(existingId);
-    final hasExistingId = existingId != null && existingId.isNotEmpty;
-    final doc = hasExistingId ? _col.doc(existingId) : _col.doc();
+    final existing = noteById(existingId);
+    final id = existingId != null && existingId.isNotEmpty
+        ? existingId
+        : nuevoId();
     final note = ChapterStudyNote(
-      id: existing?.id ?? doc.id,
+      id: id,
       versionId: versionId,
       bookNumber: bookNumber,
       bookName: bookName,
@@ -122,30 +214,26 @@ class ChapterNoteService {
       updatedAt: now,
     );
 
-    final next = Map<String, ChapterStudyNote>.from(notesNotifier.value);
-    next[note.chapterKey] = note;
-    notesNotifier.value = Map.unmodifiable(next);
+    final next = Map<String, ChapterStudyNote>.from(notasPorIdNotifier.value);
+    next[note.id] = note;
+    _publicar(next);
     await _saveLocalCache(next);
 
-    final data = note.toMap();
-
-    if (hasExistingId) {
-      // Update — preservar createdAt
-      data.remove('createdAt');
-      await doc.update(data);
-    } else {
-      await doc.set(data);
-    }
+    // set(merge) en lugar de update(): si la nota se borró en otro
+    // dispositivo no lanza error y lo escrito aquí no se pierde.
+    unawaited(NotasSync.I.guardar('${_prefijo(uid)}${note.id}', note.toMap()));
+    return note;
   }
 
   /// Eliminar nota
   Future<void> deleteNote(String noteId) async {
-    if (_uid == null) return;
-    final next = Map<String, ChapterStudyNote>.from(notesNotifier.value);
-    next.removeWhere((_, note) => note.id == noteId);
-    notesNotifier.value = Map.unmodifiable(next);
+    final uid = _uid;
+    if (uid == null) return;
+    final next = Map<String, ChapterStudyNote>.from(notasPorIdNotifier.value)
+      ..remove(noteId);
+    _publicar(next);
     await _saveLocalCache(next);
-    await _col.doc(noteId).delete();
+    unawaited(NotasSync.I.borrar('${_prefijo(uid)}$noteId'));
   }
 
   /// Buscar notas por texto (title + content)
@@ -155,13 +243,14 @@ class ChapterNoteService {
     return allNotes.where((n) {
       return n.title.toLowerCase().contains(q) ||
           n.content.toLowerCase().contains(q) ||
+          n.reference.toLowerCase().contains(q) ||
           n.tags.any((t) => t.toLowerCase().contains(q));
     }).toList();
   }
 
   /// Todas las notas ordenadas por updatedAt desc
   List<ChapterStudyNote> get allNotes {
-    final list = notesNotifier.value.values.toList();
+    final list = notasPorIdNotifier.value.values.toList();
     list.sort((a, b) => b.updatedAt.compareTo(a.updatedAt));
     return list;
   }
@@ -169,14 +258,6 @@ class ChapterNoteService {
   /// Notas filtradas por libro
   List<ChapterStudyNote> notesForBook(int bookNumber) {
     return allNotes.where((n) => n.bookNumber == bookNumber).toList();
-  }
-
-  ChapterStudyNote? _findById(String? id) {
-    if (id == null || id.isEmpty) return null;
-    for (final note in notesNotifier.value.values) {
-      if (note.id == id) return note;
-    }
-    return null;
   }
 
   String _cacheKey(String uid) => '$_cachePrefix.$uid';
@@ -188,7 +269,10 @@ class ChapterNoteService {
       final decoded = jsonDecode(raw);
       if (decoded is! List) return;
       final notes = decoded.map(_fromLocal).whereType<ChapterStudyNote>();
-      notesNotifier.value = Map.unmodifiable({for (final n in notes) n.chapterKey: n});
+      _publicar({
+        for (final n in notes)
+          if (n.id.isNotEmpty) n.id: n,
+      });
     } catch (e) {
       debugPrint('📝 [CHAPTER-NOTES] local cache load error: $e');
     }
@@ -197,7 +281,14 @@ class ChapterNoteService {
   Future<void> _saveLocalCache(Map<String, ChapterStudyNote> notes) async {
     final uid = _uid;
     if (uid == null) return;
-    await _prefs?.setString(_cacheKey(uid), jsonEncode(notes.values.map(_toLocal).toList()));
+    try {
+      await _prefs?.setString(
+        _cacheKey(uid),
+        jsonEncode(notes.values.map(_toLocal).toList()),
+      );
+    } catch (e) {
+      debugPrint('📝 [CHAPTER-NOTES] local cache save error: $e');
+    }
   }
 
   Map<String, dynamic> _toLocal(ChapterStudyNote note) => {

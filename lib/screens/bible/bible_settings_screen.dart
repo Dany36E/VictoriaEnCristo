@@ -9,6 +9,8 @@ import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_download_service.dart';
 import '../../services/notification_service.dart';
 import '../../widgets/bible/daily_verse_reminder_sheet.dart';
+import '../../widgets/bible/audio_settings_section.dart';
+import '../../widgets/bible/reader/guzik_attribution.dart';
 import 'bible_dictionary_screen.dart';
 
 /// Pantalla de ajustes de la Biblia: versión preferida, tamaño de fuente, tema.
@@ -130,6 +132,16 @@ class BibleSettingsScreen extends StatelessWidget {
                                     fontSize: 12,
                                   ),
                                 ),
+                                const SizedBox(height: 4),
+                                // Aviso de derechos de la traducción.
+                                Text(
+                                  v.copyright,
+                                  style: AppFonts.manrope(
+                                    color: t.textoTenue(0.55),
+                                    fontSize: 11,
+                                    height: 1.4,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -185,10 +197,13 @@ class BibleSettingsScreen extends StatelessWidget {
                           label: 'Tamaño de fuente',
                           value: '${fontSize.toInt()} puntos',
                           child: Slider(
-                            value: fontSize,
-                            min: 14,
-                            max: 32,
-                            divisions: 9,
+                            value: fontSize.clamp(
+                              BibleUserDataService.minFontSize,
+                              BibleUserDataService.maxFontSize,
+                            ),
+                            min: BibleUserDataService.minFontSize,
+                            max: BibleUserDataService.maxFontSize,
+                            divisions: BibleUserDataService.fontSizeDivisions,
                             activeColor: t.accent,
                             inactiveColor: t.textSecondary.withValues(
                               alpha: 0.15,
@@ -394,7 +409,7 @@ class BibleSettingsScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              '©1996–present Enduring Word · Usado con permiso',
+                              GuzikAttribution.text,
                               style: AppFonts.manrope(
                                 color: t.textPrimary.withValues(alpha: 0.4),
                                 fontSize: 11,
@@ -414,6 +429,10 @@ class BibleSettingsScreen extends StatelessWidget {
               ),
             ),
           ),
+          const SizedBox(height: 24),
+
+          // ── Audio (voz, velocidad, auto-avance, temporizador) ──
+          AudioSettingsSection(theme: t),
           const SizedBox(height: 24),
 
           // ── Recordatorios ──

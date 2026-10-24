@@ -39,6 +39,10 @@ class SermonRichTextController extends TextEditingController {
   /// El fondo es oscuro: los colores de texto usan su variante clara.
   bool fondoOscuro = false;
 
+  /// Dibuja la foto o el dibujo que va en el lugar de cada [kMarcaAdjunto].
+  /// Sin él (o con un id desconocido) la marca no ocupa espacio.
+  Widget? Function(String id)? constructorAdjunto;
+
   RichNoteDocument get document => _document;
   bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
@@ -101,6 +105,43 @@ class SermonRichTextController extends TextEditingController {
       selection: TextSelection.collapsed(
         offset: resultado.cursor.clamp(0, texto.length),
       ),
+    );
+    _updatingProgrammatically = false;
+    _redoStack.clear();
+    notifyListeners();
+  }
+
+  /// Inserta el adjunto [id] donde está el cursor (o al final si el editor
+  /// no tiene cursor), en su propia línea, y deja el cursor debajo.
+  void insertarAdjunto(String id) {
+    _pushUndoState();
+    final sel = value.selection;
+    final offset = sel.isValid ? sel.end : text.length;
+    final (doc, cursor) = _document.insertarAdjunto(offset, id);
+    _document = doc;
+    _updatingProgrammatically = true;
+    super.value = TextEditingValue(
+      text: doc.text,
+      selection: TextSelection.collapsed(offset: cursor),
+    );
+    _updatingProgrammatically = false;
+    _redoStack.clear();
+    notifyListeners();
+  }
+
+  /// Quita del texto la marca del adjunto [id].
+  void quitarAdjunto(String id) {
+    if (!_document.embeds.contains(id)) return;
+    _pushUndoState();
+    final doc = _document.quitarAdjunto(id);
+    final cursor = value.selection.isValid
+        ? value.selection.end.clamp(0, doc.text.length)
+        : doc.text.length;
+    _document = doc;
+    _updatingProgrammatically = true;
+    super.value = TextEditingValue(
+      text: doc.text,
+      selection: TextSelection.collapsed(offset: cursor),
     );
     _updatingProgrammatically = false;
     _redoStack.clear();
@@ -226,6 +267,14 @@ class SermonRichTextController extends TextEditingController {
     for (final r in [..._referenceRanges, ...marcas, ...hechas, ...etiquetas]) {
       agregar(r.start, r.end);
     }
+    // Cada foto o dibujo en línea es su propio tramo.
+    final indiceAdjunto = <int, int>{};
+    for (var i = 0, n = 0; i < text.length; i++) {
+      if (text.codeUnitAt(i) == 0xFFFC) {
+        indiceAdjunto[i] = n++;
+        agregar(i, i + 1);
+      }
+    }
     if (withComposing && value.composing.isValid) {
       agregar(value.composing.start, value.composing.end);
     }
@@ -241,6 +290,21 @@ class SermonRichTextController extends TextEditingController {
       final start = points[index];
       final end = points[index + 1];
       if (start >= end) continue;
+
+      final indice = indiceAdjunto[start];
+      if (indice != null && end == start + 1) {
+        final embeds = _document.embeds;
+        final id = indice < embeds.length ? embeds[indice] : '';
+        final hijo = id.isEmpty ? null : constructorAdjunto?.call(id);
+        children.add(
+          WidgetSpan(
+            alignment: PlaceholderAlignment.middle,
+            style: style,
+            child: hijo ?? const SizedBox(width: 1, height: 1),
+          ),
+        );
+        continue;
+      }
 
       final f = _document.formatIn(start, end);
       final isMisspelled = _spellSuggestions.any(

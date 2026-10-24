@@ -5,6 +5,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import '../../models/bible/bible_verse.dart';
+import '../../models/bible/bible_version.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BIBLE SHARE SERVICE
@@ -17,7 +18,7 @@ class BibleShareService {
 
   /// Compartir como texto plano
   static Future<void> shareAsText(BibleVerse verse) async {
-    final text = '"${verse.text}"\n— ${verse.reference} (${verse.version})';
+    final text = '"${verse.text}"\n— ${verse.reference} (${BibleVersion.fromId(verse.version).shareAbbreviation})';
     await Share.share(text);
   }
 

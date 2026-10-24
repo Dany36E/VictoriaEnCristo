@@ -136,6 +136,8 @@ class MainActivity : FlutterActivity() {
                         result.success(PurityVpnService.blocklistCount(this))
                     "blockStats" ->
                         result.success(PurityVpnService.blockStats(this))
+                    "consumeShieldEvents" ->
+                        result.success(PurityVpnService.consumeEvents(this))
                     else -> result.notImplemented()
                 }
             }

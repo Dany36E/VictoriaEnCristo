@@ -246,6 +246,21 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
 
   // ── Candado del guardián a distancia (remoto) ────────────────────────────
 
+  Future<void> _cancelarRetiroCandado() async {
+    final ok = await RemoteGuardianService.I.cancelarRetiro();
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          ok
+              ? 'El candado se mantiene. Cancelaste el retiro.'
+              : 'No se pudo cancelar. Revisa tu conexión.',
+        ),
+        behavior: SnackBarBehavior.floating,
+      ),
+    );
+  }
+
   Widget _buildRemoteGuardianCard(AppThemeData t) {
     return ValueListenableBuilder<GuardianLockStatus?>(
       valueListenable: RemoteGuardianService.I.myLock,
@@ -280,14 +295,23 @@ class _PurityGuardScreenState extends State<PurityGuardScreen> {
               ),
             ),
             subtitle: Text(
-              active
+              active && lock.releaseAt != null
+                  ? 'Se retirará el ${lock.releaseAt!.day}/${lock.releaseAt!.month} '
+                        'a las ${lock.releaseAt!.hour.toString().padLeft(2, '0')}:'
+                        '${lock.releaseAt!.minute.toString().padLeft(2, '0')}'
+                  : active
                   ? 'Protegido por ${lock.guardianName ?? 'tu compañero'}'
                   : pending
                   ? 'Esperando el PIN de ${lock.guardianName ?? 'tu compañero'}…'
                   : 'Tu compañero pone el PIN desde su teléfono',
               style: TextStyle(color: t.textSecondary),
             ),
-            trailing: Icon(Icons.chevron_right, color: t.textSecondary),
+            trailing: active && lock.releaseAt != null
+                ? TextButton(
+                    onPressed: _cancelarRetiroCandado,
+                    child: const Text('Mantener'),
+                  )
+                : Icon(Icons.chevron_right, color: t.textSecondary),
             onTap: () => Navigator.push(
               context,
               MaterialPageRoute(builder: (_) => const RemoteGuardianScreen()),

@@ -16,6 +16,10 @@ import 'package:app_quitar/screens/bible/bible_search_screen.dart';
 import 'package:app_quitar/screens/bible/bible_settings_screen.dart';
 import 'package:app_quitar/screens/bible/bible_timeline_screen.dart';
 import 'package:app_quitar/screens/bible/blb_setup_screen.dart';
+import 'package:app_quitar/screens/bible/bosquejo_editor_screen.dart';
+import 'package:app_quitar/screens/bible/bosquejos_screen.dart';
+import 'package:app_quitar/screens/bible/buscar_notas_screen.dart';
+import 'package:app_quitar/screens/bible/chapter_note_editor_screen.dart';
 import 'package:app_quitar/screens/bible/collections_screen.dart';
 import 'package:app_quitar/screens/bible/gospel_harmony_screen.dart';
 import 'package:app_quitar/screens/bible/ot_quotes_screen.dart';
@@ -30,6 +34,8 @@ import 'package:app_quitar/screens/devotional_screen.dart';
 import 'package:app_quitar/screens/emergency_screen.dart';
 import 'package:app_quitar/screens/emotional_verse_jar_screen.dart';
 import 'package:app_quitar/screens/exercises_screen.dart';
+import 'package:app_quitar/screens/bible/bible_library_screen.dart';
+import 'package:app_quitar/screens/bible/reading_history_screen.dart';
 import 'package:app_quitar/screens/favorites_screen.dart';
 import 'package:app_quitar/screens/home_screen.dart';
 import 'package:app_quitar/screens/learning/armory_deck_screen.dart';
@@ -53,6 +59,8 @@ import 'package:app_quitar/screens/login_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_frequency_screen.dart';
 import 'package:app_quitar/screens/onboarding/giant_selection_screen.dart';
 import 'package:app_quitar/screens/onboarding/onboarding_welcome_screen.dart';
+import 'package:app_quitar/screens/patrones_screen.dart';
+import 'package:app_quitar/screens/battle_partner/rendicion_cuentas_screen.dart';
 import 'package:app_quitar/screens/prayers_screen.dart';
 import 'package:app_quitar/screens/privacy_center_screen.dart';
 import 'package:app_quitar/screens/profile_screen.dart';
@@ -95,6 +103,8 @@ void main() {
   themeMatrix('all_notes', () => const AllNotesScreen());
   themeMatrix('bible_dictionary', () => const BibleDictionaryScreen());
   themeMatrix('bible_home', () => const BibleHomeScreen());
+  themeMatrix('bible_library', () => const BibleLibraryScreen());
+  themeMatrix('reading_history', () => const ReadingHistoryScreen());
   themeMatrix(
     'bible_parallel',
     () => const BibleParallelScreen(
@@ -108,6 +118,18 @@ void main() {
   themeMatrix('bible_settings', () => const BibleSettingsScreen());
   themeMatrix('bible_timeline', () => const BibleTimelineScreen());
   themeMatrix('blb_setup', () => const BlbSetupScreen());
+  themeMatrix('bosquejos', () => const BosquejosScreen());
+  themeMatrix('bosquejo_editor', () => const BosquejoEditorScreen());
+  themeMatrix('buscar_notas', () => const BuscarNotasScreen());
+  themeMatrix(
+    'chapter_note_editor',
+    () => const ChapterNoteEditorScreen(
+      bookNumber: 43,
+      bookName: 'Juan',
+      chapter: 3,
+      versionId: 'RVR1960',
+    ),
+  );
   themeMatrix('collections', () => const CollectionsScreen());
   themeMatrix('gospel_harmony', () => const GospelHarmonyScreen());
   themeMatrix('lienzo_dibujo', () => const LienzoDibujoScreen());
@@ -172,6 +194,8 @@ void main() {
     () => const GiantFrequencyScreen(selectedGiants: ['digital', 'mental']),
   );
   themeMatrix('onboarding_welcome', () => const OnboardingWelcomeScreen());
+  themeMatrix('patrones', () => const PatronesScreen());
+  themeMatrix('rendicion_cuentas', () => const RendicionCuentasScreen());
   themeMatrix('prayers', () => const PrayersScreen());
   themeMatrix('privacy_center', () => const PrivacyCenterScreen());
   themeMatrix('purity_guard', () => const PurityGuardScreen());

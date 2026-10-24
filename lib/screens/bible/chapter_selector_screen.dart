@@ -5,6 +5,7 @@ import '../../models/bible/bible_book.dart';
 import '../../models/bible/bible_version.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/bible_reading_stats_service.dart';
+import '../../services/bible/reading_history_service.dart';
 import '../../theme/bible_reader_theme.dart';
 import 'bible_reader_screen.dart';
 
@@ -20,8 +21,25 @@ class ChapterSelectorScreen extends StatelessWidget {
     required this.version,
   });
 
+  /// Hasta [max] capítulos distintos de [bookNumber], del más reciente al
+  /// más antiguo según el historial de lectura.
+  static List<int> recentChaptersFor(
+    int bookNumber,
+    List<ReadingHistoryEntry> history, {
+    int max = 5,
+  }) {
+    final out = <int>[];
+    for (final e in history) {
+      if (e.bookNumber != bookNumber || out.contains(e.chapter)) continue;
+      out.add(e.chapter);
+      if (out.length >= max) break;
+    }
+    return out;
+  }
+
   @override
   Widget build(BuildContext context) {
+    ReadingHistoryService.I.ensureLoaded();
     return ValueListenableBuilder<String>(
       valueListenable: BibleUserDataService.I.readerThemeNotifier,
       builder: (context, themeId, _) {
@@ -78,20 +96,17 @@ class ChapterSelectorScreen extends StatelessWidget {
 
                 const SizedBox(height: 24),
 
-                // Recentes — chapters already read in this book
-                ValueListenableBuilder<Set<String>>(
-                  valueListenable: BibleReadingStatsService.I.readChaptersNotifier,
-                  builder: (context, readChapters, _) {
-                    final bookRead = readChapters
-                        .where((k) => k.startsWith('${book.number}:'))
-                        .map((k) => int.tryParse(k.split(':').last) ?? 0)
-                        .where((c) => c > 0)
-                        .toList()
-                      ..sort();
-                    if (bookRead.isEmpty) return const SizedBox.shrink();
-                    final recent = bookRead.length > 5
-                        ? bookRead.sublist(bookRead.length - 5)
-                        : bookRead;
+                // Recientes — capítulos de este libro visitados hace poco, del
+                // más reciente al más antiguo (antes: los 5 de número más
+                // alto entre los leídos, que no eran «recientes»).
+                ValueListenableBuilder<List<ReadingHistoryEntry>>(
+                  valueListenable: ReadingHistoryService.I.historyNotifier,
+                  builder: (context, history, _) {
+                    final recent = ChapterSelectorScreen.recentChaptersFor(
+                      book.number,
+                      history,
+                    );
+                    if (recent.isEmpty) return const SizedBox.shrink();
                     return Padding(
                       padding: const EdgeInsets.fromLTRB(24, 0, 24, 16),
                       child: Column(

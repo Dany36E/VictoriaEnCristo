@@ -11,13 +11,12 @@ App Flutter cristiana para acompanamiento espiritual, lectura biblica, devociona
 - Persistencia local con `shared_preferences` y cache offline de Firestore.
 - Audio con `just_audio`, `audio_session` y TTS con `flutter_tts`.
 - Widgets nativos con `home_widget`.
-- Mapas biblicos con `flutter_map`.
 
 ## Modulos principales
 
 - Home: racha, check-in, versiculo diario (366+ referencias por tema), practicas de hoy, SOS, comunidad y aprendizaje.
 - Victoria: registro por gigantes, umbral compuesto y flujo de gracia ante recaida.
-- Biblia: lector, busqueda, notas, highlights, favoritos, comentarios, interlineal, mapas y timeline.
+- Biblia: lector, busqueda, notas, highlights, favoritos, comentarios, interlineal y timeline.
 - Escuela del Reino: quizzes, recorridos, heroes, parabolas, libros, profecias y juegos.
 - Diario y oraciones: reflexion, prompts, oraciones por categoria y seguimiento espiritual.
 - Compañero de Batalla: invitaciones, mensajes, SOS de oracion y privacidad por defecto.

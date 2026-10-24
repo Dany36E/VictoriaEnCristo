@@ -33,6 +33,10 @@ class UserPrefCloudSyncService {
     'lastReadBookNumber',
     'lastReadBookName',
     'lastReadChapter',
+    'lastReadVerse',
+    'lastReadVersion',
+    'bible_reading_history_v1',
+    'bible_reading_positions_v1',
     'bible_study_mode_enabled',
     'advanced_search_history',
     'bible_search_recent',
@@ -73,6 +77,7 @@ class UserPrefCloudSyncService {
   ];
 
   static const List<String> _prefixes = <String>[
+    'favorites_migrated_refs_v1.',
     'devotional_challenge_',
     'devotional_v2_challenge_',
     'devotional_v2_override_giant_',

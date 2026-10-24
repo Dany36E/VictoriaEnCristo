@@ -29,10 +29,9 @@ class WallService {
   // ═══════════════════════════════════════════════════════════════════════════
   // REFS
   // ═══════════════════════════════════════════════════════════════════════════
-  final _db = FirebaseFirestore.instance;
-  final _functions = FirebaseFunctions.instanceFor(
-    region: kCloudFunctionRegion,
-  );
+  FirebaseFirestore get _db => FirebaseFirestore.instance;
+  FirebaseFunctions get _functions =>
+      FirebaseFunctions.instanceFor(region: kCloudFunctionRegion);
 
   CollectionReference get _postsRef => _db.collection('wallPosts');
 
@@ -62,9 +61,8 @@ class WallService {
         'createWallPost',
       ).call<Map<String, dynamic>>({'giantId': giantId, 'body': body.trim()});
       final data = result.data;
-      return WallPostResult(
-        success: data['success'] == true,
-        message: data['message'] as String? ?? '',
+      return WallPostResult.fromCallable(
+        data,
         postId: data['postId'] as String?,
       );
     } on FirebaseFunctionsException catch (e) {
@@ -93,9 +91,8 @@ class WallService {
         'createWallComment',
       ).call<Map<String, dynamic>>({'postId': postId, 'body': body.trim()});
       final data = result.data;
-      return WallPostResult(
-        success: data['success'] == true,
-        message: data['message'] as String? ?? '',
+      return WallPostResult.fromCallable(
+        data,
         commentId: data['commentId'] as String?,
       );
     } on FirebaseFunctionsException catch (e) {
@@ -323,6 +320,36 @@ class WallService {
         .map(
           (snap) =>
               snap.docs.map((doc) => WallPost.fromFirestore(doc)).toList(),
+        );
+  }
+
+  /// Cola de comentarios pendientes de TODAS las publicaciones (admin).
+  /// Más antiguos primero. Requiere el índice collectionGroup de comments.
+  Stream<List<WallComment>> watchPendingCommentsQueue() {
+    return _db
+        .collectionGroup('comments')
+        .where('status', isEqualTo: 'pending')
+        .orderBy('createdAt', descending: false)
+        .limit(100)
+        .snapshots()
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList(),
+        );
+  }
+
+  /// Comentarios publicados que alguien reportó (admin).
+  Stream<List<WallComment>> watchReportedComments() {
+    return _db
+        .collectionGroup('comments')
+        .where('status', isEqualTo: 'approved')
+        .where('reportCount', isGreaterThan: 0)
+        .orderBy('reportCount', descending: true)
+        .limit(100)
+        .snapshots()
+        .map(
+          (snap) =>
+              snap.docs.map((doc) => WallComment.fromFirestore(doc)).toList(),
         );
   }
 

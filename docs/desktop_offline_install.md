@@ -40,7 +40,7 @@ Funciona sin internet después de que la app ya fue abierta y el usuario inició
 Disponible offline:
 
 - Biblia incluida en assets XML.
-- Comentarios, mapas/recursos incluidos como assets locales.
+- Comentarios y recursos de estudio incluidos como assets locales.
 - Fuentes locales bundled; no se descargan fuentes en runtime.
 - Diario con cache local.
 - Resaltados, notas por versículo, notas por capítulo, colecciones de versículos, versículos guardados, oraciones por versículo y preferencias de lector con cache local explícita.

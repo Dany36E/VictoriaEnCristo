@@ -9,7 +9,7 @@ import '../services/bible/bible_user_data_service.dart';
 import '../services/bible/book_intro_service.dart';
 import '../services/bible/gospel_harmony_service.dart';
 import '../services/bible/ot_quotes_service.dart';
-import '../services/user_pref_cloud_sync_service.dart';
+import '../services/bible/reading_history_service.dart';
 
 // Re-export mixins & shared types for callers that import from here
 export 'bible_reader/reader_state.dart' show StudyItemType, StudyItem;
@@ -46,8 +46,12 @@ class BibleReaderController extends ReaderState
     required this.bookName,
     required int chapter,
     required BibleVersion version,
+    int? initialVerse,
+    bool highlightInitialVerse = true,
   }) : currentChapter = chapter,
-       currentVersion = version {
+       currentVersion = version,
+       _requestedVerse = initialVerse,
+       _requestedFlash = highlightInitialVerse {
     redLettersEnabled = BibleUserDataService.I.redLettersEnabledNotifier.value;
     BibleUserDataService.I.redLettersEnabledNotifier.addListener(_onRedLetterChanged);
     loadChapter();
@@ -63,6 +67,60 @@ class BibleReaderController extends ReaderState
         .catchError((e) {
           debugPrint('⚠️ [BibleReader] Error cargando prefs: $e');
         });
+  }
+
+  // ═══════════════════════════════════════════════════════════════════════
+  // DESTINO DE SCROLL (versículo pedido / posición recordada)
+  // ═══════════════════════════════════════════════════════════════════════
+
+  /// Versículo pedido explícitamente por quien abrió el capítulo (búsqueda,
+  /// guardados, historial…). Se resalta brevemente al llegar.
+  int? _requestedVerse;
+  bool _requestedFlash;
+
+  /// Versículo al que la pantalla debe desplazarse tras cargar el capítulo
+  /// (null = arriba). La pantalla lo consume con [takePendingScroll].
+  int? _pendingScrollVerse;
+  bool _pendingFlash = false;
+
+  /// Se incrementa cada vez que termina de cargar un capítulo.
+  int loadGeneration = 0;
+
+  /// Versículo resaltado un instante tras navegar a él.
+  final ValueNotifier<int?> flashVerse = ValueNotifier(null);
+  Timer? _flashTimer;
+
+  /// Error al cargar la versión/capítulo (null = sin error).
+  String? loadError;
+
+  /// Devuelve y limpia el destino pendiente: (versículo, resaltar).
+  ({int verse, bool flash})? takePendingScroll() {
+    final v = _pendingScrollVerse;
+    if (v == null) return null;
+    _pendingScrollVerse = null;
+    final flash = _pendingFlash;
+    _pendingFlash = false;
+    return (verse: v, flash: flash);
+  }
+
+  void flash(int verse) {
+    _flashTimer?.cancel();
+    flashVerse.value = verse;
+    _flashTimer = Timer(const Duration(milliseconds: 1800), () {
+      flashVerse.value = null;
+    });
+  }
+
+  /// Guarda el versículo visible como punto de lectura de este capítulo.
+  void reportVisibleVerse(int verse) {
+    if (loading || verses.isEmpty) return;
+    ReadingHistoryService.I.updatePosition(
+      bookNumber: bookNumber,
+      bookName: bookName,
+      chapter: currentChapter,
+      versionId: currentVersion.id,
+      verse: verse,
+    );
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -113,6 +171,9 @@ class BibleReaderController extends ReaderState
 
   @override
   void dispose() {
+    _flashTimer?.cancel();
+    flashVerse.dispose();
+    unawaited(ReadingHistoryService.I.flush());
     disposeAudio();
     BibleUserDataService.I.redLettersEnabledNotifier.removeListener(_onRedLetterChanged);
     super.dispose();
@@ -129,7 +190,10 @@ class BibleReaderController extends ReaderState
 
   Future<void> loadChapter() async {
     debugPrint('🟢 [BibleReader] loadChapter start: book=$bookNumber ch=$currentChapter');
+    // Detiene el audio del capítulo anterior (y recuerda si debe seguir).
+    audioBeforeChapterChange();
     loading = true;
+    loadError = null;
     selectedVerseNumbers.clear();
     wordSelectionVerse = null;
     selectedWords.clear();
@@ -152,10 +216,34 @@ class BibleReaderController extends ReaderState
         chapter: currentChapter,
       );
 
+      if (loadedVerses.isEmpty) {
+        throw StateError('Capítulo vacío: $bookNumber:$currentChapter');
+      }
+
+      // Destino: el versículo pedido o, si no, donde se quedó la persona.
+      await ReadingHistoryService.I.ensureLoaded();
+      final requested = _requestedVerse;
+      _requestedVerse = null;
+      final remembered = ReadingHistoryService.I.positionFor(
+        currentVersion.id,
+        bookNumber,
+        currentChapter,
+      );
+      final lastVerse = loadedVerses.last.verse;
+      final target = requested ?? remembered;
+      _pendingScrollVerse = (target != null && target > 1)
+          ? target.clamp(1, lastVerse)
+          : null;
+      _pendingFlash = requested != null && _requestedFlash;
+      _requestedFlash = true;
+
       verses = loadedVerses;
       loading = false;
       headerOpacity = 1.0;
+      loadGeneration++;
       notifyListeners();
+      // Continúa la lectura en voz alta si venía sonando / auto-avance.
+      audioAfterChapterLoaded();
       debugPrint('🟢 [BibleReader] verses loaded: ${verses.length}');
 
       // Load chapter intro
@@ -200,19 +288,16 @@ class BibleReaderController extends ReaderState
       BibleReadingStatsService.I.logChapterRead(bookNumber: bookNumber, chapter: currentChapter);
       debugPrint('🟢 [BibleReader] after logChapterRead');
 
-      // Persist last-read position
-      SharedPreferences.getInstance()
-          .then((prefs) async {
-            await Future.wait([
-              prefs.setInt('lastReadBookNumber', bookNumber),
-              prefs.setString('lastReadBookName', bookName),
-              prefs.setInt('lastReadChapter', currentChapter),
-            ]);
-            UserPrefCloudSyncService.I.markDirty();
-          })
-          .catchError((e) {
-            debugPrint('⚠️ [BibleReader] Error guardando posición: $e');
-          });
+      // Historial + «Continuar leyendo» (con versículo y versión).
+      unawaited(
+        ReadingHistoryService.I.recordVisit(
+          bookNumber: bookNumber,
+          bookName: bookName,
+          chapter: currentChapter,
+          versionId: currentVersion.id,
+          verse: (requested ?? remembered ?? 1).clamp(1, lastVerse),
+        ),
+      );
 
       // Reload commentary if study mode active
       if (studyModeEnabled) {
@@ -223,14 +308,42 @@ class BibleReaderController extends ReaderState
       debugPrint(st.toString());
       loading = false;
       verses = [];
+      loadError = e is StateError && '$e'.contains('requiere descarga')
+          ? 'Esta versión necesita descargarse antes de leerla.'
+          : 'No se pudo cargar ${currentVersion.shortName}.';
       notifyListeners();
     }
   }
 
-  void goToChapter(int chapter) {
+  /// Va a [chapter] del libro actual; [verse] = versículo a mostrar.
+  void goToChapter(int chapter, {int? verse}) {
     if (chapter < 1 || chapter > totalChapters) return;
     currentChapter = chapter;
+    _requestedVerse = verse;
+    _requestedFlash = true;
     loadChapter();
+  }
+
+  /// Avanza al capítulo siguiente del libro. Devuelve false si era el último
+  /// (la pantalla abre entonces el libro siguiente). El capítulo terminado
+  /// olvida su posición para empezar arriba la próxima vez.
+  bool goToNextChapter() {
+    ReadingHistoryService.I.clearPosition(
+      currentVersion.id,
+      bookNumber,
+      currentChapter,
+    );
+    if (currentChapter >= totalChapters) return false;
+    goToChapter(currentChapter + 1);
+    return true;
+  }
+
+  /// Retrocede un capítulo. Devuelve false si estaba en el capítulo 1 (la
+  /// pantalla abre entonces el último capítulo del libro anterior).
+  bool goToPreviousChapter() {
+    if (currentChapter <= 1) return false;
+    goToChapter(currentChapter - 1);
+    return true;
   }
 
   BibleBook? getNextBook() {
@@ -238,6 +351,13 @@ class BibleReaderController extends ReaderState
     final idx = allBooks.indexWhere((b) => b.number == bookNumber);
     if (idx < 0 || idx >= allBooks.length - 1) return null;
     return allBooks[idx + 1];
+  }
+
+  BibleBook? getPreviousBook() {
+    if (allBooks.isEmpty) return null;
+    final idx = allBooks.indexWhere((b) => b.number == bookNumber);
+    if (idx <= 0) return null;
+    return allBooks[idx - 1];
   }
 
   // ═══════════════════════════════════════════════════════════════════════
@@ -287,8 +407,12 @@ class BibleReaderController extends ReaderState
   // VERSION
   // ═══════════════════════════════════════════════════════════════════════
 
-  void onVersionChanged() {
+  /// Cambia a la versión preferida conservando el versículo [keepVerse]
+  /// (el que se estaba leyendo), sin resaltarlo.
+  void onVersionChanged({int? keepVerse}) {
     currentVersion = BibleUserDataService.I.preferredVersionNotifier.value;
+    _requestedVerse = keepVerse;
+    _requestedFlash = false;
     loadChapter();
   }
 }

@@ -1,6 +1,7 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 /// BATTLE PARTNER CARD - Tarjeta de cada compañero de batalla
-/// Muestra: nombre, racha, victoria hoy, estado inactivo, botón de ánimo
+/// Muestra: nombre, racha, victoria o gracia de HOY (del compañero), estado
+/// inactivo, Escudo (si lo comparte), botón de ánimo y menú de opciones.
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
@@ -12,14 +13,43 @@ import '../vec/vec_tema.dart';
 import '../vec/vec_widgets.dart';
 import 'sticker_picker_sheet.dart';
 
+/// Texto del estado de hoy del compañero (también para lectores de pantalla).
+String textoEstadoCompanero(BattlePartnerData partner, {DateTime? ahora}) {
+  if (partner.isInactive) {
+    final dias = partner.inactiveDays;
+    return dias <= 0
+        ? 'Hace tiempo que no entra'
+        : '$dias ${dias == 1 ? 'día' : 'días'} sin entrar';
+  }
+  switch (partner.estadoHoy(ahora: ahora)) {
+    case EstadoHoyCompanero.victoria:
+      return 'Victoria hoy · ${partner.streakDays} '
+          '${partner.streakDays == 1 ? 'día' : 'días'}';
+    case EstadoHoyCompanero.gracia:
+      return 'Hoy registró gracia';
+    case EstadoHoyCompanero.sinRegistro:
+      return 'Sin registrar hoy';
+  }
+}
+
 class BattlePartnerCard extends StatelessWidget {
   final BattlePartnerData partner;
+
+  /// Liberar al compañero (menú "⋮" y pulsación larga).
   final VoidCallback? onRemove;
+
+  /// Avisos del Escudo y resumen semanal para este compañero.
+  final VoidCallback? onAjustes;
+
+  /// Solo para pruebas: "ahora" fijo.
+  final DateTime? ahora;
 
   const BattlePartnerCard({
     super.key,
     required this.partner,
     this.onRemove,
+    this.onAjustes,
+    this.ahora,
   });
 
   @override
@@ -32,9 +62,14 @@ class BattlePartnerCard extends StatelessWidget {
   /// y botón de ánimo en píldora.
   Widget _buildPapel(BuildContext context) {
     final inactivo = partner.isInactive;
+    final estado = partner.estadoHoy(ahora: ahora);
+    final textoEstado = textoEstadoCompanero(partner, ahora: ahora);
+    final escudo = partner.shieldShared && partner.shieldOn != null
+        ? (partner.shieldOn! ? 'Escudo activo' : 'Escudo apagado')
+        : null;
     return Semantics(
-      label: '${partner.name}. '
-          '${partner.victoryToday ? 'Victoria hoy' : 'Sin registrar hoy'}',
+      label: '${partner.name}. $textoEstado'
+          '${escudo == null ? '' : '. $escudo'}',
       child: GestureDetector(
         onTap: FeedbackEngine.I.tap,
         onLongPress: onRemove,
@@ -81,21 +116,28 @@ class BattlePartnerCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      inactivo
-                          ? '${partner.inactiveDays} días sin entrar'
-                          : partner.victoryToday
-                          ? 'Victoria hoy · ${partner.streakDays} días'
-                          : 'Sin registrar hoy',
+                      textoEstado,
                       style: TextStyle(
                         fontFamily: VecFuentes.texto,
                         fontSize: 16,
                         color: inactivo
                             ? VecColores.mostaza
-                            : partner.victoryToday
+                            : estado == EstadoHoyCompanero.victoria
                             ? VecColores.verde
                             : VecColores.gris,
                       ),
                     ),
+                    if (escudo != null)
+                      Text(
+                        escudo,
+                        style: TextStyle(
+                          fontFamily: VecFuentes.texto,
+                          fontSize: 15,
+                          color: partner.shieldOn!
+                              ? VecColores.azul
+                              : VecColores.terracota,
+                        ),
+                      ),
                   ],
                 ),
               ),
@@ -118,6 +160,39 @@ class BattlePartnerCard extends StatelessWidget {
                   ),
                 ),
               ),
+              if (onRemove != null || onAjustes != null)
+                PopupMenuButton<_OpcionCompanero>(
+                  tooltip: 'Opciones para ${partner.name}',
+                  icon: Icon(Icons.more_vert_rounded, color: VecColores.tinta),
+                  onSelected: (opcion) {
+                    switch (opcion) {
+                      case _OpcionCompanero.ajustes:
+                        onAjustes?.call();
+                      case _OpcionCompanero.liberar:
+                        onRemove?.call();
+                    }
+                  },
+                  itemBuilder: (_) => [
+                    if (onAjustes != null)
+                      const PopupMenuItem(
+                        value: _OpcionCompanero.ajustes,
+                        child: ListTile(
+                          leading: Icon(Icons.tune_rounded),
+                          title: Text('Avisos y resumen semanal'),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                    if (onRemove != null)
+                      const PopupMenuItem(
+                        value: _OpcionCompanero.liberar,
+                        child: ListTile(
+                          leading: Icon(Icons.link_off_rounded),
+                          title: Text('Liberar compañero'),
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                      ),
+                  ],
+                ),
             ],
           ),
         ),
@@ -125,3 +200,5 @@ class BattlePartnerCard extends StatelessWidget {
     );
   }
 }
+
+enum _OpcionCompanero { ajustes, liberar }

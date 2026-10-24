@@ -28,7 +28,6 @@ object Atajos {
         "estudio" to R.drawable.atajo_estudio,
         "apuntes" to R.drawable.atajo_apuntes,
         "guardados" to R.drawable.atajo_guardados,
-        "mapas" to R.drawable.atajo_mapas,
         "mapa_oracion" to R.drawable.atajo_mapa_oracion,
         "versiculos" to R.drawable.atajo_versiculos,
         "frasco" to R.drawable.atajo_frasco,

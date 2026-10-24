@@ -147,42 +147,9 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
       );
 
       if (mounted) {
-        // Si es verseReference, navegar directamente
-        if (result.intent == SearchIntent.verseReference &&
-            result.bookNumber != null &&
-            result.chapter != null &&
-            result.verse != null) {
-          BibleSearchService.I.addRecentSearch(_query);
-          final bookName =
-              result.bookName ??
-              await BibleParserService.I.getBookName(
-                version,
-                result.bookNumber!,
-              );
-          if (mounted) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                  'Abriendo $bookName ${result.chapter}:${result.verse}...',
-                ),
-                duration: const Duration(seconds: 1),
-              ),
-            );
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(
-                builder: (_) => BibleReaderScreen(
-                  bookNumber: result.bookNumber!,
-                  bookName: bookName,
-                  chapter: result.chapter!,
-                  version: version,
-                ),
-              ),
-            );
-          }
-          return;
-        }
-
+        // Una referencia («Juan 3:1») se muestra como sugerencia: solo se
+        // abre al tocarla o al pulsar Buscar/Enter (antes navegaba sola
+        // mientras la persona seguía escribiendo).
         setState(() {
           _searchResult = result;
           _searching = false;
@@ -194,7 +161,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     }
   }
 
-  void _submitSearch(String query) {
+  Future<void> _submitSearch(String query) async {
     if (query.trim().length < (_advancedMode ? 1 : 2)) return;
     if (_advancedMode) {
       _doAdvancedSearch(_advancedTypeFor(query), query, addToHistory: true);
@@ -202,6 +169,54 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
     }
     BibleSearchService.I.addRecentSearch(query);
     _loadRecent();
+    // Enter sobre una referencia exacta abre el lector en ese versículo.
+    _debounce?.cancel();
+    _query = query;
+    await _doSearch();
+    final result = _searchResult;
+    if (!mounted || result == null) return;
+    if (result.intent == SearchIntent.verseReference ||
+        result.intent == SearchIntent.bookAndChapter) {
+      await _openReference(result);
+    }
+  }
+
+  /// Abre el lector (o el selector de capítulos) para una referencia.
+  Future<void> _openReference(SearchResult result) async {
+    if (_query.trim().length >= 2) {
+      BibleSearchService.I.addRecentSearch(_query);
+    }
+    final version = BibleUserDataService.I.preferredVersionNotifier.value;
+    final bookNumber = result.bookNumber;
+    if (bookNumber == null) return;
+    if (result.chapter != null) {
+      final bookName =
+          result.bookName ??
+          await BibleParserService.I.getBookName(version, bookNumber);
+      if (!mounted) return;
+      await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => BibleReaderScreen(
+            bookNumber: bookNumber,
+            bookName: bookName,
+            chapter: result.chapter!,
+            version: version,
+            initialVerse: result.verse,
+          ),
+        ),
+      );
+      return;
+    }
+    final books = await BibleParserService.I.getBooks(version);
+    final book = books.where((b) => b.number == bookNumber).firstOrNull;
+    if (book == null || !mounted) return;
+    await Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => ChapterSelectorScreen(book: book, version: version),
+      ),
+    );
   }
 
   /// Abre la concordancia de un número Strong (desde una ficha del diccionario).
@@ -233,6 +248,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           bookName: verse.bookName,
           chapter: verse.chapter,
           version: BibleUserDataService.I.preferredVersionNotifier.value,
+          initialVerse: verse.verse,
         ),
       ),
     );
@@ -563,7 +579,8 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
 
     final hasReference =
         result.intent == SearchIntent.bookOnly ||
-        result.intent == SearchIntent.bookAndChapter;
+        result.intent == SearchIntent.bookAndChapter ||
+        result.intent == SearchIntent.verseReference;
     final hasVerses = result.verses.isNotEmpty;
 
     if (!hasReference && !hasVerses) {
@@ -582,7 +599,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
         Padding(
           padding: const EdgeInsets.only(bottom: 8),
           child: Text(
-            'REFERENCIA DIRECTA',
+            'SUGERENCIA',
             style: AppFonts.manrope(
               color: t.textoTenue(0.5),
               fontSize: 10,
@@ -645,42 +662,26 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
   }
 
   Widget _buildReferenceCard(SearchResult result, BibleReaderThemeData t) {
-    final version = BibleUserDataService.I.preferredVersionNotifier.value;
+    final String title;
+    final String action;
+    switch (result.intent) {
+      case SearchIntent.verseReference:
+        title = '${result.bookName} ${result.chapter}:${result.verse}';
+        action = 'Ir al versículo';
+      case SearchIntent.bookAndChapter:
+        title = '${result.bookName}, capítulo ${result.chapter}';
+        action = 'Ir al capítulo';
+      default:
+        title = '${result.bookName} — ${result.totalChapters} capítulos';
+        action = 'Abrir libro';
+    }
 
-    return GestureDetector(
-      onTap: () async {
-        BibleSearchService.I.addRecentSearch(_query);
-        if (result.intent == SearchIntent.bookAndChapter &&
-            result.bookNumber != null &&
-            result.chapter != null) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BibleReaderScreen(
-                bookNumber: result.bookNumber!,
-                bookName: result.bookName ?? '',
-                chapter: result.chapter!,
-                version: version,
-              ),
-            ),
-          );
-        } else if (result.intent == SearchIntent.bookOnly &&
-            result.bookNumber != null) {
-          final books = await BibleParserService.I.getBooks(version);
-          final book = books
-              .where((b) => b.number == result.bookNumber)
-              .firstOrNull;
-          if (book != null && mounted) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) =>
-                    ChapterSelectorScreen(book: book, version: version),
-              ),
-            );
-          }
-        }
-      },
+    return Semantics(
+      button: true,
+      label: '$action: $title',
+      excludeSemantics: true,
+      child: GestureDetector(
+      onTap: () => _openReference(result),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -697,9 +698,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    result.intent == SearchIntent.bookAndChapter
-                        ? '${result.bookName}, capítulo ${result.chapter}'
-                        : '${result.bookName} — ${result.totalChapters} capítulos',
+                    title,
                     style: AppFonts.lora(color: t.textPrimary, fontSize: 16),
                   ),
                 ],
@@ -709,9 +708,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  result.intent == SearchIntent.bookAndChapter
-                      ? 'Ir al capítulo'
-                      : 'Abrir libro',
+                  action,
                   style: AppFonts.manrope(
                     color: t.accent,
                     fontSize: 13,
@@ -725,6 +722,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -1292,6 +1290,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                             bookName: v.bookName,
                             chapter: v.chapter,
                             version: version,
+                            initialVerse: v.verse,
                           ),
                         ),
                       ),
@@ -1414,6 +1413,7 @@ class _BibleSearchScreenState extends State<BibleSearchScreen> {
                       bookName: v.bookName,
                       chapter: v.chapter,
                       version: version,
+                      initialVerse: v.verse,
                     ),
                   ),
                 ),
