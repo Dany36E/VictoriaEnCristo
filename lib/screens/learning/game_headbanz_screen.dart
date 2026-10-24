@@ -17,6 +17,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../services/audio_engine.dart';
 import '../../services/feedback_engine.dart';
+import '../../services/pantalla_encendida.dart';
 import '../../theme/app_theme.dart';
 import '../../theme/app_theme_data.dart';
 
@@ -422,6 +423,7 @@ class GameHeadbanzScreen extends StatefulWidget {
 
 class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
   static const int _secondsPerCard = 60;
+  static const int _segundosAviso = 10;
 
   _Phase _phase = _Phase.intro;
   _HeadbanzDifficulty _difficulty = _HeadbanzDifficulty.easy;
@@ -446,6 +448,8 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
   void dispose() {
     _countdownTimer?.cancel();
     _cardTimer?.cancel();
+    // Devolver el apagado automático de pantalla al sistema.
+    PantallaEncendida.mantener(false);
     // Restaurar música al salir
     AudioEngine.I.switchBgmContext(BgmContext.learningHeadbanz);
     super.dispose();
@@ -472,6 +476,9 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
 
   void _start() {
     FeedbackEngine.I.select();
+    // El celular va en la frente: que la pantalla no se atenúe ni se
+    // bloquee mientras se juega.
+    PantallaEncendida.mantener(true);
     setState(() {
       _prepareDeck();
       _phase = _Phase.playing;
@@ -531,7 +538,9 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
       }
       if (_cardSecondsLeft <= 1) {
         timer.cancel();
-        FeedbackEngine.I.tap();
+        // Quien tiene el celular en la frente no ve la pantalla: aviso con
+        // sonido fuerte y vibración intensa.
+        FeedbackEngine.I.alertaFuerte();
         setState(() {
           _cardSecondsLeft = 0;
           _cardTimedOut = true;
@@ -539,6 +548,10 @@ class _GameHeadbanzScreenState extends State<GameHeadbanzScreen> {
         return;
       }
       setState(() => _cardSecondsLeft -= 1);
+      if (_cardSecondsLeft == _segundosAviso) {
+        // Aviso suave: quedan pocos segundos.
+        FeedbackEngine.I.confirm();
+      }
     });
   }
 

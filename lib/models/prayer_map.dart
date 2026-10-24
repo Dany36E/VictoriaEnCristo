@@ -19,6 +19,14 @@ class PrayerMapData {
   final String corazon;
   final String verseReference;
 
+  /// Guía de escritura elegida en el diario («Escribir sobre esto»): título
+  /// y pregunta. Vacías si la entrada no partió de una guía.
+  final String guiaTitulo;
+  final String guia;
+
+  /// Lo que el usuario escribió bajo la guía.
+  final String respuestaGuia;
+
   const PrayerMapData({
     this.saludo = '',
     this.gracias = '',
@@ -28,7 +36,13 @@ class PrayerMapData {
     this.necesidades = '',
     this.corazon = '',
     this.verseReference = '',
+    this.guiaTitulo = '',
+    this.guia = '',
+    this.respuestaGuia = '',
   });
+
+  /// `true` si la entrada partió de una guía de escritura.
+  bool get tieneGuia => guiaTitulo.trim().isNotEmpty || guia.trim().isNotEmpty;
 
   /// Secciones en orden de presentación, con sus etiquetas amigables.
   static const List<PrayerMapSection> sections = [
@@ -107,6 +121,9 @@ class PrayerMapData {
     String? necesidades,
     String? corazon,
     String? verseReference,
+    String? guiaTitulo,
+    String? guia,
+    String? respuestaGuia,
   }) {
     return PrayerMapData(
       saludo: saludo ?? this.saludo,
@@ -117,6 +134,9 @@ class PrayerMapData {
       necesidades: necesidades ?? this.necesidades,
       corazon: corazon ?? this.corazon,
       verseReference: verseReference ?? this.verseReference,
+      guiaTitulo: guiaTitulo ?? this.guiaTitulo,
+      guia: guia ?? this.guia,
+      respuestaGuia: respuestaGuia ?? this.respuestaGuia,
     );
   }
 
@@ -129,6 +149,9 @@ class PrayerMapData {
         'necesidades': necesidades,
         'corazon': corazon,
         'verseRef': verseReference,
+        if (tieneGuia) 'guiaTitulo': guiaTitulo,
+        if (tieneGuia) 'guia': guia,
+        if (respuestaGuia.isNotEmpty) 'respuestaGuia': respuestaGuia,
       };
 
   factory PrayerMapData.fromJson(Map<String, dynamic> json) {
@@ -141,6 +164,9 @@ class PrayerMapData {
       necesidades: (json['necesidades'] ?? '').toString(),
       corazon: (json['corazon'] ?? '').toString(),
       verseReference: (json['verseRef'] ?? '').toString(),
+      guiaTitulo: (json['guiaTitulo'] ?? '').toString(),
+      guia: (json['guia'] ?? '').toString(),
+      respuestaGuia: (json['respuestaGuia'] ?? '').toString(),
     );
   }
 
@@ -162,16 +188,23 @@ class PrayerMapData {
   /// Resumen corto para mostrar en la lista de entradas. Toma la primera
   /// sección con contenido.
   String summary() {
+    final respuesta = respuestaGuia.trim();
+    if (respuesta.isNotEmpty) {
+      final titulo = guiaTitulo.trim().isNotEmpty ? guiaTitulo.trim() : guia;
+      return '$titulo: $respuesta';
+    }
     for (final s in sections) {
       final v = getField(s.key).trim();
       if (v.isNotEmpty) {
         return '${s.label} $v';
       }
     }
+    if (tieneGuia) return guiaTitulo.trim().isNotEmpty ? guiaTitulo : guia;
     return 'Mapa de oración';
   }
 
   bool get isEmpty =>
+      respuestaGuia.trim().isEmpty &&
       saludo.trim().isEmpty &&
       gracias.trim().isEmpty &&
       personas.trim().isEmpty &&

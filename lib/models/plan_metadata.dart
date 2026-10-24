@@ -1,5 +1,6 @@
 /// ═══════════════════════════════════════════════════════════════════════════
-/// PLAN METADATA - Metadatos para personalización y filtrado de planes
+/// PLAN METADATA - Metadatos para personalización y filtrado de devocionales
+/// (nació con los planes de lectura, ya retirados).
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 

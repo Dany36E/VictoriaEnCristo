@@ -4,11 +4,25 @@
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
+import 'package:flutter/foundation.dart';
+
 class TimeUtils {
   TimeUtils._();
 
+  static DateTime Function() _reloj = DateTime.now;
+
+  /// Hora actual. Pasa por un reloj inyectable para que las pruebas puedan
+  /// simular el cambio de día (ver [relojParaPruebas]).
+  static DateTime now() => _reloj();
+
+  /// Sustituye el reloj en pruebas. `null` restaura [DateTime.now].
+  @visibleForTesting
+  static set relojParaPruebas(DateTime Function()? reloj) {
+    _reloj = reloj ?? DateTime.now;
+  }
+
   /// Fecha actual como ISO string "YYYY-MM-DD"
-  static String todayISO() => dateToISO(DateTime.now());
+  static String todayISO() => dateToISO(now());
 
   /// Convierte cualquier DateTime a ISO date string "YYYY-MM-DD"
   static String dateToISO(DateTime date) {
@@ -17,8 +31,8 @@ class TimeUtils {
 
   /// DateTime del inicio de hoy (00:00:00)
   static DateTime todayStart() {
-    final now = DateTime.now();
-    return DateTime(now.year, now.month, now.day);
+    final ahora = now();
+    return DateTime(ahora.year, ahora.month, ahora.day);
   }
 
   /// ¿Dos fechas son el mismo día?

@@ -41,25 +41,9 @@ Suena como cámara/shutter o es muy fuerte/arcade.
 
 ---
 
-## 🎯 TEST 2: Módulo Planes
+## 🎯 TEST 2: (retirado)
 
-### 2.1 Plan Hub
-1. Ir a **Home** → Tap "Biblioteca de Planes"
-2. **Tap en Hero Card** (plan grande arriba)
-   - ✓ Debe sonar `confirm()` (volumen medio-alto)
-3. **Tap en Active Card** (si existe, card de "Continuar Plan")
-   - ✓ Debe sonar `confirm()`
-4. **Tap en Poster Card** (carruseles horizontales)
-   - ✓ Debe sonar `tap()` (volumen medio)
-
-### 2.2 Plan Detail
-1. Dentro de un plan, **Tap en "Continuar Plan"** (botón principal)
-   - ✓ Debe sonar `confirm()`
-2. **Tap en un día** (Day 1, Day 2, etc.)
-   - ✓ Debe sonar `select()` (volumen medio)
-
-### ✅ Pasa si:
-Todos los taps suenan apropiadamente. CTA principal más fuerte que cards.
+Los planes de lectura se retiraron de la app.
 
 ---
 
@@ -218,8 +202,6 @@ Marcar todos antes de aprobar:
 - [ ] Volumen de tabChange es más bajo que otros eventos
 
 ### Cobertura de Módulos
-- [ ] Planes: Hero, Active, Poster cards suenan
-- [ ] Planes: Continuar y seleccionar día suenan
 - [ ] Oraciones: Cards suenan al tap
 - [ ] Mi Progreso: Victoria y reset suenan
 - [ ] Mi Diario: Nueva, guardar, moods, cards suenan

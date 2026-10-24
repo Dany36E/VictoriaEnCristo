@@ -6,7 +6,6 @@ import '../screens/devotional_screen.dart';
 import '../screens/emergency_screen.dart';
 import '../screens/journal_screen.dart';
 import '../screens/learning/learning_home_screen.dart';
-import '../screens/plan_library_screen.dart';
 import '../screens/prayers_screen.dart';
 import '../screens/progress_screen.dart';
 import '../screens/verses_screen.dart';
@@ -79,10 +78,6 @@ class AppNavigation {
 
   static Future<void> openProgress(BuildContext context) {
     return push<void>(context, (_) => const ProgressScreen());
-  }
-
-  static Future<void> openPlanLibrary(BuildContext context) {
-    return push<void>(context, (_) => const PlanLibraryScreen());
   }
 
   static Future<void> openPrayers(BuildContext context) {

@@ -1,6 +1,8 @@
 /// ═══════════════════════════════════════════════════════════════════════════
-/// PLAN DAY - Estructura de un día dentro de un plan
+/// PLAN DAY - Estructura de un día de lectura devocional
 /// Cada día sigue: Escritura → Reflexión → Acción → Oración → Check-in
+/// Nació con los planes de lectura (retirados); hoy lo usan los
+/// devocionales (`DevotionalEntry`, `devotional_pool.json`).
 /// ═══════════════════════════════════════════════════════════════════════════
 library;
 
