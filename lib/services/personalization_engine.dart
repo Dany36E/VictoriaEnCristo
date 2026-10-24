@@ -106,24 +106,38 @@ class PersonalizationEngine {
     return result;
   }
 
-  /// Determinar el gigante primario (el de mayor frecuencia)
-  GiantId? get primaryGiant {
-    final frequencies = giantFrequencies;
-    if (frequencies.isEmpty) {
-      // Fallback: primer gigante seleccionado
-      return userGiants.isNotEmpty ? userGiants.first : null;
+  /// Gigantes del usuario por prioridad (índice 0 = el que más le cuesta).
+  ///
+  /// Si el usuario los ordenó a mano se respeta ese orden. Si no (usuarios
+  /// antiguos), se ordenan por frecuencia y, en empate, por la prioridad fija
+  /// del gigante; los que no tienen frecuencia van al final en su orden.
+  List<GiantId> get rankedGiants {
+    final giants = userGiants;
+    if (giants.length <= 1 || _onboarding.hasExplicitGiantOrder) {
+      return giants;
     }
-
-    // Ordenar por frecuencia (daily > severalPerWeek > weekly > occasional)
-    final sorted = frequencies.entries.toList()
+    final frequencies = giantFrequencies;
+    if (frequencies.isEmpty) return giants;
+    final indexed = giants.asMap().entries.toList()
       ..sort((a, b) {
-        final freqCompare = a.value.index.compareTo(b.value.index);
+        final fa = frequencies[a.value];
+        final fb = frequencies[b.value];
+        if (fa == null || fb == null) {
+          if (fa == null && fb == null) return a.key.compareTo(b.key);
+          return fa == null ? 1 : -1;
+        }
+        // daily > severalPerWeek > weekly > occasional
+        final freqCompare = fa.index.compareTo(fb.index);
         if (freqCompare != 0) return freqCompare;
-        // Empate: usar prioridad del gigante
-        return a.key.priority.compareTo(b.key.priority);
+        return a.value.priority.compareTo(b.value.priority);
       });
+    return [for (final e in indexed) e.value];
+  }
 
-    return sorted.first.key;
+  /// Gigante primario: el primero del orden del usuario (ver [rankedGiants]).
+  GiantId? get primaryGiant {
+    final ranked = rankedGiants;
+    return ranked.isNotEmpty ? ranked.first : null;
   }
 
   /// Determinar la etapa actual del usuario basada en contexto

@@ -216,33 +216,58 @@ class VictoryScoringService {
         _selectedGiants.length == 1 &&
         _selectedGiants.first == _giganteProvisional;
 
-    if (!veniaDelProvisional) {
-      _selectedGiants = List<String>.from(nuevos);
-      return;
-    }
+    final anteriores = List<String>.from(_selectedGiants);
+    final hoyIso = _dateToISO(clock());
 
-    // Resultado de cada día con los gigantes anteriores.
+    // Resultado de cada día con los gigantes anteriores. Viniendo del
+    // provisional se conservan todos los días (incluido hoy); al editar
+    // gigantes reales solo los días pasados: los nuevos empiezan hoy.
     final resultadoPrevio = <String, bool>{};
     for (final iso in _victoryByGiant.keys) {
+      if (!veniaDelProvisional && iso.compareTo(hoyIso) >= 0) continue;
       final fecha = _isoToDate(iso);
       if (fecha != null) resultadoPrevio[iso] = isVictoryDay(fecha);
     }
     _selectedGiants = List<String>.from(nuevos);
+    final agregados = _selectedGiants
+        .where((g) => !anteriores.contains(g))
+        .toList();
     var conservados = 0;
     resultadoPrevio.forEach((iso, eraVictoria) {
       final fecha = _isoToDate(iso)!;
-      if (isVictoryDay(fecha) != eraVictoria) {
-        _victoryByGiant[iso] = {
-          for (final g in _selectedGiants) g: eraVictoria ? 1 : 0,
-        };
-        conservados++;
+      if (isVictoryDay(fecha) == eraVictoria) return;
+      final valor = eraVictoria ? 1 : 0;
+      if (!veniaDelProvisional && agregados.isNotEmpty) {
+        // Primero solo se rellenan los gigantes nuevos (no se toca el
+        // detalle registrado de los que ya existían).
+        final dia = Map<String, int>.from(_victoryByGiant[iso] ?? {});
+        for (final g in agregados) {
+          dia[g] = valor;
+        }
+        _victoryByGiant[iso] = dia;
+        if (isVictoryDay(fecha) == eraVictoria) {
+          conservados++;
+          return;
+        }
       }
+      _victoryByGiant[iso] = {
+        ...?_victoryByGiant[iso],
+        for (final g in _selectedGiants) g: valor,
+      };
+      conservados++;
     });
     if (conservados > 0) await _saveVictoryByGiant();
     debugPrint(
       '📊 [SCORING] Gigantes reales cargados (${nuevos.length}); '
       '$conservados días conservados',
     );
+  }
+
+  /// Aplica un cambio de gigantes hecho por el usuario (editor «Mis
+  /// gigantes»): conserva el historial y refresca los indicadores.
+  Future<void> actualizarGigantes(List<String> nuevos) async {
+    await aplicarGigantes(nuevos);
+    _updateAllNotifiers();
   }
 
   Future<void> _loadVictoryByGiant() async {

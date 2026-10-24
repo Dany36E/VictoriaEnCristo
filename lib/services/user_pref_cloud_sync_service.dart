@@ -18,6 +18,7 @@ class UserPrefCloudSyncService {
     'devotional_v2_rollout_seed',
     'devotional_v2_rollout_forced_variant',
     'recommendation_history_v1',
+    'giants_order_explicit_v1',
     'widget_config_json',
     'sacred_alarm_config_v1',
     'sacred_alarm_events_v1',

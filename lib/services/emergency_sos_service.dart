@@ -41,12 +41,14 @@ class EmergencySosService {
   }
 
   /// Obtener pasos personalizados para el gigante primario del usuario
-  List<PersonalizedStep> getPersonalizedSteps() {
-    final giantId = _engine.primaryGiant;
+  /// Con [giant] se usa ese gigante (selector «¿Con cuál luchas ahora?»).
+  List<PersonalizedStep> getPersonalizedSteps({GiantId? giant}) {
+    final giantId = giant ?? _engine.primaryGiant;
     final giantKey = giantId?.name ?? 'general';
 
     final giants = _stepsData?['giants'] as Map<String, dynamic>? ?? {};
-    final giantData = giants[giantKey] as Map<String, dynamic>? ??
+    final giantData =
+        giants[giantKey] as Map<String, dynamic>? ??
         giants['general'] as Map<String, dynamic>? ??
         {};
     final rawSteps = giantData['steps'] as List<dynamic>? ?? [];
@@ -73,13 +75,20 @@ class EmergencySosService {
   }
 
   /// Nombre del gigante primario para mostrar en la UI
-  String getGiantDisplayName() {
-    final giantId = _engine.primaryGiant;
+  String getGiantDisplayName({GiantId? giant}) {
+    final giantId = giant ?? _engine.primaryGiant;
     final giantKey = giantId?.name ?? 'general';
     final giants = _stepsData?['giants'] as Map<String, dynamic>? ?? {};
     final giantData = giants[giantKey] as Map<String, dynamic>?;
     return giantData?['name'] as String? ?? 'General';
   }
+
+  /// Gigantes del usuario por prioridad (para los chips de la emergencia).
+  List<GiantId> get rankedGiants => _engine.rankedGiants;
+
+  /// Inyecta pasos en pruebas sin cargar assets.
+  @visibleForTesting
+  void setStepsDataForTesting(Map<String, dynamic>? data) => _stepsData = data;
 
   /// Selecciona un versículo de crisis personalizado por gigante
   VerseItem? _getPersonalizedVerse(GiantId? giantId) {

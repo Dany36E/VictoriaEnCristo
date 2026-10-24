@@ -4,6 +4,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../repositories/profile_repository.dart';
+import 'user_pref_cloud_sync_service.dart';
 
 /// ═══════════════════════════════════════════════════════════════════════════
 /// ONBOARDING SERVICE
@@ -19,7 +20,11 @@ class OnboardingService {
   static const String _keySelectedGiants = 'selected_giants';
   static const String _keySelectedIntensity = 'selected_intensity';
   static const String _keyGiantFrequencies = 'giant_frequencies_json';
-  
+
+  /// Marca que el usuario ordenó sus gigantes a mano (índice 0 = el que más
+  /// le cuesta). Se sincroniza con UserPrefCloudSyncService.
+  static const String keyGiantOrderExplicit = 'giants_order_explicit_v1';
+
   // Singleton
   static final OnboardingService _instance = OnboardingService._internal();
   factory OnboardingService() => _instance;
@@ -114,6 +119,44 @@ class OnboardingService {
     return _prefs?.getStringList(_keySelectedGiants) ?? [];
   }
   
+  /// ¿El orden de [selectedGiants] lo eligió el usuario explícitamente?
+  /// Con un solo gigante el orden es trivialmente explícito.
+  bool get hasExplicitGiantOrder {
+    if (selectedGiants.length == 1) return true;
+    return _prefs?.getBool(keyGiantOrderExplicit) ?? false;
+  }
+
+  /// Guardar si el orden de gigantes es explícito.
+  Future<void> setGiantOrderExplicit(bool explicit) async {
+    await _prefs?.setBool(keyGiantOrderExplicit, explicit);
+    UserPrefCloudSyncService.I.markDirty();
+  }
+
+  /// Guarda gigantes (en orden de prioridad) y frecuencias desde el editor
+  /// «Mis gigantes». Local + nube como el resto del perfil.
+  Future<bool> saveGiantsConfiguration({
+    required List<String> giants,
+    required Map<String, String> frequencies,
+  }) async {
+    try {
+      await _prefs?.setStringList(_keySelectedGiants, giants);
+      await _prefs?.setString(_keyGiantFrequencies, jsonEncode(frequencies));
+      await setGiantOrderExplicit(true);
+      if (_hasCloudProfile) {
+        return ProfileRepository.I.updateProfile(
+          (profile) => profile.copyWith(
+            selectedGiants: giants,
+            giantFrequencies: frequencies,
+          ),
+        );
+      }
+      return true;
+    } catch (e) {
+      debugPrint('❌ Error guardando gigantes: $e');
+      return false;
+    }
+  }
+
   /// ═══════════════════════════════════════════════════════════════════════════
   /// INTENSIDAD SELECCIONADA
   /// ═══════════════════════════════════════════════════════════════════════════
@@ -214,7 +257,10 @@ class OnboardingService {
       await _prefs?.setStringList(_keySelectedGiants, giants);
       await _prefs?.setString(_keyGiantFrequencies, jsonEncode(frequencies));
       await _prefs?.setBool(_keyOnboardingCompleted, true);
-      
+      // El onboarding actual pide ordenar los gigantes (con 2+): el orden
+      // recibido es la prioridad elegida por el usuario.
+      await setGiantOrderExplicit(true);
+
       debugPrint('🎉 Onboarding completado (local):');
       debugPrint('   Gigantes: $giants');
       debugPrint('   Frecuencias: $frequencies');
