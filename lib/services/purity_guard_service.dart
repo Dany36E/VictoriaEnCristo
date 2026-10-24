@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'shield_status_service.dart';
+
 /// ═══════════════════════════════════════════════════════════════════════════
 /// PURITY GUARD — Bloqueador de contenido adulto (Gigante "Pureza Sexual")
 ///
@@ -75,6 +77,57 @@ class PurityGuardService {
     }
   }
 
+  /// Bloqueos por día ("AAAA-MM-DD" → cantidad) de las últimas dos semanas.
+  /// Solo cuentas: nunca qué sitio se bloqueó.
+  Future<Map<String, int>> blocksByDay() async {
+    if (!isEngineSupported) return const {};
+    try {
+      final m = await _channel.invokeMapMethod<String, dynamic>('blockStats');
+      final porDia = m?['byDay'];
+      if (porDia is! Map) return const {};
+      return {
+        for (final e in porDia.entries)
+          if (e.key is String && e.value is int) e.key as String: e.value as int,
+      };
+    } catch (e) {
+      debugPrint('[PurityGuard] blocksByDay error: $e');
+      return const {};
+    }
+  }
+
+  /// Apagados/encendidos que Android guardó desde la última consulta (aunque
+  /// la app estuviera cerrada). Al leerlos se borran.
+  Future<EventosNativosEscudo?> consumeShieldEvents() async {
+    if (!isEngineSupported) return null;
+    try {
+      final m = await _channel.invokeMapMethod<String, dynamic>(
+        'consumeShieldEvents',
+      );
+      if (m == null) return null;
+      final motivo = m['offReason'] as String?;
+      final offAt = (m['offAt'] as num?)?.toInt();
+      final onAt = (m['onAt'] as num?)?.toInt();
+      final apagado =
+          motivo != null && offAt != null && MotivoEscudo.todos.contains(motivo)
+          ? CambioEscudo(motivo, DateTime.fromMillisecondsSinceEpoch(offAt))
+          : null;
+      final encendido = onAt == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(onAt);
+      if (apagado == null && encendido == null) return null;
+      return EventosNativosEscudo(apagado: apagado, encendido: encendido);
+    } catch (e) {
+      debugPrint('[PurityGuard] consumeShieldEvents error: $e');
+      return null;
+    }
+  }
+
+  /// ¿El usuario dejó el Escudo encendido (aunque ahora no esté corriendo)?
+  Future<bool> isDesired() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_prefKeyDesired) ?? false;
+  }
+
   /// Cuántos dominios contiene la lista de bloqueo empaquetada.
   Future<int> blocklistCount() async {
     if (!isEngineSupported) return 0;
@@ -137,6 +190,8 @@ class PurityGuardService {
     final desired = prefs.getBool(_prefKeyDesired) ?? false;
     if (!desired) {
       await refresh();
+      // Latido y avisos al compañero (si el usuario los activó).
+      ShieldStatusService.I.iniciar();
       return;
     }
     await refresh();
@@ -149,6 +204,7 @@ class PurityGuardService {
         debugPrint('[PurityGuard] restore error: $e');
       }
     }
+    ShieldStatusService.I.iniciar();
   }
 
   Future<void> _setDesired(bool value) async {

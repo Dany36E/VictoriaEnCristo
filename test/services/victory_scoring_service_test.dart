@@ -223,7 +223,10 @@ void main() {
 
   group('Tokens de gracia', () {
     test('el mes nuevo otorga 1 token; usarlo marca el día como victoria', () async {
-      final s = await _initService();
+      // Solo se puede usar si protege una racha: anteayer fue victoria.
+      final s = await _initService(extraPrefs: {
+        'victory_by_giant_v1': jsonEncode({_iso(2): _day(5), _iso(3): _day(5)}),
+      });
       expect(s.graceTokens, 1);
 
       final ok = await s.useGraceToken(_daysAgo(1));
@@ -233,9 +236,9 @@ void main() {
       expect(s.graceDaysUsed, contains(_iso(1)));
 
       // Sin tokens, el segundo uso falla
-      final again = await s.useGraceToken(_daysAgo(2));
+      final again = await s.useGraceToken(_daysAgo(4));
       expect(again, isFalse);
-      expect(s.isVictoryDay(_daysAgo(2)), isFalse);
+      expect(s.isVictoryDay(_daysAgo(4)), isFalse);
     });
 
     test('no se puede usar token de gracia en día futuro', () async {

@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../theme/app_fonts.dart';
 import '../../models/bible/chapter_study_note.dart';
 import '../../services/bible/chapter_note_service.dart';
+import '../../services/bible/notas_sync.dart';
 import '../../theme/bible_reader_theme.dart';
 import '../../services/bible/bible_user_data_service.dart';
 
@@ -11,6 +14,10 @@ import '../../services/bible/bible_user_data_service.dart';
 ///
 /// Pantalla completa con título (Cinzel), contenido (serif multiline),
 /// selector de color, tags y formato básico.
+///
+/// Autoguardado: cada cambio se guarda en el teléfono a los pocos instantes,
+/// y también al volver atrás (flecha, gesto o botón del sistema). Nunca se
+/// pierde lo escrito, con o sin conexión.
 /// ═══════════════════════════════════════════════════════════════════════════
 class ChapterNoteEditorScreen extends StatefulWidget {
   final int bookNumber;
@@ -39,8 +46,14 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
   late final TextEditingController _tagController;
   late List<String> _tags;
   late String _selectedColor;
-  bool _saving = false;
   bool _hasChanges = false;
+
+  /// Id de la nota en esta sesión. Se fija en el primer guardado para que
+  /// los autoguardados sigan escribiendo el MISMO documento.
+  String? _noteId;
+  Timer? _autosave;
+  DateTime? _guardadaEn;
+  int _otrasNotasDelCapitulo = 0;
 
   static const _noteColors = [
     'D4A853', // gold
@@ -60,6 +73,11 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
     _tagController = TextEditingController();
     _tags = List.from(note?.tags ?? []);
     _selectedColor = note?.colorHex ?? 'D4A853';
+    _noteId = note?.id;
+    _otrasNotasDelCapitulo = ChapterNoteService.I
+        .notesForChapter(widget.bookNumber, widget.chapter)
+        .where((n) => n.id != note?.id)
+        .length;
 
     _titleController.addListener(_markChanged);
     _contentController.addListener(_markChanged);
@@ -67,34 +85,110 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
 
   void _markChanged() {
     if (!_hasChanges) setState(() => _hasChanges = true);
+    _programarAutoguardado();
+  }
+
+  /// Cambios fuera del texto (color, etiquetas): también se autoguardan.
+  void _cambio(VoidCallback fn) {
+    setState(() {
+      fn();
+      _hasChanges = true;
+    });
+    _programarAutoguardado();
+  }
+
+  void _programarAutoguardado() {
+    _autosave?.cancel();
+    _autosave = Timer(const Duration(milliseconds: 800), () {
+      unawaited(_guardar());
+    });
   }
 
   @override
   void dispose() {
+    // Última red de seguridad: si algo quedó sin guardar, se guarda ahora.
+    _autosave?.cancel();
+    if (_hasChanges) unawaited(_guardar(redibujar: false));
     _titleController.dispose();
     _contentController.dispose();
     _tagController.dispose();
     super.dispose();
   }
 
-  Future<void> _save() async {
+  bool get _vacia =>
+      _titleController.text.trim().isEmpty &&
+      _contentController.text.trim().isEmpty;
+
+  /// Guarda en el teléfono (la subida a la nube sigue sola). No espera al
+  /// servidor, así que sin conexión termina igual.
+  Future<bool> _guardar({bool redibujar = true}) async {
+    _autosave?.cancel();
+    if (_vacia || !_hasChanges) return !_vacia;
     final title = _titleController.text.trim();
     final content = _contentController.text.trim();
-    if (title.isEmpty && content.isEmpty) return;
+    _noteId ??= ChapterNoteService.I.nuevoId();
+    _hasChanges = false;
+    try {
+      final guardada = await ChapterNoteService.I.saveNote(
+        existingId: _noteId,
+        versionId: widget.versionId,
+        bookNumber: widget.bookNumber,
+        bookName: widget.bookName,
+        chapter: widget.chapter,
+        title: title.isEmpty ? '${widget.bookName} ${widget.chapter}' : title,
+        content: content,
+        tags: List.of(_tags),
+        colorHex: _selectedColor,
+      );
+      if (guardada == null) {
+        _hasChanges = true;
+        return false;
+      }
+      _guardadaEn = guardada.updatedAt;
+      if (redibujar && mounted) setState(() {});
+      return true;
+    } catch (e) {
+      debugPrint('📝 [CHAPTER-NOTE-EDITOR] save error: $e');
+      _hasChanges = true;
+      if (redibujar && mounted) setState(() {});
+      return false;
+    }
+  }
 
-    setState(() => _saving = true);
-    await ChapterNoteService.I.saveNote(
-      existingId: widget.existingNote?.id,
-      versionId: widget.versionId,
-      bookNumber: widget.bookNumber,
-      bookName: widget.bookName,
-      chapter: widget.chapter,
-      title: title.isEmpty ? '${widget.bookName} ${widget.chapter}' : title,
-      content: content,
-      tags: _tags,
-      colorHex: _selectedColor,
-    );
-    if (mounted) Navigator.pop(context, true);
+  /// Botón ✓: guarda y cierra, o avisa si no hay nada que guardar.
+  Future<void> _save() async {
+    if (_vacia) {
+      HapticFeedback.selectionClick();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Escribe un título o una reflexión para guardar la nota.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    final ok = await _guardar();
+    if (!mounted) return;
+    if (!ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No se pudo guardar la nota. Inténtalo de nuevo.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+    Navigator.pop(context, true);
+  }
+
+  String? _estadoGuardado(EstadoNotasNube nube) {
+    if (_hasChanges) return 'Cambios sin guardar';
+    if (_guardadaEn == null) return null;
+    return switch (nube) {
+      EstadoNotasNube.esperandoConexion ||
+      EstadoNotasNube.error => etiquetaEstadoNotas(nube),
+      _ => 'Guardado',
+    };
   }
 
   Future<void> _delete() async {
@@ -132,7 +226,9 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
     );
 
     if (confirm == true) {
-      await ChapterNoteService.I.deleteNote(note.id);
+      _autosave?.cancel();
+      _hasChanges = false;
+      await ChapterNoteService.I.deleteNote(_noteId ?? note.id);
       if (mounted) Navigator.pop(context, true);
     }
   }
@@ -140,10 +236,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
   void _addTag() {
     final tag = _tagController.text.trim();
     if (tag.isNotEmpty && !_tags.contains(tag)) {
-      setState(() {
-        _tags.add(tag);
-        _hasChanges = true;
-      });
+      _cambio(() => _tags.add(tag));
       _tagController.clear();
     }
   }
@@ -161,14 +254,22 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           t.oscuro ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
         );
 
-        return Scaffold(
-          backgroundColor: t.pageBg,
-          body: SafeArea(
-            child: Column(
-              children: [
-                _buildHeader(t),
-                Expanded(child: _buildEditor(t)),
-              ],
+        // Al volver atrás (flecha, gesto o botón del sistema) se guarda lo
+        // escrito: antes se perdía si no se tocaba ✓.
+        return PopScope<Object?>(
+          onPopInvokedWithResult: (didPop, _) {
+            if (didPop && _hasChanges) unawaited(_guardar(redibujar: false));
+          },
+          child: Scaffold(
+            backgroundColor: t.pageBg,
+            body: SafeArea(
+              child: Column(
+                children: [
+                  _buildHeader(t),
+                  _buildEstado(t),
+                  Expanded(child: _buildEditor(t)),
+                ],
+              ),
             ),
           ),
         );
@@ -182,9 +283,10 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
       child: Row(
         children: [
           IconButton(
+            tooltip: 'Volver (se guarda solo)',
             icon: Icon(Icons.arrow_back_ios,
                 color: t.textSecondary, size: 18),
-            onPressed: () => Navigator.pop(context),
+            onPressed: () => Navigator.maybePop(context),
           ),
           Expanded(
             child: Text(
@@ -198,28 +300,79 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
           ),
           if (widget.existingNote != null)
             IconButton(
+              tooltip: 'Eliminar nota',
               icon: Icon(Icons.delete_outline,
                   color: t.textSecondary.withValues(alpha: 0.5), size: 20),
               onPressed: _delete,
             ),
-          _saving
-              ? Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                        color: t.accent, strokeWidth: 1.5),
-                  ),
-                )
-              : IconButton(
-                  icon: Icon(Icons.check,
-                      color: _hasChanges ? t.accent : t.textSecondary.withValues(alpha: 0.3),
-                      size: 22),
-                  onPressed: _hasChanges ? _save : null,
-                ),
+          IconButton(
+            tooltip: 'Guardar y cerrar',
+            icon: Icon(Icons.check,
+                color: _vacia ? t.textoTenue(0.45) : t.accent,
+                size: 22),
+            onPressed: _save,
+          ),
         ],
       ),
+    );
+  }
+
+  /// Estado del guardado y aviso si el capítulo tiene más notas.
+  Widget _buildEstado(BibleReaderThemeData t) {
+    return ValueListenableBuilder<EstadoNotasNube>(
+      valueListenable: NotasSync.I.estado,
+      builder: (context, nube, _) {
+        final estado = _estadoGuardado(nube);
+        final otras = _otrasNotasDelCapitulo;
+        if (estado == null && otras == 0) return const SizedBox.shrink();
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(28, 0, 28, 4),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (estado != null)
+                Semantics(
+                  liveRegion: true,
+                  child: Row(
+                    children: [
+                      Icon(
+                        nube == EstadoNotasNube.esperandoConexion ||
+                                nube == EstadoNotasNube.error
+                            ? Icons.phone_android_rounded
+                            : Icons.check_circle_outline_rounded,
+                        size: 14,
+                        color: t.textoAtenuado(),
+                      ),
+                      const SizedBox(width: 6),
+                      Expanded(
+                        child: Text(
+                          estado,
+                          style: AppFonts.manrope(
+                            color: t.textoAtenuado(),
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              if (otras > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: Text(
+                    otras == 1
+                        ? 'Este capítulo tiene 1 nota más. Las verás todas en Notas de capítulo.'
+                        : 'Este capítulo tiene $otras notas más. Las verás todas en Notas de capítulo.',
+                    style: AppFonts.manrope(
+                      color: t.textoAtenuado(),
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -258,15 +411,17 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
             children: _noteColors.map((hex) {
               final color = Color(int.parse('FF$hex', radix: 16));
               final selected = hex == _selectedColor;
-              return GestureDetector(
-                onTap: () => setState(() {
-                  _selectedColor = hex;
-                  _hasChanges = true;
-                }),
+              return Semantics(
+                button: true,
+                selected: selected,
+                label: 'Color de la nota',
+                child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                onTap: () => _cambio(() => _selectedColor = hex),
                 child: Container(
                   width: 28,
                   height: 28,
-                  margin: const EdgeInsets.only(right: 10),
+                  margin: const EdgeInsets.fromLTRB(0, 10, 18, 10),
                   decoration: BoxDecoration(
                     color: color.withValues(alpha: selected ? 1.0 : 0.4),
                     shape: BoxShape.circle,
@@ -277,6 +432,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                   child: selected
                       ? const Icon(Icons.check, color: Colors.white, size: 14)
                       : null,
+                ),
                 ),
               );
             }).toList(),
@@ -293,10 +449,7 @@ class _ChapterNoteEditorScreenState extends State<ChapterNoteEditorScreen> {
                 runSpacing: 6,
                 children: _tags.map((tag) {
                   return GestureDetector(
-                    onTap: () => setState(() {
-                      _tags.remove(tag);
-                      _hasChanges = true;
-                    }),
+                    onTap: () => _cambio(() => _tags.remove(tag)),
                     child: Container(
                       padding: const EdgeInsets.symmetric(
                           horizontal: 10, vertical: 4),

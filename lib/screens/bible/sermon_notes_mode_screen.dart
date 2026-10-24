@@ -16,6 +16,7 @@ import '../../models/bible/bible_version.dart';
 import '../../models/bible/rich_note_document.dart';
 import '../../models/bible/sermon_note.dart';
 import '../../services/bible/adjuntos_nota_service.dart';
+import '../../services/bible/notas_sync.dart';
 import '../../services/bible/bible_download_service.dart';
 import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/sermon_note_export_service.dart';
@@ -172,6 +173,9 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       },
     );
     _notesController.addListener(_onNotesEdited);
+    _notesController.constructorAdjunto = _construirAdjuntoEnLinea;
+    NotasSync.I.estado.addListener(_alCambiarNube);
+    AdjuntosNotaService.I.aviso.addListener(_alAvisoAdjuntos);
     _notesFocusNode.addListener(() {
       if (mounted) setState(() {});
     });
@@ -803,6 +807,62 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
 
   // ── Fotos y dibujos ────────────────────────────────────────────────────
 
+  void _alCambiarNube() {
+    if (mounted && !_cerrando) setState(() {});
+  }
+
+  /// Avisos del servicio de adjuntos (p. ej. una foto que pasa del límite).
+  void _alAvisoAdjuntos() {
+    final aviso = AdjuntosNotaService.I.aviso.value;
+    if (aviso == null || !mounted || _cerrando) return;
+    AdjuntosNotaService.I.aviso.value = null;
+    _showSnack(aviso);
+  }
+
+  /// La foto o el dibujo que va dentro del texto, en el lugar de su marca.
+  Widget? _construirAdjuntoEnLinea(String id) {
+    for (final adjunto in _note.adjuntos) {
+      if (adjunto.id == id) {
+        return AdjuntoEnLinea(
+          key: ValueKey('en_linea_$id'),
+          theme: _theme(),
+          notaId: _note.id,
+          adjunto: adjunto,
+          onAccion: (accion) => _accionAdjunto(adjunto, accion),
+        );
+      }
+    }
+    return null;
+  }
+
+  /// Adjuntos que no están dentro del texto (notas antiguas, o cuya marca se
+  /// borró): se siguen viendo al final, como antes.
+  List<AdjuntoNota> get _adjuntosAlFinal {
+    final enLinea = _notesController.document.idsEnLinea.toSet();
+    return [
+      for (final a in _note.adjuntos)
+        if (!enLinea.contains(a.id)) a,
+    ];
+  }
+
+  /// Pone los adjuntos nuevos dentro del texto, donde estaba el cursor (o al
+  /// final si nunca se tocó el editor), uno debajo del otro.
+  void _insertarEnTexto(List<AdjuntoNota> nuevos, TextSelection cursor) {
+    if (nuevos.isEmpty) return;
+    if (!_notesController.selection.isValid && cursor.isValid) {
+      _notesController.selection = cursor;
+    }
+    _editandoListas = true;
+    for (final a in nuevos) {
+      _notesController.insertarAdjunto(a.id);
+    }
+    _editandoListas = false;
+    _lastNotesText = _notesController.text;
+    _lastNotesSelection = _notesController.selection;
+    _notesDocument = _notesController.document;
+    _syncReferenceDecorations();
+  }
+
   void _actualizarAdjuntos(List<AdjuntoNota> adjuntos) {
     setState(() => _note = _note.copyWith(adjuntos: adjuntos));
     _scheduleSave();
@@ -815,6 +875,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   }
 
   Future<void> _agregarFotos(ImageSource fuente) async {
+    final cursor = _notesController.selection;
     _notesFocusNode.unfocus();
     try {
       final List<XFile> elegidas;
@@ -846,6 +907,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       }
       if (!mounted) return;
       if (nuevos.isNotEmpty) {
+        _insertarEnTexto(nuevos, cursor);
         _actualizarAdjuntos([..._note.adjuntos, ...nuevos]);
         HapticFeedback.lightImpact();
       }
@@ -864,11 +926,13 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
   }
 
   Future<void> _agregarDibujo() async {
+    final cursor = _notesController.selection;
     _notesFocusNode.unfocus();
     final datos = await LienzoDibujoScreen.abrir(context);
     if (datos == null || datos.vacio || !mounted) return;
     final adjunto = await AdjuntosNotaService.I.guardarDibujo(_note.id, datos);
     if (adjunto == null || !mounted) return;
+    _insertarEnTexto([adjunto], cursor);
     _actualizarAdjuntos([..._note.adjuntos, adjunto]);
   }
 
@@ -891,11 +955,18 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
       case AccionAdjunto.pie:
         await _editarPie(adjunto);
       case AccionAdjunto.subir || AccionAdjunto.bajar:
+        // Solo entre los que se ven al final (los del texto se mueven
+        // con el texto).
+        final visibles = _adjuntosAlFinal;
+        final k = visibles.indexWhere((a) => a.id == adjunto.id);
+        final m = accion == AccionAdjunto.subir ? k - 1 : k + 1;
+        if (k < 0 || m < 0 || m >= visibles.length) return;
+        final otro = visibles[m];
         final lista = [..._note.adjuntos];
         final i = lista.indexWhere((a) => a.id == adjunto.id);
-        final j = accion == AccionAdjunto.subir ? i - 1 : i + 1;
-        if (i < 0 || j < 0 || j >= lista.length) return;
-        lista[i] = lista[j];
+        final j = lista.indexWhere((a) => a.id == otro.id);
+        if (i < 0 || j < 0) return;
+        lista[i] = otro;
         lista[j] = adjunto;
         _actualizarAdjuntos(lista);
       case AccionAdjunto.quitar:
@@ -919,6 +990,15 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
           ),
         );
         if (ok != true || !mounted) return;
+        if (_notesController.document.embeds.contains(adjunto.id)) {
+          _editandoListas = true;
+          _notesController.quitarAdjunto(adjunto.id);
+          _editandoListas = false;
+          _lastNotesText = _notesController.text;
+          _lastNotesSelection = _notesController.selection;
+          _notesDocument = _notesController.document;
+          _syncReferenceDecorations();
+        }
         _actualizarAdjuntos([
           for (final a in _note.adjuntos)
             if (a.id != adjunto.id) a,
@@ -1529,6 +1609,12 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
     if (!_note.hasContent) return 'Borrador vacío';
     final savedAt = _lastSavedAt;
     if (savedAt == null) return 'Sin guardado reciente';
+    // Sin conexión ya está a salvo en el teléfono: decirlo claro.
+    final nube = NotasSync.I.estado.value;
+    if (nube == EstadoNotasNube.esperandoConexion ||
+        nube == EstadoNotasNube.error) {
+      return etiquetaEstadoNotas(nube);
+    }
     return 'Guardado hace ${_relativeTime(savedAt)}';
   }
 
@@ -1543,6 +1629,8 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
 
   @override
   void dispose() {
+    NotasSync.I.estado.removeListener(_alCambiarNube);
+    AdjuntosNotaService.I.aviso.removeListener(_alAvisoAdjuntos);
     _saveDebounce?.cancel();
     _saveStatusTicker?.cancel();
     // El último guardado corre al cerrar: no debe redibujar la pantalla.
@@ -1770,7 +1858,7 @@ class _SermonNotesModeScreenState extends State<SermonNotesModeScreen>
             }
           },
           notaId: _note.id,
-          adjuntos: _note.adjuntos,
+          adjuntos: _adjuntosAlFinal,
           agregandoAdjunto: _agregandoAdjunto,
           onTapNotas: _alTocarNotas,
           onFormato: _abrirFormato,

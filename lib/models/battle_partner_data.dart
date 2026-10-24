@@ -10,6 +10,15 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Estado de la vinculación
 enum PartnerStatus { pending, active, rejected, removed }
 
+/// Cómo registró su día el compañero (solo si el dato es de SU hoy).
+enum EstadoHoyCompanero { victoria, gracia, sinRegistro }
+
+/// Clave "AAAA-MM-DD" de una fecha (solo año, mes y día).
+String claveFecha(DateTime d) =>
+    '${d.year.toString().padLeft(4, '0')}-'
+    '${d.month.toString().padLeft(2, '0')}-'
+    '${d.day.toString().padLeft(2, '0')}';
+
 /// Datos visibles de un compañero
 class BattlePartnerData {
   final String uid;
@@ -20,6 +29,25 @@ class BattlePartnerData {
   final DateTime addedAt;
   final PartnerStatus status;
 
+  /// 'victory' | 'grace' | 'none' publicado por el compañero para [dayKey].
+  final String? dayState;
+
+  /// Fecha local ("AAAA-MM-DD") del compañero a la que se refiere [dayState].
+  final String? dayKey;
+
+  /// Desfase UTC del compañero en minutos cuando publicó (para saber cuál es
+  /// "su hoy" aunque viva en otra zona horaria).
+  final int? utcOffsetMin;
+
+  /// Última vez que el compañero publicó su progreso.
+  final DateTime? progressUpdatedAt;
+
+  /// El compañero decidió avisarte si apaga su Escudo de Pureza.
+  final bool shieldShared;
+
+  /// Estado del Escudo del compañero (solo si [shieldShared]).
+  final bool? shieldOn;
+
   const BattlePartnerData({
     required this.uid,
     required this.name,
@@ -28,7 +56,47 @@ class BattlePartnerData {
     this.lastOpenedAt,
     required this.addedAt,
     this.status = PartnerStatus.active,
+    this.dayState,
+    this.dayKey,
+    this.utcOffsetMin,
+    this.progressUpdatedAt,
+    this.shieldShared = false,
+    this.shieldOn,
   });
+
+  /// Estado del día del compañero, válido solo para SU fecha de hoy.
+  ///
+  /// Un dato de ayer no se muestra como "hoy": si [dayKey] no coincide con la
+  /// fecha actual del compañero, se considera sin registro. Los documentos
+  /// antiguos (sin [dayKey]) solo cuentan si se publicaron hoy.
+  EstadoHoyCompanero estadoHoy({DateTime? ahora}) {
+    final instante = (ahora ?? DateTime.now()).toUtc();
+    final key = dayKey;
+    if (key != null && dayState != null) {
+      final offset = utcOffsetMin ?? DateTime.now().timeZoneOffset.inMinutes;
+      final hoyDelCompanero = claveFecha(
+        instante.add(Duration(minutes: offset)),
+      );
+      if (key != hoyDelCompanero) return EstadoHoyCompanero.sinRegistro;
+      switch (dayState) {
+        case 'victory':
+          return EstadoHoyCompanero.victoria;
+        case 'grace':
+          return EstadoHoyCompanero.gracia;
+        default:
+          return EstadoHoyCompanero.sinRegistro;
+      }
+    }
+    // Formato anterior: solo `victoryToday`, sin fecha. Lo aceptamos si se
+    // publicó hoy (hora local de quien mira).
+    final publicado = progressUpdatedAt;
+    if (victoryToday &&
+        publicado != null &&
+        claveFecha(publicado.toLocal()) == claveFecha(instante.toLocal())) {
+      return EstadoHoyCompanero.victoria;
+    }
+    return EstadoHoyCompanero.sinRegistro;
+  }
 
   /// ¿Inactivo? (> 48h sin abrir la app)
   bool get isInactive {
@@ -66,6 +134,12 @@ class BattlePartnerData {
       ),
       addedAt: _toDateTime(partnerDoc['addedAt']) ?? DateTime.now(),
       status: _parseStatus(partnerDoc['status'] as String?),
+      dayState: partnerDoc['dayState'] as String?,
+      dayKey: partnerDoc['dayKey'] as String?,
+      utcOffsetMin: (partnerDoc['utcOffsetMin'] as num?)?.toInt(),
+      progressUpdatedAt: _toDateTime(partnerDoc['progressUpdatedAt']),
+      shieldShared: partnerDoc['shieldShared'] as bool? ?? false,
+      shieldOn: partnerDoc['shieldOn'] as bool?,
     );
   }
 
@@ -132,12 +206,20 @@ class BattleMessageData {
   final DateTime sentAt;
   final bool read;
 
+  /// Texto que guardó el servidor (avisos del Escudo, resumen semanal…).
+  final String? text;
+
+  /// Nombre público de quien envía (o del compañero del aviso).
+  final String? fromName;
+
   const BattleMessageData({
     required this.id,
     required this.fromUid,
     required this.messageKey,
     required this.sentAt,
     this.read = false,
+    this.text,
+    this.fromName,
   });
 
   factory BattleMessageData.fromFirestore(
@@ -150,6 +232,8 @@ class BattleMessageData {
       messageKey: data['messageKey'] as String? ?? '',
       sentAt: BattlePartnerData._toDateTime(data['sentAt']) ?? DateTime.now(),
       read: data['read'] as bool? ?? false,
+      text: data['text'] as String?,
+      fromName: data['fromName'] as String?,
     );
   }
 }

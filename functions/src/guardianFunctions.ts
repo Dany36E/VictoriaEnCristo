@@ -58,6 +58,42 @@ function guardianOfRef(guardianUid: string, protegeUid: string) {
   return db().collection("users").doc(guardianUid).collection("guardianOf").doc(protegeUid);
 }
 
+/**
+ * Verifica el PIN del guardián del protegido con el mismo límite de intentos
+ * que verifyGuardianPin (5 fallos → 15 min de espera). La usa también
+ * removeBattlePartner cuando el protegido libera a su guardián con el PIN.
+ * @param {string} protegeUid protegido.
+ * @param {string} pin PIN escrito.
+ * @return {Promise<{ok: boolean, lockedUntil?: number}>} resultado.
+ */
+export async function verificarPinGuardian(
+  protegeUid: string,
+  pin: string,
+): Promise<{ok: boolean; lockedUntil?: number}> {
+  const ref = lockRef(protegeUid);
+  return db().runTransaction(async (tx) => {
+    const snap = await tx.get(ref);
+    if (!snap.exists || snap.data()?.active !== true) return {ok: false};
+    const lock = snap.data() ?? {};
+    const now = Date.now();
+    const lockUntil = typeof lock.lockUntil === "number" ? lock.lockUntil : 0;
+    if (lockUntil > now) return {ok: false, lockedUntil: lockUntil};
+    const saltHex = String(lock.saltHex ?? "");
+    const hashHex = String(lock.hashHex ?? "");
+    if (pinPattern.test(pin) && saltHex && hashHex && hashPin(pin, saltHex) === hashHex) {
+      tx.update(ref, {failCount: 0, lockUntil: 0});
+      return {ok: true};
+    }
+    const fails = (typeof lock.failCount === "number" ? lock.failCount : 0) + 1;
+    if (fails >= maxAttempts) {
+      tx.update(ref, {failCount: 0, lockUntil: now + lockoutMs});
+      return {ok: false, lockedUntil: now + lockoutMs};
+    }
+    tx.update(ref, {failCount: fails});
+    return {ok: false};
+  });
+}
+
 function hashPin(pin: string, saltHex: string): string {
   return crypto.createHash("sha256").update(`${saltHex}|${pin}`).digest("hex");
 }
@@ -163,6 +199,8 @@ export const setGuardianPin = enRegion()
         failCount: 0,
         lockUntil: 0,
         pendingGuardianUid: adminFirestore.FieldValue.delete(),
+        // Un PIN nuevo cancela cualquier retiro con espera pendiente.
+        releaseAt: adminFirestore.FieldValue.delete(),
         updatedAt: now,
         createdAt: lockSnap.exists ? lock.createdAt ?? now : now,
       },

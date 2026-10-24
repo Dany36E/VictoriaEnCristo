@@ -20,6 +20,7 @@ import '../../services/bible/bible_parser_service.dart';
 import '../../services/bible/bible_user_data_service.dart';
 import '../../services/bible/section_title_service.dart';
 import '../../services/bible/study_export_service.dart';
+import '../../services/bible/notas_sync.dart';
 import '../../services/bible/study_mode_service.dart';
 import '../../services/bible/study_room_service.dart';
 import '../../services/user_scoped_services.dart';
@@ -63,7 +64,11 @@ class StudyModeScreen extends StatefulWidget {
     this.openRoomDialogOnStart = false,
     this.openSetupOnStart = false,
     this.openSavedStudiesOnStart = false,
+    this.studyId,
   });
+
+  /// Abre un estudio guardado concreto (p. ej. desde la búsqueda de notas).
+  final String? studyId;
 
   @override
   State<StudyModeScreen> createState() => _StudyModeScreenState();
@@ -163,6 +168,8 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     );
     _secondaryVersion = _defaultSecondaryVersion(_version);
     _tabController = TabController(length: 2, vsync: this);
+    _currentStudyId = widget.studyId;
+    NotasSync.I.estado.addListener(_alCambiarNube);
     _generalNotesController = SermonRichTextController(
       document: RichNoteDocument.empty(),
     );
@@ -455,6 +462,21 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       setEquals(a.mainVerses.toSet(), b.mainVerses.toSet()) &&
       a.versionId == b.versionId;
 
+  /// Publica respuestas y subrayados en la sala antes de exportar, sin
+  /// bloquear: sin conexión el PDF sale igual con lo que hay en el teléfono.
+  Future<void> _publicarEnSala(StudyChapterAnswers study) async {
+    try {
+      await Future.wait<void>([
+        StudyRoomService.I.publishAnswerSnapshot(study),
+        StudyRoomService.I.publishHighlights(
+          StudyModeService.I.highlightsNotifier.value,
+        ),
+      ]).timeout(const Duration(seconds: 4));
+    } catch (e) {
+      debugPrint('[STUDY-MODE] publicar en sala antes de exportar: $e');
+    }
+  }
+
   /// Sube manualmente las respuestas actuales a la sala.
   /// También es llamado por el timer periódico de 3 min.
   Future<void> _syncRoomNow() async {
@@ -507,6 +529,12 @@ class _StudyModeScreenState extends State<StudyModeScreen>
   String _studySaveStatusLabel() {
     if (_isSaving) return 'Guardando...';
     if (_hasPendingChanges) return 'Cambios sin guardar';
+    final nube = NotasSync.I.estado.value;
+    if (_lastSavedAt != null &&
+        (nube == EstadoNotasNube.esperandoConexion ||
+            nube == EstadoNotasNube.error)) {
+      return etiquetaEstadoNotas(nube);
+    }
     final savedAt = _lastSavedAt;
     if (savedAt == null) return 'Sin guardado reciente';
     final diff = DateTime.now().difference(savedAt);
@@ -827,8 +855,13 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     }
   }
 
+  void _alCambiarNube() {
+    if (mounted && !_cerrando) setState(() {});
+  }
+
   @override
   void dispose() {
+    NotasSync.I.estado.removeListener(_alCambiarNube);
     _saveDebounce?.cancel();
     _saveStatusTicker?.cancel();
     _stopRoomSyncTimer();
@@ -1250,10 +1283,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
       final choice = await _pickPdfExportAction();
       if (choice == null) return;
       final study = _currentStudySnapshot();
-      await StudyRoomService.I.publishAnswerSnapshot(study);
-      await StudyRoomService.I.publishHighlights(
-        StudyModeService.I.highlightsNotifier.value,
-      );
+      await _publicarEnSala(study);
       final room = StudyRoomService.I.currentRoomNotifier.value;
       final inRoom = room != null;
       late final File file;
@@ -1588,10 +1618,7 @@ class _StudyModeScreenState extends State<StudyModeScreen>
     try {
       await _flushAnswers();
       final study = _currentStudySnapshot();
-      await StudyRoomService.I.publishAnswerSnapshot(study);
-      await StudyRoomService.I.publishHighlights(
-        StudyModeService.I.highlightsNotifier.value,
-      );
+      await _publicarEnSala(study);
       final participants = await _buildRoomParticipantBundles(room, study);
       final roomAnswers = StudyRoomService.I.roomAnswerSnapshotsNotifier.value;
       final saveToDownloads =

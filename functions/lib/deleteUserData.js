@@ -56,6 +56,7 @@ const adminFirestore = __importStar(require("firebase-admin/firestore"));
 const auth_1 = require("firebase-admin/auth");
 const storage_1 = require("firebase-admin/storage");
 const crypto = __importStar(require("crypto"));
+const battlePartnerFunctions_1 = require("./battlePartnerFunctions");
 const db = adminFirestore.getFirestore();
 const auth = (0, auth_1.getAuth)();
 /**
@@ -86,6 +87,10 @@ const KNOWN_USER_SUBCOLLECTIONS = [
     "learning",
     "blockedWallAuthors",
     "sermonNotes",
+    "triggerLogs",
+    "sermonOutlines",
+    "studyAnswers",
+    "studyHighlights",
 ];
 async function countSubcollection(userDocRef, subcollectionName) {
     try {
@@ -95,6 +100,67 @@ async function countSubcollection(userDocRef, subcollectionName) {
     catch (_) {
         return 0;
     }
+}
+/**
+ * Borra lo que el usuario dejó fuera de su propio árbol:
+ * - su vínculo en la lista de cada compañero (con el reflejo de su progreso),
+ * - los mensajes/SOS que envió y las invitaciones pendientes que mandó,
+ * - el candado del guardián (como protegido y como guardián),
+ * - sus documentos de rendición de cuentas y estado del Escudo, y su
+ *   aparición en las listas de avisos de otros.
+ * @param {string} uid usuario que se elimina.
+ * @return {Promise<number>} documentos tocados.
+ */
+async function limpiarRastroEnCompaneros(uid) {
+    const writer = db.bulkWriter();
+    let tocados = 0;
+    const vinculos = await db.collection("users").doc(uid).collection("battlePartners").get();
+    const companeros = new Set();
+    vinculos.docs.forEach((d) => {
+        var _a;
+        const otro = (_a = d.data().partnerUid) !== null && _a !== void 0 ? _a : d.id;
+        if (otro && otro !== uid)
+            companeros.add(otro);
+    });
+    // Invitaciones que envié y siguen pendientes (el vínculo puede no existir aún).
+    const enviadas = await db
+        .collectionGroup("partnerInvites")
+        .where("fromUid", "==", uid)
+        .limit(50)
+        .get()
+        .catch(() => null);
+    enviadas === null || enviadas === void 0 ? void 0 : enviadas.docs.forEach((d) => {
+        writer.delete(d.ref);
+        tocados++;
+    });
+    for (const otro of companeros) {
+        const userOtro = db.collection("users").doc(otro);
+        writer.delete(userOtro.collection("battlePartners").doc(uid));
+        tocados++;
+        const mensajes = await userOtro.collection("battleMessages")
+            .where("fromUid", "==", uid).limit(500).get();
+        mensajes.docs.forEach((m) => {
+            writer.delete(m.ref);
+            tocados++;
+        });
+        writer.set(db.collection("accountability").doc(otro), {
+            shieldAlertPartners: adminFirestore.FieldValue.arrayRemove(uid),
+            weeklyReportPartners: adminFirestore.FieldValue.arrayRemove(uid),
+        }, { merge: true });
+    }
+    await writer.close();
+    // Candado del guardián en ambos sentidos.
+    for (const otro of companeros) {
+        await (0, battlePartnerFunctions_1.retirarCandadoEntre)(uid, otro);
+        await (0, battlePartnerFunctions_1.retirarCandadoEntre)(otro, uid);
+    }
+    const final = db.bulkWriter();
+    final.delete(db.collection("guardianLocks").doc(uid));
+    final.delete(db.collection("accountability").doc(uid));
+    final.delete(db.collection("accountabilityState").doc(uid));
+    final.delete(db.collection("shieldStatus").doc(uid));
+    await final.close();
+    return tocados + 4;
 }
 /**
  * Callable function: deleteUserData
@@ -158,6 +224,15 @@ exports.deleteUserData = (0, limites_1.enRegion)({
     catch (err) {
         console.error("❌ [DELETE] Wall cleanup failed:", err);
         throw new functions.https.HttpsError("internal", "No se pudo eliminar todo el contenido comunitario. Intenta de nuevo.", { phase: "wall" });
+    }
+    // Compañero de batalla: lo que vive en el árbol de OTROS usuarios y en
+    // colecciones de nivel superior no lo borra recursiveDelete.
+    try {
+        deletionStats["partnerCleanup"] = await limpiarRastroEnCompaneros(uid);
+    }
+    catch (err) {
+        console.error("❌ [DELETE] Partner cleanup failed:", err);
+        throw new functions.https.HttpsError("internal", "No se pudieron eliminar tus vínculos con compañeros. Intenta de nuevo.", { phase: "partners" });
     }
     // Telemetría previa
     for (const sub of KNOWN_USER_SUBCOLLECTIONS) {

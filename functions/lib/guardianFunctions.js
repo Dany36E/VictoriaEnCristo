@@ -52,6 +52,7 @@ var __importStar = (this && this.__importStar) || (function () {
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.removeGuardianPin = exports.verifyGuardianPin = exports.setGuardianPin = exports.requestGuardianLock = void 0;
+exports.verificarPinGuardian = verificarPinGuardian;
 const adminFirestore = __importStar(require("firebase-admin/firestore"));
 const functions = __importStar(require("firebase-functions/v1"));
 const limites_1 = require("./limites");
@@ -80,6 +81,41 @@ function requestRef(guardianUid, protegeUid) {
 }
 function guardianOfRef(guardianUid, protegeUid) {
     return db().collection("users").doc(guardianUid).collection("guardianOf").doc(protegeUid);
+}
+/**
+ * Verifica el PIN del guardián del protegido con el mismo límite de intentos
+ * que verifyGuardianPin (5 fallos → 15 min de espera). La usa también
+ * removeBattlePartner cuando el protegido libera a su guardián con el PIN.
+ * @param {string} protegeUid protegido.
+ * @param {string} pin PIN escrito.
+ * @return {Promise<{ok: boolean, lockedUntil?: number}>} resultado.
+ */
+async function verificarPinGuardian(protegeUid, pin) {
+    const ref = lockRef(protegeUid);
+    return db().runTransaction(async (tx) => {
+        var _a, _b, _c, _d;
+        const snap = await tx.get(ref);
+        if (!snap.exists || ((_a = snap.data()) === null || _a === void 0 ? void 0 : _a.active) !== true)
+            return { ok: false };
+        const lock = (_b = snap.data()) !== null && _b !== void 0 ? _b : {};
+        const now = Date.now();
+        const lockUntil = typeof lock.lockUntil === "number" ? lock.lockUntil : 0;
+        if (lockUntil > now)
+            return { ok: false, lockedUntil: lockUntil };
+        const saltHex = String((_c = lock.saltHex) !== null && _c !== void 0 ? _c : "");
+        const hashHex = String((_d = lock.hashHex) !== null && _d !== void 0 ? _d : "");
+        if (pinPattern.test(pin) && saltHex && hashHex && hashPin(pin, saltHex) === hashHex) {
+            tx.update(ref, { failCount: 0, lockUntil: 0 });
+            return { ok: true };
+        }
+        const fails = (typeof lock.failCount === "number" ? lock.failCount : 0) + 1;
+        if (fails >= maxAttempts) {
+            tx.update(ref, { failCount: 0, lockUntil: now + lockoutMs });
+            return { ok: false, lockedUntil: now + lockoutMs };
+        }
+        tx.update(ref, { failCount: fails });
+        return { ok: false };
+    });
 }
 function hashPin(pin, saltHex) {
     return crypto.createHash("sha256").update(`${saltHex}|${pin}`).digest("hex");
@@ -166,6 +202,8 @@ exports.setGuardianPin = (0, limites_1.enRegion)()
         failCount: 0,
         lockUntil: 0,
         pendingGuardianUid: adminFirestore.FieldValue.delete(),
+        // Un PIN nuevo cancela cualquier retiro con espera pendiente.
+        releaseAt: adminFirestore.FieldValue.delete(),
         updatedAt: now,
         createdAt: lockSnap.exists ? (_b = lock.createdAt) !== null && _b !== void 0 ? _b : now : now,
     }, { merge: true });

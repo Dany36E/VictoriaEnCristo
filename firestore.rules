@@ -49,12 +49,13 @@ service cloud.firestore {
       }
 
       // battlePartners: solo el owner lee/escribe sus propios partners.
-      // El compañero (uid==partnerId) puede UPDATE únicamente para cambiar
-      // su `status` (p.ej. pausar/activar), los timestamps relacionados y el
-      // reflejo de SU propio progreso (racha, victoria de hoy, si acepta
-      // invitaciones y el gigante compartido). Así cada quien lee el progreso
-      // de sus compañeros en su propio doc, sin leer publicProgress de cada
-      // uno. No puede tocar `partnerUid`, `partnerName`, `addedAt` ni inyectar
+      // El compañero (uid==partnerId) puede UPDATE mientras el vínculo esté
+      // ACTIVO, únicamente para reflejar SU propio progreso (racha, victoria
+      // o gracia de hoy con su fecha, si acepta invitaciones, gigante y
+      // estado del Escudo compartidos) o para LIBERAR el vínculo
+      // (status 'removed', borrando su reflejo). No puede reactivar un
+      // vínculo que la otra persona liberó (seguridad ante un compañero
+      // dañino), ni tocar `partnerUid`, `partnerName`, `addedAt` ni inyectar
       // campos arbitrarios (H5).
       match /battlePartners/{partnerId} {
         allow read: if isSignedIn() && isOwner(userId);
@@ -65,20 +66,24 @@ service cloud.firestore {
           isOwner(userId) ||
           (
             request.auth.uid == partnerId &&
+            resource.data.status == 'active' &&
             request.resource.data.diff(resource.data)
               .affectedKeys()
-              .hasOnly(['status', 'updatedAt', 'pausedAt',
-                        'streakDays', 'victoryToday', 'lastOpenedAt',
+              .hasOnly(['status', 'updatedAt',
+                        'streakDays', 'victoryToday', 'dayState', 'dayKey',
+                        'utcOffsetMin', 'lastOpenedAt',
                         'progressUpdatedAt', 'acceptingInvites',
-                        'sharedGiantId']) &&
-            (
-              !('status' in request.resource.data.diff(resource.data).affectedKeys()) ||
-              request.resource.data.status in ['active', 'paused', 'inactive']
-            ) &&
+                        'sharedGiantId', 'shieldShared', 'shieldOn']) &&
+            request.resource.data.status in ['active', 'removed'] &&
             isValidPartnerMirror(request.resource.data)
           )
         );
-        allow delete: if isSignedIn() && isOwner(userId);
+        // El invitado puede borrar el vínculo "pending" que el remitente creó
+        // hacia él (rechazar libera el lugar del remitente).
+        allow delete: if isSignedIn() && (
+          isOwner(userId) ||
+          (request.auth.uid == partnerId && resource.data.status == 'pending')
+        );
       }
 
       // partnerInvites: el owner lee y administra su bandeja; crear invitaciones
@@ -229,6 +234,12 @@ service cloud.firestore {
       }
     }
 
+    // Cola de moderación de comentarios (consulta collectionGroup del panel
+    // de administración: pendientes y reportados de todas las publicaciones).
+    match /{path=**}/comments/{commentId} {
+      allow read: if isSignedIn() && isAdmin();
+    }
+
     /* ─────────────────────────────────────────────
        7. WALL REPORTS (Reportes de contenido)
        /wallReports/{reportId}
@@ -305,6 +316,28 @@ service cloud.firestore {
     }
 
     /* ─────────────────────────────────────────────
+       12. RENDICIÓN DE CUENTAS (opcional)
+       /accountability/{uid}: a qué compañeros avisar del Escudo y enviar
+         el resumen semanal, y qué incluye. Solo el dueño.
+       /shieldStatus/{uid}: latido y estado del Escudo de Pureza. Solo el
+         dueño; `lastSeenAt` debe ser la hora del servidor.
+       /accountabilityState/{uid}: avisos ya enviados (server-only).
+       ───────────────────────────────────────────── */
+    match /accountability/{uid} {
+      allow read, delete: if isSignedIn() && isOwner(uid);
+      allow create, update: if isSignedIn() && isOwner(uid)
+        && isValidAccountability(request.resource.data);
+    }
+    match /shieldStatus/{uid} {
+      allow read, delete: if isSignedIn() && isOwner(uid);
+      allow create, update: if isSignedIn() && isOwner(uid)
+        && isValidShieldStatus(request.resource.data);
+    }
+    match /accountabilityState/{uid} {
+      allow read, write: if false;
+    }
+
+    /* ─────────────────────────────────────────────
        HELPERS (dentro del scope de {database})
        ───────────────────────────────────────────── */
 
@@ -312,6 +345,11 @@ service cloud.firestore {
     function isValidPartnerMirror(d) {
       return (!('streakDays' in d) || (d.streakDays is int && d.streakDays >= 0 && d.streakDays <= 100000))
           && (!('victoryToday' in d) || d.victoryToday is bool)
+          && (!('dayState' in d) || d.dayState in ['victory', 'grace', 'none'])
+          && (!('dayKey' in d) || (d.dayKey is string && d.dayKey.matches('^[0-9]{4}-[0-9]{2}-[0-9]{2}$')))
+          && (!('utcOffsetMin' in d) || (d.utcOffsetMin is int && d.utcOffsetMin >= -840 && d.utcOffsetMin <= 840))
+          && (!('shieldShared' in d) || d.shieldShared is bool)
+          && (!('shieldOn' in d) || d.shieldOn is bool)
           && (!('acceptingInvites' in d) || d.acceptingInvites is bool)
           && (!('sharedGiantId' in d) || (d.sharedGiantId is string && d.sharedGiantId.size() <= 64))
           && (!('lastOpenedAt' in d) || d.lastOpenedAt is timestamp)
@@ -320,6 +358,36 @@ service cloud.firestore {
 
     function isSignedIn() {
       return request.auth != null;
+    }
+
+    function isUidList(v) {
+      return v is list && v.size() <= 5;
+    }
+
+    function isValidAccountability(d) {
+      return d.keys().hasOnly(['shieldAlertPartners', 'weeklyReportPartners',
+                               'weeklyEnabled', 'share', 'timezone', 'updatedAt'])
+          && (!('shieldAlertPartners' in d) || isUidList(d.shieldAlertPartners))
+          && (!('weeklyReportPartners' in d) || isUidList(d.weeklyReportPartners))
+          && (!('weeklyEnabled' in d) || d.weeklyEnabled is bool)
+          && (!('share' in d) || (d.share is map
+                && d.share.keys().hasOnly(['registro', 'victoriaGracia', 'racha', 'escudo'])))
+          && (!('timezone' in d) || (d.timezone is string && d.timezone.size() <= 64));
+    }
+
+    function isValidShieldStatus(d) {
+      return d.keys().hasOnly(['enabledByUser', 'vpnActive', 'alertsEnabled', 'platform',
+                               'lastSeenAt', 'updatedAt', 'blocksByDay',
+                               'lastOffReason', 'lastOffAt', 'lastOnAt'])
+          && d.enabledByUser is bool
+          && d.vpnActive is bool
+          && (!('alertsEnabled' in d) || d.alertsEnabled is bool)
+          && (!('platform' in d) || d.platform in ['android', 'ios'])
+          && d.lastSeenAt == request.time
+          && (!('blocksByDay' in d) || (d.blocksByDay is map && d.blocksByDay.size() <= 31))
+          && (!('lastOffReason' in d) || d.lastOffReason in ['user_off', 'revoked', 'stopped'])
+          && (!('lastOffAt' in d) || d.lastOffAt is timestamp)
+          && (!('lastOnAt' in d) || d.lastOnAt is timestamp);
     }
 
     function isRoomMember(code) {

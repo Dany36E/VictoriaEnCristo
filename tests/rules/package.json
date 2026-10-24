@@ -1,0 +1,9 @@
+{
+  "name": "victoria-firestore-rules-tests",
+  "private": true,
+  "description": "Pruebas de firestore.rules con el emulador. Correr desde functions/: npm run test:rules",
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "^4.0.1",
+    "firebase": "^11.0.0"
+  }
+}
